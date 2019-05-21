@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:bike_now/websocket/websocket_commands.dart';
+import 'package:bike_now/models/subscription.dart';
+import 'package:bike_now/models/sg_subscription.dart';
 
 
 class WebSocketTestPage extends StatefulWidget{
@@ -61,6 +63,10 @@ class _WebSocketTestState extends State<WebSocketTestPage>{
     );
   }
   void _sendMessage() {
+    List<SGSubscription> sgList = new List<SGSubscription>();
+    sgList.add(new SGSubscription('R4', true));
+    List<Subscription> list = new List<Subscription>();
+    list.add(new Subscription(1, 'Hallo', sgList));
 
     if (_controller.text.isNotEmpty) {
       switch(_controller.text){
@@ -75,6 +81,9 @@ class _WebSocketTestState extends State<WebSocketTestPage>{
           break;
         case "2":
           channel.sink.add(new CalcRoute(51.032121130051934,13.713843309443668,51.05381424100282,13.757071206504207,sessionId).toJson().toString());
+          break;
+        case "4":
+          channel.sink.add(Subscription.fromJson(new Subscription(1, 'Hallo', sgList).toJson()).toJson().toString());
           break;
       }
       }else{

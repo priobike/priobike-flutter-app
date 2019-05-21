@@ -27,6 +27,7 @@ class _MapBoxState extends State<MapBoxWidget> {
     location.onLocationChanged().listen((LocationData currentLocation) {
       setState(() {
         _currentLocation = currentLocation;
+
       });
     });
   }

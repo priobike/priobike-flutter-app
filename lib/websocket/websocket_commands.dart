@@ -1,10 +1,52 @@
 import 'web_socket_method.dart';
 import 'package:bike_now/configuration.dart';
+import 'package:bike_now/models/location.dart';
+import 'package:bike_now/models/subscription.dart';
+import 'dart:convert';
 
 abstract class WebSocketCommand{
   WebSocketMethod method;
   bool requiresAuthentication;
   String sessionId;
+}
+
+class Logout implements WebSocketCommand {
+  @override
+  WebSocketMethod method = WebSocketMethod.logout;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+  Logout(this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"',
+      };
+}
+
+class Ping implements WebSocketCommand {
+  @override
+  WebSocketMethod method = WebSocketMethod.ping;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+  Ping(this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"'
+      };
+
 }
 
 class Login implements WebSocketCommand {
@@ -29,25 +71,6 @@ class Login implements WebSocketCommand {
         'version' : version
       };
 
-}
-
-class Logout implements WebSocketCommand {
-  @override
-  WebSocketMethod method = WebSocketMethod.logout;
-
-  @override
-  bool requiresAuthentication = true;
-
-  @override
-  String sessionId;
-
-  Logout(this.sessionId);
-
-  Map<String, dynamic> toJson() =>
-      {
-        'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
-      };
 }
 
 class CalcRoute implements WebSocketCommand {
@@ -79,6 +102,9 @@ class CalcRoute implements WebSocketCommand {
 }
 
 class PushLocations implements WebSocketCommand {
+
+  List<Location> locations;
+
   @override
   WebSocketMethod method = WebSocketMethod.pushLocations;
 
@@ -88,11 +114,22 @@ class PushLocations implements WebSocketCommand {
   @override
   String sessionId;
 
+  PushLocations(this.locations, this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"',
+        'locationArray': locations.map((i)=>(i.toJson())).toList()
+      };
+
 }
 
-class Ping implements WebSocketCommand {
+class UpdateSubscription implements WebSocketCommand{
+
+  List<Subscription> subscriptions;
   @override
-  WebSocketMethod method = WebSocketMethod.ping;
+  WebSocketMethod method = WebSocketMethod.updateSubscriptions;
 
   @override
   bool requiresAuthentication = true;
@@ -100,13 +137,20 @@ class Ping implements WebSocketCommand {
   @override
   String sessionId;
 
-  Ping(this.sessionId);
+
+  UpdateSubscription(this.subscriptions, this.sessionId);
 
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"'
+        'sessionId': '"$sessionId"',
+        'subscriptions' : subscriptions.map((sub) => (sub.toJson())).toList()
       };
 
+
 }
+
+
+
+
 
