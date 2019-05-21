@@ -146,7 +146,55 @@ class UpdateSubscription implements WebSocketCommand{
         'sessionId': '"$sessionId"',
         'subscriptions' : subscriptions.map((sub) => (sub.toJson())).toList()
       };
+}
 
+class GetLocationFromAddress implements WebSocketCommand{
+  @override
+  WebSocketMethod method = WebSocketMethod.getLocationFromAddress;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+  String address;
+
+
+  GetLocationFromAddress(this.sessionId, this.address);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"',
+        'address' : '"$address"'
+      };
+
+}
+
+class GetAddressFromLocation implements WebSocketCommand{
+  double lat;
+  double lon;
+
+  @override
+  WebSocketMethod method = WebSocketMethod.getAddressFromLocation;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+
+  GetAddressFromLocation(this.lat, this.lon, this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"',
+        'lat' : lat,
+        'lon' : lon
+      };
 
 }
 
