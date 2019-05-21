@@ -29,13 +29,13 @@ class _SearchBarState extends State<SearchBarWidget> {
         child: Container(
           padding: EdgeInsets.only(left: 20),
           decoration: BoxDecoration(
-              boxShadow: [
+/*              boxShadow: [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 3.0,
                   spreadRadius: 0.1,
                 )
-              ],
+              ],*/
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(5)),
               border: Border.all(

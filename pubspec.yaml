@@ -32,6 +32,9 @@ dependencies:
   mapbox_gl: any
   shared_preferences: any
   rxdart: any
+  sqflite: any
+  path_provider: ^1.1.0
+
 
 
 
