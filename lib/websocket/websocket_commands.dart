@@ -8,6 +8,7 @@ abstract class WebSocketCommand{
   WebSocketMethod method;
   bool requiresAuthentication;
   String sessionId;
+  Map<String, dynamic> toJson();
 }
 
 class Logout implements WebSocketCommand {

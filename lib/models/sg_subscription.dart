@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+
 part 'sg_subscription.g.dart';
 
 @JsonSerializable()

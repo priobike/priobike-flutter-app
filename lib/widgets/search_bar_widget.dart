@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+
+import 'package:bike_now/blocs/route_creation_bloc.dart';
+
 
 
 import 'package:bike_now/geo_coding/search_response.dart';
@@ -21,6 +25,7 @@ class _SearchBarState extends State<SearchBarWidget> {
   FocusNode _focus = new FocusNode();
   var txtController = new TextEditingController();
 
+
   _SearchBarState(this.hintText);
 
   @override
@@ -32,6 +37,8 @@ class _SearchBarState extends State<SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+
 
 
     return Container(

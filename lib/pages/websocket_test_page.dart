@@ -5,6 +5,7 @@ import 'package:bike_now/websocket/websocket_commands.dart';
 import 'package:bike_now/models/subscription.dart';
 import 'package:bike_now/models/sg_subscription.dart';
 
+import 'package:bike_now/configuration.dart';
 
 class WebSocketTestPage extends StatefulWidget{
   @override
@@ -18,7 +19,7 @@ class _WebSocketTestState extends State<WebSocketTestPage>{
   TextEditingController _controller = TextEditingController();
   final channel = IOWebSocketChannel.connect('ws://vkwvlprad.vkw.tu-dresden.de:20042/socket');
   //final channel = IOWebSocketChannel.connect('ws://echo.websocket.org');
-  final sessionId = "abcdef123456";
+  final sessionId = Configuration.sessionUUID;
 
 
   @override
@@ -26,7 +27,8 @@ class _WebSocketTestState extends State<WebSocketTestPage>{
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text('WebSocketTest'),
+        title: Text('WebSocketTest', style: TextStyle(color: Colors.black),),
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

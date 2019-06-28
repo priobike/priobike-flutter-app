@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:bike_now/geo_coding/search_response.dart';
 import 'package:bike_now/widgets/search_bar_widget.dart';
 import 'package:bike_now/widgets/mapbox_widget.dart';
+import 'package:bike_now/widgets/route_information_statistic_widget.dart';
+import 'package:bike_now/database/database_helper.dart';
+
 
 class MapNotifier with ChangeNotifier {
   Place _targetPlace;
@@ -24,20 +27,27 @@ class RouteInformationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ChangeNotifierProvider(
-        builder: (context) => MapNotifier(),
-        child: Stack(
-          children: <Widget>[
-            MapBoxWidget(
-            ),
-            Positioned(
-              top: 35,
-              left: 8,
-              right: 8,
-              child: SearchBarWidget('Schnellste Route'),
-            )
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Routeninformation", style: TextStyle(color: Colors.black),),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      body: Container(
+        child: ChangeNotifierProvider(
+          builder: (context) => MapNotifier(),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: MapBoxWidget()
+        ),
+              Expanded(
+                child: RouteInformationStatisticWidget( Ride("15:30", "16:00", 54))
+              )
+
+
+            ],
+          ),
         ),
       ),
     );

@@ -6,9 +6,84 @@ import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
 
 class RouteCreationPage extends StatelessWidget {
+  BuildContext _context;
+
   @override
   Widget build(BuildContext context) {
     final routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+
+    Widget body = Container(
+      padding: EdgeInsets.all(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Flexible(
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SearchBarWidget('Start...'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SearchBarWidget('Ziel...'),
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.swap_vert,
+                    size: 30,
+                    color: Colors.blue,
+                  ),
+                ),
+              )
+            ],
+          ),
+          Center(
+              child: IconButton(
+                icon: Icon(Icons.directions_bike, color: Colors.blue),
+                onPressed: () {
+                  //routeCreationBloc.addRides.add(new Ride('Hall', 'End', DateTime.now().millisecondsSinceEpoch));
+                  Navigator.pushNamed(context, '/second');
+                },)),
+          Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(
+                        color: Colors.grey,
+                        width: 1
+                    )
+                )
+            ),
+            child: Text('Letzte Fahrten', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+
+          ),
+          Expanded(
+            child: StreamBuilder<List<Ride>>(
+              stream: routeCreationBloc.rides,
+              initialData: [],
+              builder: (context, snapshot) {
+                return ListView(
+                    children: [
+                      for (var ride in snapshot.data)
+                        _rideTileBuilder(ride, routeCreationBloc)
+                    ]
+                );
+              },
+            ),
+          ),
+
+        ],
+      ),
+    );
 
     // TODO: implement build
     return Scaffold(
@@ -19,73 +94,23 @@ class RouteCreationPage extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Flexible(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SearchBarWidget('Start...'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SearchBarWidget('Ziel...'),
-                      ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.swap_vert,
-                      size: 30,
-                      color: Colors.blue,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            Center(
-                child: IconButton(
-                    icon: Icon(Icons.directions_bike, color: Colors.blue),
-                onPressed: () => routeCreationBloc.addRides.add(new Ride('Hall', 'End', DateTime.now().millisecondsSinceEpoch)),)),
-            Container(
-              margin: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey,
-                    width: 1
-                  )
-                )
-              ),
-              child: Text('Letzte Fahrten', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-              
-            ),
-            Expanded(
-              child: StreamBuilder<List<Ride>>(
-                stream: routeCreationBloc.rides,
-                initialData: [],
-                builder: (context, snapshot) {
-                  return ListView(
-                      children: [
-                    for (var ride in snapshot.data)
-                      _rideTileBuilder(ride, routeCreationBloc)
-                  ]
-                     );
-                },
-              ),
-            )
-          ],
-        ),
+      body: new Builder(
+          builder: (BuildContext context) {
+            _context = context;
+            routeCreationBloc.serverResponse.listen(_showToast);
+            return body;
+          }
+      ),
+    );
+  }
+
+  void _showToast(String msg) {
+    final scaffold = Scaffold.of(_context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        action: SnackBarAction(
+            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
       ),
     );
   }

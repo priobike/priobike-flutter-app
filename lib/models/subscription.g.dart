@@ -21,5 +21,5 @@ Map<String, dynamic> _$SubscriptionToJson(Subscription instance) =>
     <String, dynamic>{
       'lsaId': instance.lsaId,
       'lsaName': instance.lsaName,
-      'sgArray': instance.sgArray.map((sgSub) => sgSub.toJson()).toList()
+      'sgArray': instance.sgArray
     };

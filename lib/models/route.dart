@@ -1,10 +1,15 @@
 import 'package:bike_now/models/sg.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:bike_now/models/latlng.dart';
 
 import 'gh_node.dart';
 import 'instruction.dart';
 import 'lsa.dart';
 
+part 'route.g.dart';
+
+
+@JsonSerializable()
 class Route{
   List<Instruction> instructions;
   double descend;
@@ -14,6 +19,17 @@ class Route{
   int duration;
   DateTime arrivalTime;
   List<LatLng> coordinates;
+
+
+  Route(this.instructions, this.descend, this.ascend, this.distance, this.time,
+      this.duration, this.arrivalTime, this.coordinates);
+
+  factory Route.fromJson(Map<String, dynamic> json) => _$RouteFromJson(json);
+
+  /// `toJson` is the convention for a class to declare support for serialization
+  /// to JSON. The implementation simply calls the private, generated
+  /// helper method `_$UserToJson`.
+  Map<String, dynamic> toJson() => _$RouteToJson(this);
 
   List<LSA> getLSAs(){
 

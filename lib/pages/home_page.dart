@@ -7,6 +7,7 @@ import 'route_creation_page.dart';
 import 'websocket_test_page.dart';
 import 'package:bike_now/blocs/settings_bloc.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
+import 'package:bike_now/pages/route_information_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
               ),
               BottomNavigationBarItem(
                 icon: new Icon(Icons.dvr),
-                title: new Text('Fahrten'),
+                title: new Text('Websocket'),
               ),
               BottomNavigationBarItem(
                 icon: new Icon(Icons.settings),

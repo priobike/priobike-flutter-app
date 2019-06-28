@@ -3,15 +3,21 @@ import 'package:bike_now/models/abstract_classes/crossable.dart';
 import 'package:bike_now/models/phase.dart';
 import 'package:bike_now/models/sg_subscription.dart';
 import 'package:bike_now/models/subscription.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 
+import 'package:bike_now/models/latlng.dart';
 import 'gh_node.dart';
 import 'lsa.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'sg.g.dart';
+
 
 enum SGAnnotationStatus {
   none,green,red
 }
 
+
+@JsonSerializable()
 class SG with Locatable, Crossable{
   int id;
   int name;
@@ -34,6 +40,19 @@ class SG with Locatable, Crossable{
   SGAnnotationStatus annotationStatus = SGAnnotationStatus.none;
 
   bool shouldUpdateAnnotation = false;
+
+
+  SG(this.id, this.name, this.sign, this.signFlags, this.bear,
+      this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
+      this.isGreen, this.isSubscribed, this.parentLSA, this.referencedGHNode,
+      this.phases, this.annotationStatus, this.shouldUpdateAnnotation);
+
+  factory SG.fromJson(Map<String, dynamic> json) => _$SGFromJson(json);
+
+  /// `toJson` is the convention for a class to declare support for serialization
+  /// to JSON. The implementation simply calls the private, generated
+  /// helper method `_$UserToJson`.
+  Map<String, dynamic> toJson() => _$SGToJson(this);
 
   Phase getNextValidPhase(){
 
