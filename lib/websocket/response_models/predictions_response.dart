@@ -7,6 +7,7 @@ part 'predictions_response.g.dart';
 @JsonSerializable()
 class WebSocketResponsePredictions {
   int mode;
+  @JsonKey(name: 'subscriptions')
   List<LSAPrediction> predictions;
   int method;
 

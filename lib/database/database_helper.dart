@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:bike_now/geo_coding/address_to_location_response.dart';
+
+import 'dart:convert';
 
 // database table and column names
 final String tableWords = 'rides';
@@ -14,8 +17,8 @@ final String columnDate = 'date';
 class Ride {
 
   int id;
-  String start;
-  String end;
+  Place start;
+  Place end;
   int date;
 
   Ride(this.start,this.end,this.date);
@@ -23,16 +26,18 @@ class Ride {
   // convenience constructor to create a Ride object
   Ride.fromMap(Map<String, dynamic> map) {
     id = map[columnId];
-    start = map[columnStart];
-    end = map[columnEnd];
+    var be1 = map[columnStart];
+    var be = jsonDecode(map[columnStart]);
+    start = Place.fromJson(jsonDecode(map[columnStart]));
+    end = Place.fromJson(jsonDecode(map[columnEnd]));
     date = map[columnDate];
   }
 
   // convenience method to create a Map from this Ride object
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
-      columnStart: start,
-      columnEnd: end,
+      columnStart: start.toJson().toString(),
+      columnEnd: end.toJson().toString(),
       columnDate: date
     };
     if (id != null) {
@@ -48,7 +53,7 @@ class DatabaseHelper {
   // This is the actual database filename that is saved in the docs directory.
   static final _databaseName = "rides.db";
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 1;
+  static final _databaseVersion = 7;
 
   // Make this a singleton class.
   DatabaseHelper._privateConstructor();

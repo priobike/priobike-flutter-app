@@ -4,19 +4,27 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 
 import 'package:bike_now/blocs/route_creation_bloc.dart';
+import 'package:bike_now/websocket/web_socket_service.dart';
+import 'package:bike_now/server_response/websocket_response.dart';
+import 'package:bike_now/websocket/web_socket_method.dart';
+import 'package:bike_now/websocket/web_socket_service.dart';
+import 'package:bike_now/websocket/websocket_commands.dart';
 
+import 'package:bike_now/geo_coding/address_to_location_response.dart';
+import 'package:bike_now/configuration.dart';
 
-
-import 'package:bike_now/geo_coding/search_response.dart';
 
 class SearchBarWidget extends StatefulWidget {
   final String hintText;
+  final ValueChanged<Place> onValueChanged;
+  final Stream<String> txt;
 
-  SearchBarWidget(this.hintText);
+
+  SearchBarWidget(this.hintText, this.onValueChanged, this.txt);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _SearchBarState(hintText);
+    return _SearchBarState(hintText, txt);
   }
 }
 
@@ -24,20 +32,29 @@ class _SearchBarState extends State<SearchBarWidget> {
   final String hintText;
   FocusNode _focus = new FocusNode();
   var txtController = new TextEditingController();
+  final Stream<String> txt;
 
 
-  _SearchBarState(this.hintText);
+
+  _SearchBarState(this.hintText, this.txt);
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    txt.listen((onData) {
+      if(onData != null) {
+        setState(() {
+          txtController.text = onData;
+        });
+      }
+    });
 
   }
 
   @override
   Widget build(BuildContext context) {
     final routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+
 
 
 
@@ -67,10 +84,9 @@ class _SearchBarState extends State<SearchBarWidget> {
                         context: context,
                         delegate: PlaceSearch(),
                         query: txtController.text);
-                    setState(() {
-                      var i = place.displayName;
-                      txtController.text = place.displayName;
-                    });
+                    widget.onValueChanged(place);
+                    WebSocketService.instance.delegate = routeCreationBloc;
+
                   },
                   child: TextField(
                       controller: txtController,
@@ -95,18 +111,12 @@ class _SearchBarState extends State<SearchBarWidget> {
   }
 }
 
-class PlaceSearch extends SearchDelegate<Place> {
+class PlaceSearch extends SearchDelegate<Place> implements WebSocketServiceDelegate {
 
+  List<Place> places = [];
 
-  static Future<PlaceList> fetchPlaceList(String adress) async {
-    http.Response response = await http.get('https://nominatim.openstreetmap.org/search/{$adress}%3C?format=json');
-    if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON
-      return  PlaceList.fromJson(json.decode(response.body) as List);
-    } else {
-      // If that response was not OK, throw an error.
-      throw Exception('Failed to fetch PlaceList-JSON');
-    }
+  PlaceSearch(){
+    WebSocketService.instance.delegate = this;
   }
 
   @override
@@ -142,37 +152,32 @@ class PlaceSearch extends SearchDelegate<Place> {
   }
   @override
   Widget buildSuggestions(BuildContext context) {
+    WebSocketService.instance.sendCommand(GetLocationFromAddress(Configuration.sessionUUID, query));
     // TODO: implement buildSuggestions
-    return FutureBuilder<PlaceList>(
-      future: fetchPlaceList(query),
-      builder: (BuildContext context, AsyncSnapshot<PlaceList> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return Text('Press button to start.');
-          case ConnectionState.active:
-          case ConnectionState.waiting:
-            return ListTile(title: Text('Awaiting result...'));
-          case ConnectionState.done:
-            if (snapshot.hasError)
-              return Text('Error: ${snapshot.error}');
-            return Container(
-                padding: EdgeInsets.only(top: 8),
-                child: ListView(
-                  children: <Widget>[
-                    for(var place in snapshot.data.places) ListTile(
-                      title: Text(place.displayName),
-                      subtitle: Text('Lat: ' + place.lat.toString() + ' Long: ' + place.lon.toString()),
-                      onTap: () {
-                        close(context, place);
-                      },
-                    )
-                  ],
+    return ListView(
+      children: <Widget>[
+        for(var place in places) ListTile(
+          title: Text(place.displayName),
+          subtitle: Text('Lat: ' + place.lat.toString() + ' Long: ' + place.lon.toString()),
+          onTap: () {
+            close(context, place);
+          },
+        )
+      ],
 
-                ));
-        //Text('Result: ${snapshot.data}');
-        }
-      },
     );
+  }
+
+  @override
+  void websocketDidReceiveMessage(String msg) {
+    WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
+    if (response.method == WebSocketMethod.getLocationFromAddress){
+      var response = AddressToLocationResponse.fromJson(jsonDecode(msg));
+
+      this.places = response.places;
+
+    }
+
   }
 
 }

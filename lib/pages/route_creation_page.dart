@@ -4,13 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:bike_now/widgets/search_bar_widget.dart';
 import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
+import 'package:bike_now/geo_coding/address_to_location_response.dart';
 
 class RouteCreationPage extends StatelessWidget {
   BuildContext _context;
+  RouteCreationBloc routeCreationBloc;
+
+  RouteCreationPage(){
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    final routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+    routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+    _context = context;
+
 
     Widget body = Container(
       padding: EdgeInsets.all(8),
@@ -26,11 +35,13 @@ class RouteCreationPage extends StatelessWidget {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: SearchBarWidget('Start...'),
+                      child: SearchBarWidget(
+                          'Start...', routeCreationBloc.setStart, routeCreationBloc.getStartLabel),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: SearchBarWidget('Ziel...'),
+                      child: SearchBarWidget(
+                          'Ziel...', routeCreationBloc.setEnd, routeCreationBloc.getEndLabel),
                     ),
                   ],
                 ),
@@ -41,7 +52,11 @@ class RouteCreationPage extends StatelessWidget {
                     Icons.swap_vert,
                     size: 30,
                     color: Colors.blue,
+
                   ),
+                  onPressed: () {
+                    routeCreationBloc.toggleLocations();
+                  },
                 ),
               )
             ],
@@ -50,8 +65,10 @@ class RouteCreationPage extends StatelessWidget {
               child: IconButton(
                 icon: Icon(Icons.directions_bike, color: Colors.blue),
                 onPressed: () {
-                  //routeCreationBloc.addRides.add(new Ride('Hall', 'End', DateTime.now().millisecondsSinceEpoch));
-                  Navigator.pushNamed(context, '/second');
+                  routeCreationBloc.addRides();
+                  routeCreationBloc.setState(
+                      CreationState.waitingForResponse);
+                  //Navigator.pushNamed(context, '/second');
                 },)),
           Container(
             margin: EdgeInsets.all(8),
@@ -63,7 +80,8 @@ class RouteCreationPage extends StatelessWidget {
                     )
                 )
             ),
-            child: Text('Letzte Fahrten', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+            child: Text('Letzte Fahrten',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
 
           ),
           Expanded(
@@ -98,11 +116,31 @@ class RouteCreationPage extends StatelessWidget {
           builder: (BuildContext context) {
             _context = context;
             routeCreationBloc.serverResponse.listen(_showToast);
-            return body;
+            return StreamBuilder<CreationState>(
+                stream: routeCreationBloc.getState,
+                initialData: CreationState.routeCreation,
+                builder: (context, snapshot) {
+                  switch(snapshot.data){
+
+                    case CreationState.waitingForResponse:
+                      return Container();
+                      break;
+                    case CreationState.routeCreation:
+                      return body;
+                      break;
+                    case CreationState.navigateToInformationPage:
+                      Navigator.pushNamed(context, '/second');
+
+                      break;
+                  }
+                }
+
+            );
           }
       ),
     );
   }
+
 
   void _showToast(String msg) {
     final scaffold = Scaffold.of(_context);
@@ -136,7 +174,7 @@ class RouteCreationPage extends StatelessWidget {
                   style: TextStyle(color: Colors.black),
                   children: <TextSpan> [
                     TextSpan(text: 'Start: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: ride.start)
+                    TextSpan(text: ride.start.displayName)
                   ]
                 ),
               ),
@@ -146,7 +184,7 @@ class RouteCreationPage extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
                   children: <TextSpan> [
                     TextSpan(text: 'Ende: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: ride.end)
+                    TextSpan(text: ride.end.displayName)
                   ]
               ),
             )
@@ -155,7 +193,11 @@ class RouteCreationPage extends StatelessWidget {
         subtitle: Align(
           alignment: Alignment.bottomRight,
             child: Text(DateTime.fromMillisecondsSinceEpoch(ride.date).day.toString() + '.' + DateTime.fromMillisecondsSinceEpoch(ride.date).month.toString() + '.' + DateTime.fromMillisecondsSinceEpoch(ride.date).year.toString())),
-      ),
+
+      onTap: () {
+          routeCreationBloc.setStart(ride.start);
+          routeCreationBloc.setEnd(ride.end);
+      },),
     );
   }
 }

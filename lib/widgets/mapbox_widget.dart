@@ -18,7 +18,6 @@ class _MapBoxState extends State<MapBoxWidget> {
   var location;
   LocationData _targetLocation;
   LocationData _currentLocation;
-  MapNotifier notifier;
   MapboxMapController mapController;
 
 
@@ -39,14 +38,16 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   void _onMapCreated(MapboxMapController controller) {
     this.mapController = controller;
-    mapController.addCircle(
-        CircleOptions(
-            geometry: LatLng(
-              51.02,
-              13.12
-            ),
-            circleColor: "#FF0000",
-            circleRadius: 30)
+    mapController.addLine(
+      LineOptions(
+        geometry: [
+          LatLng(51.047302, 13.751246),
+          LatLng(51.041525, 13.750180),
+        ],
+        lineColor: "#ff0000",
+        lineWidth: 14.0,
+        lineOpacity: 0.5,
+      ),
     );
   }
 

@@ -9,6 +9,7 @@ import 'package:bike_now/blocs/settings_bloc.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/pages/route_information_page.dart';
 
+
 class HomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -22,7 +23,7 @@ class _HomePageState extends State<HomePage> {
     RouteCreationPage(),
     WebSocketTestPage(),
     SettingsPage()
-    ];
+  ];
 
   void onTabTapped(int index) {
     setState(() {

@@ -11,6 +11,9 @@ import 'package:bike_now/server_response/session_invalid.dart';
 import 'package:bike_now/server_response/websocket_response.dart';
 import 'package:bike_now/websocket/web_socket_method.dart';
 import 'package:bike_now/server_response/websocket_response.dart';
+import 'package:bike_now/websocket/response_models/predictions_response.dart';
+import 'package:bike_now/models/subscription.dart';
+import 'package:bike_now/models/sg_subscription.dart';
 
 enum WebSocketServiceState {
   connected,
@@ -19,11 +22,11 @@ enum WebSocketServiceState {
   error
 }
 
-class WebSocketService{
+class WebSocketService implements WebSocketServiceDelegate{
   WebSocketServiceState state = WebSocketServiceState.disconnected;
   bool keepAlive;
   Timer keepAliveTimer;
-  int pingIntervalSeconds = 5;
+  int pingIntervalSeconds = 30;
   IOWebSocketChannel webSocketChannel;
   WebSocketServiceDelegate delegate;
   final Logger log = new Logger('Websocket');
@@ -35,7 +38,7 @@ class WebSocketService{
     this.keepAlive = keepAlive;
     connect();
     authenticate();
-
+    delegate = this;
 
   }
   static final WebSocketService instance = WebSocketService._privateConstructor();
@@ -69,6 +72,7 @@ class WebSocketService{
       return;
 
     }
+    log.fine('Send Command JSON: ${command.toJson().toString()}');
     webSocketChannel.sink.add(command.toJson().toString());
   }
 
@@ -82,21 +86,20 @@ class WebSocketService{
 
   }
 
-
   void onWebSocketResponse(dynamic data){
+    if (state == WebSocketServiceState.disconnected){
+      state = WebSocketServiceState.connected;
+      sendCommand(Login(Configuration.sessionUUID));
+    }
     String msg = data as String;
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
-
     switch (response.method){
       case WebSocketMethod.logout:
-        print('Logout Response');
         break;
       case WebSocketMethod.ping:
-
         break;
       case WebSocketMethod.login:
         handleLogin();
-
         print('Login Response');
         break;
       case WebSocketMethod.calcRoute:
@@ -132,18 +135,27 @@ class WebSocketService{
         break;
     }
 
+
     delegate?.websocketDidReceiveMessage(msg);
   }
 
   void handleLogin(){
     state = WebSocketServiceState.authorized;
-    sendCommand(CalcRoute(51.032121130051934, 13.713843309443668, 51.05381424100282, 13.757071206504207, Configuration.sessionUUID));
+    keepConnectionAlive();
   }
 
   void handleCalcRoute(String msg){
-    var te = WebSocketResponseRoute.fromJson(jsonDecode(msg));
-    print(te.route.time);
 
+
+  }
+
+  void handleUpdateSubscriptions(String msg){
+
+
+  }
+
+  @override
+  void websocketDidReceiveMessage(String msg) {
 
   }
 

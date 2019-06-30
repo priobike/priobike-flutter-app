@@ -48,7 +48,7 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                       style: TextStyle(color: Colors.black),
                       children: <TextSpan> [
                         TextSpan(text: 'Start: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ride.start)
+                        TextSpan(text: ride.start.displayName)
                       ]
                   ),
                 ),
@@ -57,7 +57,7 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                       style: TextStyle(color: Colors.black),
                       children: <TextSpan> [
                         TextSpan(text: 'Ende: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: ride.end)
+                        TextSpan(text: ride.end.displayName)
                       ]
                   ),
                 )
