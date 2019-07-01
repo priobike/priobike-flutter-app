@@ -12,6 +12,7 @@ import 'package:bike_now/websocket/websocket_commands.dart';
 
 import 'package:bike_now/geo_coding/address_to_location_response.dart';
 import 'package:bike_now/configuration.dart';
+import 'package:bike_now/blocs/bloc_manager.dart';
 
 
 class SearchBarWidget extends StatefulWidget {
@@ -53,7 +54,7 @@ class _SearchBarState extends State<SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+    final routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
 
 
 

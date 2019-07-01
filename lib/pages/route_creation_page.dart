@@ -5,6 +5,7 @@ import 'package:bike_now/widgets/search_bar_widget.dart';
 import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/geo_coding/address_to_location_response.dart';
+import 'package:bike_now/blocs/bloc_manager.dart';
 
 import 'dart:async';
 
@@ -32,7 +33,7 @@ class _RouteCreationPage extends State<RouteCreationPage> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+    routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
     subscription = routeCreationBloc.getState.listen((state){
       if (state == CreationState.navigateToInformationPage){

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:bike_now/models/route.dart' as BikeRoute;
+import 'package:bike_now/database/database_helper.dart';
 
 class RouteInformationBloc extends ChangeNotifier {
 
@@ -11,14 +12,32 @@ double astimatedTime;
 DateTime timeOfArrival;
 
 BikeRoute.Route route;
+String startLabel;
+String endLabel;
 
 void setRoute(BikeRoute.Route route){
   this.route = route;
   _routeSubject.add(route);
 }
 
+setStartLabel(String label){
+  startLabel = label;
+  _startLabelSubject.add(label);
+}
+setEndLabel(String label){
+  endLabel = label;
+  _endLabelSubject.add(label);
+}
+
 Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
 final _routeSubject = BehaviorSubject<BikeRoute.Route>();
+
+
+Stream<String> get getStartLabel => _startLabelSubject.stream;
+final _startLabelSubject = BehaviorSubject<String>();
+
+Stream<String> get getEndLabel => _endLabelSubject.stream;
+final _endLabelSubject = BehaviorSubject<String>();
 
 
 

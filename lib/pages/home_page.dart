@@ -8,6 +8,7 @@ import 'websocket_test_page.dart';
 import 'package:bike_now/blocs/settings_bloc.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/pages/route_information_page.dart';
+import 'package:bike_now/blocs/bloc_manager.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -34,31 +35,28 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      builder: (context) => RouteCreationBloc(),
-      child: ChangeNotifierProvider(
-        builder: (context) => SettingsBloc(),
-        child: Scaffold(
-          body: _children[_currentIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            onTap: onTabTapped, // new
-            currentIndex: _currentIndex,
-            type: BottomNavigationBarType.fixed,
-            // this will be set when a new tab is tapped
-            items: [
-              BottomNavigationBarItem(
-                icon: new Icon(Icons.directions_bike),
-                title: new Text('Start'),
-              ),
-              BottomNavigationBarItem(
-                icon: new Icon(Icons.dvr),
-                title: new Text('Websocket'),
-              ),
-              BottomNavigationBarItem(
-                icon: new Icon(Icons.settings),
-                title: new Text('Einstellungen'),
-              ),
-            ],
-          ),
+      builder: (context) => SettingsBloc(),
+      child: Scaffold(
+        body: _children[_currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: onTabTapped, // new
+          currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
+          // this will be set when a new tab is tapped
+          items: [
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.directions_bike),
+              title: new Text('Start'),
+            ),
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.dvr),
+              title: new Text('Websocket'),
+            ),
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.settings),
+              title: new Text('Einstellungen'),
+            ),
+          ],
         ),
       ),
     );

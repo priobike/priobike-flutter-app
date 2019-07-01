@@ -6,7 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:bike_now/widgets/location_point_widget.dart';
 import 'package:bike_now/pages/route_information_page.dart';
 
+import 'package:bike_now/models/route.dart' as BikeRoute;
 class MapBoxWidget extends StatefulWidget {
+  BikeRoute.Route route;
+
+  MapBoxWidget(this.route);
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -37,18 +42,16 @@ class _MapBoxState extends State<MapBoxWidget> {
   }
 
   void _onMapCreated(MapboxMapController controller) {
+    var coordinateList = widget.route.coordinates.map((coordinate) => coordinate.toMapBoxCoordinates()).toList();
     this.mapController = controller;
+
     mapController.addLine(
       LineOptions(
-        geometry: [
-          LatLng(51.047302, 13.751246),
-          LatLng(51.041525, 13.750180),
-        ],
+        geometry: coordinateList,
         lineColor: "#ff0000",
-        lineWidth: 14.0,
-        lineOpacity: 0.5,
-      ),
-    );
+        lineWidth: 7.0,
+        lineOpacity: 0.7,
+    ));
   }
 
   initPlatformState() async {
@@ -68,6 +71,6 @@ class _MapBoxState extends State<MapBoxWidget> {
       myLocationEnabled: true,
         compassEnabled: false,
         initialCameraPosition:
-            CameraPosition(target: LatLng(_currentLocation.latitude, _currentLocation.longitude), zoom: 11.0));
+            CameraPosition(target: widget.route.coordinates.first.toMapBoxCoordinates(), zoom: 11.0));
   }
 }

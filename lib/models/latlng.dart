@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' as MapLatLng;
 
 part 'latlng.g.dart';
 
@@ -17,6 +18,10 @@ class LatLng{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$LatLngToJson(this);
 
+  MapLatLng.LatLng toMapBoxCoordinates(){
+    return MapLatLng.LatLng(lat, lng);
+
+  }
 
 
 }

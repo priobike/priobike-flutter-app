@@ -7,6 +7,9 @@ import 'package:bike_now/pages/route_information_page.dart';
 import 'package:bike_now/pages/navigation_page.dart';
 
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
+import 'package:bike_now/blocs/bloc_manager.dart';
+
 
 void main() {
   //Services
@@ -23,16 +26,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-        '/second': (context) => RouteInformationPage(),
-        '/navigation': (context) => NavigationPage(),
-      },
-      title: 'My Flutter App',
-      theme: new ThemeData(
-          primaryColor: Colors.blue
+    return ChangeNotifierProvider(
+      builder: (context) => ManagerBloc(),
+      child: MaterialApp(
+        initialRoute: '/',
+        routes: {
+          '/': (context) => HomePage(),
+          '/second': (context) => RouteInformationPage(),
+          '/navigation': (context) => NavigationPage(),
+        },
+        title: 'My Flutter App',
+        theme: new ThemeData(
+            primaryColor: Colors.blue
+        ),
       ),
     );
   }

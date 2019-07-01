@@ -11,6 +11,8 @@ import 'package:bike_now/websocket/web_socket_method.dart';
 import 'package:bike_now/websocket/websocket_commands.dart';
 import 'package:bike_now/configuration.dart';
 
+import 'package:bike_now/models/route.dart' as BikeRoute;
+
 enum CreationState {
   waitingForResponse,
   routeCreation,
@@ -22,6 +24,14 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Place start;
   Place end;
   CreationState state;
+
+  BikeRoute.Route route;
+
+  Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
+  final _routeSubject = BehaviorSubject<BikeRoute.Route>();
+
+
+
 
   Stream<String> get getStartLabel => _startLabelSubject.stream;
   final _startLabelSubject = BehaviorSubject<String>();
@@ -59,6 +69,12 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     _endLabelSubject.add(place.displayName);
   }
 
+  void setRoute(BikeRoute.Route route){
+    this.route = route;
+    _routeSubject.add(route);
+
+  }
+
   void toggleLocations(){
     Place swap = start;
     setStart(end);
@@ -93,7 +109,12 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     _serverResponseSubject.add(msg);
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
     if(response.method == WebSocketMethod.calcRoute){
+      var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
+      setRoute(response.route);
       setState(CreationState.navigateToInformationPage);
+
+
+
     }
 
   }

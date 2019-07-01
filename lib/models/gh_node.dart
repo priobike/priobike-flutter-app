@@ -1,6 +1,5 @@
 import 'package:bike_now/models/sg.dart';
 
-
 import 'abstract_classes/crossable.dart';
 import 'abstract_classes/locatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -9,14 +8,13 @@ import 'package:bike_now/models/latlng.dart';
 part 'gh_node.g.dart';
 
 @JsonSerializable()
-class GHNode with Crossable, Locatable{
+class GHNode with Crossable, Locatable {
+  double alt;
+  double lon;
   int id;
-  LatLng coordinate;
-  bool shouldUpdateOverlay;
-  SG referencedSG;
+  double lat;
 
-
-  GHNode(this.id, this.coordinate, this.shouldUpdateOverlay, this.referencedSG);
+  GHNode({this.alt, this.lon, this.id, this.lat});
 
   factory GHNode.fromJson(Map<String, dynamic> json) => _$GHNodeFromJson(json);
 
@@ -30,5 +28,4 @@ class GHNode with Crossable, Locatable{
     // TODO: implement calculateIsCrossed
     return null;
   }
-
 }
