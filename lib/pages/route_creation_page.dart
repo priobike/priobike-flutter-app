@@ -6,21 +6,47 @@ import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/geo_coding/address_to_location_response.dart';
 
-class RouteCreationPage extends StatelessWidget {
-  BuildContext _context;
-  RouteCreationBloc routeCreationBloc;
+import 'dart:async';
 
-  RouteCreationPage(){
+class RouteCreationPage extends StatefulWidget{
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _RouteCreationPage();
+  }
+}
+
+class _RouteCreationPage extends State<RouteCreationPage> {
+  RouteCreationBloc routeCreationBloc;
+  StreamSubscription subscription;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    routeCreationBloc = Provider.of<RouteCreationBloc>(context);
+    subscription?.cancel();
+    subscription = routeCreationBloc.getState.listen((state){
+      if (state == CreationState.navigateToInformationPage){
+        Navigator.pushNamed(context, '/second');
+        routeCreationBloc.setState(CreationState.routeCreation);
+      }
+    });
 
   }
 
 
+
   @override
   Widget build(BuildContext context) {
-    routeCreationBloc = Provider.of<RouteCreationBloc>(context);
-    _context = context;
-
-
     Widget body = Container(
       padding: EdgeInsets.all(8),
       child: Column(
@@ -114,25 +140,12 @@ class RouteCreationPage extends StatelessWidget {
       ),
       body: new Builder(
           builder: (BuildContext context) {
-            _context = context;
             routeCreationBloc.serverResponse.listen(_showToast);
             return StreamBuilder<CreationState>(
                 stream: routeCreationBloc.getState,
                 initialData: CreationState.routeCreation,
                 builder: (context, snapshot) {
-                  switch(snapshot.data){
-
-                    case CreationState.waitingForResponse:
-                      return Container();
-                      break;
-                    case CreationState.routeCreation:
-                      return body;
-                      break;
-                    case CreationState.navigateToInformationPage:
-                      Navigator.pushNamed(context, '/second');
-
-                      break;
-                  }
+                  return body;
                 }
 
             );
@@ -143,7 +156,7 @@ class RouteCreationPage extends StatelessWidget {
 
 
   void _showToast(String msg) {
-    final scaffold = Scaffold.of(_context);
+    final scaffold = Scaffold.of(context);
     scaffold.showSnackBar(
       SnackBar(
         content: Text(msg),

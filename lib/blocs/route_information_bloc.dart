@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 
+import 'package:bike_now/models/route.dart' as BikeRoute;
+
 class RouteInformationBloc extends ChangeNotifier {
 
 double distance;
 double astimatedTime;
 DateTime timeOfArrival;
 
+BikeRoute.Route route;
 
+void setRoute(BikeRoute.Route route){
+  this.route = route;
+  _routeSubject.add(route);
+}
+
+Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
+final _routeSubject = BehaviorSubject<BikeRoute.Route>();
 
 
 

@@ -21,7 +21,7 @@ enum CreationState {
 class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
   Place start;
   Place end;
-  CreationState state = CreationState.routeCreation;
+  CreationState state;
 
   Stream<String> get getStartLabel => _startLabelSubject.stream;
   final _startLabelSubject = BehaviorSubject<String>();
@@ -47,6 +47,7 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
     fetchRides();
+    setState(CreationState.routeCreation);
   }
 
   void setStart(Place place){
