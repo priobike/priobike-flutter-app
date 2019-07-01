@@ -43,7 +43,7 @@ class Phase{
 
   }
 
-  Phase getValidPhase(){
+  Phase getValidPhase(double speed){
 
   }
 
