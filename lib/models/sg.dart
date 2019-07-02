@@ -1,5 +1,7 @@
 import 'package:bike_now/models/abstract_classes/locatable.dart';
 import 'package:bike_now/models/abstract_classes/crossable.dart';
+import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
+
 import 'package:bike_now/models/phase.dart';
 import 'package:bike_now/models/sg_subscription.dart';
 import 'package:bike_now/models/subscription.dart';
@@ -18,7 +20,7 @@ enum SGAnnotationStatus {
 
 
 @JsonSerializable()
-class SG with Locatable, Crossable{
+class SG with LocatableAndCrossable{
   int id;
   int name;
   int sign;
@@ -35,6 +37,11 @@ class SG with Locatable, Crossable{
   LSA parentLSA;
   GHNode referencedGHNode;
   List<Phase> phases;
+
+  @JsonKey(ignore: true)
+  void Function(SG) handleSGSubscribtion;
+  @JsonKey(ignore: true)
+  void Function(SG) handleSGUnSubscribe;
 
   //SGAnnotation annotation;
   SGAnnotationStatus annotationStatus = SGAnnotationStatus.none;

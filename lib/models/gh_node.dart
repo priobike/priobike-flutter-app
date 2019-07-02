@@ -4,15 +4,17 @@ import 'abstract_classes/crossable.dart';
 import 'abstract_classes/locatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:bike_now/models/latlng.dart';
+import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
 
 part 'gh_node.g.dart';
 
 @JsonSerializable()
-class GHNode with Crossable, Locatable {
+class GHNode with LocatableAndCrossable {
   double alt;
   double lon;
   int id;
   double lat;
+  SG referencedSG;
 
   GHNode({this.alt, this.lon, this.id, this.lat});
 

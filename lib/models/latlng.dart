@@ -8,6 +8,8 @@ part 'latlng.g.dart';
 class LatLng{
   double lat;
   double lng;
+  double accuracy; // Estimated horizontal accuracy of this location, radial, in meters
+
 
   LatLng(this.lat, this.lng);
 

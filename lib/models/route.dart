@@ -45,30 +45,72 @@ class Route{
   }
 
   Map<int,LSA> getLSADictionary(){
+    List<LSA> lsas = getLSAs();
+    Map<int, LSA> dictionary = Map<int,LSA>();
+
+    lsas.forEach((lsa){
+      if(dictionary.containsKey(lsa.id)){
+        dictionary[lsa.id].sgs.addAll(lsa.sgs);
+      }else{
+        dictionary[lsa.id] = lsa;
+      }
+    });
+    return dictionary;
+
 
   }
 
   List<SG> getSGs(){
+    List<SG> result = [];
+    getLSAs().forEach((lsa) {
+      lsa.sgs.forEach((sg){
+        result.add(sg);
+      });
+    });
 
   }
 
-  List<GHNode> getGHNodes(){
+  List<GHNode> getGHNodes(bool withVirtualNodes){
+    List<GHNode> result = [];
+    instructions.forEach((instruction){
+      instruction.nodes.forEach((node){
+        if(node.id != null && node.id >=0 || withVirtualNodes){
+          result.add(node);
+        }
+      });
+    });
+    return result;
 
   }
 
-  GHNode getNextGHNode(){
+  GHNode getNextGHNode(List<GHNode> ghNodes, [double minDistance = 5, bool virtualNode = true]){
+    var list = ghNodes.where((ghNode){
+      return !ghNode.isCrossed && ghNode.distance >= minDistance;
+    }).toList();
+
+    var ghNode= list.firstWhere((ghNode){
+      if (virtualNode || ghNode.id != null){
+        return true;
+      }
+      return false;
+    });
+
+    return ghNode;
 
   }
 
-  bool hasGHNodes(){
+  bool hasGHNodes(bool withVirtualNodes){
+    return getGHNodes(withVirtualNodes).length > 1;
 
   }
 
   GHNode getFirstGHNode(){
+    return instructions.first.nodes.first;
 
   }
 
   GHNode getLastGHNode(){
+    return instructions.last.nodes.last;
 
   }
 

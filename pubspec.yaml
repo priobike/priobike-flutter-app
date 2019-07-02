@@ -96,3 +96,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages
+
+analyser:
+  strong-mode: true
+  language:
+    enableSuperMixins: true

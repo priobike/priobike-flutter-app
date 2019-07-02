@@ -1,5 +1,6 @@
 import 'abstract_classes/locatable.dart';
 import 'abstract_classes/crossable.dart';
+import 'abstract_classes/locatable_and_crossable.dart';
 import 'gh_node.dart';
 import 'lsa.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -7,7 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'instruction.g.dart';
 
 @JsonSerializable()
-class Instruction with Locatable, Crossable{
+class Instruction with LocatableAndCrossable{
   int sign;
   String name;
   String text;

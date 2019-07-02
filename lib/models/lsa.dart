@@ -4,13 +4,14 @@ import 'package:bike_now/models/sg_prediction.dart';
 
 import 'abstract_classes/locatable.dart';
 import 'abstract_classes/crossable.dart';
+import 'abstract_classes/locatable_and_crossable.dart';
 
 import 'package:json_annotation/json_annotation.dart';
 
 part 'lsa.g.dart';
 
 @JsonSerializable()
-class LSA with Crossable, Locatable{
+class LSA with LocatableAndCrossable{
   int id;
   String name;
   List<SG> sgs;

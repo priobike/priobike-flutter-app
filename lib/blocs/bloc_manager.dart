@@ -16,6 +16,7 @@ class ManagerBloc extends ChangeNotifier{
     _routeCreationBloc = RouteCreationBloc();
     _routeInformationBloc = RouteInformationBloc();
     _navigationBloc = NavigationBloc();
+    
     _routeCreationBloc.getRoute.listen((route){
       _routeInformationBloc.setRoute(route);
     });
