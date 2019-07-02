@@ -39,7 +39,7 @@ class RouteInformationPage extends StatelessWidget {
                 builder: (context, endSnapshot) {
                   return Column(
                     children: <Widget>[
-                      if(routeSnapshot.data != null) Expanded(child: MapBoxWidget(routeSnapshot.data)),
+                      if(routeSnapshot.data != null) Expanded(child: MapBoxWidget(routeSnapshot.data, null)),
 
                       Expanded(child: RouteInformationStatisticWidget(routeSnapshot.data, startSnapshot.data, endSnapshot.data))
                     ],

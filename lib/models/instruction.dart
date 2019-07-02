@@ -1,3 +1,5 @@
+import 'package:bike_now/models/latlng.dart';
+
 import 'abstract_classes/locatable.dart';
 import 'abstract_classes/crossable.dart';
 import 'abstract_classes/locatable_and_crossable.dart';
@@ -20,7 +22,7 @@ class Instruction with LocatableAndCrossable{
 
 
   Instruction(this.sign, this.name, this.text, this.info, this.lsas,
-      this.nodes);
+      this.nodes, this.distance, this.isCrossed, this.lon, this.lat);
 
   factory Instruction.fromJson(Map<String, dynamic> json) => _$InstructionFromJson(json);
 
@@ -32,6 +34,24 @@ class Instruction with LocatableAndCrossable{
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
     // TODO: implement calculateIsCrossed
+    return null;
+  }
+
+  @override
+  double distance;
+
+  @override
+  bool isCrossed;
+
+  @override
+  double lat;
+
+  @override
+  double lon;
+
+  @override
+  double calculateDistanceTo(LatLng destination) {
+    // TODO: implement calculateDistanceTo
     return null;
   }
 

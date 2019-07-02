@@ -29,6 +29,8 @@ class ManagerBloc extends ChangeNotifier{
 
     });
 
+    routeCreationBlog.getRoute.listen((route) => _navigationBloc.setRoute(route));
+
   }
 
   RouteCreationBloc get routeCreationBlog => _routeCreationBloc;

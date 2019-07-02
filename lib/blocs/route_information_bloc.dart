@@ -21,12 +21,20 @@ void setRoute(BikeRoute.Route route){
 }
 
 setStartLabel(String label){
-  startLabel = label;
-  _startLabelSubject.add(label);
+  if (label.length <= 30){
+    startLabel = label;
+  }else{
+    startLabel = label.substring(0,29);
+  }
+  _startLabelSubject.add(startLabel);
 }
 setEndLabel(String label){
-  endLabel = label;
-  _endLabelSubject.add(label);
+  if (label.length <= 30){
+    endLabel = label;
+  }else{
+    endLabel = label.substring(0,29);
+  }
+  _endLabelSubject.add(endLabel);
 }
 
 Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;

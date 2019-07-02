@@ -18,12 +18,20 @@ LSA _$LSAFromJson(Map<String, dynamic> json) {
           ?.map((e) => e == null
               ? null
               : SGPrediction.fromJson(e as Map<String, dynamic>))
-          ?.toList());
+          ?.toList(),
+      (json['distance'] as num)?.toDouble(),
+      json['isCrossed'] as bool,
+      (json['lon'] as num)?.toDouble(),
+      (json['lat'] as num)?.toDouble());
 }
 
 Map<String, dynamic> _$LSAToJson(LSA instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'sgs': instance.sgs,
-      'sgPredictions': instance.sgPredictions
+      'sgPredictions': instance.sgPredictions,
+      'distance': instance.distance,
+      'isCrossed': instance.isCrossed,
+      'lat': instance.lat,
+      'lon': instance.lon
     };

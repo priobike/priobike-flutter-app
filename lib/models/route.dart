@@ -50,7 +50,7 @@ class Route{
 
     lsas.forEach((lsa){
       if(dictionary.containsKey(lsa.id)){
-        dictionary[lsa.id].sgs.addAll(lsa.sgs);
+        lsa.sgs.forEach((sg) => dictionary[lsa.id].sgs.add(sg));
       }else{
         dictionary[lsa.id] = lsa;
       }

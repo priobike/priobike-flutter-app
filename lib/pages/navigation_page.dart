@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:bike_now/models/models.dart' as BikeNow;
+import 'package:provider/provider.dart';
+import 'package:bike_now/blocs/bloc_manager.dart';
+
+import 'package:bike_now/widgets/mapbox_widget.dart';
 
 class NavigationPage extends StatefulWidget{
   @override
@@ -12,6 +17,7 @@ class NavigationPage extends StatefulWidget{
 class _NavigationPageState extends State<NavigationPage>{
   @override
   Widget build(BuildContext context) {
+    var navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -41,13 +47,31 @@ class _NavigationPageState extends State<NavigationPage>{
               ),
             ),
             Expanded(
-              child: Container(
-                color: Colors.green,
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    width: 50,
-                    color: Colors.black,
+              flex: 3,
+              child: StreamBuilder<BikeNow.Route>(
+                stream: navigationBloc.getRoute,
+                builder: (context, routeSnapshot) {
+                  return StreamBuilder<BikeNow.LatLng>(
+                    stream: navigationBloc.getCurrentLocation,
+                    builder: (context, snapshot) {
+                      return MapBoxWidget(routeSnapshot.data, snapshot.data);
+                    }
+                  );
+                }
+              ),
+            ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  color: Colors.green,
+                  child: Center(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      width: 50,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),

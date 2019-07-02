@@ -30,9 +30,6 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
 
-
-
-
   Stream<String> get getStartLabel => _startLabelSubject.stream;
   final _startLabelSubject = BehaviorSubject<String>();
 

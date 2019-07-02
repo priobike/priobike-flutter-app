@@ -33,7 +33,11 @@ SG _$SGFromJson(Map<String, dynamic> json) {
           ?.toList(),
       _$enumDecodeNullable(
           _$SGAnnotationStatusEnumMap, json['annotationStatus']),
-      json['shouldUpdateAnnotation'] as bool);
+      json['shouldUpdateAnnotation'] as bool,
+      (json['lat'] as num)?.toDouble(),
+      (json['lon'] as num)?.toDouble(),
+      json['isCrossed'] as bool,
+      (json['distance'] as num)?.toDouble());
 }
 
 Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
@@ -53,7 +57,11 @@ Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
       'phases': instance.phases,
       'annotationStatus':
           _$SGAnnotationStatusEnumMap[instance.annotationStatus],
-      'shouldUpdateAnnotation': instance.shouldUpdateAnnotation
+      'shouldUpdateAnnotation': instance.shouldUpdateAnnotation,
+      'distance': instance.distance,
+      'isCrossed': instance.isCrossed,
+      'lat': instance.lat,
+      'lon': instance.lon
     };
 
 T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {

@@ -52,7 +52,7 @@ class SG with LocatableAndCrossable{
   SG(this.id, this.name, this.sign, this.signFlags, this.bear,
       this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
       this.isGreen, this.isSubscribed, this.parentLSA, this.referencedGHNode,
-      this.phases, this.annotationStatus, this.shouldUpdateAnnotation);
+      this.phases, this.annotationStatus, this.shouldUpdateAnnotation, this.lat, this.lon,this.isCrossed,this.distance);
 
   factory SG.fromJson(Map<String, dynamic> json) => _$SGFromJson(json);
 
@@ -81,6 +81,24 @@ class SG with LocatableAndCrossable{
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
     // TODO: implement calculateIsCrossed
+    return null;
+  }
+
+  @override
+  double distance;
+
+  @override
+  bool isCrossed;
+
+  @override
+  double lat;
+
+  @override
+  double lon;
+
+  @override
+  double calculateDistanceTo(LatLng destination) {
+    // TODO: implement calculateDistanceTo
     return null;
   }
 

@@ -44,7 +44,8 @@ class RoutingController{
     }).toList();
   }
 
-  setRoute(){
+  setRoute(Models.Route route){
+    this.route = route;
     orderedLSAs = route.getLSAs();
     lsas = route.getLSADictionary();
     ghNodes = route.getGHNodes(true);
@@ -75,7 +76,7 @@ class RoutingController{
   void calculateDistances(List<LocatableAndCrossable> locations, Models.LatLng currentLocation){
     var sorted = locations.where((locatable)=>!locatable.isCrossed).toList()
         .map((location) {
-          location.distance = location.calculateDistanceTo(currentLocation.toMapBoxCoordinates());
+          location.distance = location.calculateDistanceTo(currentLocation);
           return location;
 
     }).toList();
