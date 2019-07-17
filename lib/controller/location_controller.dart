@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
@@ -7,30 +8,21 @@ import 'package:rxdart/rxdart.dart';
 
 
 
-class LocationController{
+class LocationController extends ChangeNotifier{
 
   var location = new Location();
   LocationData currentLocation = null;
-
   bool useFakeData = false;
   Timer timer;
   String gpsFile;
   List<xml.XmlElement> elements;
-  
-  
   int index = 0;
 
   Stream<BikeNow.LatLng> get getCurrentLocation => _currentLocationSubject.stream;
   final _currentLocationSubject = BehaviorSubject<BikeNow.LatLng>();
 
-
-
-
-
-  LocationController(this.useFakeData){
-
-
-    if(!useFakeData){
+    LocationController(this.useFakeData){
+      if(!useFakeData){
       location.onLocationChanged().listen((LocationData currentLocation) {
         this.currentLocation = currentLocation;
       });}else{
@@ -39,7 +31,6 @@ class LocationController{
   }
 
   void updateLocation(Timer timer) async{
-
     if (gpsFile == null) {
       gpsFile = await rootBundle.loadString('assets/gpx/HbfToAlbert20kmh.gpx');
       var document = xml.parse(gpsFile);

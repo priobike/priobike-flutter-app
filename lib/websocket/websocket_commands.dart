@@ -199,6 +199,46 @@ class GetAddressFromLocation implements WebSocketCommand{
 
 }
 
+class RouteStart implements WebSocketCommand {
+  @override
+  WebSocketMethod method = WebSocketMethod.routeStart;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+  RouteStart(this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"'
+      };
+
+}
+
+class RouteFinish implements WebSocketCommand {
+  @override
+  WebSocketMethod method = WebSocketMethod.routeFinish;
+
+  @override
+  bool requiresAuthentication = true;
+
+  @override
+  String sessionId;
+
+  RouteFinish(this.sessionId);
+
+  Map<String, dynamic> toJson() =>
+      {
+        'method': WebSocketMethodHelper.getValue(method),
+        'sessionId': '"$sessionId"'
+      };
+
+}
+
 
 
 

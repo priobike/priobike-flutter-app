@@ -12,7 +12,6 @@ import 'dart:async';
 class RouteCreationPage extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _RouteCreationPage();
   }
 }
@@ -20,31 +19,29 @@ class RouteCreationPage extends StatefulWidget{
 class _RouteCreationPage extends State<RouteCreationPage> {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
+  bool isLoading = false;
 
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
-    subscription?.cancel();
-    subscription = routeCreationBloc.getState.listen((state){
-      if (state == CreationState.navigateToInformationPage){
+      subscription?.cancel();
+      subscription = routeCreationBloc.getState.listen((state){
+        if (state == CreationState.navigateToInformationPage){
+          isLoading = false;
         Navigator.pushNamed(context, '/second');
         routeCreationBloc.setState(CreationState.routeCreation);
       }
     });
 
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +92,9 @@ class _RouteCreationPage extends State<RouteCreationPage> {
                   routeCreationBloc.addRides();
                   routeCreationBloc.setState(
                       CreationState.waitingForResponse);
-                  //Navigator.pushNamed(context, '/second');
+                  setState(() {
+                    isLoading = true;
+                  });
                 },)),
           Container(
             margin: EdgeInsets.all(8),
@@ -130,6 +129,21 @@ class _RouteCreationPage extends State<RouteCreationPage> {
       ),
     );
 
+    Widget getLoadingIndicator(){
+      if (isLoading){
+        return Stack(
+          children: <Widget>[
+            ModalBarrier(dismissible: false, color: Colors.grey,),
+            Center(
+              child: CircularProgressIndicator(),
+            )
+          ],
+        );
+      }else{
+        return Container();
+      }
+    }
+
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
@@ -139,32 +153,21 @@ class _RouteCreationPage extends State<RouteCreationPage> {
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: new Builder(
-          builder: (BuildContext context) {
-            routeCreationBloc.serverResponse.listen(_showToast);
-            return StreamBuilder<CreationState>(
+      body: StreamBuilder<CreationState>(
                 stream: routeCreationBloc.getState,
                 initialData: CreationState.routeCreation,
                 builder: (context, snapshot) {
-                  return body;
+                  return Stack(
+                    children: <Widget>[
+                      getLoadingIndicator(),
+                      body,
+
+                    ],
+                  );
                 }
 
-            );
-          }
-      ),
-    );
-  }
+            ));
 
-
-  void _showToast(String msg) {
-    final scaffold = Scaffold.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        action: SnackBarAction(
-            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
   }
 
   Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {

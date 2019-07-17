@@ -29,7 +29,8 @@ dependencies:
   location: any
   web_socket_channel: any
   provider: any
-  mapbox_gl: any
+  mapbox_gl: ^0.0.3
+  google_maps_flutter: ^0.5.19+2
   shared_preferences: any
   rxdart: any
   sqflite: any

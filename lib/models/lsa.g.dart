@@ -9,8 +9,9 @@ part of 'lsa.dart';
 LSA _$LSAFromJson(Map<String, dynamic> json) {
   return LSA(
       json['id'] as int,
+      json['sgSize'] as int,
       json['name'] as String,
-      (json['sgs'] as List)
+      (json['sgArray'] as List)
           ?.map(
               (e) => e == null ? null : SG.fromJson(e as Map<String, dynamic>))
           ?.toList(),
@@ -27,8 +28,9 @@ LSA _$LSAFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$LSAToJson(LSA instance) => <String, dynamic>{
       'id': instance.id,
+      'sgSize': instance.sgSize,
       'name': instance.name,
-      'sgs': instance.sgs,
+      'sgArray': instance.sgs,
       'sgPredictions': instance.sgPredictions,
       'distance': instance.distance,
       'isCrossed': instance.isCrossed,

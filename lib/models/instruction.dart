@@ -37,6 +37,7 @@ class Instruction with LocatableAndCrossable{
     return null;
   }
 
+  @JsonKey(name: 'dist')
   @override
   double distance;
 

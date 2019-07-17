@@ -6,7 +6,10 @@ import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
 
 class RoutingController{
   SubscriptionController subscriptionController;
-  Models.Route route;
+  Models.Route _route;
+  set route(Models.Route route) => setRoute(route);
+  Models.Route get route => _route;
+
   List<Models.LSA> orderedLSAs;
   Map<int, Models.LSA> lsas;
   List<Models.SG> sgs;
@@ -32,7 +35,7 @@ class RoutingController{
     orderedLSAs.firstWhere((lsa) => lsa.id == Id);
   }
   Models.SG getSG(int id){
-    return sgs.firstWhere((sg) => sg.id == id);
+    return sgs.firstWhere((sg) => sg.baseId == id);
   }
   List<Models.GHNode> getGHNodes(bool onlyIfCrossed){
     return ghNodes.where((ghNode) {
@@ -45,7 +48,7 @@ class RoutingController{
   }
 
   setRoute(Models.Route route){
-    this.route = route;
+    this._route = route;
     orderedLSAs = route.getLSAs();
     lsas = route.getLSADictionary();
     ghNodes = route.getGHNodes(true);
@@ -53,7 +56,7 @@ class RoutingController{
 
   setLSAs(){
     orderedLSAs.forEach((lsa) => lsa.sgs.forEach((sg){
-      sg.uniqueName = "${lsa.id}#${sg.name}";
+      sg.uniqueName = "${lsa.id}#${sg.sgName}";
       sg.parentLSA = lsa;
       sg.handleSGSubscribtion = handleSGSubscribe;
       sg.handleSGUnSubscribe = handleSGUnSubscribe;

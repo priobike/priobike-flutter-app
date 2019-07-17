@@ -13,6 +13,8 @@
         android:label="bike_now"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.mapbox.token" android:value="pk.eyJ1IjoicmluZXVtYW4iLCJhIjoiY2p2bWZvdzB2MWNyaTRhb2lzb3JkcXZ6aiJ9.DUtTmYtuyMNvxs7sYn7JAg" />
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAF7hlW6P0O5UI6nQzY733_isqF-8EwENA"/>
 
         <activity
             android:name=".MainActivity"

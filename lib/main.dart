@@ -10,6 +10,8 @@ import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:bike_now/blocs/bloc_manager.dart';
 
+final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
+
 
 void main() {
   //Services
@@ -22,8 +24,10 @@ void main() {
 
 }
 
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -36,6 +40,7 @@ class MyApp extends StatelessWidget {
           '/navigation': (context) => NavigationPage(),
         },
         title: 'My Flutter App',
+        navigatorObservers: [routeObserver],
         theme: new ThemeData(
             primaryColor: Colors.blue
         ),

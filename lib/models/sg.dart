@@ -21,8 +21,8 @@ enum SGAnnotationStatus {
 
 @JsonSerializable()
 class SG with LocatableAndCrossable{
-  int id;
-  int name;
+  int baseId;
+  String sgName;
   int sign;
   int signFlags;
   int bear;
@@ -49,7 +49,7 @@ class SG with LocatableAndCrossable{
   bool shouldUpdateAnnotation = false;
 
 
-  SG(this.id, this.name, this.sign, this.signFlags, this.bear,
+  SG(this.baseId, this.sgName, this.sign, this.signFlags, this.bear,
       this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
       this.isGreen, this.isSubscribed, this.parentLSA, this.referencedGHNode,
       this.phases, this.annotationStatus, this.shouldUpdateAnnotation, this.lat, this.lon,this.isCrossed,this.distance);

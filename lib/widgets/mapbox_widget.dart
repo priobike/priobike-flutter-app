@@ -1,108 +1,100 @@
+import 'package:bike_now/blocs/bloc_manager.dart';
+import 'package:bike_now/blocs/navigation_bloc.dart';
+import 'package:bike_now/controller/location_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
-import 'package:bike_now/widgets/location_point_widget.dart';
-import 'package:bike_now/pages/route_information_page.dart';
 import 'package:bike_now/models/models.dart' as BikeNow;
 
-import 'package:bike_now/models/route.dart' as BikeRoute;
 
 class MapBoxWidget extends StatefulWidget {
-  BikeRoute.Route route;
-  BikeNow.LatLng currentLocation;
-
-  MapBoxWidget(this.route, this.currentLocation);
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _MapBoxState();
   }
 }
 
 class _MapBoxState extends State<MapBoxWidget> {
-  var location;
-  LocationData _targetLocation;
-  LocationData _currentLocation;
+  NavigationBloc navigationBloc;
+  LocationController locationController;
   MapboxMapController mapController;
-  Circle position;
 
+  Circle currentPositionCircle;
+  BikeNow.Route route;
+  LatLng currentLocation;
 
-  _MapBoxState() {
-    location = new Location();
-    location.onLocationChanged().listen((LocationData currentLocation) {
-      setState(() {
-        _currentLocation = currentLocation;
-
-      });
-    });
-  }
   @override
-  void initState() {
-    super.initState();
-    initPlatformState();
+  void didChangeDependencies() {
+    navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
+    locationController = Provider.of<ManagerBloc>(context).locationController;
+
+    navigationBloc.getRoute.listen((route) => this.route = route);
+    locationController.getCurrentLocation.listen((location){ currentLocation = location.toMapBoxCoordinates();
+    updateCurrentPositionCircle();});
+    super.didChangeDependencies();
+  }
+
+  void updateCurrentPositionCircle(){
+    mapController.updateCircle(currentPositionCircle, CircleOptions(
+      geometry: currentLocation,
+    ));
+    centerMapToCurrentPosition();
+
   }
 
   void _onMapCreated(MapboxMapController controller) async {
-    var coordinateList = widget.route.coordinates.map((coordinate) => coordinate.toMapBoxCoordinates()).toList();
-    List<BikeNow.LSA> lsas = widget.route.getLSAs();
+    var coordinateList = route.coordinates.map((coordinate) => coordinate.toMapBoxCoordinates()).toList();
+    List<BikeNow.LSA> lsas = route.getLSAs();
     this.mapController = controller;
     mapController.addLine(
       LineOptions(
         geometry: coordinateList,
-        lineColor: "#ff0000",
+        lineColor: "#0000FF",
         lineWidth: 7.0,
         lineOpacity: 0.7,
     ));
     lsas.forEach((lsa) {
+//      var Color = "#ff0000";
+//      if (lsa.getSG().isGreen){
+//        Color = "#00ff00";
+//      }
       mapController.addCircle(
         CircleOptions(
           geometry: LatLng(lsa.lat, lsa.lon),
-          circleColor: "#000000",
+          circleColor: "#FF0000",
           circleRadius: 10
         )
       );
     });
-    if(widget.currentLocation != null){
-      position = await mapController.addCircle(
+    if(currentLocation != null && currentPositionCircle == null){
+      currentPositionCircle = await mapController.addCircle(
           CircleOptions(
-              geometry: widget.currentLocation.toMapBoxCoordinates(),
+              geometry: currentLocation,
               circleColor: '#ff00ff',
               circleRadius: 5
           )
       );
     }
-
-
   }
 
-  initPlatformState() async {
-    _currentLocation = await location.getLocation();
-  }
-
-  void centerTargetPosition() {
-    mapController.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(_currentLocation.latitude, _currentLocation.longitude))));
-    
+  void centerMapToCurrentPosition() {
+    mapController.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(target: currentLocation, zoom: 17),));
   }
 
   @override
   Widget build(BuildContext context) {
-    if(mapController != null){
-      mapController.updateCircle(position, CircleOptions(
-          geometry: widget.currentLocation.toMapBoxCoordinates(),
-          circleColor: '#ff00ff',
-          circleRadius: 5
-      ));
-    }
-
-    // TODO: implement build
-    return MapboxMap(
-      onMapCreated: _onMapCreated,
-      myLocationEnabled: false,
-        compassEnabled: false,
-        initialCameraPosition:
-            CameraPosition(target: widget.route.coordinates.first.toMapBoxCoordinates(), zoom: 11.0));
+    return StreamBuilder<BikeNow.Route>(
+        stream: navigationBloc.getRoute,
+        builder: (context, routeSnapshot) {
+                return MapboxMap(
+                    onMapCreated: _onMapCreated,
+                    myLocationEnabled: false,
+                    compassEnabled: true,
+                    initialCameraPosition:
+                    CameraPosition(target: route.coordinates.first.toMapBoxCoordinates(), zoom: 17.0));
+              }
+          );
   }
 }

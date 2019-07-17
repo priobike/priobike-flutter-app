@@ -20,7 +20,7 @@ Instruction _$InstructionFromJson(Map<String, dynamic> json) {
           ?.map((e) =>
               e == null ? null : GHNode.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      (json['distance'] as num)?.toDouble(),
+      (json['dist'] as num)?.toDouble(),
       json['isCrossed'] as bool,
       (json['lon'] as num)?.toDouble(),
       (json['lat'] as num)?.toDouble());
@@ -34,7 +34,7 @@ Map<String, dynamic> _$InstructionToJson(Instruction instance) =>
       'info': instance.info,
       'lsaArray': instance.lsas,
       'nodeArray': instance.nodes,
-      'distance': instance.distance,
+      'dist': instance.distance,
       'isCrossed': instance.isCrossed,
       'lat': instance.lat,
       'lon': instance.lon

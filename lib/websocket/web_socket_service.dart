@@ -135,6 +135,7 @@ class WebSocketService implements WebSocketServiceDelegate{
         break;
     }
 
+    log.fine("Websocket message Reveived: $msg");
 
     delegate?.websocketDidReceiveMessage(msg);
   }

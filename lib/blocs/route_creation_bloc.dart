@@ -16,7 +16,8 @@ import 'package:bike_now/models/route.dart' as BikeRoute;
 enum CreationState {
   waitingForResponse,
   routeCreation,
-  navigateToInformationPage
+  navigateToInformationPage,
+  navigateToNavigationPage
 }
 
 
@@ -46,9 +47,6 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Sink<int> get deleteRides => _deleteRidesController.sink;
   final _deleteRidesController = StreamController<int>();
 
-
-  Stream<String> get serverResponse => _serverResponseSubject.stream;
-  final _serverResponseSubject = BehaviorSubject<String>();
 
   RouteCreationBloc(){
     _deleteRidesController.stream.listen(_deleteRides);
@@ -103,16 +101,13 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
 
   @override
   void websocketDidReceiveMessage(String msg) {
-    _serverResponseSubject.add(msg);
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
     if(response.method == WebSocketMethod.calcRoute){
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);
       setState(CreationState.navigateToInformationPage);
-
-
-
     }
+
 
   }
 

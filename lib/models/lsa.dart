@@ -14,13 +14,15 @@ part 'lsa.g.dart';
 @JsonSerializable()
 class LSA with LocatableAndCrossable{
   int id;
+  int sgSize;
   String name;
+  @JsonKey(name: 'sgArray')
   List<SG> sgs;
   List<SGPrediction> sgPredictions = new List<SGPrediction>();
 
 
 
-  LSA(this.id, this.name, this.sgs, this.sgPredictions, this.distance, this.isCrossed, this.lon, this.lat);
+  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, this.distance, this.isCrossed, this.lon, this.lat);
 
   factory LSA.fromJson(Map<String, dynamic> json) => _$LSAFromJson(json);
 

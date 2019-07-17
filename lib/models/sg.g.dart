@@ -8,8 +8,8 @@ part of 'sg.dart';
 
 SG _$SGFromJson(Map<String, dynamic> json) {
   return SG(
-      json['id'] as int,
-      json['name'] as int,
+      json['baseId'] as int,
+      json['sgName'] as String,
       json['sign'] as int,
       json['signFlags'] as int,
       json['bear'] as int,
@@ -41,8 +41,8 @@ SG _$SGFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
+      'baseId': instance.baseId,
+      'sgName': instance.sgName,
       'sign': instance.sign,
       'signFlags': instance.signFlags,
       'bear': instance.bear,
