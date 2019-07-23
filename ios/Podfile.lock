@@ -3,6 +3,14 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - google_maps_flutter (0.0.1):
+    - Flutter
+    - GoogleMaps
+  - GoogleMaps (3.2.0):
+    - GoogleMaps/Maps (= 3.2.0)
+  - GoogleMaps/Base (3.2.0)
+  - GoogleMaps/Maps (3.2.0):
+    - GoogleMaps/Base
   - location (0.0.1):
     - Flutter
   - Mapbox-iOS-SDK (4.8.0)
@@ -19,6 +27,7 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
+  - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
   - location (from `.symlinks/plugins/location/ios`)
   - mapbox_gl (from `.symlinks/plugins/mapbox_gl/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
@@ -28,11 +37,14 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - FMDB
+    - GoogleMaps
     - Mapbox-iOS-SDK
 
 EXTERNAL SOURCES:
   Flutter:
     :path: ".symlinks/flutter/ios"
+  google_maps_flutter:
+    :path: ".symlinks/plugins/google_maps_flutter/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
   mapbox_gl:
@@ -47,6 +59,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  google_maps_flutter: a09053b3f7a9f1456924d46e34528acc7aa5e0b9
+  GoogleMaps: 5046d7edfe381c1a0b20fdaf293915a375c3122b
   location: 26c90953ad5916331d0d1d913898779910416487
   Mapbox-iOS-SDK: 864bc732a20c183d87f04923295e988b504453d9
   mapbox_gl: 7ef8edfe337e446de5f7f4c3f139e1be31faa1eb

@@ -47,12 +47,11 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
     WebSocketService.instance.delegate = this;
     routingController.route = route;
     WebSocketService.instance.sendCommand(RouteStart(Configuration.sessionUUID));
+    setupRouting();
   }
 
   void setupRouting(){
     updateRouteTimer = Timer.periodic(updateInterval, updateRouting);
-
-
   }
 
   void updateRouting(Timer timer){
@@ -71,9 +70,6 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
 //    if (trafficLights.firstWhere((sg)=> sg.isCrossed) != null){
 //
 //    }
-
-
-
   }
 
   void updateGHNodes(BikeNow.Route route){

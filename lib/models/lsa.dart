@@ -31,9 +31,8 @@ class LSA with LocatableAndCrossable{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$LSAToJson(this);
 
-  SG getSG(){
-
-
+  SG getSG(String name){
+    return sgs.firstWhere((sg) => sg.sgName == name);
   }
 
 

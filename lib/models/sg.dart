@@ -1,3 +1,4 @@
+import 'package:bike_now/controller/crossing_controller.dart';
 import 'package:bike_now/models/abstract_classes/locatable.dart';
 import 'package:bike_now/models/abstract_classes/crossable.dart';
 import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
@@ -48,6 +49,8 @@ class SG with LocatableAndCrossable{
 
   bool shouldUpdateAnnotation = false;
 
+  CrossingController crossingController  = CrossingController(0.0, 100.0, 0.8, 2);
+
 
   SG(this.baseId, this.sgName, this.sign, this.signFlags, this.bear,
       this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
@@ -70,18 +73,28 @@ class SG with LocatableAndCrossable{
   }*/
 
   SGSubscription makeSGSubscription(){
+    return SGSubscription(sgName, isSubscribed);
+
 
   }
 
   Subscription makeSubscription(){
+    int lsaId = parentLSA.id;
+    String lsaName = parentLSA.name;
+    SGSubscription sgSubscription = makeSGSubscription();
+
+    return Subscription(lsaId, lsaName, [sgSubscription]);
 
   }
 
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    // TODO: implement calculateIsCrossed
-    return null;
+    if (distance <= 100.0) {
+    return crossingController.run( distance,accuracy);
+    }
+
+    return false;
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mapbox_gl/mapbox_gl.dart' as MapLatLng;
+import 'package:google_maps_flutter/google_maps_flutter.dart' as Google;
+
 
 part 'latlng.g.dart';
 
@@ -20,8 +21,8 @@ class LatLng{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$LatLngToJson(this);
 
-  MapLatLng.LatLng toMapBoxCoordinates(){
-    return MapLatLng.LatLng(lat, lng);
+  Google.LatLng toGoogleLatLng(){
+    return Google.LatLng(lat,lng);
 
   }
 
