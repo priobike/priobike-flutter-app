@@ -27,13 +27,13 @@ LSA _$LSAFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$LSAToJson(LSA instance) => <String, dynamic>{
+      'lon': instance.lon,
+      'lat': instance.lat,
+      'distance': instance.distance,
       'id': instance.id,
       'sgSize': instance.sgSize,
       'name': instance.name,
       'sgArray': instance.sgs,
       'sgPredictions': instance.sgPredictions,
-      'distance': instance.distance,
-      'isCrossed': instance.isCrossed,
-      'lat': instance.lat,
-      'lon': instance.lon
+      'isCrossed': instance.isCrossed
     };

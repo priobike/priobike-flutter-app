@@ -22,7 +22,14 @@ class Instruction with LocatableAndCrossable{
 
 
   Instruction(this.sign, this.name, this.text, this.info, this.lsas,
-      this.nodes, this.distance, this.isCrossed, this.lon, this.lat);
+      this.nodes, double distance, this.isCrossed){
+
+      super.lon = 0;
+      super.lat = 0;
+
+
+    super.distance = distance;
+  }
 
   factory Instruction.fromJson(Map<String, dynamic> json) => _$InstructionFromJson(json);
 
@@ -34,26 +41,29 @@ class Instruction with LocatableAndCrossable{
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
     // TODO: implement calculateIsCrossed
-    return null;
+    return distance <= 0.1;
   }
 
   @JsonKey(name: 'dist')
   @override
-  double distance;
+  // TODO: implement distance
+  double get distance => super.distance;
+  @override
+  void set distance(double _distance) {
+    // TODO: implement distance
+    super.distance = _distance;
+  }
 
   @override
   bool isCrossed;
 
   @override
-  double lat;
+  // TODO: implement lat
+  double get lat => super.lat;
 
   @override
-  double lon;
-
-  @override
-  double calculateDistanceTo(LatLng destination) {
-    // TODO: implement calculateDistanceTo
-    return null;
+  void set lon(double _lon) {
+    // TODO: implement lon
+    super.lon = _lon;
   }
-
 }

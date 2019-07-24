@@ -19,31 +19,91 @@ class RoutingCoordinator{
   }
   void calculateDistances(){
     if (locationController.currentLocation != null){
-      var latlng = LatLng(locationController.currentLocation.latitude, locationController.currentLocation.longitude);
-      routingController.calculateDistances(routingController.orderedLSAs, latlng);
-      routingController.calculateDistances(routingController.sgs, latlng);
-      routingController.calculateDistances(routingController.ghNodes, latlng);
-      routingController.calculateDistances(routingController.route.instructions, latlng);
+      var latlng = LatLng(locationController.currentLocation.latitude, locationController.currentLocation.longitude, locationController.currentLocation.accuracy);
+      try{
+        routingController.calculateDistances(routingController.orderedLSAs, latlng);
+
+
+
+      }catch(e){
+        e.toString();
+
+      }
+      try{
+        routingController.calculateDistances(routingController.sgs, latlng);
+
+      }catch(e){
+        e.toString();
+
+      }
+      try{
+        routingController.calculateDistances(routingController.ghNodes, latlng);
+
+      }catch(e){
+        e.toString();
+
+      }
+      try{
+        routingController.calculateDistances(routingController.route.instructions, latlng);
+
+      }catch(e){
+        e.toString();
+
+      }
+
+
+
+
     }
   }
   void updatePredictions(){
     if (locationController.currentLocation != null) {
-      var latlng = LatLng(locationController.currentLocation.latitude,
-          locationController.currentLocation.longitude);
-
-      predictionController.setNextGHNode();
-      predictionController.setNextSG();
-      predictionController.setNextValidSG();
-      predictionController.setClosestSG();
-      predictionController.setClosestValidSG();
-      predictionController.setNextLSA();
-      predictionController.setNextInstruction();
+      try{
+        predictionController.setNextGHNode();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setNextSG();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setNextValidSG();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setClosestSG();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setClosestValidSG();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setNextLSA();
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setNextInstruction();
+      }catch(e){
+        e.toString();
+      }
 
       if (predictionController.nextSG != predictionController.closestSG) {
         predictionController.nextSG = predictionController.closestSG;
       }
 
-      predictionController.setNextValidPhase(locationController.currentLocation.speed);
+      try{
+        predictionController.setNextValidPhase(locationController.currentLocation.speed);
+
+      }catch(e){
+        e.toString();
+      }
       predictionController.setCurrentPhase();
       predictionController.setNextSGGreenState();
     }

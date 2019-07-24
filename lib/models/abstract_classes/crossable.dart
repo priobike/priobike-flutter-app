@@ -1,4 +1,4 @@
 abstract class Crossable{
-  bool isCrossed;
+  bool isCrossed = false;
   bool calculateIsCrossed(double distance, double accuracy);
 }

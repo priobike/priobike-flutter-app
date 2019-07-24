@@ -20,13 +20,27 @@ class Phase{
   double speedToReachMid;
   double speedToReachEnd;
   SG parentSG;
-  bool isInThePast;
+  bool _isInThePast;
 
+
+  bool get isInThePast {
+    if(endDate != null){
+      return false;
+    }
+    return endDate.isBefore(DateTime.now());
+
+  }
+
+  set isInThePast(bool value) {
+    _isInThePast = value;
+  }
 
   Phase(this.start, this.end, this.duration, this.isGreen, this.endDate,
       this.startDate, this.midDate, this.durationLeft, this.distance,
       this.speedToReachStart, this.speedToReachMid, this.speedToReachEnd,
-      this.parentSG, this.isInThePast);
+      this.parentSG, bool isInThePast){
+    this.isInThePast = isInThePast;
+  }
 
   factory Phase.fromJson(Map<String, dynamic> json) => _$PhaseFromJson(json);
 

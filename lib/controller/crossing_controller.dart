@@ -7,9 +7,9 @@ class CrossingController{
 
   double accuracyModifier;
   int crossQuantity;
-  double maxAllowedAccuracy;
+  double maxAllowedAccuracy = 30;
   double lastAccuracy;
-  List<double> distances;
+  List<double> distances = [];
 
   CrossingController(this.lowerLimit, this.upperLimit, this.accuracyModifier, this.crossQuantity);
 
@@ -20,15 +20,21 @@ class CrossingController{
   }
 
   void add( double distance, double accuracy){
-    var lastDistance = distances.last;
-    if (isInRange(distance) && accuracy < maxAllowedAccuracy && isAccurateEnough(distance, lastDistance, accuracy)){
-      if (lastDistance > distance) {
-      distances = [distance];
-      } else {
-      distances.add(distance);
+    if (distances.isNotEmpty){
+      var lastDistance = distances.last;
+      if (isInRange(distance) && accuracy < maxAllowedAccuracy && isAccurateEnough(distance, lastDistance, accuracy)){
+        if (lastDistance > distance) {
+          distances = [distance];
+        } else {
+          distances.add(distance);
+        }
+        lastAccuracy = accuracy;
       }
+    }else{
+      distances.add(distance);
       lastAccuracy = accuracy;
     }
+
   }
 
   bool isAccurateEnough(double distance, double lastDistance, double accuracy){

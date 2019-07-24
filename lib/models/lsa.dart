@@ -21,8 +21,11 @@ class LSA with LocatableAndCrossable{
   List<SGPrediction> sgPredictions = new List<SGPrediction>();
 
 
-
-  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, this.distance, this.isCrossed, this.lon, this.lat);
+  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, this.isCrossed, double lon, double lat){
+    super.distance = distance;
+    super.lon = lon;
+    super.lat = lat;
+  }
 
   factory LSA.fromJson(Map<String, dynamic> json) => _$LSAFromJson(json);
 
@@ -35,30 +38,23 @@ class LSA with LocatableAndCrossable{
     return sgs.firstWhere((sg) => sg.sgName == name);
   }
 
-
-
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    // TODO: implement calculateIsCrossed
-    return null;
+    if (sgs.first != null){
+      if(sgs.first.isCrossed == null) return true;
+      return !sgs.first.isCrossed;
+    }
+    return sgs.first == null;
   }
 
   @override
-  double distance;
+  bool isCrossed = false;
 
-  @override
-  bool isCrossed;
 
-  @override
-  double lat;
 
-  @override
-  double lon;
 
-  @override
-  double calculateDistanceTo(BikeNowModels.LatLng destination) {
-    // TODO: implement calculateDistanceTo
-    return null;
-  }
+
+
+
 
 }

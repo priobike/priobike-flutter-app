@@ -10,9 +10,16 @@ class RoutingController{
   set route(Models.Route route) => setRoute(route);
   Models.Route get route => _route;
 
-  List<Models.LSA> orderedLSAs;
+  List<Models.LSA> _orderedLSAs;
+
+  set orderedLSAs(List<Models.LSA> value) {
+    _orderedLSAs = value;
+    setLSAs();
+  }
+
+  List<Models.LSA> get orderedLSAs => _orderedLSAs;
   Map<int, Models.LSA> lsas;
-  List<Models.SG> sgs;
+  List<Models.SG> sgs = [];
   List<Models.GHNode> ghNodes;
   String routeId;
 
@@ -77,14 +84,25 @@ class RoutingController{
   }
 
   void calculateDistances(List<LocatableAndCrossable> locations, Models.LatLng currentLocation){
-    var sorted = locations.where((locatable)=>!locatable.isCrossed).toList()
-        .map((location) {
-          location.distance = location.calculateDistanceTo(currentLocation);
+    List<LocatableAndCrossable> sorted;
+    try{
+     sorted = locations.where((locatable)=>(locatable.isCrossed == null || !locatable.isCrossed)).toList();
+
+    }
+    catch(e){
+      e.toString();
+    }
+
+    sorted = sorted.map((location) {
+
+        location.distance = location.calculateDistanceTo(currentLocation);
+
+
           return location;
 
     }).toList();
     sorted.sort((a,b){
-      a.distance.compareTo(b.distance);
+      return a.distance.compareTo(b.distance);
     });
     sorted.forEach((location){
       var isCrossed = location.calculateIsCrossed(location.distance, currentLocation.accuracy);

@@ -41,6 +41,9 @@ SG _$SGFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
+      'lon': instance.lon,
+      'lat': instance.lat,
+      'distance': instance.distance,
       'baseId': instance.baseId,
       'sgName': instance.sgName,
       'sign': instance.sign,
@@ -58,10 +61,7 @@ Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
       'annotationStatus':
           _$SGAnnotationStatusEnumMap[instance.annotationStatus],
       'shouldUpdateAnnotation': instance.shouldUpdateAnnotation,
-      'distance': instance.distance,
-      'isCrossed': instance.isCrossed,
-      'lat': instance.lat,
-      'lon': instance.lon
+      'isCrossed': instance.isCrossed
     };
 
 T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {

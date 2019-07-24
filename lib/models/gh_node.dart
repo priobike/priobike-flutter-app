@@ -1,3 +1,4 @@
+import 'package:bike_now/controller/crossing_controller.dart';
 import 'package:bike_now/models/sg.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -13,12 +14,21 @@ part 'gh_node.g.dart';
 @JsonSerializable()
 class GHNode with LocatableAndCrossable {
   double alt;
-  double lon;
   int id;
-  double lat;
   SG referencedSG;
 
-  GHNode({this.alt, this.lon, this.id, this.lat, this.latidude, this.longitude, this.isCrossed, this.distance});
+  @JsonKey(ignore: true)
+  bool shouldUpdateOverlay = false;
+
+  @JsonKey(ignore: true)
+  CrossingController crossingController  = CrossingController(0.0, 125.0, 0.67, 2);
+
+  GHNode(this.alt, double lon, this.id, double lat, bool isCrossed, double distance){
+    super.distance = distance;
+    super.lon = lon;
+    super.lat = lat;
+    this.isCrossed = isCrossed;
+  }
 
   factory GHNode.fromJson(Map<String, dynamic> json) => _$GHNodeFromJson(json);
 
@@ -29,25 +39,22 @@ class GHNode with LocatableAndCrossable {
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    // TODO: implement calculateIsCrossed
-    return null;
+    if (distance <= 125.0) {
+    return crossingController.run(distance, accuracy);
+    }
+
+    return false;
   }
+  bool _isCrossed = false;
 
   @override
-  double distance;
-
-  @override
-  bool isCrossed;
-
-  @override
-  double latidude;
-
-  @override
-  double longitude;
-
-  @override
-  double calculateDistanceTo(BikeNow.LatLng destination) {
-    // TODO: implement calculateDistanceTo
-    return null;
+  void set isCrossed(bool _isCrossed) {
+    this._isCrossed = _isCrossed;
   }
+  @override
+  // TODO: implement isCrossed
+  bool get isCrossed => _isCrossed;
+
+
+
 }

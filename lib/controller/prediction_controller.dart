@@ -6,7 +6,31 @@ import 'package:bike_now/controller/routing_controller.dart';
 
 class PredictionController{
 
-  List<LSAPrediction> predictions = [];
+  List<LSAPrediction> _predictions = [];
+
+  List<LSAPrediction> get predictions => _predictions;
+
+  set predictions(List<LSAPrediction> value) {
+    _predictions = value;
+    value.forEach((prediction) {
+      var lsa = routingController.getLSA(prediction.lsaId);
+      lsa.sgPredictions = [];
+      prediction.sgPredictions.forEach((sgPrediction){
+        if(sgPrediction.sgName != null){
+          var sgName = sgPrediction.sgName;
+          if(lsa.getSG(sgName)!= null){
+            var sg = lsa.getSG(sgName);
+            sg.phases = sgPrediction.phases;
+            lsa.sgPredictions.add(sgPrediction);
+          }
+
+        }
+      });
+    });
+
+
+  }
+
   Phase currentPhase;
   Phase nextValidPhase;
   Instruction nextInstruction;
@@ -14,7 +38,17 @@ class PredictionController{
   LSA nextLSA;
   GHNode nextGHNode;
   SG nextValidSG;
-  SG closestSG;
+  SG _closestSG;
+
+  SG get closestSG => _closestSG;
+
+  set closestSG(SG value) {
+    _closestSG = value;
+    if(this.closestSG != null){
+      closestSG.isSubscribed = true;
+    }
+  }
+
   SG closestValidSG;
   RoutingController routingController;
   SubscriptionController subscriptionController;
@@ -67,7 +101,7 @@ class PredictionController{
   void setClosestSG(){
     var sortedSGs = routingController.sgs;
     sortedSGs.sort((a,b) => a.distance.compareTo(b.distance));
-    closestValidSG = sortedSGs.firstWhere((sg) => !sg.isCrossed);
+    closestSG = sortedSGs.firstWhere((sg) => !sg.isCrossed);
   }
   void setClosestValidSG(){
     var sortedSGs = routingController.sgs;

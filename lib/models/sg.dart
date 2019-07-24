@@ -37,7 +37,18 @@ class SG with LocatableAndCrossable{
   bool isSubscribed;
   LSA parentLSA;
   GHNode referencedGHNode;
-  List<Phase> phases;
+  List<Phase> _phases;
+
+  List<Phase> get phases => _phases;
+
+  set phases(List<Phase> value) {
+    _phases = value;
+    phases.forEach((phase) {
+      phase.parentSG = this;
+    });
+    var validPhase = phases.firstWhere((phase) => !phase.isInThePast);
+    hasPredictions = validPhase != null;
+  }
 
   @JsonKey(ignore: true)
   void Function(SG) handleSGSubscribtion;
@@ -49,13 +60,20 @@ class SG with LocatableAndCrossable{
 
   bool shouldUpdateAnnotation = false;
 
+  @JsonKey(ignore: true)
   CrossingController crossingController  = CrossingController(0.0, 100.0, 0.8, 2);
 
 
   SG(this.baseId, this.sgName, this.sign, this.signFlags, this.bear,
       this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
       this.isGreen, this.isSubscribed, this.parentLSA, this.referencedGHNode,
-      this.phases, this.annotationStatus, this.shouldUpdateAnnotation, this.lat, this.lon,this.isCrossed,this.distance);
+      List<Phase> phases, this.annotationStatus, this.shouldUpdateAnnotation, double lat, double lon,this.isCrossed, double distance){
+    super.distance = distance;
+    super.lat = lat;
+    super.lon = lon;
+    this.phases = phases;
+
+  }
 
   factory SG.fromJson(Map<String, dynamic> json) => _$SGFromJson(json);
 
@@ -98,22 +116,9 @@ class SG with LocatableAndCrossable{
   }
 
   @override
-  double distance;
+  bool isCrossed = false;
 
-  @override
-  bool isCrossed;
 
-  @override
-  double lat;
-
-  @override
-  double lon;
-
-  @override
-  double calculateDistanceTo(LatLng destination) {
-    // TODO: implement calculateDistanceTo
-    return null;
-  }
 
 
 }
