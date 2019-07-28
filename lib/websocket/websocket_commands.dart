@@ -26,7 +26,7 @@ class Logout implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
+        'sessionId': '$sessionId',
       };
 }
 
@@ -45,7 +45,7 @@ class Ping implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"'
+        'sessionId': '$sessionId'
       };
 
 }
@@ -67,8 +67,8 @@ class Login implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
-        'apiKey' : '"$apiKey"',
+        'sessionId': '$sessionId',
+        'apiKey' : '$apiKey',
         'version' : version
       };
 
@@ -94,7 +94,7 @@ class CalcRoute implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
+        'sessionId': '$sessionId',
         'lat1': sourceLat,
         'lon1': sourceLong,
         'lat2': targetLat,
@@ -120,7 +120,7 @@ class PushLocations implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
+        'sessionId': '$sessionId',
         'locationArray': locations.map((i)=>(i.toJson())).toList()
       };
 
@@ -144,7 +144,7 @@ class UpdateSubscription implements WebSocketCommand{
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
+        'sessionId': '$sessionId',
         'subscriptions' : subscriptions.map((sub) => (sub.toJson())).toList()
       };
 }
@@ -167,8 +167,8 @@ class GetLocationFromAddress implements WebSocketCommand{
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
-        'address' : '"$address"'
+        'sessionId': '$sessionId',
+        'address' : '$address'
       };
 
 }
@@ -192,7 +192,7 @@ class GetAddressFromLocation implements WebSocketCommand{
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"',
+        'sessionId': '$sessionId',
         'lat' : lat,
         'lon' : lon
       };
@@ -214,7 +214,7 @@ class RouteStart implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"'
+        'sessionId': '$sessionId'
       };
 
 }
@@ -234,7 +234,7 @@ class RouteFinish implements WebSocketCommand {
   Map<String, dynamic> toJson() =>
       {
         'method': WebSocketMethodHelper.getValue(method),
-        'sessionId': '"$sessionId"'
+        'sessionId': '$sessionId'
       };
 
 }

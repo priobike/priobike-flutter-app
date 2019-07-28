@@ -9,7 +9,7 @@ part of 'lsa_prediction.dart';
 LSAPrediction _$LSAPredictionFromJson(Map<String, dynamic> json) {
   return LSAPrediction(
       json['lsaId'] as int,
-      (json['sgPredictions'] as List)
+      (json['sgArray'] as List)
           ?.map((e) => e == null
               ? null
               : SGPrediction.fromJson(e as Map<String, dynamic>))
@@ -19,5 +19,5 @@ LSAPrediction _$LSAPredictionFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$LSAPredictionToJson(LSAPrediction instance) =>
     <String, dynamic>{
       'lsaId': instance.lsaId,
-      'sgPredictions': instance.sgPredictions
+      'sgArray': instance.sgPredictions
     };

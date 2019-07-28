@@ -7,7 +7,8 @@ part 'lsa_prediction.g.dart';
 @JsonSerializable()
 class LSAPrediction{
   int lsaId;
-  List<SGPrediction> sgPredictions;
+  @JsonKey(name: 'sgArray')
+  List<SGPrediction> sgPredictions = [];
 
   LSAPrediction(this.lsaId, this.sgPredictions);
 

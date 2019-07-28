@@ -14,14 +14,14 @@ class PredictionController{
     _predictions = value;
     value.forEach((prediction) {
       var lsa = routingController.getLSA(prediction.lsaId);
-      lsa.sgPredictions = [];
+      lsa?.sgPredictions = [];
       prediction.sgPredictions.forEach((sgPrediction){
         if(sgPrediction.sgName != null){
           var sgName = sgPrediction.sgName;
-          if(lsa.getSG(sgName)!= null){
-            var sg = lsa.getSG(sgName);
+          if(lsa?.getSG(sgName)!= null){
+            var sg = lsa?.getSG(sgName);
             sg.phases = sgPrediction.phases;
-            lsa.sgPredictions.add(sgPrediction);
+            lsa?.sgPredictions.add(sgPrediction);
           }
 
         }

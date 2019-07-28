@@ -72,8 +72,8 @@ class WebSocketService implements WebSocketServiceDelegate{
       return;
 
     }
-    log.fine('Send Command JSON: ${command.toJson().toString()}');
-    webSocketChannel.sink.add(command.toJson().toString());
+    log.fine('Send Command JSON: ${jsonEncode(command)}');
+    webSocketChannel.sink.add(jsonEncode(command));
   }
 
   void authenticate(){

@@ -7,7 +7,7 @@ part 'sg_prediction.g.dart';
 
 class SGPrediction{
   String sgName;
-  List<Phase> phases;
+  List<Phase> phases = [];
 
   SGPrediction(this.sgName, this.phases);
 

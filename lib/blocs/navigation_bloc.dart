@@ -1,5 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:bike_now/server_response/websocket_response.dart';
+import 'package:bike_now/server_response/websocket_response_predictions.dart';
+import 'package:bike_now/websocket/web_socket_method.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -79,6 +83,15 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
   @override
   void websocketDidReceiveMessage(String msg) {
     print(msg);
+    WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
+    if(response.method == WebSocketMethod.pushPredictions){
+      var response = WebSocketResponsePredictions.fromJson(jsonDecode(msg));
+      predictionController.predictions = response.predictions;
+    }
+    if(response.method == WebSocketMethod.updateSubscriptions){
+      var response = WebSocketResponsePredictions.fromJson(jsonDecode(msg));
+      predictionController.predictions = response.predictions;
+    }
   }
 
 }

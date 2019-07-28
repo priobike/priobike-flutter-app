@@ -19,7 +19,7 @@ class LSA with LocatableAndCrossable{
   String name;
   @JsonKey(name: 'sgArray')
   List<SG> sgs;
-  List<SGPrediction> sgPredictions = new List<SGPrediction>();
+  List<SGPrediction> sgPredictions = [];
 
 
   LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, bool isCrossed, double lon, double lat){
