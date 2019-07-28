@@ -16,19 +16,36 @@ class Route{
   double ascend;
   double distance;
   int time;
-  int duration;
-  DateTime arrivalTime;
-  List<LatLng> coordinates;
+  int _duration;
+
+  int get duration {
+    return (time / 1000).round();
+  }
+
+  DateTime get arrivalTime {
+    var now = DateTime.now();
+    var then = now.add(Duration(minutes: duration));
+    return then;
+  }
+
+  set arrivalTime(DateTime value) {
+    _arrivalTime = value;
+  }
+
+  DateTime _arrivalTime;
+  List<LatLng> _coordinates;
 
 
-  Route(this.instructions, this.descend, this.ascend, this.distance, this.time,
-      this.duration, this.arrivalTime, this.coordinates){
-    coordinates = [];
+  List<LatLng> get coordinates  {
+    List<LatLng> result = [];
     for (var instruction in instructions){
-      instruction.nodes.forEach(((node) => coordinates.add(LatLng(node.lat, node.lon))));
+      instruction.nodes.forEach(((node) => result.add(LatLng(node.lat, node.lon))));
     }
-    
-    arrivalTime = DateTime.now().add(Duration(milliseconds: time));
+    return result;
+  }
+
+  Route(this.instructions, this.descend, this.ascend, this.distance, this.time){
+
   }
 
   factory Route.fromJson(Map<String, dynamic> json) => _$RouteFromJson(json);

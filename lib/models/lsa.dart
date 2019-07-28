@@ -1,6 +1,7 @@
 import 'package:bike_now/models/lsa_prediction.dart';
 import 'package:bike_now/models/sg.dart';
 import 'package:bike_now/models/sg_prediction.dart';
+import 'package:logging/logging.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'abstract_classes/locatable.dart';
@@ -21,10 +22,11 @@ class LSA with LocatableAndCrossable{
   List<SGPrediction> sgPredictions = new List<SGPrediction>();
 
 
-  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, this.isCrossed, double lon, double lat){
+  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, bool isCrossed, double lon, double lat){
     super.distance = distance;
     super.lon = lon;
     super.lat = lat;
+    this.isCrossed = isCrossed;
   }
 
   factory LSA.fromJson(Map<String, dynamic> json) => _$LSAFromJson(json);
@@ -47,8 +49,17 @@ class LSA with LocatableAndCrossable{
     return sgs.first == null;
   }
 
+  bool _isCrossed = false;
+
   @override
-  bool isCrossed = false;
+  void set isCrossed(bool _isCrossed) {
+    if(_isCrossed == false && isCrossed){
+      Logger.root.fine("LSA with name $name has been crossed.");
+    }
+    this._isCrossed = _isCrossed;
+  }
+  @override
+  bool get isCrossed => _isCrossed;
 
 
 

@@ -1,5 +1,6 @@
 import 'package:bike_now/controller/crossing_controller.dart';
 import 'package:bike_now/models/sg.dart';
+import 'package:logging/logging.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'abstract_classes/crossable.dart';
@@ -23,11 +24,10 @@ class GHNode with LocatableAndCrossable {
   @JsonKey(ignore: true)
   CrossingController crossingController  = CrossingController(0.0, 125.0, 0.67, 2);
 
-  GHNode(this.alt, double lon, this.id, double lat, bool isCrossed, double distance){
+  GHNode(this.alt, double lon, this.id, double lat, double distance){
     super.distance = distance;
     super.lon = lon;
     super.lat = lat;
-    this.isCrossed = isCrossed;
   }
 
   factory GHNode.fromJson(Map<String, dynamic> json) => _$GHNodeFromJson(json);
@@ -42,15 +42,19 @@ class GHNode with LocatableAndCrossable {
     if (distance <= 125.0) {
     return crossingController.run(distance, accuracy);
     }
-
     return false;
   }
   bool _isCrossed = false;
 
   @override
   void set isCrossed(bool _isCrossed) {
+    if (isCrossed == false && _isCrossed && id != null && id >= 0){
+      shouldUpdateOverlay = true;
+      Logger.root.fine("GHNode with id $id has been crossed.");
+    }
     this._isCrossed = _isCrossed;
   }
+  @JsonKey(ignore: true)
   @override
   // TODO: implement isCrossed
   bool get isCrossed => _isCrossed;

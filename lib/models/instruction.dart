@@ -1,4 +1,5 @@
 import 'package:bike_now/models/latlng.dart';
+import 'package:logging/logging.dart';
 
 import 'abstract_classes/locatable.dart';
 import 'abstract_classes/crossable.dart';
@@ -22,7 +23,7 @@ class Instruction with LocatableAndCrossable{
 
 
   Instruction(this.sign, this.name, this.text, this.info, this.lsas,
-      this.nodes, double distance, this.isCrossed){
+      this.nodes, double distance){
 
       super.lon = 0;
       super.lat = 0;
@@ -46,24 +47,43 @@ class Instruction with LocatableAndCrossable{
 
   @JsonKey(name: 'dist')
   @override
-  // TODO: implement distance
   double get distance => super.distance;
   @override
   void set distance(double _distance) {
-    // TODO: implement distance
     super.distance = _distance;
   }
 
+  bool _isCrossed = false;
+
+  @JsonKey(ignore: true)
   @override
-  bool isCrossed;
+  bool get isCrossed => _isCrossed;
 
   @override
-  // TODO: implement lat
+  void set isCrossed(bool _isCrossed) {
+    if (isCrossed == false && _isCrossed){
+      Logger.root.fine("Finished instruction with name $name and text $text");
+    }
+    this._isCrossed = _isCrossed;
+  }
+
+  @override
   double get lat => super.lat;
 
   @override
   void set lon(double _lon) {
-    // TODO: implement lon
     super.lon = _lon;
+  }
+
+  @override
+  double calculateDistanceTo(LatLng destination) {
+    var list = nodes.where((node) => !node.isCrossed);
+    double res = list.fold(distance, (distance, node){
+      if (node != null){
+        return node.calculateDistanceTo(destination) + distance;
+      }
+      return distance;
+    });
+    return res;
   }
 }

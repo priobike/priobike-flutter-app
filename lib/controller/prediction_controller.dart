@@ -73,10 +73,10 @@ class PredictionController{
 
   }
   void setCurrentPhase(){
-    currentPhase = nextSG?.phases.firstWhere((phase) => phase.getCurrentPhase() != null);
+    currentPhase = nextSG?.phases?.firstWhere((phase) => phase.getCurrentPhase() != null);
   }
   void setNextValidPhase(double speed ){
-    nextValidPhase = nextSG?.phases.firstWhere((phase) => (!phase.isInThePast && phase.getValidPhase(speed) != null));
+    nextValidPhase = nextSG?.phases?.firstWhere((phase) => (!phase.isInThePast && phase.getValidPhase(speed) != null));
   }
   void setNextGHNode(){
     nextGHNode = routingController.route.getNextGHNode(routingController.ghNodes, 0.5, true);

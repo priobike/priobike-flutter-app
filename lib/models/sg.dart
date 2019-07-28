@@ -8,6 +8,7 @@ import 'package:bike_now/models/sg_subscription.dart';
 import 'package:bike_now/models/subscription.dart';
 
 import 'package:bike_now/models/latlng.dart';
+import 'package:logging/logging.dart';
 import 'gh_node.dart';
 import 'lsa.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -33,8 +34,49 @@ class SG with LocatableAndCrossable{
   String uniqueName;
   LatLng coordinate;
 
-  bool isGreen;
-  bool isSubscribed;
+  bool _isGreen = false;
+
+
+  @JsonKey(ignore: true)
+  bool get isGreen => _isGreen;
+
+  set isGreen(bool value) {
+    var oldValue = isGreen;
+    _isGreen = value;
+
+    if (isGreen != oldValue) {
+    shouldUpdateAnnotation = true;
+
+    if (isGreen != null){
+      if (isGreen) {
+      annotationStatus = SGAnnotationStatus.green;
+      } else {
+      annotationStatus = SGAnnotationStatus.red;
+      }
+    }else{
+      return;
+    }
+    }
+
+    }
+  bool _isSubscribed = false;
+  @JsonKey(ignore: true)
+  bool get isSubscribed => _isSubscribed;
+  set isSubscribed(bool value) {
+    var oldValue = isSubscribed;
+    _isSubscribed = value;
+
+    if (isSubscribed && oldValue == false) {
+    shouldUpdateAnnotation = true;
+    Logger.root.fine("Did subscribe to SG with name $sgName.");
+    handleSGSubscribtion(this);
+    } else if (!isSubscribed && oldValue == true) {
+    Logger.root.fine("Did unsubscribe from SG with name $sgName).");
+
+    handleSGUnSubscribe(this);
+    }
+  }
+
   LSA parentLSA;
   GHNode referencedGHNode;
   List<Phase> _phases;
@@ -43,7 +85,7 @@ class SG with LocatableAndCrossable{
 
   set phases(List<Phase> value) {
     _phases = value;
-    phases.forEach((phase) {
+    phases?.forEach((phase) {
       phase.parentSG = this;
     });
     var validPhase = phases.firstWhere((phase) => !phase.isInThePast);
@@ -66,12 +108,11 @@ class SG with LocatableAndCrossable{
 
   SG(this.baseId, this.sgName, this.sign, this.signFlags, this.bear,
       this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
-      this.isGreen, this.isSubscribed, this.parentLSA, this.referencedGHNode,
-      List<Phase> phases, this.annotationStatus, this.shouldUpdateAnnotation, double lat, double lon,this.isCrossed, double distance){
+       this.parentLSA, this.referencedGHNode,
+      List<Phase> phases, this.annotationStatus, this.shouldUpdateAnnotation, double lat, double lon, double distance){
     super.distance = distance;
     super.lat = lat;
     super.lon = lon;
-    this.phases = phases;
 
   }
 
@@ -82,7 +123,12 @@ class SG with LocatableAndCrossable{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$SGToJson(this);
 
-  Phase getNextValidPhase(){
+  Phase getNextValidPhase(double currentSpeed){
+    var validPhase = phases.firstWhere((phase) {
+      var validPhase = phase.getValidPhase(currentSpeed);
+      return validPhase != null;
+    });
+    return validPhase;
 
   }
 
@@ -115,9 +161,24 @@ class SG with LocatableAndCrossable{
     return false;
   }
 
+  bool _isCrossed = false;
+  @JsonKey(ignore: true)
   @override
-  bool isCrossed = false;
+  bool get isCrossed => _isCrossed;
 
+  @override
+  void set isCrossed(bool _isCrossed) {
+    bool oldValue = isCrossed;
+    this._isCrossed = _isCrossed;
+
+    if (isCrossed && oldValue == false) {
+    annotationStatus = SGAnnotationStatus.none;
+    shouldUpdateAnnotation = true;
+    isSubscribed = false;
+
+    Logger.root.fine("SG with name $sgName) has been crossed.");
+    }
+  }
 
 
 

@@ -19,8 +19,6 @@ SG _$SGFromJson(Map<String, dynamic> json) {
       json['coordinate'] == null
           ? null
           : LatLng.fromJson(json['coordinate'] as Map<String, dynamic>),
-      json['isGreen'] as bool,
-      json['isSubscribed'] as bool,
       json['parentLSA'] == null
           ? null
           : LSA.fromJson(json['parentLSA'] as Map<String, dynamic>),
@@ -36,7 +34,6 @@ SG _$SGFromJson(Map<String, dynamic> json) {
       json['shouldUpdateAnnotation'] as bool,
       (json['lat'] as num)?.toDouble(),
       (json['lon'] as num)?.toDouble(),
-      json['isCrossed'] as bool,
       (json['distance'] as num)?.toDouble());
 }
 
@@ -53,15 +50,12 @@ Map<String, dynamic> _$SGToJson(SG instance) => <String, dynamic>{
       'vehicleFlags': instance.vehicleFlags,
       'uniqueName': instance.uniqueName,
       'coordinate': instance.coordinate,
-      'isGreen': instance.isGreen,
-      'isSubscribed': instance.isSubscribed,
       'parentLSA': instance.parentLSA,
       'referencedGHNode': instance.referencedGHNode,
       'phases': instance.phases,
       'annotationStatus':
           _$SGAnnotationStatusEnumMap[instance.annotationStatus],
-      'shouldUpdateAnnotation': instance.shouldUpdateAnnotation,
-      'isCrossed': instance.isCrossed
+      'shouldUpdateAnnotation': instance.shouldUpdateAnnotation
     };
 
 T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {

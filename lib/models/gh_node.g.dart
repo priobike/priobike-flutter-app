@@ -12,7 +12,6 @@ GHNode _$GHNodeFromJson(Map<String, dynamic> json) {
       (json['lon'] as num)?.toDouble(),
       json['id'] as int,
       (json['lat'] as num)?.toDouble(),
-      json['isCrossed'] as bool,
       (json['distance'] as num)?.toDouble())
     ..referencedSG = json['referencedSG'] == null
         ? null
@@ -25,6 +24,5 @@ Map<String, dynamic> _$GHNodeToJson(GHNode instance) => <String, dynamic>{
       'distance': instance.distance,
       'alt': instance.alt,
       'id': instance.id,
-      'referencedSG': instance.referencedSG,
-      'isCrossed': instance.isCrossed
+      'referencedSG': instance.referencedSG
     };

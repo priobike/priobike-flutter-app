@@ -104,8 +104,18 @@ class RoutingCoordinator{
       }catch(e){
         e.toString();
       }
-      predictionController.setCurrentPhase();
-      predictionController.setNextSGGreenState();
+      try{
+        predictionController.setCurrentPhase();
+
+      }catch(e){
+        e.toString();
+      }
+      try{
+        predictionController.setNextSGGreenState();
+
+      }catch(e){
+        e.toString();
+      }
     }
   }
   void updateLocationController(){

@@ -16,15 +16,10 @@ Route _$RouteFromJson(Map<String, dynamic> json) {
       (json['descend'] as num)?.toDouble(),
       (json['ascend'] as num)?.toDouble(),
       (json['distance'] as num)?.toDouble(),
-      json['time'] as int,
-      json['duration'] as int,
-      json['arrivalTime'] == null
-          ? null
-          : DateTime.parse(json['arrivalTime'] as String),
-      (json['coordinates'] as List)
-          ?.map((e) =>
-              e == null ? null : LatLng.fromJson(e as Map<String, dynamic>))
-          ?.toList());
+      json['time'] as int)
+    ..arrivalTime = json['arrivalTime'] == null
+        ? null
+        : DateTime.parse(json['arrivalTime'] as String);
 }
 
 Map<String, dynamic> _$RouteToJson(Route instance) => <String, dynamic>{
@@ -33,7 +28,5 @@ Map<String, dynamic> _$RouteToJson(Route instance) => <String, dynamic>{
       'ascend': instance.ascend,
       'distance': instance.distance,
       'time': instance.time,
-      'duration': instance.duration,
-      'arrivalTime': instance.arrivalTime?.toIso8601String(),
-      'coordinates': instance.coordinates
+      'arrivalTime': instance.arrivalTime?.toIso8601String()
     };
