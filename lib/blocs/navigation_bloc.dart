@@ -21,7 +21,7 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
 
   SubscriptionController subscriptionController = SubscriptionController();
   RoutingController routingController;
-  LocationController locationController = LocationController(false);
+  LocationController locationController;
   RoutingCoordinator routingCoordinator;
   PredictionController predictionController;
 
@@ -43,7 +43,8 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
     _routeSubject.add(route);
   }
 
-  NavigationBloc(){
+  NavigationBloc(LocationController locationController){
+    this.locationController = locationController;
 
     routingController = RoutingController(subscriptionController);
     locationController.getCurrentLocation.listen((loc) => _currentLocationSubject.add(loc));

@@ -9,10 +9,12 @@ part 'latlng.g.dart';
 class LatLng{
   double lat;
   double lng;
-  double accuracy = 0; // Estimated horizontal accuracy of this location, radial, in meters
+  double accuracy = 0;
+  double speed = 0;
+  // Estimated horizontal accuracy of this location, radial, in meters
 
 
-  LatLng(this.lat, this.lng, [this.accuracy = 0]);
+  LatLng(this.lat, this.lng, [this.accuracy = 0, this.speed = 0]);
 
   factory LatLng.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
 

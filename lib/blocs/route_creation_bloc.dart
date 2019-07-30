@@ -1,3 +1,5 @@
+import 'package:bike_now/controller/location_controller.dart';
+import 'package:bike_now/models/latlng.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'dart:async';
@@ -27,11 +29,9 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Place end;
   CreationState state;
 
+
   BikeRoute.Route route;
-  var location = new Location();
-  LocationData currentLocation = null;
-
-
+  LocationController locationController;
 
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
@@ -63,7 +63,8 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   final _isOwnLocationSubject = BehaviorSubject<bool>();
 
 
-  RouteCreationBloc(){
+  RouteCreationBloc(LocationController locationController){
+    this.locationController = locationController;
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
     fetchRides();
@@ -72,9 +73,6 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     SharedPreferences.getInstance().then((result) {
       isOwnLocation = result.getBool(SettingKeys.simulator) ?? false;
         _isOwnLocationSubject.add(isOwnLocation);
-    });
-    location.onLocationChanged().listen((LocationData currentLocation) {
-      this.currentLocation = currentLocation;
     });
   }
 
@@ -104,7 +102,7 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     _stateSubject.add(state);
     if(state == CreationState.waitingForResponse){
       if(isOwnLocation){
-        WebSocketService.instance.sendCommand(CalcRoute(currentLocation.latitude,currentLocation.longitude , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
+        WebSocketService.instance.sendCommand(CalcRoute(locationController.currentLocation.latitude,locationController.currentLocation.longitude , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
       }else{
         WebSocketService.instance.sendCommand(CalcRoute(double.parse(start.lat),double.parse(start.lon) , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
 
