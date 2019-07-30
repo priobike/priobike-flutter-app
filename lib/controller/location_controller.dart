@@ -40,7 +40,7 @@ class LocationController extends ChangeNotifier{
       map['latitude'] = double.parse(elements[index].getAttribute("lat"));
       map['longitude'] = double.parse(elements[index].getAttribute("lon"));
       map['accuracy'] = 0;
-      map['speed'] = 20;
+      map['speed'] = 20 / 3.6;
       currentLocation = LocationData.fromMap(map);
       _currentLocationSubject.add(BikeNow.LatLng(map['latitude'], map['longitude']));
 

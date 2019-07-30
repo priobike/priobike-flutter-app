@@ -26,13 +26,37 @@ class _MapBoxState extends State<MapBoxWidget> {
   List<BikeNow.LSA> _lsas;
   set lsas(List<BikeNow.LSA> value) {
     _lsas = value;
-    _circles.clear();
     _lsas.forEach((lsa) {
+      Color color = Colors.red;
+      
+      if (lsa.isCrossed != null){
+        if (lsa.isCrossed){
+          color = Colors.black45;
+        }
+      }
       setState(() {
-        _circles.add(Circle(circleId: CircleId((_circleIdCounter++).toString()), center: LatLng(lsa.lat, lsa.lon), fillColor: Colors.red, radius: 8, visible: true, strokeWidth: 0, zIndex: 1));
+        _circles.add(Circle(circleId: CircleId((_circleIdCounter++).toString()), center: LatLng(lsa.lat, lsa.lon), fillColor: color, radius: 14, visible: true, strokeWidth: 0, zIndex: 1));
       });
     });
   }
+
+  List<BikeNow.GHNode> _ghNode;
+
+  set ghNode(List<BikeNow.GHNode> value) {
+    _ghNode = value;
+    _ghNode.forEach((ghNode){
+      Color color = Colors.amber;
+      if (ghNode.isCrossed != null){
+        if (ghNode.isCrossed){
+          color = Colors.black45;
+        }
+      }
+      setState(() {
+        _circles.add(Circle(circleId: CircleId((_circleIdCounter++).toString()), center: LatLng(ghNode.lat, ghNode.lon), fillColor: color, radius: 11, visible: true, strokeWidth: 0, zIndex: 1));
+      });
+    });
+  }
+
 
   List<LatLng> get coordinates => _coordinates;
   set coordinates(List<LatLng> value) {
@@ -46,7 +70,10 @@ class _MapBoxState extends State<MapBoxWidget> {
     coordinates = _route.coordinates
         .map((coordinate) => coordinate.toGoogleLatLng())
         .toList();
+
+    _circles.clear();
     lsas = _route.getLSAs();
+    ghNode = _route.getGHNodes(true);
   }
 
    // MapProperties

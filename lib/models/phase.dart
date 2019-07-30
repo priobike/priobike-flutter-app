@@ -62,7 +62,7 @@ class Phase{
 
       // Otherwise calculate the time difference between the phase's end
       // and the current time and return it
-      return DateTime.now().difference(endDate).inSeconds;
+      return endDate.difference( DateTime.now()).inSeconds;
     }
     return null;
   }
@@ -90,7 +90,7 @@ class Phase{
 
 
   bool get isInThePast {
-    if(endDate != null){
+    if(endDate == null){
       return false;
     }
     return endDate.isBefore(DateTime.now());
@@ -137,9 +137,9 @@ class Phase{
     var currentUserMaxSpeed = [currentSpeed, userMaxSpeed].reduce(max);
 
     var now = DateTime.now();
-    var timeDifferenceToStartFromNow = now.difference( startDate).inSeconds;
-    var timeDifferenceToMidFromNow = now.difference( midDate).inSeconds;
-    var timeDifferenceToEndFromNow = now.difference( endDate).inSeconds;
+    var timeDifferenceToStartFromNow = startDate.difference(now).inSeconds;
+    var timeDifferenceToMidFromNow = midDate.difference( now).inSeconds;
+    var timeDifferenceToEndFromNow = endDate.difference( now).inSeconds;
 
 
     if(distance != null){
@@ -177,7 +177,7 @@ class Phase{
   }
 
   Phase getCurrentPhase(){
-    if(!isInThePast && startDate != null && endDate != null && !startDate.isAfter(DateTime.now()) && !endDate.isAfter(DateTime.now())){
+    if(!isInThePast && startDate != null && endDate != null){
       return this;
     }
     return null;

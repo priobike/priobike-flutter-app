@@ -21,21 +21,20 @@ class RoutingCoordinator{
     if (locationController.currentLocation != null){
       var latlng = LatLng(locationController.currentLocation.latitude, locationController.currentLocation.longitude, locationController.currentLocation.accuracy);
       try{
-        routingController.calculateDistances(routingController.orderedLSAs, latlng);
-
-
-
-      }catch(e){
-        e.toString();
-
-      }
-      try{
         routingController.calculateDistances(routingController.sgs, latlng);
 
       }catch(e){
         e.toString();
 
       }
+      try{
+        routingController.calculateDistances(routingController.orderedLSAs, latlng);
+
+      }catch(e){
+        e.toString();
+
+      }
+
       try{
         routingController.calculateDistances(routingController.ghNodes, latlng);
 

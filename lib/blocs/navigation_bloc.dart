@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bike_now/blocs/helper/routing_dashboard_info.dart';
 import 'package:bike_now/server_response/websocket_response.dart';
 import 'package:bike_now/server_response/websocket_response_predictions.dart';
 import 'package:bike_now/websocket/web_socket_method.dart';
@@ -26,7 +27,10 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
 
   Timer updateRouteTimer;
   Duration updateInterval = Duration(seconds: 2);
+  RoutingDashboardInfo dashboardInfo;
 
+  Stream<RoutingDashboardInfo> get getDashboardIngo => _dashboardInfoSubject.stream;
+  final _dashboardInfoSubject = PublishSubject<RoutingDashboardInfo>();
 
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
@@ -63,6 +67,10 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
     updateGHNodes(routingController.route);
     updateTrafficLights(routingController.route);
     //sendRideStatistics();
+    _routeSubject.add(routingController.route);
+    dashboardInfo = RoutingDashboardInfo(locationController.currentLocation.speed, predictionController.nextValidPhase?.getRecommendedSpeed(), predictionController.currentPhase?.durationLeft, predictionController.currentPhase?.distance, predictionController?.nextInstruction, predictionController.nextSG);
+
+    _dashboardInfoSubject.add(dashboardInfo);
 
   }
 

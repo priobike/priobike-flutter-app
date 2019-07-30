@@ -22,11 +22,10 @@ class LSA with LocatableAndCrossable{
   List<SGPrediction> sgPredictions = [];
 
 
-  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, bool isCrossed, double lon, double lat){
+  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, double lon, double lat){
     super.distance = distance;
     super.lon = lon;
     super.lat = lat;
-    this.isCrossed = isCrossed;
   }
 
   factory LSA.fromJson(Map<String, dynamic> json) => _$LSAFromJson(json);
@@ -44,7 +43,7 @@ class LSA with LocatableAndCrossable{
   bool calculateIsCrossed(double distance, double accuracy) {
     if (sgs.first != null){
       if(sgs.first.isCrossed == null) return true;
-      return !sgs.first.isCrossed;
+      return sgs.first.isCrossed;
     }
     return sgs.first == null;
   }
@@ -58,6 +57,7 @@ class LSA with LocatableAndCrossable{
     }
     this._isCrossed = _isCrossed;
   }
+  @JsonKey(ignore: true)
   @override
   bool get isCrossed => _isCrossed;
 

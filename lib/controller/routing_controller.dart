@@ -39,7 +39,7 @@ class RoutingController{
   }
 
   Models.LSA getLSA(int Id){
-    orderedLSAs.firstWhere((lsa) => lsa.id == Id);
+    return orderedLSAs.firstWhere((lsa) => lsa.id == Id);
   }
   Models.SG getSG(int id){
     return sgs.firstWhere((sg) => sg.baseId == id);

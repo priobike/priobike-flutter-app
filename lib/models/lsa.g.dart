@@ -21,7 +21,6 @@ LSA _$LSAFromJson(Map<String, dynamic> json) {
               : SGPrediction.fromJson(e as Map<String, dynamic>))
           ?.toList(),
       (json['distance'] as num)?.toDouble(),
-      json['isCrossed'] as bool,
       (json['lon'] as num)?.toDouble(),
       (json['lat'] as num)?.toDouble());
 }
@@ -34,6 +33,5 @@ Map<String, dynamic> _$LSAToJson(LSA instance) => <String, dynamic>{
       'sgSize': instance.sgSize,
       'name': instance.name,
       'sgArray': instance.sgs,
-      'sgPredictions': instance.sgPredictions,
-      'isCrossed': instance.isCrossed
+      'sgPredictions': instance.sgPredictions
     };
