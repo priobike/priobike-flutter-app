@@ -6,19 +6,29 @@ import 'package:bike_now/widgets/settings_section_header.dart';
 import 'package:bike_now/blocs/settings_bloc.dart';
 
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return SettingsPageState();
+  }
+}
+
+class SettingsPageState extends State<SettingsPage> with AutomaticKeepAliveClientMixin<SettingsPage>{
+
   @override
   Widget build(BuildContext context) {
     final settingsBloc = Provider.of<SettingsBloc>(context);
     return Scaffold(
-        appBar: AppBar(
-            title: Text(
-              'Einstellungen',
-              style: TextStyle(color: Colors.black),
-            ),
-            backgroundColor: Colors.white),
         body: ListView(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 32.0, bottom: 32, left: 8),
+              child: Text(
+                "Einstellungen",
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
+              ),
+            ),
             SettingsSectionHeader('Allgemeines'),
             StreamBuilder<int>(
               stream: settingsBloc.maxSpeed,
@@ -208,6 +218,10 @@ class SettingsPage extends StatelessWidget {
           ],
         ));
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +28,10 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   CreationState state;
 
   BikeRoute.Route route;
+  var location = new Location();
+  LocationData currentLocation = null;
+
+
 
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
@@ -47,12 +52,30 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Sink<int> get deleteRides => _deleteRidesController.sink;
   final _deleteRidesController = StreamController<int>();
 
+  bool simulationPref;
+
+  Stream<bool> get getSimulationPref => _simulationPrefSubject.stream;
+  final _simulationPrefSubject = BehaviorSubject<bool>();
+
+  bool isOwnLocation;
+
+  Stream<bool> get getIsOwnLocation => _isOwnLocationSubject.stream;
+  final _isOwnLocationSubject = BehaviorSubject<bool>();
+
 
   RouteCreationBloc(){
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
     fetchRides();
     setState(CreationState.routeCreation);
+
+    SharedPreferences.getInstance().then((result) {
+      isOwnLocation = result.getBool(SettingKeys.simulator) ?? false;
+        _isOwnLocationSubject.add(isOwnLocation);
+    });
+    location.onLocationChanged().listen((LocationData currentLocation) {
+      this.currentLocation = currentLocation;
+    });
   }
 
   void setStart(Place place){
@@ -67,8 +90,8 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   void setRoute(BikeRoute.Route route){
     this.route = route;
     _routeSubject.add(route);
-
   }
+
 
   void toggleLocations(){
     Place swap = start;
@@ -80,7 +103,12 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     this.state = state;
     _stateSubject.add(state);
     if(state == CreationState.waitingForResponse){
-      WebSocketService.instance.sendCommand(CalcRoute(double.parse(start.lat),double.parse(start.lon) , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
+      if(isOwnLocation){
+        WebSocketService.instance.sendCommand(CalcRoute(currentLocation.latitude,currentLocation.longitude , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
+      }else{
+        WebSocketService.instance.sendCommand(CalcRoute(double.parse(start.lat),double.parse(start.lon) , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
+
+      }
     }
   }
 

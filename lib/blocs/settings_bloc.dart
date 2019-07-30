@@ -1,3 +1,4 @@
+import 'package:bike_now/configuration.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
@@ -215,7 +216,7 @@ class SettingsBloc extends ChangeNotifier {
   }
   void _setSimulator(bool simulator)async{
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool("simulator", simulator);
+    final prefIsSet = await prefs.setBool(SettingKeys.simulator, simulator);
     if (prefIsSet){
       _simulatorSubject.add(simulator);
     }else{
@@ -295,7 +296,7 @@ class SettingsBloc extends ChangeNotifier {
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _simulatorSubject.add(prefs.getBool('simulator') ?? false);
+      _simulatorSubject.add(prefs.getBool(SettingKeys.simulator) ?? false);
     });
   }
 

@@ -96,8 +96,6 @@ class _MapBoxState extends State<MapBoxWidget> {
   @override
   void didChangeDependencies() {
     navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
-    locationController = Provider.of<ManagerBloc>(context).locationController;
-
     navigationBloc.getRoute.listen((route) => this.route = route);
     locationController.getCurrentLocation.listen((location){
       currentLocation = location.toGoogleLatLng();

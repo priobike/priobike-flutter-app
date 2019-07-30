@@ -22,7 +22,6 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     RouteCreationPage(),
-    WebSocketTestPage(),
     SettingsPage()
   ];
 
@@ -47,10 +46,6 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: new Icon(Icons.directions_bike),
               title: new Text('Start'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.dvr),
-              title: new Text('Websocket'),
             ),
             BottomNavigationBarItem(
               icon: new Icon(Icons.settings),

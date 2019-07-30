@@ -11,14 +11,12 @@ class ManagerBloc extends ChangeNotifier{
   RouteCreationBloc _routeCreationBloc;
   RouteInformationBloc _routeInformationBloc;
   NavigationBloc _navigationBloc;
-  LocationController _locationController;
 
 
   ManagerBloc(){
     _routeCreationBloc = RouteCreationBloc();
     _routeInformationBloc = RouteInformationBloc();
     _navigationBloc = NavigationBloc();
-    _locationController = LocationController(true);
 
     
     _routeCreationBloc.getRoute.listen((route){
@@ -40,6 +38,5 @@ class ManagerBloc extends ChangeNotifier{
   RouteCreationBloc get routeCreationBlog => _routeCreationBloc;
   RouteInformationBloc get routeInformationBloc => _routeInformationBloc;
   NavigationBloc get navigationBloc => _navigationBloc;
-  LocationController get locationController => _locationController;
 
 }

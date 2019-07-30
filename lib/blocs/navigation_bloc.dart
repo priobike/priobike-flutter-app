@@ -21,7 +21,7 @@ class NavigationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
 
   SubscriptionController subscriptionController = SubscriptionController();
   RoutingController routingController;
-  LocationController locationController = LocationController(true);
+  LocationController locationController = LocationController(false);
   RoutingCoordinator routingCoordinator;
   PredictionController predictionController;
 

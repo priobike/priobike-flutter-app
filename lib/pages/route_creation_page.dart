@@ -1,3 +1,4 @@
+import 'package:bike_now/configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +10,8 @@ import 'package:bike_now/blocs/bloc_manager.dart';
 
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class RouteCreationPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -16,14 +19,16 @@ class RouteCreationPage extends StatefulWidget {
   }
 }
 
-class _RouteCreationPage extends State<RouteCreationPage> {
+class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliveClientMixin<RouteCreationPage> {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
   bool isLoading = false;
+  bool isOwnLocationSearch = false;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
+
   }
 
   @override
@@ -38,6 +43,24 @@ class _RouteCreationPage extends State<RouteCreationPage> {
         routeCreationBloc.setState(CreationState.routeCreation);
       }
     });
+  }
+  Widget RideLoadingSwitchButton(bool isLoading){
+    if(isLoading){
+      return CircularProgressIndicator(
+      );
+
+    }else{
+      return IconButton(
+        icon: Icon(Icons.directions_bike, color: Colors.blue),
+        onPressed: () {
+          routeCreationBloc.addRides();
+          routeCreationBloc.setState(CreationState.waitingForResponse);
+          setState(() {
+            isLoading = true;
+          });
+        },
+      );
+    }
   }
 
   @override
@@ -63,11 +86,11 @@ class _RouteCreationPage extends State<RouteCreationPage> {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: SearchBarWidget(
-                          'Start...',
-                          routeCreationBloc.setStart,
-                          routeCreationBloc.getStartLabel),
-                    ),
+                      child:
+                           SearchBarWidget(
+                              'Start...',
+                              routeCreationBloc.setStart,
+                              routeCreationBloc.getStartLabel, routeCreationBloc.getIsOwnLocation)),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SearchBarWidget(
@@ -93,16 +116,7 @@ class _RouteCreationPage extends State<RouteCreationPage> {
             ],
           ),
           Center(
-              child: IconButton(
-            icon: Icon(Icons.directions_bike, color: Colors.blue),
-            onPressed: () {
-              routeCreationBloc.addRides();
-              routeCreationBloc.setState(CreationState.waitingForResponse);
-              setState(() {
-                isLoading = true;
-              });
-            },
-          )),
+              child: RideLoadingSwitchButton(isLoading)),
           Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -114,12 +128,19 @@ class _RouteCreationPage extends State<RouteCreationPage> {
               padding: const EdgeInsets.only(top: 8.0),
               child: StreamBuilder<List<Ride>>(
                 stream: routeCreationBloc.rides,
-                initialData: [],
+                initialData: null,
                 builder: (context, snapshot) {
-                  return ListView(children: [
-                    for (var ride in snapshot.data)
-                      _rideTileBuilder(ride, routeCreationBloc)
-                  ]);
+                    if(snapshot.data == null) {
+                      return Center(child: Container(child: CircularProgressIndicator()));
+                    }
+                    else{
+                      return ListView(children: [
+                        for (var ride in snapshot.data)
+                          _rideTileBuilder(ride, routeCreationBloc)
+                      ]);
+                    }
+
+
                 },
               ),
             ),
@@ -128,23 +149,7 @@ class _RouteCreationPage extends State<RouteCreationPage> {
       ),
     );
 
-    Widget getLoadingIndicator() {
-      if (isLoading) {
-        return Stack(
-          children: <Widget>[
-            ModalBarrier(
-              dismissible: false,
-              color: Colors.grey,
-            ),
-            Center(
-              child: CircularProgressIndicator(),
-            )
-          ],
-        );
-      } else {
-        return Container();
-      }
-    }
+
 
     // TODO: implement build
     return Scaffold(
@@ -154,12 +159,7 @@ class _RouteCreationPage extends State<RouteCreationPage> {
             initialData: CreationState.routeCreation,
             builder: (context, snapshot) {
               return SafeArea(
-                child: Stack(
-                  children: <Widget>[
-                    getLoadingIndicator(),
-                    body,
-                  ],
-                ),
+                child: body,
               );
             }));
   }
@@ -222,4 +222,7 @@ class _RouteCreationPage extends State<RouteCreationPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
