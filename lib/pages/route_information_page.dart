@@ -34,19 +34,18 @@ class _RouteInformationPageState extends State<RouteInformationPage> {
 
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Routeninformation",
-            style: TextStyle(color: Colors.black),
+
+        body: SafeArea(
+          child: Stack(
+            children: [Column(
+              children: <Widget>[
+                Expanded(child: RouteInformationMap()),
+                Expanded(child: RouteInformationStatisticWidget())
+              ],
+            ), Positioned(
+              child: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){Navigator.pop(context);}),
+            )],
           ),
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black),
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(child: RouteInformationMap()),
-            Expanded(child: RouteInformationStatisticWidget())
-          ],
         ));
   }
 }

@@ -74,7 +74,7 @@ class _SearchBarState extends State<SearchBarWidget> {
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(5)),
               border: Border.all(
-                  color: Colors.black45, width: 1, style: BorderStyle.solid)),
+                  color: Colors.black45, width: 0.5, style: BorderStyle.solid)),
           child: Row(
             children: <Widget>[
               Expanded(
@@ -100,6 +100,7 @@ class _SearchBarState extends State<SearchBarWidget> {
               ),
               IconButton(
                 icon: Icon(Icons.clear),
+                color: Colors.black45,
                 onPressed: () {
                   setState(() {
                     txtController.text = '';

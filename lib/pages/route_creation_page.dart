@@ -9,7 +9,7 @@ import 'package:bike_now/blocs/bloc_manager.dart';
 
 import 'dart:async';
 
-class RouteCreationPage extends StatefulWidget{
+class RouteCreationPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _RouteCreationPage();
@@ -21,26 +21,23 @@ class _RouteCreationPage extends State<RouteCreationPage> {
   StreamSubscription subscription;
   bool isLoading = false;
 
-
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
-      subscription?.cancel();
-      subscription = routeCreationBloc.getState.listen((state){
-        if (state == CreationState.navigateToInformationPage){
-          isLoading = false;
+    subscription?.cancel();
+    subscription = routeCreationBloc.getState.listen((state) {
+      if (state == CreationState.navigateToInformationPage) {
+        isLoading = false;
         Navigator.pushNamed(context, '/second');
         routeCreationBloc.setState(CreationState.routeCreation);
       }
     });
-
   }
 
   @override
@@ -51,6 +48,13 @@ class _RouteCreationPage extends State<RouteCreationPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 32.0, bottom: 32, left: 8),
+            child: Text(
+              "Route erstellen",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -60,12 +64,16 @@ class _RouteCreationPage extends State<RouteCreationPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SearchBarWidget(
-                          'Start...', routeCreationBloc.setStart, routeCreationBloc.getStartLabel),
+                          'Start...',
+                          routeCreationBloc.setStart,
+                          routeCreationBloc.getStartLabel),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SearchBarWidget(
-                          'Ziel...', routeCreationBloc.setEnd, routeCreationBloc.getEndLabel),
+                          'Ziel...',
+                          routeCreationBloc.setEnd,
+                          routeCreationBloc.getEndLabel),
                     ),
                   ],
                 ),
@@ -76,7 +84,6 @@ class _RouteCreationPage extends State<RouteCreationPage> {
                     Icons.swap_vert,
                     size: 30,
                     color: Colors.blue,
-
                   ),
                   onPressed: () {
                     routeCreationBloc.toggleLocations();
@@ -87,87 +94,74 @@ class _RouteCreationPage extends State<RouteCreationPage> {
           ),
           Center(
               child: IconButton(
-                icon: Icon(Icons.directions_bike, color: Colors.blue),
-                onPressed: () {
-                  routeCreationBloc.addRides();
-                  routeCreationBloc.setState(
-                      CreationState.waitingForResponse);
-                  setState(() {
-                    isLoading = true;
-                  });
-                },)),
+            icon: Icon(Icons.directions_bike, color: Colors.blue),
+            onPressed: () {
+              routeCreationBloc.addRides();
+              routeCreationBloc.setState(CreationState.waitingForResponse);
+              setState(() {
+                isLoading = true;
+              });
+            },
+          )),
           Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(
-                        color: Colors.grey,
-                        width: 1
-                    )
-                )
-            ),
-            child: Text('Letzte Fahrten',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey, width: 0.5))),
           ),
           Expanded(
-            child: StreamBuilder<List<Ride>>(
-              stream: routeCreationBloc.rides,
-              initialData: [],
-              builder: (context, snapshot) {
-                return ListView(
-                    children: [
-                      for (var ride in snapshot.data)
-                        _rideTileBuilder(ride, routeCreationBloc)
-                    ]
-                );
-              },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: StreamBuilder<List<Ride>>(
+                stream: routeCreationBloc.rides,
+                initialData: [],
+                builder: (context, snapshot) {
+                  return ListView(children: [
+                    for (var ride in snapshot.data)
+                      _rideTileBuilder(ride, routeCreationBloc)
+                  ]);
+                },
+              ),
             ),
           ),
-
         ],
       ),
     );
 
-    Widget getLoadingIndicator(){
-      if (isLoading){
+    Widget getLoadingIndicator() {
+      if (isLoading) {
         return Stack(
           children: <Widget>[
-            ModalBarrier(dismissible: false, color: Colors.grey,),
+            ModalBarrier(
+              dismissible: false,
+              color: Colors.grey,
+            ),
             Center(
               child: CircularProgressIndicator(),
             )
           ],
         );
-      }else{
+      } else {
         return Container();
       }
     }
 
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Route erstellen',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      body: StreamBuilder<CreationState>(
-                stream: routeCreationBloc.getState,
-                initialData: CreationState.routeCreation,
-                builder: (context, snapshot) {
-                  return Stack(
-                    children: <Widget>[
-                      getLoadingIndicator(),
-                      body,
-
-                    ],
-                  );
-                }
-
-            ));
-
+      backgroundColor: Colors.white,
+        body: StreamBuilder<CreationState>(
+            stream: routeCreationBloc.getState,
+            initialData: CreationState.routeCreation,
+            builder: (context, snapshot) {
+              return SafeArea(
+                child: Stack(
+                  children: <Widget>[
+                    getLoadingIndicator(),
+                    body,
+                  ],
+                ),
+              );
+            }));
   }
 
   Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {
@@ -188,33 +182,44 @@ class _RouteCreationPage extends State<RouteCreationPage> {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: RichText(
                 text: TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  children: <TextSpan> [
-                    TextSpan(text: 'Start: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: ride.start.displayName)
-                  ]
-                ),
+                    style: TextStyle(color: Colors.black),
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: 'Start: ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: ride.start.displayName)
+                    ]),
               ),
             ),
             RichText(
               text: TextSpan(
-                style: TextStyle(color: Colors.black),
-                  children: <TextSpan> [
-                    TextSpan(text: 'Ende: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: TextStyle(color: Colors.black),
+                  children: <TextSpan>[
+                    TextSpan(
+                        text: 'Ende: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: ride.end.displayName)
-                  ]
-              ),
+                  ]),
             )
           ],
         ),
         subtitle: Align(
-          alignment: Alignment.bottomRight,
-            child: Text(DateTime.fromMillisecondsSinceEpoch(ride.date).day.toString() + '.' + DateTime.fromMillisecondsSinceEpoch(ride.date).month.toString() + '.' + DateTime.fromMillisecondsSinceEpoch(ride.date).year.toString())),
-
-      onTap: () {
+            alignment: Alignment.bottomRight,
+            child: Text(
+                DateTime.fromMillisecondsSinceEpoch(ride.date).day.toString() +
+                    '.' +
+                    DateTime.fromMillisecondsSinceEpoch(ride.date)
+                        .month
+                        .toString() +
+                    '.' +
+                    DateTime.fromMillisecondsSinceEpoch(ride.date)
+                        .year
+                        .toString())),
+        onTap: () {
           routeCreationBloc.setStart(ride.start);
           routeCreationBloc.setEnd(ride.end);
-      },),
+        },
+      ),
     );
   }
 }

@@ -21,7 +21,7 @@ class LocationController extends ChangeNotifier{
   Stream<BikeNow.LatLng> get getCurrentLocation => _currentLocationSubject.stream;
   final _currentLocationSubject = BehaviorSubject<BikeNow.LatLng>();
 
-    LocationController(this.useFakeData){
+  LocationController(this.useFakeData){
       if(!useFakeData){
       location.onLocationChanged().listen((LocationData currentLocation) {
         this.currentLocation = currentLocation;

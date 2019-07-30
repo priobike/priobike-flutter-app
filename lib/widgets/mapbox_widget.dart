@@ -73,7 +73,8 @@ class _MapBoxState extends State<MapBoxWidget> {
 
     _circles.clear();
     lsas = _route.getLSAs();
-    ghNode = _route.getGHNodes(true);
+    // draw ghNodes on Screen
+    //ghNode = _route.getGHNodes(true);
   }
 
    // MapProperties

@@ -33,13 +33,14 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       builder: (context) => ManagerBloc(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(),
           '/second': (context) => RouteInformationPage(),
           '/navigation': (context) => NavigationPage(),
         },
-        title: 'My Flutter App',
+        title: 'BikeNow',
         navigatorObservers: [routeObserver],
         theme: new ThemeData(
             primaryColor: Colors.blue

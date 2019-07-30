@@ -94,8 +94,15 @@ class DatabaseHelper {
 
   Future<int> insert(Ride ride) async {
     Database db = await database;
-    int id = await db.insert(tableWords, ride.toMap());
-    return id;
+    var allRide = await queryAllRides();
+    var equalRidesInDatabase = allRide.where((rideItem) {
+      return (rideItem.start.displayName == ride.start.displayName && rideItem.end.displayName == ride.end.displayName);
+    });
+    if (equalRidesInDatabase.isEmpty){
+      int id = await db.insert(tableWords, ride.toMap());
+      return id;
+    }
+    return null;
   }
   Future<int> delete(int id) async {
     Database db = await database;
