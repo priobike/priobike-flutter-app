@@ -25,6 +25,7 @@ class LocationController extends ChangeNotifier{
       if(!useFakeData){
       location.onLocationChanged().listen((LocationData currentLocation) {
         this.currentLocation = currentLocation;
+        _currentLocationSubject.add(BikeNow.LatLng(currentLocation.latitude, currentLocation.longitude));
       });}else{
       timer = Timer.periodic(Duration(seconds: 1), updateLocation);
     }
