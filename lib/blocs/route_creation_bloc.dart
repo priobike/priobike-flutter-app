@@ -1,7 +1,5 @@
 import 'package:bike_now/controller/location_controller.dart';
-import 'package:bike_now/models/latlng.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,12 +21,11 @@ enum CreationState {
   navigateToNavigationPage
 }
 
-
-class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelegate{
+class RouteCreationBloc extends ChangeNotifier
+    implements WebSocketServiceDelegate {
   Place start;
   Place end;
   CreationState state;
-
 
   BikeRoute.Route route;
   LocationController locationController;
@@ -42,10 +39,8 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Stream<String> get getEndLabel => _endLabelSubject.stream;
   final _endLabelSubject = BehaviorSubject<String>();
 
-
   Stream<CreationState> get getState => _stateSubject.stream;
   final _stateSubject = BehaviorSubject<CreationState>();
-
 
   Stream<List<Ride>> get rides => _ridesSubject.stream;
   final _ridesSubject = BehaviorSubject<List<Ride>>();
@@ -57,13 +52,7 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
   Stream<bool> get getSimulationPref => _simulationPrefSubject.stream;
   final _simulationPrefSubject = BehaviorSubject<bool>();
 
-  bool isOwnLocation;
-
-  Stream<bool> get getIsOwnLocation => _isOwnLocationSubject.stream;
-  final _isOwnLocationSubject = BehaviorSubject<bool>();
-
-
-  RouteCreationBloc(LocationController locationController){
+  RouteCreationBloc(LocationController locationController) {
     this.locationController = locationController;
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
@@ -71,73 +60,77 @@ class RouteCreationBloc extends ChangeNotifier implements WebSocketServiceDelega
     setState(CreationState.routeCreation);
 
     SharedPreferences.getInstance().then((result) {
-      isOwnLocation = result.getBool(SettingKeys.simulator) ?? false;
-        _isOwnLocationSubject.add(isOwnLocation);
+      this.simulationPref = result.getBool(SettingKeys.simulator) ?? false;
+      _simulationPrefSubject.add(simulationPref);
     });
   }
 
-  void setStart(Place place){
-    start= place;
+  void setStart(Place place) {
+    start = place;
     _startLabelSubject.add(place.displayName);
   }
-  void setEnd(Place place){
+
+  void setEnd(Place place) {
     end = place;
     _endLabelSubject.add(place.displayName);
   }
 
-  void setRoute(BikeRoute.Route route){
+  void setRoute(BikeRoute.Route route) {
     this.route = route;
     _routeSubject.add(route);
   }
 
-
-  void toggleLocations(){
+  void toggleLocations() {
     Place swap = start;
     setStart(end);
     setEnd(swap);
   }
 
-  void setState(CreationState state){
+  void setState(CreationState state) {
     this.state = state;
     _stateSubject.add(state);
-    if(state == CreationState.waitingForResponse){
-      if(isOwnLocation){
-        WebSocketService.instance.sendCommand(CalcRoute(locationController.currentLocation.latitude,locationController.currentLocation.longitude , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
-      }else{
-        WebSocketService.instance.sendCommand(CalcRoute(double.parse(start.lat),double.parse(start.lon) , double.parse(end.lat), double.parse(end.lon), Configuration.sessionUUID));
-
+    if (state == CreationState.waitingForResponse) {
+      if (!simulationPref) {
+        WebSocketService.instance.sendCommand(CalcRoute(
+            locationController.currentLocation.latitude,
+            locationController.currentLocation.longitude,
+            double.parse(end.lat),
+            double.parse(end.lon),
+            Configuration.sessionUUID));
+      } else {
+        WebSocketService.instance.sendCommand(CalcRoute(
+            double.parse(start.lat),
+            double.parse(start.lon),
+            double.parse(end.lat),
+            double.parse(end.lon),
+            Configuration.sessionUUID));
       }
     }
   }
 
-  void _deleteRides(int index) async{
+  void _deleteRides(int index) async {
     await DatabaseHelper.instance.delete(index);
   }
-  void addRides() async{
-    if (start != null && end != null){
-      await DatabaseHelper.instance.insert(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
+
+  void addRides() async {
+    if (start != null && end != null) {
+      await DatabaseHelper.instance
+          .insert(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
       fetchRides();
     }
-
   }
 
-  fetchRides() async{
+  fetchRides() async {
     _ridesSubject.add(await DatabaseHelper.instance.queryAllRides());
   }
 
   @override
   void websocketDidReceiveMessage(String msg) {
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
-    if(response.method == WebSocketMethod.calcRoute){
+    if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);
       setState(CreationState.navigateToInformationPage);
     }
-
-
   }
-
-
-
-
 }

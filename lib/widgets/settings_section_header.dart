@@ -5,13 +5,13 @@ class SettingsSectionHeader extends StatelessWidget {
   SettingsSectionHeader(this.headerTitle);
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Container(
       margin: EdgeInsets.all(16),
       child: Text(
-          headerTitle,
-      style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),),
-
+        headerTitle,
+        style: TextStyle(
+            color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

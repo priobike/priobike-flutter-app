@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
-import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/websocket/web_socket_service.dart';
 import 'package:bike_now/server_response/websocket_response.dart';
 import 'package:bike_now/websocket/web_socket_method.dart';
-import 'package:bike_now/websocket/web_socket_service.dart';
 import 'package:bike_now/websocket/websocket_commands.dart';
 
 import 'package:bike_now/geo_coding/address_to_location_response.dart';
@@ -56,7 +53,6 @@ class _SearchBarState extends State<SearchBarWidget> {
         setState(() {
           this.isOwnLocation = isOwnLocation;
         });
-
       }
     });
   }

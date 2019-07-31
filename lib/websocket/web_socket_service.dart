@@ -1,28 +1,16 @@
 import 'dart:async';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:logging/logging.dart';
 import 'dart:convert';
 
-
 import 'package:bike_now/configuration.dart';
 import 'package:bike_now/websocket/websocket_commands.dart';
-import 'package:bike_now/server_response/session_invalid.dart';
 import 'package:bike_now/server_response/websocket_response.dart';
 import 'package:bike_now/websocket/web_socket_method.dart';
-import 'package:bike_now/server_response/websocket_response.dart';
-import 'package:bike_now/websocket/response_models/predictions_response.dart';
-import 'package:bike_now/models/subscription.dart';
-import 'package:bike_now/models/sg_subscription.dart';
 
-enum WebSocketServiceState {
-  connected,
-  disconnected,
-  authorized,
-  error
-}
+enum WebSocketServiceState { connected, disconnected, authorized, error }
 
-class WebSocketService implements WebSocketServiceDelegate{
+class WebSocketService implements WebSocketServiceDelegate {
   WebSocketServiceState state = WebSocketServiceState.disconnected;
   bool keepAlive;
   Timer keepAliveTimer;
@@ -31,69 +19,69 @@ class WebSocketService implements WebSocketServiceDelegate{
   WebSocketServiceDelegate delegate;
   final Logger log = new Logger('Websocket');
 
-
-
-
-  WebSocketService._privateConstructor(){
+  WebSocketService._privateConstructor() {
     this.keepAlive = keepAlive;
     connect();
     authenticate();
     delegate = this;
-
   }
-  static final WebSocketService instance = WebSocketService._privateConstructor();
+  static final WebSocketService instance =
+      WebSocketService._privateConstructor();
 
-  void keepConnectionAlive(){
-    if (keepAlive != null && keepAlive == true){
+  void keepConnectionAlive() {
+    if (keepAlive != null && keepAlive == true) {
       var ping = new Ping(Configuration.sessionUUID).toJson().toString();
       webSocketChannel.sink.add(ping);
       log.fine("Send Ping");
     }
-    keepAliveTimer = Timer.periodic(Duration(seconds: pingIntervalSeconds), (timer) => sendCommand(Ping(Configuration.sessionUUID)));
-
+    keepAliveTimer = Timer.periodic(Duration(seconds: pingIntervalSeconds),
+        (timer) => sendCommand(Ping(Configuration.sessionUUID)));
   }
 
-  void connect(){
-    this.webSocketChannel = IOWebSocketChannel.connect('ws://vkwvlprad.vkw.tu-dresden.de:20042/socket', pingInterval: Duration(seconds: pingIntervalSeconds));
-    webSocketChannel.stream.listen(onWebSocketResponse, onDone: websocketDidDisconnect);
+  void connect() {
+    this.webSocketChannel = IOWebSocketChannel.connect(
+        'ws://vkwvlprad.vkw.tu-dresden.de:20042/socket',
+        pingInterval: Duration(seconds: pingIntervalSeconds));
+    webSocketChannel.stream
+        .listen(onWebSocketResponse, onDone: websocketDidDisconnect);
     state = WebSocketServiceState.connected;
     log.fine("Websocket connected");
-
   }
-  void websocketDidDisconnect(){
+
+  void websocketDidDisconnect() {
     state = WebSocketServiceState.disconnected;
     log.fine("WebSocket did disconnect");
   }
 
-  void sendCommand(WebSocketCommand command){
-    if (command.requiresAuthentication && state != WebSocketServiceState.authorized){
+  void sendCommand(WebSocketCommand command) {
+    if (command.requiresAuthentication &&
+        state != WebSocketServiceState.authorized) {
       authenticate();
-      log.fine("Cannot send payload, because the web socket service is not authenticated. Authenticating now...");
+      log.fine(
+          "Cannot send payload, because the web socket service is not authenticated. Authenticating now...");
       return;
-
     }
     log.fine('Send Command JSON: ${jsonEncode(command)}');
     webSocketChannel.sink.add(jsonEncode(command));
   }
 
-  void authenticate(){
-    if (state == WebSocketServiceState.connected){
+  void authenticate() {
+    if (state == WebSocketServiceState.connected) {
       sendCommand(Login(Configuration.sessionUUID));
-    }else{
+    } else {
       log.fine("Web socket is not connected at the moment. Connecting now...");
       connect();
     }
-
   }
 
-  void onWebSocketResponse(dynamic data){
-    if (state == WebSocketServiceState.disconnected){
+  void onWebSocketResponse(dynamic data) {
+    if (state == WebSocketServiceState.disconnected) {
       state = WebSocketServiceState.connected;
       sendCommand(Login(Configuration.sessionUUID));
     }
     String msg = data as String;
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
-    switch (response.method){
+    switch (response.method) {
       case WebSocketMethod.logout:
         break;
       case WebSocketMethod.ping:
@@ -140,28 +128,19 @@ class WebSocketService implements WebSocketServiceDelegate{
     delegate?.websocketDidReceiveMessage(msg);
   }
 
-  void handleLogin(){
+  void handleLogin() {
     state = WebSocketServiceState.authorized;
     keepConnectionAlive();
   }
 
-  void handleCalcRoute(String msg){
+  void handleCalcRoute(String msg) {}
 
-
-  }
-
-  void handleUpdateSubscriptions(String msg){
-
-
-  }
+  void handleUpdateSubscriptions(String msg) {}
 
   @override
-  void websocketDidReceiveMessage(String msg) {
-
-  }
-
+  void websocketDidReceiveMessage(String msg) {}
 }
 
-abstract class WebSocketServiceDelegate{
+abstract class WebSocketServiceDelegate {
   void websocketDidReceiveMessage(String msg);
 }

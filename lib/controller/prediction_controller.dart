@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:bike_now/models/lsa_prediction.dart';
 import 'package:bike_now/models/models.dart';
 import 'package:bike_now/controller/subscription_controller.dart';
 import 'package:bike_now/controller/routing_controller.dart';
 
-class PredictionController{
-
+class PredictionController {
   List<LSAPrediction> _predictions = [];
 
   List<LSAPrediction> get predictions => _predictions;
@@ -15,20 +13,17 @@ class PredictionController{
     value.forEach((prediction) {
       var lsa = routingController.getLSA(prediction.lsaId);
       lsa?.sgPredictions = [];
-      prediction.sgPredictions.forEach((sgPrediction){
-        if(sgPrediction.sgName != null){
+      prediction.sgPredictions.forEach((sgPrediction) {
+        if (sgPrediction.sgName != null) {
           var sgName = sgPrediction.sgName;
-          if(lsa?.getSG(sgName)!= null){
+          if (lsa?.getSG(sgName) != null) {
             var sg = lsa?.getSG(sgName);
             sg.phases = sgPrediction.phases;
             lsa?.sgPredictions.add(sgPrediction);
           }
-
         }
       });
     });
-
-
   }
 
   Phase currentPhase;
@@ -44,7 +39,7 @@ class PredictionController{
 
   set closestSG(SG value) {
     _closestSG = value;
-    if(this.closestSG != null){
+    if (this.closestSG != null) {
       closestSG.isSubscribed = true;
     }
   }
@@ -55,7 +50,7 @@ class PredictionController{
 
   PredictionController(this.subscriptionController, this.routingController);
 
-  void reset(){
+  void reset() {
     currentPhase = null;
     nextValidPhase = null;
     nextInstruction = null;
@@ -67,46 +62,60 @@ class PredictionController{
     closestValidSG = null;
   }
 
-  void unsubscribe(){
+  void unsubscribe() {
     subscriptionController.unsubscribe(nextSG);
     subscriptionController.unsubscribe(closestSG);
+  }
 
+  void setCurrentPhase() {
+    currentPhase =
+        nextSG?.phases?.firstWhere((phase) => phase.getCurrentPhase() != null);
   }
-  void setCurrentPhase(){
-    currentPhase = nextSG?.phases?.firstWhere((phase) => phase.getCurrentPhase() != null);
+
+  void setNextValidPhase(double speed) {
+    nextValidPhase = nextSG?.phases?.firstWhere(
+        (phase) => (!phase.isInThePast && phase.getValidPhase(speed) != null));
   }
-  void setNextValidPhase(double speed ){
-    nextValidPhase = nextSG?.phases?.firstWhere((phase) => (!phase.isInThePast && phase.getValidPhase(speed) != null));
+
+  void setNextGHNode() {
+    nextGHNode = routingController.route
+        .getNextGHNode(routingController.ghNodes, 0.5, true);
   }
-  void setNextGHNode(){
-    nextGHNode = routingController.route.getNextGHNode(routingController.ghNodes, 0.5, true);
+
+  void setNextInstruction() {
+    nextInstruction = routingController.route.instructions
+        .firstWhere((instruction) => !instruction.isCrossed);
   }
-  void setNextInstruction(){
-    nextInstruction = routingController.route.instructions.firstWhere((instruction) => !instruction.isCrossed);
-  }
-  void setNextLSA(){
+
+  void setNextLSA() {
     nextLSA = nextSG.parentLSA;
   }
-  void setNextSG(){
+
+  void setNextSG() {
     nextSG = routingController.sgs.firstWhere((sg) => !sg.isCrossed);
   }
-  void setNextValidSG(){
-    nextValidSG = routingController.sgs.firstWhere((sg) => !sg.isCrossed && sg.hasPredictions);
+
+  void setNextValidSG() {
+    nextValidSG = routingController.sgs
+        .firstWhere((sg) => !sg.isCrossed && sg.hasPredictions);
   }
-  void setNextSGGreenState(){
-    if (currentPhase != null){
+
+  void setNextSGGreenState() {
+    if (currentPhase != null) {
       nextSG.isGreen = currentPhase.isGreen;
     }
   }
-  void setClosestSG(){
+
+  void setClosestSG() {
     var sortedSGs = routingController.sgs;
-    sortedSGs.sort((a,b) => a.distance.compareTo(b.distance));
+    sortedSGs.sort((a, b) => a.distance.compareTo(b.distance));
     closestSG = sortedSGs.firstWhere((sg) => !sg.isCrossed);
   }
-  void setClosestValidSG(){
-    var sortedSGs = routingController.sgs;
-    sortedSGs.sort((a,b) => a.distance.compareTo(b.distance));
-    closestValidSG = sortedSGs.firstWhere((sg) => !sg.isCrossed && sg.hasPredictions);
-  }
 
+  void setClosestValidSG() {
+    var sortedSGs = routingController.sgs;
+    sortedSGs.sort((a, b) => a.distance.compareTo(b.distance));
+    closestValidSG =
+        sortedSGs.firstWhere((sg) => !sg.isCrossed && sg.hasPredictions);
+  }
 }

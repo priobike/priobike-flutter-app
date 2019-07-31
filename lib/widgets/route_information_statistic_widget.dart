@@ -1,8 +1,6 @@
 import 'package:bike_now/blocs/bloc_manager.dart';
-import 'package:bike_now/blocs/route_creation_bloc.dart';
 import 'package:bike_now/blocs/route_information_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/models/route.dart' as BikeRoute;
 import 'package:provider/provider.dart';
 
@@ -43,21 +41,21 @@ class RouteInformationStatisticWidget extends StatelessWidget {
         stream: routeInformationBloc.getRoute,
         initialData: null,
         builder: (context, routeSnapshot) {
-          if (routeSnapshot.data == null){
+          if (routeSnapshot.data == null) {
             return Container();
           }
           return StreamBuilder<String>(
               stream: routeInformationBloc.getStartLabel,
               initialData: null,
               builder: (context, startSnapshot) {
-                if (startSnapshot.data == null){
+                if (startSnapshot.data == null) {
                   return Container();
                 }
                 return StreamBuilder<String>(
                     stream: routeInformationBloc.getEndLabel,
                     initialData: null,
                     builder: (context, endSnapshot) {
-                      if (endSnapshot.data != null){
+                      if (endSnapshot.data != null) {
                         return Container(
                           padding: EdgeInsets.only(
                               left: 16, top: 16, right: 16, bottom: 8),
@@ -65,7 +63,8 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                             children: <Widget>[
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: <Widget>[
                                     RichText(
                                       text: TextSpan(
@@ -74,7 +73,8 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                             TextSpan(
                                                 text: 'Start: ',
                                                 style: TextStyle(
-                                                    fontWeight: FontWeight.bold)),
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                             TextSpan(text: startSnapshot.data)
                                           ]),
                                     ),
@@ -85,7 +85,8 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                             TextSpan(
                                                 text: 'Ende: ',
                                                 style: TextStyle(
-                                                    fontWeight: FontWeight.bold)),
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                             TextSpan(text: endSnapshot.data)
                                           ]),
                                     )
@@ -105,18 +106,23 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                     ),
                                     Expanded(
                                       child: _tileBuilder(
-                                          (routeSnapshot.data.time / 60000).round().toString(),
+                                          (routeSnapshot.data.time / 60000)
+                                              .round()
+                                              .toString(),
                                           "min",
                                           "Dauer"),
                                     ),
                                     Expanded(
                                       child: _tileBuilder(
-                                          (routeSnapshot.data.arrivalTime.hour.toString() +
-                                              ":" +
-                                              routeSnapshot.data.arrivalTime.minute
+                                          (routeSnapshot.data.arrivalTime.hour
                                                   .toString() +
                                               ":" +
-                                              routeSnapshot.data.arrivalTime.second
+                                              routeSnapshot
+                                                  .data.arrivalTime.minute
+                                                  .toString() +
+                                              ":" +
+                                              routeSnapshot
+                                                  .data.arrivalTime.second
                                                   .toString()),
                                           "",
                                           "Ankunftszeit"),
@@ -129,19 +135,26 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                   children: <Widget>[
                                     Expanded(
                                       child: _tileBuilder(
-                                          routeSnapshot.data.ascend.round().toString(),
+                                          routeSnapshot.data.ascend
+                                              .round()
+                                              .toString(),
                                           "m",
                                           "Steigung"),
                                     ),
                                     Expanded(
                                       child: _tileBuilder(
-                                          routeSnapshot.data.descend.round().toString(),
+                                          routeSnapshot.data.descend
+                                              .round()
+                                              .toString(),
                                           "m",
                                           "Gefälle"),
                                     ),
                                     Expanded(
                                       child: _tileBuilder(
-                                          routeSnapshot.data.getLSAs().length.toString(),
+                                          routeSnapshot.data
+                                              .getLSAs()
+                                              .length
+                                              .toString(),
                                           "x",
                                           "Ampeln"),
                                     )
@@ -158,7 +171,8 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                           onPressed: () {},
                                           child: Text(
                                             'Abbrechen',
-                                            style: TextStyle(color: Colors.white),
+                                            style:
+                                                TextStyle(color: Colors.white),
                                           ),
                                           color: Colors.red,
                                         ),
@@ -169,11 +183,13 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                                         padding: const EdgeInsets.all(8.0),
                                         child: RaisedButton(
                                           onPressed: () {
-                                            Navigator.pushNamed(context, "/navigation");
+                                            Navigator.pushNamed(
+                                                context, "/navigation");
                                           },
                                           child: Text(
                                             'Starten',
-                                            style: TextStyle(color: Colors.white),
+                                            style:
+                                                TextStyle(color: Colors.white),
                                           ),
                                           color: Colors.green,
                                         ),
@@ -185,10 +201,9 @@ class RouteInformationStatisticWidget extends StatelessWidget {
                             ],
                           ),
                         );
-                      }else{
+                      } else {
                         return Container();
                       }
-
                     });
               });
         });

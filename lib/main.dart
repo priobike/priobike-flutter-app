@@ -12,7 +12,6 @@ import 'package:bike_now/blocs/bloc_manager.dart';
 
 final RouteObserver<PageRoute> routeObserver = new RouteObserver<PageRoute>();
 
-
 void main() {
   //Services
   WebSocketService webSocketService = WebSocketService.instance;
@@ -21,9 +20,7 @@ void main() {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
   runApp(MyApp());
-
 }
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -42,11 +39,8 @@ class MyApp extends StatelessWidget {
         },
         title: 'BikeNow',
         navigatorObservers: [routeObserver],
-        theme: new ThemeData(
-            primaryColor: Colors.blue
-        ),
+        theme: new ThemeData(primaryColor: Colors.blue),
       ),
     );
   }
 }
-

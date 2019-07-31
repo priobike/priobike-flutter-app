@@ -1,19 +1,14 @@
-import 'package:bike_now/models/lsa_prediction.dart';
 import 'package:bike_now/models/sg.dart';
 import 'package:bike_now/models/sg_prediction.dart';
 import 'package:logging/logging.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 
-import 'abstract_classes/locatable.dart';
-import 'abstract_classes/crossable.dart';
 import 'abstract_classes/locatable_and_crossable.dart';
-import 'package:bike_now/models/models.dart' as BikeNowModels;
 import 'package:json_annotation/json_annotation.dart';
 
 part 'lsa.g.dart';
 
 @JsonSerializable()
-class LSA with LocatableAndCrossable{
+class LSA with LocatableAndCrossable {
   int id;
   int sgSize;
   String name;
@@ -21,8 +16,8 @@ class LSA with LocatableAndCrossable{
   List<SG> sgs;
   List<SGPrediction> sgPredictions = [];
 
-
-  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions, double distance, double lon, double lat){
+  LSA(this.id, this.sgSize, this.name, this.sgs, this.sgPredictions,
+      double distance, double lon, double lat) {
     super.distance = distance;
     super.lon = lon;
     super.lat = lat;
@@ -35,14 +30,14 @@ class LSA with LocatableAndCrossable{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$LSAToJson(this);
 
-  SG getSG(String name){
+  SG getSG(String name) {
     return sgs.firstWhere((sg) => sg.sgName == name);
   }
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    if (sgs.first != null){
-      if(sgs.first.isCrossed == null) return true;
+    if (sgs.first != null) {
+      if (sgs.first.isCrossed == null) return true;
       return sgs.first.isCrossed;
     }
     return sgs.first == null;
@@ -52,20 +47,13 @@ class LSA with LocatableAndCrossable{
 
   @override
   void set isCrossed(bool _isCrossed) {
-    if(_isCrossed == false && isCrossed){
+    if (_isCrossed == false && isCrossed) {
       Logger.root.fine("LSA with name $name has been crossed.");
     }
     this._isCrossed = _isCrossed;
   }
+
   @JsonKey(ignore: true)
   @override
   bool get isCrossed => _isCrossed;
-
-
-
-
-
-
-
-
 }

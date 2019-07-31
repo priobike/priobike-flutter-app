@@ -1,7 +1,7 @@
 import 'controller.dart';
 import 'package:bike_now/models/models.dart';
 
-class RoutingCoordinator{
+class RoutingCoordinator {
   RoutingController routingController;
   PredictionController predictionController;
   SubscriptionController subscriptionController;
@@ -10,86 +10,81 @@ class RoutingCoordinator{
   RoutingCoordinator(this.routingController, this.predictionController,
       this.subscriptionController, this.locationController);
 
-  void run(){
-    if (routingController.ghNodes.isNotEmpty){
+  void run() {
+    if (routingController.ghNodes.isNotEmpty) {
       calculateDistances();
       updatePredictions();
       updateLocationController();
     }
   }
-  void calculateDistances(){
-    if (locationController.currentLocation != null){
-      var latlng = LatLng(locationController.currentLocation.latitude, locationController.currentLocation.longitude, locationController.currentLocation.accuracy);
-      try{
+
+  void calculateDistances() {
+    if (locationController.currentLocation != null) {
+      var latlng = LatLng(
+          locationController.currentLocation.latitude,
+          locationController.currentLocation.longitude,
+          locationController.currentLocation.accuracy);
+      try {
         routingController.calculateDistances(routingController.sgs, latlng);
-
-      }catch(e){
+      } catch (e) {
         e.toString();
-
       }
-      try{
-        routingController.calculateDistances(routingController.orderedLSAs, latlng);
-
-      }catch(e){
+      try {
+        routingController.calculateDistances(
+            routingController.orderedLSAs, latlng);
+      } catch (e) {
         e.toString();
-
       }
 
-      try{
+      try {
         routingController.calculateDistances(routingController.ghNodes, latlng);
-
-      }catch(e){
+      } catch (e) {
         e.toString();
-
       }
-      try{
-        routingController.calculateDistances(routingController.route.instructions, latlng);
-
-      }catch(e){
+      try {
+        routingController.calculateDistances(
+            routingController.route.instructions, latlng);
+      } catch (e) {
         e.toString();
-
       }
-
-
-
-
     }
   }
-  void updatePredictions(){
+
+  void updatePredictions() {
     if (locationController.currentLocation != null) {
-      try{
+      try {
         predictionController.setNextGHNode();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setNextSG();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setNextValidSG();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setClosestSG();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setClosestValidSG();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setNextLSA();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setNextInstruction();
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
 
@@ -97,28 +92,27 @@ class RoutingCoordinator{
         predictionController.nextSG = predictionController.closestSG;
       }
 
-      try{
-        predictionController.setNextValidPhase(locationController.currentLocation.speed);
-
-      }catch(e){
+      try {
+        predictionController
+            .setNextValidPhase(locationController.currentLocation.speed);
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setCurrentPhase();
-
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
-      try{
+      try {
         predictionController.setNextSGGreenState();
-
-      }catch(e){
+      } catch (e) {
         e.toString();
       }
     }
   }
-  void updateLocationController(){
-    if(predictionController.nextSG.distance != null){
+
+  void updateLocationController() {
+    if (predictionController.nextSG.distance != null) {
       //locationController.updateLocationAccuracy(for: distanceToNextSG)
 
     }
@@ -130,7 +124,4 @@ class RoutingCoordinator{
     routingController.reset();
     predictionController.reset();
   }
-
-
-
 }

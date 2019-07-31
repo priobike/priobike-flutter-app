@@ -8,9 +8,8 @@ import 'lsa.dart';
 
 part 'route.g.dart';
 
-
 @JsonSerializable()
-class Route{
+class Route {
   List<Instruction> instructions;
   double descend;
   double ascend;
@@ -35,18 +34,17 @@ class Route{
   DateTime _arrivalTime;
   List<LatLng> _coordinates;
 
-
-  List<LatLng> get coordinates  {
+  List<LatLng> get coordinates {
     List<LatLng> result = [];
-    for (var instruction in instructions){
-      instruction.nodes.forEach(((node) => result.add(LatLng(node.lat, node.lon))));
+    for (var instruction in instructions) {
+      instruction.nodes
+          .forEach(((node) => result.add(LatLng(node.lat, node.lon))));
     }
     return result;
   }
 
-  Route(this.instructions, this.descend, this.ascend, this.distance, this.time){
-
-  }
+  Route(
+      this.instructions, this.descend, this.ascend, this.distance, this.time) {}
 
   factory Route.fromJson(Map<String, dynamic> json) => _$RouteFromJson(json);
 
@@ -55,82 +53,72 @@ class Route{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$RouteToJson(this);
 
-  List<LSA> getLSAs(){
+  List<LSA> getLSAs() {
     List<LSA> result = [];
     instructions.forEach((inst) => inst.lsas.forEach((lsa) => result.add(lsa)));
     return result;
   }
 
-  Map<int,LSA> getLSADictionary(){
+  Map<int, LSA> getLSADictionary() {
     List<LSA> lsas = getLSAs();
-    Map<int, LSA> dictionary = Map<int,LSA>();
+    Map<int, LSA> dictionary = Map<int, LSA>();
 
-    lsas.forEach((lsa){
-      if(dictionary.containsKey(lsa.id)){
+    lsas.forEach((lsa) {
+      if (dictionary.containsKey(lsa.id)) {
         lsa.sgs.forEach((sg) => dictionary[lsa.id].sgs.add(sg));
-      }else{
+      } else {
         dictionary[lsa.id] = lsa;
       }
     });
     return dictionary;
-
-
   }
 
-  List<SG> getSGs(){
+  List<SG> getSGs() {
     List<SG> result = [];
     getLSAs().forEach((lsa) {
-      lsa.sgs.forEach((sg){
+      lsa.sgs.forEach((sg) {
         result.add(sg);
       });
     });
-
   }
 
-  List<GHNode> getGHNodes(bool withVirtualNodes){
+  List<GHNode> getGHNodes(bool withVirtualNodes) {
     List<GHNode> result = [];
-    instructions.forEach((instruction){
-      instruction.nodes.forEach((node){
-        if(node.id != null && node.id >=0 || withVirtualNodes){
+    instructions.forEach((instruction) {
+      instruction.nodes.forEach((node) {
+        if (node.id != null && node.id >= 0 || withVirtualNodes) {
           result.add(node);
         }
       });
     });
     return result;
-
   }
 
-  GHNode getNextGHNode(List<GHNode> ghNodes, [double minDistance = 5, bool virtualNode = true]){
-    var list = ghNodes.where((ghNode){
+  GHNode getNextGHNode(List<GHNode> ghNodes,
+      [double minDistance = 5, bool virtualNode = true]) {
+    var list = ghNodes.where((ghNode) {
       return !ghNode.isCrossed && ghNode.distance >= minDistance;
     }).toList();
 
-    var ghNode= list.firstWhere((ghNode){
-      if (virtualNode || ghNode.id != null){
+    var ghNode = list.firstWhere((ghNode) {
+      if (virtualNode || ghNode.id != null) {
         return true;
       }
       return false;
     });
 
     return ghNode;
-
   }
 
-  bool hasGHNodes(bool withVirtualNodes){
+  bool hasGHNodes(bool withVirtualNodes) {
     return getGHNodes(withVirtualNodes).length > 1;
-
   }
 
-  GHNode getFirstGHNode(){
+  GHNode getFirstGHNode() {
     return instructions.first.nodes.first;
-
   }
 
-  GHNode getLastGHNode(){
+  GHNode getLastGHNode() {
     return instructions.last.nodes.last;
-
   }
-
-
-
 }

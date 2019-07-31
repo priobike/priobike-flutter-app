@@ -7,10 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:bike_now/models/models.dart' as BikeNow;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
-
 class MapBoxWidget extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return _MapBoxState();
@@ -28,14 +25,21 @@ class _MapBoxState extends State<MapBoxWidget> {
     _lsas = value;
     _lsas.forEach((lsa) {
       Color color = Colors.red;
-      
-      if (lsa.isCrossed != null){
-        if (lsa.isCrossed){
+
+      if (lsa.isCrossed != null) {
+        if (lsa.isCrossed) {
           color = Colors.black45;
         }
       }
       setState(() {
-        _circles.add(Circle(circleId: CircleId((_circleIdCounter++).toString()), center: LatLng(lsa.lat, lsa.lon), fillColor: color, radius: 14, visible: true, strokeWidth: 0, zIndex: 1));
+        _circles.add(Circle(
+            circleId: CircleId((_circleIdCounter++).toString()),
+            center: LatLng(lsa.lat, lsa.lon),
+            fillColor: color,
+            radius: 14,
+            visible: true,
+            strokeWidth: 0,
+            zIndex: 1));
       });
     });
   }
@@ -44,19 +48,25 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   set ghNode(List<BikeNow.GHNode> value) {
     _ghNode = value;
-    _ghNode.forEach((ghNode){
+    _ghNode.forEach((ghNode) {
       Color color = Colors.amber;
-      if (ghNode.isCrossed != null){
-        if (ghNode.isCrossed){
+      if (ghNode.isCrossed != null) {
+        if (ghNode.isCrossed) {
           color = Colors.black45;
         }
       }
       setState(() {
-        _circles.add(Circle(circleId: CircleId((_circleIdCounter++).toString()), center: LatLng(ghNode.lat, ghNode.lon), fillColor: color, radius: 11, visible: true, strokeWidth: 0, zIndex: 1));
+        _circles.add(Circle(
+            circleId: CircleId((_circleIdCounter++).toString()),
+            center: LatLng(ghNode.lat, ghNode.lon),
+            fillColor: color,
+            radius: 11,
+            visible: true,
+            strokeWidth: 0,
+            zIndex: 1));
       });
     });
   }
-
 
   List<LatLng> get coordinates => _coordinates;
   set coordinates(List<LatLng> value) {
@@ -77,21 +87,21 @@ class _MapBoxState extends State<MapBoxWidget> {
     //ghNode = _route.getGHNodes(true);
   }
 
-   // MapProperties
+  // MapProperties
   GoogleMapController controller;
   LatLng _currentLocation;
   set currentLocation(LatLng value) {
     _currentLocation = value;
   }
+
   int currentLocationMarkerId;
   Set<Polyline> _polylines = {};
   int _polylineIdCounter = 0;
   Set<Marker> _marker = {};
   int _markerIdCounter = 0;
-  Set<Circle> _circles  = {};
+  Set<Circle> _circles = {};
   int _circleIdCounter = 0;
   double zoomLevel = 15;
-
 
   @override
   void didChangeDependencies() {
@@ -99,32 +109,40 @@ class _MapBoxState extends State<MapBoxWidget> {
     locationController = Provider.of<ManagerBloc>(context).locationController;
 
     navigationBloc.getRoute.listen((route) => this.route = route);
-    locationController.getCurrentLocation.listen((location){
+    locationController.getCurrentLocation.listen((location) {
       currentLocation = location.toGoogleLatLng();
       centerMapToCurrentPosition();
-
     });
     super.didChangeDependencies();
   }
 
-
-
   void _onMapCreated(GoogleMapController controller) async {
     this.controller = controller;
     setState(() {
-      _polylines.add(Polyline(polylineId: PolylineId((_polylineIdCounter++).toString()), points: coordinates, visible: true, color: Colors.blue, zIndex: 0));
-      _marker.add(Marker(markerId: MarkerId((_markerIdCounter++).toString()), position: coordinates.first, icon: BitmapDescriptor.defaultMarker, zIndex: 2, infoWindow: InfoWindow(
-          title: 'Start'
-      )));
-      _marker.add(Marker(markerId: MarkerId((_markerIdCounter++).toString()), position: coordinates.last, icon: BitmapDescriptor.defaultMarker, zIndex: 2, infoWindow: InfoWindow(title: 'Ziel') ));
-
+      _polylines.add(Polyline(
+          polylineId: PolylineId((_polylineIdCounter++).toString()),
+          points: coordinates,
+          visible: true,
+          color: Colors.blue,
+          zIndex: 0));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.first,
+          icon: BitmapDescriptor.defaultMarker,
+          zIndex: 2,
+          infoWindow: InfoWindow(title: 'Start')));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.last,
+          icon: BitmapDescriptor.defaultMarker,
+          zIndex: 2,
+          infoWindow: InfoWindow(title: 'Ziel')));
     });
-    }
-
+  }
 
   void centerMapToCurrentPosition() {
-    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: _currentLocation, zoom: zoomLevel)));
-
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: _currentLocation, zoom: zoomLevel)));
   }
 
   @override
@@ -142,7 +160,8 @@ class _MapBoxState extends State<MapBoxWidget> {
             markers: _marker,
             circles: _circles,
             initialCameraPosition: CameraPosition(
-                target: _route.coordinates.first.toGoogleLatLng(), zoom: zoomLevel),
+                target: _route.coordinates.first.toGoogleLatLng(),
+                zoom: zoomLevel),
             onMapCreated: _onMapCreated,
           );
         });

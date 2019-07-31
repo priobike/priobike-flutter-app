@@ -1,16 +1,13 @@
-import 'package:bike_now/configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bike_now/widgets/search_bar_widget.dart';
 import 'package:bike_now/database/database_helper.dart';
 import 'package:bike_now/blocs/route_creation_bloc.dart';
-import 'package:bike_now/geo_coding/address_to_location_response.dart';
 import 'package:bike_now/blocs/bloc_manager.dart';
 
 import 'dart:async';
 
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RouteCreationPage extends StatefulWidget {
   @override
@@ -19,16 +16,16 @@ class RouteCreationPage extends StatefulWidget {
   }
 }
 
-class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliveClientMixin<RouteCreationPage> {
+class _RouteCreationPage extends State<RouteCreationPage>
+    with AutomaticKeepAliveClientMixin<RouteCreationPage> {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
   bool isLoading = false;
   bool isOwnLocationSearch = false;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-
   }
 
   @override
@@ -44,12 +41,11 @@ class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliv
       }
     });
   }
-  Widget RideLoadingSwitchButton(bool isLoading){
-    if(isLoading){
-      return CircularProgressIndicator(
-      );
 
-    }else{
+  Widget RideLoadingSwitchButton(bool isLoading) {
+    if (isLoading) {
+      return CircularProgressIndicator();
+    } else {
       return IconButton(
         icon: Icon(Icons.directions_bike, color: Colors.blue),
         onPressed: () {
@@ -85,12 +81,12 @@ class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliv
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child:
-                           SearchBarWidget(
-                              'Start...',
-                              routeCreationBloc.setStart,
-                              routeCreationBloc.getStartLabel, routeCreationBloc.getIsOwnLocation)),
+                        padding: const EdgeInsets.all(8.0),
+                        child: SearchBarWidget(
+                            'Start...',
+                            routeCreationBloc.setStart,
+                            routeCreationBloc.getStartLabel,
+                            routeCreationBloc.getSimulationPref)),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SearchBarWidget(
@@ -115,8 +111,7 @@ class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliv
               )
             ],
           ),
-          Center(
-              child: RideLoadingSwitchButton(isLoading)),
+          Center(child: RideLoadingSwitchButton(isLoading)),
           Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -130,17 +125,15 @@ class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliv
                 stream: routeCreationBloc.rides,
                 initialData: null,
                 builder: (context, snapshot) {
-                    if(snapshot.data == null) {
-                      return Center(child: Container(child: CircularProgressIndicator()));
-                    }
-                    else{
-                      return ListView(children: [
-                        for (var ride in snapshot.data)
-                          _rideTileBuilder(ride, routeCreationBloc)
-                      ]);
-                    }
-
-
+                  if (snapshot.data == null) {
+                    return Center(
+                        child: Container(child: CircularProgressIndicator()));
+                  } else {
+                    return ListView(children: [
+                      for (var ride in snapshot.data)
+                        _rideTileBuilder(ride, routeCreationBloc)
+                    ]);
+                  }
                 },
               ),
             ),
@@ -149,11 +142,9 @@ class _RouteCreationPage extends State<RouteCreationPage> with AutomaticKeepAliv
       ),
     );
 
-
-
     // TODO: implement build
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         body: StreamBuilder<CreationState>(
             stream: routeCreationBloc.getState,
             initialData: CreationState.routeCreation,

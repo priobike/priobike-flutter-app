@@ -1,6 +1,4 @@
 import 'package:bike_now/controller/crossing_controller.dart';
-import 'package:bike_now/models/abstract_classes/locatable.dart';
-import 'package:bike_now/models/abstract_classes/crossable.dart';
 import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
 
 import 'package:bike_now/models/phase.dart';
@@ -15,14 +13,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'sg.g.dart';
 
-
-enum SGAnnotationStatus {
-  none,green,red
-}
-
+enum SGAnnotationStatus { none, green, red }
 
 @JsonSerializable()
-class SG with LocatableAndCrossable{
+class SG with LocatableAndCrossable {
   int baseId;
   String sgName;
   int sign;
@@ -36,7 +30,6 @@ class SG with LocatableAndCrossable{
 
   bool _isGreen = false;
 
-
   @JsonKey(ignore: true)
   bool get isGreen => _isGreen;
 
@@ -45,20 +38,20 @@ class SG with LocatableAndCrossable{
     _isGreen = value;
 
     if (isGreen != oldValue) {
-    shouldUpdateAnnotation = true;
+      shouldUpdateAnnotation = true;
 
-    if (isGreen != null){
-      if (isGreen) {
-      annotationStatus = SGAnnotationStatus.green;
+      if (isGreen != null) {
+        if (isGreen) {
+          annotationStatus = SGAnnotationStatus.green;
+        } else {
+          annotationStatus = SGAnnotationStatus.red;
+        }
       } else {
-      annotationStatus = SGAnnotationStatus.red;
+        return;
       }
-    }else{
-      return;
     }
-    }
+  }
 
-    }
   bool _isSubscribed = false;
   @JsonKey(ignore: true)
   bool get isSubscribed => _isSubscribed;
@@ -67,13 +60,13 @@ class SG with LocatableAndCrossable{
     _isSubscribed = value;
 
     if (isSubscribed && oldValue == false) {
-    shouldUpdateAnnotation = true;
-    Logger.root.fine("Did subscribe to SG with name $sgName.");
-    handleSGSubscribtion(this);
+      shouldUpdateAnnotation = true;
+      Logger.root.fine("Did subscribe to SG with name $sgName.");
+      handleSGSubscribtion(this);
     } else if (!isSubscribed && oldValue == true) {
-    Logger.root.fine("Did unsubscribe from SG with name $sgName).");
+      Logger.root.fine("Did unsubscribe from SG with name $sgName).");
 
-    handleSGUnSubscribe(this);
+      handleSGUnSubscribe(this);
     }
   }
 
@@ -103,17 +96,30 @@ class SG with LocatableAndCrossable{
   bool shouldUpdateAnnotation = false;
 
   @JsonKey(ignore: true)
-  CrossingController crossingController  = CrossingController(0.0, 100.0, 0.8, 2);
+  CrossingController crossingController =
+      CrossingController(0.0, 100.0, 0.8, 2);
 
-
-  SG(this.baseId, this.sgName, this.sign, this.signFlags, this.bear,
-      this.hasPredictions, this.vehicleFlags, this.uniqueName, this.coordinate,
-       this.parentLSA, this.referencedGHNode,
-      List<Phase> phases, this.annotationStatus, this.shouldUpdateAnnotation, double lat, double lon, double distance){
+  SG(
+      this.baseId,
+      this.sgName,
+      this.sign,
+      this.signFlags,
+      this.bear,
+      this.hasPredictions,
+      this.vehicleFlags,
+      this.uniqueName,
+      this.coordinate,
+      this.parentLSA,
+      this.referencedGHNode,
+      List<Phase> phases,
+      this.annotationStatus,
+      this.shouldUpdateAnnotation,
+      double lat,
+      double lon,
+      double distance) {
     super.distance = distance;
     super.lat = lat;
     super.lon = lon;
-
   }
 
   factory SG.fromJson(Map<String, dynamic> json) => _$SGFromJson(json);
@@ -123,39 +129,34 @@ class SG with LocatableAndCrossable{
   /// helper method `_$UserToJson`.
   Map<String, dynamic> toJson() => _$SGToJson(this);
 
-  Phase getNextValidPhase(double currentSpeed){
+  Phase getNextValidPhase(double currentSpeed) {
     var validPhase = phases.firstWhere((phase) {
       var validPhase = phase.getValidPhase(currentSpeed);
       return validPhase != null;
     });
     return validPhase;
-
   }
 
   /*SGAnnotation createSGAnnotation(){
 
   }*/
 
-  SGSubscription makeSGSubscription(){
+  SGSubscription makeSGSubscription() {
     return SGSubscription(sgName, isSubscribed);
-
-
   }
 
-  Subscription makeSubscription(){
+  Subscription makeSubscription() {
     int lsaId = parentLSA.id;
     String lsaName = parentLSA.name;
     SGSubscription sgSubscription = makeSGSubscription();
 
     return Subscription(lsaId, lsaName, [sgSubscription]);
-
   }
-
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
     if (distance <= 100.0) {
-    return crossingController.run( distance,accuracy);
+      return crossingController.run(distance, accuracy);
     }
 
     return false;
@@ -172,14 +173,11 @@ class SG with LocatableAndCrossable{
     this._isCrossed = _isCrossed;
 
     if (isCrossed && oldValue == false) {
-    annotationStatus = SGAnnotationStatus.none;
-    shouldUpdateAnnotation = true;
-    isSubscribed = false;
+      annotationStatus = SGAnnotationStatus.none;
+      shouldUpdateAnnotation = true;
+      isSubscribed = false;
 
-    Logger.root.fine("SG with name $sgName) has been crossed.");
+      Logger.root.fine("SG with name $sgName) has been crossed.");
     }
   }
-
-
-
 }

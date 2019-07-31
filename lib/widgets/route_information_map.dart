@@ -1,17 +1,10 @@
-import 'dart:async';
-
 import 'package:bike_now/blocs/bloc_manager.dart';
 import 'package:bike_now/blocs/route_information_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 
-import 'package:bike_now/widgets/location_point_widget.dart';
-import 'package:bike_now/pages/route_information_page.dart';
 import 'package:bike_now/models/models.dart' as BikeNow;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'package:bike_now/models/route.dart' as BikeRoute;
 
 class RouteInformationMap extends StatefulWidget {
   @override
@@ -50,17 +43,27 @@ class _RouteInformationMapState extends State<RouteInformationMap> {
   void didChangeDependencies() {
     routeInformationBloc =
         Provider.of<ManagerBloc>(context).routeInformationBloc;
-    routeInformationBloc.getRoute.listen((route)=> this.route = route);
+    routeInformationBloc.getRoute.listen((route) => this.route = route);
     super.didChangeDependencies();
   }
 
   void _onMapCreated(GoogleMapController controller) async {
     setState(() {
-      _polylines.add(Polyline(polylineId: PolylineId((_polylineIdCounter++).toString()), points: coordinates, visible: true, color: Colors.blue));
-      _marker.add(Marker(markerId: MarkerId((_markerIdCounter++).toString()), position: coordinates.first, icon: BitmapDescriptor.defaultMarker, infoWindow: InfoWindow(
-        title: 'Start'
-      )));
-      _marker.add(Marker(markerId: MarkerId((_markerIdCounter++).toString()), position: coordinates.last, icon: BitmapDescriptor.defaultMarker, infoWindow: InfoWindow(title: 'Ziel') ));
+      _polylines.add(Polyline(
+          polylineId: PolylineId((_polylineIdCounter++).toString()),
+          points: coordinates,
+          visible: true,
+          color: Colors.blue));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.first,
+          icon: BitmapDescriptor.defaultMarker,
+          infoWindow: InfoWindow(title: 'Start')));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.last,
+          icon: BitmapDescriptor.defaultMarker,
+          infoWindow: InfoWindow(title: 'Ziel')));
     });
   }
 

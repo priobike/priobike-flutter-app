@@ -4,97 +4,66 @@ import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:bike_now/models/route.dart' as BikeRoute;
-import 'package:bike_now/database/database_helper.dart';
 
 class RouteInformationBloc extends ChangeNotifier {
+  double distance;
+  double astimatedTime;
+  DateTime timeOfArrival;
+  CreationState state;
 
-double distance;
-double astimatedTime;
-DateTime timeOfArrival;
-CreationState state;
+  BikeRoute.Route route;
+  String startLabel;
+  String endLabel;
 
-
-BikeRoute.Route route;
-String startLabel;
-String endLabel;
-
-void setRoute(BikeRoute.Route route){
-  this.route = route;
-  _routeSubject.add(route);
-}
-
-setStartLabel(String label){
-  if (label.length <= 30){
-    startLabel = label;
-  }else{
-    startLabel = label.substring(0,29);
+  void setRoute(BikeRoute.Route route) {
+    this.route = route;
+    _routeSubject.add(route);
   }
-  _startLabelSubject.add(startLabel);
-}
-setEndLabel(String label){
-  if (label.length <= 30){
-    endLabel = label;
-  }else{
-    endLabel = label.substring(0,29);
+
+  setStartLabel(String label) {
+    if (label.length <= 30) {
+      startLabel = label;
+    } else {
+      startLabel = label.substring(0, 29);
+    }
+    _startLabelSubject.add(startLabel);
   }
-  _endLabelSubject.add(endLabel);
-}
 
-Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
-final _routeSubject = BehaviorSubject<BikeRoute.Route>();
+  setEndLabel(String label) {
+    if (label.length <= 30) {
+      endLabel = label;
+    } else {
+      endLabel = label.substring(0, 29);
+    }
+    _endLabelSubject.add(endLabel);
+  }
 
-Stream<CreationState> get getState => _stateSubject.stream;
-final _stateSubject = BehaviorSubject<CreationState>();
+  Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
+  final _routeSubject = BehaviorSubject<BikeRoute.Route>();
 
+  Stream<CreationState> get getState => _stateSubject.stream;
+  final _stateSubject = BehaviorSubject<CreationState>();
 
-Stream<String> get getStartLabel => _startLabelSubject.stream;
-final _startLabelSubject = BehaviorSubject<String>();
+  Stream<String> get getStartLabel => _startLabelSubject.stream;
+  final _startLabelSubject = BehaviorSubject<String>();
 
-Stream<String> get getEndLabel => _endLabelSubject.stream;
-final _endLabelSubject = BehaviorSubject<String>();
-
-
-
+  Stream<String> get getEndLabel => _endLabelSubject.stream;
+  final _endLabelSubject = BehaviorSubject<String>();
 
 // STREAMS
-Stream<double> get getDistance => _distanceSubject.stream;
-final _distanceSubject = BehaviorSubject<double>();
-Sink<double> get setDistance => _setDistanceController.sink;
-final _setDistanceController = StreamController<double>();
+  Stream<double> get getDistance => _distanceSubject.stream;
+  final _distanceSubject = BehaviorSubject<double>();
 
-Stream<double> get getAstimatedTime => _astimatedTimeSubject.stream;
-final _astimatedTimeSubject = BehaviorSubject<double>();
-Sink<double> get setAstimatedTime => _setAstimatedTimeController.sink;
-final _setAstimatedTimeController = StreamController<double>();
+  Stream<double> get getAstimatedTime => _astimatedTimeSubject.stream;
+  final _astimatedTimeSubject = BehaviorSubject<double>();
 
-Stream<DateTime> get getTimeOfArrival => _timeOfArrivalSubject.stream;
-final _timeOfArrivalSubject = BehaviorSubject<DateTime>();
-Sink<DateTime> get setTimeOfArrival => _setTimeOfArrivalController.sink;
-final _setTimeOfArrivalController = StreamController<DateTime>();
+  Stream<DateTime> get getTimeOfArrival => _timeOfArrivalSubject.stream;
+  final _timeOfArrivalSubject = BehaviorSubject<DateTime>();
 
+  RouteInformationBloc() {}
 
-
-
-RouteInformationBloc(){
-  _setDistanceController.stream.listen(_setDistance);
-  _setAstimatedTimeController.stream.listen(_setAstimatedTime);
-  _setTimeOfArrivalController.stream.listen(_setTimeOfArrival);
-
-
-
-
-}
-void _setDistance(double distance){
-
-}
-void _setAstimatedTime(double astimatedTime){}
-
-void _setTimeOfArrival(DateTime timeOfArrival){}
-
-  void setState(CreationState state){
+  void setState(CreationState state) {
     this.state = state;
     _stateSubject.add(state);
   }
-
-
 }

@@ -1,7 +1,6 @@
 import 'package:bike_now/blocs/helper/routing_dashboard_info.dart';
 import 'package:bike_now/blocs/navigation_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:bike_now/models/models.dart' as BikeNow;
 import 'package:provider/provider.dart';
 import 'package:bike_now/blocs/bloc_manager.dart';
 
@@ -53,7 +52,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
         child: Stack(
           children: [
             StreamBuilder<RoutingDashboardInfo>(
-                stream: navigationBloc.getDashboardIngo,
+                stream: navigationBloc.getDashboardInfo,
                 initialData: null,
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
@@ -183,7 +182,8 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                   } else {
                     return Container();
                   }
-                }),Positioned(
+                }),
+            Positioned(
               top: 8,
               left: 8,
               child: IconButton(

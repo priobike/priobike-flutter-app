@@ -14,13 +14,11 @@ enum WebSocketMethod {
   pushFeedback
 }
 
-enum WebsocketMode {
-  ok, error
-}
-class WebsocketModeHelper{
-  static int getValue(WebsocketMode mode){
-    switch (mode){
+enum WebsocketMode { ok, error }
 
+class WebsocketModeHelper {
+  static int getValue(WebsocketMode mode) {
+    switch (mode) {
       case WebsocketMode.ok:
         return 1;
         break;
@@ -30,8 +28,8 @@ class WebsocketModeHelper{
     }
   }
 
-  static WebsocketMode getMode(int mode){
-    switch (mode){
+  static WebsocketMode getMode(int mode) {
+    switch (mode) {
       case 1:
         return WebsocketMode.ok;
         break;
@@ -42,39 +40,40 @@ class WebsocketModeHelper{
   }
 }
 
-class WebSocketMethodHelper{
-  static WebSocketMethod getMethod(int index){
-    switch(index){
+class WebSocketMethodHelper {
+  static WebSocketMethod getMethod(int index) {
+    switch (index) {
       case -1:
         return WebSocketMethod.logout;
       case 0:
         return WebSocketMethod.ping;
       case 1:
-        return WebSocketMethod.login ;
+        return WebSocketMethod.login;
       case 2:
-        return WebSocketMethod.calcRoute ;
+        return WebSocketMethod.calcRoute;
       case 3:
         return WebSocketMethod.pushLocations;
-      case  4:
+      case 4:
         return WebSocketMethod.updateSubscriptions;
       case 5:
-        return WebSocketMethod.pushPredictions ;
+        return WebSocketMethod.pushPredictions;
       case 6:
-        return WebSocketMethod.pushInstructions ;
+        return WebSocketMethod.pushInstructions;
       case 7:
-        return WebSocketMethod.getLocationFromAddress ;
+        return WebSocketMethod.getLocationFromAddress;
       case 8:
-        return WebSocketMethod.getAddressFromLocation ;
+        return WebSocketMethod.getAddressFromLocation;
       case 9:
         return WebSocketMethod.routeStart;
       case 10:
-        return WebSocketMethod.routeFinish ;
+        return WebSocketMethod.routeFinish;
       case 20:
-        return WebSocketMethod.pushFeedback ;
+        return WebSocketMethod.pushFeedback;
     }
   }
-  static int getValue(WebSocketMethod method){
-    switch(method){
+
+  static int getValue(WebSocketMethod method) {
+    switch (method) {
       case WebSocketMethod.logout:
         return -1;
       case WebSocketMethod.ping:
@@ -102,6 +101,5 @@ class WebSocketMethodHelper{
       case WebSocketMethod.pushFeedback:
         return 20;
     }
-
   }
 }

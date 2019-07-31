@@ -15,13 +15,12 @@ final String columnDate = 'date';
 
 // data model class
 class Ride {
-
   int id;
   Place start;
   Place end;
   int date;
 
-  Ride(this.start,this.end,this.date);
+  Ride(this.start, this.end, this.date);
 
   // convenience constructor to create a Ride object
   Ride.fromMap(Map<String, dynamic> map) {
@@ -49,7 +48,6 @@ class Ride {
 
 // singleton class to manage the database
 class DatabaseHelper {
-
   // This is the actual database filename that is saved in the docs directory.
   static final _databaseName = "rides.db";
   // Increment this version when you need to change the schema.
@@ -74,8 +72,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, _databaseName);
     // Open the database. Can also add an onUpdate callback parameter.
     return await openDatabase(path,
-        version: _databaseVersion,
-        onCreate: _onCreate);
+        version: _databaseVersion, onCreate: _onCreate);
   }
 
   // SQL string to create the database
@@ -96,19 +93,20 @@ class DatabaseHelper {
     Database db = await database;
     var allRide = await queryAllRides();
     var equalRidesInDatabase = allRide.where((rideItem) {
-      return (rideItem.start.displayName == ride.start.displayName && rideItem.end.displayName == ride.end.displayName);
+      return (rideItem.start.displayName == ride.start.displayName &&
+          rideItem.end.displayName == ride.end.displayName);
     });
-    if (equalRidesInDatabase.isEmpty){
+    if (equalRidesInDatabase.isEmpty) {
       int id = await db.insert(tableWords, ride.toMap());
       return id;
     }
     return null;
   }
+
   Future<int> delete(int id) async {
     Database db = await database;
-    int deletedID = await db.delete(tableWords,
-        where: '$columnId = ?',
-        whereArgs: [id]);
+    int deletedID =
+        await db.delete(tableWords, where: '$columnId = ?', whereArgs: [id]);
     return deletedID;
   }
 
@@ -130,11 +128,9 @@ class DatabaseHelper {
         columns: [columnId, columnStart, columnEnd, columnDate]);
     if (maps.length > 0) {
       List<Ride> rides = new List<Ride>();
-      for(var map in maps) rides.add(Ride.fromMap(map));
+      for (var map in maps) rides.add(Ride.fromMap(map));
       return rides;
     }
     return new List<Ride>();
-    }
   }
-
-// TODO: update(Word word)
+}

@@ -1,8 +1,6 @@
 import 'package:bike_now/models/latlng.dart';
 import 'package:logging/logging.dart';
 
-import 'abstract_classes/locatable.dart';
-import 'abstract_classes/crossable.dart';
 import 'abstract_classes/locatable_and_crossable.dart';
 import 'gh_node.dart';
 import 'lsa.dart';
@@ -11,7 +9,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'instruction.g.dart';
 
 @JsonSerializable()
-class Instruction with LocatableAndCrossable{
+class Instruction with LocatableAndCrossable {
   int sign;
   String name;
   String text;
@@ -21,18 +19,16 @@ class Instruction with LocatableAndCrossable{
   @JsonKey(name: 'nodeArray')
   List<GHNode> nodes;
 
-
-  Instruction(this.sign, this.name, this.text, this.info, this.lsas,
-      this.nodes, double distance){
-
-      super.lon = 0;
-      super.lat = 0;
-
+  Instruction(this.sign, this.name, this.text, this.info, this.lsas, this.nodes,
+      double distance) {
+    super.lon = 0;
+    super.lat = 0;
 
     super.distance = distance;
   }
 
-  factory Instruction.fromJson(Map<String, dynamic> json) => _$InstructionFromJson(json);
+  factory Instruction.fromJson(Map<String, dynamic> json) =>
+      _$InstructionFromJson(json);
 
   /// `toJson` is the convention for a class to declare support for serialization
   /// to JSON. The implementation simply calls the private, generated
@@ -61,7 +57,7 @@ class Instruction with LocatableAndCrossable{
 
   @override
   void set isCrossed(bool _isCrossed) {
-    if (isCrossed == false && _isCrossed){
+    if (isCrossed == false && _isCrossed) {
       Logger.root.fine("Finished instruction with name $name and text $text");
     }
     this._isCrossed = _isCrossed;
@@ -78,8 +74,8 @@ class Instruction with LocatableAndCrossable{
   @override
   double calculateDistanceTo(LatLng destination) {
     var list = nodes.where((node) => !node.isCrossed);
-    double res = list.fold(distance, (distance, node){
-      if (node != null){
+    double res = list.fold(distance, (distance, node) {
+      if (node != null) {
         return node.calculateDistanceTo(destination) + distance;
       }
       return distance;

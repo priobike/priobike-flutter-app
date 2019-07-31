@@ -4,9 +4,7 @@ import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class SettingsBloc extends ChangeNotifier {
-
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   // Pref STREAMS
@@ -30,9 +28,11 @@ class SettingsBloc extends ChangeNotifier {
   Sink<bool> get setOptimiyeSystemTime => _setOptimiyeSystemTimeController.sink;
   final _setOptimiyeSystemTimeController = StreamController<bool>();
 
-  Stream<bool> get slowlyHideTrafficLightPhase => _slowlyHideTrafficLightPhaseSubject.stream;
+  Stream<bool> get slowlyHideTrafficLightPhase =>
+      _slowlyHideTrafficLightPhaseSubject.stream;
   final _slowlyHideTrafficLightPhaseSubject = BehaviorSubject<bool>();
-  Sink<bool> get setSlowlyHideTrafficLightPhase => _setSlowlyHideTrafficLightPhaseController.sink;
+  Sink<bool> get setSlowlyHideTrafficLightPhase =>
+      _setSlowlyHideTrafficLightPhaseController.sink;
   final _setSlowlyHideTrafficLightPhaseController = StreamController<bool>();
 
   Stream<bool> get showGPSAccuracy => _showGPSAccuracySubject.stream;
@@ -80,18 +80,17 @@ class SettingsBloc extends ChangeNotifier {
   Sink<bool> get setSimulator => _setSimulatorController.sink;
   final _setSimulatorController = StreamController<bool>();
 
-
   SettingsBloc() {
     addSetterToStreamController();
     fetchSettings();
   }
 
-  void _setMaxSpeed(int maxSpeed) async{
+  void _setMaxSpeed(int maxSpeed) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setInt("maxSpeed", maxSpeed);
-    if (prefIsSet){
+    if (prefIsSet) {
       _maxSpeedSubject.add(maxSpeed);
-    }else{
+    } else {
       throw new Exception('maxSpeed Pref cannot be set');
     }
   }
@@ -99,137 +98,142 @@ class SettingsBloc extends ChangeNotifier {
   void _setRacer(bool racer) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setBool("racer", racer);
-    if (prefIsSet){
+    if (prefIsSet) {
       _racerSubject.add(racer);
-    }else{
+    } else {
       throw new Exception('racer Pref cannot be set');
     }
   }
 
-  void _setDynamicLocation(bool dynamicLocation) async{
+  void _setDynamicLocation(bool dynamicLocation) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setBool("dynamicLocation", dynamicLocation);
-    if (prefIsSet){
+    if (prefIsSet) {
       _dynamicLocationSubject.add(dynamicLocation);
-    }else{
+    } else {
       throw new Exception('setDynamicLocation Pref cannot be set');
     }
   }
 
-  void _setOptimiyeSystemTime(bool optimiyeSystemTime) async{
+  void _setOptimiyeSystemTime(bool optimiyeSystemTime) async {
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool("optimizeSystemTime", optimiyeSystemTime);
-    if (prefIsSet){
+    final prefIsSet =
+        await prefs.setBool("optimizeSystemTime", optimiyeSystemTime);
+    if (prefIsSet) {
       _optimiyeSystemTimeSubject.add(optimiyeSystemTime);
-    }else{
+    } else {
       throw new Exception('optimizeSystemTime Pref cannot be set');
     }
   }
 
-  void _setSlowlyHideTrafficLightPhase(bool slowlyHideTrafficLightPhase) async{
+  void _setSlowlyHideTrafficLightPhase(bool slowlyHideTrafficLightPhase) async {
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool("slowlyHideTrafficLightPhase", slowlyHideTrafficLightPhase);
-    if (prefIsSet){
+    final prefIsSet = await prefs.setBool(
+        "slowlyHideTrafficLightPhase", slowlyHideTrafficLightPhase);
+    if (prefIsSet) {
       _slowlyHideTrafficLightPhaseSubject.add(slowlyHideTrafficLightPhase);
-    }else{
+    } else {
       throw new Exception('slowlyHideTrafficLightPhase Pref cannot be set');
     }
   }
 
-  void _setShowGPSAccuracy(bool showGPSAccuracy) async{
+  void _setShowGPSAccuracy(bool showGPSAccuracy) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setBool("showGPSAccuracy", showGPSAccuracy);
-    if (prefIsSet){
+    if (prefIsSet) {
       _showGPSAccuracySubject.add(showGPSAccuracy);
-    }else{
+    } else {
       throw new Exception('showGPSAccuracy Pref cannot be set');
     }
   }
 
-  void _setDebugMode(bool debugMode) async{
+  void _setDebugMode(bool debugMode) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setBool("debugMode", debugMode);
-    if (prefIsSet){
+    if (prefIsSet) {
       _debugModeSubject.add(debugMode);
-    }else{
+    } else {
       throw new Exception('debugMode Pref cannot be set');
     }
   }
 
-  void _setMaxAccuracy(int maxAccuracy) async{
+  void _setMaxAccuracy(int maxAccuracy) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setInt("maxAccuracy", maxAccuracy);
-    if (prefIsSet){
+    if (prefIsSet) {
       _maxAccuracySubject.add(maxAccuracy);
-    }else{
+    } else {
       throw new Exception('maxAccuracy Pref cannot be set');
     }
   }
 
-  void _setMinDistance(int minDistance) async{
+  void _setMinDistance(int minDistance) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setInt("minDistance", minDistance);
-    if (prefIsSet){
+    if (prefIsSet) {
       _minDistanceSubject.add(minDistance);
-    }else{
+    } else {
       throw new Exception('minDistance Pref cannot be set');
     }
   }
 
-  void _setCrossQuantity(int crossQuantity) async{
+  void _setCrossQuantity(int crossQuantity) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setInt("crossQuantity", crossQuantity);
-    if (prefIsSet){
+    if (prefIsSet) {
       _crossQuantitySubject.add(crossQuantity);
-    }else{
+    } else {
       throw new Exception('crossQuantity Pref cannot be set');
     }
-
   }
-  void _setAccuracyModifier(int accuracyModifier)async{
+
+  void _setAccuracyModifier(int accuracyModifier) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setInt("accuracyModifier", accuracyModifier);
-    if (prefIsSet){
+    if (prefIsSet) {
       _accuracyModifierSubject.add(accuracyModifier);
-    }else{
+    } else {
       throw new Exception('accuracyModifier Pref cannot be set');
     }
-
   }
-  void _setPassword(String password)async{
+
+  void _setPassword(String password) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setString("password", password);
-    if (prefIsSet){
+    if (prefIsSet) {
       _passwordSubject.add(password);
-    }else{
+    } else {
       throw new Exception('password Pref cannot be set');
     }
   }
-  void _setPushLocations(bool pushLocations)async{
+
+  void _setPushLocations(bool pushLocations) async {
     final SharedPreferences prefs = await _prefs;
     final prefIsSet = await prefs.setBool("pushLocations", pushLocations);
-    if (prefIsSet){
+    if (prefIsSet) {
       _pushLocationsSubject.add(pushLocations);
-    }else{
-      throw new Exception('debugMode Pref cannot be set');
-    }
-  }
-  void _setSimulator(bool simulator)async{
-    final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool(SettingKeys.simulator, simulator);
-    if (prefIsSet){
-      _simulatorSubject.add(simulator);
-    }else{
+    } else {
       throw new Exception('debugMode Pref cannot be set');
     }
   }
 
-  void addSetterToStreamController(){
+  void _setSimulator(bool simulator) async {
+    final SharedPreferences prefs = await _prefs;
+    final prefIsSet = await prefs.setBool(SettingKeys.simulator, simulator);
+    if (prefIsSet) {
+      _simulatorSubject.add(simulator);
+    } else {
+      throw new Exception('debugMode Pref cannot be set');
+    }
+  }
+
+  void addSetterToStreamController() {
     _setMaxSpeedController.stream.listen(_setMaxSpeed);
     _setRacerController.stream.listen(_setRacer);
     _setDynamicLocationController.stream.listen(_setDynamicLocation);
     _setOptimiyeSystemTimeController.stream.listen(_setOptimiyeSystemTime);
-    _setSlowlyHideTrafficLightPhaseController.stream.listen(_setSlowlyHideTrafficLightPhase);
+    _setSlowlyHideTrafficLightPhaseController.stream
+        .listen(_setSlowlyHideTrafficLightPhase);
     _setShowGPSAccuracyController.stream.listen(_setShowGPSAccuracy);
     _setDebugModeController.stream.listen(_setDebugMode);
     _setMaxAccuracyController.stream.listen(_setMaxAccuracy);
@@ -241,7 +245,7 @@ class SettingsBloc extends ChangeNotifier {
     _setSimulatorController.stream.listen(_setSimulator);
   }
 
-  void fetchSettings(){
+  void fetchSettings() {
     //FetchPrefs
     _prefs.then((SharedPreferences prefs) {
       _maxSpeedSubject.add(prefs.getInt('maxSpeed') ?? 0);
@@ -256,11 +260,13 @@ class SettingsBloc extends ChangeNotifier {
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _optimiyeSystemTimeSubject.add(prefs.getBool('optimizeSystemTime') ?? false);
+      _optimiyeSystemTimeSubject
+          .add(prefs.getBool('optimizeSystemTime') ?? false);
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _slowlyHideTrafficLightPhaseSubject.add(prefs.getBool('slowlyHideTrafficLightPhase') ?? false);
+      _slowlyHideTrafficLightPhaseSubject
+          .add(prefs.getBool('slowlyHideTrafficLightPhase') ?? false);
     });
 
     _prefs.then((SharedPreferences prefs) {
@@ -299,5 +305,4 @@ class SettingsBloc extends ChangeNotifier {
       _simulatorSubject.add(prefs.getBool(SettingKeys.simulator) ?? false);
     });
   }
-
 }

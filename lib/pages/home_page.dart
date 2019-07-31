@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'rides_page.dart';
 import 'settings_page.dart';
 import 'route_creation_page.dart';
-import 'websocket_test_page.dart';
 import 'package:bike_now/blocs/settings_bloc.dart';
-import 'package:bike_now/blocs/route_creation_bloc.dart';
-import 'package:bike_now/pages/route_information_page.dart';
-import 'package:bike_now/blocs/bloc_manager.dart';
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,10 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    RouteCreationPage(),
-    SettingsPage()
-  ];
+  final List<Widget> _children = [RouteCreationPage(), SettingsPage()];
 
   void onTabTapped(int index) {
     setState(() {

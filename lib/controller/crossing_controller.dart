@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'dart:math';
-class CrossingController{
+
+class CrossingController {
   double lowerLimit;
   double upperLimit;
 
@@ -11,18 +12,20 @@ class CrossingController{
   double lastAccuracy;
   List<double> distances = [];
 
-  CrossingController(this.lowerLimit, this.upperLimit, this.accuracyModifier, this.crossQuantity);
+  CrossingController(this.lowerLimit, this.upperLimit, this.accuracyModifier,
+      this.crossQuantity);
 
-  bool run(double distance, double accuracy){
+  bool run(double distance, double accuracy) {
     add(distance, accuracy);
     return isCrossed();
-
   }
 
-  void add( double distance, double accuracy){
-    if (distances.isNotEmpty){
+  void add(double distance, double accuracy) {
+    if (distances.isNotEmpty) {
       var lastDistance = distances.last;
-      if (isInRange(distance) && accuracy < maxAllowedAccuracy && isAccurateEnough(distance, lastDistance, accuracy)){
+      if (isInRange(distance) &&
+          accuracy < maxAllowedAccuracy &&
+          isAccurateEnough(distance, lastDistance, accuracy)) {
         if (lastDistance > distance) {
           distances = [distance];
         } else {
@@ -30,43 +33,39 @@ class CrossingController{
         }
         lastAccuracy = accuracy;
       }
-    }else{
+    } else {
       distances.add(distance);
       lastAccuracy = accuracy;
     }
-
   }
 
-  bool isAccurateEnough(double distance, double lastDistance, double accuracy){
+  bool isAccurateEnough(double distance, double lastDistance, double accuracy) {
     var diff = (lastDistance - distance).abs();
-    var acc = [(((lastAccuracy + accuracy) / 2) * accuracyModifier),0].reduce(max);
+    var acc =
+        [(((lastAccuracy + accuracy) / 2) * accuracyModifier), 0].reduce(max);
 
-    if (diff < acc){
+    if (diff < acc) {
       return false;
     }
 
     return true;
-
   }
 
-  bool isInRange(double distance){
-    if (distance > lowerLimit && distance < upperLimit){
+  bool isInRange(double distance) {
+    if (distance > lowerLimit && distance < upperLimit) {
       return true;
     }
     return false;
-
   }
 
-  bool isCrossed(){
-
-    var isAscending = isSorted<double>(distances, (a,b) => a.compareTo(b));
+  bool isCrossed() {
+    var isAscending = isSorted<double>(distances, (a, b) => a.compareTo(b));
     var crossCount = distances.length;
 
-    if (isAscending && crossCount >= crossQuantity){
+    if (isAscending && crossCount >= crossQuantity) {
       return true;
     }
     return false;
-
   }
 
   bool isSorted<T>(List<T> list, [int Function(T, T) compare]) {
@@ -80,8 +79,4 @@ class CrossingController{
     }
     return true;
   }
-
-
-
 }
-
