@@ -75,8 +75,11 @@ class RouteCreationBloc extends ChangeNotifier
 
   void setStart(Place place) {
     if(place != null){
-      start = place;
-      _startLabelSubject.add(place.displayName);
+      if(simulationPref != null && simulationPref){
+        start = place;
+        _startLabelSubject.add(place.displayName);
+      }
+
     }
 
   }
@@ -143,7 +146,8 @@ class RouteCreationBloc extends ChangeNotifier
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
     if (response.method == WebSocketMethod.getAddressFromLocation){
       var response = AddressFromLocationResponse.fromJson(jsonDecode(msg));
-      setStart(response.place);
+      start = response.place;
+      _startLabelSubject.add(response.place.displayName);
     }
     if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));

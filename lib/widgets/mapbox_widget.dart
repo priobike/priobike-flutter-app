@@ -48,6 +48,7 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   List<BikeNow.GHNode> _ghNode;
 
+
   set ghNode(List<BikeNow.GHNode> value) {
     _ghNode = value;
     _ghNode.forEach((ghNode) {
@@ -107,11 +108,13 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   double zoomLevel = 15.5;
 
-  StreamSubscription<BikeNow.LatLng> subscription;
+  StreamSubscription<BikeNow.LatLng> _subscription;
+  StreamSubscription<BikeNow.Route> _routeSubscription;
 
   @override
   void dispose() {
-    subscription.cancel();
+    _subscription.cancel();
+    _routeSubscription.cancel();
     super.dispose();
   }
 
@@ -120,8 +123,8 @@ class _MapBoxState extends State<MapBoxWidget> {
     navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
     locationController = Provider.of<ManagerBloc>(context).locationController;
 
-    navigationBloc.getRoute.listen((route) => this.route = route);
-    subscription = locationController.getCurrentLocation.listen((location) {
+    _routeSubscription = navigationBloc.getRoute.listen((route) => this.route = route);
+    _subscription = locationController.getCurrentLocation.listen((location) {
       currentLocation = location.toGoogleLatLng();
       centerMapToCurrentPosition();
       circleMap[CircleId(currentPositionCircleIdString)] = Circle(

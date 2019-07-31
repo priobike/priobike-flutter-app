@@ -208,6 +208,7 @@ class _RouteCreationPage extends State<RouteCreationPage>
                         .toString())),
         onTap: () {
           routeCreationBloc.setStart(ride.start);
+
           routeCreationBloc.setEnd(ride.end);
         },
       ),
