@@ -54,10 +54,7 @@ class RouteCreationBloc extends ChangeNotifier
 
   RouteCreationBloc(LocationController locationController) {
     this.locationController = locationController;
-    locationController.getCurrentLocation.listen((location){
-      WebSocketService.instance
-          .sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
-    });
+
     
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
@@ -67,6 +64,12 @@ class RouteCreationBloc extends ChangeNotifier
     SharedPreferences.getInstance().then((result) {
       this.simulationPref = result.getBool(SettingKeys.simulator) ?? false;
       _simulationPrefSubject.add(simulationPref);
+      if (!simulationPref){
+        locationController.getCurrentLocation.listen((location){
+          WebSocketService.instance
+              .sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+        });
+      }
     });
   }
 

@@ -34,14 +34,14 @@ class _MapBoxState extends State<MapBoxWidget> {
         }
       }
       setState(() {
-        _circles.add(Circle(
-            circleId: CircleId((_circleIdCounter++).toString()),
+        circleMap[CircleId((lsa.id).toString())] = Circle(
+            circleId: CircleId((lsa.id).toString()),
             center: LatLng(lsa.lat, lsa.lon),
             fillColor: color,
             radius: 14,
             visible: true,
             strokeWidth: 0,
-            zIndex: 1));
+            zIndex: 1);
       });
     });
   }
@@ -58,15 +58,16 @@ class _MapBoxState extends State<MapBoxWidget> {
         }
       }
       setState(() {
-        _circles.add(Circle(
-            circleId: CircleId((_circleIdCounter++).toString()),
+        circleMap[CircleId((ghNode.id).toString())] = Circle(
+            circleId: CircleId((ghNode.id).toString()),
             center: LatLng(ghNode.lat, ghNode.lon),
             fillColor: color,
-            radius: 11,
+            radius: 14,
             visible: true,
             strokeWidth: 0,
-            zIndex: 1));
+            zIndex: 1);
       });
+
     });
   }
 
@@ -83,7 +84,6 @@ class _MapBoxState extends State<MapBoxWidget> {
         .map((coordinate) => coordinate.toGoogleLatLng())
         .toList();
 
-    _circles.clear();
     lsas = _route.getLSAs();
     // draw ghNodes on Screen
     //ghNode = _route.getGHNodes(true);
@@ -101,9 +101,11 @@ class _MapBoxState extends State<MapBoxWidget> {
   int _polylineIdCounter = 0;
   Set<Marker> _marker = {};
   int _markerIdCounter = 0;
-  Set<Circle> _circles = {};
-  int _circleIdCounter = 0;
-  double zoomLevel = 15;
+  String currentPositionCircleIdString = 'ownPosition';
+
+  Map<CircleId, Circle> circleMap = <CircleId, Circle>{};
+
+  double zoomLevel = 15.5;
 
   StreamSubscription<BikeNow.LatLng> subscription;
 
@@ -122,6 +124,15 @@ class _MapBoxState extends State<MapBoxWidget> {
     subscription = locationController.getCurrentLocation.listen((location) {
       currentLocation = location.toGoogleLatLng();
       centerMapToCurrentPosition();
+      circleMap[CircleId(currentPositionCircleIdString)] = Circle(
+          circleId: CircleId(currentPositionCircleIdString),
+          center: LatLng(location.lat, location.lng),
+          fillColor: Colors.blue,
+          radius: 20,
+          visible: true,
+          strokeWidth: 10,
+          strokeColor: Colors.white,
+          zIndex: 2);
     });
     super.didChangeDependencies();
   }
@@ -168,7 +179,7 @@ class _MapBoxState extends State<MapBoxWidget> {
             mapType: MapType.normal,
             polylines: _polylines,
             markers: _marker,
-            circles: _circles,
+            circles: Set<Circle>.of(circleMap.values),
             initialCameraPosition: CameraPosition(
                 target: _route.coordinates.first.toGoogleLatLng(),
                 zoom: zoomLevel),
