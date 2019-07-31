@@ -1,5 +1,6 @@
 import 'package:bike_now/blocs/helper/routing_dashboard_info.dart';
 import 'package:bike_now/blocs/navigation_bloc.dart';
+import 'package:bike_now/widgets/speed_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bike_now/blocs/bloc_manager.dart';
@@ -63,16 +64,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              color: Colors.green,
-                              child: Center(
-                                child: Container(
-                                  padding: EdgeInsets.all(16),
-                                  width: 50,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
+                            child: SpeedSlider(snapshot.data.diffSpeed*3.6),
                           ),
                         ),
                         Expanded(
@@ -104,7 +96,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                 ((snapshot.data.currentSpeed * 3.6)
                                         .round()
                                         .toString() +
-                                    " hm/h"),
+                                    " km/h"),
                                 style: TextStyle(fontSize: 30),
                               )))
                             ],
