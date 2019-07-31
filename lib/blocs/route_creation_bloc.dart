@@ -54,6 +54,11 @@ class RouteCreationBloc extends ChangeNotifier
 
   RouteCreationBloc(LocationController locationController) {
     this.locationController = locationController;
+    locationController.getCurrentLocation.listen((location){
+      WebSocketService.instance
+          .sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+    });
+    
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
     fetchRides();
@@ -66,13 +71,19 @@ class RouteCreationBloc extends ChangeNotifier
   }
 
   void setStart(Place place) {
-    start = place;
-    _startLabelSubject.add(place.displayName);
+    if(place != null){
+      start = place;
+      _startLabelSubject.add(place.displayName);
+    }
+
   }
 
   void setEnd(Place place) {
-    end = place;
-    _endLabelSubject.add(place.displayName);
+    if(place != null){
+      end = place;
+      _endLabelSubject.add(place.displayName);
+    }
+
   }
 
   void setRoute(BikeRoute.Route route) {
@@ -127,6 +138,10 @@ class RouteCreationBloc extends ChangeNotifier
   @override
   void websocketDidReceiveMessage(String msg) {
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
+    if (response.method == WebSocketMethod.getAddressFromLocation){
+      var response = AddressFromLocationResponse.fromJson(jsonDecode(msg));
+      setStart(response.place);
+    }
     if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);

@@ -70,6 +70,11 @@ class NavigationBloc extends ChangeNotifier
     updateRouteTimer = Timer.periodic(updateInterval, updateRouting);
   }
 
+  void didPop(){
+    updateRouteTimer.cancel();
+
+  }
+
   void updateRouting(Timer timer) {
     routingCoordinator.run();
     //sendRideStatistics();

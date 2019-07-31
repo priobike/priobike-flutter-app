@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bike_now/blocs/bloc_manager.dart';
 import 'package:bike_now/blocs/navigation_bloc.dart';
 import 'package:bike_now/controller/location_controller.dart';
@@ -103,13 +105,21 @@ class _MapBoxState extends State<MapBoxWidget> {
   int _circleIdCounter = 0;
   double zoomLevel = 15;
 
+  StreamSubscription<BikeNow.LatLng> subscription;
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
+  }
+
   @override
   void didChangeDependencies() {
     navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
     locationController = Provider.of<ManagerBloc>(context).locationController;
 
     navigationBloc.getRoute.listen((route) => this.route = route);
-    locationController.getCurrentLocation.listen((location) {
+    subscription = locationController.getCurrentLocation.listen((location) {
       currentLocation = location.toGoogleLatLng();
       centerMapToCurrentPosition();
     });

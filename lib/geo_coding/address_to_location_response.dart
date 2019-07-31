@@ -24,6 +24,30 @@ class AddressToLocationResponse {
     return data;
   }
 }
+class AddressFromLocationResponse {
+  int mode;
+  int method;
+  Place place;
+
+  AddressFromLocationResponse({this.mode, this.method, this.place});
+
+  AddressFromLocationResponse.fromJson(Map<String, dynamic> json) {
+    mode = json['mode'];
+    method = json['method'];
+    place =
+    json['payload'] != null ? new Place.fromJson(json['payload']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['mode'] = this.mode;
+    data['method'] = this.method;
+    if (this.place != null) {
+      data['payload'] = this.place.toJson();
+    }
+    return data;
+  }
+}
 
 class Place {
   int osmId;

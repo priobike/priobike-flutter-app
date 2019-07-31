@@ -38,6 +38,12 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
     navigationBloc.startRouting();
   }
 
+  @override
+  void didPop(){
+    super.didPop();
+    navigationBloc.didPop();
+  }
+
   phaseColor(bool isGreen) {
     if (isGreen)
       return Colors.green;
