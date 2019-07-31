@@ -199,7 +199,7 @@ class SettingsPageState extends State<SettingsPage>
             return SwitchListTile(
                 title: Text('Simulator'),
                 subtitle: Text(
-                    "Startet den Simulatormodus (Standortdaten werden natürlich nicht übertragen). Funktioniert nur mit korrektem Passwort."),
+                    "Startet den Simulatormodus, die App muss danach neu gestartet werden."),
                 value: snapshot.data,
                 onChanged: (bool newValue) =>
                     settingsBloc.setSimulator.add(newValue));
