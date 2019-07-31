@@ -15,10 +15,10 @@ class SearchBarWidget extends StatefulWidget {
   final String hintText;
   final ValueChanged<Place> onValueChanged;
   final Stream<String> txt;
-  final Stream<bool> isOwnLocation;
+  final Stream<bool> simulatorPref;
 
   SearchBarWidget(this.hintText, this.onValueChanged, this.txt,
-      [this.isOwnLocation]);
+      [this.simulatorPref]);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -31,7 +31,7 @@ class _SearchBarState extends State<SearchBarWidget> {
   FocusNode _focus = new FocusNode();
   var txtController = new TextEditingController();
   final Stream<String> txt;
-  bool isOwnLocation = false;
+  bool simulatorPref = true;
 
   _SearchBarState(
     this.hintText,
@@ -48,10 +48,10 @@ class _SearchBarState extends State<SearchBarWidget> {
         });
       }
     });
-    widget.isOwnLocation?.listen((isOwnLocation) {
-      if (isOwnLocation != null) {
+    widget.simulatorPref?.listen((simulatorPref) {
+      if (simulatorPref != null) {
         setState(() {
-          this.isOwnLocation = isOwnLocation;
+          this.simulatorPref = simulatorPref;
         });
       }
     });
@@ -62,7 +62,7 @@ class _SearchBarState extends State<SearchBarWidget> {
     final routeCreationBloc =
         Provider.of<ManagerBloc>(context).routeCreationBlog;
 
-    if (isOwnLocation) {
+    if (!simulatorPref) {
       txtController.text = "Mein Standort";
     }
     return Container(
@@ -87,7 +87,7 @@ class _SearchBarState extends State<SearchBarWidget> {
                 child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: () async {
-                      if (!isOwnLocation) {
+                      if (simulatorPref) {
                         final Place place = await showSearch(
                             context: context,
                             delegate: PlaceSearch(),
