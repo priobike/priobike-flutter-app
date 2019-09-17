@@ -22,7 +22,7 @@ class LocationController extends ChangeNotifier {
 
   LocationController() {
     SharedPreferences.getInstance().then((prefs) {
-      bool useFakeData = prefs.getBool(SettingKeys.simulator);
+      bool useFakeData = prefs.getBool(SettingKeys.simulator) ?? false;
       if (!useFakeData) {
         location.onLocationChanged().listen((LocationData currentLocation) {
           this.currentLocation = currentLocation;

@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(),
-          '/second': (context) => RouteInformationPage(),
+          '/routeInfo': (context) => RouteInformationPage(),
           '/navigation': (context) => NavigationPage(),
         },
         title: 'BikeNow',

@@ -8,7 +8,6 @@ import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 
 import 'dart:async';
 
-
 class RouteCreationPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -20,8 +19,6 @@ class _RouteCreationPage extends State<RouteCreationPage>
     with AutomaticKeepAliveClientMixin<RouteCreationPage> {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
-  bool isLoading = false;
-  bool isOwnLocationSearch = false;
 
   @override
   void initState() {
@@ -31,32 +28,27 @@ class _RouteCreationPage extends State<RouteCreationPage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Provide Blocs
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
-    subscription = routeCreationBloc.getState.listen((state) {
-      if (state == CreationState.navigateToInformationPage) {
-        isLoading = false;
-        Navigator.pushNamed(context, '/second');
+    subscription = routeCreationBloc.getState.listen((state){
+      if(state == CreationState.navigateToInformationPage){
+        Navigator.pushNamed(context, "/routeInfo");
         routeCreationBloc.setState(CreationState.routeCreation);
       }
+
     });
+
   }
 
-  Widget RideLoadingSwitchButton(bool isLoading) {
-    if (isLoading) {
-      return CircularProgressIndicator();
-    } else {
-      return IconButton(
-        icon: Icon(Icons.directions_bike, color: Colors.blue),
-        onPressed: () {
-          routeCreationBloc.addRides();
-          routeCreationBloc.setState(CreationState.waitingForResponse);
-          setState(() {
-            isLoading = true;
-          });
-        },
-      );
-    }
+  Widget SubmitRideButton() {
+    return IconButton(
+      icon: Icon(Icons.directions_bike, color: Colors.blue),
+      onPressed: () {
+        routeCreationBloc.addRides();
+        routeCreationBloc.setState(CreationState.waitingForWebsocketResponse);
+      },
+    );
   }
 
   @override
@@ -111,7 +103,7 @@ class _RouteCreationPage extends State<RouteCreationPage>
               )
             ],
           ),
-          Center(child: RideLoadingSwitchButton(isLoading)),
+          Center(child: SubmitRideButton()),
           Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -142,6 +134,96 @@ class _RouteCreationPage extends State<RouteCreationPage>
       ),
     );
 
+    final locationModal = Stack(
+      children: [
+        Opacity(
+          opacity: 0.1,
+          child: ModalBarrier(dismissible: false, color: Colors.black87),
+        ),
+        Center(
+          child: Container(
+            child: Container(
+              height: 100,
+              width: 200,
+              alignment: Alignment.center,
+              decoration: new BoxDecoration(boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 3.0, // has the effect of softening the shadow
+                  spreadRadius: 3.0, // has the effect of extending the shadow
+                  offset: Offset(
+                    0.0, // horizontal, move right 10
+                    0.0, // vertical, move down 10
+                  ),
+                )
+              ],
+              color: Colors.white),
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("Warten auf Position..."),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final websocketModal = Stack(
+      children: [
+        Opacity(
+          opacity: 0.1,
+          child: ModalBarrier(dismissible: false, color: Colors.black87),
+        ),
+        Center(
+          child: Container(
+            child: Container(
+              height: 100,
+              width: 200,
+              alignment: Alignment.center,
+              decoration: new BoxDecoration(boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 3.0, // has the effect of softening the shadow
+                  spreadRadius: 3.0, // has the effect of extending the shadow
+                  offset: Offset(
+                    0.0, // horizontal, move right 10
+                    0.0, // vertical, move down 10
+                  ),
+                )
+              ],
+                  color: Colors.white),
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("Warten auf Webserver..."),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
     // TODO: implement build
     return Scaffold(
         backgroundColor: Colors.white,
@@ -149,9 +231,27 @@ class _RouteCreationPage extends State<RouteCreationPage>
             stream: routeCreationBloc.getState,
             initialData: CreationState.routeCreation,
             builder: (context, snapshot) {
-              return SafeArea(
-                child: body,
-              );
+              List<Widget> widgetList = List<Widget>();
+              switch (snapshot.data) {
+                case CreationState.waitingForLocation:
+                  widgetList.add(body);
+                  widgetList.add(locationModal);
+                  break;
+                case CreationState.waitingForWebsocketResponse:
+                  widgetList.add(body);
+                  widgetList.add(websocketModal);
+                  break;
+                case CreationState.routeCreation:
+                  widgetList.add(body);
+                  break;
+                case CreationState.navigateToInformationPage:
+                  widgetList.add(body);
+                  break;
+                case CreationState.navigateToNavigationPage:
+                  widgetList.add(body);
+                  break;
+              }
+              return SafeArea(child: Stack(children: widgetList));
             }));
   }
 

@@ -15,7 +15,8 @@ import 'package:bike_now_flutter/configuration.dart';
 import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 
 enum CreationState {
-  waitingForResponse,
+  waitingForLocation,
+  waitingForWebsocketResponse,
   routeCreation,
   navigateToInformationPage,
   navigateToNavigationPage
@@ -54,21 +55,21 @@ class RouteCreationBloc extends ChangeNotifier
 
   RouteCreationBloc(LocationController locationController) {
     this.locationController = locationController;
+    setState(CreationState.waitingForLocation);
 
-    
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
     fetchRides();
-    setState(CreationState.routeCreation);
 
     SharedPreferences.getInstance().then((result) {
       this.simulationPref = result.getBool(SettingKeys.simulator) ?? false;
       _simulationPrefSubject.add(simulationPref);
       if (!simulationPref){
-        locationController.getCurrentLocation.listen((location){
-          WebSocketService.instance
-              .sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+        locationController.getCurrentLocation.first.then((location){
+          WebSocketService.instance.sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+          setState(CreationState.routeCreation);
         });
+
       }
     });
   }
@@ -79,9 +80,7 @@ class RouteCreationBloc extends ChangeNotifier
         start = place;
         _startLabelSubject.add(place.displayName);
       }
-
     }
-
   }
 
   void setEnd(Place place) {
@@ -89,7 +88,6 @@ class RouteCreationBloc extends ChangeNotifier
       end = place;
       _endLabelSubject.add(place.displayName);
     }
-
   }
 
   void setRoute(BikeRoute.Route route) {
@@ -106,7 +104,8 @@ class RouteCreationBloc extends ChangeNotifier
   void setState(CreationState state) {
     this.state = state;
     _stateSubject.add(state);
-    if (state == CreationState.waitingForResponse) {
+
+    if (state == CreationState.waitingForWebsocketResponse) {
       if (!simulationPref) {
         WebSocketService.instance.sendCommand(CalcRoute(
             locationController.currentLocation.latitude,
