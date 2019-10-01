@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/models/ride.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

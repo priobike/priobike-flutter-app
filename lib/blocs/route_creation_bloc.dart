@@ -1,4 +1,6 @@
 import 'package:bike_now_flutter/controller/location_controller.dart';
+import 'package:bike_now_flutter/database/database_rides.dart';
+import 'package:bike_now_flutter/models/ride.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
@@ -30,6 +32,8 @@ class RouteCreationBloc extends ChangeNotifier
 
   BikeRoute.Route route;
   LocationController locationController;
+
+  DatabaseRides databaseRides = DatabaseRides();
 
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
@@ -125,19 +129,19 @@ class RouteCreationBloc extends ChangeNotifier
   }
 
   void _deleteRides(int index) async {
-    await DatabaseHelper.instance.delete(index);
+    await databaseRides.deleteRide(index);
   }
 
   void addRides() async {
     if (start != null && end != null) {
-      await DatabaseHelper.instance
-          .insert(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
+      await databaseRides
+          .insertRide(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
       fetchRides();
     }
   }
 
   fetchRides() async {
-    _ridesSubject.add(await DatabaseHelper.instance.queryAllRides());
+    _ridesSubject.add(await databaseRides.queryAllRides());
   }
 
   @override
