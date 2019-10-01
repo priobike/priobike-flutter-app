@@ -66,7 +66,7 @@ class RouteCreationBloc extends ChangeNotifier
     fetchRides();
 
     SharedPreferences.getInstance().then((result) {
-      this.simulationPref = result.getBool(SettingKeys.simulator) ?? false;
+      this.simulationPref = result.getBool(SettingKeys.isSimulator) ?? false;
       _simulationPrefSubject.add(simulationPref);
       if (!simulationPref){
         locationController.getCurrentLocation.first.then((location){

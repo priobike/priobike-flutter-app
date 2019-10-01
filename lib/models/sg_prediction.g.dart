@@ -8,12 +8,16 @@ part of 'sg_prediction.dart';
 
 SGPrediction _$SGPredictionFromJson(Map<String, dynamic> json) {
   return SGPrediction(
-      json['sgName'] as String,
-      (json['phases'] as List)
-          ?.map((e) =>
-              e == null ? null : Phase.fromJson(e as Map<String, dynamic>))
-          ?.toList());
+    json['sgName'] as String,
+    (json['phases'] as List)
+        ?.map(
+            (e) => e == null ? null : Phase.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+  );
 }
 
 Map<String, dynamic> _$SGPredictionToJson(SGPrediction instance) =>
-    <String, dynamic>{'sgName': instance.sgName, 'phases': instance.phases};
+    <String, dynamic>{
+      'sgName': instance.sgName,
+      'phases': instance.phases,
+    };

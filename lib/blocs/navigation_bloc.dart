@@ -15,8 +15,7 @@ import 'package:bike_now_flutter/models/models.dart' as BikeNow;
 import 'package:bike_now_flutter/controller/controller.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 import 'package:bike_now_flutter/configuration.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 
 
 
@@ -50,7 +49,7 @@ class NavigationBloc extends ChangeNotifier
     _routeSubject.add(route);
   }
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  //FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
 
 
@@ -65,14 +64,14 @@ class NavigationBloc extends ChangeNotifier
     routingCoordinator = RoutingCoordinator(routingController,
         predictionController, subscriptionController, locationController);
 
-    var initializationSettingsAndroid =
-    new AndroidInitializationSettings('app_icon');
-    var initializationSettingsIOS = new IOSInitializationSettings(
-        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
-    var initializationSettings = new InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: onSelectNotification);
+//    var initializationSettingsAndroid =
+//    new AndroidInitializationSettings('app_icon');
+//    var initializationSettingsIOS = new IOSInitializationSettings(
+//        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+//    var initializationSettings = new InitializationSettings(
+//        initializationSettingsAndroid, initializationSettingsIOS);
+//    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+//        onSelectNotification: onSelectNotification);
   }
 
   Future onSelectNotification(String payload) async {
@@ -89,60 +88,60 @@ class NavigationBloc extends ChangeNotifier
     WebSocketService.instance
         .sendCommand(RouteStart(Configuration.sessionUUID));
     setupRouting();
-    initBackgroundLocationTracking();
+    //initBackgroundLocationTracking();
 
 
   }
 
-  void pushLocalNotification(String title, String msg){
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'your channel id', 'your channel name', 'your channel description',
-        importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
-    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    flutterLocalNotificationsPlugin.show(
-        0, title, msg, platformChannelSpecifics,
-        payload: 'item x');
-  }
+//  void pushLocalNotification(String title, String msg){
+//    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+//        'your channel id', 'your channel name', 'your channel description',
+//        importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
+//    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+//    var platformChannelSpecifics = NotificationDetails(
+//        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+//    flutterLocalNotificationsPlugin.show(
+//        0, title, msg, platformChannelSpecifics,
+//        payload: 'item x');
+//  }
 
-  void initBackgroundLocationTracking(){
-    // Fired whenever a location is recorded
-    bg.BackgroundGeolocation.onLocation((bg.Location location) {
-      pushLocalNotification("Neue Location getracket", "$location");
-    });
-
-    // Fired whenever the plugin changes motion-state (stationary->moving and vice-versa)
-    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
-      pushLocalNotification("Neuer MotionState", "$location");
-
-    });
-
-    // Fired whenever the state of location-services changes.  Always fired at boot
-    bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
-      pushLocalNotification("Neuer ProviderChange", "$event");
-    });
-
-    ////
-    // 2.  Configure the plugin
-    //
-    bg.BackgroundGeolocation.ready(bg.Config(
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-        distanceFilter: 10.0,
-        stopOnTerminate: false,
-        startOnBoot: true,
-        debug: true,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-        reset: true
-    )).then((bg.State state) {
-      if (!state.enabled) {
-        ////
-        // 3.  Start the plugin.
-        //
-        bg.BackgroundGeolocation.start();
-      }
-    });
-  }
+//  void initBackgroundLocationTracking(){
+//    // Fired whenever a location is recorded
+//    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+//      pushLocalNotification("Neue Location getracket", "$location");
+//    });
+//
+//    // Fired whenever the plugin changes motion-state (stationary->moving and vice-versa)
+//    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+//      pushLocalNotification("Neuer MotionState", "$location");
+//
+//    });
+//
+//    // Fired whenever the state of location-services changes.  Always fired at boot
+//    bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
+//      pushLocalNotification("Neuer ProviderChange", "$event");
+//    });
+//
+//    ////
+//    // 2.  Configure the plugin
+//    //
+//    bg.BackgroundGeolocation.ready(bg.Config(
+//        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+//        distanceFilter: 10.0,
+//        stopOnTerminate: false,
+//        startOnBoot: true,
+//        debug: true,
+//        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+//        reset: true
+//    )).then((bg.State state) {
+//      if (!state.enabled) {
+//        ////
+//        // 3.  Start the plugin.
+//        //
+//        bg.BackgroundGeolocation.start();
+//      }
+//    });
+//  }
 
   void setupRouting() {
     updateRouteTimer = Timer.periodic(updateInterval, updateRouting);

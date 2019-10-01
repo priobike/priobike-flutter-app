@@ -8,17 +8,18 @@ part of 'phase.dart';
 
 Phase _$PhaseFromJson(Map<String, dynamic> json) {
   return Phase(
-      json['start'] as String,
-      json['end'] as String,
-      json['duration'] as int,
-      json['isGreen'] as bool,
-      (json['speedToReachStart'] as num)?.toDouble(),
-      (json['speedToReachMid'] as num)?.toDouble(),
-      (json['speedToReachEnd'] as num)?.toDouble(),
-      json['parentSG'] == null
-          ? null
-          : SG.fromJson(json['parentSG'] as Map<String, dynamic>),
-      json['isInThePast'] as bool)
+    json['start'] as String,
+    json['end'] as String,
+    json['duration'] as int,
+    json['isGreen'] as bool,
+    (json['speedToReachStart'] as num)?.toDouble(),
+    (json['speedToReachMid'] as num)?.toDouble(),
+    (json['speedToReachEnd'] as num)?.toDouble(),
+    json['parentSG'] == null
+        ? null
+        : SG.fromJson(json['parentSG'] as Map<String, dynamic>),
+    json['isInThePast'] as bool,
+  )
     ..endDate = json['endDate'] == null
         ? null
         : DateTime.parse(json['endDate'] as String)
@@ -42,5 +43,5 @@ Map<String, dynamic> _$PhaseToJson(Phase instance) => <String, dynamic>{
       'speedToReachMid': instance.speedToReachMid,
       'speedToReachEnd': instance.speedToReachEnd,
       'parentSG': instance.parentSG,
-      'isInThePast': instance.isInThePast
+      'isInThePast': instance.isInThePast,
     };

@@ -7,5 +7,6 @@ class Configuration {
 }
 
 class SettingKeys {
-  static String simulator = "simulator";
+  static String isSimulator = "isSimulator";
+  static String isLocationPush = "isLocationPush";
 }

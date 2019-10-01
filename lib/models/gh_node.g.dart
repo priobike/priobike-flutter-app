@@ -8,14 +8,14 @@ part of 'gh_node.dart';
 
 GHNode _$GHNodeFromJson(Map<String, dynamic> json) {
   return GHNode(
-      (json['alt'] as num)?.toDouble(),
-      (json['lon'] as num)?.toDouble(),
-      json['id'] as int,
-      (json['lat'] as num)?.toDouble(),
-      (json['distance'] as num)?.toDouble())
-    ..referencedSG = json['referencedSG'] == null
-        ? null
-        : SG.fromJson(json['referencedSG'] as Map<String, dynamic>);
+    (json['alt'] as num)?.toDouble(),
+    (json['lon'] as num)?.toDouble(),
+    json['id'] as int,
+    (json['lat'] as num)?.toDouble(),
+    (json['distance'] as num)?.toDouble(),
+  )..referencedSG = json['referencedSG'] == null
+      ? null
+      : SG.fromJson(json['referencedSG'] as Map<String, dynamic>);
 }
 
 Map<String, dynamic> _$GHNodeToJson(GHNode instance) => <String, dynamic>{
@@ -24,5 +24,5 @@ Map<String, dynamic> _$GHNodeToJson(GHNode instance) => <String, dynamic>{
       'distance': instance.distance,
       'alt': instance.alt,
       'id': instance.id,
-      'referencedSG': instance.referencedSG
+      'referencedSG': instance.referencedSG,
     };
