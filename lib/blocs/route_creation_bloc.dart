@@ -74,6 +74,9 @@ class RouteCreationBloc extends ChangeNotifier
           setState(CreationState.routeCreation);
         });
 
+
+      }else{
+        setState(CreationState.routeCreation);
       }
     });
   }

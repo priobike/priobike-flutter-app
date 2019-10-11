@@ -1,16 +1,19 @@
 import 'package:bike_now_flutter/configuration.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:bike_now_flutter/models/models.dart' as BikeNow;
 import 'package:rxdart/rxdart.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationController extends ChangeNotifier {
-  var location = new Location();
-  LocationData currentLocation = null;
+  var geolocator = Geolocator();
+  var locationOptions = LocationOptions(accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 10);
+
+
+  Position currentLocation = null;
   Timer timer;
   String gpsFile;
   List<xml.XmlElement> elements;
@@ -24,11 +27,14 @@ class LocationController extends ChangeNotifier {
     SharedPreferences.getInstance().then((prefs) {
       bool useFakeData = prefs.getBool(SettingKeys.isSimulator) ?? false;
       if (!useFakeData) {
-        location.onLocationChanged().listen((LocationData currentLocation) {
-          this.currentLocation = currentLocation;
-          _currentLocationSubject.add(BikeNow.LatLng(
-              currentLocation.latitude, currentLocation.longitude));
-        });
+        geolocator.getPositionStream(locationOptions).listen(
+                (Position position) {
+              print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
+              this.currentLocation = position;
+              _currentLocationSubject.add(BikeNow.LatLng(
+                  currentLocation.latitude, currentLocation.longitude));
+            });
+
       } else {
         timer = Timer.periodic(Duration(seconds: 1), updateLocation);
       }
@@ -46,7 +52,7 @@ class LocationController extends ChangeNotifier {
     map['longitude'] = double.parse(elements[index].getAttribute("lon"));
     map['accuracy'] = 0;
     map['speed'] = 20 / 3.6;
-    currentLocation = LocationData.fromMap(map);
+    currentLocation = Position.fromMap(map);
     _currentLocationSubject
         .add(BikeNow.LatLng(map['latitude'], map['longitude']));
 

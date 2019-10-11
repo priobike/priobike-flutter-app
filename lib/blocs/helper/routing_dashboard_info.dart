@@ -13,6 +13,6 @@ class RoutingDashboardInfo {
 
   RoutingDashboardInfo(this.currentSpeed, this.recommendedSpeed,
       this.secondsLeft, this.distance, this.currentInstruction, this.nextSG) {
-    this.diffSpeed = (recommendedSpeed - currentSpeed);
+    this.diffSpeed = ((recommendedSpeed ?? 0) - (currentSpeed ?? 0));
   }
 }
