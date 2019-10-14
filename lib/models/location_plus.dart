@@ -7,7 +7,8 @@ part 'location_plus.g.dart';
 
 @JsonSerializable()
 class LocationPlus{
-  Location location;
+  @JsonKey(ignore: true)
+  int id = 0;
 
   @JsonKey(name: 'lat')
   double latitude = 0.0;

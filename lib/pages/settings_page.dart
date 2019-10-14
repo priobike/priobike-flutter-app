@@ -179,19 +179,19 @@ class SettingsPageState extends State<SettingsPage>
 //            );
 //          },
 //        ),
-//        StreamBuilder<bool>(
-//          stream: settingsBloc.pushLocations,
-//          initialData: false,
-//          builder: (context, snapshot) {
-//            return SwitchListTile(
-//                title: Text('Push Locations'),
-//                subtitle: Text(
-//                    "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
-//                value: snapshot.data,
-//                onChanged: (bool newValue) =>
-//                    settingsBloc.setPushLocations.add(newValue));
-//          },
-//        ),
+        StreamBuilder<bool>(
+          stream: settingsBloc.pushLocations,
+          initialData: false,
+          builder: (context, snapshot) {
+            return SwitchListTile(
+                title: Text('Push Locations'),
+                subtitle: Text(
+                    "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
+                value: snapshot.data,
+                onChanged: (bool newValue) =>
+                    settingsBloc.setPushLocations.add(newValue));
+          },
+        ),
         StreamBuilder<bool>(
           stream: settingsBloc.simulator,
           initialData: false,

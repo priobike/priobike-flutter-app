@@ -30,7 +30,7 @@ class NavigationBloc extends ChangeNotifier
   PredictionController predictionController;
 
   Timer updateRouteTimer;
-  Duration updateInterval = Duration(seconds: 2);
+  Duration updateInterval = Duration(seconds: 1);
   RoutingDashboardInfo dashboardInfo;
 
   Stream<RoutingDashboardInfo> get getDashboardInfo =>

@@ -209,7 +209,7 @@ class SettingsBloc extends ChangeNotifier {
 
   void _setPushLocations(bool pushLocations) async {
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool("pushLocations", pushLocations);
+    final prefIsSet = await prefs.setBool(SettingKeys.isLocationPush, pushLocations);
     if (prefIsSet) {
       _pushLocationsSubject.add(pushLocations);
     } else {
@@ -298,7 +298,7 @@ class SettingsBloc extends ChangeNotifier {
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _pushLocationsSubject.add(prefs.getBool('pushLocations') ?? false);
+      _pushLocationsSubject.add(prefs.getBool(SettingKeys.isLocationPush) ?? false);
     });
 
     _prefs.then((SharedPreferences prefs) {

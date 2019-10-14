@@ -12,11 +12,12 @@ import 'package:bike_now_flutter/Services/setting_service.dart';
 import 'database_helper.dart';
 
 class DatabaseLocations{
-  final int MAX_NUMBER_LOCATIONS = 50;
 
   DatabaseHelper databaseHelper = DatabaseHelper.instance;
   SettingService settingsService = SettingService.instance;
 
+  DatabaseLocations._privateConstructor();
+  static final DatabaseLocations instance = DatabaseLocations._privateConstructor();
 
   Future<int> insertLocation(LocationPlus location) async {
 
@@ -59,6 +60,102 @@ class DatabaseLocations{
     Logger.root.fine("ERROR INSERTING LOCATIONPLUS");
 
     return null;
+  }
+
+  markAsTransmitted(int id) async {
+    Database db = await databaseHelper.database;
+
+    Map<String, dynamic> row = {
+      DatabaseHelper.instance.COLUMN_IS_TRANSMITTED : 1
+    };
+
+
+    int updateCount = await db.update(
+        DatabaseHelper.instance.TABLE_LOCATIONS,
+        row,
+        where: '${DatabaseHelper.instance.COLUMN_ID} = ?',
+        whereArgs: [id]);
+
+
+
+  }
+
+  Future<List<LocationPlus>> getLocationsToTransmit() async{
+    Database db = await databaseHelper.database;
+    String whereString = '${DatabaseHelper.instance.COLUMN_IS_TRANSMITTED} = ?';
+    int argument = 0;
+    List<LocationPlus> locs = [];
+
+    List<dynamic> whereArguments = [argument];
+
+    List<Map> result = await db.query(
+        DatabaseHelper.instance.TABLE_LOCATIONS,
+        where: whereString,
+        whereArgs: whereArguments);
+
+
+    if (result.isNotEmpty){
+      for (var row in result){
+        locs.add(getLocationPlusFromMap(row));
+      }
+      return locs;
+    }
+    return locs;
+
+  }
+
+  deleteAllTransmittedLocations() async{
+    Database db = await databaseHelper.database;
+    String whereString = '${DatabaseHelper.instance.COLUMN_IS_TRANSMITTED} = ?';
+    int argument = 1;
+
+    List<dynamic> whereArguments = [argument];
+
+
+    List<Map> result = await db.query(
+        DatabaseHelper.instance.TABLE_LOCATIONS,
+        where: whereString,
+        whereArgs: whereArguments);
+
+    print(result.length);
+
+
+    await db.delete(
+        DatabaseHelper.instance.TABLE_LOCATIONS,
+        where: whereString,
+        whereArgs: whereArguments);
+
+  }
+
+  LocationPlus getLocationPlusFromMap(Map<dynamic, dynamic> map){
+    LocationPlus location = LocationPlus();
+    location.id = map[databaseHelper.COLUMN_ID];
+    location.rideID = map[databaseHelper.COLUMN_RIDE_ID];
+    location.nextLsaId = map[databaseHelper.COLUMN_LSA_ID];
+    location.nextSgName = map[databaseHelper.COLUMN_SG_ID];
+    location.time = map[databaseHelper.COLUMN_LOCATION_DATE];
+    location.latitude = map[databaseHelper.COLUMN_LATITUDE];
+    location.longitude = map[databaseHelper.COLUMN_LONGITUDE];
+    location.accuracy = map[databaseHelper.COLUMN_ACCURACY];
+    location.altitude = (map[databaseHelper.COLUMN_ALTITUDE] as num)?.toDouble();
+    location.bearing = (map[databaseHelper.COLUMN_BEARING] as num)?.toDouble();
+    location.speed = map[databaseHelper.COLUMN_SPEED];
+    location.distanceNextSG = (map[databaseHelper.COLUMN_DISTANCE] as num)?.toInt();
+    location.recommendedSpeedKmh = (map[databaseHelper.COLUMN_RECOMMENDED_SPEED] as num)?.toInt();
+    location.differenceSpeedKmh = (map[databaseHelper.COLUMN_DIFF_SPEED] as num)?.toDouble();
+    location.lastCountdownThisLocation = map[databaseHelper.COLUMN_LAST_COUNTDOWN];
+    location.crossAlgo = map[databaseHelper.COLUMN_LAST_ALGO];
+    location.isDebug = map[databaseHelper.COLUMN_IS_DEBUG] == 1 ? true :false;
+    location.errorReportCode = map[databaseHelper.COLUMN_ERROR] ;
+    location.isGreen = map[databaseHelper.COLUMN_IS_GREEN] == 1 ? true :false;
+    location.isSimulation = map[databaseHelper.COLUMN_IS_SIMULATION] == 1 ? true :false;
+    location.nextInstructionText = map[databaseHelper.COLUMN_NEXT_INSTRUCTION_TEXT];
+    location.nextInstructionSig = map[databaseHelper.COLUMN_NEXT_INSTRUCTION_SIGN];
+    location.nextSg = map[databaseHelper.COLUMN_NEXT_SG];
+    location.nextGhNode = map[databaseHelper.COLUMN_NEXT_GH_NODE];
+
+    return location;
+
   }
 //
 //  Future<int> deleteRide(int id) async {

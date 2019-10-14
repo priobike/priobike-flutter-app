@@ -12,7 +12,7 @@ class DatabaseHelper {
   // This is the actual database filename that is saved in the docs directory.
   static final _databaseName = "BikeNowLogs.db";
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 9;
+  static final _databaseVersion = 10;
 
   // database table and column names
   final String TABLE_RIDES = 'rides';

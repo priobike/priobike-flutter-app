@@ -8,9 +8,6 @@ part of 'location_plus.dart';
 
 LocationPlus _$LocationPlusFromJson(Map<String, dynamic> json) {
   return LocationPlus()
-    ..location = json['location'] == null
-        ? null
-        : Location.fromJson(json['location'] as Map<String, dynamic>)
     ..latitude = (json['lat'] as num)?.toDouble()
     ..longitude = (json['lon'] as num)?.toDouble()
     ..accuracy = (json['acc'] as num)?.toDouble()
@@ -44,7 +41,6 @@ LocationPlus _$LocationPlusFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$LocationPlusToJson(LocationPlus instance) =>
     <String, dynamic>{
-      'location': instance.location,
       'lat': instance.latitude,
       'lon': instance.longitude,
       'acc': instance.accuracy,

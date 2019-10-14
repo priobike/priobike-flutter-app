@@ -1,3 +1,10 @@
+import 'dart:async';
+
+import 'package:bike_now_flutter/Services/setting_service.dart';
+import 'package:bike_now_flutter/database/database_helper.dart';
+import 'package:bike_now_flutter/database/database_locations.dart';
+import 'package:bike_now_flutter/models/location_plus.dart';
+
 import 'controller.dart';
 import 'package:bike_now_flutter/models/models.dart';
 
@@ -6,11 +13,59 @@ class RoutingCoordinator {
   PredictionController predictionController;
   SubscriptionController subscriptionController;
   LocationController locationController;
+  Timer _saveLocationTimer;
+  Timer _transmitLocationTimer;
+  Duration saveLocation = Duration(seconds: 2);
+  Duration transmitLocation = Duration(seconds: 10);
+  DatabaseLocations databaseLocations = DatabaseLocations.instance;
+
+
 
   RoutingCoordinator(this.routingController, this.predictionController,
       this.subscriptionController, this.locationController);
 
+
+  void saveCurrentLocation(Timer timer) async{
+    var location = LocationPlus();
+    location.latitude = locationController.currentLocation.latitude;
+    location.longitude = locationController.currentLocation.longitude;
+    location.nextLsaId = predictionController.nextLSA.id;
+    location.nextSgName = predictionController.nextSG.sgName;
+    location.accuracy = locationController.currentLocation.accuracy;
+    location.altitude = locationController.currentLocation.altitude;
+    location.speed = locationController.currentLocation.speed;
+    location.distanceNextSG = predictionController.nextSG.distance.toInt();
+    location.recommendedSpeedKmh = (predictionController.currentPhase.getRecommendedSpeed()*3.6).toInt();
+    location.differenceSpeedKmh = (location.speed*3.6 - location.recommendedSpeedKmh).abs();
+    location.isGreen = predictionController.currentPhase.isGreen;
+    location.isSimulation = await SettingService.instance.isSimulator;
+    location.nextInstructionText = predictionController.nextInstruction.info;;
+    location.nextSg = predictionController.nextSG.toString();
+    location.nextGhNode = predictionController.nextGHNode.id;
+
+
+    databaseLocations.insertLocation(location);
+
+
+
+  }
+
+  void transmitLocations(Timer timer) async{
+    var list = await databaseLocations.getLocationsToTransmit();
+    for(var loc in list){
+      await databaseLocations.markAsTransmitted(loc.id);
+    }
+    await databaseLocations.deleteAllTransmittedLocations();
+
+  }
+
+
   void run() {
+    if(_saveLocationTimer == null && _transmitLocationTimer == null){
+      _saveLocationTimer = Timer.periodic(saveLocation, saveCurrentLocation);
+      _transmitLocationTimer = Timer.periodic(transmitLocation, transmitLocations);
+    }
+
     if (routingController.ghNodes.isNotEmpty) {
       calculateDistances();
       updatePredictions();
