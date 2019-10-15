@@ -1,4 +1,4 @@
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/models/sg.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:math';

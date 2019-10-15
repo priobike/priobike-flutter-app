@@ -1,5 +1,5 @@
 import 'web_socket_method.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/models/location.dart';
 import 'package:bike_now_flutter/models/subscription.dart';
 

@@ -1,4 +1,5 @@
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/helper/settingKeys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingService{
@@ -15,4 +16,9 @@ class SettingService{
     var pref = await SharedPreferences.getInstance();
     return pref.get(SettingKeys.isSimulator);
   }
+  Future<bool> get onboardingComplete async{
+    var pref = await SharedPreferences.getInstance();
+    return pref.get(SettingKeys.onboardingComplete);
+  }
+
 }

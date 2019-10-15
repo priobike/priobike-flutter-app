@@ -1,5 +1,6 @@
 import 'package:bike_now_flutter/controller/location_controller.dart';
 import 'package:bike_now_flutter/database/database_rides.dart';
+import 'package:bike_now_flutter/helper/settingKeys.dart';
 import 'package:bike_now_flutter/models/ride.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -12,7 +13,7 @@ import 'package:bike_now_flutter/server_response/websocket_response.dart';
 import 'dart:convert';
 import 'package:bike_now_flutter/websocket/web_socket_method.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 
 import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 

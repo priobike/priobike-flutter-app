@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bike_now_flutter/Services/setting_service.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/models/location_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:logging/logging.dart';

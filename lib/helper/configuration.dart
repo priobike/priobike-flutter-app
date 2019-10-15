@@ -6,7 +6,3 @@ class Configuration {
   static double userMaxSpeed = 25.0;
 }
 
-class SettingKeys {
-  static String isSimulator = "isSimulator";
-  static String isLocationPush = "isLocationPush";
-}

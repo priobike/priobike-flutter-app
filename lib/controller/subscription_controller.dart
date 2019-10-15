@@ -1,7 +1,7 @@
 import 'package:bike_now_flutter/models/subscription.dart';
 import 'package:bike_now_flutter/websocket/web_socket_service.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/models/sg.dart';
 
 class SubscriptionController {

@@ -73,6 +73,7 @@ flutter:
 
   assets:
     - assets/gpx/HbfToAlbert20kmh.gpx
+    - assets/images/ic_bikenow.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

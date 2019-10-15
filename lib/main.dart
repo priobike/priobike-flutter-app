@@ -1,3 +1,5 @@
+import 'package:bike_now_flutter/pages/init_page.dart';
+import 'package:bike_now_flutter/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 
 // own imports
@@ -31,15 +33,22 @@ class MyApp extends StatelessWidget {
       builder: (context) => ManagerBloc(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/',
+        initialRoute: '/init',
         routes: {
+          '/init': (context) => InitPage(),
+          '/onboarding': (context) => OnboardingPage(),
           '/': (context) => HomePage(),
           '/routeInfo': (context) => RouteInformationPage(),
           '/navigation': (context) => NavigationPage(),
         },
         title: 'BikeNow',
         navigatorObservers: [routeObserver],
-        theme: new ThemeData(primaryColor: Colors.blue),
+        theme: new ThemeData(
+            primaryColor: Colors.blue,
+          textTheme: TextTheme(
+            caption: TextStyle(color: Colors.white)
+          )
+        ),
       ),
     );
   }

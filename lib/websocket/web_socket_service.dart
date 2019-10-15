@@ -3,7 +3,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:logging/logging.dart';
 import 'dart:convert';
 
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 import 'package:bike_now_flutter/server_response/websocket_response.dart';
 import 'package:bike_now_flutter/websocket/web_socket_method.dart';

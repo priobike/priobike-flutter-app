@@ -14,7 +14,7 @@ import 'package:bike_now_flutter/models/models.dart' as BikeNow;
 
 import 'package:bike_now_flutter/controller/controller.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 
 
 

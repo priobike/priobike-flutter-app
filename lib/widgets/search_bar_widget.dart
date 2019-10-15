@@ -8,7 +8,7 @@ import 'package:bike_now_flutter/websocket/web_socket_method.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 
 import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
-import 'package:bike_now_flutter/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 
 class SearchBarWidget extends StatefulWidget {
