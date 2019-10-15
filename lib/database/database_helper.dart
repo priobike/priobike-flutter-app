@@ -12,7 +12,7 @@ class DatabaseHelper {
   // This is the actual database filename that is saved in the docs directory.
   static final _databaseName = "BikeNowLogs.db";
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 10;
+  static final _databaseVersion = 11;
 
   // database table and column names
   final String TABLE_RIDES = 'rides';
@@ -61,6 +61,8 @@ class DatabaseHelper {
   final String COLUMN_NEXT_INSTRUCTION_SIGN = "next_instruction_sign";
   final String COLUMN_NEXT_SG = "next_sg";
   final String COLUMN_NEXT_GH_NODE = "next_gh_node";
+
+  final String COLUMN_BATTERY_LVL = "battery_lvl";
 
 
   // Make this a singleton class.
@@ -126,6 +128,7 @@ class DatabaseHelper {
                     $COLUMN_NEXT_INSTRUCTION_SIGN TEXT,  
                     $COLUMN_NEXT_SG TEXT,  
                     $COLUMN_NEXT_GH_NODE INTEGER,
+                    $COLUMN_BATTERY_LVL INTEGER NOT NULL,
                     $COLUMN_CREATE_DATE TEXT NOT NULL  
                     )
               ''');

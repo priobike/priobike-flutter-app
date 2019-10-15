@@ -5,6 +5,8 @@ import 'package:bike_now_flutter/database/database_helper.dart';
 import 'package:bike_now_flutter/database/database_locations.dart';
 import 'package:bike_now_flutter/models/location_plus.dart';
 
+import 'package:battery/battery.dart';
+
 import 'controller.dart';
 import 'package:bike_now_flutter/models/models.dart';
 
@@ -18,6 +20,8 @@ class RoutingCoordinator {
   Duration saveLocation = Duration(seconds: 2);
   Duration transmitLocation = Duration(seconds: 10);
   DatabaseLocations databaseLocations = DatabaseLocations.instance;
+  var battery = Battery();
+
 
 
 
@@ -42,12 +46,8 @@ class RoutingCoordinator {
     location.nextInstructionText = predictionController.nextInstruction.info;;
     location.nextSg = predictionController.nextSG.toString();
     location.nextGhNode = predictionController.nextGHNode.id;
-
-
+    location.batteryLevel = await battery.batteryLevel;
     databaseLocations.insertLocation(location);
-
-
-
   }
 
   void transmitLocations(Timer timer) async{

@@ -153,6 +153,7 @@ class DatabaseLocations{
     location.nextInstructionSig = map[databaseHelper.COLUMN_NEXT_INSTRUCTION_SIGN];
     location.nextSg = map[databaseHelper.COLUMN_NEXT_SG];
     location.nextGhNode = map[databaseHelper.COLUMN_NEXT_GH_NODE];
+    location.batteryLevel = map[databaseHelper.COLUMN_BATTERY_LVL];
 
     return location;
 
