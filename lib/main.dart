@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         navigatorObservers: [routeObserver],
         theme: new ThemeData(
             primaryColor: Colors.blue,
-          textTheme: TextTheme(
+          primaryTextTheme: TextTheme(
             caption: TextStyle(color: Colors.white)
           )
         ),

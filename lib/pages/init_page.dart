@@ -72,8 +72,8 @@ class _InitPageState extends State<InitPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("1.06", style: Theme.of(context).textTheme.caption,),
-                  Text("www.bikenow-dresden.de", style: Theme.of(context).textTheme.caption)
+                  Text("1.06", style: Theme.of(context).primaryTextTheme.caption,),
+                  Text("www.bikenow-dresden.de", style: Theme.of(context).primaryTextTheme.caption)
                 ],
 
               ),
