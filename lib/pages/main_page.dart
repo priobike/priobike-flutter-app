@@ -45,9 +45,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             isOpen = !_isOpen;
           });
         },
-        child: Icon(Icons.add, color: Theme.of(context).accentColor,),
+        child: Icon(Icons.add, color: Colors.white,),
         backgroundColor: Theme.of(context).primaryColor,
-        shape: CircleBorder(side: BorderSide(color: Theme.of(context).accentColor, width: 4)),
+        shape: CircleBorder(side: BorderSide(color: Colors.white, width: 4)),
       ),
       appBar: AppBar(
         title: Text("BikeNow"),

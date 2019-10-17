@@ -28,6 +28,14 @@ class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<M
     return Scaffold(
       appBar: AppBar(
         title: Text("Prognosen"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, "/settings");
+            },
+          ),
+        ],
       ),
       body: GoogleMap(
         mapType: MapType.normal,

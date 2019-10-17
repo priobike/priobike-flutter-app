@@ -16,6 +16,14 @@ class _NewsPageState extends State<NewsPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: Text("Neuigkeiten"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, "/settings");
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

@@ -17,15 +17,11 @@ class SettingsPageState extends State<SettingsPage>
   Widget build(BuildContext context) {
     final settingsBloc = Provider.of<SettingsBloc>(context);
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Einstellungen"),
+      ),
         body: ListView(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(top: 32.0, bottom: 32, left: 8),
-          child: Text(
-            "Einstellungen",
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-          ),
-        ),
 //        SettingsSectionHeader('Allgemeines'),
 //        StreamBuilder<int>(
 //            stream: settingsBloc.maxSpeed,
@@ -183,26 +179,30 @@ class SettingsPageState extends State<SettingsPage>
           stream: settingsBloc.pushLocations,
           initialData: false,
           builder: (context, snapshot) {
-            return SwitchListTile(
-                title: Text('Push Locations'),
-                subtitle: Text(
-                    "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
-                value: snapshot.data,
-                onChanged: (bool newValue) =>
-                    settingsBloc.setPushLocations.add(newValue));
+            return Card(
+              child: SwitchListTile(
+                  title: Text('Push Locations'),
+                  subtitle: Text(
+                      "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
+                  value: snapshot.data,
+                  onChanged: (bool newValue) =>
+                      settingsBloc.setPushLocations.add(newValue)),
+            );
           },
         ),
         StreamBuilder<bool>(
           stream: settingsBloc.simulator,
           initialData: false,
           builder: (context, snapshot) {
-            return SwitchListTile(
-                title: Text('Simulator'),
-                subtitle: Text(
-                    "Startet den Simulatormodus, die App muss danach neu gestartet werden."),
-                value: snapshot.data,
-                onChanged: (bool newValue) =>
-                    settingsBloc.setSimulator.add(newValue));
+            return Card(
+              child: SwitchListTile(
+                  title: Text('Simulator'),
+                  subtitle: Text(
+                      "Startet den Simulatormodus, die App muss danach neu gestartet werden."),
+                  value: snapshot.data,
+                  onChanged: (bool newValue) =>
+                      settingsBloc.setSimulator.add(newValue)),
+            );
           },
         )
       ],

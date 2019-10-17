@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/blocs/settings_bloc.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:bike_now_flutter/pages/init_page.dart';
 import 'package:bike_now_flutter/pages/onboarding_page.dart';
@@ -31,8 +32,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      builder: (context) => ManagerBloc(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ManagerBloc>.value(value: ManagerBloc()),
+        ChangeNotifierProvider<SettingsBloc>.value(value: SettingsBloc()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         initialRoute: '/init',
@@ -49,7 +53,9 @@ class MyApp extends StatelessWidget {
         theme: new ThemeData(
             primaryColor: Palette.primaryColor,
           scaffoldBackgroundColor: Palette.background,
-          accentColor: Colors.white,
+          accentColor: Palette.primaryColor,
+
+
           appBarTheme: AppBarTheme(
             color: Palette.primaryColor
           ),
