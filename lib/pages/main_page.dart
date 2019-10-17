@@ -43,10 +43,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
     subscription = routeCreationBloc.getState.listen((state){
-      if(state == CreationState.navigateToInformationPage){
-        Navigator.pushNamed(context, "/routeInfo");
-        routeCreationBloc.setState(CreationState.routeCreation);
-      }
+
 
     });
   }

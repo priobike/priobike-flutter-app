@@ -21,7 +21,7 @@ class DatabaseLocations{
 
   Future<int> insertLocation(LocationPlus location) async {
 
-    if(location.longitude != 0.0 && location.latitude != 0.0 && await settingsService.isLocationPush){
+    if(location.longitude != 0.0 && location.latitude != 0.0 && await settingsService.loadLocationPush){
       Database db = await databaseHelper.database;
       var map = <String, dynamic>{
         databaseHelper.COLUMN_SESSION: Configuration.sessionUUID,
@@ -45,7 +45,7 @@ class DatabaseLocations{
         databaseHelper.COLUMN_IS_DEBUG: location.isDebug,
         databaseHelper.COLUMN_ERROR: location.errorReportCode,
         databaseHelper.COLUMN_IS_GREEN: location.isGreen ? 1 : 0,
-        databaseHelper.COLUMN_IS_SIMULATION: await SettingService.instance.isSimulator ? 1 : 0,
+        databaseHelper.COLUMN_IS_SIMULATION: await SettingService.instance.loadSimulator ? 1 : 0,
         databaseHelper.COLUMN_NEXT_INSTRUCTION_TEXT: location.nextInstructionText,
         databaseHelper.COLUMN_NEXT_INSTRUCTION_SIGN: location.nextInstructionSig,
         databaseHelper.COLUMN_NEXT_SG: location.nextSg,

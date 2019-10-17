@@ -29,7 +29,7 @@ class RouteCreationBloc extends ChangeNotifier
     implements WebSocketServiceDelegate {
   Place start;
   Place end;
-  CreationState state;
+
 
   BikeRoute.Route route;
   LocationController locationController;
@@ -60,7 +60,6 @@ class RouteCreationBloc extends ChangeNotifier
 
   RouteCreationBloc(LocationController locationController) {
     this.locationController = locationController;
-    setState(CreationState.waitingForLocation);
 
     _deleteRidesController.stream.listen(_deleteRides);
     WebSocketService.instance.delegate = this;
@@ -69,16 +68,7 @@ class RouteCreationBloc extends ChangeNotifier
     SharedPreferences.getInstance().then((result) {
       this.simulationPref = result.getBool(SettingKeys.isSimulator) ?? false;
       _simulationPrefSubject.add(simulationPref);
-      if (!simulationPref){
-        locationController.getCurrentLocation.first.then((location){
-          WebSocketService.instance.sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
-          setState(CreationState.routeCreation);
-        });
 
-
-      }else{
-        setState(CreationState.routeCreation);
-      }
     });
   }
 
@@ -87,6 +77,9 @@ class RouteCreationBloc extends ChangeNotifier
       if(simulationPref != null && simulationPref){
         start = place;
         _startLabelSubject.add(place.displayName);
+        if(start != null && end != null){
+          sendCalcRoute();
+        }
       }
     }
   }
@@ -95,6 +88,9 @@ class RouteCreationBloc extends ChangeNotifier
     if(place != null){
       end = place;
       _endLabelSubject.add(place.displayName);
+      if(start != null && end != null){
+        sendCalcRoute();
+      }
     }
   }
 
@@ -109,28 +105,25 @@ class RouteCreationBloc extends ChangeNotifier
     setEnd(swap);
   }
 
-  void setState(CreationState state) {
-    this.state = state;
-    _stateSubject.add(state);
-
-    if (state == CreationState.waitingForWebsocketResponse) {
-      if (!simulationPref) {
-        WebSocketService.instance.sendCommand(CalcRoute(
-            locationController.currentLocation.latitude,
-            locationController.currentLocation.longitude,
-            double.parse(end.lat),
-            double.parse(end.lon),
-            Configuration.sessionUUID));
-      } else {
-        WebSocketService.instance.sendCommand(CalcRoute(
-            double.parse(start.lat),
-            double.parse(start.lon),
-            double.parse(end.lat),
-            double.parse(end.lon),
-            Configuration.sessionUUID));
-      }
+  sendCalcRoute(){
+    if (!simulationPref) {
+      WebSocketService.instance.sendCommand(CalcRoute(
+          locationController.currentLocation.latitude,
+          locationController.currentLocation.longitude,
+          double.parse(end.lat),
+          double.parse(end.lon),
+          Configuration.sessionUUID));
+    } else {
+      WebSocketService.instance.sendCommand(CalcRoute(
+          double.parse(start.lat),
+          double.parse(start.lon),
+          double.parse(end.lat),
+          double.parse(end.lon),
+          Configuration.sessionUUID));
     }
   }
+
+
 
   void _deleteRides(int index) async {
     await databaseRides.deleteRide(index);
@@ -142,6 +135,16 @@ class RouteCreationBloc extends ChangeNotifier
           .insertRide(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
       fetchRides();
     }
+  }
+  onAppear(){
+    WebSocketService.instance.delegate = this;
+    if (!simulationPref){
+      locationController.getCurrentLocation.first.then((location){
+        WebSocketService.instance.sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+      });
+    }else{
+    }
+
   }
 
   fetchRides() async {
@@ -159,7 +162,6 @@ class RouteCreationBloc extends ChangeNotifier
     if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);
-      setState(CreationState.navigateToInformationPage);
     }
   }
 }

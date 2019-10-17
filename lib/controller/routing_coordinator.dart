@@ -42,7 +42,7 @@ class RoutingCoordinator {
     location.recommendedSpeedKmh = (predictionController.currentPhase.getRecommendedSpeed()*3.6).toInt();
     location.differenceSpeedKmh = (location.speed*3.6 - location.recommendedSpeedKmh).abs();
     location.isGreen = predictionController.currentPhase.isGreen;
-    location.isSimulation = await SettingService.instance.isSimulator;
+    location.isSimulation = await SettingService.instance.loadSimulator;
     location.nextInstructionText = predictionController.nextInstruction.info;;
     location.nextSg = predictionController.nextSG.toString();
     location.nextGhNode = predictionController.nextGHNode.id;
