@@ -12,12 +12,14 @@ class DatabaseHelper {
   // This is the actual database filename that is saved in the docs directory.
   static final _databaseName = "BikeNowLogs.db";
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 11;
+  static final _databaseVersion = 13;
 
   // database table and column names
   final String TABLE_RIDES = 'rides';
+
   final String COLUMN_RIDES_START = 'start';
   final String COLUMN_RIDES_END = 'end';
+  final String COLUMN_RIDES_IS_FAVORITE = 'isFavorite';
   final String COLUMN_RIDES_DATE = 'date';
 
   final String TABLE_LOCATIONS = "locationlogs";
@@ -95,7 +97,8 @@ class DatabaseHelper {
                 $COLUMN_RIDE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_RIDES_START TEXT NOT NULL,
                 $COLUMN_RIDES_END TEXT NOT NULL,
-                $COLUMN_RIDES_DATE INTEGER NOT NULL
+                $COLUMN_RIDES_DATE INTEGER NOT NULL,
+                $COLUMN_RIDES_IS_FAVORITE INTEGER NOT NULL
               )
               ''');
     //Locations DB

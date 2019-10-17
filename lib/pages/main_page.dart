@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:bike_now_flutter/blocs/bloc_manager.dart';
+import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
+import 'package:bike_now_flutter/models/ride.dart';
 import 'package:flutter/material.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -10,8 +16,9 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
-  final double openHeigt = 200;
-  final double closedHeigt = 10;
+  RouteCreationBloc routeCreationBloc;
+  StreamSubscription subscription;
+
 
   int _currentSelection = 1;
   bool _isOpen = true;
@@ -33,6 +40,15 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
+    subscription?.cancel();
+    subscription = routeCreationBloc.getState.listen((state){
+      if(state == CreationState.navigateToInformationPage){
+        Navigator.pushNamed(context, "/routeInfo");
+        routeCreationBloc.setState(CreationState.routeCreation);
+      }
+
+    });
   }
 
   @override
@@ -245,21 +261,83 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             flex: 4,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ListView(
-                children: <Widget>[
-                  Card(
-                    child: ListTile(
-                        title: Text(''),
-                        trailing: Icon(Icons.chevron_right),
-                      leading: Icon(Icons.favorite_border),
-                    ),
-                  )
-
-                ],
+              child: StreamBuilder<List<Ride>>(
+                stream: routeCreationBloc.rides,
+                initialData: null,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null || snapshot.data == []) {
+                    return Center(
+                        child: Container(child: CircularProgressIndicator()));
+                  } else {
+                    return ListView(children: [
+                      for (var ride in snapshot.data)
+                        _rideTileBuilder(ride, routeCreationBloc)
+                    ]);
+                  }
+                },
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {
+    return Dismissible(
+      key: Key(ride.id.toString()),
+      onDismissed: (direction) {
+        routeCreationBloc.deleteRides.add(ride.id);
+      },
+      background: Container(
+        color: Colors.red,
+        child: Icon(Icons.cancel),
+      ),
+      child: Card(
+        child: ListTile(
+          leading: IconButton(
+              icon: Icon(ride.isFavorite ? Icons.star : Icons.star_border),
+          onPressed: (){
+                setState(() {
+                  ride.isFavorite = !ride.isFavorite;
+                });
+
+          },),
+          trailing: Icon(Icons.chevron_right),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: 'Start: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: ride.start.displayName.substring(0, 20))
+                      ]),
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                    style: TextStyle(color: Colors.black),
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: 'Ende: ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: ride.end.displayName.substring(0,20))
+                    ]),
+              )
+            ],
+          ),
+
+          onTap: () {
+            routeCreationBloc.setStart(ride.start);
+            routeCreationBloc.setEnd(ride.end);
+          },
+        ),
       ),
     );
   }

@@ -22,7 +22,8 @@ class DatabaseRides{
       var map = <String, dynamic>{
         databaseHelper.COLUMN_RIDES_START: ride.start.toJson().toString(),
         databaseHelper.COLUMN_RIDES_END: ride.end.toJson().toString(),
-        databaseHelper.COLUMN_RIDES_DATE: ride.date
+        databaseHelper.COLUMN_RIDES_DATE: ride.date,
+        databaseHelper.COLUMN_RIDES_IS_FAVORITE: ride.isFavorite
       };
 
       int id = await db.insert(databaseHelper.TABLE_RIDES, map);
@@ -41,7 +42,7 @@ class DatabaseRides{
   Future<Ride> queryRide(int id) async {
     Database db = await databaseHelper.database;
     List<Map> maps = await db.query(databaseHelper.TABLE_RIDES,
-        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE],
+        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE, databaseHelper.COLUMN_RIDES_IS_FAVORITE],
         where: '$databaseHelper.COLUMN_RIDE_ID = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
@@ -51,8 +52,9 @@ class DatabaseRides{
       var start = Place.fromJson(jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_START]));
       var end = Place.fromJson(jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_END]));
       var date = maps.first[databaseHelper.COLUMN_RIDES_DATE];
+      var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE];
 
-      return Ride(start, end, date);
+      return Ride(start, end, date, isFavorite);
     }
     return null;
   }
@@ -60,7 +62,7 @@ class DatabaseRides{
   Future<List<Ride>> queryAllRides() async {
     Database db = await databaseHelper.database;
     List<Map> maps = await db.query(databaseHelper.TABLE_RIDES,
-        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE]);
+        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE, databaseHelper.COLUMN_RIDES_IS_FAVORITE]);
     if (maps.length > 0) {
       List<Ride> rides = new List<Ride>();
       for (var map in maps) {
@@ -70,8 +72,10 @@ class DatabaseRides{
         var start = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_START]));
         var end = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_END]));
         var date = map[databaseHelper.COLUMN_RIDES_DATE];
+        var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE];
 
-        Ride(start, end, date);
+
+        Ride(start, end, date, isFavorite);
         rides.add(Ride(start, end, date));
       }
       return rides;
