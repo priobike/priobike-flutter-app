@@ -1,5 +1,6 @@
 import 'package:bike_now_flutter/models/ride.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bike_now_flutter/widgets/search_bar_widget.dart';
@@ -20,6 +21,11 @@ class _RouteCreationPage extends State<RouteCreationPage>
     with AutomaticKeepAliveClientMixin<RouteCreationPage> {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
+  Completer<GoogleMapController> _controller = Completer();
+  static final CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(51.029334, 13.728900),
+    zoom: 14.4746,
+  );
 
   @override
   void initState() {
@@ -111,208 +117,116 @@ class _RouteCreationPage extends State<RouteCreationPage>
                 border:
                     Border(bottom: BorderSide(color: Colors.grey, width: 0.5))),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: StreamBuilder<List<Ride>>(
-                stream: routeCreationBloc.rides,
-                initialData: null,
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return Center(
-                        child: Container(child: CircularProgressIndicator()));
-                  } else {
-                    return ListView(children: [
-                      for (var ride in snapshot.data)
-                        _rideTileBuilder(ride, routeCreationBloc)
-                    ]);
-                  }
-                },
-              ),
-            ),
-          ),
         ],
       ),
     );
 
-    final locationModal = Stack(
-      children: [
-        Opacity(
-          opacity: 0.1,
-          child: ModalBarrier(dismissible: false, color: Colors.black87),
-        ),
-        Center(
-          child: Container(
-            child: Container(
-              height: 100,
-              width: 200,
-              alignment: Alignment.center,
-              decoration: new BoxDecoration(boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 3.0, // has the effect of softening the shadow
-                  spreadRadius: 3.0, // has the effect of extending the shadow
-                  offset: Offset(
-                    0.0, // horizontal, move right 10
-                    0.0, // vertical, move down 10
-                  ),
-                )
-              ],
-              color: Colors.white),
 
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("Warten auf Position..."),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-
-    final websocketModal = Stack(
-      children: [
-        Opacity(
-          opacity: 0.1,
-          child: ModalBarrier(dismissible: false, color: Colors.black87),
-        ),
-        Center(
-          child: Container(
-            child: Container(
-              height: 100,
-              width: 200,
-              alignment: Alignment.center,
-              decoration: new BoxDecoration(boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 3.0, // has the effect of softening the shadow
-                  spreadRadius: 3.0, // has the effect of extending the shadow
-                  offset: Offset(
-                    0.0, // horizontal, move right 10
-                    0.0, // vertical, move down 10
-                  ),
-                )
-              ],
-                  color: Colors.white),
-
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("Warten auf Webserver..."),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
 
     // TODO: implement build
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: StreamBuilder<CreationState>(
-            stream: routeCreationBloc.getState,
-            initialData: CreationState.routeCreation,
-            builder: (context, snapshot) {
-              List<Widget> widgetList = List<Widget>();
-              switch (snapshot.data) {
-                case CreationState.waitingForLocation:
-                  widgetList.add(body);
-                  widgetList.add(locationModal);
-                  break;
-                case CreationState.waitingForWebsocketResponse:
-                  widgetList.add(body);
-                  widgetList.add(websocketModal);
-                  break;
-                case CreationState.routeCreation:
-                  widgetList.add(body);
-                  break;
-                case CreationState.navigateToInformationPage:
-                  widgetList.add(body);
-                  break;
-                case CreationState.navigateToNavigationPage:
-                  widgetList.add(body);
-                  break;
-              }
-              return SafeArea(child: Stack(children: widgetList));
-            }));
-  }
-
-  Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {
-    return Dismissible(
-      key: Key(ride.id.toString()),
-      onDismissed: (direction) {
-        routeCreationBloc.deleteRides.add(ride.id);
-      },
-      background: Container(
-        color: Colors.red,
-        child: Icon(Icons.cancel),
+      appBar: AppBar(
+        title: Text("Neues Ziel"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, "/settings");
+            },
+          ),
+        ],
       ),
-      child: ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: Stack(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: RichText(
-                text: TextSpan(
-                    style: TextStyle(color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'Start: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: ride.start.displayName)
-                    ]),
+            GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _kGooglePlex,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+            ),
+            Positioned(
+              top: 8,
+              left: 8,
+              right: 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Column(
+                      children: <Widget>[
+                        Card(
+                          child: SearchBarWidget(
+                              'Start...',
+                              routeCreationBloc.setStart,
+                              routeCreationBloc.getStartLabel,
+                              routeCreationBloc.getSimulationPref),
+                        ),
+                        Card(
+                          child: SearchBarWidget(
+                              'Ziel...',
+                              routeCreationBloc.setEnd,
+                              routeCreationBloc.getEndLabel),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                ],
               ),
             ),
-            RichText(
-              text: TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: 'Ende: ',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: ride.end.displayName)
-                  ]),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.transparent,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                    boxShadow: [new BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2.0,
+                    ),]
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text("Albertplatz --> Hauptbahnhof", style: Theme.of(context).textTheme.title,),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Expanded(
+                                child: Center(child: Text("0km")),
+                              ),
+                              Expanded(
+                                child: Center(child: Text("0km")),
+                              ),
+                              Expanded(
+                                child: Center(child: Text("0km")),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             )
-          ],
-        ),
-        subtitle: Align(
-            alignment: Alignment.bottomRight,
-            child: Text(
-                DateTime.fromMillisecondsSinceEpoch(ride.date).day.toString() +
-                    '.' +
-                    DateTime.fromMillisecondsSinceEpoch(ride.date)
-                        .month
-                        .toString() +
-                    '.' +
-                    DateTime.fromMillisecondsSinceEpoch(ride.date)
-                        .year
-                        .toString())),
-        onTap: () {
-          routeCreationBloc.setStart(ride.start);
 
-          routeCreationBloc.setEnd(ride.end);
-        },
-      ),
+          ],
+
+        )
     );
   }
 

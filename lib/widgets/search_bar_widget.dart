@@ -79,8 +79,7 @@ class _SearchBarState extends State<SearchBarWidget> {
               ],*/
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(5)),
-              border: Border.all(
-                  color: Colors.black45, width: 0.5, style: BorderStyle.solid)),
+),
           child: Row(
             children: <Widget>[
               Expanded(

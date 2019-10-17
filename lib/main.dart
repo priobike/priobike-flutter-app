@@ -2,6 +2,7 @@ import 'package:bike_now_flutter/blocs/settings_bloc.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:bike_now_flutter/pages/init_page.dart';
 import 'package:bike_now_flutter/pages/onboarding_page.dart';
+import 'package:bike_now_flutter/pages/route_creation_page.dart';
 import 'package:bike_now_flutter/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
           '/init': (context) => InitPage(),
           '/onboarding': (context) => OnboardingPage(),
           '/': (context) => HomePage(),
+          '/routeCreation': (context) => RouteCreationPage(),
           '/routeInfo': (context) => RouteInformationPage(),
           '/navigation': (context) => NavigationPage(),
           '/settings': (context) => SettingsPage(),

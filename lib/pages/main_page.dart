@@ -58,7 +58,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            isOpen = !_isOpen;
+            Navigator.pushNamed(context, "/routeCreation");
           });
         },
         child: Icon(Icons.add, color: Colors.white,),
