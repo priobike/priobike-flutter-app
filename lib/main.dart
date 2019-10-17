@@ -1,5 +1,7 @@
+import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:bike_now_flutter/pages/init_page.dart';
 import 'package:bike_now_flutter/pages/onboarding_page.dart';
+import 'package:bike_now_flutter/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 
 // own imports
@@ -40,13 +42,22 @@ class MyApp extends StatelessWidget {
           '/': (context) => HomePage(),
           '/routeInfo': (context) => RouteInformationPage(),
           '/navigation': (context) => NavigationPage(),
+          '/settings': (context) => SettingsPage(),
         },
         title: 'BikeNow',
         navigatorObservers: [routeObserver],
         theme: new ThemeData(
-            primaryColor: Colors.blue,
+            primaryColor: Palette.primaryColor,
+          scaffoldBackgroundColor: Palette.background,
+          accentColor: Colors.white,
+          appBarTheme: AppBarTheme(
+            color: Palette.primaryColor
+          ),
           primaryTextTheme: TextTheme(
-            caption: TextStyle(color: Colors.white)
+            caption: TextStyle(color: Colors.white),
+            body1: TextStyle(color: Colors.white),
+            display1: TextStyle(color: Colors.white),
+
           )
         ),
       ),

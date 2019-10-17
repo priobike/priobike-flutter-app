@@ -38,6 +38,8 @@ dependencies:
   xml: ^3.5.0
   geolocator: ^5.1.4+1
   battery: ^0.3.0+5
+  material_segmented_control: ^2.0.3
+
 
 #  flutter_background_geolocation: ^1.2.2
 #  flutter_local_notifications: ^0.8.3

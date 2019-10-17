@@ -44,8 +44,7 @@ class _InitPageState extends State<InitPage> {
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(Icons.info, color: Colors.white,),
                     ),
-
-                    Flexible(child: Text("Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.", style: Theme.of(context).textTheme.caption,)),
+                    Flexible(child: Text("Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.", style: Theme.of(context).primaryTextTheme.caption,)),
                   ],
                 ),
               ),
@@ -59,7 +58,8 @@ class _InitPageState extends State<InitPage> {
             RaisedButton(
               child: Text("Los gehts", style: TextStyle(color: Colors.white),),
               onPressed: () {
-                Navigator.pushNamed(context, '/');
+
+                Navigator.pushNamedAndRemoveUntil(context, '/',  (_) => false);
 
               },
               color: Colors.blueAccent,
