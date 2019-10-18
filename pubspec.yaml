@@ -39,6 +39,8 @@ dependencies:
   geolocator: ^5.1.4+1
   battery: ^0.3.0+5
   material_segmented_control: ^2.0.3
+  smooth_star_rating: ^1.0.3
+
 
 
 #  flutter_background_geolocation: ^1.2.2

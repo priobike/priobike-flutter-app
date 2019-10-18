@@ -1,4 +1,6 @@
+import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class SummaryPage extends StatefulWidget {
   @override
@@ -8,6 +10,7 @@ class SummaryPage extends StatefulWidget {
 }
 
 class _SummaryPageState extends State<SummaryPage> {
+  double rating = 0;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -61,7 +64,7 @@ class _SummaryPageState extends State<SummaryPage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Wie bewertest du deine Fahrt", style: Theme.of(context).textTheme.title,),
+              child: Text("Wie bewertest du deine Fahrt?", style: Theme.of(context).textTheme.title,),
             ),
           ),
           Padding(
@@ -70,7 +73,19 @@ class _SummaryPageState extends State<SummaryPage> {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Bewertung"),
+                  child: SmoothStarRating(
+                      allowHalfRating: false,
+                      onRatingChanged: (v) {
+                        rating = v;
+                        setState(() {});
+                      },
+                      starCount: 5,
+                      rating: rating,
+                      size: 40.0,
+                      color: Theme.of(context).primaryColor,
+                      borderColor: Theme.of(context).primaryColor,
+                      spacing:0.0
+                  ),
                 ),
               ),
             ),
@@ -79,7 +94,21 @@ class _SummaryPageState extends State<SummaryPage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0, bottom: 8),
               child: Card(
-                child: Center(child: Text('Textfeld')),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    expands: true,
+                    maxLines: null,
+                    minLines: null,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Hier kannst du dein Feedback eingeben'
+                    ),
+
+
+
+                  ),
+                ),
               ),
             ),
           ),
@@ -91,10 +120,15 @@ class _SummaryPageState extends State<SummaryPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15))
                       ),
-                      child: Text("überspringen"),
+                      onPressed: () {},
+                      child: Text(
+                        'überspringen',
+                        style: TextStyle(color: Palette.primaryColor),
+                      ),
                     ),
                   ),
                 ),
@@ -102,10 +136,17 @@ class _SummaryPageState extends State<SummaryPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
+                      color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15))
                       ),
-                      child: Text("Feedback senden"),
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(context, '/',  (_) => false);
+                      },
+                      child: Text(
+                        'Feedback senden',
+                        style: Theme.of(context).primaryTextTheme.body1,
+                      ),
                     ),
                   ),
                 )

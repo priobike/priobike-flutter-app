@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/summary',
+        initialRoute: '/init',
         routes: {
           '/init': (context) => InitPage(),
           '/onboarding': (context) => OnboardingPage(),

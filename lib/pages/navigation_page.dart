@@ -173,7 +173,8 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                               borderRadius: BorderRadius.all(Radius.circular(15))
                                             ),
                                             onPressed: () {
-                                              Navigator.pushNamed(context, "/summary");
+                                              Navigator.pushNamedAndRemoveUntil(context, '/summary',  (_) => false);
+
                                             },
                                             child: Text(
                                               'Falsche Prognose',
