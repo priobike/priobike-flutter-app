@@ -267,17 +267,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
 
 
             ),
-
-
-            Positioned(
-              top: 8,
-              left: 8,
-              child: IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-            )
+            
           ],
         ),
       ),
