@@ -267,7 +267,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
 
 
             ),
-            
+
           ],
         ),
       ),

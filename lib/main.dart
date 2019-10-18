@@ -53,16 +53,24 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Palette.background,
           accentColor: Palette.primaryColor,
           backgroundColor: Palette.primaryDarkColor,
+          hintColor: Colors.white,
+
 
 
           appBarTheme: AppBarTheme(
-            color: Palette.primaryColor
+            color: Palette.primaryColor,
+
+
+
+
+
           ),
           primaryTextTheme: TextTheme(
             caption: TextStyle(color: Colors.white),
             body1: TextStyle(color: Colors.white),
             display1: TextStyle(color: Colors.white),
-
+          ),
+          textTheme: TextTheme(
           )
         ),
       ),

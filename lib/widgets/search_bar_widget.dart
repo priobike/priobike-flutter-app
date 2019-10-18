@@ -139,6 +139,12 @@ class PlaceSearch extends SearchDelegate<Place>
   }
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    // TODO: implement appBarTheme
+    return Theme.of(context);
+  }
+
+  @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
       icon: Icon(Icons.arrow_back),
@@ -164,16 +170,21 @@ class PlaceSearch extends SearchDelegate<Place>
     return ListView(
       children: <Widget>[
         for (var place in places)
-          ListTile(
-            title: Text(place.displayName),
-            subtitle: Text('Lat: ' +
-                place.lat.toString() +
-                ' Long: ' +
-                place.lon.toString()),
-            onTap: () {
-              close(context, place);
-            },
+          Card(
+            child: ListTile(
+              title: Text(place.displayName),
+              subtitle: Text('Lat: ' +
+                  place.lat.toString() +
+                  ' Long: ' +
+                  place.lon.toString()),
+              onTap: () {
+                close(context, place);
+              },
+              leading: Icon(Icons.location_on, color: Colors.grey,),
+              trailing: Icon(Icons.chevron_right, color: Colors.grey,),
+            ),
           )
+
       ],
     );
   }
