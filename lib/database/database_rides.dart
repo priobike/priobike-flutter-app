@@ -72,11 +72,9 @@ class DatabaseRides{
         var start = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_START]));
         var end = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_END]));
         var date = map[databaseHelper.COLUMN_RIDES_DATE];
-        var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE];
+        var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE] == 1 ? true : false;
 
-
-        Ride(start, end, date, isFavorite);
-        rides.add(Ride(start, end, date));
+        rides.add(Ride(start, end, date, isFavorite));
       }
       return rides;
     }

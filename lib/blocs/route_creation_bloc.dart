@@ -72,24 +72,35 @@ class RouteCreationBloc extends ChangeNotifier
     });
   }
 
-  void setStart(Place place) {
+  void setStart(Place place) async {
     if(place != null){
       if(simulationPref != null && simulationPref){
         start = place;
         _startLabelSubject.add(place.displayName);
         if(start != null && end != null){
           sendCalcRoute();
+          await saveToDatabase();
+
         }
       }
     }
   }
 
-  void setEnd(Place place) {
+  saveToDatabase() async{
+    await databaseRides
+        .insertRide(Ride(start, end, DateTime.now().millisecondsSinceEpoch, false));
+    fetchRides();
+
+  }
+
+  void setEnd(Place place) async {
     if(place != null){
       end = place;
       _endLabelSubject.add(place.displayName);
       if(start != null && end != null){
         sendCalcRoute();
+        await saveToDatabase();
+
       }
     }
   }
@@ -129,13 +140,6 @@ class RouteCreationBloc extends ChangeNotifier
     await databaseRides.deleteRide(index);
   }
 
-  void addRides() async {
-    if (start != null && end != null) {
-      await databaseRides
-          .insertRide(Ride(start, end, DateTime.now().millisecondsSinceEpoch));
-      fetchRides();
-    }
-  }
   onAppear(){
     WebSocketService.instance.delegate = this;
     if (!simulationPref){

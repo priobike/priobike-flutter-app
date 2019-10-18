@@ -43,6 +43,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
     subscription = routeCreationBloc.getState.listen((state){
+      if(state == CreationState.navigateToNavigationPage){
+
+      }
 
 
     });
@@ -282,7 +285,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {
     return Dismissible(
-      key: Key(ride.id.toString()),
+      key: Key(UniqueKey().toString()),
       onDismissed: (direction) {
         routeCreationBloc.deleteRides.add(ride.id);
       },
@@ -333,6 +336,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           onTap: () {
             routeCreationBloc.setStart(ride.start);
             routeCreationBloc.setEnd(ride.end);
+            Navigator.pushNamed(context, "/navigation");
           },
         ),
       ),

@@ -86,6 +86,26 @@ class _MapBoxState extends State<MapBoxWidget> {
         .toList();
 
     lsas = _route.getLSAs();
+    setState(() {
+      _polylines.add(Polyline(
+          polylineId: PolylineId((_polylineIdCounter++).toString()),
+          points: coordinates,
+          visible: true,
+          color: Colors.blue,
+          zIndex: 0));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.first,
+          icon: BitmapDescriptor.defaultMarker,
+          zIndex: 2,
+          infoWindow: InfoWindow(title: 'Start')));
+      _marker.add(Marker(
+          markerId: MarkerId((_markerIdCounter++).toString()),
+          position: coordinates.last,
+          icon: BitmapDescriptor.defaultMarker,
+          zIndex: 2,
+          infoWindow: InfoWindow(title: 'Ziel')));
+    });
     // draw ghNodes on Screen
     //ghNode = _route.getGHNodes(true);
   }
@@ -142,26 +162,7 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   void _onMapCreated(GoogleMapController controller) async {
     this.controller = controller;
-    setState(() {
-      _polylines.add(Polyline(
-          polylineId: PolylineId((_polylineIdCounter++).toString()),
-          points: coordinates,
-          visible: true,
-          color: Colors.blue,
-          zIndex: 0));
-      _marker.add(Marker(
-          markerId: MarkerId((_markerIdCounter++).toString()),
-          position: coordinates.first,
-          icon: BitmapDescriptor.defaultMarker,
-          zIndex: 2,
-          infoWindow: InfoWindow(title: 'Start')));
-      _marker.add(Marker(
-          markerId: MarkerId((_markerIdCounter++).toString()),
-          position: coordinates.last,
-          icon: BitmapDescriptor.defaultMarker,
-          zIndex: 2,
-          infoWindow: InfoWindow(title: 'Ziel')));
-    });
+
   }
 
   void centerMapToCurrentPosition() {

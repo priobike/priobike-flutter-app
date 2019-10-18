@@ -136,7 +136,6 @@ class _RouteCreationPage extends State<RouteCreationPage>
                         FloatingActionButton(
                           onPressed: () {
                             Navigator.pushNamed(context, "/navigation");
-
                           },
                           child: Icon(Icons.navigation, color: Colors.white,),
                           backgroundColor: Theme.of(context).primaryColor,
