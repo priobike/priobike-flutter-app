@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
 import 'package:provider/provider.dart';
 
+import 'package:bike_now_flutter/main.dart';
 class MainPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -15,7 +16,7 @@ class MainPage extends StatefulWidget {
   }
 }
 
-class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
+class _MainPageState extends State<MainPage> with TickerProviderStateMixin, RouteAware {
 
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
@@ -35,12 +36,30 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     3: Text('Gesamt', style: Theme.of(context).primaryTextTheme.body1)
   };
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPush() {
+    routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
+    routeCreationBloc.onAppear();
+  }
 
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
   }

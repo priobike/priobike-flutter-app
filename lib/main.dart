@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: Router.homeRoute,
+        initialRoute: Router.initRoute,
         title: 'BikeNow',
         navigatorObservers: [routeObserver],
         navigatorKey: AppNavigationService.instance.navigatorKey,

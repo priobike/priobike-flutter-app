@@ -178,7 +178,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
 
                                             },
                                             child: Text(
-                                              'Falsche Prognose',
+                                              'Falsche Prognose (Fahrt beenden)',
                                               style: TextStyle(color: Colors.white),
                                             ),
                                           ),

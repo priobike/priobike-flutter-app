@@ -133,7 +133,7 @@ class RouteCreationBloc extends ChangeNotifier
 
   onAppear(){
     WebSocketService.instance.delegate = this;
-    if (!simulationPref){
+    if (simulationPref != null && !simulationPref ){
       locationController.getCurrentLocation.first.then((location){
         WebSocketService.instance.sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
       });
