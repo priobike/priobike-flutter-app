@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/blocs/helper/routing_dashboard_info.dart';
 import 'package:bike_now_flutter/blocs/navigation_bloc.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
@@ -173,7 +174,7 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                               borderRadius: BorderRadius.all(Radius.circular(15))
                                             ),
                                             onPressed: () {
-                                              Navigator.pushNamedAndRemoveUntil(context, '/summary',  (_) => false);
+                                              Navigator.pushNamedAndRemoveUntil(context, Router.summaryRoute,  (_) => false);
 
                                             },
                                             child: Text(

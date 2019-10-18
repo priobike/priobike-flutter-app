@@ -1,3 +1,5 @@
+import 'package:bike_now_flutter/Services/appNavigationService.dart';
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/controller/location_controller.dart';
 import 'package:bike_now_flutter/database/database_rides.dart';
 import 'package:bike_now_flutter/helper/settingKeys.dart';
@@ -17,19 +19,13 @@ import 'package:bike_now_flutter/helper/configuration.dart';
 
 import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 
-enum CreationState {
-  waitingForLocation,
-  waitingForWebsocketResponse,
-  routeCreation,
-  navigateToInformationPage,
-  navigateToNavigationPage
-}
 
 class RouteCreationBloc extends ChangeNotifier
     implements WebSocketServiceDelegate {
   Place start;
   Place end;
 
+  bool quickTabClicked = false;
 
   BikeRoute.Route route;
   LocationController locationController;
@@ -44,9 +40,6 @@ class RouteCreationBloc extends ChangeNotifier
 
   Stream<String> get getEndLabel => _endLabelSubject.stream;
   final _endLabelSubject = BehaviorSubject<String>();
-
-  Stream<CreationState> get getState => _stateSubject.stream;
-  final _stateSubject = BehaviorSubject<CreationState>();
 
   Stream<List<Ride>> get rides => _ridesSubject.stream;
   final _ridesSubject = BehaviorSubject<List<Ride>>();
@@ -134,8 +127,6 @@ class RouteCreationBloc extends ChangeNotifier
     }
   }
 
-
-
   void _deleteRides(int index) async {
     await databaseRides.deleteRide(index);
   }
@@ -166,6 +157,10 @@ class RouteCreationBloc extends ChangeNotifier
     if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);
+      if(quickTabClicked){
+        quickTabClicked = false;
+        AppNavigationService.instance.navigateTo(Router.navigationRoute);
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:flutter/material.dart';
 
@@ -63,7 +64,7 @@ class _InitPageState extends State<InitPage> {
                 child: Text("Los gehts", style: TextStyle(color: Colors.white),),
                 onPressed: () {
 
-                  Navigator.pushNamedAndRemoveUntil(context, '/',  (_) => false);
+                  Navigator.pushNamedAndRemoveUntil(context, Router.homeRoute,  (_) => false);
 
                 },
                 color: Colors.blueAccent,

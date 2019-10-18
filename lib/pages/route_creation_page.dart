@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/Services/setting_service.dart';
 import 'package:bike_now_flutter/blocs/settings_bloc.dart';
 import 'package:bike_now_flutter/main.dart';
@@ -73,7 +74,7 @@ class _RouteCreationPage extends State<RouteCreationPage>
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, "/settings");
+              Navigator.pushNamed(context, Router.settingsRoute);
             },
           ),
         ],
@@ -135,7 +136,7 @@ class _RouteCreationPage extends State<RouteCreationPage>
                       children: <Widget>[
                         FloatingActionButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, "/navigation");
+                            Navigator.pushNamed(context, Router.navigationRoute);
                           },
                           child: Icon(Icons.navigation, color: Colors.white,),
                           backgroundColor: Theme.of(context).primaryColor,

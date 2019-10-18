@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
 import 'package:bike_now_flutter/models/ride.dart';
@@ -42,13 +43,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     super.didChangeDependencies();
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
     subscription?.cancel();
-    subscription = routeCreationBloc.getState.listen((state){
-      if(state == CreationState.navigateToNavigationPage){
-
-      }
-
-
-    });
   }
 
   @override
@@ -58,7 +52,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            Navigator.pushNamed(context, "/routeCreation");
+            Navigator.pushNamed(context, Router.routeCreationRoute);
           });
         },
         child: Icon(Icons.add, color: Colors.white,),
@@ -72,7 +66,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, "/settings");
+              Navigator.pushNamed(context, Router.settingsRoute);
             },
           ),
         ],
@@ -334,9 +328,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           ),
 
           onTap: () {
+            routeCreationBloc.quickTabClicked = true;
             routeCreationBloc.setStart(ride.start);
             routeCreationBloc.setEnd(ride.end);
-            Navigator.pushNamed(context, "/navigation");
           },
         ),
       ),

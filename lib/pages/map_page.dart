@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -32,7 +33,7 @@ class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<M
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, "/settings");
+              Navigator.pushNamed(context, Router.settingsRoute);
             },
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/Services/router.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
@@ -141,7 +142,7 @@ class _SummaryPageState extends State<SummaryPage> {
                           borderRadius: BorderRadius.all(Radius.circular(15))
                       ),
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(context, '/',  (_) => false);
+                        Navigator.pushNamedAndRemoveUntil(context, Router.homeRoute,  (_) => false);
                       },
                       child: Text(
                         'Feedback senden',

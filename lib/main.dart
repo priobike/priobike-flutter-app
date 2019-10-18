@@ -1,3 +1,4 @@
+import 'package:bike_now_flutter/Services/appNavigationService.dart';
 import 'package:bike_now_flutter/blocs/settings_bloc.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
 import 'package:bike_now_flutter/pages/init_page.dart';
@@ -8,6 +9,7 @@ import 'package:bike_now_flutter/pages/summary_page.dart';
 import 'package:flutter/material.dart';
 
 // own imports
+import 'Services/router.dart';
 import 'pages/home_page.dart';
 import 'package:bike_now_flutter/websocket/web_socket_service.dart';
 import 'package:bike_now_flutter/pages/route_information_page.dart';
@@ -41,19 +43,11 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/init',
-        routes: {
-          '/init': (context) => InitPage(),
-          '/onboarding': (context) => OnboardingPage(),
-          '/': (context) => HomePage(),
-          '/routeCreation': (context) => RouteCreationPage(),
-          '/routeInfo': (context) => RouteInformationPage(),
-          '/navigation': (context) => NavigationPage(),
-          '/settings': (context) => SettingsPage(),
-          '/summary': (context) => SummaryPage(),
-        },
+        initialRoute: Router.homeRoute,
         title: 'BikeNow',
         navigatorObservers: [routeObserver],
+        navigatorKey: AppNavigationService.instance.navigatorKey,
+        onGenerateRoute: Router.generateRoute,
         theme: new ThemeData(
             primaryColor: Palette.primaryColor,
           scaffoldBackgroundColor: Palette.background,
