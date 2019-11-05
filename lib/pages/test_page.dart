@@ -1,4 +1,7 @@
+import 'package:bike_now_flutter/blocs/bloc_manager.dart';
+import 'package:bike_now_flutter/blocs/test_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TestPage extends StatefulWidget {
   @override
@@ -9,6 +12,18 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage>{
+
+  TestBloc testBloc;
+
+
+  @override
+  void didChangeDependencies() {
+    testBloc = Provider.of<ManagerBloc>(context).testBloc;
+
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -24,11 +39,18 @@ class _TestPageState extends State<TestPage>{
       ),
       body: Column(
         children: <Widget>[
-          Text("Eingabe"),
-          TextField(),
-          Text("Ausgabe"),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Ausgabe", style: Theme.of(context).textTheme.headline,),
+          ),
           Expanded(
-            child: Text(""),
+            child: StreamBuilder(
+              stream: testBloc.getMessage,
+              initialData: "",
+              builder: (context, snapshot) {
+                return Text(snapshot.data);
+              },
+            ),
           )
         ],
       ),
