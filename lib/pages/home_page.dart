@@ -1,6 +1,7 @@
 import 'package:bike_now_flutter/pages/main_page.dart';
 import 'package:bike_now_flutter/pages/map_page.dart';
 import 'package:bike_now_flutter/pages/news_page.dart';
+import 'package:bike_now_flutter/pages/test_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +18,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 1;
-  final List<Widget> _children = [NewsPage(), MainPage(), MapPage()];
+  final List<Widget> _children = [
+    NewsPage(),
+    MainPage(),
+    MapPage(),
+    TestPage()
+  ];
 
   void onTabTapped(int index) {
     setState(() {
@@ -44,10 +50,15 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: new Icon(Icons.directions_bike),
               title: new Text('Fahren'),
-            ),BottomNavigationBarItem(
+            ),
+            BottomNavigationBarItem(
               icon: new Icon(Icons.map),
               title: new Text('Karte'),
             ),
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.send),
+              title: new Text('Test'),
+            )
           ],
         ),
       ),
