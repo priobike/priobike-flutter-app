@@ -8,7 +8,7 @@ import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 import 'package:bike_now_flutter/server_response/websocket_response.dart';
 import 'package:bike_now_flutter/websocket/web_socket_method.dart';
 
-enum WebSocketServiceState { connected, disconnected, authorized, error }
+ enum WebSocketServiceState { connected, disconnected, authorized, error }
 
 class WebSocketService implements WebSocketServiceDelegate {
   WebSocketServiceState state = WebSocketServiceState.disconnected;

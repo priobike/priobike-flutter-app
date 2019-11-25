@@ -21,7 +21,7 @@ packages:
       name: archive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.10"
+    version: "2.0.11"
   args:
     dependency: transitive
     description:
@@ -42,7 +42,7 @@ packages:
       name: battery
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1+2"
+    version: "0.3.1+4"
   boolean_selector:
     dependency: transitive
     description:
@@ -56,7 +56,7 @@ packages:
       name: build
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   build_config:
     dependency: transitive
     description:
@@ -91,7 +91,7 @@ packages:
       name: build_runner_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.2.0"
   built_collection:
     dependency: transitive
     description:
@@ -220,7 +220,7 @@ packages:
       name: geolocator
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.4+2"
+    version: "5.1.5"
   glob:
     dependency: transitive
     description:
@@ -241,7 +241,7 @@ packages:
       name: google_maps_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.21+8"
+    version: "0.5.21+12"
   graphs:
     dependency: transitive
     description:
@@ -283,7 +283,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.7"
+    version: "2.1.9"
   io:
     dependency: transitive
     description:
@@ -346,7 +346,7 @@ packages:
       name: material_segmented_control
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.7"
   meta:
     dependency: transitive
     description:
@@ -409,7 +409,7 @@ packages:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.4"
   pedantic:
     dependency: transitive
     description:
@@ -472,14 +472,14 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.22.5"
+    version: "0.22.6"
   shared_preferences:
     dependency: "direct main"
     description:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.4+3"
+    version: "0.5.4+5"
   shelf:
     dependency: transitive
     description:
@@ -526,7 +526,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.7+2"
+    version: "1.1.7+3"
   stack_trace:
     dependency: transitive
     description:
@@ -561,7 +561,7 @@ packages:
       name: synchronized
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0+1"
+    version: "2.1.0+2"
   term_glyph:
     dependency: transitive
     description:
@@ -596,7 +596,7 @@ packages:
       name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.4"
   vector_math:
     dependency: transitive
     description:
@@ -610,7 +610,7 @@ packages:
       name: watcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.7+12"
+    version: "0.9.7+13"
   web_socket_channel:
     dependency: "direct main"
     description:
