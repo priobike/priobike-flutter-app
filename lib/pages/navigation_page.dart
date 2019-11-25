@@ -92,7 +92,10 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                               child: Icon(Icons.arrow_upward, color: Colors.white,),
                             ),
                             Expanded(
-                              child: Center(child: Text(snapshot.data.currentInstruction.info, style: Theme.of(context).primaryTextTheme.body1,)),
+                              child: Column(children: <Widget>[
+                                Text(snapshot.data.nextSG.sgName, style: Theme.of(context).primaryTextTheme.body1),
+                                Text((snapshot.data.nextSG.distance * 1000).toString(), style: Theme.of(context).primaryTextTheme.body1)
+                              ] )
                             ),
                             Padding(
                               padding: const EdgeInsets.all(16.0),
