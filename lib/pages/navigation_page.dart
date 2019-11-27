@@ -94,7 +94,13 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                             Expanded(
                               child: Column(children: <Widget>[
                                 Text(snapshot.data.nextSG.sgName, style: Theme.of(context).primaryTextTheme.body1),
-                                Text((snapshot.data.nextSG.distance * 1000).toString(), style: Theme.of(context).primaryTextTheme.body1)
+                                Text((snapshot.data.nextSG.distance * 1000).toString(), style: Theme.of(context).primaryTextTheme.body1),
+                                Text((snapshot.data.currentInstruction.sign.toString()), style: Theme.of(context).primaryTextTheme.body1),
+                                Text((snapshot.data.currentInstruction.name.toString()), style: Theme.of(context).primaryTextTheme.body1),
+                                Text(((snapshot.data.currentInstruction.distance * 1000).toString()), style: Theme.of(context).primaryTextTheme.body1),
+
+
+
                               ] )
                             ),
                             Padding(
