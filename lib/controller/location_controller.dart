@@ -33,7 +33,7 @@ class LocationController extends ChangeNotifier {
               print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
               this.currentLocation = position;
               _currentLocationSubject.add(BikeNow.LatLng(
-                  currentLocation.latitude, currentLocation.longitude));
+                  currentLocation.latitude, currentLocation.longitude, currentLocation.accuracy, currentLocation.speed));
             });
 
       } else {
