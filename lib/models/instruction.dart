@@ -22,7 +22,8 @@ class Instruction with LocatableAndCrossable {
 
   @JsonKey(ignore: true)
   CrossingController crossingController =
-  CrossingController(0.0, 125.0, 0.67, 2);
+  CrossingController(0.0, 125
+      , 0.67, 2);
 
   Instruction(this.sign, this.name, this.text, this.info, this.lsas, this.nodes,
       double distance) {
@@ -51,7 +52,7 @@ class Instruction with LocatableAndCrossable {
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    if (distance <= 125.0) {
+    if (distance <= 125) {
       return crossingController.run(distance, accuracy);
     }
     return false;

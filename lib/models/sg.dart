@@ -97,7 +97,7 @@ class SG with LocatableAndCrossable {
 
   @JsonKey(ignore: true)
   CrossingController crossingController =
-      CrossingController(0.0, 100.0, 0.8, 2);
+      CrossingController(0.0, 125, 0.8, 2);
 
   SG(
       this.baseId,
@@ -155,7 +155,7 @@ class SG with LocatableAndCrossable {
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    if (distance <= 100.0) {
+    if (distance <= 125.0) {
       return crossingController.run(distance, accuracy);
     }
 
