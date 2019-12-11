@@ -19,7 +19,7 @@
     <application
         tools:replace="android:label"
         android:name="io.flutter.app.FlutterApplication"
-        android:label="bike_now_flutter"
+        android:label="BikeNowFake"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAF7hlW6P0O5UI6nQzY733_isqF-8EwENA"/>

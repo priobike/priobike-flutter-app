@@ -39,7 +39,7 @@ class RoutingCoordinator {
     location.altitude = locationController.currentLocation.altitude;
     location.speed = locationController.currentLocation.speed;
     location.distanceNextSG = predictionController.nextSG.distance.toInt();
-    location.recommendedSpeedKmh = (predictionController.currentPhase.getRecommendedSpeed()*3.6).toInt();
+    location.recommendedSpeedKmh = (predictionController.currentPhase?.getRecommendedSpeed()*3.6).toInt();
     location.differenceSpeedKmh = (location.speed*3.6 - location.recommendedSpeedKmh).abs();
     location.isGreen = predictionController.currentPhase.isGreen;
     location.isSimulation = await SettingService.instance.loadSimulator;

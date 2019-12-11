@@ -90,7 +90,8 @@ class Phase {
     if (endDate == null) {
       return false;
     }
-    return endDate.isBefore(DateTime.now());
+    var isBefore = endDate.isBefore(DateTime.now());
+    return isBefore;
   }
 
   set isInThePast(bool value) {

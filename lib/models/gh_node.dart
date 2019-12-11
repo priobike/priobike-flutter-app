@@ -18,7 +18,7 @@ class GHNode with LocatableAndCrossable {
 
   @JsonKey(ignore: true)
   CrossingController crossingController =
-      CrossingController(0.0, 125.0, 0.67, 2);
+      CrossingController(0.0, 125, 0.67, 2);
 
   GHNode(this.alt, double lon, this.id, double lat, double distance) {
     super.distance = distance;
@@ -35,7 +35,7 @@ class GHNode with LocatableAndCrossable {
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    if (distance <= 125.0) {
+    if (distance <= 125) {
       return crossingController.run(distance, accuracy);
     }
     return false;

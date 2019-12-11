@@ -30,16 +30,26 @@ class LocationController extends ChangeNotifier {
       if (!useFakeData) {
         geolocator.getPositionStream(locationOptions).listen(
                 (Position position) {
-              print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
-              this.currentLocation = position;
-              _currentLocationSubject.add(BikeNow.LatLng(
-                  currentLocation.latitude, currentLocation.longitude));
+                  onNewPosition(position);
             });
 
       } else {
         timer = Timer.periodic(Duration(seconds: 1), updateLocation);
       }
     });
+  }
+
+  void onNewPosition(Position position){
+    Map<String, double> map = Map<String, double>();
+    map['latitude'] = position.latitude;
+    map['longitude'] = position.longitude;
+    map['accuracy'] = 0;
+
+    map['speed'] = position.speed;
+    currentLocation = Position.fromMap(map);
+    _currentLocationSubject.add(BikeNow.LatLng(
+        currentLocation.latitude, currentLocation.longitude));
+
   }
 
   void updateLocation(Timer timer) async {
