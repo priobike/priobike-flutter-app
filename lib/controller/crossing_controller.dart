@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'dart:math';
 
 class CrossingController {
@@ -60,9 +58,8 @@ class CrossingController {
 
   bool isCrossed() {
     var isAscending = false;
-    if(distances[0] < distances[1]){
+    if (distances[0] < distances[1]) {
       isAscending = true;
-
     }
     //var isAscending = isSorted<double>(distances, (a, b) => a.compareTo(b));
     var crossCount = distances.length;

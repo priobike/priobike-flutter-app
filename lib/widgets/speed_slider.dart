@@ -143,14 +143,14 @@ class RetroSliderTrackShape extends SliderTrackShape {
       center: Alignment.center, // near the top right
       radius: 4,
       colors: [
-        const Color(0xFF388e3c),const Color(0xffffb300),
+        const Color(0xFF388e3c),
+        const Color(0xffffb300),
         const Color(0xfff4511e)
       ],
       stops: [0.1, 0.5, 1],
     );
     // rect is the area we are painting over
-    final Paint fillPaint = Paint()
-      ..shader = gradient.createShader(trackRect);
+    final Paint fillPaint = Paint()..shader = gradient.createShader(trackRect);
 
 //    final Paint fillPaint = Paint()
 //      ..color = sliderTheme.activeTrackColor

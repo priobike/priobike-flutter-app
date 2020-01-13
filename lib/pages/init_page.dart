@@ -31,7 +31,6 @@ class _InitPageState extends State<InitPage> {
               Palette.primaryColor.withOpacity(0.95),
               Palette.primaryColor.withOpacity(0.9),
               Palette.primaryColor.withOpacity(0.85),
-
             ],
           ),
         ),
@@ -39,7 +38,6 @@ class _InitPageState extends State<InitPage> {
           child: Column(
             children: <Widget>[
               Container(
-
                 color: Colors.black26,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -47,9 +45,16 @@ class _InitPageState extends State<InitPage> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.info, color: Colors.white,),
+                        child: Icon(
+                          Icons.info,
+                          color: Colors.white,
+                        ),
                       ),
-                      Flexible(child: Text("Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.", style: Theme.of(context).primaryTextTheme.caption,)),
+                      Flexible(
+                          child: Text(
+                        "Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.",
+                        style: Theme.of(context).primaryTextTheme.caption,
+                      )),
                     ],
                   ),
                 ),
@@ -61,15 +66,15 @@ class _InitPageState extends State<InitPage> {
               ),
               Spacer(),
               RaisedButton(
-                child: Text("Los gehts", style: TextStyle(color: Colors.white),),
+                child: Text(
+                  "Los gehts",
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () {
-
-                  Navigator.pushNamedAndRemoveUntil(context, Router.homeRoute,  (_) => false);
-
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, Router.homeRoute, (_) => false);
                 },
                 color: Colors.blueAccent,
-
-
               ),
               Spacer(),
               Padding(
@@ -77,10 +82,13 @@ class _InitPageState extends State<InitPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text("1.06", style: Theme.of(context).primaryTextTheme.caption,),
-                    Text("www.bikenow-dresden.de", style: Theme.of(context).primaryTextTheme.caption)
+                    Text(
+                      "1.06",
+                      style: Theme.of(context).primaryTextTheme.caption,
+                    ),
+                    Text("www.bikenow-dresden.de",
+                        style: Theme.of(context).primaryTextTheme.caption)
                   ],
-
                 ),
               )
             ],

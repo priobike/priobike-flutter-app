@@ -9,6 +9,7 @@ import 'package:material_segmented_control/material_segmented_control.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bike_now_flutter/main.dart';
+
 class MainPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -16,25 +17,26 @@ class MainPage extends StatefulWidget {
   }
 }
 
-class _MainPageState extends State<MainPage> with TickerProviderStateMixin, RouteAware {
-
+class _MainPageState extends State<MainPage>
+    with TickerProviderStateMixin, RouteAware {
   RouteCreationBloc routeCreationBloc;
   StreamSubscription subscription;
 
-
   int _currentSelection = 1;
-  bool _isOpen = true;
+  bool _isOpen = false;
   set isOpen(bool isOpen) {
-
     _isOpen = isOpen;
-
   }
+
   Map<int, Widget> _children() => {
-    0: Text('Heute', style: Theme.of(context).primaryTextTheme.body1,),
-    1: Text('7 Tage', style: Theme.of(context).primaryTextTheme.body1),
-    2: Text('1 Monat', style: Theme.of(context).primaryTextTheme.body1),
-    3: Text('Gesamt', style: Theme.of(context).primaryTextTheme.body1)
-  };
+        0: Text(
+          'Heute',
+          style: Theme.of(context).primaryTextTheme.body1,
+        ),
+        1: Text('7 Tage', style: Theme.of(context).primaryTextTheme.body1),
+        2: Text('1 Monat', style: Theme.of(context).primaryTextTheme.body1),
+        3: Text('Gesamt', style: Theme.of(context).primaryTextTheme.body1)
+      };
 
   @override
   void initState() {
@@ -53,10 +55,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
     routeCreationBloc.onAppear();
   }
 
-
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context));
 
@@ -66,7 +66,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -74,7 +73,10 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
             Navigator.pushNamed(context, Router.routeCreationRoute);
           });
         },
-        child: Icon(Icons.add, color: Colors.white,),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         backgroundColor: Theme.of(context).primaryColor,
         shape: CircleBorder(side: BorderSide(color: Colors.white, width: 4)),
       ),
@@ -94,7 +96,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           GestureDetector(
-            onPanStart: (dragDetails){
+            onPanStart: (dragDetails) {
               setState(() {
                 isOpen = !_isOpen;
               });
@@ -104,9 +106,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
               child: Container(
                 decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15))
-                ),
-
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15))),
                 child: AnimatedSize(
                   vsync: this,
                   curve: Curves.fastOutSlowIn,
@@ -141,8 +143,10 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                               ),
                               Expanded(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: <Widget>[
                                     Expanded(
                                       child: Center(
@@ -150,39 +154,60 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
                                             text: '1\n',
-                                            style: Theme.of(context).primaryTextTheme.display1,
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
                                             children: <TextSpan>[
-                                              TextSpan(text: 'Fahrten', style: Theme.of(context).primaryTextTheme.overline),
+                                              TextSpan(
+                                                  text: 'Fahrten',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
                                             ],
                                           ),
                                         ),
                                       ),
                                     ),
-                                  Expanded(
-                                    child: Center(
-                                      child: RichText(
-                                        textAlign: TextAlign.center,
-                                        text: TextSpan(
-                                          text: '19\n',
-                                          style: Theme.of(context).primaryTextTheme.display1,
-                                          children: <TextSpan>[
-                                            TextSpan(text: 'Ampeln', style: Theme.of(context).primaryTextTheme.overline),
-                                          ],
+                                    Expanded(
+                                      child: Center(
+                                        child: RichText(
+                                          textAlign: TextAlign.center,
+                                          text: TextSpan(
+                                            text: '19\n',
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text: 'Ampeln',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
                                     Expanded(
                                       child: Center(
                                         child: RichText(
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
                                             text: '243 ',
-                                            style: Theme.of(context).primaryTextTheme.display1,
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
                                             children: <TextSpan>[
-                                              TextSpan(text: 'g\n', style: Theme.of(context).primaryTextTheme.body1),
-
-                                              TextSpan(text: 'eingespartes CO2', style: Theme.of(context).primaryTextTheme.overline),
+                                              TextSpan(
+                                                  text: 'g\n',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .body1),
+                                              TextSpan(
+                                                  text: 'eingespartes CO2',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
                                             ],
                                           ),
                                         ),
@@ -193,7 +218,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                               ),
                               Expanded(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Expanded(
@@ -202,11 +228,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
                                             text: '12 ',
-                                            style: Theme.of(context).primaryTextTheme.display1,
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
                                             children: <TextSpan>[
-                                              TextSpan(text: 'km\n', style: Theme.of(context).primaryTextTheme.body1),
-
-                                              TextSpan(text: 'Distanz', style: Theme.of(context).primaryTextTheme.overline),
+                                              TextSpan(
+                                                  text: 'km\n',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .body1),
+                                              TextSpan(
+                                                  text: 'Distanz',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
                                             ],
                                           ),
                                         ),
@@ -218,10 +253,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
                                             text: '34 ',
-                                            style: Theme.of(context).primaryTextTheme.display1,
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
                                             children: <TextSpan>[
-                                              TextSpan(text: 'Kcal\n', style: Theme.of(context).primaryTextTheme.body1),
-                                              TextSpan(text: 'Energie', style: Theme.of(context).primaryTextTheme.overline),
+                                              TextSpan(
+                                                  text: 'Kcal\n',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .body1),
+                                              TextSpan(
+                                                  text: 'Energie',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
                                             ],
                                           ),
                                         ),
@@ -233,10 +278,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
                                             text: '0 ',
-                                            style: Theme.of(context).primaryTextTheme.display1,
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1,
                                             children: <TextSpan>[
-                                              TextSpan(text: 'km/h\n', style: Theme.of(context).primaryTextTheme.body1),
-                                              TextSpan(text: 'Geschwindigkeit', style: Theme.of(context).primaryTextTheme.overline),
+                                              TextSpan(
+                                                  text: 'km/h\n',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .body1),
+                                              TextSpan(
+                                                  text: 'Geschwindigkeit',
+                                                  style: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .overline),
                                             ],
                                           ),
                                         ),
@@ -246,8 +301,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                                 ),
                               )
                             ],
-                          )
-                          ,
+                          ),
                         ),
                       ),
                       Padding(
@@ -257,14 +311,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                             height: 2,
                             width: 75,
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(5))
-                            ),
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
                           ),
                         ),
                       )
                     ],
-
                   ),
                 ),
               ),
@@ -272,23 +325,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
           ),
           Expanded(
             flex: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: StreamBuilder<List<Ride>>(
-                stream: routeCreationBloc.rides,
-                initialData: null,
-                builder: (context, snapshot) {
-                  if (snapshot.data == null || snapshot.data == []) {
-                    return Center(
-                        child: Container(child: CircularProgressIndicator()));
-                  } else {
-                    return ListView(children: [
-                      for (var ride in snapshot.data)
-                        _rideTileBuilder(ride, routeCreationBloc)
-                    ]);
-                  }
-                },
-              ),
+            child: StreamBuilder<List<Ride>>(
+              stream: routeCreationBloc.rides,
+              initialData: null,
+              builder: (context, snapshot) {
+                if (snapshot.data == null || snapshot.data == []) {
+                  return Center(
+                      child: Container(child: CircularProgressIndicator()));
+                } else {
+                  return ListView(padding: const EdgeInsets.all(8), children: [
+                    for (var ride in snapshot.data)
+                      _rideTileBuilder(ride, routeCreationBloc)
+                  ]);
+                }
+              },
             ),
           ),
         ],
@@ -309,13 +359,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
       child: Card(
         child: ListTile(
           leading: IconButton(
-              icon: Icon(ride.isFavorite ? Icons.star : Icons.star_border),
-          onPressed: (){
-                setState(() {
-                  ride.isFavorite = !ride.isFavorite;
-                });
-
-          },),
+            icon: Icon(ride.isFavorite ? Icons.star : Icons.star_border),
+            onPressed: () {
+              setState(() {
+                ride.isFavorite = !ride.isFavorite;
+              });
+            },
+          ),
           trailing: Icon(Icons.chevron_right),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,12 +390,11 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                       TextSpan(
                           text: 'Ende: ',
                           style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: ride.end.displayName.substring(0,20))
+                      TextSpan(text: ride.end.displayName.substring(0, 20))
                     ]),
               )
             ],
           ),
-
           onTap: () {
             routeCreationBloc.quickTabClicked = true;
             routeCreationBloc.setStart(ride.start);
@@ -378,9 +427,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                   0.0, // vertical, move down 10
                 ),
               )
-            ],
-                color: Colors.white),
-
+            ], color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -423,9 +470,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin, Rout
                   0.0, // vertical, move down 10
                 ),
               )
-            ],
-                color: Colors.white),
-
+            ], color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

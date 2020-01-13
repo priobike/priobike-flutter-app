@@ -1,4 +1,3 @@
-import 'package:bike_now_flutter/helper/configuration.dart';
 import 'package:bike_now_flutter/helper/settingKeys.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';

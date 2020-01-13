@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
-import 'package:bike_now_flutter/blocs/route_information_bloc.dart';
 import 'package:bike_now_flutter/helper/palette.dart';
-import 'package:bike_now_flutter/pages/route_creation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +29,7 @@ class _RouteInformationMapState extends State<RouteInformationMap> {
   BikeNow.Route _route;
   BikeNow.Route get route => _route;
   set route(BikeNow.Route value) {
-    if(value != null){
+    if (value != null) {
       _route = value;
       coordinates = _route.coordinates
           .map((coordinate) => coordinate.toGoogleLatLng())
@@ -58,7 +56,6 @@ class _RouteInformationMapState extends State<RouteInformationMap> {
           icon: BitmapDescriptor.defaultMarker,
           infoWindow: InfoWindow(title: 'Ziel')));
     });
-
   }
 
   // MapProperties
@@ -73,7 +70,7 @@ class _RouteInformationMapState extends State<RouteInformationMap> {
   @override
   void didChangeDependencies() {
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
-    routeCreationBloc.getRoute.listen((route){
+    routeCreationBloc.getRoute.listen((route) {
       this.route = route;
     });
     super.didChangeDependencies();
@@ -85,16 +82,16 @@ class _RouteInformationMapState extends State<RouteInformationMap> {
 
   @override
   Widget build(BuildContext context) {
-          return GoogleMap(
-              mapType: MapType.normal,
-              polylines: _polylines,
-              markers: _marker,
-              myLocationEnabled: true,
-              compassEnabled: true,
-              initialCameraPosition: CameraPosition(
-                  target: _route?.coordinates?.first?.toGoogleLatLng() ?? _kGooglePlex, zoom: 11),
-              onMapCreated: _onMapCreated,
-            );
-
+    return GoogleMap(
+      mapType: MapType.normal,
+      polylines: _polylines,
+      markers: _marker,
+      myLocationEnabled: true,
+      compassEnabled: true,
+      initialCameraPosition: CameraPosition(
+          target: _route?.coordinates?.first?.toGoogleLatLng() ?? _kGooglePlex,
+          zoom: 11),
+      onMapCreated: _onMapCreated,
+    );
   }
 }

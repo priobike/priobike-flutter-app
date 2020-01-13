@@ -19,7 +19,7 @@ class PredictionController {
           if (lsa?.getSG(sgName) != null) {
             var sg = lsa?.getSG(sgName);
             sg.phases = sgPrediction.phases;
-            lsa?.sgPredictions.add(sgPrediction);
+            lsa?.sgPredictions?.add(sgPrediction);
           }
         }
       });

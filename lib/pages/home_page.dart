@@ -3,17 +3,10 @@ import 'package:bike_now_flutter/pages/map_page.dart';
 import 'package:bike_now_flutter/pages/news_page.dart';
 import 'package:bike_now_flutter/pages/test_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'settings_page.dart';
-import 'route_creation_page.dart';
-import 'package:bike_now_flutter/blocs/settings_bloc.dart';
 
 class HomePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _HomePageState();
-  }
+  State<StatefulWidget> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -33,34 +26,31 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      builder: (context) => SettingsBloc(),
-      child: Scaffold(
-        body: _children[_currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: onTabTapped, // new
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          // this will be set when a new tab is tapped
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.info),
-              title: new Text('Neuigkeiten'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.directions_bike),
-              title: new Text('Fahren'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.map),
-              title: new Text('Karte'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.send),
-              title: new Text('Test'),
-            )
-          ],
-        ),
+    return Scaffold(
+      body: _children[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: onTabTapped, // new
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
+        // this will be set when a new tab is tapped
+        items: [
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.info),
+            title: new Text('Neuigkeiten'),
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.directions_bike),
+            title: new Text('Fahren'),
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.map),
+            title: new Text('Karte'),
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.send),
+            title: new Text('Test'),
+          )
+        ],
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bike_now_flutter/Services/setting_service.dart';
-import 'package:bike_now_flutter/database/database_helper.dart';
 import 'package:bike_now_flutter/database/database_locations.dart';
 import 'package:bike_now_flutter/models/location_plus.dart';
 
@@ -22,14 +21,10 @@ class RoutingCoordinator {
   DatabaseLocations databaseLocations = DatabaseLocations.instance;
   var battery = Battery();
 
-
-
-
   RoutingCoordinator(this.routingController, this.predictionController,
       this.subscriptionController, this.locationController);
 
-
-  void saveCurrentLocation(Timer timer) async{
+  void saveCurrentLocation(Timer timer) async {
     var location = LocationPlus();
     location.latitude = locationController.currentLocation.latitude;
     location.longitude = locationController.currentLocation.longitude;
@@ -39,31 +34,34 @@ class RoutingCoordinator {
     location.altitude = locationController.currentLocation.altitude;
     location.speed = locationController.currentLocation.speed;
     location.distanceNextSG = predictionController.nextSG.distance.toInt();
-    location.recommendedSpeedKmh = (predictionController.currentPhase?.getRecommendedSpeed()*3.6).toInt();
-    location.differenceSpeedKmh = (location.speed*3.6 - location.recommendedSpeedKmh).abs();
+    location.recommendedSpeedKmh =
+        (predictionController.currentPhase?.getRecommendedSpeed() * 3.6)
+            .toInt();
+    location.differenceSpeedKmh =
+        (location.speed * 3.6 - location.recommendedSpeedKmh).abs();
     location.isGreen = predictionController.currentPhase.isGreen;
     location.isSimulation = await SettingService.instance.loadSimulator;
-    location.nextInstructionText = predictionController.nextInstruction.info;;
+    location.nextInstructionText = predictionController.nextInstruction.info;
+    ;
     location.nextSg = predictionController.nextSG.toString();
     location.nextGhNode = predictionController.nextGHNode.id;
     location.batteryLevel = await battery.batteryLevel;
     databaseLocations.insertLocation(location);
   }
 
-  void transmitLocations(Timer timer) async{
+  void transmitLocations(Timer timer) async {
     var list = await databaseLocations.getLocationsToTransmit();
-    for(var loc in list){
+    for (var loc in list) {
       await databaseLocations.markAsTransmitted(loc.id);
     }
     await databaseLocations.deleteAllTransmittedLocations();
-
   }
 
-
   void run() {
-    if(_saveLocationTimer == null && _transmitLocationTimer == null){
+    if (_saveLocationTimer == null && _transmitLocationTimer == null) {
       _saveLocationTimer = Timer.periodic(saveLocation, saveCurrentLocation);
-      _transmitLocationTimer = Timer.periodic(transmitLocation, transmitLocations);
+      _transmitLocationTimer =
+          Timer.periodic(transmitLocation, transmitLocations);
     }
 
     if (routingController.ghNodes.isNotEmpty) {

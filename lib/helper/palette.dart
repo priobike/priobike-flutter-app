@@ -7,10 +7,6 @@ class Palette {
   static Color primaryDarkColor = Color(0xff2D2D2D);
   static Color primaryDarkBackground = Color(0xff1F1F1F);
 
-
-
-
 //ALWAYS
-
 
 }

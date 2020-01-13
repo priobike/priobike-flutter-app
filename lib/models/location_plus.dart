@@ -1,12 +1,9 @@
-
-import 'package:bike_now_flutter/models/location.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'location_plus.g.dart';
 
-
 @JsonSerializable()
-class LocationPlus{
+class LocationPlus {
   @JsonKey(ignore: true)
   int id = 0;
 

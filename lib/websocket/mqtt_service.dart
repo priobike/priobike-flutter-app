@@ -1,31 +1,19 @@
 import 'dart:async';
-import 'package:web_socket_channel/io.dart';
 import 'package:logging/logging.dart';
-import 'dart:convert';
-import 'dart:async';
-import 'dart:io';
 import 'package:mqtt_client/mqtt_client.dart';
 
-import 'package:bike_now_flutter/helper/configuration.dart';
-import 'package:bike_now_flutter/websocket/websocket_commands.dart';
-import 'package:bike_now_flutter/server_response/websocket_response.dart';
-import 'package:bike_now_flutter/websocket/web_socket_method.dart';
-
-
 class MqttService implements MqttDelegate {
-  String broker           = "ws://vkwvlprad.vkw.tu-dresden.de";
-  int port                = 20051;
-  String username         = 'bikenow';
-  String passwd           = 'mqtt-test';
+  String broker = "ws://vkwvlprad.vkw.tu-dresden.de";
+  int port = 20051;
+  String username = 'bikenow';
+  String passwd = 'mqtt-test';
   String clientIdentifier = 'android';
 
   MqttDelegate delegate;
 
-
   MqttClient client;
   MqttConnectionState connectionState;
   StreamSubscription subscription;
-
 
   void _connect() async {
     client = MqttClient(broker, '');
@@ -50,7 +38,7 @@ class MqttService implements MqttDelegate {
     }
 
     if (client.connectionState == MqttConnectionState.connected) {
-        connectionState = client.connectionState;
+      connectionState = client.connectionState;
     } else {
       _disconnect();
     }
@@ -65,10 +53,9 @@ class MqttService implements MqttDelegate {
   }
 
   void _onMessage(List<MqttReceivedMessage> event) {
-    final MqttPublishMessage recMess =
-    event[0].payload as MqttPublishMessage;
+    final MqttPublishMessage recMess = event[0].payload as MqttPublishMessage;
     final String message =
-    MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+        MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
     mqttDidReceiveMessage(message);
   }
 
@@ -80,11 +67,11 @@ class MqttService implements MqttDelegate {
 
   void _onDisconnected() {
     print('[MQTT client] _onDisconnected');
-      //topics.clear();
-      connectionState = client.connectionState;
-      client = null;
-      subscription.cancel();
-      subscription = null;
+    //topics.clear();
+    connectionState = client.connectionState;
+    client = null;
+    subscription.cancel();
+    subscription = null;
     print('[MQTT client] MQTT client disconnected');
   }
 
@@ -93,8 +80,7 @@ class MqttService implements MqttDelegate {
   MqttService._privateConstructor() {
     _connect();
   }
-  static final MqttService instance =
-  MqttService._privateConstructor();
+  static final MqttService instance = MqttService._privateConstructor();
 
   @override
   void mqttDidReceiveMessage(String msg) {

@@ -5,28 +5,21 @@ import 'package:provider/provider.dart';
 
 class TestPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _TestPageState();
-  }
+  State<StatefulWidget> createState() => _TestPageState();
 }
 
-class _TestPageState extends State<TestPage>{
-
+class _TestPageState extends State<TestPage> {
   TestBloc testBloc;
-
 
   @override
   void didChangeDependencies() {
     testBloc = Provider.of<ManagerBloc>(context).testBloc;
 
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text("MQTT Test"),
@@ -41,7 +34,10 @@ class _TestPageState extends State<TestPage>{
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text("Ausgabe", style: Theme.of(context).textTheme.headline,),
+            child: Text(
+              "Ausgabe",
+              style: Theme.of(context).textTheme.headline,
+            ),
           ),
           Expanded(
             child: StreamBuilder(

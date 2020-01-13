@@ -18,7 +18,7 @@ class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<M
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(51.029334, 13.728900),
-    zoom: 14.4746,
+    zoom: 12,
   );
 
 

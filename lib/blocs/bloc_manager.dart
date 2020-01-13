@@ -3,7 +3,6 @@ import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
 import 'package:bike_now_flutter/blocs/navigation_bloc.dart';
 import 'package:bike_now_flutter/blocs/test_bloc.dart';
 import 'package:bike_now_flutter/controller/location_controller.dart';
-import 'package:bike_now_flutter/database/database_locations.dart';
 
 import 'package:flutter/material.dart';
 

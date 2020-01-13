@@ -5,4 +5,3 @@ class Configuration {
   static String sessionUUID = Uuid().v4().replaceAll("-", "");
   static double userMaxSpeed = 25.0;
 }
-

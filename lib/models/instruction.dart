@@ -1,5 +1,4 @@
 import 'package:bike_now_flutter/controller/crossing_controller.dart';
-import 'package:bike_now_flutter/models/latlng.dart';
 import 'package:logging/logging.dart';
 
 import 'abstract_classes/locatable_and_crossable.dart';
@@ -21,23 +20,18 @@ class Instruction with LocatableAndCrossable {
   List<GHNode> nodes;
 
   @JsonKey(ignore: true)
-  CrossingController crossingController =
-  CrossingController(0.0, 125
-      , 0.67, 2);
+  CrossingController crossingController = CrossingController(0.0, 125, 0.67, 2);
 
   Instruction(this.sign, this.name, this.text, this.info, this.lsas, this.nodes,
       double distance) {
     var firstNode = nodes.first;
-    if(firstNode != null){
-
+    if (firstNode != null) {
       super.lon = firstNode.lon;
       super.lat = firstNode.lat;
-
-    }else{
+    } else {
       super.lon = 0;
       super.lat = 0;
     }
-
 
     super.distance = distance;
   }
@@ -87,6 +81,4 @@ class Instruction with LocatableAndCrossable {
   void set lon(double _lon) {
     super.lon = _lon;
   }
-
-
 }

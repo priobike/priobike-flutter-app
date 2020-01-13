@@ -1,11 +1,7 @@
 import 'dart:io';
-import 'package:bike_now_flutter/models/ride.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
-
-import 'dart:convert';
 
 // singleton class to manage the database
 class DatabaseHelper {
@@ -65,7 +61,6 @@ class DatabaseHelper {
   final String COLUMN_NEXT_GH_NODE = "next_gh_node";
 
   final String COLUMN_BATTERY_LVL = "battery_lvl";
-
 
   // Make this a singleton class.
   DatabaseHelper._privateConstructor();
@@ -138,7 +133,5 @@ class DatabaseHelper {
   }
 
   // Database helper methods:
-
-
 
 }

@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bike_now_flutter/database/database_helper.dart';
 import 'package:bike_now_flutter/websocket/web_socket_service.dart';
 import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
 import 'package:bike_now_flutter/server_response/websocket_response.dart';

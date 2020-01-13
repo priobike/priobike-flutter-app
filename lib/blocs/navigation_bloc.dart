@@ -10,7 +10,6 @@ import 'package:rxdart/rxdart.dart';
 
 import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 import 'package:bike_now_flutter/websocket/web_socket_service.dart';
-import 'package:bike_now_flutter/models/models.dart' as BikeNow;
 
 import 'package:bike_now_flutter/controller/controller.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';

@@ -14,7 +14,6 @@ class _SummaryPageState extends State<SummaryPage> {
   double rating = 0;
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text("Fahrt beendet!"),
@@ -24,7 +23,10 @@ class _SummaryPageState extends State<SummaryPage> {
           Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 24.0, bottom: 16),
-              child: Text("Danke für deine Meldungen!", style: Theme.of(context).textTheme.title,),
+              child: Text(
+                "Danke für deine Meldungen!",
+                style: Theme.of(context).textTheme.title,
+              ),
             ),
           ),
           Expanded(
@@ -56,20 +58,21 @@ class _SummaryPageState extends State<SummaryPage> {
                   label: Text("9 LSA"),
                   backgroundColor: Colors.white,
                 ),
-
-
-
               ],
             ),
           ),
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Wie bewertest du deine Fahrt?", style: Theme.of(context).textTheme.title,),
+              child: Text(
+                "Wie bewertest du deine Fahrt?",
+                style: Theme.of(context).textTheme.title,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0, bottom: 4),
+            padding: const EdgeInsets.only(
+                left: 8.0, right: 8.0, top: 8.0, bottom: 4),
             child: Card(
               child: Center(
                 child: Padding(
@@ -85,15 +88,15 @@ class _SummaryPageState extends State<SummaryPage> {
                       size: 40.0,
                       color: Theme.of(context).primaryColor,
                       borderColor: Theme.of(context).primaryColor,
-                      spacing:0.0
-                  ),
+                      spacing: 0.0),
                 ),
               ),
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0, bottom: 8),
+              padding: const EdgeInsets.only(
+                  left: 8.0, right: 8.0, top: 4.0, bottom: 8),
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -103,11 +106,7 @@ class _SummaryPageState extends State<SummaryPage> {
                     minLines: null,
                     decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: 'Hier kannst du dein Feedback eingeben'
-                    ),
-
-
-
+                        hintText: 'Hier kannst du dein Feedback eingeben'),
                   ),
                 ),
               ),
@@ -123,8 +122,7 @@ class _SummaryPageState extends State<SummaryPage> {
                     child: RaisedButton(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15))
-                      ),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
                       onPressed: () {},
                       child: Text(
                         'überspringen',
@@ -139,10 +137,10 @@ class _SummaryPageState extends State<SummaryPage> {
                     child: RaisedButton(
                       color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15))
-                      ),
+                          borderRadius: BorderRadius.all(Radius.circular(15))),
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(context, Router.homeRoute,  (_) => false);
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Router.homeRoute, (_) => false);
                       },
                       child: Text(
                         'Feedback senden',

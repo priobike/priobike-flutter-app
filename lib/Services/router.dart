@@ -1,7 +1,6 @@
 import 'package:bike_now_flutter/pages/home_page.dart';
 import 'package:bike_now_flutter/pages/init_page.dart';
 import 'package:bike_now_flutter/pages/navigation_page.dart';
-import 'package:bike_now_flutter/pages/onboarding_page.dart';
 import 'package:bike_now_flutter/pages/route_creation_page.dart';
 import 'package:bike_now_flutter/pages/route_information_page.dart';
 import 'package:bike_now_flutter/pages/settings_page.dart';
@@ -22,8 +21,6 @@ class Router {
     switch (settings.name) {
       case initRoute:
         return MaterialPageRoute(builder: (_) => InitPage());
-      case onboardingRoute:
-        return MaterialPageRoute(builder: (_) => OnboardingPage());
       case homeRoute:
         return MaterialPageRoute(builder: (_) => HomePage());
       case routeCreationRoute:
@@ -36,8 +33,6 @@ class Router {
         return MaterialPageRoute(builder: (_) => SettingsPage());
       case summaryRoute:
         return MaterialPageRoute(builder: (_) => SummaryPage());
-      case onboardingRoute:
-        return MaterialPageRoute(builder: (_) => OnboardingPage());
 
       default:
         return MaterialPageRoute(
