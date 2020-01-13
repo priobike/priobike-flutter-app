@@ -1,4 +1,4 @@
-# bike_now_flutter
+# BikeNow (Flutter)
 
 BikeNow App with Flutter
 
