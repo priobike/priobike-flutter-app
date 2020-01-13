@@ -1,57 +1,71 @@
 import 'dart:io';
+import 'package:bike_now_flutter/models/ride.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:bike_now/geo_coding/address_to_location_response.dart';
+import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
 
 import 'dart:convert';
-
-// database table and column names
-final String tableWords = 'rides';
-final String columnId = '_id';
-final String columnStart = 'start';
-final String columnEnd = 'end';
-final String columnDate = 'date';
-
-// data model class
-class Ride {
-  int id;
-  Place start;
-  Place end;
-  int date;
-
-  Ride(this.start, this.end, this.date);
-
-  // convenience constructor to create a Ride object
-  Ride.fromMap(Map<String, dynamic> map) {
-    id = map[columnId];
-    var be1 = map[columnStart];
-    var be = jsonDecode(map[columnStart]);
-    start = Place.fromJson(jsonDecode(map[columnStart]));
-    end = Place.fromJson(jsonDecode(map[columnEnd]));
-    date = map[columnDate];
-  }
-
-  // convenience method to create a Map from this Ride object
-  Map<String, dynamic> toMap() {
-    var map = <String, dynamic>{
-      columnStart: start.toJson().toString(),
-      columnEnd: end.toJson().toString(),
-      columnDate: date
-    };
-    if (id != null) {
-      map[columnId] = id;
-    }
-    return map;
-  }
-}
 
 // singleton class to manage the database
 class DatabaseHelper {
   // This is the actual database filename that is saved in the docs directory.
-  static final _databaseName = "rides.db";
+  static final _databaseName = "BikeNowLogs.db";
   // Increment this version when you need to change the schema.
-  static final _databaseVersion = 7;
+  static final _databaseVersion = 14;
+
+  // database table and column names
+  final String TABLE_RIDES = 'rides';
+
+  final String COLUMN_RIDES_START = 'start';
+  final String COLUMN_RIDES_END = 'end';
+  final String COLUMN_RIDES_IS_FAVORITE = 'isFavorite';
+  final String COLUMN_RIDES_DATE = 'date';
+
+  final String TABLE_LOCATIONS = "locationlogs";
+  final String TABLE_LSA_DATA = "lsadata";
+  final String TABLE_DESTINATIONS = "destinations";
+  final String TABLE_DEBUG = "debug";
+  final String COLUMN_SESSION = "session";
+  final String COLUMN_RIDE_ID = "rideID";
+  final String COLUMN_LOCATION_DATE = "locationDate";
+  final String COLUMN_LATITUDE = "lat";
+  final String COLUMN_LONGITUDE = "lon";
+  final String COLUMN_ACCURACY = "acc";
+  final String COLUMN_ALTITUDE = "alt";
+  final String COLUMN_BEARING = "bear";
+  final String COLUMN_SPEED = "speed";
+  final String COLUMN_DISTANCE = "dist";
+  final String COLUMN_NAME = "name";
+  final String COLUMN_SG_SIZE = "sg_size";
+  final String COLUMN_RECOMMENDED_SPEED = "rec_speed";
+  final String COLUMN_DIFF_SPEED = "diff_speed";
+  final String COLUMN_LAST_COUNTDOWN = "last_countdown";
+  final String COLUMN_LAST_ALGO = "algo";
+  final String COLUMN_LAST_INTERVAL = "last_interval";
+  final String COLUMN_IS_GREEN = "is_green";
+  final String COLUMN_POSTAL_CODE = "postal_code";
+  final String COLUMN_HOUSE_NUMBER = "house_number";
+  final String COLUMN_ROAD = "road";
+  final String COLUMN_CITY = "city";
+  final String COLUMN_LSA_ID = "lsaID";
+  final String COLUMN_SG_ID = "sgID";
+  final String COLUMN_ID = "id";
+  final String COLUMN_IS_TRANSMITTED = "isTransmitted";
+  final String COLUMN_IS_SIMULATION = "isSimulation";
+  final String COLUMN_IS_DEBUG = "isDebug";
+  final String COLUMN_ERROR = "errorReportCode";
+  final String COLUMN_CREATE_DATE = "creationDate";
+  final String COLUMN_VISITATION_DATE = "visitationDate";
+  final String COLUMN_FAVORITE = "favorite";
+
+  final String COLUMN_NEXT_INSTRUCTION_TEXT = "next_instruction_text";
+  final String COLUMN_NEXT_INSTRUCTION_SIGN = "next_instruction_sign";
+  final String COLUMN_NEXT_SG = "next_sg";
+  final String COLUMN_NEXT_GH_NODE = "next_gh_node";
+
+  final String COLUMN_BATTERY_LVL = "battery_lvl";
+
 
   // Make this a singleton class.
   DatabaseHelper._privateConstructor();
@@ -77,60 +91,54 @@ class DatabaseHelper {
 
   // SQL string to create the database
   Future _onCreate(Database db, int version) async {
+    // Rides DB
     await db.execute('''
-              CREATE TABLE $tableWords (
-                $columnId INTEGER PRIMARY KEY,
-                $columnStart TEXT NOT NULL,
-                $columnEnd TEXT NOT NULL,
-                $columnDate INTEGER NOT NULL
+              CREATE TABLE $TABLE_RIDES (
+                $COLUMN_RIDE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_RIDES_START TEXT NOT NULL,
+                $COLUMN_RIDES_END TEXT NOT NULL,
+                $COLUMN_RIDES_DATE INTEGER NOT NULL,
+                $COLUMN_RIDES_IS_FAVORITE INTEGER NOT NULL
               )
+              ''');
+    //Locations DB
+    await db.execute('''
+              CREATE TABLE $TABLE_LOCATIONS ( 
+                    $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,  
+                    $COLUMN_SESSION TEXT NOT NULL,  
+                    $COLUMN_RIDE_ID TEXT NOT NULL,  
+                    $COLUMN_SG_ID TEXT NOT NULL,  
+                    $COLUMN_LSA_ID INTEGER NOT NULL DEFAULT '0',  
+                    $COLUMN_LOCATION_DATE TEXT NOT NULL,  
+                    $COLUMN_LATITUDE REAL NOT NULL,  
+                    $COLUMN_LONGITUDE REAL NOT NULL,  
+                    $COLUMN_ACCURACY REAL NOT NULL,  
+                    $COLUMN_ALTITUDE INTEGER NOT NULL,  
+                    $COLUMN_BEARING REAL NOT NULL,  
+                    $COLUMN_SPEED REAL NOT NULL,  
+                    $COLUMN_DISTANCE REAL NOT NULL,  
+                    $COLUMN_RECOMMENDED_SPEED REAL NOT NULL,  
+                    $COLUMN_DIFF_SPEED REAL NOT NULL,  
+                    $COLUMN_LAST_COUNTDOWN INTEGER NOT NULL,  
+                    $COLUMN_LAST_ALGO INTEGER NOT NULL,  
+                    $COLUMN_LAST_INTERVAL INTEGER NOT NULL,  
+                    $COLUMN_IS_GREEN INTEGER NOT NULL NULL DEFAULT \'0\',  
+                    $COLUMN_IS_TRANSMITTED INTEGER NOT NULL DEFAULT \'0\',  
+                    $COLUMN_IS_SIMULATION INTEGER NOT NULL DEFAULT \'0\',  
+                    $COLUMN_ERROR INTEGER NOT NULL DEFAULT \'0\',  
+                    $COLUMN_IS_DEBUG INTEGER NOT NULL DEFAULT \'0\',  
+                    $COLUMN_NEXT_INSTRUCTION_TEXT TEXT,  
+                    $COLUMN_NEXT_INSTRUCTION_SIGN TEXT,  
+                    $COLUMN_NEXT_SG TEXT,  
+                    $COLUMN_NEXT_GH_NODE INTEGER,
+                    $COLUMN_BATTERY_LVL INTEGER NOT NULL,
+                    $COLUMN_CREATE_DATE TEXT NOT NULL  
+                    )
               ''');
   }
 
   // Database helper methods:
 
-  Future<int> insert(Ride ride) async {
-    Database db = await database;
-    var allRide = await queryAllRides();
-    var equalRidesInDatabase = allRide.where((rideItem) {
-      return (rideItem.start.displayName == ride.start.displayName &&
-          rideItem.end.displayName == ride.end.displayName);
-    });
-    if (equalRidesInDatabase.isEmpty) {
-      int id = await db.insert(tableWords, ride.toMap());
-      return id;
-    }
-    return null;
-  }
 
-  Future<int> delete(int id) async {
-    Database db = await database;
-    int deletedID =
-        await db.delete(tableWords, where: '$columnId = ?', whereArgs: [id]);
-    return deletedID;
-  }
 
-  Future<Ride> queryRide(int id) async {
-    Database db = await database;
-    List<Map> maps = await db.query(tableWords,
-        columns: [columnId, columnStart, columnEnd, columnDate],
-        where: '$columnId = ?',
-        whereArgs: [id]);
-    if (maps.length > 0) {
-      return Ride.fromMap(maps.first);
-    }
-    return null;
-  }
-
-  Future<List<Ride>> queryAllRides() async {
-    Database db = await database;
-    List<Map> maps = await db.query(tableWords,
-        columns: [columnId, columnStart, columnEnd, columnDate]);
-    if (maps.length > 0) {
-      List<Ride> rides = new List<Ride>();
-      for (var map in maps) rides.add(Ride.fromMap(map));
-      return rides;
-    }
-    return new List<Ride>();
-  }
 }

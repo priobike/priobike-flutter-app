@@ -1,5 +1,5 @@
-import 'package:bike_now/websocket/web_socket_method.dart';
-import 'package:bike_now/models/route.dart';
+import 'package:bike_now_flutter/websocket/web_socket_method.dart';
+import 'package:bike_now_flutter/models/route.dart';
 
 class WebsocketResponse {
   WebsocketMode mode;

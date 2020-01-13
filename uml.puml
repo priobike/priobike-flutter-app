@@ -1,0 +1,92 @@
+@startuml
+set namespaceSeparator ::
+
+class "RouteCreationBloc" {
+
+}
+
+"RouteCreationBloc" o-- "LocationController"
+
+
+
+class "ManagerBloc" {
+
+}
+
+"ManagerBloc" o-- "RouteCreationBloc"
+"ManagerBloc" o-- "NavigationBloc"
+"ManagerBloc" o-- "LocationController"
+
+class "NavigationBloc" {
+
+}
+
+"NavigationBloc" o-- "SubscriptionController"
+"NavigationBloc" o-- "RoutingController"
+"NavigationBloc" o-- "LocationController"
+"NavigationBloc" o-- "RoutingCoordinator"
+"NavigationBloc" o-- "PredictionController"
+
+class "RoutingController" {
+
+}
+
+"RoutingController" o-- "SubscriptionController"
+
+class "CrossingController" {
+
+}
+
+class "SubscriptionController" {
+
+}
+
+
+class "LocationController" {
+
+}
+
+
+class "PredictionController" {
+
+}
+
+"PredictionController" o-- "RoutingController"
+"PredictionController" o-- "SubscriptionController"
+
+class "RoutingCoordinator" {
+
+}
+
+"RoutingCoordinator" o-- "RoutingController"
+"RoutingCoordinator" o-- "PredictionController"
+"RoutingCoordinator" o-- "SubscriptionController"
+"RoutingCoordinator" o-- "LocationController"
+
+
+
+class "MainPage" {
+
+}
+
+"MainPage" o-- "RouteCreationBloc"
+
+
+class "NavigationPage" {
+
+}
+
+"NavigationPage" o-- "NavigationBloc"
+
+
+
+
+class "RouteCreationPage" {
+
+}
+
+"RouteCreationPage" o-- "RouteCreationBloc"
+
+
+
+@enduml

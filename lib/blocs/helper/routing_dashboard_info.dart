@@ -1,5 +1,6 @@
-import 'package:bike_now/models/instruction.dart';
-import 'package:bike_now/models/sg.dart';
+import 'package:bike_now_flutter/models/instruction.dart';
+import 'package:bike_now_flutter/models/sg.dart';
+
 
 class RoutingDashboardInfo {
   double currentSpeed;
@@ -12,6 +13,6 @@ class RoutingDashboardInfo {
 
   RoutingDashboardInfo(this.currentSpeed, this.recommendedSpeed,
       this.secondsLeft, this.distance, this.currentInstruction, this.nextSG) {
-    this.diffSpeed = (recommendedSpeed - currentSpeed);
+    this.diffSpeed = ((recommendedSpeed ?? 0) - (currentSpeed ?? 0));
   }
 }

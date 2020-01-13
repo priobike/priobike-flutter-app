@@ -1,8 +1,8 @@
-import 'package:bike_now/models/subscription.dart';
-import 'package:bike_now/websocket/web_socket_service.dart';
-import 'package:bike_now/websocket/websocket_commands.dart';
-import 'package:bike_now/configuration.dart';
-import 'package:bike_now/models/sg.dart';
+import 'package:bike_now_flutter/models/subscription.dart';
+import 'package:bike_now_flutter/websocket/web_socket_service.dart';
+import 'package:bike_now_flutter/websocket/websocket_commands.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/models/sg.dart';
 
 class SubscriptionController {
   List<Subscription> subscriptions = [];

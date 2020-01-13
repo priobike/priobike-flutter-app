@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:bike_now/models/sg_prediction.dart';
+import 'package:bike_now_flutter/models/sg_prediction.dart';
 
 part 'lsa_prediction.g.dart';
 

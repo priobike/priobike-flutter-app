@@ -26,12 +26,12 @@ class SpeedSliderState extends State<SpeedSlider> {
   Widget build(BuildContext context) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
-        trackHeight: 40,
+        trackHeight: 50,
         activeTrackColor: Colors.transparent,
         trackShape: RetroSliderTrackShape(),
         thumbColor: Colors.black,
         thumbShape: RetroSliderThumbShape(thumbRadius: 25),
-        overlayShape: RoundSliderOverlayShape(overlayRadius: 0.0),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 15.0),
       ),
       child: Slider(
         value: widget.value,
@@ -46,7 +46,7 @@ class RetroSliderThumbShape extends SliderComponentShape {
   final double thumbRadius;
 
   const RetroSliderThumbShape({
-    this.thumbRadius = 6.0,
+    this.thumbRadius = 15.0,
   });
 
   @override
@@ -108,10 +108,10 @@ class RetroSliderTrackShape extends SliderTrackShape {
     assert(parentBox.size.width >= thumbWidth);
     assert(parentBox.size.height >= trackHeight);
 
-    final double trackLeft = offset.dx + thumbWidth / 2;
+    final double trackLeft = offset.dx;
     final double trackTop =
         offset.dy + (parentBox.size.height - trackHeight) / 2;
-    final double trackWidth = parentBox.size.width - thumbWidth;
+    final double trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 

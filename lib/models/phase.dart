@@ -1,5 +1,5 @@
-import 'package:bike_now/configuration.dart';
-import 'package:bike_now/models/sg.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/models/sg.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:math';
 
@@ -90,7 +90,8 @@ class Phase {
     if (endDate == null) {
       return false;
     }
-    return endDate.isBefore(DateTime.now());
+    var isBefore = endDate.isBefore(DateTime.now());
+    return isBefore;
   }
 
   set isInThePast(bool value) {

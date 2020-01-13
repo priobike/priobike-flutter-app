@@ -1,11 +1,11 @@
-import 'package:bike_now/controller/crossing_controller.dart';
-import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
+import 'package:bike_now_flutter/controller/crossing_controller.dart';
+import 'package:bike_now_flutter/models/abstract_classes/locatable_and_crossable.dart';
 
-import 'package:bike_now/models/phase.dart';
-import 'package:bike_now/models/sg_subscription.dart';
-import 'package:bike_now/models/subscription.dart';
+import 'package:bike_now_flutter/models/phase.dart';
+import 'package:bike_now_flutter/models/sg_subscription.dart';
+import 'package:bike_now_flutter/models/subscription.dart';
 
-import 'package:bike_now/models/latlng.dart';
+import 'package:bike_now_flutter/models/latlng.dart';
 import 'package:logging/logging.dart';
 import 'gh_node.dart';
 import 'lsa.dart';
@@ -97,7 +97,7 @@ class SG with LocatableAndCrossable {
 
   @JsonKey(ignore: true)
   CrossingController crossingController =
-      CrossingController(0.0, 100.0, 0.8, 2);
+      CrossingController(0.0, 125, 0.8, 2);
 
   SG(
       this.baseId,
@@ -155,7 +155,7 @@ class SG with LocatableAndCrossable {
 
   @override
   bool calculateIsCrossed(double distance, double accuracy) {
-    if (distance <= 100.0) {
+    if (distance <= 125.0) {
       return crossingController.run(distance, accuracy);
     }
 

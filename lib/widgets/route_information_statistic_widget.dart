@@ -1,7 +1,7 @@
-import 'package:bike_now/blocs/bloc_manager.dart';
-import 'package:bike_now/blocs/route_information_bloc.dart';
+import 'package:bike_now_flutter/blocs/bloc_manager.dart';
+import 'package:bike_now_flutter/blocs/route_information_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:bike_now/models/route.dart' as BikeRoute;
+import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 import 'package:provider/provider.dart';
 
 class RouteInformationStatisticWidget extends StatelessWidget {

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
-import 'package:bike_now/websocket/web_socket_service.dart';
-import 'package:bike_now/server_response/websocket_response.dart';
-import 'package:bike_now/websocket/web_socket_method.dart';
-import 'package:bike_now/websocket/websocket_commands.dart';
+import 'package:bike_now_flutter/websocket/web_socket_service.dart';
+import 'package:bike_now_flutter/server_response/websocket_response.dart';
+import 'package:bike_now_flutter/websocket/web_socket_method.dart';
+import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 
-import 'package:bike_now/geo_coding/address_to_location_response.dart';
-import 'package:bike_now/configuration.dart';
-import 'package:bike_now/blocs/bloc_manager.dart';
+import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 
 class SearchBarWidget extends StatefulWidget {
   final String hintText;
@@ -79,8 +79,7 @@ class _SearchBarState extends State<SearchBarWidget> {
               ],*/
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(5)),
-              border: Border.all(
-                  color: Colors.black45, width: 0.5, style: BorderStyle.solid)),
+),
           child: Row(
             children: <Widget>[
               Expanded(
@@ -140,6 +139,12 @@ class PlaceSearch extends SearchDelegate<Place>
   }
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    // TODO: implement appBarTheme
+    return Theme.of(context);
+  }
+
+  @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
       icon: Icon(Icons.arrow_back),
@@ -165,16 +170,21 @@ class PlaceSearch extends SearchDelegate<Place>
     return ListView(
       children: <Widget>[
         for (var place in places)
-          ListTile(
-            title: Text(place.displayName),
-            subtitle: Text('Lat: ' +
-                place.lat.toString() +
-                ' Long: ' +
-                place.lon.toString()),
-            onTap: () {
-              close(context, place);
-            },
+          Card(
+            child: ListTile(
+              title: Text(place.displayName),
+              subtitle: Text('Lat: ' +
+                  place.lat.toString() +
+                  ' Long: ' +
+                  place.lon.toString()),
+              onTap: () {
+                close(context, place);
+              },
+              leading: Icon(Icons.location_on, color: Colors.grey,),
+              trailing: Icon(Icons.chevron_right, color: Colors.grey,),
+            ),
           )
+
       ],
     );
   }

@@ -1,7 +1,7 @@
-import 'package:bike_now/models/lsa_prediction.dart';
-import 'package:bike_now/models/models.dart';
-import 'package:bike_now/controller/subscription_controller.dart';
-import 'package:bike_now/controller/routing_controller.dart';
+import 'package:bike_now_flutter/models/lsa_prediction.dart';
+import 'package:bike_now_flutter/models/models.dart';
+import 'package:bike_now_flutter/controller/subscription_controller.dart';
+import 'package:bike_now_flutter/controller/routing_controller.dart';
 
 class PredictionController {
   List<LSAPrediction> _predictions = [];

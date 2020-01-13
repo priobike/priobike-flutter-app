@@ -1,5 +1,5 @@
-import 'package:bike_now/models/sg.dart';
-import 'package:bike_now/models/sg_prediction.dart';
+import 'package:bike_now_flutter/models/sg.dart';
+import 'package:bike_now_flutter/models/sg_prediction.dart';
 import 'package:logging/logging.dart';
 
 import 'abstract_classes/locatable_and_crossable.dart';

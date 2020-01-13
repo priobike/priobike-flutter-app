@@ -1,6 +1,6 @@
-import 'package:bike_now/controller/subscription_controller.dart';
-import 'package:bike_now/models/models.dart' as Models;
-import 'package:bike_now/models/abstract_classes/locatable_and_crossable.dart';
+import 'package:bike_now_flutter/controller/subscription_controller.dart';
+import 'package:bike_now_flutter/models/models.dart' as Models;
+import 'package:bike_now_flutter/models/abstract_classes/locatable_and_crossable.dart';
 
 class RoutingController {
   SubscriptionController subscriptionController;

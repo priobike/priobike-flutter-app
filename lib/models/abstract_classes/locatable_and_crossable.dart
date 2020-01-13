@@ -1,5 +1,5 @@
-import 'package:bike_now/models/abstract_classes/crossable.dart';
-import 'package:bike_now/models/latlng.dart';
+import 'package:bike_now_flutter/models/abstract_classes/crossable.dart';
+import 'package:bike_now_flutter/models/latlng.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 

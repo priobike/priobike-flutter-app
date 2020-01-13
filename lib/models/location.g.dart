@@ -8,25 +8,26 @@ part of 'location.dart';
 
 Location _$LocationFromJson(Map<String, dynamic> json) {
   return Location(
-      (json['lat'] as num)?.toDouble(),
-      (json['lon'] as num)?.toDouble(),
-      (json['acc'] as num)?.toDouble(),
-      (json['alt'] as num)?.toDouble(),
-      (json['bear'] as num)?.toDouble(),
-      (json['speed'] as num)?.toDouble(),
-      json['time'] == null ? null : DateTime.parse(json['time'] as String),
-      json['provider'] as String,
-      json['nxtLsa'] as int,
-      json['nxtSg'] as String,
-      json['cross'] as int,
-      json['dist'] as int,
-      (json['recSpeedKmh'] as num)?.toDouble(),
-      json['locUpdIntvl'] as int,
-      json['leftSec'] as int,
-      json['isGreen'] as bool,
-      json['isSim'] as bool,
-      json['isAtilt'] as bool,
-      json['batPerc'] as num)
+    (json['lat'] as num)?.toDouble(),
+    (json['lon'] as num)?.toDouble(),
+    (json['acc'] as num)?.toDouble(),
+    (json['alt'] as num)?.toDouble(),
+    (json['bear'] as num)?.toDouble(),
+    (json['speed'] as num)?.toDouble(),
+    json['time'] == null ? null : DateTime.parse(json['time'] as String),
+    json['provider'] as String,
+    json['nxtLsa'] as int,
+    json['nxtSg'] as String,
+    json['cross'] as int,
+    json['dist'] as int,
+    (json['recSpeedKmh'] as num)?.toDouble(),
+    json['locUpdIntvl'] as int,
+    json['leftSec'] as int,
+    json['isGreen'] as bool,
+    json['isSim'] as bool,
+    json['isAtilt'] as bool,
+    json['batPerc'] as num,
+  )
     ..speedKmh = (json['speedKmh'] as num)?.toDouble()
     ..diffSpeedKmh = (json['diffSpeedKmh'] as num)?.toDouble();
 }
@@ -52,5 +53,5 @@ Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
       'isGreen': instance.isGreen,
       'isSim': instance.isSim,
       'isAtilt': instance.isAtilt,
-      'batPerc': instance.batPerc
+      'batPerc': instance.batPerc,
     };

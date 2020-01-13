@@ -1,4 +1,5 @@
-import 'package:bike_now/configuration.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/helper/settingKeys.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
@@ -209,7 +210,7 @@ class SettingsBloc extends ChangeNotifier {
 
   void _setPushLocations(bool pushLocations) async {
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool("pushLocations", pushLocations);
+    final prefIsSet = await prefs.setBool(SettingKeys.isLocationPush, pushLocations);
     if (prefIsSet) {
       _pushLocationsSubject.add(pushLocations);
     } else {
@@ -219,7 +220,7 @@ class SettingsBloc extends ChangeNotifier {
 
   void _setSimulator(bool simulator) async {
     final SharedPreferences prefs = await _prefs;
-    final prefIsSet = await prefs.setBool(SettingKeys.simulator, simulator);
+    final prefIsSet = await prefs.setBool(SettingKeys.isSimulator, simulator);
     if (prefIsSet) {
       _simulatorSubject.add(simulator);
     } else {
@@ -298,11 +299,11 @@ class SettingsBloc extends ChangeNotifier {
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _pushLocationsSubject.add(prefs.getBool('pushLocations') ?? false);
+      _pushLocationsSubject.add(prefs.getBool(SettingKeys.isLocationPush) ?? false);
     });
 
     _prefs.then((SharedPreferences prefs) {
-      _simulatorSubject.add(prefs.getBool(SettingKeys.simulator) ?? false);
+      _simulatorSubject.add(prefs.getBool(SettingKeys.isSimulator) ?? false);
     });
   }
 }

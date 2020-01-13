@@ -1,15 +1,14 @@
-import 'package:bike_now/blocs/route_creation_bloc.dart';
+import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 
-import 'package:bike_now/models/route.dart' as BikeRoute;
+import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 
 class RouteInformationBloc extends ChangeNotifier {
   double distance;
   double astimatedTime;
   DateTime timeOfArrival;
-  CreationState state;
 
   BikeRoute.Route route;
   String startLabel;
@@ -41,9 +40,6 @@ class RouteInformationBloc extends ChangeNotifier {
   Stream<BikeRoute.Route> get getRoute => _routeSubject.stream;
   final _routeSubject = BehaviorSubject<BikeRoute.Route>();
 
-  Stream<CreationState> get getState => _stateSubject.stream;
-  final _stateSubject = BehaviorSubject<CreationState>();
-
   Stream<String> get getStartLabel => _startLabelSubject.stream;
   final _startLabelSubject = BehaviorSubject<String>();
 
@@ -61,9 +57,4 @@ class RouteInformationBloc extends ChangeNotifier {
   final _timeOfArrivalSubject = BehaviorSubject<DateTime>();
 
   RouteInformationBloc() {}
-
-  void setState(CreationState state) {
-    this.state = state;
-    _stateSubject.add(state);
-  }
 }

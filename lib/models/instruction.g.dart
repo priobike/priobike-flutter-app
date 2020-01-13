@@ -8,19 +8,19 @@ part of 'instruction.dart';
 
 Instruction _$InstructionFromJson(Map<String, dynamic> json) {
   return Instruction(
-      json['sign'] as int,
-      json['name'] as String,
-      json['text'] as String,
-      json['info'] as String,
-      (json['lsaArray'] as List)
-          ?.map(
-              (e) => e == null ? null : LSA.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
-      (json['nodeArray'] as List)
-          ?.map((e) =>
-              e == null ? null : GHNode.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
-      (json['dist'] as num)?.toDouble());
+    json['sign'] as int,
+    json['name'] as String,
+    json['text'] as String,
+    json['info'] as String,
+    (json['lsaArray'] as List)
+        ?.map((e) => e == null ? null : LSA.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    (json['nodeArray'] as List)
+        ?.map((e) =>
+            e == null ? null : GHNode.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    (json['dist'] as num)?.toDouble(),
+  );
 }
 
 Map<String, dynamic> _$InstructionToJson(Instruction instance) =>
@@ -31,5 +31,5 @@ Map<String, dynamic> _$InstructionToJson(Instruction instance) =>
       'info': instance.info,
       'lsaArray': instance.lsas,
       'nodeArray': instance.nodes,
-      'dist': instance.distance
+      'dist': instance.distance,
     };

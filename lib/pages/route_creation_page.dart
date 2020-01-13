@@ -1,13 +1,20 @@
+import 'package:bike_now_flutter/Services/router.dart';
+import 'package:bike_now_flutter/Services/setting_service.dart';
+import 'package:bike_now_flutter/blocs/settings_bloc.dart';
+import 'package:bike_now_flutter/main.dart';
+import 'package:bike_now_flutter/models/models.dart' as BikeNow;
+import 'package:bike_now_flutter/models/ride.dart';
+import 'package:bike_now_flutter/widgets/route_information_map.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
-import 'package:bike_now/widgets/search_bar_widget.dart';
-import 'package:bike_now/database/database_helper.dart';
-import 'package:bike_now/blocs/route_creation_bloc.dart';
-import 'package:bike_now/blocs/bloc_manager.dart';
+import 'package:bike_now_flutter/widgets/search_bar_widget.dart';
+import 'package:bike_now_flutter/database/database_helper.dart';
+import 'package:bike_now_flutter/blocs/route_creation_bloc.dart';
+import 'package:bike_now_flutter/blocs/bloc_manager.dart';
 
 import 'dart:async';
-
 
 class RouteCreationPage extends StatefulWidget {
   @override
@@ -17,201 +24,201 @@ class RouteCreationPage extends StatefulWidget {
 }
 
 class _RouteCreationPage extends State<RouteCreationPage>
-    with AutomaticKeepAliveClientMixin<RouteCreationPage> {
+    with AutomaticKeepAliveClientMixin<RouteCreationPage>, RouteAware {
   RouteCreationBloc routeCreationBloc;
+  SettingsBloc settingsBloc;
   StreamSubscription subscription;
-  bool isLoading = false;
-  bool isOwnLocationSearch = false;
+
 
   @override
   void initState() {
     super.initState();
   }
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPush() {
+    routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
+    routeCreationBloc.onAppear();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context));
+
+    // Provide Blocs
     routeCreationBloc = Provider.of<ManagerBloc>(context).routeCreationBlog;
+    settingsBloc = Provider.of<SettingsBloc>(context);
     subscription?.cancel();
-    subscription = routeCreationBloc.getState.listen((state) {
-      if (state == CreationState.navigateToInformationPage) {
-        isLoading = false;
-        Navigator.pushNamed(context, '/second');
-        routeCreationBloc.setState(CreationState.routeCreation);
-      }
-    });
+
+
+
+
   }
 
-  Widget RideLoadingSwitchButton(bool isLoading) {
-    if (isLoading) {
-      return CircularProgressIndicator();
-    } else {
-      return IconButton(
-        icon: Icon(Icons.directions_bike, color: Colors.blue),
-        onPressed: () {
-          routeCreationBloc.addRides();
-          routeCreationBloc.setState(CreationState.waitingForResponse);
-          setState(() {
-            isLoading = true;
-          });
-        },
-      );
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    Widget body = Container(
-      padding: EdgeInsets.all(8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 32.0, bottom: 32, left: 8),
-            child: Text(
-              "Route erstellen",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Flexible(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SearchBarWidget(
-                            'Start...',
-                            routeCreationBloc.setStart,
-                            routeCreationBloc.getStartLabel,
-                            routeCreationBloc.getSimulationPref)),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SearchBarWidget(
-                          'Ziel...',
-                          routeCreationBloc.setEnd,
-                          routeCreationBloc.getEndLabel),
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: IconButton(
-                  icon: Icon(
-                    Icons.swap_vert,
-                    size: 30,
-                    color: Colors.blue,
-                  ),
-                  onPressed: () {
-                    routeCreationBloc.toggleLocations();
-                  },
-                ),
-              )
-            ],
-          ),
-          Center(child: RideLoadingSwitchButton(isLoading)),
-          Container(
-            margin: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                border:
-                    Border(bottom: BorderSide(color: Colors.grey, width: 0.5))),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: StreamBuilder<List<Ride>>(
-                stream: routeCreationBloc.rides,
-                initialData: null,
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return Center(
-                        child: Container(child: CircularProgressIndicator()));
-                  } else {
-                    return ListView(children: [
-                      for (var ride in snapshot.data)
-                        _rideTileBuilder(ride, routeCreationBloc)
-                    ]);
-                  }
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
 
     // TODO: implement build
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: StreamBuilder<CreationState>(
-            stream: routeCreationBloc.getState,
-            initialData: CreationState.routeCreation,
-            builder: (context, snapshot) {
-              return SafeArea(
-                child: body,
-              );
-            }));
-  }
-
-  Widget _rideTileBuilder(Ride ride, RouteCreationBloc routeCreationBloc) {
-    return Dismissible(
-      key: Key(ride.id.toString()),
-      onDismissed: (direction) {
-        routeCreationBloc.deleteRides.add(ride.id);
-      },
-      background: Container(
-        color: Colors.red,
-        child: Icon(Icons.cancel),
+      appBar: AppBar(
+        title: Text("Neues Ziel"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, Router.settingsRoute);
+            },
+          ),
+        ],
       ),
-      child: ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: Stack(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: RichText(
-                text: TextSpan(
-                    style: TextStyle(color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'Start: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: ride.start.displayName)
-                    ]),
+            RouteInformationMap(),
+            Positioned(
+              top: 8,
+              left: 8,
+              right: 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Flexible(
+                    child: Column(
+                      children: <Widget>[
+                        StreamBuilder<bool>(
+                          stream: settingsBloc.simulator,
+                          initialData: false,
+                          builder: (context, snapshot) {
+                            return Visibility(
+                              visible: snapshot.data,
+                              child: Card(
+                                child: SearchBarWidget(
+                                    'Start...',
+                                    routeCreationBloc.setStart,
+                                    routeCreationBloc.getStartLabel,
+                                    routeCreationBloc.getSimulationPref),
+                              ),
+                            );
+                          }
+                        ),
+                        Card(
+                          child: SearchBarWidget(
+                              'Ziel...',
+                              routeCreationBloc.setEnd,
+                              routeCreationBloc.getEndLabel),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                ],
               ),
             ),
-            RichText(
-              text: TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  children: <TextSpan>[
-                    TextSpan(
-                        text: 'Ende: ',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: ride.end.displayName)
-                  ]),
-            )
-          ],
-        ),
-        subtitle: Align(
-            alignment: Alignment.bottomRight,
-            child: Text(
-                DateTime.fromMillisecondsSinceEpoch(ride.date).day.toString() +
-                    '.' +
-                    DateTime.fromMillisecondsSinceEpoch(ride.date)
-                        .month
-                        .toString() +
-                    '.' +
-                    DateTime.fromMillisecondsSinceEpoch(ride.date)
-                        .year
-                        .toString())),
-        onTap: () {
-          routeCreationBloc.setStart(ride.start);
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: StreamBuilder<BikeNow.Route>(
+                stream: routeCreationBloc.getRoute,
+                builder: (context, snapshot) {
+                  return Visibility(
+                    visible: snapshot.data != null? true : false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        FloatingActionButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, Router.navigationRoute);
+                          },
+                          child: Icon(Icons.navigation, color: Colors.white,),
+                          backgroundColor: Theme.of(context).primaryColor,
+                          shape: CircleBorder(side: BorderSide(color: Colors.white, width: 4)),
+                        ),
 
-          routeCreationBloc.setEnd(ride.end);
-        },
-      ),
+                        Container(
+                          color: Colors.transparent,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                              boxShadow: [new BoxShadow(
+                                color: Colors.grey,
+                                blurRadius: 2.0,
+                              ),]
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: <Widget>[
+                                  StreamBuilder<String>(
+                                    stream: routeCreationBloc.getStartLabel,
+                                    initialData: "-",
+                                    builder: (context, startSnapshot) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: StreamBuilder<String>(
+                                          stream: routeCreationBloc.getEndLabel,
+                                          initialData: "-",
+                                          builder: (context, snapshot) {
+                                            return Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: <Widget>[
+                                                Expanded(child: Center(child: Text("${startSnapshot.data.split(',')[0]}", style: Theme.of(context).textTheme.title))),
+                                                Center(child: Icon(Icons.arrow_forward)),
+                                                Expanded(child: Center(child: Text("${snapshot.data.split(',')[0]}", style: Theme.of(context).textTheme.title,))),
+                                              ],
+                                            );
+                                          }
+                                        ),
+                                      );
+                                    }
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: Center(child: Text((snapshot.data?.time ?? 0 / 60000)
+                                              .round()
+                                              .toString() + " min",
+                                            style: Theme.of(context).textTheme.subhead ,)),
+                                        ),
+                                        Expanded(
+                                          child: Center(child: Text((snapshot.data?.distance ?? 0 / 1000)
+                                              .round()
+                                              .toString() + " km", style: Theme.of(context).textTheme.subhead)),
+                                        ),
+                                        Expanded(
+                                          child: Center(child: Text(snapshot.data?.getLSAs()?.length?.toString() ?? "0" + " Ampeln", style: Theme.of(context).textTheme.subhead)),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              ),
+            )
+
+          ],
+
+        )
     );
   }
 

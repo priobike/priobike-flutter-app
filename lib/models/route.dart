@@ -1,6 +1,6 @@
-import 'package:bike_now/models/sg.dart';
+import 'package:bike_now_flutter/models/sg.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:bike_now/models/latlng.dart';
+import 'package:bike_now_flutter/models/latlng.dart';
 
 import 'gh_node.dart';
 import 'instruction.dart';

@@ -1,4 +1,4 @@
-import 'package:bike_now/models/lsa_prediction.dart';
+import 'package:bike_now_flutter/models/lsa_prediction.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'websocket_response_predictions.g.dart';

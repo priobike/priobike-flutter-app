@@ -1,7 +1,7 @@
 import 'web_socket_method.dart';
-import 'package:bike_now/configuration.dart';
-import 'package:bike_now/models/location.dart';
-import 'package:bike_now/models/subscription.dart';
+import 'package:bike_now_flutter/helper/configuration.dart';
+import 'package:bike_now_flutter/models/location.dart';
+import 'package:bike_now_flutter/models/subscription.dart';
 
 abstract class WebSocketCommand {
   WebSocketMethod method;

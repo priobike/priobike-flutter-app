@@ -1,5 +1,5 @@
 import 'dart:math' show cos, sqrt, asin;
-import 'package:bike_now/models/models.dart';
+import 'package:bike_now_flutter/models/models.dart';
 
 abstract class Locatable {
   double lon;

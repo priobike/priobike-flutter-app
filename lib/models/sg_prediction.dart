@@ -1,4 +1,4 @@
-import 'package:bike_now/models/phase.dart';
+import 'package:bike_now_flutter/models/phase.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'sg_prediction.g.dart';

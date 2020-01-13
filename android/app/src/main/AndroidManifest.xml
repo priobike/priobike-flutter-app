@@ -1,23 +1,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.bike_now">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="tudresden.rn.bike_now_flutter"
+    >
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
          In most cases you can leave this as-is, but you if you want to provide
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
+    <uses-feature android:name="android.hardware.location.gps"/>
 
     <application
+        tools:replace="android:label"
         android:name="io.flutter.app.FlutterApplication"
-        android:label="BikeNow"
+        android:label="BikeNowFake"
         android:icon="@mipmap/ic_launcher">
-        <meta-data android:name="com.mapbox.token" android:value="pk.eyJ1IjoicmluZXVtYW4iLCJhIjoiY2p2bWZvdzB2MWNyaTRhb2lzb3JkcXZ6aiJ9.DUtTmYtuyMNvxs7sYn7JAg" />
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAF7hlW6P0O5UI6nQzY733_isqF-8EwENA"/>
-
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -32,11 +37,15 @@
             <meta-data
                 android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
                 android:value="true" />
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- SERVICES -->
+
+
+
     </application>
 </manifest>

@@ -4,7 +4,7 @@ import 'dart:math';
 
 class CrossingController {
   double lowerLimit;
-  double upperLimit;
+  double upperLimit; // in km
 
   double accuracyModifier;
   int crossQuantity;
@@ -26,7 +26,7 @@ class CrossingController {
       if (isInRange(distance) &&
           accuracy < maxAllowedAccuracy &&
           isAccurateEnough(distance, lastDistance, accuracy)) {
-        if (lastDistance > distance) {
+        if (lastDistance >= distance) {
           distances = [distance];
         } else {
           distances.add(distance);
@@ -59,7 +59,12 @@ class CrossingController {
   }
 
   bool isCrossed() {
-    var isAscending = isSorted<double>(distances, (a, b) => a.compareTo(b));
+    var isAscending = false;
+    if(distances[0] < distances[1]){
+      isAscending = true;
+
+    }
+    //var isAscending = isSorted<double>(distances, (a, b) => a.compareTo(b));
     var crossCount = distances.length;
 
     if (isAscending && crossCount >= crossQuantity) {
