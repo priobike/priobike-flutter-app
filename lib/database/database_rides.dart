@@ -5,10 +5,8 @@ import 'package:bike_now_flutter/geo_coding/address_to_location_response.dart';
 import 'package:bike_now_flutter/models/ride.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-class DatabaseRides{
+class DatabaseRides {
   DatabaseHelper databaseHelper = DatabaseHelper.instance;
-
-
 
   Future<int> insertRide(Ride ride) async {
     Database db = await databaseHelper.database;
@@ -18,7 +16,6 @@ class DatabaseRides{
           rideItem.end.displayName == ride.end.displayName);
     });
     if (equalRidesInDatabase.isEmpty) {
-
       var map = <String, dynamic>{
         databaseHelper.COLUMN_RIDES_START: ride.start.toJson().toString(),
         databaseHelper.COLUMN_RIDES_END: ride.end.toJson().toString(),
@@ -34,23 +31,31 @@ class DatabaseRides{
 
   Future<int> deleteRide(int id) async {
     Database db = await databaseHelper.database;
-    int deletedID =
-    await db.delete(databaseHelper.TABLE_RIDES, where: '${databaseHelper.COLUMN_RIDE_ID} = ?', whereArgs: [id]);
+    int deletedID = await db.delete(databaseHelper.TABLE_RIDES,
+        where: '${databaseHelper.COLUMN_RIDE_ID} = ?', whereArgs: [id]);
     return deletedID;
   }
 
   Future<Ride> queryRide(int id) async {
     Database db = await databaseHelper.database;
     List<Map> maps = await db.query(databaseHelper.TABLE_RIDES,
-        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE, databaseHelper.COLUMN_RIDES_IS_FAVORITE],
+        columns: [
+          databaseHelper.COLUMN_RIDE_ID,
+          databaseHelper.COLUMN_RIDES_START,
+          databaseHelper.COLUMN_RIDES_END,
+          databaseHelper.COLUMN_RIDES_DATE,
+          databaseHelper.COLUMN_RIDES_IS_FAVORITE
+        ],
         where: '$databaseHelper.COLUMN_RIDE_ID = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
       id = maps.first[databaseHelper.COLUMN_RIDE_ID];
       var be1 = maps.first[databaseHelper.COLUMN_RIDES_START];
       var be = jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_START]);
-      var start = Place.fromJson(jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_START]));
-      var end = Place.fromJson(jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_END]));
+      var start = Place.fromJson(
+          jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_START]));
+      var end = Place.fromJson(
+          jsonDecode(maps.first[databaseHelper.COLUMN_RIDES_END]));
       var date = maps.first[databaseHelper.COLUMN_RIDES_DATE];
       var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE];
 
@@ -61,18 +66,27 @@ class DatabaseRides{
 
   Future<List<Ride>> queryAllRides() async {
     Database db = await databaseHelper.database;
-    List<Map> maps = await db.query(databaseHelper.TABLE_RIDES,
-        columns: [databaseHelper.COLUMN_RIDE_ID, databaseHelper.COLUMN_RIDES_START, databaseHelper.COLUMN_RIDES_END, databaseHelper.COLUMN_RIDES_DATE, databaseHelper.COLUMN_RIDES_IS_FAVORITE]);
+    List<Map> maps = await db.query(databaseHelper.TABLE_RIDES, columns: [
+      databaseHelper.COLUMN_RIDE_ID,
+      databaseHelper.COLUMN_RIDES_START,
+      databaseHelper.COLUMN_RIDES_END,
+      databaseHelper.COLUMN_RIDES_DATE,
+      databaseHelper.COLUMN_RIDES_IS_FAVORITE
+    ]);
     if (maps.length > 0) {
       List<Ride> rides = new List<Ride>();
       for (var map in maps) {
-
         var be1 = map[databaseHelper.COLUMN_RIDES_START];
         var be = jsonDecode(map[databaseHelper.COLUMN_RIDES_START]);
-        var start = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_START]));
-        var end = Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_END]));
+        var start =
+            Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_START]));
+        var end =
+            Place.fromJson(jsonDecode(map[databaseHelper.COLUMN_RIDES_END]));
         var date = map[databaseHelper.COLUMN_RIDES_DATE];
-        var isFavorite = maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE] == 1 ? true : false;
+        var isFavorite =
+            maps.first[databaseHelper.COLUMN_RIDES_IS_FAVORITE] == 1
+                ? true
+                : false;
 
         rides.add(Ride(start, end, date, isFavorite));
       }

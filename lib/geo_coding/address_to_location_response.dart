@@ -10,7 +10,9 @@ class AddressToLocationResponse {
     method = json['method'];
     if (json['payload'] != null) {
       places = new List<Place>();
-      json['payload'].forEach((v) { places.add(new Place.fromJson(v)); });
+      json['payload'].forEach((v) {
+        places.add(new Place.fromJson(v));
+      });
     }
   }
 
@@ -24,6 +26,7 @@ class AddressToLocationResponse {
     return data;
   }
 }
+
 class AddressFromLocationResponse {
   int mode;
   int method;
@@ -35,7 +38,7 @@ class AddressFromLocationResponse {
     mode = json['mode'];
     method = json['method'];
     place =
-    json['payload'] != null ? new Place.fromJson(json['payload']) : null;
+        json['payload'] != null ? new Place.fromJson(json['payload']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -62,38 +65,50 @@ class Place {
   int placeId;
   String lat;
 
-  Place({this.osmId, this.address, this.importance, this.icon, this.lon, this.displayName, this.type, this.osmType, this.typeClass, this.placeId, this.lat});
+  Place(
+      {this.osmId,
+      this.address,
+      this.importance,
+      this.icon,
+      this.lon,
+      this.displayName,
+      this.type,
+      this.osmType,
+      this.typeClass,
+      this.placeId,
+      this.lat});
 
   Place.fromJson(Map<String, dynamic> json) {
-  osmId = json['osm_id'];
-  address = json['address'] != null ? new Address.fromJson(json['address']) : null;
-  importance = json['importance'];
-  icon = json['icon'];
-  lon = json['lon'];
-  displayName = json['display_name'];
-  type = json['type'];
-  osmType = json['osm_type'];
-  typeClass = json['class'];
-  placeId = json['place_id'];
-  lat = json['lat'];
+    osmId = json['osm_id'];
+    address =
+        json['address'] != null ? new Address.fromJson(json['address']) : null;
+    importance = json['importance'];
+    icon = json['icon'];
+    lon = json['lon'];
+    displayName = json['display_name'];
+    type = json['type'];
+    osmType = json['osm_type'];
+    typeClass = json['class'];
+    placeId = json['place_id'];
+    lat = json['lat'];
   }
 
   Map<String, dynamic> toJson() {
-  final Map<String, dynamic> data = new Map<String, dynamic>();
-  data['"osm_id"'] = this.osmId;
-  if (this.address != null) {
-  data['"address"'] = this.address.toJson();
-  }
-  data['"importance"'] = this.importance;
-  data['"icon"'] = '"${this.icon}"';
-  data['"lon"'] = '"${this.lon}"';
-  data['"display_name"'] = '"${this.displayName}"';
-  data['"type"'] = '"${this.type}"';
-  data['"osm_type"'] = '"${this.osmType}"';
-  data['"class"'] = '"${this.typeClass}"';
-  data['"place_id"'] = this.placeId;
-  data['"lat"'] = '"${this.lat}"';
-  return data;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['"osm_id"'] = this.osmId;
+    if (this.address != null) {
+      data['"address"'] = this.address.toJson();
+    }
+    data['"importance"'] = this.importance;
+    data['"icon"'] = '"${this.icon}"';
+    data['"lon"'] = '"${this.lon}"';
+    data['"display_name"'] = '"${this.displayName}"';
+    data['"type"'] = '"${this.type}"';
+    data['"osm_type"'] = '"${this.osmType}"';
+    data['"class"'] = '"${this.typeClass}"';
+    data['"place_id"'] = this.placeId;
+    data['"lat"'] = '"${this.lat}"';
+    return data;
   }
 }
 
@@ -109,7 +124,17 @@ class Address {
   String state;
   String cityDistrict;
 
-  Address({this.country, this.countryCode, this.road, this.city, this.university, this.neighbourhood, this.postcode, this.suburb, this.state, this.cityDistrict});
+  Address(
+      {this.country,
+      this.countryCode,
+      this.road,
+      this.city,
+      this.university,
+      this.neighbourhood,
+      this.postcode,
+      this.suburb,
+      this.state,
+      this.cityDistrict});
 
   Address.fromJson(Map<String, dynamic> json) {
     country = json['country'];

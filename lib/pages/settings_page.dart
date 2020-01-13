@@ -17,11 +17,11 @@ class SettingsPageState extends State<SettingsPage>
   Widget build(BuildContext context) {
     final settingsBloc = Provider.of<SettingsBloc>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Einstellungen"),
-      ),
+        appBar: AppBar(
+          title: Text("Einstellungen"),
+        ),
         body: ListView(
-      children: <Widget>[
+          children: <Widget>[
 //        SettingsSectionHeader('Allgemeines'),
 //        StreamBuilder<int>(
 //            stream: settingsBloc.maxSpeed,
@@ -163,7 +163,7 @@ class SettingsPageState extends State<SettingsPage>
 //            );
 //          },
 //        ),
-        SettingsSectionHeader('Simulator Einstellungen'),
+            SettingsSectionHeader('Simulator Einstellungen'),
 //        StreamBuilder<String>(
 //          stream: settingsBloc.password,
 //          initialData: "",
@@ -175,38 +175,38 @@ class SettingsPageState extends State<SettingsPage>
 //            );
 //          },
 //        ),
-        StreamBuilder<bool>(
-          stream: settingsBloc.pushLocations,
-          initialData: false,
-          builder: (context, snapshot) {
-            return Card(
-              child: SwitchListTile(
-                  title: Text('Push Locations'),
-                  subtitle: Text(
-                      "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
-                  value: snapshot.data,
-                  onChanged: (bool newValue) =>
-                      settingsBloc.setPushLocations.add(newValue)),
-            );
-          },
-        ),
-        StreamBuilder<bool>(
-          stream: settingsBloc.simulator,
-          initialData: false,
-          builder: (context, snapshot) {
-            return Card(
-              child: SwitchListTile(
-                  title: Text('Simulator'),
-                  subtitle: Text(
-                      "Startet den Simulatormodus, die App muss danach neu gestartet werden."),
-                  value: snapshot.data,
-                  onChanged: (bool newValue) =>
-                      settingsBloc.setSimulator.add(newValue)),
-            );
-          },
-        )
-      ],
-    ));
+            StreamBuilder<bool>(
+              stream: settingsBloc.pushLocations,
+              initialData: false,
+              builder: (context, snapshot) {
+                return Card(
+                  child: SwitchListTile(
+                      title: Text('Push Locations'),
+                      subtitle: Text(
+                          "Schickt Positionsdaten an den Server.\nFunktioniert nur mit korrektem Passwort."),
+                      value: snapshot.data,
+                      onChanged: (bool newValue) =>
+                          settingsBloc.setPushLocations.add(newValue)),
+                );
+              },
+            ),
+            StreamBuilder<bool>(
+              stream: settingsBloc.simulator,
+              initialData: false,
+              builder: (context, snapshot) {
+                return Card(
+                  child: SwitchListTile(
+                      title: Text('Simulator'),
+                      subtitle: Text(
+                          "Startet den Simulatormodus, die App muss danach neu gestartet werden."),
+                      value: snapshot.data,
+                      onChanged: (bool newValue) =>
+                          settingsBloc.setSimulator.add(newValue)),
+                );
+              },
+            )
+          ],
+        ));
   }
 
   @override

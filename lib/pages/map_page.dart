@@ -11,7 +11,8 @@ class MapPage extends StatefulWidget {
   }
 }
 
-class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<MapPage> {
+class _MapPageState extends State<MapPage>
+    with AutomaticKeepAliveClientMixin<MapPage> {
   bool get wantKeepAlive => true;
 
   Completer<GoogleMapController> _controller = Completer();
@@ -20,8 +21,6 @@ class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<M
     target: LatLng(51.029334, 13.728900),
     zoom: 12,
   );
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +46,4 @@ class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<M
       ),
     );
   }
-
-
 }

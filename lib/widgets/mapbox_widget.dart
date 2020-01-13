@@ -48,7 +48,6 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   List<BikeNow.GHNode> _ghNode;
 
-
   set ghNode(List<BikeNow.GHNode> value) {
     _ghNode = value;
     _ghNode.forEach((ghNode) {
@@ -68,7 +67,6 @@ class _MapBoxState extends State<MapBoxWidget> {
             strokeWidth: 0,
             zIndex: 1);
       });
-
     });
   }
 
@@ -143,7 +141,8 @@ class _MapBoxState extends State<MapBoxWidget> {
     navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
     locationController = Provider.of<ManagerBloc>(context).locationController;
 
-    _routeSubscription = navigationBloc.getRoute.listen((route) => this.route = route);
+    _routeSubscription =
+        navigationBloc.getRoute.listen((route) => this.route = route);
     _subscription = locationController.getCurrentLocation.listen((location) {
       currentLocation = location.toGoogleLatLng();
       centerMapToCurrentPosition();
@@ -162,7 +161,6 @@ class _MapBoxState extends State<MapBoxWidget> {
 
   void _onMapCreated(GoogleMapController controller) async {
     this.controller = controller;
-
   }
 
   void centerMapToCurrentPosition() {

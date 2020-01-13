@@ -18,7 +18,6 @@ import 'package:bike_now_flutter/helper/configuration.dart';
 
 import 'package:bike_now_flutter/models/route.dart' as BikeRoute;
 
-
 class RouteCreationBloc extends ChangeNotifier
     implements WebSocketServiceDelegate {
   Place start;
@@ -60,39 +59,35 @@ class RouteCreationBloc extends ChangeNotifier
     SharedPreferences.getInstance().then((result) {
       this.simulationPref = result.getBool(SettingKeys.isSimulator) ?? false;
       _simulationPrefSubject.add(simulationPref);
-
     });
   }
 
   void setStart(Place place) async {
-    if(place != null){
-      if(simulationPref != null && simulationPref){
+    if (place != null) {
+      if (simulationPref != null && simulationPref) {
         start = place;
         _startLabelSubject.add(place.displayName);
-        if(start != null && end != null){
+        if (start != null && end != null) {
           sendCalcRoute();
           await saveToDatabase();
-
         }
       }
     }
   }
 
-  saveToDatabase() async{
-    await databaseRides
-        .insertRide(Ride(start, end, DateTime.now().millisecondsSinceEpoch, false));
+  saveToDatabase() async {
+    await databaseRides.insertRide(
+        Ride(start, end, DateTime.now().millisecondsSinceEpoch, false));
     fetchRides();
-
   }
 
   void setEnd(Place place) async {
-    if(place != null){
+    if (place != null) {
       end = place;
       _endLabelSubject.add(place.displayName);
-      if(start != null && end != null){
+      if (start != null && end != null) {
         sendCalcRoute();
         await saveToDatabase();
-
       }
     }
   }
@@ -108,7 +103,7 @@ class RouteCreationBloc extends ChangeNotifier
     setEnd(swap);
   }
 
-  sendCalcRoute(){
+  sendCalcRoute() {
     if (!simulationPref) {
       WebSocketService.instance.sendCommand(CalcRoute(
           locationController.currentLocation.latitude,
@@ -130,15 +125,14 @@ class RouteCreationBloc extends ChangeNotifier
     await databaseRides.deleteRide(index);
   }
 
-  onAppear(){
+  onAppear() {
     WebSocketService.instance.delegate = this;
-    if (simulationPref != null && !simulationPref ){
-      locationController.getCurrentLocation.first.then((location){
-        WebSocketService.instance.sendCommand(GetAddressFromLocation(location.lat, location.lng, Configuration.sessionUUID));
+    if (simulationPref != null && !simulationPref) {
+      locationController.getCurrentLocation.first.then((location) {
+        WebSocketService.instance.sendCommand(GetAddressFromLocation(
+            location.lat, location.lng, Configuration.sessionUUID));
       });
-    }else{
-    }
-
+    } else {}
   }
 
   fetchRides() async {
@@ -148,7 +142,7 @@ class RouteCreationBloc extends ChangeNotifier
   @override
   void websocketDidReceiveMessage(String msg) {
     WebsocketResponse response = WebsocketResponse.fromJson(jsonDecode(msg));
-    if (response.method == WebSocketMethod.getAddressFromLocation){
+    if (response.method == WebSocketMethod.getAddressFromLocation) {
       var response = AddressFromLocationResponse.fromJson(jsonDecode(msg));
       start = response.place;
       _startLabelSubject.add(response.place.displayName);
@@ -156,7 +150,7 @@ class RouteCreationBloc extends ChangeNotifier
     if (response.method == WebSocketMethod.calcRoute) {
       var response = WebSocketResponseRoute.fromJson(jsonDecode(msg));
       setRoute(response.route);
-      if(quickTabClicked){
+      if (quickTabClicked) {
         quickTabClicked = false;
         AppNavigationService.instance.navigateTo(Router.navigationRoute);
       }

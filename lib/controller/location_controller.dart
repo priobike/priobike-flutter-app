@@ -10,8 +10,8 @@ import 'package:geolocator/geolocator.dart';
 
 class LocationController extends ChangeNotifier {
   var geolocator = Geolocator();
-  var locationOptions = LocationOptions(accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 10);
-
+  var locationOptions = LocationOptions(
+      accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 10);
 
   Position currentLocation = null;
   Timer timer;
@@ -27,18 +27,18 @@ class LocationController extends ChangeNotifier {
     SharedPreferences.getInstance().then((prefs) {
       bool useFakeData = prefs.getBool(SettingKeys.isSimulator) ?? false;
       if (!useFakeData) {
-        geolocator.getPositionStream(locationOptions).listen(
-                (Position position) {
-                  onNewPosition(position);
-            });
-
+        geolocator
+            .getPositionStream(locationOptions)
+            .listen((Position position) {
+          onNewPosition(position);
+        });
       } else {
         timer = Timer.periodic(Duration(seconds: 1), updateLocation);
       }
     });
   }
 
-  void onNewPosition(Position position){
+  void onNewPosition(Position position) {
     Map<String, double> map = Map<String, double>();
     map['latitude'] = position.latitude;
     map['longitude'] = position.longitude;
@@ -46,9 +46,8 @@ class LocationController extends ChangeNotifier {
 
     map['speed'] = position.speed;
     currentLocation = Position.fromMap(map);
-    _currentLocationSubject.add(BikeNow.LatLng(
-        currentLocation.latitude, currentLocation.longitude));
-
+    _currentLocationSubject.add(
+        BikeNow.LatLng(currentLocation.latitude, currentLocation.longitude));
   }
 
   void updateLocation(Timer timer) async {

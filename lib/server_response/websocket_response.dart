@@ -41,6 +41,7 @@ class WebSocketResponseGeneric {
     return data;
   }
 }
+
 class WebSocketResponseRoute {
   int mode;
   Route route;

@@ -39,7 +39,8 @@ class _RouteInformationPageState extends State<RouteInformationPage> {
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
                   Navigator.pop(context);
-                  WebSocketService.instance.delegate = Provider.of<ManagerBloc>(context).routeCreationBlog;
+                  WebSocketService.instance.delegate =
+                      Provider.of<ManagerBloc>(context).routeCreationBlog;
                 }),
           )
         ],

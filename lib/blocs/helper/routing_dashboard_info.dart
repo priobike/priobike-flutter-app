@@ -1,7 +1,6 @@
 import 'package:bike_now_flutter/models/instruction.dart';
 import 'package:bike_now_flutter/models/sg.dart';
 
-
 class RoutingDashboardInfo {
   double currentSpeed;
   double recommendedSpeed;

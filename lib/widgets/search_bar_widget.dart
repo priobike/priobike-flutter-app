@@ -77,9 +77,9 @@ class _SearchBarState extends State<SearchBarWidget> {
                   spreadRadius: 0.1,
                 )
               ],*/
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-),
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
           child: Row(
             children: <Widget>[
               Expanded(
@@ -180,11 +180,16 @@ class PlaceSearch extends SearchDelegate<Place>
               onTap: () {
                 close(context, place);
               },
-              leading: Icon(Icons.location_on, color: Colors.grey,),
-              trailing: Icon(Icons.chevron_right, color: Colors.grey,),
+              leading: Icon(
+                Icons.location_on,
+                color: Colors.grey,
+              ),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: Colors.grey,
+              ),
             ),
           )
-
       ],
     );
   }

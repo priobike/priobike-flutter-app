@@ -17,8 +17,7 @@ class GHNode with LocatableAndCrossable {
   bool shouldUpdateOverlay = false;
 
   @JsonKey(ignore: true)
-  CrossingController crossingController =
-      CrossingController(0.0, 125, 0.67, 2);
+  CrossingController crossingController = CrossingController(0.0, 125, 0.67, 2);
 
   GHNode(this.alt, double lon, this.id, double lat, double distance) {
     super.distance = distance;

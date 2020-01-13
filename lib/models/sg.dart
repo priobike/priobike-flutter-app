@@ -96,8 +96,7 @@ class SG with LocatableAndCrossable {
   bool shouldUpdateAnnotation = false;
 
   @JsonKey(ignore: true)
-  CrossingController crossingController =
-      CrossingController(0.0, 125, 0.8, 2);
+  CrossingController crossingController = CrossingController(0.0, 125, 0.8, 2);
 
   SG(
       this.baseId,

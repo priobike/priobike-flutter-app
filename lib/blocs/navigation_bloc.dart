@@ -15,9 +15,6 @@ import 'package:bike_now_flutter/controller/controller.dart';
 import 'package:bike_now_flutter/websocket/websocket_commands.dart';
 import 'package:bike_now_flutter/helper/configuration.dart';
 
-
-
-
 class NavigationBloc extends ChangeNotifier
     implements WebSocketServiceDelegate {
   BikeRoute.Route route;
@@ -47,7 +44,6 @@ class NavigationBloc extends ChangeNotifier
   //FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
 
-
   NavigationBloc(LocationController locationController) {
     this.locationController = locationController;
 
@@ -57,16 +53,11 @@ class NavigationBloc extends ChangeNotifier
         PredictionController(subscriptionController, routingController);
     routingCoordinator = RoutingCoordinator(routingController,
         predictionController, subscriptionController, locationController);
-
   }
 
-  Future onSelectNotification(String payload) async {
-
-  }
-  Future onDidReceiveLocalNotification(int a, String payload, String b, String c) async {
-
-
-  }
+  Future onSelectNotification(String payload) async {}
+  Future onDidReceiveLocalNotification(
+      int a, String payload, String b, String c) async {}
 
   void startRouting() {
     WebSocketService.instance.delegate = this;
@@ -75,17 +66,14 @@ class NavigationBloc extends ChangeNotifier
         .sendCommand(RouteStart(Configuration.sessionUUID));
     setupRouting();
     //initBackgroundLocationTracking();
-
-
   }
 
   void setupRouting() {
     updateRouteTimer = Timer.periodic(updateInterval, updateRouting);
   }
 
-  void didPop(){
+  void didPop() {
     updateRouteTimer.cancel();
-
   }
 
   void updateRouting(Timer timer) {

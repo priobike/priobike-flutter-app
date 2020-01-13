@@ -88,7 +88,8 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                             child: Row(
                               children: <Widget>[
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16.0, right: 16),
+                                  padding: const EdgeInsets.only(
+                                      left: 16.0, right: 16),
                                   child: Icon(
                                     Icons.arrow_upward,
                                     color: Colors.white,
@@ -96,28 +97,30 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                 ),
                                 Expanded(
                                     child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                                          children: <Widget>[
-                                  Text(
-                                        (snapshot.data.currentInstruction.name
-                                            .toString()),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .headline),
-                                  Text(
-                                        ((snapshot.data.currentInstruction
-                                                        .distance *
-                                                    1000)
-                                                .round()
-                                                .toString() +
-                                            " m"),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .body1),
-                                ]),
-                                    )),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: <Widget>[
+                                        Text(
+                                            (snapshot
+                                                .data.currentInstruction.name
+                                                .toString()),
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .headline),
+                                        Text(
+                                            ((snapshot.data.currentInstruction
+                                                            .distance *
+                                                        1000)
+                                                    .round()
+                                                    .toString() +
+                                                " m"),
+                                            style: Theme.of(context)
+                                                .primaryTextTheme
+                                                .body1),
+                                      ]),
+                                )),
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
@@ -132,8 +135,12 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                                       .data.nextSG.isGreen)),
                                               child: Center(
                                                 child: Text(
-                                                    snapshot.data.secondsLeft != null ? snapshot.data.secondsLeft
-                                                        .toString() : "-",
+                                                    snapshot.data.secondsLeft !=
+                                                            null
+                                                        ? snapshot
+                                                            .data.secondsLeft
+                                                            .toString()
+                                                        : "-",
                                                     style: Theme.of(context)
                                                         .primaryTextTheme
                                                         .body1),
@@ -141,8 +148,10 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                         ),
                                       ),
                                       Text(
-                                          (snapshot.data.nextSG.distance * 1000).round()
-                                              .toString() + "m",
+                                          (snapshot.data.nextSG.distance * 1000)
+                                                  .round()
+                                                  .toString() +
+                                              "m",
                                           style: Theme.of(context)
                                               .primaryTextTheme
                                               .body1),
@@ -271,7 +280,6 @@ class _NavigationPageState extends State<NavigationPage> with RouteAware {
                                             ),
                                           ),
                                         ),
-
                                       ],
                                     ),
                                   ),
