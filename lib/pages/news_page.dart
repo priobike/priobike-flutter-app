@@ -1,4 +1,4 @@
-import 'package:bike_now_flutter/Services/router.dart';
+import 'package:bikenow/services/app_router.dart';
 import 'package:flutter/material.dart';
 
 class NewsPage extends StatefulWidget {
@@ -11,7 +11,6 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -32,9 +31,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("BikeNow die Revolution beginnt"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -42,9 +41,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("Offizielle Ankündigung"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -52,9 +51,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("BikeNow die Revolution beginnt"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -62,9 +61,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("Offizielle Ankündigung"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -72,9 +71,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("BikeNow die Revolution beginnt"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -82,9 +81,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("Offizielle Ankündigung"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -92,9 +91,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("BikeNow die Revolution beginnt"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),
@@ -102,9 +101,9 @@ class _NewsPageState extends State<NewsPage> {
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListTile(
-                title: Text("Offizielle Ankündigung"),
+                title: Text("Lorem Ipsum"),
                 subtitle: Text(
-                    "Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore."),
               ),
             ),
           ),

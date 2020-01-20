@@ -1,5 +1,5 @@
-import 'package:bike_now_flutter/Services/router.dart';
-import 'package:bike_now_flutter/helper/palette.dart';
+import 'package:bikenow/services/app_router.dart';
+import 'package:bikenow/config/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
@@ -44,18 +44,6 @@ class _SummaryPageState extends State<SummaryPage> {
                 ),
                 Chip(
                   label: Text("3 falsche Prognosen"),
-                  backgroundColor: Colors.white,
-                ),
-                Chip(
-                  label: Text("9 LSA"),
-                  backgroundColor: Colors.white,
-                ),
-                Chip(
-                  label: Text("3 falsche Prognosen"),
-                  backgroundColor: Colors.white,
-                ),
-                Chip(
-                  label: Text("9 LSA"),
                   backgroundColor: Colors.white,
                 ),
               ],
@@ -122,8 +110,12 @@ class _SummaryPageState extends State<SummaryPage> {
                     child: RaisedButton(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15))),
-                      onPressed: () {},
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Router.homeRoute, (_) => false);
+                      },
                       child: Text(
                         'überspringen',
                         style: TextStyle(color: Palette.primaryColor),
@@ -137,7 +129,8 @@ class _SummaryPageState extends State<SummaryPage> {
                     child: RaisedButton(
                       color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15))),
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                      ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
                             context, Router.homeRoute, (_) => false);
