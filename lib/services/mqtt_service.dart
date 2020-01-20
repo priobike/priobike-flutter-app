@@ -1,15 +1,24 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:bikenow/models/predictions.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class MqttService {
-  MqttClient client;
-
   static const BROKER_URL = "ws://vkwvlprad.vkw.tu-dresden.de";
   static const PORT = 20051;
-
   static const USERNAME = 'bikenow';
   static const PASSWORD = 'mqtt-test';
-
   static const CLIENT_IDENTIFIER = 'Android';
+
+  MqttClient _client;
+
+  Map<String, Prediction> predictions = new Map();
+
+  StreamController<Map<String, Prediction>> predictionStreamController =
+      new StreamController<Map<String, Prediction>>();
+
+  Stream<Map<String, Prediction>> predictionStream;
 
   MqttService() {
     final MqttConnectMessage connectMessage = MqttConnectMessage()
@@ -17,7 +26,7 @@ class MqttService {
         .startClean() // Non persistent session for testing
         .withWillQos(MqttQos.exactlyOnce);
 
-    client = MqttClient(BROKER_URL, CLIENT_IDENTIFIER)
+    _client = MqttClient(BROKER_URL, CLIENT_IDENTIFIER)
       ..useWebSocket = true
       ..port = PORT
       ..onDisconnected = _onDisconnected
@@ -26,34 +35,51 @@ class MqttService {
       ..connectionMessage = connectMessage;
 
     _connect();
+
+    predictionStream = predictionStreamController.stream;
   }
 
   void _connect() async {
     try {
-      await client.connect(USERNAME, PASSWORD);
+      await _client.connect(USERNAME, PASSWORD);
     } on Exception catch (e) {
       print(e);
-      client.disconnect();
+      _client.disconnect();
     }
 
-    const String topic = 'prediction/420/#';
-    client.subscribe(topic, MqttQos.atMostOnce);
+    _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> data) {
+      final String topic = data[0].topic;
+      final MqttPublishMessage binaryMessage = data[0].payload;
 
-    client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      final MqttPublishMessage recMess = c[0].payload;
-      final String pt =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      final String jsonMessage = MqttPublishPayload.bytesToStringAsString(
+          binaryMessage.payload.message);
 
-      print('MQTT-MESSAGE: topic: <${c[0].topic}>, payload: <-- $pt -->');
-      print('');
+      predictions[topic] = Prediction.fromJson(json.decode(jsonMessage));
+      predictionStreamController.add(predictions);
+
+      print('MQTT: ## new message for $topic ##');
     });
   }
 
   void _onDisconnected() {
-    print('MQTT: ##Client disconnected##');
+    print('MQTT: ## client disconnected ##');
   }
 
   void _onConnected() {
-    print('MQTT: ##client connection was successful##');
+    print('MQTT: ## connection to broker successfull ##');
+  }
+
+  void subscribe(String topic) {
+    _client.subscribe(topic, MqttQos.atLeastOnce);
+    print('MQTT: ## subscribed to $topic ##');
+  }
+
+  void unsubscribe(String topic) {
+    _client.unsubscribe(topic);
+    print('MQTT: ## unsubscribed from $topic ##');
+  }
+
+  void dispose() {
+    predictionStreamController.close();
   }
 }

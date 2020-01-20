@@ -1,8 +1,7 @@
 import 'package:bikenow/services/gateway_status_service.dart';
-import 'package:bikenow/services/mqtt_service.dart';
+import 'package:bikenow/services/main_service.dart';
 import 'package:provider/provider.dart';
 
-import 'services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'services/app_router.dart';
 
@@ -16,8 +15,6 @@ void main() {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  MqttService test = MqttService();
-
   runApp(MyApp());
 }
 
@@ -26,8 +23,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<RoutingService>(
-            create: (context) => RoutingService()),
+        ChangeNotifierProvider<MainService>(
+            create: (context) => MainService()),
         ChangeNotifierProvider<GatewayStatusService>(
             create: (context) => GatewayStatusService()),
       ],

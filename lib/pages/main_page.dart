@@ -1,4 +1,4 @@
-import 'package:bikenow/services/routing_service.dart';
+import 'package:bikenow/services/main_service.dart';
 import 'package:bikenow/services/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    final route = Provider.of<RoutingService>(context);
+    final route = Provider.of<MainService>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -70,7 +70,8 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
               onTap: () async {
-                await route.getRoute(51.030815, 13.726988, 51.068019, 13.753166);
+                await route.updateRoute(
+                    51.030815, 13.726988, 51.068019, 13.753166);
                 Navigator.pushNamed(context, Router.routeInfoRoute);
               },
             ),
@@ -88,10 +89,9 @@ class _MainPageState extends State<MainPage> {
           color: Colors.white,
         ),
         backgroundColor: Theme.of(context).primaryColor,
-        // label: Text('Neues Ziel'),
         shape: CircleBorder(
-            // borderRadius: BorderRadius.all(Radius.circular(16.0)),
-            side: BorderSide(color: Colors.white, width: 2.0)),
+          side: BorderSide(color: Colors.white, width: 4.0),
+        ),
         elevation: 10,
       ),
     );
