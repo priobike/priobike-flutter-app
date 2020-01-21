@@ -7,7 +7,7 @@ class RouteAnswer {
   int time;
   int ascend;
   int descend;
-  List<Route> route;
+  List<Instruction> instructions;
   List<Sg> sg;
 
   RouteAnswer(
@@ -16,7 +16,7 @@ class RouteAnswer {
       this.time,
       this.ascend,
       this.descend,
-      this.route,
+      this.instructions,
       this.sg});
 
   RouteAnswer.fromJson(Map<String, dynamic> json) {
@@ -26,9 +26,9 @@ class RouteAnswer {
     ascend = json['ascend'];
     descend = json['descend'];
     if (json['route'] != null) {
-      route = new List<Route>();
+      instructions = new List<Instruction>();
       json['route'].forEach((v) {
-        route.add(new Route.fromJson(v));
+        instructions.add(new Instruction.fromJson(v));
       });
     }
     if (json['sg'] != null) {
@@ -46,8 +46,8 @@ class RouteAnswer {
     data['time'] = this.time;
     data['ascend'] = this.ascend;
     data['descend'] = this.descend;
-    if (this.route != null) {
-      data['route'] = this.route.map((v) => v.toJson()).toList();
+    if (this.instructions != null) {
+      data['route'] = this.instructions.map((v) => v.toJson()).toList();
     }
     if (this.sg != null) {
       data['sg'] = this.sg.map((v) => v.toJson()).toList();

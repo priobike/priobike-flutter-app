@@ -69,7 +69,10 @@ class MqttService {
     print('MQTT: ## connection to broker successfull ##');
   }
 
-  void subscribe(String topic) {
+  subscribe(String topic) {
+    if (_client.connectionStatus.state == MqttConnectionState.disconnected) {
+      _connect();
+    }
     _client.subscribe(topic, MqttQos.atLeastOnce);
     print('MQTT: ## subscribed to $topic ##');
   }

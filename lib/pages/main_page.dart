@@ -13,7 +13,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    final route = Provider.of<MainService>(context);
+    final app = Provider.of<MainService>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -34,7 +34,7 @@ class _MainPageState extends State<MainPage> {
                 icon: Icon(Icons.star_border),
                 onPressed: () {},
               ),
-              trailing: route.loading
+              trailing: app.loading
                   ? CircularProgressIndicator()
                   : Icon(Icons.chevron_right),
               title: Column(
@@ -70,7 +70,7 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
               onTap: () async {
-                await route.updateRoute(
+                await app.updateRoute(
                     51.030815, 13.726988, 51.068019, 13.753166);
                 Navigator.pushNamed(context, Router.routeInfoRoute);
               },

@@ -1,6 +1,6 @@
 import 'package:bikenow/models/point.dart';
 
-class Route {
+class Instruction {
   double distance;
   double heading;
   int sign;
@@ -11,7 +11,7 @@ class Route {
   String annotationText;
   double lastHeading;
 
-  Route(
+  Instruction(
       {this.distance,
       this.heading,
       this.sign,
@@ -22,7 +22,7 @@ class Route {
       this.annotationText,
       this.lastHeading});
 
-  Route.fromJson(Map<String, dynamic> json) {
+  Instruction.fromJson(Map<String, dynamic> json) {
     distance = json['distance'].toDouble();
     heading = json['heading'];
     sign = json['sign'];

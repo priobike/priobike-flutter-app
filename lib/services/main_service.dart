@@ -39,6 +39,6 @@ class MainService with ChangeNotifier {
   }
 
   unsubscribeFromRoute() {
-    predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
+    // predictions ?? predictions.keys.length > 0 ?? predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
   }
 }
