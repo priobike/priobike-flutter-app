@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bikenow/models/predictions.dart';
+import 'package:bikenow/models/prediction.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class MqttService {

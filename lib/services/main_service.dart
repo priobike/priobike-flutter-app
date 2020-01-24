@@ -1,5 +1,5 @@
 import 'package:bikenow/config/api.dart';
-import 'package:bikenow/models/predictions.dart';
+import 'package:bikenow/models/prediction.dart';
 import 'package:bikenow/models/route_answer.dart';
 import 'package:flutter/foundation.dart';
 
@@ -39,6 +39,9 @@ class MainService with ChangeNotifier {
   }
 
   unsubscribeFromRoute() {
-    // predictions ?? predictions.keys.length > 0 ?? predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
+    predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
+
+    // remove prediction
+    predictions = null;
   }
 }

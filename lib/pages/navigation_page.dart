@@ -11,28 +11,43 @@ class NavigationPage extends StatefulWidget {
 }
 
 class _NavigationPageState extends State<NavigationPage> {
+  MainService app;
+
   @override
   Widget build(BuildContext context) {
-    final app = Provider.of<MainService>(context);
+    app = Provider.of<MainService>(context);
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            Text("navigation"),
-            for (var item in app.predictions.values)
-              Row(
-                children: <Widget>[Text(item.sg), Text(item.timestamp)],
+        body: ListView(
+          padding: const EdgeInsets.all(8),
+          children: <Widget>[
+            Card(
+              child: ListTile(
+                title: Text('Fahrt beenden'),
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, Router.summaryRoute);
+                },
               ),
-            RaisedButton(
-              child: Text("beenden"),
-              onPressed: () {
-                app.unsubscribeFromRoute();
-                Navigator.pushNamed(context, Router.summaryRoute);
-              },
             ),
+            for (var item in app.predictions.values)
+              Card(
+                child: ListTile(
+                  title: Text(item.lsa + ': ' + item.sg),
+                  subtitle: Text(item.timestamp + ' ' + item.value),
+                  trailing: CircularProgressIndicator(
+                    value: 0.6,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    app.unsubscribeFromRoute();
   }
 }

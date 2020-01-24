@@ -117,8 +117,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                     tooltip: 'Routing Starten',
                     onPressed: () {
                       app.subscribeToRoute();
-                      Navigator.pushReplacementNamed(
-                          context, Router.navigationRoute);
+                      Navigator.pushNamed(context, Router.navigationRoute);
                     }),
                 Text("Start")
               ],
