@@ -1,12 +1,13 @@
 import 'package:bikenow/services/prediction_service.dart';
 import 'package:bikenow/services/routing_service.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bikenow/services/vorhersage_service.dart';
 
 class MainService {
   bool loading = false;
 
   RoutingService routingService;
   PredictionService predictionService;
+  VorhersageService vorhersageService;
 
   MainService() {
     routingService = new RoutingService();
@@ -15,28 +16,9 @@ class MainService {
       routeStream: routingService.routeStreamController.stream,
     );
 
-    predictionService.predictionStreamController.stream.listen((prediction) {
-      print(prediction);
-    });
+    vorhersageService = new VorhersageService(
+      routeStream: routingService.routeStreamController.stream,
+      predictionStream: predictionService.predictionStreamController.stream,
+    );
   }
-
-  // startTimer() {
-  // if (timer == null) {
-  //   timer =
-  //       Timer.periodic(new Duration(seconds: Config.timerInterval), (timer) {
-  //     this.predictions.values.forEach((prediction) {
-  //       // prediction.calculateIsGreen(timer.tick);
-  //     });
-
-  //     print('notify Listeners (t:${timer.tick})');
-  //     notifyListeners();
-  //   });
-  // }
-  // }
-
-  // endTimer() {
-  //   timer.cancel();
-  //   timer = null;
-  // }
-
 }

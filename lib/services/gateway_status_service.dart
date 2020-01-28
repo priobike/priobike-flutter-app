@@ -1,9 +1,9 @@
 import 'package:bikenow/config/api.dart';
-import 'package:bikenow/models/gateway_status.dart';
+import 'package:bikenow/models/api/api_status.dart';
 import 'package:flutter/foundation.dart';
 
 class GatewayStatusService with ChangeNotifier {
-  GatewayStatus answer = new GatewayStatus();
+  ApiStatus answer = new ApiStatus();
   bool loading = false;
 
   GatewayStatusService() {

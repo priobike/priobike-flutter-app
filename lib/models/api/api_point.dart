@@ -1,11 +1,11 @@
-class Point {
+class ApiPoint {
   double lon;
   double lat;
   // double ele;
 
-  Point({this.lon, this.lat});
+  ApiPoint({this.lon, this.lat});
 
-  Point.fromJson(Map<String, dynamic> json) {
+  ApiPoint.fromJson(Map<String, dynamic> json) {
     lon = json['lon'];
     lat = json['lat'];
     // lat = json['ele'].toDouble();

@@ -1,4 +1,4 @@
-class Prediction {
+class ApiPrediction {
   String timestamp;
   String lsa;
   String sg;
@@ -6,7 +6,7 @@ class Prediction {
   String value;
   String greentimeTreshold;
 
-  Prediction(
+  ApiPrediction(
       {this.timestamp,
       this.lsa,
       this.sg,
@@ -14,7 +14,7 @@ class Prediction {
       this.value,
       this.greentimeTreshold});
 
-  Prediction.fromJson(Map<String, dynamic> json) {
+  ApiPrediction.fromJson(Map<String, dynamic> json) {
     timestamp = json['timestamp'];
     lsa = json['lsa'];
     sg = json['sg'];

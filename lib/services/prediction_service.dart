@@ -1,23 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bikenow/models/prediction.dart';
-import 'package:bikenow/models/route_answer.dart';
+import 'package:bikenow/models/api/api_prediction.dart';
+import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/mqtt_service.dart';
 
 class PredictionService {
-  StreamController<Map<String, Prediction>> predictionStreamController =
-      new StreamController<Map<String, Prediction>>.broadcast();
+  StreamController<Map<String, ApiPrediction>> predictionStreamController =
+      new StreamController<Map<String, ApiPrediction>>.broadcast();
 
-  Map<String, Prediction> _predictions = new Map();
+  Map<String, ApiPrediction> _predictions = new Map();
+
+  ApiRoute _route;
 
   MqttService _mqttService;
 
-  PredictionService({Stream<RouteAnswer> routeStream}) {
+  PredictionService({Stream<ApiRoute> routeStream}) {
     _mqttService = new MqttService();
 
     _mqttService.messageStreamController.stream.listen((message) {
-      Prediction prediction = Prediction.fromJson(json.decode(message));
+      ApiPrediction prediction = ApiPrediction.fromJson(json.decode(message));
 
       //TODO: Use correct topic or ID!
       _predictions['${prediction.lsa}#${prediction.sg}'] = prediction;
@@ -25,18 +27,21 @@ class PredictionService {
       predictionStreamController.add(_predictions);
     });
 
-
-    routeStream.listen((route) => subscribeToRoute(route));
+    routeStream.listen((newRoute) {
+      _route = newRoute;
+    });
   }
 
-  subscribeToRoute(route) {
-    route.sg.forEach((sg) => _mqttService.subscribe(sg.mqtt));
+  subscribeToRoute() {
+    print('subbscribe to route?');
+    _route.sg.forEach((sg) => _mqttService.subscribe(sg.mqtt));
   }
 
-  // TODO: implement unsubscribeFromRoute!
-  // unsubscribeFromRoute() {
-  //   predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
-  // }
+  unsubscribeFromRoute() {
+    print('unubscribe from route?');
+    _route.sg.forEach((sg) => _mqttService.unsubscribe(sg.mqtt));
+  }
+
 
   void dispose() {
     predictionStreamController.close();

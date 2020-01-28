@@ -1,8 +1,6 @@
-import 'dart:math';
-
-import 'package:bikenow/models/point.dart';
-import 'package:bikenow/models/route.dart';
-import 'package:bikenow/models/route_answer.dart';
+import 'package:bikenow/models/api/api_point.dart';
+import 'package:bikenow/models/api/api_instruction.dart';
+import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -17,23 +15,23 @@ class RouteInfoPage extends StatefulWidget {
 class _RouteInfoPageState extends State<RouteInfoPage> {
   MapboxMapController controller;
 
-  RouteAnswer selectedRoute;
+  ApiRoute selectedRoute;
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
   }
 
   void onStyleLoadedCallback() {
-    List<Point> pointlist = [];
+    List<ApiPoint> pointlist = [];
 
     selectedRoute.instructions
-        .forEach((Instruction instruction) => pointlist += instruction.points);
+        .forEach((ApiInstruction instruction) => pointlist += instruction.points);
 
     print('## Draw ${pointlist.length} points as lines on map ##');
 
     for (var i = 0; i < pointlist.length - 1; i++) {
-      Point point = pointlist[i];
-      Point nextPoint = pointlist[i + 1];
+      ApiPoint point = pointlist[i];
+      ApiPoint nextPoint = pointlist[i + 1];
 
       controller.addLine(
         LineOptions(

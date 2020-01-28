@@ -1,17 +1,17 @@
-import 'package:bikenow/models/point.dart';
+import 'package:bikenow/models/api/api_point.dart';
 
-class Instruction {
+class ApiInstruction {
   double distance;
   double heading;
   int sign;
   String text;
   int time;
   String streetName;
-  List<Point> points;
+  List<ApiPoint> points;
   String annotationText;
   double lastHeading;
 
-  Instruction(
+  ApiInstruction(
       {this.distance,
       this.heading,
       this.sign,
@@ -22,7 +22,7 @@ class Instruction {
       this.annotationText,
       this.lastHeading});
 
-  Instruction.fromJson(Map<String, dynamic> json) {
+  ApiInstruction.fromJson(Map<String, dynamic> json) {
     distance = json['distance'].toDouble();
     heading = json['heading'];
     sign = json['sign'];
@@ -30,9 +30,9 @@ class Instruction {
     time = json['time'];
     streetName = json['street_name'];
     if (json['points'] != null) {
-      points = new List<Point>();
+      points = new List<ApiPoint>();
       json['points'].forEach((v) {
-        points.add(new Point.fromJson(v));
+        points.add(new ApiPoint.fromJson(v));
       });
     }
     annotationText = json['annotation_text'];

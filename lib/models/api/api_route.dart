@@ -1,16 +1,16 @@
-import 'package:bikenow/models/route.dart';
-import 'package:bikenow/models/sg.dart';
+import 'package:bikenow/models/api/api_instruction.dart';
+import 'package:bikenow/models/api/api_sg.dart';
 
-class RouteAnswer {
+class ApiRoute {
   String status;
   double distance;
   int time;
   int ascend;
   int descend;
-  List<Instruction> instructions;
+  List<ApiInstruction> instructions;
   List<Sg> sg;
 
-  RouteAnswer(
+  ApiRoute(
       {this.status,
       this.distance,
       this.time,
@@ -19,16 +19,16 @@ class RouteAnswer {
       this.instructions,
       this.sg});
 
-  RouteAnswer.fromJson(Map<String, dynamic> json) {
+  ApiRoute.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     distance = json['distance'];
     time = json['time'];
     ascend = json['ascend'];
     descend = json['descend'];
     if (json['route'] != null) {
-      instructions = new List<Instruction>();
+      instructions = new List<ApiInstruction>();
       json['route'].forEach((v) {
-        instructions.add(new Instruction.fromJson(v));
+        instructions.add(new ApiInstruction.fromJson(v));
       });
     }
     if (json['sg'] != null) {

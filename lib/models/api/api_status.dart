@@ -1,9 +1,9 @@
-class GatewayStatus {
+class ApiStatus {
   String status;
 
-  GatewayStatus({this.status});
+  ApiStatus({this.status});
 
-  GatewayStatus.fromJson(Map<String, dynamic> json) {
+  ApiStatus.fromJson(Map<String, dynamic> json) {
     status = json['status'];
   }
 
