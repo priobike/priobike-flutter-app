@@ -1,3 +1,4 @@
+import 'package:bikenow/models/prediction.dart';
 import 'package:bikenow/services/app_router.dart';
 import 'package:bikenow/services/main_service.dart';
 import 'package:flutter/material.dart';
@@ -29,16 +30,23 @@ class _NavigationPageState extends State<NavigationPage> {
                 },
               ),
             ),
-            for (var item in app.predictions.values)
-              Card(
-                child: ListTile(
-                  title: Text(item.lsa + ': ' + item.sg),
-                  subtitle: Text(item.timestamp + ' ' + item.value),
-                  trailing: CircularProgressIndicator(
-                    value: 0.6,
+            
+            StreamBuilder<Map<String, Prediction>>(
+              stream: app.predictionService.predictionStreamController.stream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<Map<String, Prediction>> snapshot) {
+                return Card(
+                  child: ListTile(
+                    title: Text(snapshot.data?.values.toString()),
+                    subtitle: Text('asd'),
+                    trailing: CircularProgressIndicator(
+                      value: 0.6,
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
+            )
+            
           ],
         ),
       ),
@@ -48,6 +56,5 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void dispose() {
     super.dispose();
-    app.unsubscribeFromRoute();
   }
 }

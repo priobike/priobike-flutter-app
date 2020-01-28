@@ -1,47 +1,42 @@
-import 'package:bikenow/config/api.dart';
-import 'package:bikenow/models/prediction.dart';
-import 'package:bikenow/models/route_answer.dart';
+import 'package:bikenow/services/prediction_service.dart';
+import 'package:bikenow/services/routing_service.dart';
 import 'package:flutter/foundation.dart';
 
-import 'mqtt_service.dart';
-
-class MainService with ChangeNotifier {
-  MqttService _mqttService = new MqttService();
-
+class MainService {
   bool loading = false;
-  RouteAnswer route = new RouteAnswer();
 
-  Map<String, Prediction> predictions;
+  RoutingService routingService;
+  PredictionService predictionService;
 
   MainService() {
-    _mqttService.predictionStream.listen((data) {
-      predictions = data;
-      notifyListeners();
+    routingService = new RoutingService();
+
+    predictionService = new PredictionService(
+      routeStream: routingService.routeStreamController.stream,
+    );
+
+    predictionService.predictionStreamController.stream.listen((prediction) {
+      print(prediction);
     });
   }
 
-  updateRoute(fromLat, fromLon, toLat, toLon) async {
-    // unsubscribe from previous topics
-    unsubscribeFromRoute();
+  // startTimer() {
+  // if (timer == null) {
+  //   timer =
+  //       Timer.periodic(new Duration(seconds: Config.timerInterval), (timer) {
+  //     this.predictions.values.forEach((prediction) {
+  //       // prediction.calculateIsGreen(timer.tick);
+  //     });
 
-    // set loading flag
-    loading = true;
-    notifyListeners();
+  //     print('notify Listeners (t:${timer.tick})');
+  //     notifyListeners();
+  //   });
+  // }
+  // }
 
-    //get route from server
-    route = await Api.getRoute(fromLat, fromLon, toLat, toLon);
-    loading = false;
-    notifyListeners();
-  }
+  // endTimer() {
+  //   timer.cancel();
+  //   timer = null;
+  // }
 
-  subscribeToRoute() {
-    route.sg.forEach((sg) => _mqttService.subscribe(sg.mqtt));
-  }
-
-  unsubscribeFromRoute() {
-    predictions?.keys?.forEach((topic) => _mqttService.unsubscribe(topic));
-
-    // remove prediction
-    predictions = null;
-  }
 }

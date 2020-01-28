@@ -30,10 +30,10 @@ class _MainPageState extends State<MainPage> {
         children: <Widget>[
           Card(
             child: ListTile(
-              leading: IconButton(
-                icon: Icon(Icons.star_border),
-                onPressed: () {},
-              ),
+              // leading: IconButton(
+              //   icon: Icon(Icons.star_border),
+              //   onPressed: () {},
+              // ),
               trailing: app.loading
                   ? CircularProgressIndicator()
                   : Icon(Icons.chevron_right),
@@ -70,8 +70,56 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
               onTap: () async {
-                await app.updateRoute(
+                await app.routingService.updateRoute(
                     51.030815, 13.726988, 51.068019, 13.753166);
+                Navigator.pushNamed(context, Router.routeInfoRoute);
+              },
+            ),
+          ),
+          Card(
+            child: ListTile(
+              // leading: IconButton(
+              //   icon: Icon(Icons.star_border),
+              //   onPressed: () {},
+              // ),
+              trailing: app.loading
+                  ? CircularProgressIndicator()
+                  : Icon(Icons.chevron_right),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: 'Start: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: 'Albertplatz')
+                        ],
+                      ),
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: 'Ende: ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(text: 'Technische Universität Dresden')
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              onTap: () async {
+                await app.routingService.updateRoute(
+                    51.068019, 13.753166, 51.030815, 13.726988);
                 Navigator.pushNamed(context, Router.routeInfoRoute);
               },
             ),

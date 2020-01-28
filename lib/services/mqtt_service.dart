@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-
-import 'package:bikenow/models/prediction.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class MqttService {
@@ -13,12 +10,8 @@ class MqttService {
 
   MqttClient _client;
 
-  Map<String, Prediction> predictions = new Map();
-
-  StreamController<Map<String, Prediction>> predictionStreamController =
-      new StreamController<Map<String, Prediction>>();
-
-  Stream<Map<String, Prediction>> predictionStream;
+  StreamController<String> messageStreamController =
+      new StreamController<String>();
 
   MqttService() {
     final MqttConnectMessage connectMessage = MqttConnectMessage()
@@ -35,8 +28,6 @@ class MqttService {
       ..connectionMessage = connectMessage;
 
     _connect();
-
-    predictionStream = predictionStreamController.stream;
   }
 
   void _connect() async {
@@ -51,11 +42,10 @@ class MqttService {
       final String topic = data[0].topic;
       final MqttPublishMessage binaryMessage = data[0].payload;
 
-      final String jsonMessage = MqttPublishPayload.bytesToStringAsString(
+      final String textMessage = MqttPublishPayload.bytesToStringAsString(
           binaryMessage.payload.message);
 
-      predictions[topic] = Prediction.fromJson(json.decode(jsonMessage));
-      predictionStreamController.add(predictions);
+      messageStreamController.add(textMessage);
 
       print('MQTT: ## new message for $topic ##');
     });
@@ -69,7 +59,7 @@ class MqttService {
     print('MQTT: ## connection to broker successfull ##');
   }
 
-  subscribe(String topic) {
+  void subscribe(String topic) {
     if (_client.connectionStatus.state == MqttConnectionState.disconnected) {
       _connect();
     }
@@ -83,6 +73,6 @@ class MqttService {
   }
 
   void dispose() {
-    predictionStreamController.close();
+    messageStreamController.close();
   }
 }
