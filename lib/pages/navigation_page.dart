@@ -1,8 +1,5 @@
-import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/vorhersage.dart';
-import 'package:bikenow/services/app_router.dart';
 import 'package:bikenow/services/main_service.dart';
-import 'package:bikenow/services/vorhersage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,30 +14,39 @@ class _NavigationPageState extends State<NavigationPage> {
   MainService app;
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
     app = Provider.of<MainService>(context);
     app.predictionService.subscribeToRoute();
     app.vorhersageService.startVorhersage();
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('render NavigationPage');
     return SafeArea(
       child: Scaffold(
           body: StreamBuilder<List<Vorhersage>>(
         stream: app.vorhersageService.vorhersageStreamController.stream,
         builder:
             (BuildContext context, AsyncSnapshot<List<Vorhersage>> snapshot) {
-          return ListView.builder(
-            itemCount: snapshot.data?.length,
-            itemBuilder: (context, index) {
-              return snapshot.data != null
-                  ? ListTile(
+          return snapshot.data != null
+              ? ListView.builder(
+                  itemCount: snapshot.data?.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
                       title: Text(snapshot.data[index]?.sg),
-                      subtitle: Text("${snapshot.data[index].countdown}"),
+                      subtitle: Text(snapshot.data[index].isGreen ? "grün": "rot"),//Text(snapshot.data[index]?.timestamp),
                       trailing: CircularProgressIndicator(
                         value: 0.6,
                       ),
-                    )
-                  : Text('lase');
-            },
-          );
+                    );
+                  },
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Lade Prognosen...'),
+                );
         },
       )),
     );

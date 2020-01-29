@@ -1,6 +1,7 @@
 class Vorhersage {
   String sg;
-  int countdown;
+  String timestamp;
+  bool isGreen;
 
-  Vorhersage(this.sg, this.countdown);
+  Vorhersage(this.sg, this.timestamp, this.isGreen);
 }

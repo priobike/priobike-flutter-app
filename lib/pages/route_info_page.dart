@@ -2,8 +2,10 @@ import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_instruction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/app_router.dart';
+import 'package:bikenow/services/main_service.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:provider/provider.dart';
 
 class RouteInfoPage extends StatefulWidget {
   @override
@@ -67,9 +69,9 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final app = Provider.of<MainService>(context);
+    final app = Provider.of<MainService>(context);
 
-    // selectedRoute = app.routingService.route;
+    selectedRoute = app.routingService.route;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,13 +100,13 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      // Text(
-                      //     'Distanz: ${((app.route.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
-                      // Text('Ampeln: ${(app.route?.sg?.length ?? 0)}'),
-                      // Text(
-                      //     'Dauer: ${Duration(milliseconds: app.route?.time).inMinutes} Minuten'),
-                      // Text('Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
-                      // Text('Gefälle: ${(app.route?.descend ?? 0)} Meter'),
+                      Text(
+                          'Distanz: ${((app.routingService.route.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
+                      Text('Ampeln: ${(app.routingService.route?.sg?.length ?? 0)}'),
+                      Text(
+                          'Dauer: ${Duration(milliseconds: app.routingService.route?.time).inMinutes} Minuten'),
+                      Text('Anstieg: ${(app.routingService.route?.ascend ?? 0)} Meter'),
+                      Text('Gefälle: ${(app.routingService.route?.descend ?? 0)} Meter'),
                     ],
                   ),
                 ),

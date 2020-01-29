@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<MainService>(
+        ChangeNotifierProvider<MainService>(
             create: (context) => MainService()),
         ChangeNotifierProvider<GatewayStatusService>(
             create: (context) => GatewayStatusService()),
