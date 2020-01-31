@@ -4,8 +4,10 @@ import 'package:bikenow/config/config.dart';
 import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/models/vorhersage.dart';
+import 'package:geolocator/geolocator.dart';
 
 class VorhersageService {
+  Position _position;
   Map<String, ApiPrediction> _predictions = new Map();
   ApiRoute _route;
 
@@ -16,13 +18,18 @@ class VorhersageService {
 
   VorhersageService(
       {Stream<ApiRoute> routeStream,
-      Stream<Map<String, ApiPrediction>> predictionStream}) {
+      Stream<Map<String, ApiPrediction>> predictionStream,
+      Stream<Position> locationStream}) {
     routeStream.listen((newRoute) {
       _route = newRoute;
     });
 
     predictionStream.listen((newPredictions) {
       _predictions = newPredictions;
+    });
+
+    locationStream.listen((newPosition) {
+      _position = newPosition;
     });
   }
 
@@ -37,10 +44,11 @@ class VorhersageService {
 
   _calculateVorhersage() {
     print('calculate vorhersage');
-    if (_predictions != null && _route != null) {
+    if (_predictions != null && _route != null && _position != null) {
       List<Vorhersage> vorhersageListe = new List<Vorhersage>();
 
-      _route.sg.forEach((sg) {
+      // TODO: Remove sublist filter
+      _route.sg.sublist(1, 10).forEach((sg) async {
         ApiPrediction predictionForSg = _predictions[sg.mqtt];
 
         DateTime time = DateTime.parse(predictionForSg.timestamp);
@@ -53,8 +61,13 @@ class VorhersageService {
         bool isGreen = (double.parse(values[diff]) >=
             double.parse(predictionForSg.greentimeTreshold));
 
-        Vorhersage vorhersage =
-            new Vorhersage(sg.mqtt, _predictions[sg.mqtt].timestamp, isGreen);
+        Vorhersage vorhersage;
+
+        double distance = await Geolocator().distanceBetween(
+            _position.latitude, _position.longitude, sg.lat, sg.lon);
+
+        vorhersage = new Vorhersage(sg.mqtt, _predictions[sg.mqtt].timestamp,
+            isGreen, distance.round());
 
         vorhersageListe.add(vorhersage);
       });

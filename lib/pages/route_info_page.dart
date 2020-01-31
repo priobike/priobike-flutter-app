@@ -73,6 +73,8 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
     selectedRoute = app.routingService.route;
 
+    app.geolocatorService.startGeolocation();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,

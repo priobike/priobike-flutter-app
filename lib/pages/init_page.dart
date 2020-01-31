@@ -71,8 +71,7 @@ class _InitPageState extends State<InitPage> {
                         ),
                 ),
                 onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, Router.homeRoute, (_) => false);
+                  Navigator.pushReplacementNamed(context, Router.homeRoute);
                 },
                 color: Colors.black12,
                 shape: RoundedRectangleBorder(

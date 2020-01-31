@@ -30,6 +30,7 @@ dependencies:
     mapbox_gl:
     smooth_star_rating:
     mqtt_client:
+    geolocator:
 
 dev_dependencies:
     flutter_test:

@@ -1,7 +1,8 @@
 class Vorhersage {
-  String sg;
+  String label;
   String timestamp;
   bool isGreen;
+  int distance;
 
-  Vorhersage(this.sg, this.timestamp, this.isGreen);
+  Vorhersage(this.label, this.timestamp, this.isGreen, this.distance);
 }

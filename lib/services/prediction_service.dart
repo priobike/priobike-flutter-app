@@ -33,12 +33,12 @@ class PredictionService {
   }
 
   subscribeToRoute() {
-    print('subbscribe to route?');
+    print('=> subscribe to route');
     _route.sg.forEach((sg) => _mqttService.subscribe(sg.mqtt));
   }
 
   unsubscribeFromRoute() {
-    print('unubscribe from route?');
+    print('=> unsubscribe from route');
     _route.sg.forEach((sg) => _mqttService.unsubscribe(sg.mqtt));
   }
 

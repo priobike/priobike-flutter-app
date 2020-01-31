@@ -35,8 +35,11 @@ class _NavigationPageState extends State<NavigationPage> {
                   itemCount: snapshot.data?.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text(snapshot.data[index]?.sg),
-                      subtitle: Text(snapshot.data[index].isGreen ? "grün": "rot"),//Text(snapshot.data[index]?.timestamp),
+                      title: Text(
+                          "${snapshot.data[index]?.label} (${snapshot.data[index]?.distance}m)"),
+                      subtitle: Text(snapshot.data[index] != null
+                          ? snapshot.data[index].isGreen ? 'grün' : 'rot'
+                          : 'lade...'), //Text(snapshot.data[index]?.timestamp),
                       trailing: CircularProgressIndicator(
                         value: 0.6,
                       ),

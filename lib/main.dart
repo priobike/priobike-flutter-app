@@ -23,15 +23,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<MainService>(
-            create: (context) => MainService()),
+        ChangeNotifierProvider<MainService>(create: (context) => MainService()),
         ChangeNotifierProvider<GatewayStatusService>(
             create: (context) => GatewayStatusService()),
       ],
       child: MaterialApp(
-        initialRoute: Router.initRoute,
         title: 'BikeNow',
         onGenerateRoute: Router.generateRoute,
+        initialRoute: Router.initRoute,
         theme: new ThemeData(
           primaryColor: Palette.primaryColor,
           scaffoldBackgroundColor: Palette.background,
