@@ -5,6 +5,7 @@ import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/models/vorhersage.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wakelock/wakelock.dart';
 
 class VorhersageService {
   Position _position;
@@ -34,6 +35,7 @@ class VorhersageService {
   }
 
   startVorhersage() {
+    Wakelock.enable();
     print('start vorhersage');
     if (timer == null) {
       timer = Timer.periodic(Duration(seconds: Config.timerInterval), (_) {
@@ -79,6 +81,7 @@ class VorhersageService {
   }
 
   endVorhersage() {
+    Wakelock.disable();
     timer.cancel();
   }
 

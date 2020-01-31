@@ -31,6 +31,7 @@ dependencies:
     smooth_star_rating:
     mqtt_client:
     geolocator:
+    wakelock:
 
 dev_dependencies:
     flutter_test:
