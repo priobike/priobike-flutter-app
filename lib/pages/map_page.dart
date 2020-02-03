@@ -1,8 +1,7 @@
-import 'dart:async';
-
-import 'package:bike_now_flutter/Services/router.dart';
+import 'package:bikenow/config/router.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -11,38 +10,32 @@ class MapPage extends StatefulWidget {
   }
 }
 
-class _MapPageState extends State<MapPage>
-    with AutomaticKeepAliveClientMixin<MapPage> {
-  bool get wantKeepAlive => true;
-
-  Completer<GoogleMapController> _controller = Completer();
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(51.029334, 13.728900),
-    zoom: 12,
-  );
-
+class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text("Prognosen"),
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Text("Karte"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, Router.settingsRoute);
+              Navigator.pushNamed(context, Page.settings);
             },
           ),
         ],
       ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
+      body: MapboxMap(
+        initialCameraPosition: CameraPosition(
+          target: LatLng(51.050, 13.737),
+          zoom: 11.0,
+        ),
+        styleString: MapboxStyles.LIGHT,
+        myLocationEnabled: true,
+        scrollGesturesEnabled: true,
+        tiltGesturesEnabled: true,
+        zoomGesturesEnabled: true,
       ),
     );
   }
