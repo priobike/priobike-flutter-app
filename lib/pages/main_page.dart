@@ -1,5 +1,5 @@
+import 'package:bikenow/config/routes.dart';
 import 'package:bikenow/services/main_service.dart';
-import 'package:bikenow/services/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +21,7 @@ class _MainPageState extends State<MainPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
-            onPressed: () => Navigator.pushNamed(context, Router.settingsRoute),
+            onPressed: () => Navigator.pushNamed(context, Routes.settings),
           ),
         ],
       ),
@@ -70,9 +70,9 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
               onTap: () async {
-                await app.routingService.updateRoute(
-                    51.030815, 13.726988, 51.068019, 13.753166);
-                Navigator.pushNamed(context, Router.routeInfoRoute);
+                await app.routingService
+                    .updateRoute(51.030815, 13.726988, 51.068019, 13.753166);
+                Navigator.pushNamed(context, Routes.routeInfo);
               },
             ),
           ),
@@ -118,9 +118,9 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
               onTap: () async {
-                await app.routingService.updateRoute(
-                    51.068019, 13.753166, 51.030815, 13.726988);
-                Navigator.pushNamed(context, Router.routeInfoRoute);
+                await app.routingService
+                    .updateRoute(51.068019, 13.753166, 51.030815, 13.726988);
+                Navigator.pushNamed(context, Routes.routeInfo);
               },
             ),
           ),
@@ -128,9 +128,7 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            Navigator.pushNamed(context, Router.routeCreationRoute);
-          });
+          Navigator.pushNamed(context, Routes.routeCreation);
         },
         child: Icon(
           Icons.add,

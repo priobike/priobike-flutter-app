@@ -3,18 +3,11 @@ import 'package:bikenow/services/main_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
-import 'services/app_router.dart';
-
-import 'package:logging/logging.dart';
+import 'config/routes.dart';
 
 import 'config/palette.dart';
 
 void main() {
-  Logger.root.level = Level.ALL; // defaults to Level.INFO
-  Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
-
   runApp(MyApp());
 }
 
@@ -29,8 +22,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'BikeNow',
-        onGenerateRoute: Router.generateRoute,
-        initialRoute: Router.initRoute,
+        initialRoute: Routes.init,
+        routes: Routes.routes,
+        onUnknownRoute: (settings) => Routes.onUnknownRoute(settings),
         theme: new ThemeData(
           primaryColor: Palette.primaryColor,
           scaffoldBackgroundColor: Palette.background,
@@ -40,12 +34,6 @@ class MyApp extends StatelessWidget {
           appBarTheme: AppBarTheme(
             color: Palette.primaryColor,
           ),
-          primaryTextTheme: TextTheme(
-            caption: TextStyle(color: Colors.white),
-            body1: TextStyle(color: Colors.white),
-            display1: TextStyle(color: Colors.white),
-          ),
-          textTheme: TextTheme(),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-import 'package:bikenow/services/app_router.dart';
+import 'package:bikenow/config/routes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -21,7 +21,7 @@ class _MapPageState extends State<MapPage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, Router.settingsRoute);
+              Navigator.pushNamed(context, Routes.settings);
             },
           ),
         ],
@@ -33,7 +33,6 @@ class _MapPageState extends State<MapPage> {
         ),
         styleString: MapboxStyles.LIGHT,
         myLocationEnabled: true,
-        // rotateGesturesEnabled: true,
         scrollGesturesEnabled: true,
         tiltGesturesEnabled: true,
         zoomGesturesEnabled: true,

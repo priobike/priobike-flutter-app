@@ -1,4 +1,4 @@
-import 'package:bikenow/services/app_router.dart';
+import 'package:bikenow/config/routes.dart';
 import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/services/gateway_status_service.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +71,7 @@ class _InitPageState extends State<InitPage> {
                         ),
                 ),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, Router.homeRoute);
+                  Navigator.pushReplacementNamed(context, Routes.home);
                 },
                 color: Colors.black12,
                 shape: RoundedRectangleBorder(
@@ -84,7 +84,7 @@ class _InitPageState extends State<InitPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "1.06",
+                      "1.0a",
                       style: Theme.of(context).primaryTextTheme.caption,
                     ),
                     Text("www.bikenow-dresden.de",

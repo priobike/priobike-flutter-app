@@ -1,4 +1,4 @@
-import 'package:bikenow/services/app_router.dart';
+import 'package:bikenow/config/routes.dart';
 import 'package:flutter/material.dart';
 
 class NewsPage extends StatefulWidget {
@@ -19,7 +19,7 @@ class _NewsPageState extends State<NewsPage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, Router.settingsRoute);
+              Navigator.pushNamed(context, Routes.settings);
             },
           ),
         ],

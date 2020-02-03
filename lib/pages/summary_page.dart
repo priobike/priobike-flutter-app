@@ -1,5 +1,5 @@
-import 'package:bikenow/services/app_router.dart';
 import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
@@ -114,7 +114,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, Router.homeRoute, (_) => false);
+                            context, Routes.home, (_) => false);
                       },
                       child: Text(
                         'überspringen',
@@ -133,7 +133,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, Router.homeRoute, (_) => false);
+                            context, Routes.home, (_) => false);
                       },
                       child: Text(
                         'Feedback senden',
