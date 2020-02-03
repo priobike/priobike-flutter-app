@@ -1,4 +1,4 @@
-import 'package:bikenow/config/routes.dart';
+import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_instruction.dart';
 import 'package:bikenow/models/api/api_route.dart';
@@ -116,7 +116,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                     icon: Icon(Icons.directions_bike),
                     tooltip: 'Routing Starten',
                     onPressed: () {
-                       Navigator.pushNamed(context, Routes.navigation);
+                       Navigator.pushNamed(context, Page.navigation);
                     }),
                 Text("Start")
               ],

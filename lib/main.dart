@@ -3,7 +3,7 @@ import 'package:bikenow/services/main_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
-import 'config/routes.dart';
+import 'config/router.dart';
 
 import 'config/palette.dart';
 
@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'BikeNow',
-        initialRoute: Routes.init,
-        routes: Routes.routes,
+        initialRoute: Page.init,
+        routes: Routes.all,
         onUnknownRoute: (settings) => Routes.onUnknownRoute(settings),
         theme: new ThemeData(
           primaryColor: Palette.primaryColor,

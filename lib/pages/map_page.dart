@@ -1,4 +1,4 @@
-import 'package:bikenow/config/routes.dart';
+import 'package:bikenow/config/router.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -21,7 +21,7 @@ class _MapPageState extends State<MapPage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, Routes.settings);
+              Navigator.pushNamed(context, Page.settings);
             },
           ),
         ],

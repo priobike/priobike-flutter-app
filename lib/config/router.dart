@@ -5,7 +5,7 @@ import 'package:bikenow/pages/route_info_page.dart';
 import 'package:bikenow/pages/summary_page.dart';
 import 'package:flutter/material.dart';
 
-class Routes {
+class Page {
   static const String init = '/init';
   static const String routeCreation = '/routeCreation';
   static const String routeInfo = '/routeInfo';
@@ -13,13 +13,15 @@ class Routes {
   static const String home = '/home';
   static const String settings = '/settings';
   static const String summary = '/summary';
+}
 
-  static var routes = {
-    init: (context) => InitPage(),
-    home: (context) => HomePage(),
-    routeInfo: (context) => RouteInfoPage(),
-    navigation: (context) => NavigationPage(),
-    summary: (context) => SummaryPage(),
+class Routes {
+  static var all = {
+    Page.init: (context) => InitPage(),
+    Page.home: (context) => HomePage(),
+    Page.routeInfo: (context) => RouteInfoPage(),
+    Page.navigation: (context) => NavigationPage(),
+    Page.summary: (context) => SummaryPage(),
   };
 
   static onUnknownRoute(RouteSettings settings) {

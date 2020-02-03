@@ -1,4 +1,4 @@
-import 'package:bikenow/config/routes.dart';
+import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/vorhersage.dart';
 import 'package:bikenow/services/main_service.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +63,7 @@ class _NavigationPageState extends State<NavigationPage> {
               child: ListTile(
                 title: Text('Fahrt beenden'),
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, Routes.summary);
+                  Navigator.pushReplacementNamed(context, Page.summary);
                 },
               ),
             ),
