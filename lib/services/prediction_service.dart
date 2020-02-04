@@ -22,7 +22,7 @@ class PredictionService {
       ApiPrediction prediction = ApiPrediction.fromJson(json.decode(message));
 
       //TODO: Use correct topic or ID!
-      _predictions['prediction/${prediction.lsa}/${prediction.sg}'] = prediction;
+      _predictions['prediction/${prediction.lsaId}/${prediction.sgName}'] = prediction;
 
       predictionStreamController.add(_predictions);
     });

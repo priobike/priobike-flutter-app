@@ -13,9 +13,7 @@ class Page {
   static const String home = '/home';
   static const String settings = '/settings';
   static const String summary = '/summary';
-}
 
-class Routes {
   static var all = {
     Page.init: (context) => InitPage(),
     Page.home: (context) => HomePage(),
@@ -24,7 +22,7 @@ class Routes {
     Page.summary: (context) => SummaryPage(),
   };
 
-  static onUnknownRoute(RouteSettings settings) {
+  static noRoute(RouteSettings settings) {
     return new MaterialPageRoute(
       builder: (context) => Scaffold(
         body: Center(

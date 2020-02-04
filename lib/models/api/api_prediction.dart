@@ -1,36 +1,46 @@
 class ApiPrediction {
+  double greentimeThreshold;
+  String lsaId;
+  String sgName;
+  double qualityfactor;
+  String startTime;
+  double availability;
+  List<double> value;
   String timestamp;
-  String lsa;
-  String sg;
-  String quality;
-  String value;
-  String greentimeTreshold;
 
   ApiPrediction(
-      {this.timestamp,
-      this.lsa,
-      this.sg,
-      this.quality,
+      {this.greentimeThreshold,
+      this.lsaId,
+      this.sgName,
+      this.qualityfactor,
+      this.startTime,
+      this.availability,
       this.value,
-      this.greentimeTreshold});
+      this.timestamp});
 
   ApiPrediction.fromJson(Map<String, dynamic> json) {
+    greentimeThreshold = json['greentimeThreshold'].toDouble();
+    lsaId = json['lsaId'];
+    sgName = json['sgName'];
+    qualityfactor = json['qualityfactor'].toDouble();
+    startTime = json['startTime'];
+    availability = json['availability'].toDouble();
     timestamp = json['timestamp'];
-    lsa = json['lsa'];
-    sg = json['sg'];
-    quality = json['quality'];
-    value = json['value'];
-    greentimeTreshold = json['greentimeTreshold'];
+
+    value = [];
+    json['value'].forEach((item) => value.add(item.toDouble()));
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['timestamp'] = this.timestamp;
-    data['lsa'] = this.lsa;
-    data['sg'] = this.sg;
-    data['quality'] = this.quality;
+    data['greentimeThreshold'] = this.greentimeThreshold;
+    data['lsaId'] = this.lsaId;
+    data['sgName'] = this.sgName;
+    data['qualityfactor'] = this.qualityfactor;
+    data['startTime'] = this.startTime;
+    data['availability'] = this.availability;
     data['value'] = this.value;
-    data['greentimeTreshold'] = this.greentimeTreshold;
+    data['timestamp'] = this.timestamp;
     return data;
   }
 }

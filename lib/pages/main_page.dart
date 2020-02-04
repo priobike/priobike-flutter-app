@@ -50,7 +50,7 @@ class _MainPageState extends State<MainPage> {
                             text: 'Start: ',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          TextSpan(text: 'Albertplatz')
+                          TextSpan(text: 'Technische Universität Dresden')
                         ],
                       ),
                     ),
@@ -63,7 +63,7 @@ class _MainPageState extends State<MainPage> {
                           text: 'Ende: ',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        TextSpan(text: 'Technische Universität Dresden')
+                        TextSpan(text: 'Albertplatz')
                       ],
                     ),
                   )

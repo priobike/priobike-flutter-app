@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'BikeNow',
         initialRoute: Page.init,
-        routes: Routes.all,
-        onUnknownRoute: (settings) => Routes.onUnknownRoute(settings),
+        routes: Page.all,
+        onUnknownRoute: (settings) => Page.noRoute(settings),
         theme: new ThemeData(
           primaryColor: Palette.primaryColor,
           scaffoldBackgroundColor: Palette.background,

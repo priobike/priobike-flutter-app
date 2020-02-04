@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class MqttService {
-  static const BROKER_URL = "ws://vkwvlprad.vkw.tu-dresden.de";
+  static const BROKER_URL = "ws://bikenow.vkw.tu-dresden.de";
   static const PORT = 20051;
-  static const USERNAME = 'bikenow';
-  static const PASSWORD = 'mqtt-test';
+  static const USERNAME = 'bikenow-user';
+  static const PASSWORD = 'mRMLa8jcgczZF7Ev';
   static const CLIENT_IDENTIFIER = 'Android';
 
   MqttClient _client;
@@ -60,7 +60,7 @@ class MqttService {
   }
 
   void subscribe(String topic) {
-    if (_client.connectionStatus.state == MqttConnectionState.disconnected) {
+    if (_client.connectionStatus.state != MqttConnectionState.connected) {
       _connect();
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);

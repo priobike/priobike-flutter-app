@@ -24,7 +24,6 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('render NavigationPage');
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -43,11 +42,18 @@ class _NavigationPageState extends State<NavigationPage> {
                                   "${snapshot.data[index]?.label} (${snapshot.data[index]?.distance}m)"),
                               subtitle: Text(snapshot.data[index] != null
                                   ? snapshot.data[index].isGreen
-                                      ? 'grün'
-                                      : 'rot'
+                                      ? "grün ${snapshot.data[index].secondsToPhaseChange}"
+                                      : "rot ${snapshot.data[index].secondsToPhaseChange}"
                                   : 'lade...'), //Text(snapshot.data[index]?.timestamp),
                               trailing: CircularProgressIndicator(
-                                value: 0.6,
+                                value:
+                                    snapshot.data[index].secondsToPhaseChange /
+                                        100,
+                                valueColor: snapshot.data[index].isGreen
+                                    ? new AlwaysStoppedAnimation<Color>(
+                                        Colors.green)
+                                    : new AlwaysStoppedAnimation<Color>(
+                                        Colors.red),
                               ),
                             );
                           },
