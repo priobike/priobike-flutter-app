@@ -4,18 +4,27 @@ import 'package:flutter/foundation.dart';
 
 class GatewayStatusService with ChangeNotifier {
   ApiStatus answer = new ApiStatus();
-  bool loading = false;
+
+  int timeDifference;
+
+  bool loading = true;
 
   GatewayStatusService() {
     getStatus();
   }
 
   getStatus() async {
-    loading = true;
-    notifyListeners();
+    print('Checke Gateway Status...');
 
     answer = await Api.getStatus();
+
+    timeDifference = DateTime.now()
+        .difference(DateTime.parse(answer.gatewayTime).toLocal())
+        .inSeconds;
+
     loading = false;
+
     notifyListeners();
+    print('Gateway erreichbar :)');
   }
 }

@@ -1,10 +1,12 @@
 import 'dart:async';
 
-import 'package:bikenow/alogrithms/geo.dart';
+import 'package:bikenow/alogrithms/geo_algorithms.dart';
+import 'package:bikenow/alogrithms/prediction_algorithms.dart';
 import 'package:bikenow/config/config.dart';
 import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/models/vorhersage.dart';
+import 'package:bikenow/services/gateway_status_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -15,11 +17,14 @@ class VorhersageService {
 
   Timer timer;
 
+  GatewayStatusService gatewayStatusService;
+
   StreamController<List<Vorhersage>> vorhersageStreamController =
       new StreamController<List<Vorhersage>>.broadcast();
 
   VorhersageService(
-      {Stream<ApiRoute> routeStream,
+      {GatewayStatusService gatewayStatusService,
+      Stream<ApiRoute> routeStream,
       Stream<Map<String, ApiPrediction>> predictionStream,
       Stream<Position> locationStream}) {
     routeStream.listen((newRoute) {
@@ -33,6 +38,8 @@ class VorhersageService {
     locationStream.listen((newPosition) {
       _position = newPosition;
     });
+
+    this.gatewayStatusService = gatewayStatusService;
   }
 
   startVorhersage() {
@@ -54,32 +61,22 @@ class VorhersageService {
         ApiPrediction predictionForSg = _predictions[sg.mqtt];
 
         if (predictionForSg != null) {
-          // calculate difference from now to prediction start
           DateTime startTime = DateTime.parse(predictionForSg.startTime);
-          int diff = DateTime.now().difference(startTime).inSeconds;
+          int t = DateTime.now().difference(startTime).inSeconds -
+              gatewayStatusService.timeDifference;
 
-          // check the current phase
-          bool isGreen = (predictionForSg.value[diff] >=
-              predictionForSg.greentimeThreshold);
+          bool isGreen = PredictionAlgorithm.isGreen(
+              predictionForSg.value[t], predictionForSg.greentimeThreshold);
 
-          // count seconds to next phase change
-          int secondsToPhaseChange = 0;
-          for (var i = diff; i < predictionForSg.value.length; i++) {
-            bool green =
-                predictionForSg.value[i] >= predictionForSg.greentimeThreshold;
+          int secondsToPhaseChange = PredictionAlgorithm.secondsToPhaseChange(
+              predictionForSg.value,
+              isGreen,
+              predictionForSg.greentimeThreshold,
+              t);
 
-            if ((isGreen && !green) || (!isGreen && green)) {
-              break;
-            }
-
-            secondsToPhaseChange++;
-          }
-
-          // calculate distance from position to sg
-          double distance = Geo.distanceBetween(
+          double distance = GeoAlgorithm.distanceBetween(
               _position.latitude, _position.longitude, sg.lat, sg.lon);
 
-          // create new vorhersage and add to a list
           Vorhersage vorhersage = new Vorhersage(
               sg.mqtt,
               _predictions[sg.mqtt].timestamp,
@@ -94,7 +91,7 @@ class VorhersageService {
       });
 
       print(
-          '[${timer.tick}] calculated vorhersagen in ${stopwatch.elapsed.inMilliseconds}ms');
+          '[${timer.tick}] calculated vorhersagen in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
 
       // add complete liste to stream and UI
       vorhersageStreamController.add(vorhersageListe);

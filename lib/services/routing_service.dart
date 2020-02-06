@@ -16,7 +16,7 @@ class RoutingService with ChangeNotifier {
     print('update route');
     route = await Api.getRoute(fromLat, fromLon, toLat, toLon);
     routeStreamController.add(route);
-    notifyListeners();
+    // notifyListeners();
   }
 
   @override

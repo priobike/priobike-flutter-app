@@ -1,6 +1,6 @@
 import 'dart:math';
 
-class Geo {
+class GeoAlgorithm {
   static var deg2rad = (deg) => deg * (pi / 180);
   static var rad2deg = (rad) => rad * (180 / pi);
 

@@ -21,7 +21,7 @@ class GeolocatorService {
 
       print(position == null
           ? '# position: Unknown #'
-          : "# position: ${position.latitude}, ${position.longitude}");
+          : "# position: ${position.latitude}, ${position.longitude} speed: ${position.speed * 3.6} km/h");
     });
   }
 
