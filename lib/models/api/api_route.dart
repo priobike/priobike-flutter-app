@@ -8,7 +8,7 @@ class ApiRoute {
   int ascend;
   int descend;
   List<ApiInstruction> instructions;
-  List<Sg> sg;
+  List<ApiSg> sg;
 
   ApiRoute(
       {this.status,
@@ -32,9 +32,9 @@ class ApiRoute {
       });
     }
     if (json['sg'] != null) {
-      sg = new List<Sg>();
+      sg = new List<ApiSg>();
       json['sg'].forEach((v) {
-        sg.add(new Sg.fromJson(v));
+        sg.add(new ApiSg.fromJson(v));
       });
     }
   }

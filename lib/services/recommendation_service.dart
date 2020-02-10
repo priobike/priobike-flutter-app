@@ -5,7 +5,7 @@ import 'package:bikenow/alogrithms/prediction_algorithms.dart';
 import 'package:bikenow/config/config.dart';
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_prediction.dart';
-import 'package:bikenow/models/api/api_route.dart';
+import 'package:bikenow/models/api/api_sg.dart';
 import 'package:bikenow/models/recommendation.dart';
 import 'package:bikenow/services/gateway_status_service.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,7 +15,7 @@ class RecommendationService {
   Logger log = new Logger('RecommendationService');
   Position _position;
   Map<String, ApiPrediction> _predictions = new Map();
-  ApiRoute _route;
+  ApiSg _nextSg;
 
   Timer timer;
 
@@ -26,18 +26,18 @@ class RecommendationService {
 
   RecommendationService(
       {GatewayStatusService gatewayStatusService,
-      Stream<ApiRoute> routeStream,
+      Stream<ApiSg> nextSgStream,
       Stream<Map<String, ApiPrediction>> predictionStream,
-      Stream<Position> locationStream}) {
-    routeStream.listen((newRoute) {
-      _route = newRoute;
+      Stream<Position> positionStream}) {
+    nextSgStream.listen((nextSg) {
+      _nextSg = nextSg;
     });
 
     predictionStream.listen((newPredictions) {
       _predictions = newPredictions;
     });
 
-    locationStream.listen((newPosition) {
+    positionStream.listen((newPosition) {
       _position = newPosition;
     });
 
@@ -56,41 +56,39 @@ class RecommendationService {
 
   _calculateRecommendation() {
     Stopwatch stopwatch = new Stopwatch()..start();
-    if (_predictions != null && _route != null && _position != null) {
+    if (_predictions != null && _nextSg != null && _position != null) {
       List<Recommendation> recommendationList = new List<Recommendation>();
 
-      _route.sg.forEach((sg) {
-        ApiPrediction predictionForSg = _predictions[sg.mqtt];
+      ApiPrediction predictionForSg = _predictions[_nextSg.mqtt];
 
-        if (predictionForSg != null) {
-          DateTime startTime = DateTime.parse(predictionForSg.startTime);
-          int t = DateTime.now().difference(startTime).inSeconds -
-              gatewayStatusService.timeDifference;
+      if (predictionForSg != null) {
+        DateTime startTime = DateTime.parse(predictionForSg.startTime);
+        int t = DateTime.now().difference(startTime).inSeconds -
+            gatewayStatusService.timeDifference;
 
-          bool isGreen = PredictionAlgorithm.isGreen(
-              predictionForSg.value[t], predictionForSg.greentimeThreshold);
+        bool isGreen = PredictionAlgorithm.isGreen(
+            predictionForSg.value[t], predictionForSg.greentimeThreshold);
 
-          int secondsToPhaseChange = PredictionAlgorithm.secondsToPhaseChange(
-              predictionForSg.value,
-              isGreen,
-              predictionForSg.greentimeThreshold,
-              t);
+        int secondsToPhaseChange = PredictionAlgorithm.secondsToPhaseChange(
+            predictionForSg.value,
+            isGreen,
+            predictionForSg.greentimeThreshold,
+            t);
 
-          double distance = GeoAlgorithm.distanceBetween(
-              _position.latitude, _position.longitude, sg.lat, sg.lon);
+        double distance = GeoAlgorithm.distanceBetween(
+            _position.latitude, _position.longitude, _nextSg.lat, _nextSg.lon);
 
-          Recommendation recommendation = new Recommendation(
-              sg.mqtt,
-              _predictions[sg.mqtt].timestamp,
-              isGreen,
-              distance.round(),
-              secondsToPhaseChange);
+        Recommendation recommendation = new Recommendation(
+            _nextSg.mqtt,
+            _predictions[_nextSg.mqtt].timestamp,
+            isGreen,
+            distance.round(),
+            secondsToPhaseChange);
 
-          recommendationList.add(recommendation);
-        } else {
-          log.w('!!! WARNING: No Prediction for SG ${sg.mqtt} !!!');
-        }
-      });
+        recommendationList.add(recommendation);
+      } else {
+        log.w('!!! WARNING: No Prediction for SG ${_nextSg.mqtt} !!!');
+      }
 
       log.i(
           '(t:${timer.tick}) Calculated recommendation in ${stopwatch.elapsed.inMicroseconds / 1000}ms');

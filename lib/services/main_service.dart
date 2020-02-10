@@ -1,8 +1,9 @@
 import 'package:bikenow/services/gateway_status_service.dart';
-import 'package:bikenow/services/geolocator_service.dart';
+import 'package:bikenow/services/geolocation_service.dart';
 import 'package:bikenow/services/prediction_service.dart';
 import 'package:bikenow/services/routing_service.dart';
 import 'package:bikenow/services/recommendation_service.dart';
+import 'package:bikenow/services/selection_service.dart';
 import 'package:flutter/foundation.dart';
 
 class MainService with ChangeNotifier {
@@ -12,7 +13,8 @@ class MainService with ChangeNotifier {
   RoutingService routingService;
   PredictionService predictionService;
   RecommendationService recommendationService;
-  GeolocatorService geolocatorService;
+  GeolocationService geolocationService;
+  SelectionService selectionService;
 
   MainService() {
     gatewayStatusService = new GatewayStatusService();
@@ -23,13 +25,20 @@ class MainService with ChangeNotifier {
       routeStream: routingService.routeStreamController.stream,
     );
 
-    geolocatorService = new GeolocatorService();
+    geolocationService = new GeolocationService();
+
+    selectionService = new SelectionService(
+      routeStream: routingService.routeStreamController.stream,
+      positionStream: geolocationService.positionStreamController.stream,
+    );
 
     recommendationService = new RecommendationService(
       gatewayStatusService: gatewayStatusService,
-      routeStream: routingService.routeStreamController.stream,
+      nextSgStream: selectionService.nextSgStreamController.stream,
       predictionStream: predictionService.predictionStreamController.stream,
-      locationStream: geolocatorService.locationStreamController.stream,
+      positionStream: geolocationService.positionStreamController.stream,
     );
+
+
   }
 }

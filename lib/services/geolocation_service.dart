@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:bikenow/config/logger.dart';
 import 'package:geolocator/geolocator.dart';
 
-class GeolocatorService {
+class GeolocationService {
   Geolocator geolocator;
 
-  Logger log = new Logger('GeolocatorService');
+  Logger log = new Logger('GeolocationService');
 
-  StreamController<Position> locationStreamController =
+  StreamController<Position> positionStreamController =
       new StreamController<Position>.broadcast();
 
-  GeolocatorService() {
+  GeolocationService() {
     geolocator = Geolocator();
   }
 
@@ -20,7 +20,7 @@ class GeolocatorService {
         .getPositionStream(LocationOptions(
             accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 5))
         .listen((Position position) {
-      locationStreamController.add(position);
+      positionStreamController.add(position);
 
       log.i(position == null
           ? 'Position: Unknown'
@@ -29,6 +29,6 @@ class GeolocatorService {
   }
 
   void dispose() {
-    locationStreamController.close();
+    positionStreamController.close();
   }
 }

@@ -1,12 +1,12 @@
-class Sg {
+class ApiSg {
   int index;
   double lat;
   double lon;
   String mqtt;
 
-  Sg({this.index, this.lat, this.lon, this.mqtt});
+  ApiSg({this.index, this.lat, this.lon, this.mqtt});
 
-  Sg.fromJson(Map<String, dynamic> json) {
+  ApiSg.fromJson(Map<String, dynamic> json) {
     index = json['index'];
     lat = json['lat'];
     lon = json['lon'];
