@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:bikenow/alogrithms/geo_algorithms.dart';
 import 'package:bikenow/alogrithms/prediction_algorithms.dart';
 import 'package:bikenow/config/config.dart';
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/api/api_route.dart';
-import 'package:bikenow/models/vorhersage.dart';
+import 'package:bikenow/models/recommendation.dart';
 import 'package:bikenow/services/gateway_status_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wakelock/wakelock.dart';
 
-class VorhersageService {
+class RecommendationService {
+  Logger log = new Logger('RecommendationService');
   Position _position;
   Map<String, ApiPrediction> _predictions = new Map();
   ApiRoute _route;
@@ -19,10 +21,10 @@ class VorhersageService {
 
   GatewayStatusService gatewayStatusService;
 
-  StreamController<List<Vorhersage>> vorhersageStreamController =
-      new StreamController<List<Vorhersage>>.broadcast();
+  StreamController<List<Recommendation>> recommendationStreamController =
+      new StreamController<List<Recommendation>>.broadcast();
 
-  VorhersageService(
+  RecommendationService(
       {GatewayStatusService gatewayStatusService,
       Stream<ApiRoute> routeStream,
       Stream<Map<String, ApiPrediction>> predictionStream,
@@ -42,20 +44,20 @@ class VorhersageService {
     this.gatewayStatusService = gatewayStatusService;
   }
 
-  startVorhersage() {
+  startRecommendation() {
     Wakelock.enable();
-    print('=> start vorhersage');
+    log.i('Start calculating recommendations');
     if (timer == null) {
       timer = Timer.periodic(Duration(seconds: Config.timerInterval), (_) {
-        _calculateVorhersage();
+        _calculateRecommendation();
       });
     }
   }
 
-  _calculateVorhersage() {
+  _calculateRecommendation() {
     Stopwatch stopwatch = new Stopwatch()..start();
     if (_predictions != null && _route != null && _position != null) {
-      List<Vorhersage> vorhersageListe = new List<Vorhersage>();
+      List<Recommendation> recommendationList = new List<Recommendation>();
 
       _route.sg.forEach((sg) {
         ApiPrediction predictionForSg = _predictions[sg.mqtt];
@@ -77,35 +79,35 @@ class VorhersageService {
           double distance = GeoAlgorithm.distanceBetween(
               _position.latitude, _position.longitude, sg.lat, sg.lon);
 
-          Vorhersage vorhersage = new Vorhersage(
+          Recommendation recommendation = new Recommendation(
               sg.mqtt,
               _predictions[sg.mqtt].timestamp,
               isGreen,
               distance.round(),
               secondsToPhaseChange);
 
-          vorhersageListe.add(vorhersage);
+          recommendationList.add(recommendation);
         } else {
-          print('!!! WARNING: No Prediction for SG ${sg.mqtt} !!!');
+          log.w('!!! WARNING: No Prediction for SG ${sg.mqtt} !!!');
         }
       });
 
-      print(
-          '[${timer.tick}] calculated vorhersagen in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
+      log.i(
+          '(t:${timer.tick}) Calculated recommendation in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
 
       // add complete liste to stream and UI
-      vorhersageStreamController.add(vorhersageListe);
+      recommendationStreamController.add(recommendationList);
     }
   }
 
-  endVorhersage() {
-    print("=> end vorhersage");
+  endRecommendation() {
+    log.i("Stop calculating recommendations");
     Wakelock.disable();
     timer.cancel();
     timer = null;
   }
 
   dispose() {
-    vorhersageStreamController.close();
+    recommendationStreamController.close();
   }
 }

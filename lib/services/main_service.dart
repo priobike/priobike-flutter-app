@@ -2,7 +2,7 @@ import 'package:bikenow/services/gateway_status_service.dart';
 import 'package:bikenow/services/geolocator_service.dart';
 import 'package:bikenow/services/prediction_service.dart';
 import 'package:bikenow/services/routing_service.dart';
-import 'package:bikenow/services/vorhersage_service.dart';
+import 'package:bikenow/services/recommendation_service.dart';
 import 'package:flutter/foundation.dart';
 
 class MainService with ChangeNotifier {
@@ -11,7 +11,7 @@ class MainService with ChangeNotifier {
   GatewayStatusService gatewayStatusService;
   RoutingService routingService;
   PredictionService predictionService;
-  VorhersageService vorhersageService;
+  RecommendationService recommendationService;
   GeolocatorService geolocatorService;
 
   MainService() {
@@ -25,7 +25,7 @@ class MainService with ChangeNotifier {
 
     geolocatorService = new GeolocatorService();
 
-    vorhersageService = new VorhersageService(
+    recommendationService = new RecommendationService(
       gatewayStatusService: gatewayStatusService,
       routeStream: routingService.routeStreamController.stream,
       predictionStream: predictionService.predictionStreamController.stream,

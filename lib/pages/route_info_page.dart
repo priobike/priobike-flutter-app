@@ -1,3 +1,4 @@
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_instruction.dart';
@@ -15,6 +16,8 @@ class RouteInfoPage extends StatefulWidget {
 }
 
 class _RouteInfoPageState extends State<RouteInfoPage> {
+  Logger log = new Logger('RouteInfoPage');
+
   MapboxMapController controller;
 
   ApiRoute selectedRoute;
@@ -29,7 +32,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
     selectedRoute.instructions
         .forEach((ApiInstruction instruction) => pointlist += instruction.points);
 
-    print('## Draw ${pointlist.length} points as lines on map ##');
+    log.i('Draw ${pointlist.length} points as lines on map');
 
     for (var i = 0; i < pointlist.length - 1; i++) {
       ApiPoint point = pointlist[i];

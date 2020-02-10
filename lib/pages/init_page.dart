@@ -1,7 +1,6 @@
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/services/gateway_status_service.dart';
-import 'package:bikenow/services/main_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

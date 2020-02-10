@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_prediction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/mqtt_service.dart';
 
 class PredictionService {
+  Logger log = new Logger('PredictionService');
+
   StreamController<Map<String, ApiPrediction>> predictionStreamController =
       new StreamController<Map<String, ApiPrediction>>.broadcast();
 
@@ -22,7 +25,8 @@ class PredictionService {
       ApiPrediction prediction = ApiPrediction.fromJson(json.decode(message));
 
       //TODO: Use correct topic or ID!
-      _predictions['prediction/${prediction.lsaId}/${prediction.sgName}'] = prediction;
+      _predictions['prediction/${prediction.lsaId}/${prediction.sgName}'] =
+          prediction;
 
       predictionStreamController.add(_predictions);
     });
@@ -33,15 +37,14 @@ class PredictionService {
   }
 
   subscribeToRoute() {
-    print('=> subscribe to route');
+    log.i('Subscribe to route');
     _route.sg.forEach((sg) => _mqttService.subscribe(sg.mqtt));
   }
 
   unsubscribeFromRoute() {
-    print('=> unsubscribe from route');
+    log.i('Unsubscribe from route');
     _route.sg.forEach((sg) => _mqttService.unsubscribe(sg.mqtt));
   }
-
 
   void dispose() {
     predictionStreamController.close();

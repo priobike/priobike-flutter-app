@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bikenow/config/logger.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class MqttService {
@@ -7,6 +8,8 @@ class MqttService {
   static const USERNAME = 'bikenow-user';
   static const PASSWORD = 'mRMLa8jcgczZF7Ev';
   static const CLIENT_IDENTIFIER = 'Android';
+
+  Logger log = new Logger('MQTTService');
 
   MqttClient _client;
 
@@ -34,7 +37,7 @@ class MqttService {
     try {
       await _client.connect(USERNAME, PASSWORD);
     } on Exception catch (e) {
-      print(e);
+      log.e(e);
       _client.disconnect();
     }
 
@@ -47,16 +50,16 @@ class MqttService {
 
       messageStreamController.add(textMessage);
 
-      print('MQTT: ## new message for $topic ##');
+      log.i('✉ New message for $topic');
     });
   }
 
   void _onDisconnected() {
-    print('MQTT: ## client disconnected ##');
+    log.w('Client disconnected!');
   }
 
   void _onConnected() {
-    print('MQTT: ## connection to broker successfull ##');
+    log.i('Connection to MQTT Broker ($BROKER_URL) successful');
   }
 
   void subscribe(String topic) {
@@ -64,12 +67,12 @@ class MqttService {
       _connect();
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);
-    print('MQTT: ## subscribed to $topic ##');
+    log.i('⬅ Subscribed to $topic ');
   }
 
   void unsubscribe(String topic) {
     _client.unsubscribe(topic);
-    print('MQTT: ## unsubscribed from $topic ##');
+    log.i('⨯ Unsubscribed from $topic ');
   }
 
   void dispose() {

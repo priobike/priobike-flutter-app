@@ -1,5 +1,5 @@
 import 'package:bikenow/config/router.dart';
-import 'package:bikenow/models/vorhersage.dart';
+import 'package:bikenow/models/recommendation.dart';
 import 'package:bikenow/services/main_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class _NavigationPageState extends State<NavigationPage> {
   void didChangeDependencies() {
     app = Provider.of<MainService>(context);
     app.predictionService.subscribeToRoute();
-    app.vorhersageService.startVorhersage();
+    app.recommendationService.startRecommendation();
     super.didChangeDependencies();
   }
 
@@ -29,10 +29,10 @@ class _NavigationPageState extends State<NavigationPage> {
         body: Column(
           children: <Widget>[
             Expanded(
-              child: StreamBuilder<List<Vorhersage>>(
-                stream: app.vorhersageService.vorhersageStreamController.stream,
+              child: StreamBuilder<List<Recommendation>>(
+                stream: app.recommendationService.recommendationStreamController.stream,
                 builder: (BuildContext context,
-                    AsyncSnapshot<List<Vorhersage>> snapshot) {
+                    AsyncSnapshot<List<Recommendation>> snapshot) {
                   return snapshot.data != null
                       ? ListView.builder(
                           itemCount: snapshot.data?.length,
@@ -82,7 +82,7 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void dispose() {
     app.predictionService.unsubscribeFromRoute();
-    app.vorhersageService.endVorhersage();
+    app.recommendationService.endRecommendation();
     super.dispose();
   }
 }

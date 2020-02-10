@@ -1,8 +1,11 @@
 import 'package:bikenow/config/api.dart';
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_status.dart';
 import 'package:flutter/foundation.dart';
 
 class GatewayStatusService with ChangeNotifier {
+  Logger log = new Logger('GatewayStatus');
+
   ApiStatus answer = new ApiStatus();
 
   int timeDifference;
@@ -14,7 +17,7 @@ class GatewayStatusService with ChangeNotifier {
   }
 
   getStatus() async {
-    print('Checke Gateway Status...');
+    log.i('Connect to Gateway (${Api.HOST}) ...');
 
     answer = await Api.getStatus();
 
@@ -25,6 +28,7 @@ class GatewayStatusService with ChangeNotifier {
     loading = false;
 
     notifyListeners();
-    print('Gateway erreichbar :)');
+
+    log.i('Gateway Status OK');
   }
 }
