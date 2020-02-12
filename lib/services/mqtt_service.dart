@@ -67,7 +67,7 @@ class MqttService {
       _connect();
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);
-    log.i('⬅ Subscribed to $topic ');
+    log.i('🔗 Subscribed to $topic ');
   }
 
   void unsubscribe(String topic) {

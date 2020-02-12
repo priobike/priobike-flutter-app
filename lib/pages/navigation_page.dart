@@ -29,39 +29,102 @@ class _NavigationPageState extends State<NavigationPage> {
         body: Column(
           children: <Widget>[
             Expanded(
-              child: StreamBuilder<List<Recommendation>>(
-                stream: app.recommendationService.recommendationStreamController.stream,
+              child: StreamBuilder<Recommendation>(
+                stream: app.recommendationService.recommendationStreamController
+                    .stream,
                 builder: (BuildContext context,
-                    AsyncSnapshot<List<Recommendation>> snapshot) {
-                  return snapshot.data != null
-                      ? ListView.builder(
-                          itemCount: snapshot.data?.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(
-                                  "${snapshot.data[index]?.label} (${snapshot.data[index]?.distance}m)"),
-                              subtitle: Text(snapshot.data[index] != null
-                                  ? snapshot.data[index].isGreen
-                                      ? "grün ${snapshot.data[index].secondsToPhaseChange}"
-                                      : "rot ${snapshot.data[index].secondsToPhaseChange}"
-                                  : 'lade...'), //Text(snapshot.data[index]?.timestamp),
-                              trailing: CircularProgressIndicator(
-                                value:
-                                    snapshot.data[index].secondsToPhaseChange /
-                                        100,
-                                valueColor: snapshot.data[index].isGreen
-                                    ? new AlwaysStoppedAnimation<Color>(
-                                        Colors.green)
-                                    : new AlwaysStoppedAnimation<Color>(
-                                        Colors.red),
-                              ),
-                            );
-                          },
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text('Lade Prognosen...'),
-                        );
+                    AsyncSnapshot<Recommendation> snapshot) {
+                  if (snapshot.hasData)
+                    return Container(
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            '${snapshot.data.label}',
+                            style: TextStyle(fontSize: 30),
+                          ),
+                          Text(
+                            'in ${snapshot.data.distance}m',
+                            style: TextStyle(fontSize: 40),
+                          ),
+                          Text(
+                            snapshot.data.isGreen
+                                ? "jetzt Grün"
+                                : "jetzt Rot",
+                            style: TextStyle(fontSize: 40),
+                          ),
+                          Text(
+                            'noch ${snapshot.data.secondsToPhaseChange}s',
+                            style: TextStyle(fontSize: 80),
+                          ),
+                          // Spacer(),
+                          // SizedBox(
+                          //   child: CircularProgressIndicator(
+                          //     value: snapshot.data.secondsToPhaseChange / 70,
+                          //     strokeWidth: 50,
+                          //     valueColor: snapshot.data.isGreen
+                          //         ? new AlwaysStoppedAnimation<Color>(
+                          //             Colors.green)
+                          //         : new AlwaysStoppedAnimation<Color>(
+                          //             Colors.red),
+                          //   ),
+                          //   height: 150,
+                          //   width: 150,
+                          // ),
+                          // Spacer(),
+                          Text(
+                            snapshot.data.speedRecommendation == 0
+                                ? '🚴👍'
+                                : snapshot.data.speedRecommendation > 0
+                                    ? '🐇 +${snapshot.data.speedRecommendation} km/h'
+                                    : '🐌 ${snapshot.data.speedRecommendation} km/h',
+                            style: TextStyle(fontSize: 50),
+                          ),
+                        ],
+                      ),
+                    ));
+                  else
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text('Warte auf Berechnung der Empfehlung...'),
+                          Text(
+                              'Standort, Route oder Prognose noch nicht vorhanden.'),
+                        ],
+                      ),
+                    );
+
+                  // return snapshot.data != null
+                  //     ? ListView.builder(
+                  //         itemCount: snapshot.data?.length,
+                  //         itemBuilder: (context, index) {
+                  //           return ListTile(
+                  //             title: Text(
+                  //                 "${snapshot.data[index]?.label} (${snapshot.data[index]?.distance}m)"),
+                  //             subtitle: Text(snapshot.data[index] != null
+                  //                 ? snapshot.data[index].isGreen
+                  //                     ? "grün ${snapshot.data[index].secondsToPhaseChange}"
+                  //                     : "rot ${snapshot.data[index].secondsToPhaseChange}"
+                  //                 : 'lade...'), //Text(snapshot.data[index]?.timestamp),
+                  //             trailing: CircularProgressIndicator(
+                  //               value:
+                  //                   snapshot.data[index].secondsToPhaseChange /
+                  //                       100,
+                  //               valueColor: snapshot.data[index].isGreen
+                  //                   ? new AlwaysStoppedAnimation<Color>(
+                  //                       Colors.green)
+                  //                   : new AlwaysStoppedAnimation<Color>(
+                  //                       Colors.red),
+                  //             ),
+                  //           );
+                  //         },
+                  //       )
+                  //     : Padding(
+                  //         padding: const EdgeInsets.all(16.0),
+                  //         child: Text('Lade Prognosen...'),
+                  //       );
                 },
               ),
             ),

@@ -13,12 +13,14 @@ class GeolocationService {
 
   GeolocationService() {
     geolocator = Geolocator();
+    log.w('Geolocator initialized');
   }
 
   startGeolocation() {
+    log.w('Geolocator started doing its thing');
     geolocator
         .getPositionStream(LocationOptions(
-            accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 5))
+            accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 1))
         .listen((Position position) {
       positionStreamController.add(position);
 
@@ -29,6 +31,7 @@ class GeolocationService {
   }
 
   void dispose() {
+    log.w('Geolocator disposed');
     positionStreamController.close();
   }
 }

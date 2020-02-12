@@ -21,14 +21,15 @@ class RecommendationService {
 
   GatewayStatusService gatewayStatusService;
 
-  StreamController<List<Recommendation>> recommendationStreamController =
-      new StreamController<List<Recommendation>>.broadcast();
+  StreamController<Recommendation> recommendationStreamController =
+      new StreamController<Recommendation>.broadcast();
 
-  RecommendationService(
-      {GatewayStatusService gatewayStatusService,
-      Stream<ApiSg> nextSgStream,
-      Stream<Map<String, ApiPrediction>> predictionStream,
-      Stream<Position> positionStream}) {
+  RecommendationService({
+    GatewayStatusService gatewayStatusService,
+    Stream<ApiSg> nextSgStream,
+    Stream<Map<String, ApiPrediction>> predictionStream,
+    Stream<Position> positionStream,
+  }) {
     nextSgStream.listen((nextSg) {
       _nextSg = nextSg;
     });
@@ -57,8 +58,6 @@ class RecommendationService {
   _calculateRecommendation() {
     Stopwatch stopwatch = new Stopwatch()..start();
     if (_predictions != null && _nextSg != null && _position != null) {
-      List<Recommendation> recommendationList = new List<Recommendation>();
-
       ApiPrediction predictionForSg = _predictions[_nextSg.mqtt];
 
       if (predictionForSg != null) {
@@ -67,34 +66,48 @@ class RecommendationService {
             gatewayStatusService.timeDifference;
 
         bool isGreen = PredictionAlgorithm.isGreen(
-            predictionForSg.value[t], predictionForSg.greentimeThreshold);
+          predictionForSg.value[t],
+          predictionForSg.greentimeThreshold,
+        );
 
         int secondsToPhaseChange = PredictionAlgorithm.secondsToPhaseChange(
-            predictionForSg.value,
-            isGreen,
-            predictionForSg.greentimeThreshold,
-            t);
+          predictionForSg.value,
+          isGreen,
+          predictionForSg.greentimeThreshold,
+          t,
+        );
 
         double distance = GeoAlgorithm.distanceBetween(
-            _position.latitude, _position.longitude, _nextSg.lat, _nextSg.lon);
+          _position.latitude,
+          _position.longitude,
+          _nextSg.lat,
+          _nextSg.lon,
+        );
+
+        int speedRecommendation = PredictionAlgorithm.speedRecommendation(
+          predictionForSg.value,
+          distance,
+          _position.speed,
+          predictionForSg.greentimeThreshold,
+          t,
+        );
 
         Recommendation recommendation = new Recommendation(
-            _nextSg.mqtt,
-            _predictions[_nextSg.mqtt].timestamp,
-            isGreen,
-            distance.round(),
-            secondsToPhaseChange);
+          _nextSg.mqtt,
+          _predictions[_nextSg.mqtt].timestamp,
+          isGreen,
+          distance.round(),
+          secondsToPhaseChange,
+          speedRecommendation,
+        );
 
-        recommendationList.add(recommendation);
+        recommendationStreamController.add(recommendation);
       } else {
         log.w('!!! WARNING: No Prediction for SG ${_nextSg.mqtt} !!!');
       }
 
       log.i(
           '(t:${timer.tick}) Calculated recommendation in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
-
-      // add complete liste to stream and UI
-      recommendationStreamController.add(recommendationList);
     }
   }
 

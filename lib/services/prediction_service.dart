@@ -18,7 +18,9 @@ class PredictionService {
 
   MqttService _mqttService;
 
-  PredictionService({Stream<ApiRoute> routeStream}) {
+  PredictionService({
+    Stream<ApiRoute> routeStream,
+  }) {
     _mqttService = new MqttService();
 
     _mqttService.messageStreamController.stream.listen((message) {

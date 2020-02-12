@@ -20,35 +20,35 @@ class _SummaryPageState extends State<SummaryPage> {
       ),
       body: Column(
         children: <Widget>[
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 24.0, bottom: 16),
-              child: Text(
-                "Danke für deine Meldungen!",
-                style: Theme.of(context).textTheme.title,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Wrap(
-              direction: Axis.vertical,
-              runSpacing: 10,
-              children: <Widget>[
-                Chip(
-                  label: Text("3 falsche Prognosen"),
-                  backgroundColor: Colors.white,
-                ),
-                Chip(
-                  label: Text("9 LSA"),
-                  backgroundColor: Colors.white,
-                ),
-                Chip(
-                  label: Text("3 falsche Prognosen"),
-                  backgroundColor: Colors.white,
-                ),
-              ],
-            ),
-          ),
+          // Center(
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(top: 24.0, bottom: 16),
+          //     child: Text(
+          //       "Danke für deine Meldungen!",
+          //       style: Theme.of(context).textTheme.title,
+          //     ),
+          //   ),
+          // ),
+          // Expanded(
+          //   child: Wrap(
+          //     direction: Axis.vertical,
+          //     runSpacing: 10,
+          //     children: <Widget>[
+          //       Chip(
+          //         label: Text("3 falsche Prognosen"),
+          //         backgroundColor: Colors.white,
+          //       ),
+          //       Chip(
+          //         label: Text("9 LSA"),
+          //         backgroundColor: Colors.white,
+          //       ),
+          //       Chip(
+          //         label: Text("3 falsche Prognosen"),
+          //         backgroundColor: Colors.white,
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
