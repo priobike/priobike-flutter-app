@@ -35,55 +35,58 @@ class _NavigationPageState extends State<NavigationPage> {
                 builder: (BuildContext context,
                     AsyncSnapshot<Recommendation> snapshot) {
                   if (snapshot.hasData)
-                    return Container(
-                        child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            '${snapshot.data.label}',
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          Text(
-                            'in ${snapshot.data.distance}m',
-                            style: TextStyle(fontSize: 40),
-                          ),
-                          Text(
-                            snapshot.data.isGreen
-                                ? "jetzt Grün"
-                                : "jetzt Rot",
-                            style: TextStyle(fontSize: 40),
-                          ),
-                          Text(
-                            'noch ${snapshot.data.secondsToPhaseChange}s',
-                            style: TextStyle(fontSize: 80),
-                          ),
-                          // Spacer(),
-                          // SizedBox(
-                          //   child: CircularProgressIndicator(
-                          //     value: snapshot.data.secondsToPhaseChange / 70,
-                          //     strokeWidth: 50,
-                          //     valueColor: snapshot.data.isGreen
-                          //         ? new AlwaysStoppedAnimation<Color>(
-                          //             Colors.green)
-                          //         : new AlwaysStoppedAnimation<Color>(
-                          //             Colors.red),
-                          //   ),
-                          //   height: 150,
-                          //   width: 150,
-                          // ),
-                          // Spacer(),
-                          Text(
-                            snapshot.data.speedRecommendation == 0
-                                ? '🚴👍'
-                                : snapshot.data.speedRecommendation > 0
-                                    ? '🐇 +${snapshot.data.speedRecommendation} km/h'
-                                    : '🐌 ${snapshot.data.speedRecommendation} km/h',
-                            style: TextStyle(fontSize: 50),
-                          ),
-                        ],
-                      ),
-                    ));
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '${snapshot.data.label}',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'in ${snapshot.data.distance}m',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          snapshot.data.isGreen ? "jetzt Grün" : "jetzt Rot",
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'noch ${snapshot.data.secondsToPhaseChange}s',
+                          style: TextStyle(fontSize: 80),
+                        ),
+                        // Spacer(),
+                        // SizedBox(
+                        //   child: CircularProgressIndicator(
+                        //     value: snapshot.data.secondsToPhaseChange / 70,
+                        //     strokeWidth: 50,
+                        //     valueColor: snapshot.data.isGreen
+                        //         ? new AlwaysStoppedAnimation<Color>(
+                        //             Colors.green)
+                        //         : new AlwaysStoppedAnimation<Color>(
+                        //             Colors.red),
+                        //   ),
+                        //   height: 150,
+                        //   width: 150,
+                        // ),
+                        // Spacer(),
+                        Text(
+                          snapshot.data.error != null
+                              ? '??'
+                              : snapshot.data.speedRecommendation == 0
+                                  ? '🚴👍'
+                                  : snapshot.data.speedRecommendation > 0
+                                      ? '🐇 +${snapshot.data.speedRecommendation} km/h'
+                                      : '🐌 ${snapshot.data.speedRecommendation} km/h',
+                          style: TextStyle(fontSize: 80),
+                        ),
+                        Text(
+                          snapshot.data.error != null
+                              ? '${snapshot.data.error}'
+                              : '',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                      ],
+                    );
                   else
                     return Padding(
                       padding: const EdgeInsets.all(16.0),

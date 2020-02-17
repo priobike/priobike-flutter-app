@@ -5,6 +5,7 @@ class Recommendation {
   int distance;
   int secondsToPhaseChange;
   int speedRecommendation;
+  String error;
 
   Recommendation(
     this.label,
@@ -13,5 +14,6 @@ class Recommendation {
     this.distance,
     this.secondsToPhaseChange,
     this.speedRecommendation,
+    this.error,
   );
 }

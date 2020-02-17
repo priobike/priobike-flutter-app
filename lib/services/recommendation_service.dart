@@ -84,22 +84,41 @@ class RecommendationService {
           _nextSg.lon,
         );
 
-        int speedRecommendation = PredictionAlgorithm.speedRecommendation(
-          predictionForSg.value,
-          distance,
-          _position.speed,
-          predictionForSg.greentimeThreshold,
-          t,
-        );
+        Recommendation recommendation;
 
-        Recommendation recommendation = new Recommendation(
-          _nextSg.mqtt,
-          _predictions[_nextSg.mqtt].timestamp,
-          isGreen,
-          distance.round(),
-          secondsToPhaseChange,
-          speedRecommendation,
-        );
+        try {
+          int speedRecommendation = PredictionAlgorithm.speedRecommendation(
+            predictionForSg.value,
+            distance,
+            _position.speed,
+            predictionForSg.greentimeThreshold,
+            t,
+          );
+
+          recommendation = new Recommendation(
+            _nextSg.mqtt,
+            _predictions[_nextSg.mqtt].timestamp,
+            isGreen,
+            distance.round(),
+            secondsToPhaseChange,
+            speedRecommendation,
+            null
+          );
+
+        } catch (e, stack) {
+          log.e(e);
+          log.e(stack);
+
+          recommendation = new Recommendation(
+            _nextSg.mqtt,
+            _predictions[_nextSg.mqtt].timestamp,
+            isGreen,
+            distance.round(),
+            secondsToPhaseChange,
+            0,
+            e.toString(),
+          );
+        }
 
         recommendationStreamController.add(recommendation);
       } else {
