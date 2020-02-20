@@ -1,5 +1,6 @@
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/services/main_service.dart';
+import 'package:bikenow/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +18,9 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text("BikeNow Dresden"),
+        title: Text(
+          app.loading ? "BikeNow Dresden (lade...)" : "BikeNow Dresden",
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
@@ -28,118 +31,64 @@ class _MainPageState extends State<MainPage> {
       body: ListView(
         padding: const EdgeInsets.all(8),
         children: <Widget>[
-          Card(
-            child: ListTile(
-              // leading: IconButton(
-              //   icon: Icon(Icons.star_border),
-              //   onPressed: () {},
-              // ),
-              trailing: app.loading
-                  ? CircularProgressIndicator()
-                  : Icon(Icons.chevron_right),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(color: Colors.black),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: 'Start: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(text: 'Technische Universität Dresden')
-                        ],
-                      ),
-                    ),
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(color: Colors.black),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: 'Ende: ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(text: 'Albertplatz')
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              onTap: () async {
-                await app.routingService
-                    .updateRoute(51.030815, 13.726988, 51.068019, 13.753166);
-                Navigator.pushNamed(context, Page.routeInfo);
-              },
-            ),
+          RouteButton(
+            title: 'Pilotstrecke 1',
+            start: 'Technische Universität',
+            destination: 'Albertplatz',
+            colors: [
+              Color(0xff4b6cb7),
+              Color(0xff182848),
+            ],
+            onPressed: () async {
+              await app.routingService.updateRoute(
+                51.030815,
+                13.726988,
+                51.068019,
+                13.753166,
+              );
+              Navigator.pushNamed(context, Page.routeInfo);
+            },
           ),
-          Card(
-            child: ListTile(
-              // leading: IconButton(
-              //   icon: Icon(Icons.star_border),
-              //   onPressed: () {},
-              // ),
-              trailing: app.loading
-                  ? CircularProgressIndicator()
-                  : Icon(Icons.chevron_right),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(color: Colors.black),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: 'Start: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(text: 'Albertplatz')
-                        ],
-                      ),
-                    ),
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(color: Colors.black),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: 'Ende: ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(text: 'Technische Universität Dresden')
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              onTap: () async {
-                await app.routingService
-                    .updateRoute(51.068019, 13.753166, 51.030815, 13.726988);
-                Navigator.pushNamed(context, Page.routeInfo);
-              },
-            ),
+          RouteButton(
+            title: 'Pilotstrecke 1',
+            start: 'Albertplatz',
+            destination: 'Technische Universität',
+            colors: [
+              Color(0xff182848),
+              Color(0xfff12711),
+            ],
+            onPressed: () async {
+              await app.routingService.updateRoute(
+                51.068019,
+                13.753166,
+                51.030815,
+                13.726988,
+              );
+              Navigator.pushNamed(context, Page.routeInfo);
+            },
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, Page.routeCreation);
-        },
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-        backgroundColor: Theme.of(context).primaryColor,
-        shape: CircleBorder(
-          side: BorderSide(color: Colors.white, width: 4.0),
-        ),
-        elevation: 10,
-      ),
+      //
+      //
+      //
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.pushNamed(context, Page.routeCreation);
+      //   },
+      //   child: Icon(
+      //     Icons.add,
+      //     color: Colors.white,
+      //   ),
+      //   backgroundColor: Theme.of(context).primaryColor,
+      //   shape: CircleBorder(
+      //     side: BorderSide(color: Colors.white, width: 4.0),
+      //   ),
+      //   elevation: 10,
+      // ),
+      //
+      //
+      //
     );
   }
 }

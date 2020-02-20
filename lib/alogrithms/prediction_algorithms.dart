@@ -1,5 +1,3 @@
-import 'package:bikenow/config/logger.dart';
-
 class PredictionAlgorithm {
   static bool isGreen(
     double value,
@@ -34,7 +32,6 @@ class PredictionAlgorithm {
     double greentimeThreshold,
     int time,
   ) {
-    Logger log = new Logger('RecommendationService');
 
     if (speed == 0) {
       throw Exception('Geschwindigkeit 0 km/h, keine Ankunft');

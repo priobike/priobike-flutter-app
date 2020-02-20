@@ -56,14 +56,23 @@ class RecommendationService {
   }
 
   _calculateRecommendation() {
-    Stopwatch stopwatch = new Stopwatch()..start();
+    if (_predictions == null)
+      log.w('!!! WARNING: No Prediction for SG ${_nextSg.mqtt} !!!');
+    if (_nextSg == null) log.w('!!! WARNING: No Next SG !!!');
+    if (_position == null) log.w('!!! WARNING: No Position !!!');
+
     if (_predictions != null && _nextSg != null && _position != null) {
+      Stopwatch stopwatch = new Stopwatch()..start();
       ApiPrediction predictionForSg = _predictions[_nextSg.mqtt];
 
       if (predictionForSg != null) {
         DateTime startTime = DateTime.parse(predictionForSg.startTime);
         int t = DateTime.now().difference(startTime).inSeconds -
             gatewayStatusService.timeDifference;
+
+        print(predictionForSg.startTime);
+        print(startTime);
+        print(DateTime.now());
 
         bool isGreen = PredictionAlgorithm.isGreen(
           predictionForSg.value[t],
@@ -102,9 +111,8 @@ class RecommendationService {
             distance.round(),
             secondsToPhaseChange,
             speedRecommendation,
-            null
+            null,
           );
-
         } catch (e, stack) {
           log.e(e);
           log.e(stack);
@@ -121,12 +129,9 @@ class RecommendationService {
         }
 
         recommendationStreamController.add(recommendation);
-      } else {
-        log.w('!!! WARNING: No Prediction for SG ${_nextSg.mqtt} !!!');
+        log.i(
+            '(t:${timer.tick}) Calculated recommendation in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
       }
-
-      log.i(
-          '(t:${timer.tick}) Calculated recommendation in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
     }
   }
 

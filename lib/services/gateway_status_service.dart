@@ -19,7 +19,10 @@ class GatewayStatusService with ChangeNotifier {
   getStatus() async {
     log.i('Connect to Gateway (${Api.HOST}) ...');
 
-    answer = await Api.getStatus();
+    // TODO: handle connection errors
+    try {
+      answer = await Api.getStatus();
+    } catch (e) {}
 
     timeDifference = DateTime.now()
         .difference(DateTime.parse(answer.gatewayTime).toLocal())

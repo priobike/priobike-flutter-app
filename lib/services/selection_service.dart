@@ -23,9 +23,29 @@ class SelectionService {
   }) {
     routeStream.listen((newRoute) {
       _route = newRoute;
+      print(
+          '#############################################################################################');
+
+      _route.sg.forEach(
+          (sg) => print('${sg.index}: ${sg.mqtt} (${sg.lat}, ${sg.lon})'));
+
+      print(
+          '#############################################################################################');
     });
 
     positionStream.listen((newPosition) {
+      if (_route == null) {
+        log.e('No route available');
+      }
+
+      if (lastPosition == null) {
+        log.e('Last position not available');
+      }
+
+      if (lastPosition.toString() == newPosition.toString()) {
+        log.w('Last Position was the same');
+      }
+
       if (_route != null &&
           lastPosition != null &&
           (lastPosition.toString() != newPosition.toString())) {
@@ -39,10 +59,11 @@ class SelectionService {
           Vector2 lastPositionVector =
               new Vector2(lastPosition.latitude, lastPosition.longitude);
 
-          Vector2 movementVector = newPositionVector - lastPositionVector;
+          Vector2 movementVector =
+              (newPositionVector - lastPositionVector).normalized();
 
           Vector2 sgPositionVector =
-              newPositionVector - new Vector2(sg.lat, sg.lon);
+              (new Vector2(sg.lat, sg.lon) - newPositionVector).normalized();
 
           Vector2 directionVector = newPositionVector + movementVector;
 
@@ -55,18 +76,6 @@ class SelectionService {
         }
         log.i(
             'New Position, selected next sg in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
-      } else {
-        if (_route == null) {
-          log.w('No route available');
-        }
-
-        if (lastPosition == null) {
-          log.w('Last position not available');
-        }
-
-        if (lastPosition.toString() == newPosition.toString()) {
-          log.w('Last Position was the same');
-        }
       }
       lastPosition = newPosition;
     });
