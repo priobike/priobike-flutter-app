@@ -65,6 +65,11 @@ class RecommendationService {
       Stopwatch stopwatch = new Stopwatch()..start();
       ApiPrediction predictionForSg = _predictions[_nextSg.mqtt];
 
+      log.i('Nächste SG ist ${_nextSg.mqtt}');
+
+      if (predictionForSg == null)
+        log.w('!!! WARNING: Prediction for SG is null !!!');
+
       if (predictionForSg != null) {
         DateTime startTime = DateTime.parse(predictionForSg.startTime);
         int t = DateTime.now().difference(startTime).inSeconds -

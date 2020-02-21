@@ -1,18 +1,19 @@
 import 'dart:async';
 
+import 'package:bikenow/alogrithms/geo_algorithms.dart';
+import 'package:bikenow/models/api/api_sg.dart';
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_route.dart';
-import 'package:bikenow/models/api/api_sg.dart';
 
 import 'package:geolocator/geolocator.dart';
 
-import 'package:vector_math/vector_math.dart';
-
 class SelectionService {
   Logger log = new Logger('SelectionService');
-  ApiRoute _route;
 
-  Position lastPosition;
+  List<ApiSg> sgList;
+  ApiSg nextSg;
+  double lastDistanceToNextSg;
+  bool touchedSg;
 
   StreamController<ApiSg> nextSgStreamController =
       new StreamController<ApiSg>.broadcast();
@@ -22,62 +23,67 @@ class SelectionService {
     Stream<Position> positionStream,
   }) {
     routeStream.listen((newRoute) {
-      _route = newRoute;
-      print(
-          '#############################################################################################');
-
-      _route.sg.forEach(
-          (sg) => print('${sg.index}: ${sg.mqtt} (${sg.lat}, ${sg.lon})'));
-
-      print(
-          '#############################################################################################');
+      sgList = newRoute.sg;
+      nextSg = null;
+      lastDistanceToNextSg = double.infinity;
     });
 
     positionStream.listen((newPosition) {
-      if (_route == null) {
-        log.e('No route available');
-      }
+      // Falls keine nächste SG, setze näheste SG
+      if (nextSg == null) {
+        ApiSg nearestSg = sgList[0];
+        double nearestDistance = double.infinity;
+        sgList.forEach((sg) {
+          double distance = GeoAlgorithm.distanceBetween(
+            newPosition.latitude,
+            newPosition.longitude,
+            sg.lat,
+            sg.lon,
+          );
 
-      if (lastPosition == null) {
-        log.e('Last position not available');
-      }
-
-      if (lastPosition.toString() == newPosition.toString()) {
-        log.w('Last Position was the same');
-      }
-
-      if (_route != null &&
-          lastPosition != null &&
-          (lastPosition.toString() != newPosition.toString())) {
-        Stopwatch stopwatch = new Stopwatch()..start();
-        for (var i = 0; i < _route.sg.length; i++) {
-          ApiSg sg = _route.sg[i];
-
-          Vector2 newPositionVector =
-              new Vector2(newPosition.latitude, newPosition.longitude);
-
-          Vector2 lastPositionVector =
-              new Vector2(lastPosition.latitude, lastPosition.longitude);
-
-          Vector2 movementVector =
-              (newPositionVector - lastPositionVector).normalized();
-
-          Vector2 sgPositionVector =
-              (new Vector2(sg.lat, sg.lon) - newPositionVector).normalized();
-
-          Vector2 directionVector = newPositionVector + movementVector;
-
-          bool isInFront = directionVector.dot(sgPositionVector) < 0;
-
-          if (isInFront) {
-            nextSgStreamController.add(sg);
-            break;
+          if (distance < nearestDistance) {
+            nearestSg = sg;
+            nearestDistance = distance;
           }
-        }
-        log.i(
-            'New Position, selected next sg in ${stopwatch.elapsed.inMicroseconds / 1000}ms');
+        });
+
+        print('NÄCHSTE SG IST ${nearestSg.mqtt}');
+        nextSg = nearestSg;
+        lastDistanceToNextSg = nearestDistance;
+
+        touchedSg = true;
+
+        // entferne alle SGs aus Liste bis zu dieser
+        sgList.removeRange(0, nextSg.index + 1);
+
+        print('ÜBRIGE SG:');
+        sgList.forEach((sg) {
+          print(sg.mqtt);
+        });
+
+        nextSgStreamController.add(nextSg);
       }
-      lastPosition = newPosition;
+
+      double distanceToNextSg = GeoAlgorithm.distanceBetween(
+        newPosition.latitude,
+        newPosition.longitude,
+        nextSg.lat,
+        nextSg.lon,
+      );
+
+      // Touch Radius bei 20m
+      if (distanceToNextSg < 20) {
+        touchedSg = true;
+      }
+
+      // wenn mehr als 3 meter drüber
+      if ((distanceToNextSg - lastDistanceToNextSg > 3) && touchedSg == true) {
+        nextSg = sgList.removeAt(0);
+        nextSgStreamController.add(nextSg);
+        touchedSg = false;
+      }
+
+      lastDistanceToNextSg = distanceToNextSg;
     });
   }
 

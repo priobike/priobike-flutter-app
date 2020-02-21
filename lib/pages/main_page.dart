@@ -54,8 +54,8 @@ class _MainPageState extends State<MainPage> {
             start: 'Albertplatz',
             destination: 'Technische Universität',
             colors: [
+              Color(0xff4b6cb7),
               Color(0xff182848),
-              Color(0xfff12711),
             ],
             onPressed: () async {
               await app.routingService.updateRoute(
