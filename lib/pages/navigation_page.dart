@@ -149,6 +149,7 @@ class _NavigationPageState extends State<NavigationPage> {
   void dispose() {
     app.predictionService.unsubscribeFromRoute();
     app.recommendationService.endRecommendation();
+    app.geolocationService.stopGeolocation();
     super.dispose();
   }
 }

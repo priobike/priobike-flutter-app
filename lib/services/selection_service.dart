@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 class SelectionService {
   Logger log = new Logger('SelectionService');
 
-  List<ApiSg> sgList;
+  List<ApiSg> sgList = [];
   ApiSg nextSg;
   double lastDistanceToNextSg;
   bool touchedSg;
@@ -23,7 +23,10 @@ class SelectionService {
     Stream<Position> positionStream,
   }) {
     routeStream.listen((newRoute) {
-      sgList = newRoute.sg;
+      newRoute.sg.forEach((sg) {
+        print(sg);
+        sgList.add(sg);
+      });
       nextSg = null;
       lastDistanceToNextSg = double.infinity;
     });
@@ -76,8 +79,7 @@ class SelectionService {
         touchedSg = true;
       }
 
-      // wenn mehr als 3 meter drüber
-      if ((distanceToNextSg - lastDistanceToNextSg > 3) && touchedSg == true) {
+      if ((distanceToNextSg - lastDistanceToNextSg >= 1) && touchedSg == true) {
         nextSg = sgList.removeAt(0);
         nextSgStreamController.add(nextSg);
         touchedSg = false;

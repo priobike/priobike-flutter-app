@@ -13,19 +13,16 @@ class MainService with ChangeNotifier {
   RoutingService routingService;
   PredictionService predictionService;
   RecommendationService recommendationService;
-  GeolocationService geolocationService;
+  GeolocationService geolocationService = new GeolocationService();
   SelectionService selectionService;
 
   MainService() {
     gatewayStatusService = new GatewayStatusService();
-
     routingService = new RoutingService();
 
     predictionService = new PredictionService(
       routeStream: routingService.routeStreamController.stream,
     );
-
-    geolocationService = new GeolocationService();
 
     selectionService = new SelectionService(
       routeStream: routingService.routeStreamController.stream,
@@ -38,7 +35,5 @@ class MainService with ChangeNotifier {
       predictionStream: predictionService.predictionStreamController.stream,
       positionStream: geolocationService.positionStreamController.stream,
     );
-
-
   }
 }
