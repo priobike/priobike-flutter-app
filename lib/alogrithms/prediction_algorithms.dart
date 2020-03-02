@@ -25,7 +25,7 @@ class PredictionAlgorithm {
     return secondsToPhaseChange;
   }
 
-  static int speedRecommendation(
+  static double speedRecommendation(
     List<double> vector,
     double distance, // meter
     double speed, // meter pro sekunde
@@ -103,8 +103,8 @@ class PredictionAlgorithm {
       print(speedDiffPreviousPhase);
 
       return (speedDiffNextPhase.abs() <= speedDiffPreviousPhase.abs())
-          ? speedDiffNextPhase.round()
-          : speedDiffPreviousPhase.round();
+          ? speedDiffNextPhase
+          : speedDiffPreviousPhase;
     }
   }
 }

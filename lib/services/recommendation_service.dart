@@ -101,7 +101,7 @@ class RecommendationService {
         Recommendation recommendation;
 
         try {
-          int speedRecommendation = PredictionAlgorithm.speedRecommendation(
+          double speedRecommendation = PredictionAlgorithm.speedRecommendation(
             predictionForSg.value,
             distance,
             _position.speed,
@@ -113,7 +113,7 @@ class RecommendationService {
             _nextSg.mqtt,
             _predictions[_nextSg.mqtt].timestamp,
             isGreen,
-            distance.round(),
+            distance,
             secondsToPhaseChange,
             speedRecommendation,
             null,
@@ -126,7 +126,7 @@ class RecommendationService {
             _nextSg.mqtt,
             _predictions[_nextSg.mqtt].timestamp,
             isGreen,
-            distance.round(),
+            distance,
             secondsToPhaseChange,
             0,
             e.toString(),

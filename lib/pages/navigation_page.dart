@@ -19,6 +19,7 @@ class _NavigationPageState extends State<NavigationPage> {
     app = Provider.of<MainService>(context);
     app.predictionService.subscribeToRoute();
     app.recommendationService.startRecommendation();
+    app.trackingService.startTracking();
     super.didChangeDependencies();
   }
 
@@ -150,6 +151,7 @@ class _NavigationPageState extends State<NavigationPage> {
     app.predictionService.unsubscribeFromRoute();
     app.recommendationService.endRecommendation();
     app.geolocationService.stopGeolocation();
+    app.trackingService.stopTracking();
     super.dispose();
   }
 }

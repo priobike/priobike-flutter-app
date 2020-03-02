@@ -40,7 +40,7 @@ class GeolocationService {
 
   stopGeolocation() {
     timer.cancel();
-    timer = null; 
+    timer = null;
     log.w('Geolocator stopped!');
   }
 

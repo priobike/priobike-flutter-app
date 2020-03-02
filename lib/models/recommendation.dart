@@ -2,9 +2,9 @@ class Recommendation {
   String label;
   String timestamp;
   bool isGreen;
-  int distance;
+  double distance;
   int secondsToPhaseChange;
-  int speedRecommendation;
+  double speedRecommendation;
   String error;
 
   Recommendation(

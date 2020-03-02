@@ -10,14 +10,15 @@ class ApiRoute {
   List<ApiInstruction> instructions;
   List<ApiSg> sg;
 
-  ApiRoute(
-      {this.status,
-      this.distance,
-      this.time,
-      this.ascend,
-      this.descend,
-      this.instructions,
-      this.sg});
+  ApiRoute({
+    this.status,
+    this.distance,
+    this.time,
+    this.ascend,
+    this.descend,
+    this.instructions,
+    this.sg,
+  });
 
   ApiRoute.fromJson(Map<String, dynamic> json) {
     status = json['status'];
