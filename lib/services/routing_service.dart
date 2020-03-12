@@ -15,9 +15,15 @@ class RoutingService with ChangeNotifier {
 
   RoutingService();
 
-  updateRoute(fromLat, fromLon, toLat, toLon) async {
+  updateRoute(
+    double fromLat,
+    double fromLon,
+    double toLat,
+    double toLon,
+    String id,
+  ) async {
     log.i('Update route');
-    route = await Api.getRoute(fromLat, fromLon, toLat, toLon);
+    route = await Api.getRoute(fromLat, fromLon, toLat, toLon, id);
     routeStreamController.add(route);
     // notifyListeners();
   }

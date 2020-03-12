@@ -32,7 +32,6 @@ class PredictionAlgorithm {
     double greentimeThreshold,
     int time,
   ) {
-
     if (speed == 0) {
       throw Exception('Geschwindigkeit 0 km/h, keine Ankunft');
     }
@@ -68,7 +67,7 @@ class PredictionAlgorithm {
 
       // Suche vorherige Grünphase und berechne Zeit bis zum Ende
       int secondsToPreviousGreenPhase;
-      for (var i = time + secondsToArrival; i >= 0; i--) {
+      for (var i = time + secondsToArrival; i >= time; i--) {
         bool greenThen = isGreen(vector[i], greentimeThreshold);
 
         if (greenThen) {
@@ -85,22 +84,28 @@ class PredictionAlgorithm {
         return 0;
       }
 
-      if (secondsToNextGreenPhase == null) {
-        throw Exception('Es gibt keine NÄCHSTE Grünphase im Vektor');
+      double speedDiffNextPhase;
+      if (secondsToNextGreenPhase != null) {
+        double speedForNextPhase = distance / secondsToNextGreenPhase;
+        speedDiffNextPhase = (speedForNextPhase - speed) * 3.6;
+        print(speedForNextPhase * 3.6);
       }
 
-      if (secondsToPreviousGreenPhase == null) {
-        throw Exception('Es gibt keine VORHERIGE Grünphase im Vektor');
+      double speedDiffPreviousPhase;
+      if (secondsToPreviousGreenPhase != null) {
+        double speedForPreviousPhase = distance / secondsToPreviousGreenPhase;
+        speedDiffPreviousPhase = (speedForPreviousPhase - speed) * 3.6;
+        print(speedForPreviousPhase * 3.6);
       }
 
-      double speedForNextPhase = distance / secondsToNextGreenPhase;
-      double speedForPreviousPhase = distance / secondsToPreviousGreenPhase;
+      if (speedDiffPreviousPhase == null && speedDiffNextPhase == null)
+        throw Exception('Berechnung der Prognose nicht möglich..');
 
-      double speedDiffNextPhase = (speedForNextPhase - speed) * 3.6;
-      double speedDiffPreviousPhase = (speedForPreviousPhase - speed) * 3.6;
+      if (speedDiffPreviousPhase == null && speedDiffNextPhase != null)
+        return speedDiffNextPhase;
 
-      print(speedDiffNextPhase);
-      print(speedDiffPreviousPhase);
+      if (speedDiffPreviousPhase != null && speedDiffNextPhase == null)
+        return speedDiffPreviousPhase;
 
       return (speedDiffNextPhase.abs() <= speedDiffPreviousPhase.abs())
           ? speedDiffNextPhase

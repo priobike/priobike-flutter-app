@@ -17,6 +17,7 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void didChangeDependencies() {
     app = Provider.of<MainService>(context);
+    app.geolocationService.startGeolocation();
     app.predictionService.subscribeToRoute();
     app.recommendationService.startRecommendation();
     app.trackingService.startTracking();
@@ -44,7 +45,7 @@ class _NavigationPageState extends State<NavigationPage> {
                           style: TextStyle(fontSize: 30),
                         ),
                         Text(
-                          'in ${snapshot.data.distance}m',
+                          'in ${snapshot.data.distance.round()}m',
                           style: TextStyle(fontSize: 30),
                         ),
                         Text(
@@ -76,8 +77,8 @@ class _NavigationPageState extends State<NavigationPage> {
                               : snapshot.data.speedRecommendation == 0
                                   ? '🚴👍'
                                   : snapshot.data.speedRecommendation > 0
-                                      ? '🐇 +${snapshot.data.speedRecommendation} km/h'
-                                      : '🐌 ${snapshot.data.speedRecommendation} km/h',
+                                      ? '🐇 +${snapshot.data.speedRecommendation.round()} km/h'
+                                      : '🐌 ${snapshot.data.speedRecommendation.round()} km/h',
                           style: TextStyle(fontSize: 80),
                         ),
                         Text(

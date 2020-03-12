@@ -15,85 +15,94 @@ class _InitPageState extends State<InitPage> {
   @override
   Widget build(BuildContext context) {
     final gatewayStatusService = Provider.of<GatewayStatusService>(context);
-    return Container(
-      color: Colors.white,
+    return SafeArea(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            stops: [0, 1],
-            colors: [Palette.primaryColor, Palette.primaryColor],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: Colors.black26,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.info,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          "Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.",
-                          style: Theme.of(context).primaryTextTheme.caption,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(60.0),
-                child: Image.asset("assets/images/bikenow.png"),
-              ),
-              Spacer(),
-              RaisedButton(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: gatewayStatusService.loading
-                      ? CircularProgressIndicator(
-                          backgroundColor: Colors.white,
-                        )
-                      : Text(
-                          "Los gehts! (Offset: ${gatewayStatusService.timeDifference}s)",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, Page.home);
-                },
-                color: Colors.black12,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40.0))),
-              ),
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      "1.0a",
-                      style: Theme.of(context).primaryTextTheme.caption,
+        color: Palette.white,
+        child: Column(
+          children: <Widget>[
+            Spacer(),
+            Container(
+              // color: Palette.primaryColor,
+              padding: EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
+                    child: Icon(
+                      Icons.warning,
+                      color: Palette.primaryColor,
                     ),
-                    Text("www.bikenow-dresden.de",
-                        style: Theme.of(context).primaryTextTheme.caption)
-                  ],
-                ),
-              )
-            ],
-          ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      "Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.",
+                      style: TextStyle(
+                          color: Palette.primaryColor,
+                          fontSize: 14,
+                          decoration: TextDecoration.none,
+                          fontFamily: 'Roboto'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: Image.asset("assets/images/undraw_biking.png"),
+            ),
+            Spacer(),
+            OutlineButton(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: gatewayStatusService.loading
+                    ? CircularProgressIndicator(
+                        backgroundColor: Palette.primaryColor,
+                      )
+                    : Text(
+                        "Ich bin vorsichtig. Los gehts!",
+                        style: TextStyle(color: Palette.primaryColor),
+                      ),
+              ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, Page.home);
+              },
+              borderSide: BorderSide(width: 1, color: Palette.primaryColor),
+              splashColor: Colors.black26,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
+            ),
+            Spacer(),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    "v1.0",
+                    style: TextStyle(
+                      color: Palette.primaryColor,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    "www.bikenow-dresden.de",
+                    style: TextStyle(
+                      color: Palette.primaryColor,
+                      fontSize: 12,
+                      decoration: TextDecoration.none,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );

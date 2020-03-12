@@ -23,12 +23,15 @@ class SelectionService {
     Stream<Position> positionStream,
   }) {
     routeStream.listen((newRoute) {
+      sgList.clear();
+      nextSg = null;
+      lastDistanceToNextSg = double.infinity;
+
       newRoute.sg.forEach((sg) {
         print(sg);
         sgList.add(sg);
-      });
-      nextSg = null;
-      lastDistanceToNextSg = double.infinity;
+      });      
+      
     });
 
     positionStream.listen((newPosition) {

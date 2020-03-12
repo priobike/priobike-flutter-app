@@ -21,7 +21,7 @@ class GeolocationService {
   startGeolocation() {
     log.w('Geolocator started doing its thing');
 
-    if (timer == null) {
+    if (timer == null || !timer.isActive) {
       timer = Timer.periodic(new Duration(seconds: 1), (t) async {
         Position position = await geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best,
@@ -40,7 +40,6 @@ class GeolocationService {
 
   stopGeolocation() {
     timer.cancel();
-    timer = null;
     log.w('Geolocator stopped!');
   }
 
@@ -48,6 +47,5 @@ class GeolocationService {
     log.w('Geolocator disposed');
     positionStreamController.close();
     timer.cancel();
-    timer = null;
   }
 }

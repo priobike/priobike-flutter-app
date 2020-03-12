@@ -95,7 +95,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
               onStyleLoadedCallback: onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(51.050, 13.737),
-                zoom: 11.0,
+                zoom: 12.0,
               ),
               styleString: MapboxStyles.MAPBOX_STREETS,
               myLocationEnabled: true,
@@ -135,5 +135,13 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa');
+    app.geolocationService.stopGeolocation();
+    controller.dispose();
+    super.dispose();
   }
 }
