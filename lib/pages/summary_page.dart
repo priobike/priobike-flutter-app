@@ -67,7 +67,7 @@ class _SummaryPageState extends State<SummaryPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: SmoothStarRating(
                       allowHalfRating: false,
-                      onRatingChanged: (v) {
+                      onRated: (v) {
                         rating = v;
                         setState(() {});
                       },

@@ -23,7 +23,6 @@ class MqttService {
         .withWillQos(MqttQos.exactlyOnce);
 
     _client = MqttClient(BROKER_URL, CLIENT_IDENTIFIER)
-      ..useWebSocket = true
       ..port = PORT
       ..onDisconnected = _onDisconnected
       ..onConnected = _onConnected
