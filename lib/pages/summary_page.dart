@@ -54,7 +54,7 @@ class _SummaryPageState extends State<SummaryPage> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 "Wie bewertest du deine Fahrt?",
-                style: Theme.of(context).textTheme.title,
+                style: Theme.of(context).textTheme.headline6,
               ),
             ),
           ),
@@ -114,7 +114,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, Page.home, (_) => false);
+                            context, AppPage.home, (_) => false);
                       },
                       child: Text(
                         'überspringen',
@@ -133,11 +133,11 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, Page.home, (_) => false);
+                            context, AppPage.home, (_) => false);
                       },
                       child: Text(
                         'Feedback senden',
-                        style: Theme.of(context).primaryTextTheme.body1,
+                        style: Theme.of(context).primaryTextTheme.bodyText1,
                       ),
                     ),
                   ),

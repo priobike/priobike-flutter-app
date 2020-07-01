@@ -27,7 +27,7 @@ class _MainPageState extends State<MainPage> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, Page.settings),
+              onPressed: () => Navigator.pushNamed(context, AppPage.settings),
             ),
           ],
         ),
@@ -58,7 +58,7 @@ class _MainPageState extends State<MainPage> {
                           strecke.toLon,
                           strecke.id
                         );
-                        Navigator.pushNamed(context, Page.routeInfo);
+                        Navigator.pushNamed(context, AppPage.routeInfo);
                       },
                     ),
                   );
@@ -68,7 +68,7 @@ class _MainPageState extends State<MainPage> {
         //
         // floatingActionButton: FloatingActionButton(
         //   onPressed: () {
-        //     Navigator.pushNamed(context, Page.routeCreation);
+        //     Navigator.pushNamed(context, AppPage.routeCreation);
         //   },
         //   child: Icon(
         //     Icons.add,

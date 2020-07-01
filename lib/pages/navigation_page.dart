@@ -137,7 +137,7 @@ class _NavigationPageState extends State<NavigationPage> {
               child: ListTile(
                 title: Text('Fahrt beenden'),
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, Page.summary);
+                  Navigator.pushReplacementNamed(context, AppPage.summary);
                 },
               ),
             ),

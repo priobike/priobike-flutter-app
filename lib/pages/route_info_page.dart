@@ -126,7 +126,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                     icon: Icon(Icons.directions_bike),
                     tooltip: 'Routing Starten',
                     onPressed: () {
-                      Navigator.pushNamed(context, Page.navigation);
+                      Navigator.pushNamed(context, AppPage.navigation);
                     }),
                 Text("Start")
               ],

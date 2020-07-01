@@ -65,7 +65,7 @@ class _InitPageState extends State<InitPage> {
                       ),
               ),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, Page.home);
+                Navigator.pushReplacementNamed(context, AppPage.home);
               },
               borderSide: BorderSide(width: 1, color: Palette.primaryColor),
               splashColor: Colors.black26,

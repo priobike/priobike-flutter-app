@@ -19,7 +19,7 @@ class _NewsPageState extends State<NewsPage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, Page.settings);
+              Navigator.pushNamed(context, AppPage.settings);
             },
           ),
         ],
