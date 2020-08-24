@@ -19,70 +19,64 @@ class _MainPageState extends State<MainPage> {
     final app = Provider.of<MainService>(context);
     final gatewayStatusService = Provider.of<GatewayStatusService>(context);
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          title: Text(
-            app.loading ? "BikeNow Dresden (lade...)" : "BikeNow Dresden",
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, AppPage.settings),
-            ),
-          ],
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Text(
+          app.loading ? "BikeNow Dresden (lade...)" : "BikeNow Dresden",
         ),
-        body: gatewayStatusService.pilotstrecken != null
-            ? new ListView.builder(
-                itemCount:
-                    gatewayStatusService.pilotstrecken.strecken.length,
-                itemBuilder: (BuildContext ctxt, int index) {
-                  ApiStrecke strecke =
-                      gatewayStatusService.pilotstrecken.strecken[index];
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, AppPage.settings),
+          ),
+        ],
+      ),
+      body: gatewayStatusService.pilotstrecken != null
+          ? new ListView.builder(
+              itemCount: gatewayStatusService.pilotstrecken.strecken.length,
+              itemBuilder: (BuildContext ctxt, int index) {
+                ApiStrecke strecke =
+                    gatewayStatusService.pilotstrecken.strecken[index];
 
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: new RouteButton(
-                      title: strecke.title,
-                      start: strecke.startLabel,
-                      destination: strecke.destinationLabel,
-                      description: strecke.description,
-                      colors: [
-                        Color(0xff4b6cb7),
-                        Color(0xff182848),
-                      ],
-                      onPressed: () async {
-                        await app.routingService.updateRoute(
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new RouteButton(
+                    title: strecke.title,
+                    start: strecke.startLabel,
+                    destination: strecke.destinationLabel,
+                    description: strecke.description,
+                    colors: [
+                      Color(0xff4b6cb7),
+                      Color(0xff182848),
+                    ],
+                    onPressed: () async {
+                      await app.routingService.updateRoute(
                           strecke.fromLat,
                           strecke.fromLon,
                           strecke.toLat,
                           strecke.toLon,
-                          strecke.id
-                        );
-                        Navigator.pushNamed(context, AppPage.routeInfo);
-                      },
-                    ),
-                  );
-                })
-            : Text('asd')
-
-        //
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: () {
-        //     Navigator.pushNamed(context, AppPage.routeCreation);
-        //   },
-        //   child: Icon(
-        //     Icons.add,
-        //     color: Colors.white,
-        //   ),
-        //   backgroundColor: Theme.of(context).primaryColor,
-        //   shape: CircleBorder(
-        //     side: BorderSide(color: Colors.white, width: 4.0),
-        //   ),
-        //   elevation: 10,
-        // ),
-        //
-        //
-        //
-        );
+                          strecke.id);
+                      Navigator.pushNamed(context, AppPage.routeInfo);
+                    },
+                  ),
+                );
+              })
+          : Text('asd'),
+      floatingActionButton: FloatingActionButton(
+        mini: true,
+        onPressed: () {
+          Navigator.pushNamed(context, AppPage.routeCreation);
+        },
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).primaryColor,
+        ),
+        backgroundColor: Colors.white,
+        shape: CircleBorder(
+          side: BorderSide(color: Theme.of(context).primaryColor, width: 3.0),
+        ),
+        elevation: 5,
+      ),
+    );
   }
 }

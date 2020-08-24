@@ -22,26 +22,28 @@ class RouteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
+      elevation: 1,
       color: Colors.white,
       child: Container(
-        height: 140,
+        height: 120,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+           crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Text(
                 '${this.start} ⇾ ${this.destination}',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 18,
                   fontWeight: FontWeight.w400,
                 ),
+                textAlign: TextAlign.start,
               ),
               Spacer(),
               Text(
                 this.title,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: Colors.black54,
                 ),
@@ -50,7 +52,7 @@ class RouteButton extends StatelessWidget {
               Text(
                 this.description,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: Colors.black54,
                 ),
@@ -60,11 +62,10 @@ class RouteButton extends StatelessWidget {
         ),
       ),
       onPressed: () => this.onPressed(),
-      // borderSide: BorderSide(width: 1, color: Palette.primaryColor),
       splashColor: Colors.black26,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
-          Radius.circular(16.0),
+          Radius.circular(2.0),
         ),
       ),
     );

@@ -22,7 +22,6 @@ class _InitPageState extends State<InitPage> {
           children: <Widget>[
             Spacer(),
             Container(
-              // color: Palette.primaryColor,
               padding: EdgeInsets.fromLTRB(32, 0, 32, 0),
               child: Row(
                 children: <Widget>[
@@ -41,15 +40,27 @@ class _InitPageState extends State<InitPage> {
                           fontSize: 14,
                           decoration: TextDecoration.none,
                           fontFamily: 'Roboto'),
+                      textAlign: TextAlign.justify,
                     ),
                   ),
                 ],
               ),
             ),
+            Image.asset("assets/images/undraw_biking.png"),
             Spacer(),
             Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: Image.asset("assets/images/undraw_biking.png"),
+              padding: const EdgeInsets.all(32),
+              child: Text(
+                "Damit wir dir Geschwindigkeitsempfehlungen live auf dein Handy senden können, benötigen wir regelmäßig deine Position. \nDiese Daten werden anonym bei uns gespeichert und ausgewertet. Mehr Informationen findest du dazu auf unserer Webseite.",
+                style: TextStyle(
+                  color: Palette.primaryColor,
+                  fontSize: 14,
+                  decoration: TextDecoration.none,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: 'Roboto',
+                ),
+                textAlign: TextAlign.justify,
+              ),
             ),
             Spacer(),
             OutlineButton(
@@ -60,7 +71,7 @@ class _InitPageState extends State<InitPage> {
                         backgroundColor: Palette.primaryColor,
                       )
                     : Text(
-                        "Ich bin vorsichtig. Los gehts!",
+                        "Ich bin einverstanden. Los gehts!",
                         style: TextStyle(color: Palette.primaryColor),
                       ),
               ),
@@ -73,14 +84,13 @@ class _InitPageState extends State<InitPage> {
                   borderRadius: BorderRadius.all(Radius.circular(16.0))),
             ),
             Spacer(),
-            Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    "v1.0",
+                    "v0.1.0",
                     style: TextStyle(
                       color: Palette.primaryColor,
                       fontSize: 12,
