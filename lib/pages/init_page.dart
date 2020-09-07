@@ -1,5 +1,4 @@
 import 'package:bikenow/config/router.dart';
-import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/services/status_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +16,6 @@ class _InitPageState extends State<InitPage> {
     final statusService = Provider.of<StatusService>(context);
     return SafeArea(
       child: Container(
-        color: Palette.white,
         child: Column(
           children: <Widget>[
             Spacer(),
@@ -64,9 +62,7 @@ class _InitPageState extends State<InitPage> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: statusService.loading
-                    ? CircularProgressIndicator(
-                        backgroundColor: Palette.white,
-                      )
+                    ? CircularProgressIndicator()
                     : Text(
                         "Ich bin einverstanden. Los gehts!",
                       ),

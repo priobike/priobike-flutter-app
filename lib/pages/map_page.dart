@@ -31,7 +31,7 @@ class _MapPageState extends State<MapPage> {
           target: LatLng(51.050, 13.737),
           zoom: 11.0,
         ),
-        styleString: MapboxStyles.LIGHT,
+        styleString: MapboxStyles.DARK,
         myLocationEnabled: true,
         scrollGesturesEnabled: true,
         tiltGesturesEnabled: true,

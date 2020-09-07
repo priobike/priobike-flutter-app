@@ -59,15 +59,11 @@ class _MainPageState extends State<MainPage> {
               })
           : Text('asd'),
       floatingActionButton: FloatingActionButton(
-        mini: true,
         onPressed: () {
           Navigator.pushNamed(context, AppPage.routeCreation);
         },
         child: Icon(
           Icons.add,
-        ),
-        shape: CircleBorder(
-          side: BorderSide(width: 3.0),
         ),
         elevation: 5,
       ),

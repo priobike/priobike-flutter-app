@@ -98,7 +98,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                 target: LatLng(51.050, 13.737),
                 zoom: 12.0,
               ),
-              styleString: MapboxStyles.TRAFFIC_NIGHT,
+              styleString: MapboxStyles.DARK,
               myLocationEnabled: false,
             ),
           ),
