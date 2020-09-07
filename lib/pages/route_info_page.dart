@@ -3,7 +3,7 @@ import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_instruction.dart';
 import 'package:bikenow/models/api/api_route.dart';
-import 'package:bikenow/services/main_service.dart';
+import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
@@ -70,13 +70,13 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
     );
   }
 
-  MainService app;
+  AppService app;
 
   @override
   void didChangeDependencies() {
-    app = Provider.of<MainService>(context);
-    selectedRoute = app.routingService.route;
-    app.geolocationService.startGeolocation();
+    app = Provider.of<AppService>(context);
+    selectedRoute = app.route;
+    app.startGeolocation();
     super.didChangeDependencies();
   }
 
@@ -110,15 +110,15 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                          'Distanz: ${((app.routingService.route.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
+                          'Distanz: ${((app.route.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
                       Text(
-                          'Ampeln: ${(app.routingService.route?.sg?.length ?? 0)}'),
+                          'Ampeln: ${(app.route?.sg?.length ?? 0)}'),
                       Text(
-                          'Dauer: ${Duration(milliseconds: app.routingService.route?.time).inMinutes} Minuten'),
+                          'Dauer: ${Duration(milliseconds: app.route?.time).inMinutes} Minuten'),
                       Text(
-                          'Anstieg: ${(app.routingService.route?.ascend ?? 0)} Meter'),
+                          'Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
                       Text(
-                          'Gefälle: ${(app.routingService.route?.descend ?? 0)} Meter'),
+                          'Gefälle: ${(app.route?.descend ?? 0)} Meter'),
                     ],
                   ),
                 ),
@@ -140,7 +140,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   @override
   void dispose() {
     print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa');
-    app.geolocationService.stopGeolocation();
+    app.stopGeolocation();
     controller.dispose();
     super.dispose();
   }

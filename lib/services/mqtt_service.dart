@@ -1,35 +1,38 @@
 import 'dart:async';
 import 'package:bikenow/config/logger.dart';
+import 'package:bikenow/models/message.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MqttService {
-  static const BROKER_URL = "ws://bikenow.vkw.tu-dresden.de";
-  static const PORT = 20051;
+  static const BROKER_URL = "bikenow.vkw.tu-dresden.de";
+  static const PORT = 20050;
   static const USERNAME = 'bikenow-user';
   static const PASSWORD = 'mRMLa8jcgczZF7Ev';
-  static const CLIENT_IDENTIFIER = 'Android';
+
+  List<String> topics;
 
   Logger log = new Logger('MQTTService');
 
-  MqttClient _client;
+  MqttServerClient _client;
 
-  StreamController<String> messageStreamController =
-      new StreamController<String>();
+  StreamController<Message> messageStreamController =
+      new StreamController<Message>();
 
-  MqttService() {
-    final MqttConnectMessage connectMessage = MqttConnectMessage()
-        .withClientIdentifier(CLIENT_IDENTIFIER)
-        .startClean() // Non persistent session for testing
-        .withWillQos(MqttQos.exactlyOnce);
-
-    _client = MqttClient(BROKER_URL, CLIENT_IDENTIFIER)
+  MqttService(String clientId, List<String> topics) {
+    _client = MqttServerClient(BROKER_URL, clientId)
       ..port = PORT
       ..onDisconnected = _onDisconnected
       ..onConnected = _onConnected
-      ..logging(on: false)
-      ..connectionMessage = connectMessage;
+      ..logging(on: true)
+      ..connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(clientId)
+          .startClean() // Non persistent session for testing
+          .withWillQos(MqttQos.exactlyOnce);
 
     _connect();
+
+    this.topics = topics;
   }
 
   void _connect() async {
@@ -40,16 +43,17 @@ class MqttService {
       _client.disconnect();
     }
 
-    _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> data) {
-      final String topic = data[0].topic;
-      final MqttPublishMessage binaryMessage = data[0].payload;
+    _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> m) {
+      final MqttPublishMessage binaryMessage = m[0].payload;
 
       final String textMessage = MqttPublishPayload.bytesToStringAsString(
           binaryMessage.payload.message);
 
-      messageStreamController.add(textMessage);
+      final Message message = Message(topic: m[0].topic, payload: textMessage);
 
-      log.i('✉ New message for $topic');
+      messageStreamController.add(message);
+
+      log.i('✉ New message for ${message.topic}');
     });
   }
 
@@ -59,6 +63,10 @@ class MqttService {
 
   void _onConnected() {
     log.i('Connection to MQTT Broker ($BROKER_URL) successful');
+
+    topics.forEach((topic) {
+      this.subscribe(topic);
+    });
   }
 
   void subscribe(String topic) {
@@ -67,6 +75,13 @@ class MqttService {
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);
     log.i('🔗 Subscribed to $topic ');
+  }
+
+  void publish(Message message) {
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(message.payload);
+
+    _client.publishMessage(message.topic, MqttQos.exactlyOnce, builder.payload);
   }
 
   void unsubscribe(String topic) {

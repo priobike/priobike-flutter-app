@@ -1,5 +1,5 @@
-import 'package:bikenow/services/gateway_status_service.dart';
-import 'package:bikenow/services/main_service.dart';
+import 'package:bikenow/services/status_service.dart';
+import 'package:bikenow/services/app_service.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<MainService>(create: (context) => MainService()),
-        ChangeNotifierProvider<GatewayStatusService>(
-            create: (context) => GatewayStatusService()),
+        ChangeNotifierProvider<AppService>(create: (context) => AppService()),
+        ChangeNotifierProvider<StatusService>(
+            create: (context) => StatusService()),
       ],
       child: MaterialApp(
         title: 'BikeNow',

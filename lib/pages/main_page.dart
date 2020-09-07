@@ -1,7 +1,7 @@
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_pilotstrecken.dart';
-import 'package:bikenow/services/gateway_status_service.dart';
-import 'package:bikenow/services/main_service.dart';
+import 'package:bikenow/services/status_service.dart';
+import 'package:bikenow/services/app_service.dart';
 import 'package:bikenow/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +16,8 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    final app = Provider.of<MainService>(context);
-    final gatewayStatusService = Provider.of<GatewayStatusService>(context);
+    final app = Provider.of<AppService>(context);
+    final statusService = Provider.of<StatusService>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -31,12 +31,12 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: gatewayStatusService.pilotstrecken != null
+      body: statusService.pilotstrecken != null
           ? new ListView.builder(
-              itemCount: gatewayStatusService.pilotstrecken.strecken.length,
+              itemCount: statusService.pilotstrecken.strecken.length,
               itemBuilder: (BuildContext ctxt, int index) {
                 ApiStrecke strecke =
-                    gatewayStatusService.pilotstrecken.strecken[index];
+                    statusService.pilotstrecken.strecken[index];
 
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -50,12 +50,8 @@ class _MainPageState extends State<MainPage> {
                       Color(0xff182848),
                     ],
                     onPressed: () async {
-                      await app.routingService.updateRoute(
-                          strecke.fromLat,
-                          strecke.fromLon,
-                          strecke.toLat,
-                          strecke.toLon,
-                          strecke.id);
+                      await app.updateRoute(strecke.fromLat, strecke.fromLon,
+                          strecke.toLat, strecke.toLon);
                       Navigator.pushNamed(context, AppPage.routeInfo);
                     },
                   ),

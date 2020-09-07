@@ -4,7 +4,7 @@ import 'package:bikenow/models/api/api_pilotstrecken.dart';
 import 'package:bikenow/models/api/api_status.dart';
 import 'package:flutter/foundation.dart';
 
-class GatewayStatusService with ChangeNotifier {
+class StatusService with ChangeNotifier {
   Logger log = new Logger('GatewayStatus');
 
   ApiStatus answer = new ApiStatus();
@@ -15,7 +15,7 @@ class GatewayStatusService with ChangeNotifier {
 
   bool loading = true;
 
-  GatewayStatusService() {
+  StatusService() {
     getStatus();
   }
 
