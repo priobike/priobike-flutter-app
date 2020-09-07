@@ -74,7 +74,6 @@ class _SummaryPageState extends State<SummaryPage> {
                       starCount: 5,
                       rating: rating,
                       size: 40.0,
-                      color: Theme.of(context).primaryColor,
                       borderColor: Theme.of(context).primaryColor,
                       spacing: 0.0),
                 ),
@@ -108,7 +107,6 @@ class _SummaryPageState extends State<SummaryPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
-                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15)),
                       ),
@@ -118,7 +116,6 @@ class _SummaryPageState extends State<SummaryPage> {
                       },
                       child: Text(
                         'überspringen',
-                        style: TextStyle(color: Palette.primaryColor),
                       ),
                     ),
                   ),
@@ -127,7 +124,6 @@ class _SummaryPageState extends State<SummaryPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
-                      color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15)),
                       ),

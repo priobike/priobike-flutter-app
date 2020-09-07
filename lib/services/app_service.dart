@@ -21,7 +21,6 @@ class AppService with ChangeNotifier {
   bool loading = false;
 
   ApiRoute route;
-
   Recommendation recommendation;
 
   AppService() {
@@ -35,16 +34,18 @@ class AppService with ChangeNotifier {
     _mqttService.messageStreamController.stream.listen((message) {
       if (message.topic.contains('resroute')) {
         debugPrint('Neue Route');
+        route = ApiRoute.fromJson(json.decode(message.payload));
       }
 
       if (message.topic.contains('recommendation')) {
         debugPrint('Neue Empfehlung');
-
         recommendation = Recommendation.fromJson(json.decode(message.payload));
       }
 
       debugPrint(
           'New Message! topic: ${message.topic}, payload: ${message.payload}');
+
+      notifyListeners();
     });
   }
 

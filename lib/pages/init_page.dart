@@ -29,14 +29,12 @@ class _InitPageState extends State<InitPage> {
                     padding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
                     child: Icon(
                       Icons.warning,
-                      color: Palette.primaryColor,
                     ),
                   ),
                   Flexible(
                     child: Text(
                       "Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.",
                       style: TextStyle(
-                          color: Palette.primaryColor,
                           fontSize: 14,
                           decoration: TextDecoration.none,
                           fontFamily: 'Roboto'),
@@ -53,7 +51,6 @@ class _InitPageState extends State<InitPage> {
               child: Text(
                 "Damit wir dir Geschwindigkeitsempfehlungen live auf dein Handy senden können, benötigen wir regelmäßig deine Position. \nDiese Daten werden anonym bei uns gespeichert und ausgewertet. Mehr Informationen findest du dazu auf unserer Webseite.",
                 style: TextStyle(
-                  color: Palette.primaryColor,
                   fontSize: 14,
                   decoration: TextDecoration.none,
                   fontWeight: FontWeight.w400,
@@ -68,17 +65,16 @@ class _InitPageState extends State<InitPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: statusService.loading
                     ? CircularProgressIndicator(
-                        backgroundColor: Palette.primaryColor,
+                        backgroundColor: Palette.white,
                       )
                     : Text(
                         "Ich bin einverstanden. Los gehts!",
-                        style: TextStyle(color: Palette.primaryColor),
                       ),
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, AppPage.home);
               },
-              borderSide: BorderSide(width: 1, color: Palette.primaryColor),
+              borderSide: BorderSide(width: 1),
               splashColor: Colors.black26,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0))),
@@ -92,7 +88,6 @@ class _InitPageState extends State<InitPage> {
                   Text(
                     "v0.1.0",
                     style: TextStyle(
-                      color: Palette.primaryColor,
                       fontSize: 12,
                       decoration: TextDecoration.none,
                       fontFamily: 'Roboto',
@@ -102,7 +97,6 @@ class _InitPageState extends State<InitPage> {
                   Text(
                     "www.bikenow-dresden.de",
                     style: TextStyle(
-                      color: Palette.primaryColor,
                       fontSize: 12,
                       decoration: TextDecoration.none,
                       fontFamily: 'Roboto',

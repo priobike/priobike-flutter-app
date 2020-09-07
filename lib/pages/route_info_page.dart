@@ -26,49 +26,49 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
     this.controller = controller;
   }
 
-  void onStyleLoadedCallback() {
-    List<ApiPoint> pointlist = [];
+  // void onStyleLoadedCallback() {
+  //   List<ApiPoint> pointlist = [];
 
-    selectedRoute.instructions.forEach(
-        (ApiInstruction instruction) => pointlist += instruction.points);
+  //   selectedRoute.instructions.forEach(
+  //       (ApiInstruction instruction) => pointlist += instruction.points);
 
-    log.i('Draw ${pointlist.length} points as lines on map');
+  //   log.i('Draw ${pointlist.length} points as lines on map');
 
-    for (var i = 0; i < pointlist.length - 1; i++) {
-      ApiPoint point = pointlist[i];
-      ApiPoint nextPoint = pointlist[i + 1];
+  //   for (var i = 0; i < pointlist.length - 1; i++) {
+  //     ApiPoint point = pointlist[i];
+  //     ApiPoint nextPoint = pointlist[i + 1];
 
-      controller.addLine(
-        LineOptions(
-          geometry: [
-            LatLng(point.lat, point.lon),
-            LatLng(nextPoint.lat, nextPoint.lon)
-          ],
-          lineColor: "#00274C",
-          lineWidth: 8.0,
-          lineOpacity: 1,
-          lineJoin: 'line-join', // does not work yet
-        ),
-      );
-    }
+  //     controller.addLine(
+  //       LineOptions(
+  //         geometry: [
+  //           LatLng(point.lat, point.lon),
+  //           LatLng(nextPoint.lat, nextPoint.lon)
+  //         ],
+  //         lineColor: "#00274C",
+  //         lineWidth: 8.0,
+  //         lineOpacity: 1,
+  //         lineJoin: 'line-join', // does not work yet
+  //       ),
+  //     );
+  //   }
 
-    selectedRoute.sg.forEach(
-      (sg) => {
-        controller.addCircle(
-          CircleOptions(
-            geometry: LatLng(
-              sg.lat,
-              sg.lon,
-            ),
-            circleRadius: 6,
-            circleColor: 'red',
-            circleStrokeWidth: 2,
-            circleStrokeColor: 'white',
-          ),
-        )
-      },
-    );
-  }
+  //   selectedRoute.sg.forEach(
+  //     (sg) => {
+  //       controller.addCircle(
+  //         CircleOptions(
+  //           geometry: LatLng(
+  //             sg.lat,
+  //             sg.lon,
+  //           ),
+  //           circleRadius: 6,
+  //           circleColor: 'red',
+  //           circleStrokeWidth: 2,
+  //           circleStrokeColor: 'white',
+  //         ),
+  //       )
+  //     },
+  //   );
+  // }
 
   AppService app;
 
@@ -76,12 +76,13 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
     selectedRoute = app.route;
-    app.startGeolocation();
+    // app.startGeolocation();
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    print(app.route);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -92,13 +93,13 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
           Expanded(
             child: MapboxMap(
               onMapCreated: _onMapCreated,
-              onStyleLoadedCallback: onStyleLoadedCallback,
+              // onStyleLoadedCallback: onStyleLoadedCallback,
               initialCameraPosition: const CameraPosition(
                 target: LatLng(51.050, 13.737),
                 zoom: 12.0,
               ),
-              styleString: MapboxStyles.MAPBOX_STREETS,
-              myLocationEnabled: true,
+              styleString: MapboxStyles.TRAFFIC_NIGHT,
+              myLocationEnabled: false,
             ),
           ),
           Padding(
@@ -106,21 +107,21 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: Column(
+                  child: app.route != null ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                          'Distanz: ${((app.route.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
+                          'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
                       Text(
                           'Ampeln: ${(app.route?.sg?.length ?? 0)}'),
                       Text(
-                          'Dauer: ${Duration(milliseconds: app.route?.time).inMinutes} Minuten'),
+                          'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten'),
                       Text(
                           'Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
                       Text(
                           'Gefälle: ${(app.route?.descend ?? 0)} Meter'),
                     ],
-                  ),
+                  ) : Text("lade"),
                 ),
                 IconButton(
                     icon: Icon(Icons.directions_bike),
@@ -140,7 +141,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   @override
   void dispose() {
     print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa');
-    app.stopGeolocation();
+    // app.stopGeolocation();
     controller.dispose();
     super.dispose();
   }

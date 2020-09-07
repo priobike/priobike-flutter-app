@@ -24,7 +24,7 @@ class MqttService {
       ..port = PORT
       ..onDisconnected = _onDisconnected
       ..onConnected = _onConnected
-      ..logging(on: true)
+      ..logging(on: false)
       ..connectionMessage = MqttConnectMessage()
           .withClientIdentifier(clientId)
           .startClean() // Non persistent session for testing

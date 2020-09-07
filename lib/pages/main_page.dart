@@ -46,8 +46,8 @@ class _MainPageState extends State<MainPage> {
                     destination: strecke.destinationLabel,
                     description: strecke.description,
                     colors: [
-                      Color(0xff4b6cb7),
-                      Color(0xff182848),
+                      Color(0x00000000),
+                      Color(0x00000000),
                     ],
                     onPressed: () async {
                       await app.updateRoute(strecke.fromLat, strecke.fromLon,
@@ -65,11 +65,9 @@ class _MainPageState extends State<MainPage> {
         },
         child: Icon(
           Icons.add,
-          color: Theme.of(context).primaryColor,
         ),
-        backgroundColor: Colors.white,
         shape: CircleBorder(
-          side: BorderSide(color: Theme.of(context).primaryColor, width: 3.0),
+          side: BorderSide(width: 3.0),
         ),
         elevation: 5,
       ),

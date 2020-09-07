@@ -25,16 +25,16 @@ class MyApp extends StatelessWidget {
         initialRoute: AppPage.init,
         routes: AppPage.all,
         onUnknownRoute: (settings) => AppPage.noRoute(settings),
-        theme: new ThemeData(
-          primaryColor: Palette.primaryColor,
-          scaffoldBackgroundColor: Palette.background,
-          accentColor: Palette.primaryColor,
-          backgroundColor: Palette.primaryDarkColor,
-          hintColor: Colors.white,
-          appBarTheme: AppBarTheme(
-            color: Palette.primaryColor,
-          ),
-        ),
+        // theme: new ThemeData(
+        //   primaryColor: Palette.primaryColor,
+        //   scaffoldBackgroundColor: Palette.background,
+        //   accentColor: Palette.primaryColor,
+        //   backgroundColor: Palette.primaryDarkColor,
+        //   hintColor: Colors.white,
+        //   appBarTheme: AppBarTheme(
+        //     color: Palette.primaryColor,
+        //   ),
+        // ),
       ),
     );
   }

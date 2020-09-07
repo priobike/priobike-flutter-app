@@ -23,13 +23,12 @@ class RouteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RaisedButton(
       elevation: 1,
-      color: Colors.white,
       child: Container(
         height: 120,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
           child: Column(
-           crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Text(
                 '${this.start} ⇾ ${this.destination}',
@@ -45,7 +44,6 @@ class RouteButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: Colors.black54,
                 ),
               ),
               Spacer(),
@@ -54,7 +52,6 @@ class RouteButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: Colors.black54,
                 ),
               ),
             ],
@@ -62,7 +59,6 @@ class RouteButton extends StatelessWidget {
         ),
       ),
       onPressed: () => this.onPressed(),
-      splashColor: Colors.black26,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(2.0),

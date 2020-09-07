@@ -4,8 +4,8 @@ class Recommendation {
   String label;
   int countdown;
   double distance;
-  int speedRec;
-  int speedDiff;
+  double speedRec;
+  double speedDiff;
   bool isGreen;
   bool error;
   String errorMessage;

@@ -1,5 +1,4 @@
 import 'package:bikenow/config/router.dart';
-import 'package:bikenow/models/recommendation.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,10 +16,7 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
-    // app.geolocationService.startGeolocation();
-    // app.predictionService.subscribeToRoute();
-    // app.recommendationService.startRecommendation();
-    // app.trackingService.startTracking();
+    app.startGeolocation();
     super.didChangeDependencies();
   }
 
@@ -30,7 +26,7 @@ class _NavigationPageState extends State<NavigationPage> {
       child: Scaffold(
         body: Column(
           children: <Widget>[
-            Expanded(child: Text("todo")),
+            Expanded(child: Text(app.recommendation.toJson().toString())),
             Card(
               child: ListTile(
                 title: Text('Fahrt beenden'),
@@ -47,10 +43,7 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   void dispose() {
-    // app.predictionService.unsubscribeFromRoute();
-    // app.recommendationService.endRecommendation();
-    // app.geolocationService.stopGeolocation();
-    // app.trackingService.stopTracking();
+    app.stopGeolocation();
     super.dispose();
   }
 }
