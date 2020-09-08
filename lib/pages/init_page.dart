@@ -15,8 +15,8 @@ class _InitPageState extends State<InitPage> {
   Widget build(BuildContext context) {
     final statusService = Provider.of<StatusService>(context);
     return SafeArea(
-      child: Container(
-        child: Column(
+      child: Scaffold(
+        body: Column(
           children: <Widget>[
             Spacer(),
             Container(
@@ -33,16 +33,15 @@ class _InitPageState extends State<InitPage> {
                     child: Text(
                       "Achte immer auf die StVO und fahre nie bei Rot! Die Bedienung des Smartphones ist während der Fahrt nicht erlaubt.",
                       style: TextStyle(
-                          fontSize: 14,
-                          decoration: TextDecoration.none,
-                          fontFamily: 'Roboto'),
+                        fontSize: 14,
+                        decoration: TextDecoration.none,
+                      ),
                       textAlign: TextAlign.justify,
                     ),
                   ),
                 ],
               ),
             ),
-            Image.asset("assets/images/undraw_biking.png"),
             Spacer(),
             Padding(
               padding: const EdgeInsets.all(32),
@@ -52,7 +51,6 @@ class _InitPageState extends State<InitPage> {
                   fontSize: 14,
                   decoration: TextDecoration.none,
                   fontWeight: FontWeight.w400,
-                  fontFamily: 'Roboto',
                 ),
                 textAlign: TextAlign.justify,
               ),
@@ -86,7 +84,6 @@ class _InitPageState extends State<InitPage> {
                     style: TextStyle(
                       fontSize: 12,
                       decoration: TextDecoration.none,
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -95,7 +92,6 @@ class _InitPageState extends State<InitPage> {
                     style: TextStyle(
                       fontSize: 12,
                       decoration: TextDecoration.none,
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.w400,
                     ),
                   )

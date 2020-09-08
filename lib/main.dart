@@ -19,14 +19,14 @@ class MyApp extends StatelessWidget {
             create: (context) => StatusService()),
       ],
       child: MaterialApp(
-        title: 'BikeNow',
-        initialRoute: AppPage.init,
-        routes: AppPage.all,
-        onUnknownRoute: (settings) => AppPage.noRoute(settings),
-        theme: new ThemeData(
-         brightness:Brightness.dark,
-        )
-      ),
+          title: 'BikeNow',
+          initialRoute: AppPage.init,
+          routes: AppPage.all,
+          onUnknownRoute: (settings) => AppPage.noRoute(settings),
+          theme: new ThemeData(
+            brightness: Brightness.dark,
+            fontFamily: "Roboto"
+          )),
     );
   }
 }

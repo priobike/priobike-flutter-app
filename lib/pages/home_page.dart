@@ -1,3 +1,4 @@
+import 'package:bikenow/config/router.dart';
 import 'package:bikenow/pages/main_page.dart';
 import 'package:bikenow/pages/map_page.dart';
 import 'package:bikenow/pages/news_page.dart';
@@ -9,40 +10,138 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 1;
-  final List<Widget> _children = [
-    NewsPage(),
-    MainPage(),
-    MapPage(),
-  ];
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  int _currentIndex = 0;
+  var _pageController = PageController(
+    initialPage: 0,
+  );
 
   @override
   Widget build(BuildContext context) {
+    print(_currentIndex);
     return Scaffold(
-      body: _children[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped, // new
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        // this will be set when a new tab is tapped
-        items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.info),
-            title: new Text('Neuigkeiten'),
+      appBar: AppBar(
+        title: Text("BikeNow"),
+        elevation: 0,
+        backgroundColor: Colors.black.withOpacity(0),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white70,
+            ),
+            onPressed: () => Navigator.pushNamed(context, AppPage.settings),
           ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.directions_bike),
-            title: new Text('Fahren'),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Fahren",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 0
+                                  ? Colors.white
+                                  : Colors.white12),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 0;
+                        });
+                        _pageController.animateToPage(0,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Statistik",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 1
+                                  ? Colors.white
+                                  : Colors.white12),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 1;
+                        });
+                        _pageController.animateToPage(1,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Karte",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 2
+                                  ? Colors.white
+                                  : Colors.white12),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 2;
+                        });
+                        _pageController.animateToPage(2,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "News",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 3
+                                  ? Colors.white
+                                  : Colors.white12),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 3;
+                        });
+                        _pageController.animateToPage(3,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                ]),
           ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.map),
-            title: new Text('Karte'),
+          Expanded(
+            child: PageView(
+              onPageChanged: (value) {
+                setState(() {
+                  _currentIndex = value;
+                });
+              },
+              controller: _pageController,
+              children: [
+                MainPage(),
+                Scaffold(
+                  body: Text("Statistik"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: MapPage(),
+                ),
+                NewsPage(),
+              ],
+            ),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_pilotstrecken.dart';
-import 'package:bikenow/services/status_service.dart';
 import 'package:bikenow/services/app_service.dart';
+import 'package:bikenow/services/status_service.dart';
 import 'package:bikenow/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,18 +19,6 @@ class _MainPageState extends State<MainPage> {
     final app = Provider.of<AppService>(context);
     final statusService = Provider.of<StatusService>(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Text(
-          app.loading ? "BikeNow Dresden (lade...)" : "BikeNow Dresden",
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () => Navigator.pushNamed(context, AppPage.settings),
-          ),
-        ],
-      ),
       body: statusService.pilotstrecken != null
           ? new ListView.builder(
               itemCount: statusService.pilotstrecken.strecken.length,
@@ -45,10 +33,6 @@ class _MainPageState extends State<MainPage> {
                     start: strecke.startLabel,
                     destination: strecke.destinationLabel,
                     description: strecke.description,
-                    colors: [
-                      Color(0x00000000),
-                      Color(0x00000000),
-                    ],
                     onPressed: () async {
                       await app.updateRoute(strecke.fromLat, strecke.fromLon,
                           strecke.toLat, strecke.toLon);
@@ -58,15 +42,6 @@ class _MainPageState extends State<MainPage> {
                 );
               })
           : Text('asd'),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, AppPage.routeCreation);
-        },
-        child: Icon(
-          Icons.add,
-        ),
-        elevation: 5,
-      ),
     );
   }
 }

@@ -1,7 +1,5 @@
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/config/router.dart';
-import 'package:bikenow/models/api/api_point.dart';
-import 'package:bikenow/models/api/api_instruction.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
@@ -107,21 +105,20 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: app.route != null ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                          'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
-                      Text(
-                          'Ampeln: ${(app.route?.sg?.length ?? 0)}'),
-                      Text(
-                          'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten'),
-                      Text(
-                          'Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
-                      Text(
-                          'Gefälle: ${(app.route?.descend ?? 0)} Meter'),
-                    ],
-                  ) : Text("lade"),
+                  child: app.route != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                                'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
+                            Text('Ampeln: ${(app.route?.sg?.length ?? 0)}'),
+                            Text(
+                                'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten'),
+                            Text('Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
+                            Text('Gefälle: ${(app.route?.descend ?? 0)} Meter'),
+                          ],
+                        )
+                      : Text("lade"),
                 ),
                 IconButton(
                     icon: Icon(Icons.directions_bike),

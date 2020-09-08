@@ -22,6 +22,7 @@ class RouteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
+      color: Color(0xff424242),
       elevation: 1,
       child: Container(
         height: 120,
