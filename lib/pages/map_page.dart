@@ -16,6 +16,7 @@ class _MapPageState extends State<MapPage> {
     return Stack(
       children: [
         Scaffold(
+          backgroundColor: Colors.black.withOpacity(0),
           body: MapboxMap(
             initialCameraPosition: CameraPosition(
               target: LatLng(51.050, 13.737),
@@ -30,7 +31,7 @@ class _MapPageState extends State<MapPage> {
         ),
         Positioned.fill(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
             child: Container(
               color: Colors.black.withOpacity(0),
             ),

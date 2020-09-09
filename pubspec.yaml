@@ -33,6 +33,7 @@ dependencies:
     wakelock: ^0.1.4
     ansicolor: ^1.0.2
     vector_math: ^2.0.8
+    google_fonts: ^1.1.0
 
 dev_dependencies:
     flutter_test:

@@ -11,6 +11,7 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black.withOpacity(0),
       body: ListView(
         padding: const EdgeInsets.all(8),
         children: <Widget>[

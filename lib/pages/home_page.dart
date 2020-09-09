@@ -3,6 +3,7 @@ import 'package:bikenow/pages/main_page.dart';
 import 'package:bikenow/pages/map_page.dart';
 import 'package:bikenow/pages/news_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,9 +20,29 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     print(_currentIndex);
     return Scaffold(
+      backgroundColor: Color(0xff1B1A1A),
       appBar: AppBar(
-        title: Text("BikeNow"),
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "BikeNow",
+                style: GoogleFonts.inter(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                "Dresden",
+                style: GoogleFonts.inter(fontSize: 20, color: Colors.white60),
+              ),
+            ],
+          ),
+        ),
         elevation: 0,
+        toolbarHeight: 100,
         backgroundColor: Colors.black.withOpacity(0),
         actions: <Widget>[
           IconButton(
@@ -49,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 23,
                               color: _currentIndex == 0
                                   ? Colors.white
-                                  : Colors.white12),
+                                  : Colors.white30),
                         ),
                       ),
                       onTap: () {
@@ -69,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 23,
                               color: _currentIndex == 1
                                   ? Colors.white
-                                  : Colors.white12),
+                                  : Colors.white30),
                         ),
                       ),
                       onTap: () {
@@ -89,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 23,
                               color: _currentIndex == 2
                                   ? Colors.white
-                                  : Colors.white12),
+                                  : Colors.white30),
                         ),
                       ),
                       onTap: () {
@@ -109,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 23,
                               color: _currentIndex == 3
                                   ? Colors.white
-                                  : Colors.white12),
+                                  : Colors.white30),
                         ),
                       ),
                       onTap: () {
@@ -133,10 +154,11 @@ class _HomePageState extends State<HomePage> {
               children: [
                 MainPage(),
                 Scaffold(
+                  backgroundColor: Colors.black.withOpacity(0),
                   body: Text("Statistik"),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: MapPage(),
                 ),
                 NewsPage(),

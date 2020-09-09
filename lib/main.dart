@@ -1,6 +1,7 @@
 import 'package:bikenow/services/status_service.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter/material.dart';
 import 'config/router.dart';
@@ -25,7 +26,9 @@ class MyApp extends StatelessWidget {
           onUnknownRoute: (settings) => AppPage.noRoute(settings),
           theme: new ThemeData(
             brightness: Brightness.dark,
-            fontFamily: "Roboto"
+            textTheme: GoogleFonts.interTextTheme(
+              Theme.of(context).textTheme,
+            ),
           )),
     );
   }

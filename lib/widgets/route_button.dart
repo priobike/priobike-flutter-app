@@ -22,8 +22,8 @@ class RouteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
-      color: Color(0xff424242),
-      elevation: 1,
+      color: Color(0xff222222),
+      elevation: 2,
       child: Container(
         height: 120,
         child: Padding(
@@ -62,7 +62,7 @@ class RouteButton extends StatelessWidget {
       onPressed: () => this.onPressed(),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
-          Radius.circular(2.0),
+          Radius.circular(16.0),
         ),
       ),
     );
