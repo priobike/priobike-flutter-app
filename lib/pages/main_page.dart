@@ -1,109 +1,178 @@
 import 'package:bikenow/config/router.dart';
-import 'package:bikenow/models/api/api_pilotstrecken.dart';
-import 'package:bikenow/services/app_service.dart';
-import 'package:bikenow/services/status_service.dart';
-import 'package:bikenow/widgets/route_button.dart';
+import 'package:bikenow/pages/overview_page.dart';
+import 'package:bikenow/pages/map_page.dart';
+import 'package:bikenow/pages/news_page.dart';
+import 'package:bikenow/pages/statistics_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MainPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _MainPageState();
-  }
+  State<StatefulWidget> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
+  int _currentIndex = 0;
+  var _pageController = PageController(
+    initialPage: 0,
+  );
+
   @override
   Widget build(BuildContext context) {
-    final app = Provider.of<AppService>(context);
-    final statusService = Provider.of<StatusService>(context);
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Scaffold(
-        backgroundColor: Colors.black.withOpacity(0),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: RaisedButton.icon(
-                  padding: EdgeInsets.all(12),
-                  icon: Icon(
-                    Icons.location_on,
-                  ),
-                  label: Text(
-                    "Zu Ziel navigieren",
-                  ),
-                  onPressed: () {},
-                  elevation: 2,
-                  color: Color(0xff222222),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(16.0),
-                    ),
-                  ),
+    print(_currentIndex);
+    return Scaffold(
+      backgroundColor: Color(0xff1B1A1A),
+      appBar: AppBar(
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "BikeNow",
+                style: GoogleFonts.inter(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
-              child: SizedBox(
-                width: double.infinity,
-                child: RaisedButton.icon(
-                  padding: EdgeInsets.all(12),
-                  icon: Icon(Icons.directions_bike),
-                  label: Text(
-                    "Freie Fahrt",
-                    textAlign: TextAlign.start,
-                  ),
-                  onPressed: () {},
-                  elevation: 2,
-                  color: Color(0xff222222),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(16.0),
-                    ),
-                  ),
-                ),
+              Text(
+                "Dresden",
+                style: GoogleFonts.inter(fontSize: 20, color: Colors.white60),
               ),
-            ),
-            Text("Pilotstrecken",
-                style: TextStyle(fontSize: 23, color: Colors.white60)),
-            Expanded(
-              child: Container(
-                child: statusService.pilotstrecken != null
-                    ? new ListView.builder(
-                        itemCount: statusService.pilotstrecken.strecken.length,
-                        itemBuilder: (BuildContext ctxt, int index) {
-                          ApiStrecke strecke =
-                              statusService.pilotstrecken.strecken[index];
-
-                          return Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                            child: new RouteButton(
-                              title: strecke.title,
-                              start: strecke.startLabel,
-                              destination: strecke.destinationLabel,
-                              description: strecke.description,
-                              onPressed: () async {
-                                await app.updateRoute(
-                                    strecke.fromLat,
-                                    strecke.fromLon,
-                                    strecke.toLat,
-                                    strecke.toLon);
-                                Navigator.pushNamed(context, AppPage.routeInfo);
-                              },
-                            ),
-                          );
-                        })
-                    : Text('asd'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+        elevation: 0,
+        toolbarHeight: 100,
+        backgroundColor: Colors.black.withOpacity(0),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white70,
+            ),
+            onPressed: () => Navigator.pushNamed(context, AppPage.settings),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Fahren",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 0
+                                  ? Colors.white
+                                  : Colors.white30),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 0;
+                        });
+                        _pageController.animateToPage(0,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Statistik",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 1
+                                  ? Colors.white
+                                  : Colors.white30),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 1;
+                        });
+                        _pageController.animateToPage(1,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Karte",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 2
+                                  ? Colors.white
+                                  : Colors.white30),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 2;
+                        });
+                        _pageController.animateToPage(2,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                  GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "News",
+                          style: TextStyle(
+                              fontSize: 23,
+                              color: _currentIndex == 3
+                                  ? Colors.white
+                                  : Colors.white30),
+                        ),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 3;
+                        });
+                        _pageController.animateToPage(3,
+                            duration: Duration(milliseconds: 100),
+                            curve: Curves.linear);
+                      }),
+                ]),
+          ),
+          Expanded(
+            child: PageView(
+              onPageChanged: (value) {
+                setState(() {
+                  _currentIndex = value;
+                });
+              },
+              controller: _pageController,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: OverviewPage(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: StatisticsPage(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: MapPage(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: NewsPage(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -22,7 +22,6 @@ class StatusService with ChangeNotifier {
   getStatus() async {
     log.i('Connect to Gateway (${Api.HOST}) ...');
 
-    // TODO: handle connection errors
     try {
       answer = await Api.getStatus();
       pilotstrecken = await Api.getPilotstrecken();

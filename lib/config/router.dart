@@ -1,5 +1,5 @@
-import 'package:bikenow/pages/home_page.dart';
-import 'package:bikenow/pages/init_page.dart';
+import 'package:bikenow/pages/main_page.dart';
+import 'package:bikenow/pages/start_page.dart';
 import 'package:bikenow/pages/navigation_page.dart';
 import 'package:bikenow/pages/route_info_page.dart';
 import 'package:bikenow/pages/summary_page.dart';
@@ -15,8 +15,8 @@ class AppPage {
   static const String summary = '/summary';
 
   static var all = {
-    AppPage.init: (context) => InitPage(),
-    AppPage.home: (context) => HomePage(),
+    AppPage.init: (context) => StartPage(),
+    AppPage.home: (context) => MainPage(),
     AppPage.routeInfo: (context) => RouteInfoPage(),
     AppPage.navigation: (context) => NavigationPage(),
     AppPage.summary: (context) => SummaryPage(),

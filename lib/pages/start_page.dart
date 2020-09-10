@@ -3,14 +3,14 @@ import 'package:bikenow/services/status_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class InitPage extends StatefulWidget {
+class StartPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _InitPageState();
+    return _StartPageState();
   }
 }
 
-class _InitPageState extends State<InitPage> {
+class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
     final statusService = Provider.of<StatusService>(context);
