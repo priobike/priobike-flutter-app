@@ -1,3 +1,4 @@
+import 'package:bikenow/config/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -22,7 +23,7 @@ class RouteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
-      color: Color(0xff222222),
+      color: Palette.button,
       elevation: 2,
       child: Container(
         height: 120,
@@ -62,7 +63,7 @@ class RouteButton extends StatelessWidget {
       onPressed: () => this.onPressed(),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
-          Radius.circular(16.0),
+          Radius.circular(12.0),
         ),
       ),
     );

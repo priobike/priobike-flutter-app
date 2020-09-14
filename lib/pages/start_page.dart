@@ -1,3 +1,4 @@
+import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/services/status_service.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class _StartPageState extends State<StartPage> {
     final statusService = Provider.of<StatusService>(context);
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Palette.background,
         body: Column(
           children: <Widget>[
             Spacer(),
@@ -35,6 +37,7 @@ class _StartPageState extends State<StartPage> {
                       style: TextStyle(
                         fontSize: 14,
                         decoration: TextDecoration.none,
+                        color: Palette.text,
                       ),
                       textAlign: TextAlign.justify,
                     ),
@@ -51,6 +54,7 @@ class _StartPageState extends State<StartPage> {
                   fontSize: 14,
                   decoration: TextDecoration.none,
                   fontWeight: FontWeight.w400,
+                   color: Palette.text,
                 ),
                 textAlign: TextAlign.justify,
               ),

@@ -1,3 +1,4 @@
+import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/pages/overview_page.dart';
 import 'package:bikenow/pages/map_page.dart';
@@ -21,7 +22,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     print(_currentIndex);
     return Scaffold(
-      backgroundColor: Color(0xff1B1A1A),
+      backgroundColor: Palette.background,
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
@@ -153,22 +154,13 @@ class _MainPageState extends State<MainPage> {
               },
               controller: _pageController,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: OverviewPage(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: StatisticsPage(),
-                ),
+                OverviewPage(),
+                StatisticsPage(),
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: MapPage(),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: NewsPage(),
-                ),
+                NewsPage(),
               ],
             ),
           ),

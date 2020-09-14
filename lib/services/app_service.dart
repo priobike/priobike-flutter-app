@@ -45,6 +45,8 @@ class AppService with ChangeNotifier {
       debugPrint(
           'New Message! topic: ${message.topic}, payload: ${message.payload}');
 
+      loading = false;
+      
       notifyListeners();
     });
   }
@@ -55,6 +57,12 @@ class AppService with ChangeNotifier {
     double toLat,
     double toLon,
   ) {
+
+    route = null;
+    loading = true;
+
+    notifyListeners();
+
     Message routeRequest = new Message(
         topic: 'reqroute/$clientId',
         payload: json.encode(RouteRequest(

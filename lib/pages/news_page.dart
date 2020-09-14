@@ -12,6 +12,9 @@ class _NewsPageState extends State<NewsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black.withOpacity(0),
-        body: Text("Neuigkeiten", style: TextStyle(color: Colors.white)));
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("Neuigkeiten", style: TextStyle(color: Colors.white)),
+        ));
   }
 }

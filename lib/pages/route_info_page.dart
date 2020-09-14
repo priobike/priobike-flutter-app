@@ -1,4 +1,5 @@
 import 'package:bikenow/config/logger.dart';
+import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/app_service.dart';
@@ -22,6 +23,20 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
+  }
+
+  void onStyleLoadedCallback() {
+    controller.addLine(
+      LineOptions(
+        geometry: [
+          LatLng(51.0657400157, 13.746932744),
+          LatLng(51.0315101741, 13.725619912),
+        ],
+        lineColor: "#ff0000",
+        lineWidth: 8.0,
+        lineOpacity: 1,
+      ),
+    );
   }
 
   // void onStyleLoadedCallback() {
@@ -82,62 +97,97 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   Widget build(BuildContext context) {
     print(app.route);
     return Scaffold(
+      backgroundColor: Palette.background,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Palette.background,
         title: Text("Streckenvorschau"),
+        elevation: 0,
       ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: MapboxMap(
-              onMapCreated: _onMapCreated,
-              // onStyleLoadedCallback: onStyleLoadedCallback,
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(51.050, 13.737),
-                zoom: 12.0,
-              ),
-              styleString: MapboxStyles.DARK,
-              myLocationEnabled: false,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
+      body: app.loading == false
+          ? Column(
               children: <Widget>[
                 Expanded(
-                  child: app.route != null
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                                'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer'),
-                            Text('Ampeln: ${(app.route?.sg?.length ?? 0)}'),
-                            Text(
-                                'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten'),
-                            Text('Anstieg: ${(app.route?.ascend ?? 0)} Meter'),
-                            Text('Gefälle: ${(app.route?.descend ?? 0)} Meter'),
-                          ],
-                        )
-                      : Text("lade"),
+                  child: MapboxMap(
+                    onMapCreated: _onMapCreated,
+                    onStyleLoadedCallback: onStyleLoadedCallback,
+                    initialCameraPosition: const CameraPosition(
+                      target: LatLng(51.050, 13.737),
+                      zoom: 12.0,
+                    ),
+                    styleString: MapboxStyles.DARK,
+                    myLocationEnabled: false,
+                  ),
                 ),
-                IconButton(
-                    icon: Icon(Icons.directions_bike),
-                    tooltip: 'Routing Starten',
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppPage.navigation);
-                    }),
-                Text("Start")
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer',
+                      style: TextStyle(
+                        color: Palette.text,
+                      ),
+                    ),
+                    Text(
+                      'Ampeln: ${(app.route?.sg?.length ?? 0)}',
+                      style: TextStyle(
+                        color: Palette.text,
+                      ),
+                    ),
+                    Text(
+                      'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten',
+                      style: TextStyle(
+                        color: Palette.text,
+                      ),
+                    ),
+                    Text(
+                      'Anstieg: ${(app.route?.ascend ?? 0)} Meter',
+                      style: TextStyle(
+                        color: Palette.text,
+                      ),
+                    ),
+                    Text(
+                      'Gefälle: ${(app.route?.descend ?? 0)} Meter',
+                      style: TextStyle(
+                        color: Palette.text,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: RaisedButton.icon(
+                      padding: EdgeInsets.all(12),
+                      icon: Icon(
+                        Icons.location_on,
+                      ),
+                      label: Text("Routing Starten"),
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppPage.navigation);
+                      },
+                      elevation: 2,
+                      color: Palette.button,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
-            ),
-          )
-        ],
-      ),
+            )
+          : Center(
+              child: Text(
+              "Lade Route...",
+              style: TextStyle(color: Palette.text),
+            )),
     );
   }
 
   @override
   void dispose() {
-    print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa');
     // app.stopGeolocation();
     controller.dispose();
     super.dispose();
