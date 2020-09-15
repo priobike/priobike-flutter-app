@@ -1,6 +1,7 @@
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/config/router.dart';
+import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
@@ -21,67 +22,55 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   ApiRoute selectedRoute;
 
+  bool mapReady = false;
+
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
   }
 
-  void onStyleLoadedCallback() {
-    controller.addLine(
-      LineOptions(
-        geometry: [
-          LatLng(51.0657400157, 13.746932744),
-          LatLng(51.0315101741, 13.725619912),
-        ],
-        lineColor: "#ff0000",
-        lineWidth: 8.0,
-        lineOpacity: 1,
-      ),
-    );
+  void _onStyleLoaded() {
+    mapReady = true;
+    if (selectedRoute != null) drawRoute();
   }
 
-  // void onStyleLoadedCallback() {
-  //   List<ApiPoint> pointlist = [];
+  void drawRoute() {
+    log.i('Draw ${selectedRoute.points.length} points as lines on map');
 
-  //   selectedRoute.instructions.forEach(
-  //       (ApiInstruction instruction) => pointlist += instruction.points);
+    for (var i = 0; i < selectedRoute.points.length - 1; i++) {
+      ApiPoint point = selectedRoute.points[i];
+      ApiPoint nextPoint = selectedRoute.points[i + 1];
 
-  //   log.i('Draw ${pointlist.length} points as lines on map');
+      controller.addLine(
+        LineOptions(
+          geometry: [
+            LatLng(point.lat, point.lon),
+            LatLng(nextPoint.lat, nextPoint.lon)
+          ],
+          lineColor: "#0027ff",
+          lineWidth: 8.0,
+          lineOpacity: 1,
+          lineJoin: 'line-join', // does not work yet
+        ),
+      );
+    }
 
-  //   for (var i = 0; i < pointlist.length - 1; i++) {
-  //     ApiPoint point = pointlist[i];
-  //     ApiPoint nextPoint = pointlist[i + 1];
-
-  //     controller.addLine(
-  //       LineOptions(
-  //         geometry: [
-  //           LatLng(point.lat, point.lon),
-  //           LatLng(nextPoint.lat, nextPoint.lon)
-  //         ],
-  //         lineColor: "#00274C",
-  //         lineWidth: 8.0,
-  //         lineOpacity: 1,
-  //         lineJoin: 'line-join', // does not work yet
-  //       ),
-  //     );
-  //   }
-
-  //   selectedRoute.sg.forEach(
-  //     (sg) => {
-  //       controller.addCircle(
-  //         CircleOptions(
-  //           geometry: LatLng(
-  //             sg.lat,
-  //             sg.lon,
-  //           ),
-  //           circleRadius: 6,
-  //           circleColor: 'red',
-  //           circleStrokeWidth: 2,
-  //           circleStrokeColor: 'white',
-  //         ),
-  //       )
-  //     },
-  //   );
-  // }
+    selectedRoute.sg.forEach(
+      (sg) => {
+        controller.addCircle(
+          CircleOptions(
+            geometry: LatLng(
+              sg.lat,
+              sg.lon,
+            ),
+            circleRadius: 6,
+            circleColor: 'red',
+            circleStrokeWidth: 2,
+            circleStrokeColor: 'white',
+          ),
+        )
+      },
+    );
+  }
 
   AppService app;
 
@@ -89,7 +78,11 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
     selectedRoute = app.route;
-    // app.startGeolocation();
+
+    if (selectedRoute != null && mapReady == true) {
+      drawRoute();
+    }
+
     super.didChangeDependencies();
   }
 
@@ -109,7 +102,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                 Expanded(
                   child: MapboxMap(
                     onMapCreated: _onMapCreated,
-                    onStyleLoadedCallback: onStyleLoadedCallback,
+                    onStyleLoadedCallback: _onStyleLoaded,
                     initialCameraPosition: const CameraPosition(
                       target: LatLng(51.050, 13.737),
                       zoom: 12.0,
@@ -189,7 +182,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   @override
   void dispose() {
     // app.stopGeolocation();
-    controller.dispose();
+    //controller.dispose();
     super.dispose();
   }
 }
