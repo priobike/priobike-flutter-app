@@ -25,6 +25,7 @@ class ApiPilotstrecken {
 }
 
 class ApiStrecke {
+  int index;
   String id;
   String title;
   String startLabel;
@@ -36,7 +37,8 @@ class ApiStrecke {
   double toLon;
 
   ApiStrecke(
-      {this.id,
+      {this.index,
+      this.id,
       this.title,
       this.startLabel,
       this.destinationLabel,
@@ -47,6 +49,7 @@ class ApiStrecke {
       this.toLon});
 
   ApiStrecke.fromJson(Map<String, dynamic> json) {
+    index = json['index'];
     id = json['id'];
     title = json['title'];
     startLabel = json['startLabel'];
@@ -60,6 +63,7 @@ class ApiStrecke {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['index'] = this.index;
     data['id'] = this.id;
     data['title'] = this.title;
     data['startLabel'] = this.startLabel;

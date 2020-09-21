@@ -23,28 +23,42 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ListTile(
               leading: Icon(Icons.arrow_forward),
               title: Text(
-                "Filter: Heute, Die Woche, Monat, Alles",
+                "Filter: Heute, 7 Tage, 1 Monat, Gesamt",
                 style: TextStyle(color: Colors.white),
               ),
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward),
               title: Text(
-                "Gefahrene Kilometer",
+                "absolvierte Fahrten",
                 style: TextStyle(color: Colors.white),
               ),
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward),
               title: Text(
-                "Überfahrene Ampeln",
+                "gefahrene Distanz",
                 style: TextStyle(color: Colors.white),
               ),
             ),
             ListTile(
               leading: Icon(Icons.arrow_forward),
               title: Text(
-                "Durchschnittsgeschwindigkeit",
+                "eingespartes CO₂",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.arrow_forward),
+              title: Text(
+                "überfahrene Ampeln",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.arrow_forward),
+              title: Text(
+                "durchschn. Geschwindigkeit",
                 style: TextStyle(color: Colors.white),
               ),
             ),

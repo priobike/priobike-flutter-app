@@ -2,6 +2,7 @@ import 'package:bikenow/config/palette.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:bikenow/services/status_service.dart';
+import 'package:bikenow/widgets/destination_button.dart';
 import 'package:bikenow/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +51,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                 child: SizedBox(
                   width: double.infinity,
                   child: RaisedButton.icon(
@@ -71,14 +72,64 @@ class _OverviewPageState extends State<OverviewPage> {
                   ),
                 ),
               ),
-              Text("Pilotstrecken",
-                  style: TextStyle(fontSize: 23, color: Colors.white60)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+                child: Text(
+                  "Letzte Ziele",
+                  style: TextStyle(fontSize: 23, color: Colors.white60),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: DestinationButton(
+                        destination: "Zuhause",
+                        onPressed: () async {
+                          await app.updateRoute(0, 0, 1, 1);
+                          Navigator.pushNamed(context, AppPage.routeInfo);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: DestinationButton(
+                        destination: "Technische Universität",
+                        onPressed: () async {
+                          await app.updateRoute(0, 0, 1, 1);
+                          Navigator.pushNamed(context, AppPage.routeInfo);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: DestinationButton(
+                        destination: "Pirnaischer Platz",
+                        onPressed: () async {
+                          await app.updateRoute(0, 0, 1, 1);
+                          Navigator.pushNamed(context, AppPage.routeInfo);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Text(
+                  "Pilotstrecken",
+                  style: TextStyle(fontSize: 23, color: Colors.white60),
+                ),
+              ),
               Column(
                 children: statusService.pilotstrecken.strecken
                     .map(
                       (strecke) => new Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                        child: new RouteButton(
+                        child: RouteButton(
+                          index: strecke.index,
                           title: strecke.title,
                           start: strecke.startLabel,
                           destination: strecke.destinationLabel,

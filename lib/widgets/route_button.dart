@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class RouteButton extends StatelessWidget {
+  final int index;
   final String title;
   final String start;
   final String destination;
@@ -12,6 +13,7 @@ class RouteButton extends StatelessWidget {
   final List<Color> colors;
 
   RouteButton({
+    this.index,
     this.title,
     this.start,
     this.destination,
@@ -25,40 +27,38 @@ class RouteButton extends StatelessWidget {
     return RaisedButton(
       color: Palette.button,
       elevation: 2,
-      child: Container(
-        height: 120,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                '${this.start} ⇾ ${this.destination}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.start,
-              ),
-              Spacer(),
-              Text(
-                this.title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Spacer(),
-              Text(
-                this.description,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
+            child: Text(
+              '${this.index}',
+              style: TextStyle(fontSize: 40),
+            ),
           ),
-        ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${this.start} ⇾ ${this.destination}',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w100,
+                  ),
+                ),
+                Text(
+                  "4km",
+                  style: TextStyle(
+                    color: Colors.white38,
+                    fontWeight: FontWeight.w100,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
       ),
       onPressed: () => this.onPressed(),
       shape: RoundedRectangleBorder(

@@ -70,6 +70,12 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
         )
       },
     );
+
+    controller.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(selectedRoute.points[0].lat, selectedRoute.points[0].lon),
+      ),
+    );
   }
 
   AppService app;
