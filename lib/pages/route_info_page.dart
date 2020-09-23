@@ -94,6 +94,11 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle textStyle = TextStyle(
+      fontSize: 18,
+      color: Palette.text,
+    );
+
     print(app.route);
     return Scaffold(
       backgroundColor: Palette.background,
@@ -117,40 +122,37 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                     myLocationEnabled: false,
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Distanz: ${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer',
-                      style: TextStyle(
-                        color: Palette.text,
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer',
+                            style: textStyle,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten Fahrzeit',
+                            style: textStyle,
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      'Ampeln: ${(app.route?.sg?.length ?? 0)}',
-                      style: TextStyle(
-                        color: Palette.text,
+                      Column(
+                        children: <Widget>[
+                          Text(
+                            '${(app.route?.sg?.length ?? 0)} Ampeln',
+                            style: textStyle,
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      'Dauer: ${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten',
-                      style: TextStyle(
-                        color: Palette.text,
-                      ),
-                    ),
-                    Text(
-                      'Anstieg: ${(app.route?.ascend ?? 0)} Meter',
-                      style: TextStyle(
-                        color: Palette.text,
-                      ),
-                    ),
-                    Text(
-                      'Gefälle: ${(app.route?.descend ?? 0)} Meter',
-                      style: TextStyle(
-                        color: Palette.text,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
