@@ -1,4 +1,4 @@
-import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:bikenow/services/status_service.dart';
@@ -32,7 +32,7 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: RaisedButton.icon(
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.all(16),
                     icon: Icon(
                       Icons.location_on,
                     ),
@@ -40,8 +40,8 @@ class _OverviewPageState extends State<OverviewPage> {
                       "Zu Ziel navigieren",
                     ),
                     onPressed: () {},
-                    elevation: 2,
-                    color: Palette.button,
+                    elevation: BikeNowTheme.buttonElevation,
+                    color: BikeNowTheme.button,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(8.0),
@@ -55,15 +55,15 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: RaisedButton.icon(
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.all(16),
                     icon: Icon(Icons.directions_bike),
                     label: Text(
                       "Freie Fahrt",
                       textAlign: TextAlign.start,
                     ),
                     onPressed: () {},
-                    elevation: 2,
-                    color: Palette.button,
+                    elevation: BikeNowTheme.buttonElevation,
+                    color: BikeNowTheme.button,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(8.0),
@@ -88,8 +88,8 @@ class _OverviewPageState extends State<OverviewPage> {
                       child: DestinationButton(
                         destination: "Zuhause",
                         onPressed: () async {
-                          await app.updateRoute(0, 0, 1, 1);
-                          Navigator.pushNamed(context, AppPage.routeInfo);
+                          // await app.updateRoute(0, 0, 1, 1);
+                          // Navigator.pushNamed(context, AppPage.routeInfo);
                         },
                       ),
                     ),
@@ -98,8 +98,8 @@ class _OverviewPageState extends State<OverviewPage> {
                       child: DestinationButton(
                         destination: "Technische Universität",
                         onPressed: () async {
-                          await app.updateRoute(0, 0, 1, 1);
-                          Navigator.pushNamed(context, AppPage.routeInfo);
+                          // await app.updateRoute(0, 0, 1, 1);
+                          // Navigator.pushNamed(context, AppPage.routeInfo);
                         },
                       ),
                     ),
@@ -108,8 +108,8 @@ class _OverviewPageState extends State<OverviewPage> {
                       child: DestinationButton(
                         destination: "Pirnaischer Platz",
                         onPressed: () async {
-                          await app.updateRoute(0, 0, 1, 1);
-                          Navigator.pushNamed(context, AppPage.routeInfo);
+                          // await app.updateRoute(0, 0, 1, 1);
+                          // Navigator.pushNamed(context, AppPage.routeInfo);
                         },
                       ),
                     ),

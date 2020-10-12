@@ -1,4 +1,4 @@
-import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/pages/overview_page.dart';
 import 'package:bikenow/pages/map_page.dart';
@@ -22,7 +22,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     print(_currentIndex);
     return Scaffold(
-      backgroundColor: Palette.background,
+      backgroundColor: BikeNowTheme.background,
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
@@ -43,7 +43,7 @@ class _MainPageState extends State<MainPage> {
             ],
           ),
         ),
-        elevation: 0,
+        elevation: BikeNowTheme.buttonElevation,
         toolbarHeight: 100,
         backgroundColor: Colors.black.withOpacity(0),
         actions: <Widget>[

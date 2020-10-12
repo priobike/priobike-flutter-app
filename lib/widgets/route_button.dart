@@ -1,4 +1,4 @@
-import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -25,8 +25,8 @@ class RouteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
-      color: Palette.button,
-      elevation: 2,
+      color: BikeNowTheme.button,
+      elevation: BikeNowTheme.buttonElevation,
       child: Row(
         children: [
           Padding(

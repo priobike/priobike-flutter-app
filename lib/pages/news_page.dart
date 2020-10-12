@@ -1,4 +1,4 @@
-import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:flutter/material.dart';
 
 class NewsPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _NewsPageState extends State<NewsPage> {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            color: Palette.button,
+            color: BikeNowTheme.button,
             width: double.infinity,
             height: 310,
             child: Padding(

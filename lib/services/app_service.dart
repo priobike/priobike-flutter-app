@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/models/message.dart';
+import 'package:bikenow/models/stopRequest.dart';
 import 'package:bikenow/models/user_position.dart';
 import 'package:bikenow/models/recommendation.dart';
 import 'package:bikenow/models/routeRequest.dart';
@@ -19,6 +20,8 @@ class AppService with ChangeNotifier {
   Timer timer;
 
   bool loading = false;
+
+  bool isGeolocating = false;
 
   ApiRoute route;
   Recommendation recommendation;
@@ -46,7 +49,7 @@ class AppService with ChangeNotifier {
           'New Message! topic: ${message.topic}, payload: ${message.payload}');
 
       loading = false;
-      
+
       notifyListeners();
     });
   }
@@ -57,42 +60,49 @@ class AppService with ChangeNotifier {
     double toLat,
     double toLon,
   ) {
-
     route = null;
     loading = true;
 
     notifyListeners();
 
     Message routeRequest = new Message(
-        topic: 'reqroute/$clientId',
-        payload: json.encode(RouteRequest(
-                id: clientId,
-                fromLat: fromLat,
-                fromLon: fromLon,
-                toLat: toLat,
-                toLon: toLon)
-            .toJson()));
+      topic: 'reqroute/$clientId',
+      payload: json.encode(
+        RouteRequest(
+          id: clientId,
+          fromLat: fromLat,
+          fromLon: fromLon,
+          toLat: toLat,
+          toLon: toLon,
+        ).toJson(),
+      ),
+    );
 
     _mqttService.publish(routeRequest);
   }
 
   startGeolocation() {
     if (timer == null || !timer.isActive) {
+      isGeolocating = true;
+
       timer = Timer.periodic(new Duration(seconds: 1), (t) async {
         Position position = await getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best,
         );
 
-        if (position != null) {
+        if (position != null && isGeolocating == true) {
           Message positionMessage = new Message(
-              topic: 'position/$clientId',
-              payload: json.encode(new UserPosition(
-                      id: clientId,
-                      lat: position.latitude,
-                      lon: position.longitude,
-                      speed: (position.speed * 3.6).round(),
-                      timestamp: DateTime.now().millisecondsSinceEpoch)
-                  .toJson()));
+            topic: 'position/$clientId',
+            payload: json.encode(
+              new UserPosition(
+                id: clientId,
+                lat: position.latitude,
+                lon: position.longitude,
+                speed: (position.speed * 3.6).round(),
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+              ).toJson(),
+            ),
+          );
 
           _mqttService.publish(positionMessage);
         }
@@ -105,5 +115,20 @@ class AppService with ChangeNotifier {
   stopGeolocation() {
     timer.cancel();
     print('Geolocator stopped!');
+
+    isGeolocating = false;
+
+    recommendation = null;
+
+    Message stopRequest = new Message(
+      topic: 'reqstop/$clientId',
+      payload: json.encode(
+        StopRequest(
+          id: clientId,
+        ).toJson(),
+      ),
+    );
+
+    _mqttService.publish(stopRequest);
   }
 }

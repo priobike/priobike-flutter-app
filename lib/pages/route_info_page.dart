@@ -1,5 +1,5 @@
 import 'package:bikenow/config/logger.dart';
-import 'package:bikenow/config/palette.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/models/api/api_point.dart';
 import 'package:bikenow/models/api/api_route.dart';
@@ -96,16 +96,16 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
   Widget build(BuildContext context) {
     TextStyle textStyle = TextStyle(
       fontSize: 18,
-      color: Palette.text,
+      color: BikeNowTheme.text,
     );
 
     print(app.route);
     return Scaffold(
-      backgroundColor: Palette.background,
+      backgroundColor: BikeNowTheme.background,
       appBar: AppBar(
-        backgroundColor: Palette.background,
+        backgroundColor: BikeNowTheme.background,
         title: Text("Streckenvorschau"),
-        elevation: 0,
+        elevation: BikeNowTheme.buttonElevation,
       ),
       body: app.loading == false
           ? Column(
@@ -167,8 +167,8 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                       onPressed: () {
                         Navigator.pushNamed(context, AppPage.navigation);
                       },
-                      elevation: 2,
-                      color: Palette.button,
+                      elevation: BikeNowTheme.buttonElevation,
+                      color: BikeNowTheme.button,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(8.0),
@@ -181,9 +181,10 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
             )
           : Center(
               child: Text(
-              "Lade Route...",
-              style: TextStyle(color: Palette.text),
-            )),
+                "Lade Route...",
+                style: TextStyle(color: BikeNowTheme.text),
+              ),
+            ),
     );
   }
 
