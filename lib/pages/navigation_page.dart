@@ -18,7 +18,11 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
-    app.startGeolocation();
+
+    if (!app.isGeolocating) {
+      app.startGeolocation();
+    }
+
     Wakelock.enable();
     super.didChangeDependencies();
   }

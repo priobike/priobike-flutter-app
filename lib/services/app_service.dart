@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
+import 'package:ntp/ntp.dart';
 
 class AppService with ChangeNotifier {
   MqttService _mqttService;
@@ -22,6 +23,8 @@ class AppService with ChangeNotifier {
   bool loading = false;
 
   bool isGeolocating = false;
+
+  StreamSubscription<Position> positionStream;
 
   ApiRoute route;
   Recommendation recommendation;
@@ -81,15 +84,21 @@ class AppService with ChangeNotifier {
     _mqttService.publish(routeRequest);
   }
 
-  startGeolocation() {
+  startGeolocation() async {
+    DateTime startDate = DateTime.now().toLocal();
+    int offset = await NTP.getNtpOffset(localTime: startDate);
+
+    print(
+        'Offset to NTP Time: $offset, NTP DateTime aligned: ${startDate.add(new Duration(milliseconds: offset))}');
+
     if (timer == null || !timer.isActive) {
       isGeolocating = true;
 
-      timer = Timer.periodic(new Duration(seconds: 1), (t) async {
-        Position position = await getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best,
-        );
-
+      positionStream = getPositionStream(
+        desiredAccuracy: LocationAccuracy.best,
+        distanceFilter: 1,
+        timeInterval: 1,
+      ).listen((Position position) {
         if (position != null && isGeolocating == true) {
           Message positionMessage = new Message(
             topic: 'position/$clientId',
@@ -99,7 +108,9 @@ class AppService with ChangeNotifier {
                 lat: position.latitude,
                 lon: position.longitude,
                 speed: (position.speed * 3.6).round(),
-                timestamp: DateTime.now().millisecondsSinceEpoch,
+                timestamp: startDate
+                    .add(new Duration(milliseconds: offset))
+                    .millisecondsSinceEpoch,
               ).toJson(),
             ),
           );
@@ -117,6 +128,8 @@ class AppService with ChangeNotifier {
     print('Geolocator stopped!');
 
     isGeolocating = false;
+
+    positionStream.cancel();
 
     recommendation = null;
 
