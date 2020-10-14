@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_route.dart';
 import 'package:bikenow/models/message.dart';
 import 'package:bikenow/models/stopRequest.dart';
@@ -15,10 +16,10 @@ import 'package:uuid/uuid.dart';
 import 'package:ntp/ntp.dart';
 
 class AppService with ChangeNotifier {
+  Logger log = Logger("AppService");
+
   MqttService _mqttService;
   String clientId = Uuid().v4();
-
-  Timer timer;
 
   bool loading = false;
 
@@ -39,17 +40,16 @@ class AppService with ChangeNotifier {
 
     _mqttService.messageStreamController.stream.listen((message) {
       if (message.topic.contains('resroute')) {
-        debugPrint('Neue Route');
         route = ApiRoute.fromJson(json.decode(message.payload));
+        log.i('-> Route');
       }
 
       if (message.topic.contains('recommendation')) {
-        debugPrint('Neue Empfehlung');
         recommendation = Recommendation.fromJson(json.decode(message.payload));
+        log.i('-> Recommendation');
       }
 
-      debugPrint(
-          'New Message! topic: ${message.topic}, payload: ${message.payload}');
+      // log.i('New Message! topic: ${message.topic}, payload: ${message.payload}');
 
       loading = false;
 
@@ -82,57 +82,53 @@ class AppService with ChangeNotifier {
     );
 
     _mqttService.publish(routeRequest);
+
+    log.i('<- Route Request');
   }
 
   startGeolocation() async {
-    DateTime startDate = DateTime.now().toLocal();
-    int offset = await NTP.getNtpOffset(localTime: startDate);
+    DateTime localTime = DateTime.now().toLocal();
 
-    print(
-        'Offset to NTP Time: $offset, NTP DateTime aligned: ${startDate.add(new Duration(milliseconds: offset))}');
+    log.i('Get time offset ...');
 
-    if (timer == null || !timer.isActive) {
-      isGeolocating = true;
+    int offset = await NTP.getNtpOffset(
+      lookUpAddress: 'time.zih.tu-dresden.de',
+      localTime: localTime,
+    );
 
-      positionStream = getPositionStream(
-        desiredAccuracy: LocationAccuracy.best,
-        distanceFilter: 1,
-        timeInterval: 1,
-      ).listen((Position position) {
-        if (position != null && isGeolocating == true) {
-          Message positionMessage = new Message(
-            topic: 'position/$clientId',
-            payload: json.encode(
-              new UserPosition(
-                id: clientId,
-                lat: position.latitude,
-                lon: position.longitude,
-                speed: (position.speed * 3.6).round(),
-                timestamp: startDate
-                    .add(new Duration(milliseconds: offset))
-                    .millisecondsSinceEpoch,
-              ).toJson(),
-            ),
-          );
+    log.i('NTP time offset: $offset ms');
 
-          _mqttService.publish(positionMessage);
-        }
-      });
-    } else {
-      print('Geolocation was started twice!!');
-    }
+    isGeolocating = true;
+
+    positionStream = getPositionStream(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 1,
+      timeInterval: 1,
+    ).listen((Position position) {
+      if (position != null && isGeolocating == true) {
+        Message positionMessage = new Message(
+          topic: 'position/$clientId',
+          payload: json.encode(
+            new UserPosition(
+              id: clientId,
+              lat: position.latitude,
+              lon: position.longitude,
+              speed: (position.speed * 3.6).round(),
+              timestamp: localTime
+                  .add(new Duration(milliseconds: offset))
+                  .millisecondsSinceEpoch,
+            ).toJson(),
+          ),
+        );
+
+        _mqttService.publish(positionMessage);
+        log.i('<- Position');
+      }
+    });
+    log.i('GEOLOCATOR STARTED!');
   }
 
   stopGeolocation() {
-    timer.cancel();
-    print('Geolocator stopped!');
-
-    isGeolocating = false;
-
-    positionStream.cancel();
-
-    recommendation = null;
-
     Message stopRequest = new Message(
       topic: 'reqstop/$clientId',
       payload: json.encode(
@@ -143,5 +139,12 @@ class AppService with ChangeNotifier {
     );
 
     _mqttService.publish(stopRequest);
+    log.i('<- Stop Request');
+
+    isGeolocating = false;
+    positionStream.cancel();
+    recommendation = null;
+
+    log.i('GEOLOCATOR STOPPED!');
   }
 }

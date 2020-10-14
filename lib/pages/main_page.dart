@@ -20,7 +20,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(_currentIndex);
     return Scaffold(
       backgroundColor: BikeNowTheme.background,
       appBar: AppBar(
@@ -47,6 +46,13 @@ class _MainPageState extends State<MainPage> {
         toolbarHeight: 100,
         backgroundColor: Colors.black.withOpacity(0),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.fact_check,
+              color: Colors.white70,
+            ),
+            onPressed: () => Navigator.pushNamed(context, AppPage.log),
+          ),
           IconButton(
             icon: Icon(
               Icons.settings,

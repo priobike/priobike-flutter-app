@@ -53,7 +53,7 @@ class MqttService {
 
       messageStreamController.add(message);
 
-      log.i('✉ New message for ${message.topic}');
+      // log.i('-> MESSAGE ${message.topic}');
     });
   }
 
@@ -74,19 +74,20 @@ class MqttService {
       _connect();
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);
-    log.i('🔗 Subscribed to $topic ');
+    log.i('SUBSCRIBE to $topic ');
   }
 
   void publish(Message message) {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message.payload);
-
     _client.publishMessage(message.topic, MqttQos.exactlyOnce, builder.payload);
+
+    // log.i('<- PUBLISH ${message.topic} ');
   }
 
   void unsubscribe(String topic) {
     _client.unsubscribe(topic);
-    log.i('⨯ Unsubscribed from $topic ');
+    // log.i('⨯ UNSUBSCRIBE $topic ');
   }
 
   void dispose() {

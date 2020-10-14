@@ -1,7 +1,9 @@
+import 'package:bikenow/pages/log_page.dart';
 import 'package:bikenow/pages/main_page.dart';
-import 'package:bikenow/pages/start_page.dart';
 import 'package:bikenow/pages/navigation_page.dart';
 import 'package:bikenow/pages/route_info_page.dart';
+import 'package:bikenow/pages/settings_page.dart';
+import 'package:bikenow/pages/start_page.dart';
 import 'package:bikenow/pages/summary_page.dart';
 import 'package:flutter/material.dart';
 
@@ -13,13 +15,16 @@ class AppPage {
   static const String home = '/home';
   static const String settings = '/settings';
   static const String summary = '/summary';
+  static const String log = '/log';
 
   static var all = {
     AppPage.init: (context) => StartPage(),
     AppPage.home: (context) => MainPage(),
     AppPage.routeInfo: (context) => RouteInfoPage(),
     AppPage.navigation: (context) => NavigationPage(),
+    AppPage.settings: (context) => SettingsPage(),
     AppPage.summary: (context) => SummaryPage(),
+    AppPage.log: (context) => LogPage(),
   };
 
   static noRoute(RouteSettings settings) {

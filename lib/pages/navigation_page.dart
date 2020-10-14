@@ -15,6 +15,10 @@ class NavigationPage extends StatefulWidget {
 class _NavigationPageState extends State<NavigationPage> {
   AppService app;
 
+  var _pageController = PageController(
+    initialPage: 0,
+  );
+
   @override
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
@@ -43,41 +47,83 @@ class _NavigationPageState extends State<NavigationPage> {
               ? Column(
                   children: <Widget>[
                     Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              "${app.recommendation.label}",
-                              style: textStyle,
+                      child: PageView(
+                        onPageChanged: (value) {
+                          // setState(() {
+                          //   _currentIndex = value;
+                          // });
+                        },
+                        controller: _pageController,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "${app.recommendation.label}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "Countdown: ${app.recommendation.countdown}s",
+                                  style: TextStyle(
+                                    color: BikeNowTheme.text,
+                                    fontSize: 48,
+                                  ),
+                                ),
+                                Text(
+                                  "Distanz: ${app.recommendation.distance.toStringAsFixed(0)}m",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "isGreen: ${app.recommendation.isGreen}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "SpeedRec: ${app.recommendation.speedRec}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "SpeedDiff: ${app.recommendation.speedDiff}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "error: ${app.recommendation.error}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "message: ${app.recommendation.errorMessage}",
+                                  style: textStyle,
+                                ),
+                              ],
                             ),
-                            Text(
-                              "Countdown: ${app.recommendation.countdown}s",
-                              style: TextStyle(
-                                color: BikeNowTheme.text,
-                                fontSize: 48,
-                              ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "${app.recommendation.label}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "${app.recommendation.countdown}s",
+                                  style: TextStyle(
+                                    color: BikeNowTheme.text,
+                                    fontSize: 72,
+                                  ),
+                                ),
+                                Text(
+                                  "Distanz: ${app.recommendation.distance.toStringAsFixed(0)}m",
+                                  style: textStyle,
+                                ),
+                              ],
                             ),
-                            Text(
-                              "Distanz: ${app.recommendation.distance.toStringAsFixed(0)}m",
-                              style: textStyle,
-                            ),
-                            Text(
-                              "isGreen: ${app.recommendation.isGreen}",
-                              style: textStyle,
-                            ),
-                            Text(
-                              "SpeedRec: ${app.recommendation.speedRec}",
-                              style: textStyle,
-                            ),
-                            Text(
-                              "SpeedDiff: ${app.recommendation.speedDiff}",
-                              style: textStyle,
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(
@@ -88,7 +134,8 @@ class _NavigationPageState extends State<NavigationPage> {
                           Icons.stop,
                         ),
                         label: Text("Fahrt beenden"),
-                        onPressed: () {
+                        onPressed: () async {
+                          await app.stopGeolocation();
                           Navigator.pushNamedAndRemoveUntil(
                               context, AppPage.home, (_) => false);
                           //Navigator.pushReplacementNamed(context, AppPage.summary); // TODO: enable summary page
@@ -117,7 +164,8 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   void dispose() {
-    app.stopGeolocation();
+    print("Navigation Page disposed");
+    // if (app.isGeolocating) app.stopGeolocation();
     Wakelock.disable();
     super.dispose();
   }
