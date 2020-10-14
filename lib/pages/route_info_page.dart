@@ -99,7 +99,6 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
       color: BikeNowTheme.text,
     );
 
-    print(app.route);
     return Scaffold(
       backgroundColor: BikeNowTheme.background,
       appBar: AppBar(
@@ -165,7 +164,8 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                       ),
                       label: Text("Routing Starten"),
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, AppPage.navigation);
+                        Navigator.pushReplacementNamed(
+                            context, AppPage.navigation);
                       },
                       elevation: BikeNowTheme.buttonElevation,
                       color: BikeNowTheme.button,
@@ -190,7 +190,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   @override
   void dispose() {
-    print("RouteInfoPage disposed.");
+    log.i("RouteInfoPage disposed.");
     super.dispose();
   }
 }

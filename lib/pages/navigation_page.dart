@@ -1,4 +1,5 @@
 import 'package:bikenow/config/bikenow_theme.dart';
+import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/config/router.dart';
 import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class NavigationPage extends StatefulWidget {
 }
 
 class _NavigationPageState extends State<NavigationPage> {
+  Logger log = Logger("NavigationPage");
   AppService app;
 
   var _pageController = PageController(
@@ -164,7 +166,7 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   void dispose() {
-    print("NavigationPage disposed.");
+    log.i("NavigationPage disposed.");
     if (app.isGeolocating) app.stopGeolocation();
     Wakelock.disable();
     super.dispose();
