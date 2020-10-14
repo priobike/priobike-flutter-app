@@ -164,8 +164,8 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   void dispose() {
-    print("Navigation Page disposed");
-    // if (app.isGeolocating) app.stopGeolocation();
+    print("NavigationPage disposed.");
+    if (app.isGeolocating) app.stopGeolocation();
     Wakelock.disable();
     super.dispose();
   }

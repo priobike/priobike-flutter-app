@@ -165,7 +165,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                       ),
                       label: Text("Routing Starten"),
                       onPressed: () {
-                        Navigator.pushNamed(context, AppPage.navigation);
+                        Navigator.pushReplacementNamed(context, AppPage.navigation);
                       },
                       elevation: BikeNowTheme.buttonElevation,
                       color: BikeNowTheme.button,
@@ -190,8 +190,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
 
   @override
   void dispose() {
-    // app.stopGeolocation();
-    //controller.dispose();
+    print("RouteInfoPage disposed.");
     super.dispose();
   }
 }

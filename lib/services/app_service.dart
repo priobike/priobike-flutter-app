@@ -102,8 +102,8 @@ class AppService with ChangeNotifier {
 
     positionStream = getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 1,
-      timeInterval: 1,
+      distanceFilter: 7,
+      timeInterval: 3,
     ).listen((Position position) {
       if (position != null && isGeolocating == true) {
         Message positionMessage = new Message(
