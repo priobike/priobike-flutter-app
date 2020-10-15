@@ -139,7 +139,10 @@ class _NavigationPageState extends State<NavigationPage> {
                         onPressed: () async {
                           await app.stopGeolocation();
                           Navigator.pushNamedAndRemoveUntil(
-                              context, AppPage.home, (_) => false);
+                            context,
+                            AppPage.home,
+                            (_) => false,
+                          );
                           //Navigator.pushReplacementNamed(context, AppPage.summary); // TODO: enable summary page
                         },
                         elevation: BikeNowTheme.buttonElevation,
@@ -156,7 +159,9 @@ class _NavigationPageState extends State<NavigationPage> {
               : Center(
                   child: Text(
                     "Warte auf Position...",
-                    style: TextStyle(color: BikeNowTheme.text),
+                    style: TextStyle(
+                      color: BikeNowTheme.text,
+                    ),
                   ),
                 ),
         ),

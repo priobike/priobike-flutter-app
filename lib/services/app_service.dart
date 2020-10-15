@@ -21,11 +21,9 @@ class AppService with ChangeNotifier {
   String clientId = Uuid().v4();
 
   bool loading = false;
-
   bool isGeolocating = false;
 
   StreamSubscription<Position> positionStream;
-
   ApiRoute route;
   Recommendation recommendation;
 

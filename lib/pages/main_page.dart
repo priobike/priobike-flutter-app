@@ -75,10 +75,11 @@ class _MainPageState extends State<MainPage> {
                         child: Text(
                           "Fahren",
                           style: TextStyle(
-                              fontSize: 23,
-                              color: _currentIndex == 0
-                                  ? Colors.white
-                                  : Colors.white30),
+                            fontSize: 23,
+                            color: _currentIndex == 0
+                                ? Colors.white
+                                : Colors.white30,
+                          ),
                         ),
                       ),
                       onTap: () {
@@ -95,10 +96,11 @@ class _MainPageState extends State<MainPage> {
                         child: Text(
                           "Statistik",
                           style: TextStyle(
-                              fontSize: 23,
-                              color: _currentIndex == 1
-                                  ? Colors.white
-                                  : Colors.white30),
+                            fontSize: 23,
+                            color: _currentIndex == 1
+                                ? Colors.white
+                                : Colors.white30,
+                          ),
                         ),
                       ),
                       onTap: () {
@@ -115,10 +117,11 @@ class _MainPageState extends State<MainPage> {
                         child: Text(
                           "Karte",
                           style: TextStyle(
-                              fontSize: 23,
-                              color: _currentIndex == 2
-                                  ? Colors.white
-                                  : Colors.white30),
+                            fontSize: 23,
+                            color: _currentIndex == 2
+                                ? Colors.white
+                                : Colors.white30,
+                          ),
                         ),
                       ),
                       onTap: () {
@@ -135,19 +138,22 @@ class _MainPageState extends State<MainPage> {
                         child: Text(
                           "News",
                           style: TextStyle(
-                              fontSize: 23,
-                              color: _currentIndex == 3
-                                  ? Colors.white
-                                  : Colors.white30),
+                            fontSize: 23,
+                            color: _currentIndex == 3
+                                ? Colors.white
+                                : Colors.white30,
+                          ),
                         ),
                       ),
                       onTap: () {
                         setState(() {
                           _currentIndex = 3;
                         });
-                        _pageController.animateToPage(3,
-                            duration: Duration(milliseconds: 100),
-                            curve: Curves.linear);
+                        _pageController.animateToPage(
+                          3,
+                          duration: Duration(milliseconds: 100),
+                          curve: Curves.linear,
+                        );
                       }),
                 ]),
           ),

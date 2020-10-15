@@ -1,15 +1,11 @@
 import 'dart:async';
+import 'package:bikenow/config/config.dart';
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/message.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MqttService {
-  static const BROKER_URL = "bikenow.vkw.tu-dresden.de";
-  static const PORT = 20050;
-  static const USERNAME = 'bikenow-user';
-  static const PASSWORD = 'mRMLa8jcgczZF7Ev';
-
   List<String> topics;
 
   Logger log = new Logger('MQTTService');
@@ -19,8 +15,11 @@ class MqttService {
   StreamController<Message> messageStreamController =
       new StreamController<Message>();
 
+  bool firstConnect = true;
+
   MqttService(String clientId, List<String> topics) {
-    _client = MqttServerClient.withPort(BROKER_URL, clientId, PORT)
+    _client = MqttServerClient.withPort(
+        Config.MQTT_BROKER_URL, clientId, Config.MQTT_BROKER_PORT)
       ..autoReconnect = true
       ..onDisconnected = _onDisconnected
       ..onConnected = _onConnected
@@ -29,32 +28,36 @@ class MqttService {
       ..resubscribeOnAutoReconnect = true
       ..keepAlivePeriod = 30
       ..logging(on: false)
-      ..connectionMessage = MqttConnectMessage()
-          .withClientIdentifier(clientId)
-          .withWillQos(MqttQos.exactlyOnce);
 
     this.topics = topics;
 
-    _client.connect(USERNAME, PASSWORD);
+    _client.connect(Config.MQTT_USERNAME, Config.MQTT_PASSWORD);
   }
 
   void _onConnected() {
-    log.i('Connection to MQTT Broker ($BROKER_URL) successful');
+    log.i('Connection to MQTT Broker (${Config.MQTT_BROKER_URL}) successful');
 
-    topics.forEach((topic) {
-      this.subscribe(topic);
-    });
+    if (firstConnect) {
+      topics.forEach((topic) {
+        this.subscribe(topic);
+      });
 
-    _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> m) {
-      final MqttPublishMessage binaryMessage = m[0].payload;
+      _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> m) {
+        final MqttPublishMessage binaryMessage = m[0].payload;
 
-      final String textMessage = MqttPublishPayload.bytesToStringAsString(
-          binaryMessage.payload.message);
+        final String textMessage = MqttPublishPayload.bytesToStringAsString(
+            binaryMessage.payload.message);
 
-      final Message message = Message(topic: m[0].topic, payload: textMessage);
+        final Message message = Message(
+          topic: m[0].topic,
+          payload: textMessage,
+        );
 
-      messageStreamController.add(message);
-    });
+        messageStreamController.add(message);
+      });
+
+      firstConnect = false;
+    }
   }
 
   void subscribe(String topic) {

@@ -1,4 +1,5 @@
 import 'package:bikenow/config/api.dart';
+import 'package:bikenow/config/config.dart';
 import 'package:bikenow/config/logger.dart';
 import 'package:bikenow/models/api/api_pilotstrecken.dart';
 import 'package:bikenow/models/api/api_status.dart';
@@ -8,7 +9,7 @@ class StatusService with ChangeNotifier {
   Logger log = new Logger('GatewayStatus');
 
   ApiStatus answer = new ApiStatus();
-  
+
   ApiPilotstrecken pilotstrecken;
 
   int timeDifference;
@@ -20,16 +21,12 @@ class StatusService with ChangeNotifier {
   }
 
   getStatus() async {
-    log.i('Connect to Gateway (${Api.HOST}) ...');
+    log.i('Connect to Gateway (${Config.GATEWAY_URL}) ...');
 
     try {
       answer = await Api.getStatus();
       pilotstrecken = await Api.getPilotstrecken();
     } catch (e) {}
-
-    timeDifference = DateTime.now()
-        .difference(DateTime.parse(answer.gatewayTime).toLocal())
-        .inSeconds;
 
     loading = false;
 

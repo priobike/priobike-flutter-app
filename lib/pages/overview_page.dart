@@ -135,8 +135,12 @@ class _OverviewPageState extends State<OverviewPage> {
                           destination: strecke.destinationLabel,
                           description: strecke.description,
                           onPressed: () async {
-                            await app.updateRoute(strecke.fromLat,
-                                strecke.fromLon, strecke.toLat, strecke.toLon);
+                            await app.updateRoute(
+                              strecke.fromLat,
+                              strecke.fromLon,
+                              strecke.toLat,
+                              strecke.toLon,
+                            );
                             Navigator.pushNamed(context, AppPage.routeInfo);
                           },
                         ),

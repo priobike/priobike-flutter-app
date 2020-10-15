@@ -165,7 +165,9 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
                       label: Text("Routing Starten"),
                       onPressed: () {
                         Navigator.pushReplacementNamed(
-                            context, AppPage.navigation);
+                          context,
+                          AppPage.navigation,
+                        );
                       },
                       elevation: BikeNowTheme.buttonElevation,
                       color: BikeNowTheme.button,

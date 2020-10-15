@@ -65,16 +65,17 @@ class _SummaryPageState extends State<SummaryPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SmoothStarRating(
-                      allowHalfRating: false,
-                      onRated: (v) {
-                        rating = v;
-                        setState(() {});
-                      },
-                      starCount: 5,
-                      rating: rating,
-                      size: 40.0,
-                      borderColor: Theme.of(context).primaryColor,
-                      spacing: 0.0),
+                    allowHalfRating: false,
+                    onRated: (v) {
+                      rating = v;
+                      setState(() {});
+                    },
+                    starCount: 5,
+                    rating: rating,
+                    size: 40.0,
+                    borderColor: Theme.of(context).primaryColor,
+                    spacing: 0.0,
+                  ),
                 ),
               ),
             ),
@@ -91,8 +92,9 @@ class _SummaryPageState extends State<SummaryPage> {
                     maxLines: null,
                     minLines: null,
                     decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Hier kannst du dein Feedback eingeben'),
+                      border: InputBorder.none,
+                      hintText: 'Hier kannst du dein Feedback eingeben',
+                    ),
                   ),
                 ),
               ),
@@ -111,7 +113,10 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, AppPage.home, (_) => false);
+                          context,
+                          AppPage.home,
+                          (_) => false,
+                        );
                       },
                       child: Text(
                         'überspringen',
@@ -128,7 +133,10 @@ class _SummaryPageState extends State<SummaryPage> {
                       ),
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
-                            context, AppPage.home, (_) => false);
+                          context,
+                          AppPage.home,
+                          (_) => false,
+                        );
                       },
                       child: Text(
                         'Feedback senden',

@@ -14,7 +14,6 @@ class _LogPageState extends State<LogPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: BikeNowTheme.background,
@@ -52,9 +51,10 @@ class _LogPageState extends State<LogPage> {
                 Text(
                   item,
                   style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: "monospace",
-                      fontSize: 12),
+                    color: Colors.white,
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                  ),
                 )
             ],
           ),
