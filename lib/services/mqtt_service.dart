@@ -20,28 +20,30 @@ class MqttService {
       new StreamController<Message>();
 
   MqttService(String clientId, List<String> topics) {
-    _client = MqttServerClient(BROKER_URL, clientId)
-      ..port = PORT
+    _client = MqttServerClient.withPort(BROKER_URL, clientId, PORT)
+      ..autoReconnect = true
       ..onDisconnected = _onDisconnected
       ..onConnected = _onConnected
+      ..onAutoReconnect = _onAutoReconnect
+      ..onAutoReconnected = _onAutoReconnected
+      ..resubscribeOnAutoReconnect = true
+      ..keepAlivePeriod = 30
       ..logging(on: false)
       ..connectionMessage = MqttConnectMessage()
           .withClientIdentifier(clientId)
-          .startClean() // Non persistent session for testing
           .withWillQos(MqttQos.exactlyOnce);
 
-    _connect();
-
     this.topics = topics;
+
+    _client.connect(USERNAME, PASSWORD);
   }
 
-  void _connect() async {
-    try {
-      await _client.connect(USERNAME, PASSWORD);
-    } on Exception catch (e) {
-      log.e(e);
-      _client.disconnect();
-    }
+  void _onConnected() {
+    log.i('Connection to MQTT Broker ($BROKER_URL) successful');
+
+    topics.forEach((topic) {
+      this.subscribe(topic);
+    });
 
     _client.updates.listen((List<MqttReceivedMessage<MqttMessage>> m) {
       final MqttPublishMessage binaryMessage = m[0].payload;
@@ -52,42 +54,41 @@ class MqttService {
       final Message message = Message(topic: m[0].topic, payload: textMessage);
 
       messageStreamController.add(message);
-
-      // log.i('-> MESSAGE ${message.topic}');
-    });
-  }
-
-  void _onDisconnected() {
-    log.w('Client disconnected!');
-  }
-
-  void _onConnected() {
-    log.i('Connection to MQTT Broker ($BROKER_URL) successful');
-
-    topics.forEach((topic) {
-      this.subscribe(topic);
     });
   }
 
   void subscribe(String topic) {
     if (_client.connectionStatus.state != MqttConnectionState.connected) {
-      _connect();
+      _client.doAutoReconnect();
     }
     _client.subscribe(topic, MqttQos.atLeastOnce);
     log.i('SUBSCRIBE to $topic ');
   }
 
   void publish(Message message) {
+    if (_client.connectionStatus.state != MqttConnectionState.connected) {
+      _client.doAutoReconnect();
+    }
     final builder = MqttClientPayloadBuilder();
     builder.addString(message.payload);
     _client.publishMessage(message.topic, MqttQos.exactlyOnce, builder.payload);
-
-    // log.i('<- PUBLISH ${message.topic} ');
   }
 
   void unsubscribe(String topic) {
     _client.unsubscribe(topic);
-    // log.i('⨯ UNSUBSCRIBE $topic ');
+    log.i('UNSUBSCRIBE $topic ');
+  }
+
+  void _onDisconnected() {
+    log.w('Client disconnected!');
+  }
+
+  void _onAutoReconnect() {
+    log.w('try Reconnection to Broker');
+  }
+
+  void _onAutoReconnected() {
+    log.i('Client reconnected to Broker');
   }
 
   void dispose() {
