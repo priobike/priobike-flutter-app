@@ -1,9 +1,9 @@
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/router.dart';
-import 'package:bikenow/services/app_service.dart';
-import 'package:bikenow/services/status_service.dart';
-import 'package:bikenow/widgets/destination_button.dart';
-import 'package:bikenow/widgets/route_button.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/router.dart';
+import 'package:priobike/services/app_service.dart';
+import 'package:priobike/services/status_service.dart';
+import 'package:priobike/widgets/destination_button.dart';
+import 'package:priobike/widgets/route_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -42,8 +42,8 @@ class _OverviewPageState extends State<OverviewPage> {
                     onPressed: () {
                       Navigator.pushNamed(context, AppPage.chooseRoute);
                     },
-                    elevation: BikeNowTheme.buttonElevation,
-                    color: BikeNowTheme.button,
+                    elevation: PrioBikeTheme.buttonElevation,
+                    color: PrioBikeTheme.button,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(8.0),
@@ -64,8 +64,8 @@ class _OverviewPageState extends State<OverviewPage> {
                       textAlign: TextAlign.start,
                     ),
                     onPressed: () {},
-                    elevation: BikeNowTheme.buttonElevation,
-                    color: BikeNowTheme.button,
+                    elevation: PrioBikeTheme.buttonElevation,
+                    color: PrioBikeTheme.button,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(8.0),

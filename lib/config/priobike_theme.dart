@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart';
 
-class BikeNowTheme {
+class PrioBikeTheme {
 
   // grey theme
   // static Color background = Color(0xff383838);

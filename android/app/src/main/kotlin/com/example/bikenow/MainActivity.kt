@@ -1,4 +1,4 @@
-package com.example.bikenow
+package com.example.priobike
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bikenow/config/logger.dart';
-import 'package:bikenow/models/api/api_route.dart';
-import 'package:bikenow/models/message.dart';
-import 'package:bikenow/models/stop_request.dart';
-import 'package:bikenow/models/user_position.dart';
-import 'package:bikenow/models/recommendation.dart';
-import 'package:bikenow/models/route_request.dart';
-import 'package:bikenow/services/mqtt_service.dart';
+import 'package:priobike/config/logger.dart';
+import 'package:priobike/models/api/api_route.dart';
+import 'package:priobike/models/message.dart';
+import 'package:priobike/models/stop_request.dart';
+import 'package:priobike/models/user_position.dart';
+import 'package:priobike/models/recommendation.dart';
+import 'package:priobike/models/route_request.dart';
+import 'package:priobike/services/mqtt_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';

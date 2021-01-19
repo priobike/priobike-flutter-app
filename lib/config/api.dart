@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:bikenow/models/api/api_pilotstrecken.dart';
-import 'package:bikenow/models/api/api_status.dart';
+import 'package:priobike/models/api/api_pilotstrecken.dart';
+import 'package:priobike/models/api/api_status.dart';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';

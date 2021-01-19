@@ -1,6 +1,6 @@
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/router.dart';
-import 'package:bikenow/services/status_service.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/router.dart';
+import 'package:priobike/services/status_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class _StartPageState extends State<StartPage> {
     final statusService = Provider.of<StatusService>(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: BikeNowTheme.background,
+        backgroundColor: PrioBikeTheme.background,
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -30,15 +30,15 @@ class _StartPageState extends State<StartPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "BikeNow",
+                      "BikeNow/PrioBike",
                       style: GoogleFonts.inter(
                         fontSize: 50,
                         fontWeight: FontWeight.w500,
-                        color: BikeNowTheme.text,
+                        color: PrioBikeTheme.text,
                       ),
                     ),
                     Text(
-                      "Dresden",
+                      "Dresden/Hamburg",
                       style: GoogleFonts.inter(
                           fontSize: 28, color: Colors.white60),
                     ),
@@ -60,7 +60,7 @@ class _StartPageState extends State<StartPage> {
                       style: TextStyle(
                         fontSize: 14,
                         decoration: TextDecoration.none,
-                        color: BikeNowTheme.text,
+                        color: PrioBikeTheme.text,
                       ),
                     ),
                   ),
@@ -81,7 +81,7 @@ class _StartPageState extends State<StartPage> {
                       style: TextStyle(
                         fontSize: 14,
                         decoration: TextDecoration.none,
-                        color: BikeNowTheme.text,
+                        color: PrioBikeTheme.text,
                       ),
                     ),
                   ),
@@ -103,7 +103,7 @@ class _StartPageState extends State<StartPage> {
                         fontSize: 14,
                         decoration: TextDecoration.none,
                         fontWeight: FontWeight.w600,
-                        color: BikeNowTheme.text,
+                        color: PrioBikeTheme.text,
                       ),
                     ),
                   ),
@@ -111,8 +111,8 @@ class _StartPageState extends State<StartPage> {
               ),
               Spacer(flex: 2),
               RaisedButton(
-                color: BikeNowTheme.button,
-                elevation: BikeNowTheme.buttonElevation,
+                color: PrioBikeTheme.button,
+                elevation: PrioBikeTheme.buttonElevation,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
@@ -123,7 +123,7 @@ class _StartPageState extends State<StartPage> {
                             child: Text(
                               "Ich bin einverstanden. Los gehts!",
                               style: TextStyle(
-                                color: BikeNowTheme.text,
+                                color: PrioBikeTheme.text,
                                 fontWeight: FontWeight.w100,
                               ),
                             ),

@@ -1,11 +1,11 @@
-import 'package:bikenow/pages/choose_route_page.dart';
-import 'package:bikenow/pages/log_page.dart';
-import 'package:bikenow/pages/main_page.dart';
-import 'package:bikenow/pages/navigation_page.dart';
-import 'package:bikenow/pages/route_info_page.dart';
-import 'package:bikenow/pages/settings_page.dart';
-import 'package:bikenow/pages/start_page.dart';
-import 'package:bikenow/pages/summary_page.dart';
+import 'package:priobike/pages/choose_route_page.dart';
+import 'package:priobike/pages/log_page.dart';
+import 'package:priobike/pages/main_page.dart';
+import 'package:priobike/pages/navigation_page.dart';
+import 'package:priobike/pages/route_info_page.dart';
+import 'package:priobike/pages/settings_page.dart';
+import 'package:priobike/pages/start_page.dart';
+import 'package:priobike/pages/summary_page.dart';
 import 'package:flutter/material.dart';
 
 class AppPage {

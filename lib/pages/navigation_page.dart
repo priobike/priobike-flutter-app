@@ -1,7 +1,7 @@
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/logger.dart';
-import 'package:bikenow/config/router.dart';
-import 'package:bikenow/services/app_service.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/logger.dart';
+import 'package:priobike/config/router.dart';
+import 'package:priobike/services/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
@@ -36,13 +36,13 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = TextStyle(
-      color: BikeNowTheme.text,
+      color: PrioBikeTheme.text,
       fontSize: 20,
     );
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: BikeNowTheme.background,
+        backgroundColor: PrioBikeTheme.background,
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: app.recommendation != null
@@ -70,7 +70,7 @@ class _NavigationPageState extends State<NavigationPage> {
                                 Text(
                                   "Countdown: ${app.recommendation.countdown}s",
                                   style: TextStyle(
-                                    color: BikeNowTheme.text,
+                                    color: PrioBikeTheme.text,
                                     fontSize: 48,
                                   ),
                                 ),
@@ -114,7 +114,7 @@ class _NavigationPageState extends State<NavigationPage> {
                                 Text(
                                   "${app.recommendation.countdown}s",
                                   style: TextStyle(
-                                    color: BikeNowTheme.text,
+                                    color: PrioBikeTheme.text,
                                     fontSize: 72,
                                   ),
                                 ),
@@ -145,8 +145,8 @@ class _NavigationPageState extends State<NavigationPage> {
                           );
                           //Navigator.pushReplacementNamed(context, AppPage.summary); // TODO: enable summary page
                         },
-                        elevation: BikeNowTheme.buttonElevation,
-                        color: BikeNowTheme.button,
+                        elevation: PrioBikeTheme.buttonElevation,
+                        color: PrioBikeTheme.button,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(8.0),
@@ -160,7 +160,7 @@ class _NavigationPageState extends State<NavigationPage> {
                   child: Text(
                     "Warte auf Position...",
                     style: TextStyle(
-                      color: BikeNowTheme.text,
+                      color: PrioBikeTheme.text,
                     ),
                   ),
                 ),

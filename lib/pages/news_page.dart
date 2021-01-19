@@ -1,4 +1,4 @@
-import 'package:bikenow/config/bikenow_theme.dart';
+import 'package:priobike/config/priobike_theme.dart';
 import 'package:flutter/material.dart';
 
 class NewsPage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _NewsPageState extends State<NewsPage> {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
-            color: BikeNowTheme.button,
+            color: PrioBikeTheme.button,
             width: double.infinity,
             height: 310,
             child: Padding(
@@ -25,7 +25,7 @@ class _NewsPageState extends State<NewsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "BikeNow weiterhin im Testlauf",
+                    "Nachrichten!",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,

@@ -1,4 +1,4 @@
-import 'package:bikenow/config/bikenow_theme.dart';
+import 'package:priobike/config/priobike_theme.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -13,18 +13,18 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: BikeNowTheme.background,
+        backgroundColor: PrioBikeTheme.background,
         appBar: AppBar(
           title: Text("Einstellungen"),
-          elevation: BikeNowTheme.buttonElevation,
-          backgroundColor: BikeNowTheme.background,
+          elevation: PrioBikeTheme.buttonElevation,
+          backgroundColor: PrioBikeTheme.background,
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
             'Settings',
             style: TextStyle(
-              color: BikeNowTheme.text,
+              color: PrioBikeTheme.text,
             ),
           ),
         ),

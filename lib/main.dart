@@ -1,5 +1,5 @@
-import 'package:bikenow/services/status_service.dart';
-import 'package:bikenow/services/app_service.dart';
+import 'package:priobike/services/status_service.dart';
+import 'package:priobike/services/app_service.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
             create: (context) => StatusService()),
       ],
       child: MaterialApp(
-          title: 'BikeNow',
+          title: 'PrioBike',
           initialRoute: AppPage.init,
           routes: AppPage.all,
           onUnknownRoute: (settings) => AppPage.noRoute(settings),

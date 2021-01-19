@@ -1,5 +1,5 @@
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/logger.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/logger.dart';
 import 'package:flutter/material.dart';
 
 class LogPage extends StatefulWidget {
@@ -16,11 +16,11 @@ class _LogPageState extends State<LogPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: BikeNowTheme.background,
+        backgroundColor: PrioBikeTheme.background,
         appBar: AppBar(
           title: Text("Log"),
-          elevation: BikeNowTheme.buttonElevation,
-          backgroundColor: BikeNowTheme.background,
+          elevation: PrioBikeTheme.buttonElevation,
+          backgroundColor: PrioBikeTheme.background,
           actions: <Widget>[
             IconButton(
               icon: Icon(

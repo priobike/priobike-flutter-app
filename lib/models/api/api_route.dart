@@ -1,5 +1,5 @@
-import 'package:bikenow/models/api/api_point.dart';
-import 'package:bikenow/models/api/api_sg.dart';
+import 'package:priobike/models/api/api_point.dart';
+import 'package:priobike/models/api/api_sg.dart';
 
 class ApiRoute {
   String status;

@@ -1,9 +1,9 @@
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/router.dart';
-import 'package:bikenow/pages/overview_page.dart';
-import 'package:bikenow/pages/map_page.dart';
-import 'package:bikenow/pages/news_page.dart';
-import 'package:bikenow/pages/statistics_page.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/router.dart';
+import 'package:priobike/pages/overview_page.dart';
+import 'package:priobike/pages/map_page.dart';
+import 'package:priobike/pages/news_page.dart';
+import 'package:priobike/pages/statistics_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,7 +21,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BikeNowTheme.background,
+      backgroundColor: PrioBikeTheme.background,
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
@@ -42,7 +42,7 @@ class _MainPageState extends State<MainPage> {
             ],
           ),
         ),
-        elevation: BikeNowTheme.buttonElevation,
+        elevation: PrioBikeTheme.buttonElevation,
         toolbarHeight: 100,
         backgroundColor: Colors.black.withOpacity(0),
         actions: <Widget>[

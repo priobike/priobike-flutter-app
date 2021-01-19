@@ -1,9 +1,9 @@
-import 'package:bikenow/config/logger.dart';
-import 'package:bikenow/config/bikenow_theme.dart';
-import 'package:bikenow/config/router.dart';
-import 'package:bikenow/models/api/api_point.dart';
-import 'package:bikenow/models/api/api_route.dart';
-import 'package:bikenow/services/app_service.dart';
+import 'package:priobike/config/logger.dart';
+import 'package:priobike/config/priobike_theme.dart';
+import 'package:priobike/config/router.dart';
+import 'package:priobike/models/api/api_point.dart';
+import 'package:priobike/models/api/api_route.dart';
+import 'package:priobike/services/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:provider/provider.dart';
@@ -100,15 +100,15 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
   Widget build(BuildContext context) {
     TextStyle textStyle = TextStyle(
       fontSize: 18,
-      color: BikeNowTheme.text,
+      color: PrioBikeTheme.text,
     );
 
     return Scaffold(
-      backgroundColor: BikeNowTheme.background,
+      backgroundColor: PrioBikeTheme.background,
       appBar: AppBar(
-        backgroundColor: BikeNowTheme.background,
+        backgroundColor: PrioBikeTheme.background,
         title: Text("Streckenvorschau"),
-        elevation: BikeNowTheme.buttonElevation,
+        elevation: PrioBikeTheme.buttonElevation,
       ),
       body: app.loading == false
           ? Column(
@@ -126,8 +126,8 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
                       onPressed: () {
                         print(controller.cameraPosition.target.toString());
                       },
-                      elevation: BikeNowTheme.buttonElevation,
-                      color: BikeNowTheme.button,
+                      elevation: PrioBikeTheme.buttonElevation,
+                      color: PrioBikeTheme.button,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(8.0),
@@ -210,8 +210,8 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
                           AppPage.navigation,
                         );
                       },
-                      elevation: BikeNowTheme.buttonElevation,
-                      color: BikeNowTheme.button,
+                      elevation: PrioBikeTheme.buttonElevation,
+                      color: PrioBikeTheme.button,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(8.0),
@@ -225,7 +225,7 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
           : Center(
               child: Text(
                 "Lade Route...",
-                style: TextStyle(color: BikeNowTheme.text),
+                style: TextStyle(color: PrioBikeTheme.text),
               ),
             ),
     );
