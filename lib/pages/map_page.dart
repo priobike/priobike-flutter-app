@@ -1,8 +1,7 @@
-import 'dart:async';
+import 'dart:ui';
 
-import 'package:bike_now_flutter/Services/router.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -11,42 +10,34 @@ class MapPage extends StatefulWidget {
   }
 }
 
-class _MapPageState extends State<MapPage>  with AutomaticKeepAliveClientMixin<MapPage> {
-  bool get wantKeepAlive => true;
-
-  Completer<GoogleMapController> _controller = Completer();
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(51.029334, 13.728900),
-    zoom: 14.4746,
-  );
-
-
-
+class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Prognosen"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.pushNamed(context, Router.settingsRoute);
-            },
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.black.withOpacity(0),
+          body: MapboxMap(
+            initialCameraPosition: CameraPosition(
+              target: LatLng(51.050, 13.737),
+              zoom: 11.0,
+            ),
+            styleString: MapboxStyles.DARK,
+            myLocationEnabled: false,
+            scrollGesturesEnabled: true,
+            tiltGesturesEnabled: true,
+            zoomGesturesEnabled: true,
           ),
-        ],
-      ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
+        ),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+            child: Container(
+              color: Colors.black.withOpacity(0),
+            ),
+          ),
+        ),
+      ],
     );
   }
-
-
 }

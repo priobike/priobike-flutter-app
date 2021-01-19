@@ -1,4 +1,4 @@
-import 'package:bike_now_flutter/Services/router.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
 import 'package:flutter/material.dart';
 
 class NewsPage extends StatefulWidget {
@@ -9,105 +9,46 @@ class NewsPage extends StatefulWidget {
 }
 
 class _NewsPageState extends State<NewsPage> {
-
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        title: Text("Neuigkeiten"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.pushNamed(context, Router.settingsRoute);
-            },
+        backgroundColor: Colors.black.withOpacity(0),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            color: BikeNowTheme.button,
+            width: double.infinity,
+            height: 310,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "BikeNow weiterhin im Testlauf",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Spacer(),
+                  Text(
+                    "20. September 2020",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                   Spacer(),
+                  Text(
+                    "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: <Widget>[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("BikeNow die Revolution beginnt"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("Offizielle Ankündigung"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("BikeNow die Revolution beginnt"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("Offizielle Ankündigung"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("BikeNow die Revolution beginnt"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("Offizielle Ankündigung"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("BikeNow die Revolution beginnt"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text("Offizielle Ankündigung"),
-                  subtitle: Text("Es ist soweit, BikeNow ist offiziell im PlayStore und dem AppStore erhältlich!"),
-                ),
-              ),
-            ),
-
-
-
-          ],
-        ),
-      ),
-    );
+        ));
   }
 }

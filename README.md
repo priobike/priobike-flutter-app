@@ -1,6 +1,6 @@
-# bike_now_flutter
+# bikenow
 
-BikeNow App with Flutter
+A new Flutter project.
 
 ## Getting Started
 

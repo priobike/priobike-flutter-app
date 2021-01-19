@@ -1,15 +1,10 @@
-import 'package:bike_now_flutter/Services/router.dart';
-import 'package:bike_now_flutter/blocs/helper/routing_dashboard_info.dart';
-import 'package:bike_now_flutter/blocs/navigation_bloc.dart';
-import 'package:bike_now_flutter/helper/palette.dart';
-import 'package:bike_now_flutter/widgets/speed_slider.dart';
+import 'package:bikenow/config/bikenow_theme.dart';
+import 'package:bikenow/config/logger.dart';
+import 'package:bikenow/config/router.dart';
+import 'package:bikenow/services/app_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bike_now_flutter/blocs/bloc_manager.dart';
-
-import 'package:bike_now_flutter/widgets/mapbox_widget.dart';
-
-import '../main.dart';
+import 'package:wakelock/wakelock.dart';
 
 class NavigationPage extends StatefulWidget {
   @override
@@ -18,277 +13,167 @@ class NavigationPage extends StatefulWidget {
   }
 }
 
-class _NavigationPageState extends State<NavigationPage> with RouteAware {
-  NavigationBloc navigationBloc;
+class _NavigationPageState extends State<NavigationPage> {
+  Logger log = Logger("NavigationPage");
+  AppService app;
+
+  var _pageController = PageController(
+    initialPage: 0,
+  );
 
   @override
   void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context));
-  }
+    app = Provider.of<AppService>(context);
 
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
-  @override
-  void didPush() {
-    super.didPush();
-    navigationBloc = Provider.of<ManagerBloc>(context).navigationBloc;
-    navigationBloc.startRouting();
-  }
-
-  @override
-  void didPop() {
-    super.didPop();
-    navigationBloc.didPop();
-  }
-
-  phaseColor(bool isGreen) {
-    if (isGreen)
-      return Colors.green;
-    else {
-      return Colors.red;
+    if (!app.isGeolocating) {
+      app.startGeolocation();
     }
+
+    Wakelock.enable();
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            MapBoxWidget(),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                child: StreamBuilder<RoutingDashboardInfo>(
-                    stream: navigationBloc.getDashboardInfo,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        return Container(
-                          color: Colors.transparent,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Palette.primaryDarkBackground,
-                                borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(15),
-                                    bottomRight: Radius.circular(15)),
-                                boxShadow: [
-                                  new BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 2.0,
-                                  ),
-                                ]),
-                            height: 100,
-                            child: Row(
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 16.0, right: 16),
-                                  child: Icon(
-                                    Icons.arrow_upward,
-                                    color: Colors.white,
+    TextStyle textStyle = TextStyle(
+      color: BikeNowTheme.text,
+      fontSize: 20,
+    );
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: BikeNowTheme.background,
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: app.recommendation != null
+              ? Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: PageView(
+                        onPageChanged: (value) {
+                          // setState(() {
+                          //   _currentIndex = value;
+                          // });
+                        },
+                        controller: _pageController,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "${app.recommendation.label}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "Countdown: ${app.recommendation.countdown}s",
+                                  style: TextStyle(
+                                    color: BikeNowTheme.text,
+                                    fontSize: 48,
                                   ),
                                 ),
-                                Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                                          children: <Widget>[
-                                  Text(
-                                        (snapshot.data.currentInstruction.name
-                                            .toString()),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .headline),
-                                  Text(
-                                        ((snapshot.data.currentInstruction
-                                                        .distance *
-                                                    1000)
-                                                .round()
-                                                .toString() +
-                                            " m"),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .body1),
-                                ]),
-                                    )),
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: AspectRatio(
-                                          aspectRatio: 1,
-                                          child: Container(
-                                              decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: phaseColor(snapshot
-                                                      .data.nextSG.isGreen)),
-                                              child: Center(
-                                                child: Text(
-                                                    snapshot.data.secondsLeft != null ? snapshot.data.secondsLeft
-                                                        .toString() : "-",
-                                                    style: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .body1),
-                                              )),
-                                        ),
-                                      ),
-                                      Text(
-                                          (snapshot.data.nextSG.distance * 1000).round()
-                                              .toString() + "m",
-                                          style: Theme.of(context)
-                                              .primaryTextTheme
-                                              .body1),
-                                    ],
-                                  ),
-                                )
+                                Text(
+                                  "Distanz: ${app.recommendation.distance.toStringAsFixed(0)}m",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "isGreen: ${app.recommendation.isGreen}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "SpeedRec: ${app.recommendation.speedRec}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "SpeedDiff: ${app.recommendation.speedDiff}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "error: ${app.recommendation.error}",
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  "message: ${app.recommendation.errorMessage}",
+                                  style: textStyle,
+                                ),
                               ],
                             ),
                           ),
-                        );
-                      } else {
-                        return Container();
-                      }
-                    }),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: StreamBuilder<RoutingDashboardInfo>(
-                  stream: navigationBloc.getDashboardInfo,
-                  builder: (context, snapshot) {
-                    if (snapshot.data != null) {
-                      return Container(
-                        color: Colors.transparent,
-                        child: Container(
-                          height: 250,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).backgroundColor,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15)),
-                              boxShadow: [
-                                new BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 2.0,
+                          Container(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  "${app.recommendation.label}",
+                                  style: textStyle,
                                 ),
-                              ]),
-                          child: Column(
-                            children: <Widget>[
-                              SpeedSlider(snapshot.data.diffSpeed * 3.6),
-                              Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        ((snapshot.data.diffSpeed * 3.6)
-                                                .round()
-                                                .toString() +
-                                            " km/h"),
-                                        style: Theme.of(context)
-                                            .primaryTextTheme
-                                            .display1,
-                                      ),
-                                    ),
-                                  ]),
-                              Expanded(
-                                  child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: <Widget>[
-                                  Expanded(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: RaisedButton(
-                                      color: Colors.red,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15))),
-                                      onPressed: () {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                            context,
-                                            Router.summaryRoute,
-                                            (_) => false);
-                                      },
-                                      child: Text(
-                                        'Falsche Prognose (Fahrt beenden)',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  )),
-                                  Expanded(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: RaisedButton(
-                                      color: Colors.red,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15))),
-                                      onPressed: () {},
-                                      child: Text(
-                                        'Fehlerhafte Fahranweisung',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ))
-                                ],
-                              )),
-                              Container(
-                                color: Colors.transparent,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Palette.primaryDarkBackground,
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15)),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              ((snapshot.data.currentSpeed *
-                                                          3.6)
-                                                      .round()
-                                                      .toString() +
-                                                  " km/h"),
-                                              style: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .body1,
-                                            ),
-                                          ),
-                                        ),
-
-                                      ],
-                                    ),
+                                Text(
+                                  "${app.recommendation.countdown}s",
+                                  style: TextStyle(
+                                    color: BikeNowTheme.text,
+                                    fontSize: 72,
                                   ),
                                 ),
-                              )
-                            ],
+                                Text(
+                                  "Distanz: ${app.recommendation.distance.toStringAsFixed(0)}m",
+                                  style: textStyle,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: RaisedButton.icon(
+                        padding: EdgeInsets.all(12),
+                        icon: Icon(
+                          Icons.stop,
+                        ),
+                        label: Text("Fahrt beenden"),
+                        onPressed: () async {
+                          await app.stopGeolocation();
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            AppPage.home,
+                            (_) => false,
+                          );
+                          //Navigator.pushReplacementNamed(context, AppPage.summary); // TODO: enable summary page
+                        },
+                        elevation: BikeNowTheme.buttonElevation,
+                        color: BikeNowTheme.button,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8.0),
                           ),
                         ),
-                      );
-                    } else {
-                      return Container();
-                    }
-                  }),
-            ),
-          ],
+                      ),
+                    ),
+                  ],
+                )
+              : Center(
+                  child: Text(
+                    "Warte auf Position...",
+                    style: TextStyle(
+                      color: BikeNowTheme.text,
+                    ),
+                  ),
+                ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    log.i("NavigationPage disposed.");
+    if (app.isGeolocating) app.stopGeolocation();
+    Wakelock.disable();
+    super.dispose();
   }
 }
