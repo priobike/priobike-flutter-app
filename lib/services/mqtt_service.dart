@@ -27,7 +27,7 @@ class MqttService {
       ..onAutoReconnected = _onAutoReconnected
       ..resubscribeOnAutoReconnect = true
       ..keepAlivePeriod = 30
-      ..logging(on: false)
+      ..logging(on: false);
 
     this.topics = topics;
 

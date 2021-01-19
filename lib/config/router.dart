@@ -1,3 +1,4 @@
+import 'package:bikenow/pages/choose_route_page.dart';
 import 'package:bikenow/pages/log_page.dart';
 import 'package:bikenow/pages/main_page.dart';
 import 'package:bikenow/pages/navigation_page.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/material.dart';
 
 class AppPage {
   static const String init = '/init';
-  static const String routeCreation = '/routeCreation';
+  static const String chooseRoute = '/chooseRoute';
   static const String routeInfo = '/routeInfo';
   static const String navigation = '/navigation';
   static const String home = '/home';
@@ -25,6 +26,7 @@ class AppPage {
     AppPage.settings: (context) => SettingsPage(),
     AppPage.summary: (context) => SummaryPage(),
     AppPage.log: (context) => LogPage(),
+    AppPage.chooseRoute: (contex) => ChooseRoutePage(),
   };
 
   static noRoute(RouteSettings settings) {

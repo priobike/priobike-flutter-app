@@ -18,6 +18,7 @@ class AppService with ChangeNotifier {
   Logger log = Logger("AppService");
 
   MqttService _mqttService;
+
   String clientId = Uuid().v4();
 
   bool loading = false;
@@ -28,6 +29,9 @@ class AppService with ChangeNotifier {
   Recommendation recommendation;
 
   AppService() {
+
+    log.i('Your ID is $clientId');
+
     List<String> subscribeToTopics = [
       'resroute/$clientId',
       'recommendation/$clientId'
@@ -86,7 +90,7 @@ class AppService with ChangeNotifier {
   startGeolocation() async {
     isGeolocating = true;
 
-    positionStream = getPositionStream(
+    positionStream = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 7,
       timeInterval: 3,

@@ -26,13 +26,13 @@ dependencies:
     provider: ^4.1.3
     uuid: ^2.2.0
     http: ^0.12.1
-    mapbox_gl: ^0.8.0
+    mapbox_gl: ^0.9.0
     smooth_star_rating: ^1.1.1
     mqtt_client: ^8.0.0
     geolocator: ^6.0.0
     wakelock: ^0.2.0
     ansicolor: ^1.0.2
-    vector_math: ^2.0.8
+    vector_math: ^2.1.0-nullsafety.3
     google_fonts: ^1.1.0
     ntp: ^1.0.7
 

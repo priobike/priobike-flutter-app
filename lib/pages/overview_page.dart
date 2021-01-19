@@ -39,7 +39,9 @@ class _OverviewPageState extends State<OverviewPage> {
                     label: Text(
                       "Zu Ziel navigieren",
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppPage.chooseRoute);
+                    },
                     elevation: BikeNowTheme.buttonElevation,
                     color: BikeNowTheme.button,
                     shape: RoundedRectangleBorder(
