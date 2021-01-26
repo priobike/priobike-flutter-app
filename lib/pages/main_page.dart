@@ -29,14 +29,14 @@ class _MainPageState extends State<MainPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "BikeNow",
+                "PrioBike-HH",
                 style: GoogleFonts.inter(
                   fontSize: 28,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
-                "Dresden",
+                "GLOSA App",
                 style: GoogleFonts.inter(fontSize: 20, color: Colors.white60),
               ),
             ],

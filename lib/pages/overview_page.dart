@@ -115,6 +115,16 @@ class _OverviewPageState extends State<OverviewPage> {
                         },
                       ),
                     ),
+                     Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: DestinationButton(
+                        destination: "Albertplatz",
+                        onPressed: () async {
+                          // await app.updateRoute(0, 0, 1, 1);
+                          // Navigator.pushNamed(context, AppPage.routeInfo);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),

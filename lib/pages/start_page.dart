@@ -30,7 +30,7 @@ class _StartPageState extends State<StartPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "BikeNow/PrioBike",
+                      "PrioBike-HH",
                       style: GoogleFonts.inter(
                         fontSize: 50,
                         fontWeight: FontWeight.w500,
@@ -38,7 +38,7 @@ class _StartPageState extends State<StartPage> {
                       ),
                     ),
                     Text(
-                      "Dresden/Hamburg",
+                      "GLOSA App",
                       style: GoogleFonts.inter(
                           fontSize: 28, color: Colors.white60),
                     ),
