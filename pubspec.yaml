@@ -30,10 +30,11 @@ dependencies:
     smooth_star_rating: ^1.1.1
     mqtt_client: ^8.0.0
     geolocator: ^6.0.0
-    wakelock: ^0.2.0
+    wakelock: ^0.1.0
     ansicolor: ^1.0.2
-    vector_math: ^2.1.0-nullsafety.3
+    vector_math: ^2.0.8
     google_fonts: ^1.1.0
+    web_socket_channel: ^1.1.0
     ntp: ^1.0.7
 
 dev_dependencies:

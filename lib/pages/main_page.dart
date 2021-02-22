@@ -48,7 +48,7 @@ class _MainPageState extends State<MainPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(
-              Icons.fact_check,
+              Icons.message,
               color: Colors.white70,
             ),
             onPressed: () => Navigator.pushNamed(context, AppPage.log),

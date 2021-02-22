@@ -12,8 +12,6 @@ class StatusService with ChangeNotifier {
 
   ApiPilotstrecken pilotstrecken;
 
-  int timeDifference;
-
   bool loading = true;
 
   StatusService() {

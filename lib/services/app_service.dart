@@ -9,6 +9,8 @@ import 'package:priobike/models/user_position.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_request.dart';
 import 'package:priobike/services/mqtt_service.dart';
+import 'package:priobike/session/session_websocket.dart';
+import 'package:priobike/session/session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,9 +30,12 @@ class AppService with ChangeNotifier {
   ApiRoute route;
   Recommendation recommendation;
 
-  AppService() {
+  Session session;
 
+  AppService() {
     log.i('Your ID is $clientId');
+
+    session = new WebSocketSession(id: clientId);
 
     List<String> subscribeToTopics = [
       'resroute/$clientId',
