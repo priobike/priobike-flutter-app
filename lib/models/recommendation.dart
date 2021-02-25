@@ -23,9 +23,9 @@ class Recommendation {
   Recommendation.fromJson(Map<String, dynamic> json) {
     label = json['label'];
     countdown = json['countdown'];
-    distance = json['distance'];
-    speedRec = json['speedRec'];
-    speedDiff = json['speedDiff'];
+    distance = json['distance'].toDouble();
+    speedRec = json['speedRec'].toDouble();
+    speedDiff = json['speedDiff'].toDouble();
     isGreen = json['isGreen'];
     error = json['error'];
     errorMessage = json['errorMessage'];

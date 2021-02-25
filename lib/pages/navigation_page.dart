@@ -158,7 +158,7 @@ class _NavigationPageState extends State<NavigationPage> {
                 )
               : Center(
                   child: Text(
-                    "Warte auf Position...",
+                    "Warte auf Server...",
                     style: TextStyle(
                       color: PrioBikeTheme.text,
                     ),

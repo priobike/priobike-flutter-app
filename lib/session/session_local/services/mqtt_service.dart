@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:priobike/config/config.dart';
 import 'package:priobike/config/logger.dart';
-import 'package:priobike/models/message.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:priobike/session/session_local/services/message.dart';
 
 class MqttService {
   List<String> topics;

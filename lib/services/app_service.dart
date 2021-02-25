@@ -1,15 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:priobike/config/logger.dart';
 import 'package:priobike/models/api/api_route.dart';
-import 'package:priobike/models/message.dart';
-import 'package:priobike/models/stop_request.dart';
-import 'package:priobike/models/user_position.dart';
 import 'package:priobike/models/recommendation.dart';
-import 'package:priobike/models/route_request.dart';
-import 'package:priobike/services/mqtt_service.dart';
-import 'package:priobike/session/session_websocket.dart';
+import 'package:priobike/session/session_local/session_local.dart';
+import 'package:priobike/session/session_websocket/session_websocket.dart';
 import 'package:priobike/session/session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -19,17 +14,16 @@ import 'package:uuid/uuid.dart';
 class AppService with ChangeNotifier {
   Logger log = Logger("AppService");
 
-  MqttService _mqttService;
-
   String clientId = Uuid().v4();
 
-  bool loading = false;
+  bool loadingRoute = true;
+  bool loadingRecommendation = true;
   bool isGeolocating = false;
 
   StreamSubscription<Position> positionStream;
+
   ApiRoute route;
   Recommendation recommendation;
-
   Session session;
 
   AppService() {
@@ -37,28 +31,17 @@ class AppService with ChangeNotifier {
 
     session = new WebSocketSession(id: clientId);
 
-    List<String> subscribeToTopics = [
-      'resroute/$clientId',
-      'recommendation/$clientId'
-    ];
+    session.routeStreamController.stream.listen((route) {
+      log.i('<- Route');
+      loadingRoute = false;
+      this.route = route;
+      notifyListeners();
+    });
 
-    _mqttService = new MqttService(clientId, subscribeToTopics);
-
-    _mqttService.messageStreamController.stream.listen((message) {
-      if (message.topic.contains('resroute')) {
-        route = ApiRoute.fromJson(json.decode(message.payload));
-        log.i('<- Route');
-      }
-
-      if (message.topic.contains('recommendation')) {
-        recommendation = Recommendation.fromJson(json.decode(message.payload));
-        log.i('<- Recommendation');
-      }
-
-      // log.i('New Message! topic: ${message.topic}, payload: ${message.payload}');
-
-      loading = false;
-
+    session.recommendationStreamController.stream.listen((recommendation) {
+      log.i('<- Recommendation');
+      loadingRecommendation = false;
+      this.recommendation = recommendation;
       notifyListeners();
     });
   }
@@ -69,27 +52,13 @@ class AppService with ChangeNotifier {
     double toLat,
     double toLon,
   ) {
+    log.i('-> Route Request');
     route = null;
-    loading = true;
+    loadingRoute = true;
+
+    session.updateRoute(fromLat, fromLon, toLat, toLon);
 
     notifyListeners();
-
-    Message routeRequest = new Message(
-      topic: 'reqroute/$clientId',
-      payload: json.encode(
-        RouteRequest(
-          id: clientId,
-          fromLat: fromLat,
-          fromLon: fromLon,
-          toLat: toLat,
-          toLon: toLon,
-        ).toJson(),
-      ),
-    );
-
-    _mqttService.publish(routeRequest);
-
-    log.i('-> Route Request');
   }
 
   startGeolocation() async {
@@ -101,19 +70,11 @@ class AppService with ChangeNotifier {
       timeInterval: 3,
     ).listen((Position position) {
       if (position != null && isGeolocating == true) {
-        Message positionMessage = new Message(
-          topic: 'position/$clientId',
-          payload: json.encode(
-            new UserPosition(
-              id: clientId,
-              lat: position.latitude,
-              lon: position.longitude,
-              speed: (position.speed * 3.6).round(),
-            ).toJson(),
-          ),
+        session.updatePosition(
+          position.latitude,
+          position.longitude,
+          (position.speed * 3.6).round(),
         );
-
-        _mqttService.publish(positionMessage);
         log.i('-> Position');
       }
     });
@@ -121,17 +82,9 @@ class AppService with ChangeNotifier {
   }
 
   stopGeolocation() {
-    Message stopRequest = new Message(
-      topic: 'reqstop/$clientId',
-      payload: json.encode(
-        StopRequest(
-          id: clientId,
-        ).toJson(),
-      ),
-    );
-
-    _mqttService.publish(stopRequest);
     log.i('-> Stop Request');
+
+    session.stopRecommendation();
 
     isGeolocating = false;
     positionStream.cancel();

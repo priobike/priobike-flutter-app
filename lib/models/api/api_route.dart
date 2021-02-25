@@ -22,10 +22,10 @@ class ApiRoute {
 
   ApiRoute.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    distance = json['distance'];
+    distance = json['distance'].toDouble();
     time = json['time'];
-    ascend = json['ascend'];
-    descend = json['descend'];
+    ascend = json['ascend'].toDouble();
+    descend = json['descend'].toDouble();
     if (json['points'] != null) {
       points = new List<ApiPoint>();
       json['points'].forEach((v) {

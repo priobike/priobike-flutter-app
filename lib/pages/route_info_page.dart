@@ -106,7 +106,7 @@ class _RouteInfoPageState extends State<RouteInfoPage> {
         title: Text("Streckenvorschau"),
         elevation: PrioBikeTheme.buttonElevation,
       ),
-      body: app.loading == false
+      body: app.loadingRoute == false
           ? Column(
               children: <Widget>[
                 Expanded(
