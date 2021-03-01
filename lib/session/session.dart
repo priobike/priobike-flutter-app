@@ -4,8 +4,11 @@ import 'package:priobike/models/api/api_route.dart';
 import 'package:priobike/models/recommendation.dart';
 
 abstract class Session {
-  StreamController<ApiRoute> routeStreamController;
-  StreamController<Recommendation> recommendationStreamController;
+  StreamController<ApiRoute> routeStreamController =
+      new StreamController<ApiRoute>();
+
+  StreamController<Recommendation> recommendationStreamController =
+      new StreamController<Recommendation>();
 
   void updateRoute(
     double fromLat,
@@ -20,7 +23,11 @@ abstract class Session {
     int speed,
   );
 
-  void stopRecommendation() {
+  void startRecommendation() {}
+
+  void stopRecommendation() {}
+
+  void dispose() {
     routeStreamController.close();
     recommendationStreamController.close();
   }

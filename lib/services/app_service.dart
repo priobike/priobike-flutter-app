@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:priobike/config/logger.dart';
 import 'package:priobike/models/api/api_route.dart';
 import 'package:priobike/models/recommendation.dart';
-import 'package:priobike/session/session_local/session_local.dart';
-import 'package:priobike/session/session_websocket/session_websocket.dart';
+import 'package:priobike/session/session_remote/session_remote.dart';
 import 'package:priobike/session/session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -29,7 +28,7 @@ class AppService with ChangeNotifier {
   AppService() {
     log.i('Your ID is $clientId');
 
-    session = new WebSocketSession(id: clientId);
+    session = new RemoteSession(id: clientId);
 
     session.routeStreamController.stream.listen((route) {
       log.i('<- Route');
@@ -63,6 +62,8 @@ class AppService with ChangeNotifier {
 
   startGeolocation() async {
     isGeolocating = true;
+
+    session.startRecommendation();
 
     positionStream = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
