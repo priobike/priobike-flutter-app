@@ -62,6 +62,7 @@ class AppService with ChangeNotifier {
 
   startGeolocation() async {
     isGeolocating = true;
+    loadingRecommendation = true;
 
     session.startRecommendation();
 
