@@ -48,6 +48,9 @@ class LocalSession extends Session {
   }
 
   @override
+  startRecommendation() {}
+
+  @override
   stopRecommendation() {
     routeStreamController.close();
     recommendationStreamController.close();

@@ -1,74 +1,76 @@
-import 'dart:convert';
-
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
-
+import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/user_position.dart';
 import 'package:priobike/session/session.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+import 'dart:convert';
 
 class RemoteSession extends Session {
   String _sessionId;
-  StompClient _stompClient;
+
+  WebSocketChannel socket;
+  Peer jsonRPC;
+
+  void connect() {
+    // local address outside emulator for development
+    socket = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:8080/'));
+    // it is currently not possible to catch, when the server is not reachable
+
+    jsonRPC = Peer(socket.cast<String>());
+
+    jsonRPC.listen().then((done) {
+      print('Disconnected: ${socket.closeCode} ${socket.closeReason}');
+      print('reconnect in 3 seconds');
+      Future.delayed(Duration(seconds: 3), connect);
+    });
+
+    jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
+      print('got recommendation');
+      print(params['label'].asString);
+    });
+  }
 
   RemoteSession({String id}) {
     this._sessionId = id;
 
-    onConnect(StompClient client, StompFrame frame) {
-      print('connected to STOMP Server');
-
-      client.subscribe(
-        destination: '/queue/${this._sessionId}/recommendation',
-        callback: (StompFrame frame) {
-          super
-              .recommendationStreamController
-              .add(Recommendation.fromJson(json.decode(frame.body)));
-        },
-      );
-    }
-
-    onDisconnect(StompFrame frame) {
-      print("disconnected from STOMP Server");
-    }
-
-    print("trying to connect");
-    _stompClient = StompClient(
-      config: StompConfig(
-        url: 'ws://10.0.2.2:8080/stomp', // local address for development
-        stompConnectHeaders: {'clientId': 'my_device_sessionId_or_something'},
-        onConnect: onConnect,
-        onDisconnect: onDisconnect,
-        onStompError: (StompFrame frame) => print("error: " + frame.body),
-        onWebSocketError: (dynamic error) => print(error.toString()),
-        connectionTimeout: Duration(seconds: 30),
-      ),
-    );
-
-    _stompClient.activate();
+    connect();
   }
 
   @override
-  updatePosition(
+  void updatePosition(
     double lat,
     double lon,
     int speed,
   ) {
-    _stompClient.send(
-      destination: '/queue/${this._sessionId}/position',
-      body: json.encode(
-        new UserPosition(
-          lat: lat,
-          lon: lon,
-          speed: speed,
-        ).toJson(),
-      ),
+    jsonRPC.sendNotification(
+      'PositionUpdate',
+      new UserPosition(
+        lat: lat,
+        lon: lon,
+        speed: speed,
+      ).toJson(),
     );
   }
 
   @override
-  dispose() {
+  void startRecommendation() {
+    jsonRPC.sendRequest(
+      'Navigation',
+      {'active': true},
+    ).then((value) => print(value));
+  }
+
+  @override
+  void stopRecommendation() {
+    jsonRPC.sendRequest(
+      'Navigation',
+      {'active': false},
+    ).then((value) => print(value));
+  }
+
+  @override
+  void dispose() {
     super.dispose();
-    _stompClient.deactivate();
   }
 }

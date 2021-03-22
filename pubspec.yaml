@@ -34,7 +34,9 @@ dependencies:
     ansicolor: ^1.0.2
     vector_math: ^2.0.8
     google_fonts: ^1.1.0
-    stomp_dart_client: ^0.3.8
+    web_socket_channel: ^1.2.0
+    json_rpc_2: ^2.2.2
+    intl: ^0.17.0
 
 dev_dependencies:
     flutter_test:

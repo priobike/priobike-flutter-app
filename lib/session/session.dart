@@ -17,7 +17,7 @@ abstract class Session {
 
   HTTP.Client _httpClient = HTTP.Client();
 
-  updateRoute(
+  void updateRoute(
     double fromLat,
     double fromLon,
     double toLat,
@@ -42,24 +42,11 @@ abstract class Session {
     int speed,
   );
 
-  void startRecommendation() {
-    _httpClient
-        .get('${Config.GATEWAY_URL}:${Config.GATEWAY_PORT}/routing/start')
-        .then((HTTP.Response response) {
-      print(response.body);
-    });
-  }
+  void startRecommendation();
 
-  stopRecommendation() {
-    _httpClient
-        .get('${Config.GATEWAY_URL}:${Config.GATEWAY_PORT}/routing/stop')
-        .then((HTTP.Response response) {
-      print(response.body);
-    });
-  }
+  void stopRecommendation();
 
   void dispose() {
-    _httpClient.close();
     routeStreamController.close();
     recommendationStreamController.close();
   }
