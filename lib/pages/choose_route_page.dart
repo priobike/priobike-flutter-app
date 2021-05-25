@@ -24,13 +24,14 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
 
   bool mapReady = false;
 
+  String destination;
+
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
   }
 
   void _onStyleLoaded() {
     mapReady = true;
-    if (selectedRoute != null) drawRoute();
   }
 
   void drawRoute() {
@@ -86,7 +87,7 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
     selectedRoute = app.route;
 
     if (selectedRoute != null && mapReady == true) {
-      // drawRoute();
+      drawRoute();
     }
 
     if (!app.isGeolocating) {
@@ -107,127 +108,126 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
       backgroundColor: PrioBikeTheme.background,
       appBar: AppBar(
         backgroundColor: PrioBikeTheme.background,
-        title: Text("Streckenvorschau"),
+        title: Text("Navigiere zu"),
         elevation: PrioBikeTheme.buttonElevation,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: DestinationSearch(),
+              ).then(
+                (value) => setState(() {
+                  destination = value;
+                }),
+              );
+            },
+          )
+        ],
       ),
-      body: app.loadingRoute == false
-          ? Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: RaisedButton.icon(
-                      padding: EdgeInsets.all(12),
-                      icon: Icon(
-                        Icons.location_searching,
-                      ),
-                      label: Text("Ziel suchen"),
-                      onPressed: () {
-                        print(controller.cameraPosition.target.toString());
-                      },
-                      elevation: PrioBikeTheme.buttonElevation,
-                      color: PrioBikeTheme.button,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
-                        ),
-                      ),
+      body: Stack(
+        children: <Widget>[
+          MapboxMap(
+            onMapCreated: _onMapCreated,
+            onStyleLoadedCallback: _onStyleLoaded,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(51.050, 13.737),
+              zoom: 12.0,
+            ),
+            styleString: MapboxStyles.DARK,
+            myLocationEnabled: true,
+            trackCameraPosition: true,
+            onMapClick: (position, coordinates) {
+              setState(() {
+                destination = 'Eigenes Ziel';
+              });
+
+              this.controller.addCircle(
+                    CircleOptions(
+                      geometry: coordinates,
+                      circleRadius: 6,
+                      circleColor: 'blue',
+                      circleStrokeWidth: 2,
+                      circleStrokeColor: 'white',
                     ),
-                  ),
+                  );
+
+              app.updateRoute(
+                0,
+                0,
+                coordinates.latitude,
+                coordinates.longitude,
+              );
+            },
+          ),
+          if (destination != null)
+            Positioned(
+              bottom: 30.0,
+              left: 10.0,
+              right: 10.0,
+              child: Card(
+                elevation: 8.0,
+                color: PrioBikeTheme.background,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                Expanded(
-                  child: MapboxMap(
-                    onMapCreated: _onMapCreated,
-                    onStyleLoadedCallback: _onStyleLoaded,
-                    initialCameraPosition: const CameraPosition(
-                      target: LatLng(51.050, 13.737),
-                      zoom: 12.0,
-                    ),
-                    styleString: MapboxStyles.DARK,
-                    myLocationEnabled: true,
-                    trackCameraPosition: true,
-                    onCameraIdle: () {
-                      this.controller.addCircle(
-                            CircleOptions(
-                              geometry: LatLng(
-                                  controller.cameraPosition.target.latitude,
-                                  controller.cameraPosition.target.longitude),
-                              circleRadius: 6,
-                              circleColor: 'blue',
-                              circleStrokeWidth: 2,
-                              circleStrokeColor: 'white',
+                child: !app.loadingRoute
+                    ? Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Ziel: $destination',
+                              style: textStyle,
                             ),
-                          );
-                    },
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.fromLTRB(8, 16, 8, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer',
-                            style: textStyle,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            '${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten Fahrzeit',
-                            style: textStyle,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: <Widget>[
-                          Text(
-                            '${(app.route?.sg?.length ?? 0)} Ampeln',
-                            style: textStyle,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: RaisedButton.icon(
-                      padding: EdgeInsets.all(12),
-                      icon: Icon(
-                        Icons.location_on,
-                      ),
-                      label: Text("Routing Starten"),
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          AppPage.navigation,
-                        );
-                      },
-                      elevation: PrioBikeTheme.buttonElevation,
-                      color: PrioBikeTheme.button,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
+                            Text(
+                              '${((app.route?.distance ?? 0) / 1000).toStringAsFixed(2)} Kilometer',
+                              style: textStyle,
+                            ),
+                            Text(
+                              '${Duration(milliseconds: app.route?.time ?? 0).inMinutes} Minuten Fahrzeit',
+                              style: textStyle,
+                            ),
+                            Text(
+                              '${(app.route?.sg?.length ?? 0)} Ampeln',
+                              style: textStyle,
+                            ),
+                            SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: RaisedButton.icon(
+                                padding: EdgeInsets.all(12),
+                                icon: Icon(
+                                  Icons.navigation,
+                                ),
+                                label: Text("Losfahren"),
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    AppPage.navigation,
+                                  );
+                                  app.startNavigation();
+                                },
+                                elevation: PrioBikeTheme.buttonElevation,
+                                color: PrioBikeTheme.accentButton,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Center(
-              child: Text(
-                "Lade Route...",
-                style: TextStyle(color: PrioBikeTheme.text),
+                      )
+                    : LinearProgressIndicator(),
               ),
             ),
+        ],
+      ),
     );
   }
 
@@ -235,5 +235,49 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
   void dispose() {
     log.i("ChooseRoutePage disposed.");
     super.dispose();
+  }
+}
+
+class DestinationSearch extends SearchDelegate<String> {
+  @override
+  String get searchFieldLabel => 'Ziel Suchen';
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    print(query);
+    return ListTile(
+      title: Text(query),
+      onTap: () => close(context, query),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return ListTile(
+      title: Text(query),
+      onTap: () => close(context, query),
+    );
   }
 }

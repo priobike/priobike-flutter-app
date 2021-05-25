@@ -4,7 +4,9 @@
 import {
   WebSocketClient,
   WebSocketServer,
-} from "https://deno.land/x/websocket@v0.1.0/mod.ts";
+} from "https://deno.land/x/websocket@v0.1.1/mod.ts";
+
+import { Application, Router } from "https://deno.land/x/oak@v6.5.1/mod.ts";
 
 const route_response = {
   "points": [
@@ -225,26 +227,23 @@ const route_response = {
 };
 
 const wss = new WebSocketServer(8080);
+let isNavigationActive = false;
 
 wss.on("connection", function (ws: WebSocketClient) {
   console.log("someone connected");
 
   let timer: number;
 
-  // setTimeout(() => {
-  //   console.log("close this");
-  //   !ws.isClosed && ws.close(42, "i dunno");
-  // }, 2000);
-
   ws.on("message", function (data: string) {
     const message = JSON.parse(data);
     console.log(message);
 
-    let isNavigationActive = false;
-
     switch (message.method) {
       case "Navigation":
         isNavigationActive = message.params.active;
+
+        if (!isNavigationActive && timer) clearInterval(timer);
+
         ws.send(JSON.stringify(
           {
             jsonrpc: "2.0",
@@ -256,7 +255,7 @@ wss.on("connection", function (ws: WebSocketClient) {
 
       case "PositionUpdate":
         timer = setInterval(() => {
-          if (!ws.isClosed) {
+          if (!ws.isClosed && isNavigationActive) {
             console.log("sending back mock recommendation...");
             ws.send(JSON.stringify({
               jsonrpc: "2.0",
@@ -287,4 +286,21 @@ wss.on("connection", function (ws: WebSocketClient) {
   });
 });
 
-console.log("websocket server started. listening on :8080");
+console.log("websocket server started. listening on port 8080");
+
+const app = new Application();
+const router = new Router();
+
+router
+  .get("/authentication", ({ response }: { response: any }) => {
+    response.body = { "sessionId": "00000000-0000-0000-0000-000000000000" };
+  })
+  .get("/getRoute", ({ response }: { response: any }) => {
+    response.body = route_response;
+  });
+
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+console.log("http server started. listening on port 8000");
+await app.listen("localhost:8000");

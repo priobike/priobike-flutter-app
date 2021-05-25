@@ -27,13 +27,13 @@ class ApiRoute {
     ascend = json['ascend'].toDouble();
     descend = json['descend'].toDouble();
     if (json['points'] != null) {
-      points = new List<ApiPoint>();
+      points = new List<ApiPoint>.empty(growable: true);
       json['points'].forEach((v) {
         points.add(new ApiPoint.fromJson(v));
       });
     }
     if (json['sg'] != null) {
-      sg = new List<ApiSg>();
+      sg = new List<ApiSg>.empty(growable: true);
       json['sg'].forEach((v) {
         sg.add(new ApiSg.fromJson(v));
       });

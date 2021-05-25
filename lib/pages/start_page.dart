@@ -111,20 +111,23 @@ class _StartPageState extends State<StartPage> {
               ),
               Spacer(flex: 2),
               RaisedButton(
-                color: PrioBikeTheme.button,
+                color: PrioBikeTheme.accentButton,
                 elevation: PrioBikeTheme.buttonElevation,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
                     width: double.infinity,
                     child: statusService.loading
-                        ? CircularProgressIndicator()
-                        : Center(
-                            child: Text(
-                              "Ich bin einverstanden. Los gehts!",
-                              style: TextStyle(
-                                color: PrioBikeTheme.text,
-                                fontWeight: FontWeight.w100,
+                        ? LinearProgressIndicator()
+                        : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                "Ich bin einverstanden. Los gehts!",
+                                style: TextStyle(
+                                  color: PrioBikeTheme.text,
+                                  fontWeight: FontWeight.w100,
+                                ),
                               ),
                             ),
                           ),

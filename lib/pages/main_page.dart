@@ -65,9 +65,9 @@ class _MainPageState extends State<MainPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(0, 30, 0, 10),
+            padding: const EdgeInsets.fromLTRB(8, 30, 8, 10),
             child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
                       child: Padding(

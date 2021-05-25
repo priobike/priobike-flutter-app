@@ -43,29 +43,7 @@ class _OverviewPageState extends State<OverviewPage> {
                       Navigator.pushNamed(context, AppPage.chooseRoute);
                     },
                     elevation: PrioBikeTheme.buttonElevation,
-                    color: PrioBikeTheme.button,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8.0),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: RaisedButton.icon(
-                    padding: EdgeInsets.all(16),
-                    icon: Icon(Icons.directions_bike),
-                    label: Text(
-                      "Freie Fahrt",
-                      textAlign: TextAlign.start,
-                    ),
-                    onPressed: () {},
-                    elevation: PrioBikeTheme.buttonElevation,
-                    color: PrioBikeTheme.button,
+                    color: PrioBikeTheme.accentButton,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(8.0),
@@ -115,7 +93,7 @@ class _OverviewPageState extends State<OverviewPage> {
                         },
                       ),
                     ),
-                     Padding(
+                    Padding(
                       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                       child: DestinationButton(
                         destination: "Albertplatz",

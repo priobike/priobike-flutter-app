@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:json_rpc_2/json_rpc_2.dart';
+
 class Recommendation {
   String label;
   int countdown;
@@ -29,6 +31,17 @@ class Recommendation {
     isGreen = json['isGreen'];
     error = json['error'];
     errorMessage = json['errorMessage'];
+  }
+
+  Recommendation.fromJsonRPC(Parameters params) {
+    label = params['label'].asString;
+    countdown = params['countdown'].asNum;
+    distance = params['distance'].asNum;
+    isGreen = params['isGreen'].asBool;
+    speedRec = params['speedRec'].asNum;
+    speedDiff = params['speedDiff'].asNum;
+    error = params['error'].asBool;
+    errorMessage = params['errorMessage'].asString;
   }
 
   String toJson() {

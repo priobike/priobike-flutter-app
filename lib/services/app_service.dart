@@ -21,6 +21,7 @@ class AppService with ChangeNotifier {
 
   StreamSubscription<Position> positionStream;
 
+  Position lastPosition;
   ApiRoute route;
   Recommendation recommendation;
   Session session;
@@ -64,12 +65,10 @@ class AppService with ChangeNotifier {
     isGeolocating = true;
     loadingRecommendation = true;
 
-    session.startRecommendation();
-
     positionStream = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 7,
-      timeInterval: 3,
+      intervalDuration: Duration(seconds: 3),
     ).listen((Position position) {
       if (position != null && isGeolocating == true) {
         session.updatePosition(
@@ -78,6 +77,7 @@ class AppService with ChangeNotifier {
           (position.speed * 3.6).round(),
         );
         log.i('-> Position');
+        lastPosition = position;
       }
     });
     log.i('GEOLOCATOR STARTED!');
@@ -93,5 +93,9 @@ class AppService with ChangeNotifier {
     recommendation = null;
 
     log.i('GEOLOCATOR STOPPED!');
+  }
+
+  startNavigation() {
+    session.startRecommendation();
   }
 }

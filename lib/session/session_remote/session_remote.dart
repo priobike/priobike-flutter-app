@@ -4,11 +4,7 @@ import 'package:priobike/models/user_position.dart';
 import 'package:priobike/session/session.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'dart:convert';
-
 class RemoteSession extends Session {
-  String _sessionId;
-
   WebSocketChannel socket;
   Peer jsonRPC;
 
@@ -27,13 +23,13 @@ class RemoteSession extends Session {
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
       print('got recommendation');
-      print(params['label'].asString);
+      super
+          .recommendationStreamController
+          .add(Recommendation.fromJsonRPC(params));
     });
   }
 
   RemoteSession({String id}) {
-    this._sessionId = id;
-
     connect();
   }
 

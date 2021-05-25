@@ -25,7 +25,7 @@ class _NewsPageState extends State<NewsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Nachrichten!",
+                    "Eine Neuigkeit!",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -33,12 +33,12 @@ class _NewsPageState extends State<NewsPage> {
                   ),
                   Spacer(),
                   Text(
-                    "20. September 2020",
+                    "20. September 2021",
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   ),
-                   Spacer(),
+                  Spacer(),
                   Text(
                     "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
                     style: TextStyle(

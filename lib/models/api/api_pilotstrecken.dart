@@ -7,7 +7,7 @@ class ApiPilotstrecken {
   ApiPilotstrecken.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     if (json['strecken'] != null) {
-      strecken = new List<ApiStrecke>();
+      strecken = new List<ApiStrecke>.empty(growable: true);
       json['strecken'].forEach((v) {
         strecken.add(new ApiStrecke.fromJson(v));
       });
