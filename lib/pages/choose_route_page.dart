@@ -199,7 +199,6 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
                             SizedBox(
                               width: double.infinity,
                               child: RaisedButton.icon(
-                                padding: EdgeInsets.all(12),
                                 icon: Icon(
                                   Icons.navigation,
                                 ),

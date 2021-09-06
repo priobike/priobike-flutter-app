@@ -24,7 +24,9 @@ abstract class Session {
     double toLon,
   ) {
     _httpClient
-        .post('${Config.GATEWAY_URL}:${Config.GATEWAY_PORT}/routing/getroute',
+        .post(
+            Uri.https('${Config.GATEWAY_URL}',
+                '{Config.GATEWAY_PORT}/routing/getroute'),
             body: new RouteRequest(
               fromLat: fromLat,
               fromLon: fromLon,

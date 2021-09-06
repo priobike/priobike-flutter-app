@@ -7,14 +7,15 @@ import 'package:http/http.dart' as http;
 import 'config.dart';
 
 class Api {
-
   static Future<ApiStatus> getStatus() async {
-    var response = await http.get('${Config.GATEWAY_URL}:${Config.GATEWAY_PORT}/status');
+    var response = await http.get(
+        Uri.https('${Config.GATEWAY_URL}', '{Config.GATEWAY_PORT}/status'));
     return ApiStatus.fromJson(json.decode(response.body));
   }
 
   static Future<ApiPilotstrecken> getPilotstrecken() async {
-    var response = await http.get('${Config.GATEWAY_URL}:${Config.GATEWAY_PORT}/pilotstrecken?key=${Config.GATEWAY_API_KEY}');
+    var response = await http.get(Uri.https('${Config.GATEWAY_URL}',
+        '{Config.GATEWAY_PORT}/pilotstrecken?key=${Config.GATEWAY_API_KEY}'));
     return ApiPilotstrecken.fromJson(json.decode(response.body));
   }
 }
