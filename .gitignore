@@ -62,4 +62,12 @@ lib/generated_plugin_registrant.dart
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
+
+ios/.generated/
+ios/Podfile*
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Runner.xcworkspace/contents.xcworkspacedata
+**ios/build/**
+ios/Podfile.lock
 ios/Flutter/flutter_export_environment.sh
