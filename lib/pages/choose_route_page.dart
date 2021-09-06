@@ -55,22 +55,22 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
       );
     }
 
-    selectedRoute.signalgroups.forEach(
-      (sg) => {
-        controller.addCircle(
-          CircleOptions(
-            geometry: LatLng(
-              sg.lat,
-              sg.lon,
-            ),
-            circleRadius: 6,
-            circleColor: 'red',
-            circleStrokeWidth: 2,
-            circleStrokeColor: 'white',
-          ),
-        )
-      },
-    );
+    // selectedRoute.signalgroups.forEach(
+    //   (sg) => {
+    //     controller.addCircle(
+    //       CircleOptions(
+    //         geometry: LatLng(
+    //           sg.lat,
+    //           sg.lon,
+    //         ),
+    //         circleRadius: 6,
+    //         circleColor: 'red',
+    //         circleStrokeWidth: 2,
+    //         circleStrokeColor: 'white',
+    //       ),
+    //     )
+    //   },
+    // );
 
     // controller.animateCamera(
     //   CameraUpdate.newLatLng(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as HTTP;
 import 'package:priobike/config/config.dart';
 import 'package:priobike/config/logger.dart';
@@ -43,7 +44,7 @@ abstract class Session {
               to: Position(lat: toLat, lon: toLon),
             ).toJson()))
         .then((HTTP.Response response) {
-      log.i(response.body);
+      debugPrint(response.body, wrapWidth: 1024);
       routeStreamController.add(ApiRoute.fromJson(json.decode(response.body)));
     });
 

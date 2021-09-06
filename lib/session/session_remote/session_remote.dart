@@ -30,9 +30,12 @@ class RemoteSession extends Session {
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
       print('got recommendation');
-      super
-          .recommendationStreamController
-          .add(Recommendation.fromJsonRPC(params));
+
+      Recommendation recommendation = Recommendation.fromJsonRPC(params);
+
+      print(recommendation.toJson());
+
+      super.recommendationStreamController.add(recommendation);
     });
   }
 
