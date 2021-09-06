@@ -35,7 +35,8 @@ abstract class Session {
     ).toJson()));
     httpClient
         .post(
-            '${Config.SESSIONWRAPPER_HOST}:${Config.SESSIONWRAPPER_PORT}/getroute',
+            Uri.parse(
+                '${Config.SESSIONWRAPPER_HOST}:${Config.SESSIONWRAPPER_PORT}/getroute'),
             body: json.encode(RouteRequest(
               sessionId: sessionId,
               from: Position(lat: fromLat, lon: fromLon),

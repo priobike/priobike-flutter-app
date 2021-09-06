@@ -39,7 +39,8 @@ class RemoteSession extends Session {
   RemoteSession({String clientId}) {
     httpClient
         .post(
-            '${Config.SESSIONWRAPPER_HOST}:${Config.SESSIONWRAPPER_PORT}/authentication',
+            Uri.parse(
+                '${Config.SESSIONWRAPPER_HOST}:${Config.SESSIONWRAPPER_PORT}/authentication'),
             body: json.encode(new AuthRequest(clientId: clientId).toJson()))
         .then((HTTP.Response response) {
       sessionId = AuthResponse.fromJson(json.decode(response.body)).sessionId;
