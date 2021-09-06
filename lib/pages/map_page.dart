@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/config/config.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class _MapPageState extends State<MapPage> {
         Scaffold(
           backgroundColor: Colors.black.withOpacity(0),
           body: MapboxMap(
+            accessToken: Config.MAPBOX_API_TOKEN,
             initialCameraPosition: CameraPosition(
               target: LatLng(51.050, 13.737),
               zoom: 11.0,

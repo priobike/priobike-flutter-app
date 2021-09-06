@@ -15,21 +15,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AppService>(create: (context) => AppService()),
+        ChangeNotifierProvider<AppService>(
+          create: (context) => AppService(),
+        ),
         ChangeNotifierProvider<StatusService>(
-            create: (context) => StatusService()),
+          create: (context) => StatusService(),
+        ),
       ],
       child: MaterialApp(
-          title: 'PrioBike',
-          initialRoute: AppPage.init,
-          routes: AppPage.all,
-          onUnknownRoute: (settings) => AppPage.noRoute(settings),
-          theme: new ThemeData(
-            brightness: Brightness.dark,
-            textTheme: GoogleFonts.interTextTheme(
-              Theme.of(context).textTheme,
-            ),
-          )),
+        title: 'PrioBike',
+        initialRoute: AppPage.init,
+        routes: AppPage.all,
+        onUnknownRoute: (settings) => AppPage.noRoute(settings),
+        theme: new ThemeData(
+          brightness: Brightness.dark,
+          textTheme: GoogleFonts.interTextTheme(
+            Theme.of(context).textTheme,
+          ),
+        ),
+      ),
     );
   }
 }

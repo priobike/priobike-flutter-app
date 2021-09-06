@@ -1,10 +1,9 @@
 class Config {
-  static const GATEWAY_API_KEY = 'lIxl5mZhbwVzli1c';
-  static const GATEWAY_URL = 'http://bikenow.vkw.tu-dresden.de';
-  static const GATEWAY_PORT = 20043;
+  static const MAPBOX_API_TOKEN =
+      'pk.eyJ1Ijoic3RlcGhkaW4iLCJhIjoiY2swbTVvY2JxMDAzYzNqcXpsbnI4M2NsdyJ9._8rGj8sjsLlqkOKG7z_PCQ';
 
-  static const MQTT_BROKER_URL = "bikenow.vkw.tu-dresden.de";
-  static const MQTT_BROKER_PORT = 20050;
-  static const MQTT_USERNAME = 'bikenow-user';
-  static const MQTT_PASSWORD = 'mRMLa8jcgczZF7Ev';
+  static const SESSIONWRAPPER_HOST = 'http://bikenow.vkw.tu-dresden.de';
+  static const SESSIONWRAPPER_PORT = 20034;
+  static const SESSIONWRAPPER_WEBSOCKET_URI =
+      'ws://bikenow.vkw.tu-dresden.de:20034/websocket/sessions/';
 }

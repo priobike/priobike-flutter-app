@@ -29,7 +29,7 @@ class AppService with ChangeNotifier {
   AppService() {
     log.i('Your ID is $clientId');
 
-    session = new RemoteSession(id: clientId);
+    session = new RemoteSession(clientId: clientId);
 
     session.routeStreamController.stream.listen((route) {
       log.i('<- Route');
@@ -44,6 +44,22 @@ class AppService with ChangeNotifier {
       this.recommendation = recommendation;
       notifyListeners();
     });
+  }
+
+  updateDestination(
+    double toLat,
+    double toLon,
+  ) {
+    log.i('-> Route Request');
+    route = null;
+    loadingRoute = true;
+
+    if (lastPosition != null) {
+      session.updateRoute(
+          lastPosition.latitude, lastPosition.longitude, toLat, toLon);
+    }
+
+    notifyListeners();
   }
 
   updateRoute(

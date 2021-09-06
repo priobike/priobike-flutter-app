@@ -35,11 +35,11 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
   }
 
   void drawRoute() {
-    log.i('Draw ${selectedRoute.points.length} points as lines on map');
+    log.i('Draw ${selectedRoute.route.length} points as lines on map');
 
-    for (var i = 0; i < selectedRoute.points.length - 1; i++) {
-      ApiPoint point = selectedRoute.points[i];
-      ApiPoint nextPoint = selectedRoute.points[i + 1];
+    for (var i = 0; i < selectedRoute.route.length - 1; i++) {
+      ApiPoint point = selectedRoute.route[i];
+      ApiPoint nextPoint = selectedRoute.route[i + 1];
 
       controller.addLine(
         LineOptions(
@@ -55,7 +55,7 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
       );
     }
 
-    selectedRoute.sg.forEach(
+    selectedRoute.signalgroups.forEach(
       (sg) => {
         controller.addCircle(
           CircleOptions(
@@ -153,9 +153,7 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
                     ),
                   );
 
-              app.updateRoute(
-                0,
-                0,
+              app.updateDestination(
                 coordinates.latitude,
                 coordinates.longitude,
               );
@@ -192,7 +190,7 @@ class _ChooseRoutePageState extends State<ChooseRoutePage> {
                               style: textStyle,
                             ),
                             Text(
-                              '${(app.route?.sg?.length ?? 0)} Ampeln',
+                              '${(app.route?.signalgroups?.length ?? 0)} Ampeln',
                               style: textStyle,
                             ),
                             SizedBox(height: 16),

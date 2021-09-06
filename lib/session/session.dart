@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as HTTP;
 import 'package:priobike/config/config.dart';
+import 'package:priobike/config/logger.dart';
 
 import 'package:priobike/models/api/api_route.dart';
 import 'package:priobike/models/recommendation.dart';
@@ -15,7 +16,11 @@ abstract class Session {
   StreamController<Recommendation> recommendationStreamController =
       new StreamController<Recommendation>();
 
-  HTTP.Client _httpClient = HTTP.Client();
+  HTTP.Client httpClient = HTTP.Client();
+
+  String sessionId;
+
+  Logger log = Logger("Session");
 
   void updateRoute(
     double fromLat,
@@ -23,17 +28,21 @@ abstract class Session {
     double toLat,
     double toLon,
   ) {
-    _httpClient
+    log.i(json.encode(RouteRequest(
+      sessionId: sessionId,
+      from: Position(lat: fromLat, lon: fromLon),
+      to: Position(lat: toLat, lon: toLon),
+    ).toJson()));
+    httpClient
         .post(
-            Uri.https('${Config.GATEWAY_URL}',
-                '{Config.GATEWAY_PORT}/routing/getroute'),
-            body: new RouteRequest(
-              fromLat: fromLat,
-              fromLon: fromLon,
-              toLat: toLat,
-              toLon: toLon,
-            ).toJson())
+            '${Config.SESSIONWRAPPER_HOST}:${Config.SESSIONWRAPPER_PORT}/getroute',
+            body: json.encode(RouteRequest(
+              sessionId: sessionId,
+              from: Position(lat: fromLat, lon: fromLon),
+              to: Position(lat: toLat, lon: toLon),
+            ).toJson()))
         .then((HTTP.Response response) {
+      log.i(response.body);
       routeStreamController.add(ApiRoute.fromJson(json.decode(response.body)));
     });
 

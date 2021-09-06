@@ -19,17 +19,7 @@ class StatusService with ChangeNotifier {
   }
 
   getStatus() async {
-    log.i('Connect to Gateway (${Config.GATEWAY_URL}) ...');
-
-    try {
-      answer = await Api.getStatus();
-      pilotstrecken = await Api.getPilotstrecken();
-    } catch (e) {}
-
     loading = false;
-
     notifyListeners();
-
-    log.i('Gateway Status OK');
   }
 }

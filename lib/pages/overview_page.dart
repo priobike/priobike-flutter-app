@@ -66,7 +66,7 @@ class _OverviewPageState extends State<OverviewPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                       child: DestinationButton(
-                        destination: "Zuhause",
+                        destination: "Ziel 1",
                         onPressed: () async {
                           // await app.updateRoute(0, 0, 1, 1);
                           // Navigator.pushNamed(context, AppPage.routeInfo);
@@ -76,7 +76,7 @@ class _OverviewPageState extends State<OverviewPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                       child: DestinationButton(
-                        destination: "Technische Universität",
+                        destination: "Ziel 2",
                         onPressed: () async {
                           // await app.updateRoute(0, 0, 1, 1);
                           // Navigator.pushNamed(context, AppPage.routeInfo);
@@ -86,17 +86,7 @@ class _OverviewPageState extends State<OverviewPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                       child: DestinationButton(
-                        destination: "Pirnaischer Platz",
-                        onPressed: () async {
-                          // await app.updateRoute(0, 0, 1, 1);
-                          // Navigator.pushNamed(context, AppPage.routeInfo);
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                      child: DestinationButton(
-                        destination: "Albertplatz",
+                        destination: "Ziel 3",
                         onPressed: () async {
                           // await app.updateRoute(0, 0, 1, 1);
                           // Navigator.pushNamed(context, AppPage.routeInfo);
@@ -113,31 +103,37 @@ class _OverviewPageState extends State<OverviewPage> {
                   style: TextStyle(fontSize: 23, color: Colors.white60),
                 ),
               ),
-              Column(
-                children: statusService.pilotstrecken.strecken
-                    .map(
-                      (strecke) => new Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                        child: RouteButton(
-                          index: strecke.index,
-                          title: strecke.title,
-                          start: strecke.startLabel,
-                          destination: strecke.destinationLabel,
-                          description: strecke.description,
-                          onPressed: () async {
-                            await app.updateRoute(
-                              strecke.fromLat,
-                              strecke.fromLon,
-                              strecke.toLat,
-                              strecke.toLon,
-                            );
-                            Navigator.pushNamed(context, AppPage.routeInfo);
-                          },
-                        ),
-                      ),
+              statusService.pilotstrecken != null
+                  ? Column(
+                      children: statusService.pilotstrecken.strecken
+                          .map(
+                            (strecke) => new Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                              child: RouteButton(
+                                index: strecke.index,
+                                title: strecke.title,
+                                start: strecke.startLabel,
+                                destination: strecke.destinationLabel,
+                                description: strecke.description,
+                                onPressed: () async {
+                                  await app.updateRoute(
+                                    strecke.fromLat,
+                                    strecke.fromLon,
+                                    strecke.toLat,
+                                    strecke.toLon,
+                                  );
+                                  Navigator.pushNamed(
+                                      context, AppPage.routeInfo);
+                                },
+                              ),
+                            ),
+                          )
+                          .toList(),
                     )
-                    .toList(),
-              ),
+                  : Text(
+                      'Es konnten keine Pilotstrecken geladen werden',
+                      style: TextStyle(color: Colors.white),
+                    ),
             ],
           ),
         ),

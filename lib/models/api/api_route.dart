@@ -7,8 +7,8 @@ class ApiRoute {
   int time;
   double ascend;
   double descend;
-  List<ApiSg> sg;
-  List<ApiPoint> points;
+  List<ApiSg> signalgroups;
+  List<ApiPoint> route;
 
   ApiRoute({
     this.status,
@@ -16,8 +16,8 @@ class ApiRoute {
     this.time,
     this.ascend,
     this.descend,
-    this.points,
-    this.sg,
+    this.route,
+    this.signalgroups,
   });
 
   ApiRoute.fromJson(Map<String, dynamic> json) {
@@ -26,16 +26,16 @@ class ApiRoute {
     time = json['time'];
     ascend = json['ascend'].toDouble();
     descend = json['descend'].toDouble();
-    if (json['points'] != null) {
-      points = new List<ApiPoint>.empty(growable: true);
-      json['points'].forEach((v) {
-        points.add(new ApiPoint.fromJson(v));
+    if (json['route'] != null) {
+      route = new List<ApiPoint>.empty(growable: true);
+      json['route'].forEach((v) {
+        route.add(new ApiPoint.fromJson(v));
       });
     }
-    if (json['sg'] != null) {
-      sg = new List<ApiSg>.empty(growable: true);
-      json['sg'].forEach((v) {
-        sg.add(new ApiSg.fromJson(v));
+    if (json['signalgroups'] != null) {
+      signalgroups = new List<ApiSg>.empty(growable: true);
+      json['signalgroups'].forEach((v) {
+        signalgroups.add(new ApiSg.fromJson(v));
       });
     }
   }
@@ -47,11 +47,11 @@ class ApiRoute {
     data['time'] = this.time;
     data['ascend'] = this.ascend;
     data['descend'] = this.descend;
-    if (this.points != null) {
-      data['points'] = this.points.map((v) => v.toJson()).toList();
+    if (this.route != null) {
+      data['route'] = this.route.map((v) => v.toJson()).toList();
     }
-    if (this.sg != null) {
-      data['sg'] = this.sg.map((v) => v.toJson()).toList();
+    if (this.signalgroups != null) {
+      data['signalgroups'] = this.signalgroups.map((v) => v.toJson()).toList();
     }
     return data;
   }

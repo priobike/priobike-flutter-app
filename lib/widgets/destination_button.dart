@@ -33,7 +33,7 @@ class DestinationButton extends StatelessWidget {
                 ),
               ),
               Text(
-                "4km",
+                "0km",
                 style: TextStyle(
                   color: Colors.white38,
                   fontWeight: FontWeight.w100,
