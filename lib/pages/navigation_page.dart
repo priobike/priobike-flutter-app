@@ -79,7 +79,7 @@ class _NavigationPageState extends State<NavigationPage> {
                                   style: textStyle,
                                 ),
                                 Text(
-                                  "isGreen: ${app.recommendation.isGreen}",
+                                  "green: ${app.recommendation.green}",
                                   style: textStyle,
                                 ),
                                 Text(

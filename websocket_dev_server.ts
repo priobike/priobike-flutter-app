@@ -266,7 +266,7 @@ wss.on("connection", function (ws: WebSocketClient) {
                 distance: Math.random() * 10000,
                 speedRec: Math.random() * 1000,
                 speedDiff: Math.random() * 1000,
-                isGreen: Math.random() > 0.5 ? true : false,
+                green: Math.random() > 0.5 ? true : false,
                 error: Math.random() > 0.5 ? true : false,
                 errorMessage: "",
               },

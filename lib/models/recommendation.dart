@@ -8,7 +8,7 @@ class Recommendation {
   double distance;
   double speedRec;
   double speedDiff;
-  bool isGreen;
+  bool green;
   bool error;
   String errorMessage;
 
@@ -18,7 +18,7 @@ class Recommendation {
       this.distance,
       this.speedRec,
       this.speedDiff,
-      this.isGreen,
+      this.green,
       this.error,
       this.errorMessage});
 
@@ -28,20 +28,22 @@ class Recommendation {
     distance = json['distance'].toDouble();
     speedRec = json['speedRec'].toDouble();
     speedDiff = json['speedDiff'].toDouble();
-    isGreen = json['isGreen'];
+    green = json['green'];
     error = json['error'];
     errorMessage = json['errorMessage'];
   }
 
   Recommendation.fromJsonRPC(Parameters params) {
-    label = params['label'].asString;
-    countdown = params['countdown'].asNum;
-    distance = params['distance'].asNum;
-    isGreen = params['isGreen'].asBool;
-    speedRec = params['speedRec'].asNum;
-    speedDiff = params['speedDiff'].asNum;
-    error = params['error'].asBool;
-    errorMessage = params['errorMessage'].asString;
+    print(params['label'].valueOr('No Value'));
+
+    label = params['label'].value != null ? params['label'].asString : 'Fehler';
+    countdown = params['countdown'].value != null ? params['countdown'].asNum : false;
+    distance = params['distance'].value != null ? params['distance'].asNum : 0;
+    green = params['green'].value != null ? params['green'].asBool : false;
+    speedRec = params['speedRec'].value != null ? params['speedRec'].asNum : 0.0;
+    speedDiff = params['speedDiff'].value != null? params['speedDiff'].asNum : 0.0;
+    error = params['error'].value != null ? params['error'].asBool : true;
+    errorMessage = params['errorMessage'].value != null ? params['errorMessage'].asString : 'Fehler';
   }
 
   String toJson() {
@@ -51,7 +53,7 @@ class Recommendation {
     data['distance'] = this.distance;
     data['speedRec'] = this.speedRec;
     data['speedDiff'] = this.speedDiff;
-    data['isGreen'] = this.isGreen;
+    data['green'] = this.green;
     data['error'] = this.error;
     data['errorMessage'] = this.errorMessage;
     return json.encode(data);

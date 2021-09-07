@@ -1,5 +1,5 @@
 class PredictionAlgorithm {
-  static bool isGreen(
+  static bool green(
     double value,
     double greentimeThreshold,
   ) =>
@@ -13,7 +13,7 @@ class PredictionAlgorithm {
   ) {
     int secondsToPhaseChange = 0;
     for (var i = t; i < vector.length; i++) {
-      bool greenThen = isGreen(vector[i], greentimeThreshold);
+      bool greenThen = green(vector[i], greentimeThreshold);
 
       if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
         break;
@@ -42,10 +42,10 @@ class PredictionAlgorithm {
       throw Exception('Ankunftszeit außerhalb des Prognosevektors');
     }
 
-    bool isGreenOnArrival =
-        isGreen(vector[time + secondsToArrival], greentimeThreshold);
+    bool greenOnArrival =
+        green(vector[time + secondsToArrival], greentimeThreshold);
 
-    if (isGreenOnArrival) {
+    if (greenOnArrival) {
       //
       // Die SG wird bei Grün passiert -> alles okay, keine Änderung notwendig
       //
@@ -57,7 +57,7 @@ class PredictionAlgorithm {
 
       int secondsToNextGreenPhase;
       for (var i = time + secondsToArrival; i < vector.length; i++) {
-        bool greenThen = isGreen(vector[i], greentimeThreshold);
+        bool greenThen = green(vector[i], greentimeThreshold);
 
         if (greenThen) {
           secondsToNextGreenPhase = i - time;
@@ -68,7 +68,7 @@ class PredictionAlgorithm {
       // Suche vorherige Grünphase und berechne Zeit bis zum Ende
       int secondsToPreviousGreenPhase;
       for (var i = time + secondsToArrival; i >= time; i--) {
-        bool greenThen = isGreen(vector[i], greentimeThreshold);
+        bool greenThen = green(vector[i], greentimeThreshold);
 
         if (greenThen) {
           secondsToPreviousGreenPhase = i - time;
