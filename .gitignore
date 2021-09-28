@@ -71,4 +71,4 @@ ios/Runner.xcworkspace/contents.xcworkspacedata
 **ios/build/**
 ios/Podfile.lock
 ios/Flutter/flutter_export_environment.sh
-pubspec.lock
+
