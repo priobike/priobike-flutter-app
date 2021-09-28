@@ -1,4 +1,4 @@
-// import 'dart:async';
+import 'dart:async';
 
 // import 'package:priobike/config/logger.dart';
 // import 'package:priobike/models/api/api_route.dart';
@@ -7,7 +7,10 @@
 // import 'package:priobike/session/session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-// import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:priobike/models/recommendation.dart';
+import 'package:priobike/models/route_response.dart';
+import 'package:priobike/session/remote_session.dart';
 import 'package:priobike/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,35 +19,41 @@ class AppService with ChangeNotifier {
 
   String clientId = const Uuid().v4();
 
-  // bool loadingRoute = true;
-  // bool loadingRecommendation = true;
-  // bool isGeolocating = false;
+  bool loadingRoute = true;
+  bool loadingRecommendation = true;
+  bool isGeolocating = false;
 
-  // StreamSubscription<Position> positionStream;
+  late StreamSubscription<Position> positionStream;
 
-  // Position lastPosition;
-  // ApiRoute route;
-  // Recommendation recommendation;
-  // Session session;
+  Position? lastPosition;
+  RouteResponse? currentRoute;
+  Recommendation? currentRecommendation;
+  late RemoteSession session;
 
   AppService() {
-    log.i('Your ID is $clientId');
+    log.i('AppService started');
+    log.i('Your clientId is $clientId');
 
-    // session = new RemoteSession(clientId: clientId);
+    session = RemoteSession(
+      clientId: clientId,
+      onDone: () {
+        notifyListeners();
+      },
+    );
 
-    // session.routeStreamController.stream.listen((route) {
-    //   log.i('<- Route');
-    //   loadingRoute = false;
-    //   this.route = route;
-    //   notifyListeners();
-    // });
+    session.routeStreamController.stream.listen((route) {
+      log.i('<- Route');
+      loadingRoute = false;
+      currentRoute = route;
+      notifyListeners();
+    });
 
-    // session.recommendationStreamController.stream.listen((recommendation) {
-    //   log.i('<- Recommendation');
-    //   loadingRecommendation = false;
-    //   this.recommendation = recommendation;
-    //   notifyListeners();
-    // });
+    session.recommendationStreamController.stream.listen((recommendation) {
+      log.i('<- Recommendation');
+      loadingRecommendation = false;
+      currentRecommendation = recommendation;
+      notifyListeners();
+    });
   }
 
   updateDestination(
@@ -52,13 +61,13 @@ class AppService with ChangeNotifier {
     double toLon,
   ) {
     log.i('-> Route Request');
-    // route = null;
-    // loadingRoute = true;
+    currentRoute = null;
+    loadingRoute = true;
 
-    // if (lastPosition != null) {
-    //   session.updateRoute(
-    //       lastPosition.latitude, lastPosition.longitude, toLat, toLon);
-    // }
+    if (lastPosition?.latitude != null && lastPosition?.longitude != null) {
+      session.updateRoute(
+          lastPosition!.latitude, lastPosition!.longitude, toLat, toLon);
+    }
 
     notifyListeners();
   }
@@ -70,44 +79,44 @@ class AppService with ChangeNotifier {
     double toLon,
   ) {
     log.i('-> Route Request');
-    // route = null;
-    // loadingRoute = true;
+    currentRoute = null;
+    loadingRoute = true;
 
-    // session.updateRoute(fromLat, fromLon, toLat, toLon);
+    session.updateRoute(fromLat, fromLon, toLat, toLon);
 
     notifyListeners();
   }
 
   startGeolocation() async {
-    // isGeolocating = true;
-    // loadingRecommendation = true;
+    isGeolocating = true;
+    loadingRecommendation = true;
 
-    // positionStream = Geolocator.getPositionStream(
-    //   desiredAccuracy: LocationAccuracy.bestForNavigation,
-    //   distanceFilter: 7,
-    //   intervalDuration: Duration(seconds: 3),
-    // ).listen((Position position) {
-    //   if (position != null && isGeolocating == true) {
-    //     session.updatePosition(
-    //       position.latitude,
-    //       position.longitude,
-    //       (position.speed * 3.6).round(),
-    //     );
-    //     log.i('-> Position');
-    //     lastPosition = position;
-    //   }
-    // });
-    log.i('GEOLOCATOR STARTED!');
+    positionStream = Geolocator.getPositionStream(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 1,
+      intervalDuration: const Duration(seconds: 1),
+    ).listen((Position position) {
+      if (isGeolocating == true) {
+        session.updatePosition(
+          position.latitude,
+          position.longitude,
+          (position.speed * 3.6).round(),
+        );
+        log.i('-> Position');
+        lastPosition = position;
+      }
+    });
+    log.i('Geolocator started!');
   }
 
   stopGeolocation() {
     log.i('-> Stop Request');
 
-    // session.stopRecommendation();
+    session.stopRecommendation();
 
-    // isGeolocating = false;
-    // positionStream.cancel();
-    // recommendation = null;
+    isGeolocating = false;
+    positionStream.cancel();
+    currentRecommendation = null;
 
     log.i('GEOLOCATOR STOPPED!');
   }

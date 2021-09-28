@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/main.dart';
 import 'package:priobike/services/settings.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';

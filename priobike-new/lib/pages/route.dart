@@ -84,9 +84,8 @@ class _RoutePageState extends State<RoutePage> {
                           width: 80.0,
                           height: 80.0,
                           point: LatLng(53.557849647177584, 9.998760223388672),
-                          builder: (ctx) => Container(
-                            child: FlutterLogo(),
-                          ),
+                          builder: (ctx) => const FlutterLogo(),
+                          
                         ),
                       ],
                     ),

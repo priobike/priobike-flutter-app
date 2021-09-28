@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/services/app.dart';
-import 'package:priobike/utils/logger.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -27,8 +26,10 @@ class _StartPageState extends State<StartPage> {
             children: [
               const Text("PrioBike: StartPage"),
               Text("clientId:" + app.clientId),
+              Text(app.session.sessionId ?? 'warte auf sessionId...'),
               ElevatedButton(
-                child: const Text('Zur HomePage'),
+                child: Text(
+                    app.session.sessionId != null ? 'Zur HomePage' : 'Lade...'),
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, Routes.home);
                 },

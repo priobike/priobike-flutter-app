@@ -11,8 +11,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late AppService app;
+
   @override
   Widget build(BuildContext context) {
+    app = Provider.of<AppService>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -33,6 +36,7 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(
                 child: const Text('Route 1'),
                 onPressed: () {
+                  app.updateRoute(51.03848, 13.734112, 51.063839, 13.746643);
                   Navigator.pushNamed(context, Routes.route);
                 },
               ),

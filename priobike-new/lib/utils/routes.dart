@@ -22,7 +22,7 @@ class Routes {
     Routes.cycling: (context) => const CyclingPage(),
     Routes.settings: (context) => const SettingsPage(),
     Routes.summary: (context) => const SummaryPage(),
-    Routes.log: (context) => LogPage(),
+    Routes.log: (context) => const LogPage(),
     Routes.route: (contex) => const RoutePage(),
   };
 

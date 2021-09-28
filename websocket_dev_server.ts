@@ -230,8 +230,7 @@ const wss = new WebSocketServer(8080);
 let isNavigationActive = false;
 
 wss.on("connection", function (ws: WebSocketClient) {
-  console.log("someone connected");
-
+  console.log("someone connected over websockets");
   let timer: number;
 
   ws.on("message", function (data: string) {
@@ -292,10 +291,14 @@ const app = new Application();
 const router = new Router();
 
 router
-  .get("/authentication", ({ response }: { response: any }) => {
+  .post("/authentication", async ({ request, response }: { request: any, response: any }) => {
+    const body  = await request.body()
+    console.log('got authentication request:', await body.value);
     response.body = { "sessionId": "00000000-0000-0000-0000-000000000000" };
   })
-  .get("/getRoute", ({ response }: { response: any }) => {
+  .post("/getroute", async ({ request, response }: { request: any, response: any }) => {
+    const body  = await request.body()
+    console.log('got route request:', await body.value);
     response.body = route_response;
   });
 

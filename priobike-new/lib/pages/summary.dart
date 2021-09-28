@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/utils/routes.dart';
 
 class SummaryPage extends StatefulWidget {
   const SummaryPage({Key? key}) : super(key: key);
