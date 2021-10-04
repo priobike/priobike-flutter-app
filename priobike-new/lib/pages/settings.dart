@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/services/settings.dart';
 import 'package:priobike/utils/routes.dart';
@@ -34,10 +35,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   Navigator.pushNamed(context, Routes.log);
                 },
               ),
-              ElevatedButton(
-                child: Text(settings.getThemeMode() == ThemeMode.dark
-                    ? 'Light Mode'
-                    : 'Dark Mode'),
+              ElevatedButton.icon(
+                icon: Icon(
+                  settings.getThemeMode() == ThemeMode.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                ),
+                label: Text(
+                  settings.getThemeMode() == ThemeMode.dark
+                      ? 'Light Mode'
+                      : 'Dark Mode',
+                ),
                 onPressed: () {
                   settings.getThemeMode() == ThemeMode.dark
                       ? settings.setThemeMode(ThemeMode.light)

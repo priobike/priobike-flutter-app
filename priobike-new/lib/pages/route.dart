@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
 class RoutePage extends StatefulWidget {
   const RoutePage({Key? key}) : super(key: key);
@@ -13,6 +15,19 @@ class RoutePage extends StatefulWidget {
 }
 
 class _RoutePageState extends State<RoutePage> {
+  late AppService app;
+
+  @override
+  void didChangeDependencies() {
+    app = Provider.of<AppService>(context);
+
+    if (!app.isGeolocating) {
+      app.startGeolocation();
+    }
+
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     var points = <LatLng>[
@@ -85,7 +100,6 @@ class _RoutePageState extends State<RoutePage> {
                           height: 80.0,
                           point: LatLng(53.557849647177584, 9.998760223388672),
                           builder: (ctx) => const FlutterLogo(),
-                          
                         ),
                       ],
                     ),
@@ -95,6 +109,7 @@ class _RoutePageState extends State<RoutePage> {
               ElevatedButton(
                 child: const Text('Zur Fahransicht'),
                 onPressed: () {
+                  app.startNavigation();
                   Navigator.pushReplacementNamed(context, Routes.cycling);
                 },
               ),

@@ -112,17 +112,20 @@ class AppService with ChangeNotifier {
   stopGeolocation() {
     log.i('-> Stop Request');
 
-    session.stopRecommendation();
-
     isGeolocating = false;
     positionStream.cancel();
-    currentRecommendation = null;
 
     log.i('GEOLOCATOR STOPPED!');
   }
 
   startNavigation() {
     log.i('Start Recommending');
-    // session.startRecommendation();
+    session.startRecommendation();
+  }
+
+  stopNavigation() {
+    log.i('Stop Recommending');
+    session.stopRecommendation();
+    currentRecommendation = null;
   }
 }
