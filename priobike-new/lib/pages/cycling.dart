@@ -164,7 +164,7 @@ class _CyclingPageState extends State<CyclingPage> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      "Aktuelle Geschwindigkeit: ${app.lastPosition!.speed.toStringAsFixed(1)}km/h",
+                      "Aktuelle Geschwindigkeit: ${(app.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
                       // style: const TextStyle(fontSize: 10),
                     ),
                     Text(
