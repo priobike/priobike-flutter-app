@@ -168,12 +168,12 @@ class _CyclingPageState extends State<CyclingPage> {
                       // style: const TextStyle(fontSize: 10),
                     ),
                     Text(
-                      "Empfohlene Geschwindigkeit: ${app.currentRecommendation?.speedRec.toStringAsFixed(1)}km/h",
+                      "Empfohlene Geschwindigkeit: ${(app.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
                       // style: const TextStyle(fontSize: 10),
                     ),
                     const Spacer(),
                     Text(
-                      "${app.currentRecommendation?.speedDiff.toStringAsFixed(1)}km/h",
+                      "${(app.currentRecommendation!.speedDiff * 3.6).toStringAsFixed(1)}km/h",
                       style: const TextStyle(fontSize: 35),
                     ),
                     if (app.currentRecommendation!.speedDiff > 0)
