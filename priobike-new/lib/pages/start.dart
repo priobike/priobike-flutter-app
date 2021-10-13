@@ -23,19 +23,40 @@ class _StartPageState extends State<StartPage> {
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text("PrioBike: StartPage"),
-              Text("clientId:" + app.clientId),
-              Text(app.session.sessionId ?? 'warte auf sessionId...'),
-              ElevatedButton(
-                child: Text(
-                    app.session.sessionId != null ? 'Zur HomePage' : 'Lade...'),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, Routes.home);
-                },
+              Text(
+                "Client ID: " + app.clientId,
+                style: const TextStyle(fontSize: 10),
+              ),
+              Text(
+                app.session.sessionId != null
+                    ? "Session ID: ${app.session.sessionId}"
+                    : 'Warte auf Session ID...',
+                style: const TextStyle(fontSize: 10),
+              ),
+              const Spacer(),
+              const Text(
+                "PrioBike",
+                style: TextStyle(fontSize: 60),
+              ),
+              const Text(
+                "Alpha",
+                style: TextStyle(fontSize: 20),
+              ),
+              const Spacer(flex: 2),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  child: Text(app.session.sessionId != null
+                      ? 'Los geht\'s!'
+                      : 'Verbinde...'),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, Routes.home);
+                  },
+                ),
               ),
             ],
-            crossAxisAlignment: CrossAxisAlignment.start,
           ),
         ),
       ),

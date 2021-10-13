@@ -1,58 +1,52 @@
-import 'package:priobike/models/point.dart';
+import 'package:priobike/models/navigation_node.dart';
 import 'package:priobike/models/sg.dart';
 
 class RouteResponse {
-  String? status;
-  double? distance;
-  int? time;
-  double? ascend;
-  double? descend;
-  List<Sg>? signalgroups;
-  List<Point>? route;
+  double distance = 0;
+  int estimatedDuration = 0;
+  double ascend = 0;
+  double descend = 0;
+  Map<String, Sg> signalgroups = <String, Sg>{};
+  List<NavigationNode> route = List.empty();
 
   RouteResponse({
-    this.status,
-    this.distance,
-    this.time,
-    this.ascend,
-    this.descend,
-    this.route,
-    this.signalgroups,
+    required this.distance,
+    required this.estimatedDuration,
+    required this.ascend,
+    required this.descend,
+    required this.route,
+    required this.signalgroups,
   });
 
   RouteResponse.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
     distance = json['distance'].toDouble();
-    time = json['time'];
+    estimatedDuration = json['estimatedArrival'];
     ascend = json['ascend'].toDouble();
     descend = json['descend'].toDouble();
-    if (json['route'] != null) {
-      route = List<Point>.empty(growable: true);
-      json['route'].forEach((v) {
-        route!.add(Point.fromJson(v));
-      });
-    }
-    if (json['signalgroups'] != null) {
-      signalgroups = List<Sg>.empty(growable: true);
-      json['signalgroups'].forEach((v) {
-        signalgroups!.add(Sg.fromJson(v));
-      });
-    }
+
+    route = List<NavigationNode>.empty(growable: true);
+
+    json['route'].forEach((nn) {
+      route.add(NavigationNode.fromJson(nn));
+    });
+
+    json['signalGroups'].values.forEach((entry) {
+      Sg sg = Sg.fromJson(entry);
+      signalgroups[sg.id] = sg;
+    });
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['status'] = status;
     data['distance'] = distance;
-    data['time'] = time;
+    data['estimatedDuration'] = estimatedDuration;
     data['ascend'] = ascend;
     data['descend'] = descend;
-    if (route != null) {
-      data['route'] = route!.map((v) => v.toJson()).toList();
-    }
-    if (signalgroups != null) {
-      data['signalgroups'] = signalgroups!.map((v) => v.toJson()).toList();
-    }
+
+    data['route'] = route.map((v) => v.toJson()).toList();
+
+    // data['signalgroups'] = signalgroups.map((v) => v.toJson()).toList();
+
     return data;
   }
 }

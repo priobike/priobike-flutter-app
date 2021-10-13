@@ -96,7 +96,7 @@ class AppService with ChangeNotifier {
         lastPosition = position;
       }
     });
-    log.i('GEOLOCATOR STARTED!');
+    log.i('Geolocator started!');
   }
 
   stopGeolocation() {
@@ -108,7 +108,7 @@ class AppService with ChangeNotifier {
     positionStream.cancel();
     recommendation = null;
 
-    log.i('GEOLOCATOR STOPPED!');
+    log.i('Geolocator stopped!');
   }
 
   startNavigation() {

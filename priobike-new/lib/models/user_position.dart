@@ -1,7 +1,7 @@
 class UserPosition {
   double? lat;
   double? lon;
-  int? speed;
+  double? speed;
 
   UserPosition({required this.lat, required this.lon, required this.speed});
 

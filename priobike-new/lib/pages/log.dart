@@ -18,7 +18,7 @@ class _LogPageState extends State<LogPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("PrioBike: LogPage"),
+          title: const Text("Log"),
           actions: <Widget>[
             IconButton(
               icon: const Icon(

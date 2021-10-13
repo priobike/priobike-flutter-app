@@ -48,24 +48,28 @@ class RemoteSession {
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
       Recommendation recommendation = Recommendation.fromJsonRPC(params);
+
+      if (recommendation.error) {
+        log.e(recommendation.errorMessage);
+      }
+
       recommendationStreamController.add(recommendation);
     });
   }
 
   RemoteSession({required String clientId, required Function onDone}) {
     httpClient
-        .post(
-      Uri.parse('${Config.sessionwrapperRestUri}authentication'),
-      body: json.encode(AuthRequest(clientId: clientId).toJson()),
-    )
+        .post(Uri.parse('${Config.sessionwrapperRestUri}authentication'),
+            body: json.encode(AuthRequest(clientId: clientId).toJson()))
         .then((http.Response response) {
       sessionId = AuthResponse.fromJson(json.decode(response.body)).sessionId!;
       log.i('Your sessionId is $sessionId');
       connect(sessionId!);
       onDone();
-    }).onError(
-      (error, stackTrace) => log.e(error),
-    ); // TODO: proper Error Handling, show a toast or something
+    }).onError((error, stackTrace) {
+      log.e("Fehler bei Auth Request:");
+      log.e(error);
+    }); // TODO: proper Error Handling, show a toast or something
   }
 
   void updateRoute(
@@ -74,11 +78,6 @@ class RemoteSession {
     double toLat,
     double toLon,
   ) {
-    log.i(json.encode(RouteRequest(
-      sessionId: sessionId,
-      from: Point(lat: fromLat, lon: fromLon),
-      to: Point(lat: toLat, lon: toLon),
-    ).toJson()));
     httpClient
         .post(Uri.parse('${Config.sessionwrapperRestUri}getroute'),
             body: json.encode(RouteRequest(
@@ -95,7 +94,7 @@ class RemoteSession {
   void updatePosition(
     double lat,
     double lon,
-    int speed,
+    double speed,
   ) {
     jsonRPC.sendNotification(
       'PositionUpdate',
@@ -108,20 +107,16 @@ class RemoteSession {
   }
 
   void startRecommendation() {
-    jsonRPC
-        .sendRequest(
-          'Navigation',
-          NavigationRequest(active: true).toJson(),
-        )
-        .then((value) => log.i(value));
+    jsonRPC.sendRequest(
+      'Navigation',
+      NavigationRequest(active: true).toJson(),
+    );
   }
 
   void stopRecommendation() {
-    jsonRPC
-        .sendRequest(
-          'Navigation',
-          NavigationRequest(active: false).toJson(),
-        )
-        .then((value) => log.i(value));
+    jsonRPC.sendRequest(
+      'Navigation',
+      NavigationRequest(active: false).toJson(),
+    );
   }
 }

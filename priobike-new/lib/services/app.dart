@@ -100,7 +100,7 @@ class AppService with ChangeNotifier {
         session.updatePosition(
           position.latitude,
           position.longitude,
-          (position.speed * 3.6).round(),
+          position.speed,
         );
         log.i('-> Position');
         lastPosition = position;

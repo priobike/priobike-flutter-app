@@ -27,22 +27,24 @@ class _RoutePageState extends State<RoutePage> {
       app.startGeolocation();
     }
 
-    app.currentRoute?.route?.forEach(
-      (point) => points.add(LatLng(point.lat!, point.lon!)),
-    );
+    if (app.currentRoute != null) {
+      for (var point in app.currentRoute!.route) {
+        points.add(LatLng(point.lat, point.lon));
+      }
 
-    app.currentRoute?.signalgroups?.forEach(
-      (sg) => trafficLights.add(
-        Marker(
-          point: LatLng(sg.lat!, sg.lon!),
-          builder: (ctx) => Icon(
-            Icons.traffic,
-            color: Colors.red[900],
-            size: 20,
+      for (var sg in app.currentRoute!.signalgroups.values) {
+        trafficLights.add(
+          Marker(
+            point: LatLng(sg.position.lat, sg.position.lon),
+            builder: (ctx) => Icon(
+              Icons.traffic,
+              color: Colors.red[900],
+              size: 20,
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      }
+    }
 
     super.didChangeDependencies();
   }
@@ -52,7 +54,7 @@ class _RoutePageState extends State<RoutePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('PrioBike: RoutePage'),
+          title: const Text('Routenübersicht'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -67,7 +69,7 @@ class _RoutePageState extends State<RoutePage> {
                           boundsOptions: const FitBoundsOptions(
                               padding: EdgeInsets.all(30)),
                           zoom: 13.0,
-                          maxZoom: 18.0,
+                          maxZoom: 20.0,
                           minZoom: 7,
                           interactiveFlags: InteractiveFlag.drag |
                               InteractiveFlag.pinchZoom |
@@ -79,12 +81,14 @@ class _RoutePageState extends State<RoutePage> {
                           TileLayerOptions(
                             urlTemplate:
                                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            // "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
                             subdomains: ['a', 'b', 'c'],
                             attributionBuilder: (_) {
                               return const Text(
                                 "© OpenStreetMap Mitwirkende",
                                 style: TextStyle(
                                   color: Colors.black54,
+                                  fontSize: 10,
                                 ),
                               );
                             },
@@ -126,24 +130,38 @@ class _RoutePageState extends State<RoutePage> {
                     Text("Anzahl der Ampeln: ${trafficLights.length}"),
                     Text("Meter nach oben: ${app.currentRoute?.ascend}"),
                     Text("Meter nach unten: ${app.currentRoute?.descend}"),
-                    Text("Dauer in Sekunden: ${app.currentRoute?.time}"),
-                    ElevatedButton(
-                      child: const Text('Zur Fahransicht'),
-                      onPressed: () {
-                        app.startNavigation();
-                        Navigator.pushReplacementNamed(context, Routes.cycling);
-                      },
-                    ),
+                    app.currentRoute != null
+                        ? Text(
+                            "Dauer: ${(app.currentRoute!.estimatedDuration / 1000 / 60).toStringAsFixed(1)} Min.")
+                        : const Text(''),
+                    const Spacer(),
                     ElevatedButton(
                       child: const Text('Zurück'),
                       onPressed: () {
                         Navigator.pop(context);
                       },
                     ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.pedal_bike),
+                        label: const Text('Jetzt losfahren'),
+                        onPressed: () {
+                          app.startNavigation();
+                          Navigator.pushReplacementNamed(
+                              context, Routes.cycling);
+                        },
+                      ),
+                    ),
                   ],
                   crossAxisAlignment: CrossAxisAlignment.start,
                 )
-              : const Text("Warte auf Route vom Server"),
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Center(child: Text("Warte auf Route vom Server...")),
+                  ],
+                ),
         ),
       ),
     );

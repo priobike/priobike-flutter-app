@@ -22,13 +22,12 @@ class _SettingsPageState extends State<SettingsPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('PrioBike: SettingsPage'),
+          title: const Text('Einstellungen'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              const Text("Hier sind die Einstellungen"),
               ElevatedButton(
                 child: const Text('Logs ansehen'),
                 onPressed: () {
