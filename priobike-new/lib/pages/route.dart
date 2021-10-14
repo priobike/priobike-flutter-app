@@ -62,7 +62,7 @@ class _RoutePageState extends State<RoutePage> {
               ? Column(
                   children: [
                     SizedBox(
-                      height: 400,
+                      height: 300,
                       child: FlutterMap(
                         options: MapOptions(
                           bounds: LatLngBounds.fromPoints(points),

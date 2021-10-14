@@ -72,7 +72,7 @@ class _CyclingPageState extends State<CyclingPage> {
                       "${app.currentRecommendation?.label}",
                       style: const TextStyle(fontSize: 30),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     SizedBox(
                       height: 50,
                       width: double.infinity,
@@ -176,11 +176,11 @@ class _CyclingPageState extends State<CyclingPage> {
                     const SizedBox(height: 15),
                     Text(
                       "Aktuell: ${(app.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
-                      style: const TextStyle(fontSize: 30),
+                      style: const TextStyle(fontSize: 25),
                     ),
                     Text(
                       "Empfohlen: ${(app.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
-                      style: const TextStyle(fontSize: 30),
+                      style: const TextStyle(fontSize: 25),
                     ),
                     const Spacer(),
                     Text(
