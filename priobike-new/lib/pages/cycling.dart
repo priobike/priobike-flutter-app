@@ -57,9 +57,11 @@ class _CyclingPageState extends State<CyclingPage> {
     Wakelock.enable();
     return SafeArea(
       child: Scaffold(
-        backgroundColor: app.currentRecommendation!.green
-            ? const Color(0xff4caf50)
-            : const Color(0xfff44235),
+        backgroundColor: app.currentRecommendation != null
+            ? app.currentRecommendation!.green
+                ? const Color(0xff4caf50)
+                : const Color(0xfff44235)
+            : const Color(0xff2e2e2e),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: app.currentRecommendation != null

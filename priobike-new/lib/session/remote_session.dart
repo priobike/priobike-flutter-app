@@ -47,22 +47,30 @@ class RemoteSession {
     });
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
-      Recommendation recommendation = Recommendation.fromJsonRPC(params);
-
-      if (recommendation.error) {
-        log.e(recommendation.errorMessage);
+      log.i('<- Recommendation');
+      try {
+        Recommendation recommendation = Recommendation.fromJsonRPC(params);
+        if (recommendation.error) log.e(recommendation.errorMessage);
+        recommendationStreamController.add(recommendation);
+      } catch (error) {
+        log.e(error);
       }
-
-      recommendationStreamController.add(recommendation);
     });
   }
 
   RemoteSession({required String clientId, required Function onDone}) {
+    log.i('-> AuthRequest');
     httpClient
         .post(Uri.parse('${Config.sessionwrapperRestUri}authentication'),
             body: json.encode(AuthRequest(clientId: clientId).toJson()))
         .then((http.Response response) {
-      sessionId = AuthResponse.fromJson(json.decode(response.body)).sessionId!;
+      log.i('<- AuthResponse');
+      try {
+        sessionId =
+            AuthResponse.fromJson(json.decode(response.body)).sessionId!;
+      } catch (error) {
+        log.e(error);
+      }
       log.i('Your sessionId is $sessionId');
       connect(sessionId!);
       onDone();
@@ -78,6 +86,7 @@ class RemoteSession {
     double toLat,
     double toLon,
   ) {
+    log.i('-> RouteRequest');
     httpClient
         .post(Uri.parse('${Config.sessionwrapperRestUri}getroute'),
             body: json.encode(RouteRequest(
@@ -86,8 +95,13 @@ class RemoteSession {
               to: Point(lat: toLat, lon: toLon),
             ).toJson()))
         .then((http.Response response) {
-      routeStreamController
-          .add(RouteResponse.fromJson(json.decode(response.body)));
+      log.i('<- RouteResponse');
+      try {
+        routeStreamController
+            .add(RouteResponse.fromJson(json.decode(response.body)));
+      } catch (error) {
+        log.e(error);
+      }
     });
   }
 
@@ -96,6 +110,7 @@ class RemoteSession {
     double lon,
     double speed,
   ) {
+    log.i('-> Position');
     jsonRPC.sendNotification(
       'PositionUpdate',
       UserPosition(
@@ -107,6 +122,7 @@ class RemoteSession {
   }
 
   void startRecommendation() {
+    log.i('-> Start Navigation');
     jsonRPC.sendRequest(
       'Navigation',
       NavigationRequest(active: true).toJson(),
@@ -114,6 +130,7 @@ class RemoteSession {
   }
 
   void stopRecommendation() {
+    log.i('-> Stop Navigation');
     jsonRPC.sendRequest(
       'Navigation',
       NavigationRequest(active: false).toJson(),

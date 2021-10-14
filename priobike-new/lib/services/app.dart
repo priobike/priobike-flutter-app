@@ -42,14 +42,12 @@ class AppService with ChangeNotifier {
     );
 
     session.routeStreamController.stream.listen((route) {
-      log.i('<- Route');
       loadingRoute = false;
       currentRoute = route;
       notifyListeners();
     });
 
     session.recommendationStreamController.stream.listen((recommendation) {
-      log.i('<- Recommendation');
       loadingRecommendation = false;
       currentRecommendation = recommendation;
       notifyListeners();
@@ -60,7 +58,6 @@ class AppService with ChangeNotifier {
     double toLat,
     double toLon,
   ) {
-    log.i('-> Route Request');
     currentRoute = null;
     loadingRoute = true;
 
@@ -78,7 +75,6 @@ class AppService with ChangeNotifier {
     double toLat,
     double toLon,
   ) {
-    log.i('-> Route Request');
     currentRoute = null;
     loadingRoute = true;
 
@@ -90,7 +86,6 @@ class AppService with ChangeNotifier {
   startGeolocation() async {
     isGeolocating = true;
     loadingRecommendation = true;
-
     positionStream = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 1,
@@ -102,7 +97,6 @@ class AppService with ChangeNotifier {
           position.longitude,
           position.speed,
         );
-        log.i('-> Position');
         lastPosition = position;
       }
     });
@@ -110,21 +104,16 @@ class AppService with ChangeNotifier {
   }
 
   stopGeolocation() {
-    log.i('-> Stop Request');
-
     isGeolocating = false;
     positionStream.cancel();
-
-    log.i('GEOLOCATOR STOPPED!');
+    log.i('Geolocator stopped!');
   }
 
   startNavigation() {
-    log.i('Start Recommending');
     session.startRecommendation();
   }
 
   stopNavigation() {
-    log.i('Stop Recommending');
     session.stopRecommendation();
     currentRecommendation = null;
   }
