@@ -57,6 +57,9 @@ class _CyclingPageState extends State<CyclingPage> {
     Wakelock.enable();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: app.currentRecommendation!.green
+            ? const Color(0xff4caf50)
+            : const Color(0xfff44235),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: app.currentRecommendation != null
@@ -64,7 +67,7 @@ class _CyclingPageState extends State<CyclingPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${app.currentRecommendation?.label} in ${app.currentRecommendation?.distance.toStringAsFixed(0)}m",
+                      "${app.currentRecommendation?.label}",
                       style: const TextStyle(fontSize: 30),
                     ),
                     const SizedBox(height: 15),
@@ -73,12 +76,18 @@ class _CyclingPageState extends State<CyclingPage> {
                       width: double.infinity,
                       child: Container(
                         alignment: Alignment.center,
-                        color: app.currentRecommendation!.green
-                            ? Colors.green
-                            : Colors.red,
-                        child: Text(
-                          "${app.currentRecommendation?.countdown}s",
-                          style: const TextStyle(fontSize: 40),
+                        color: Colors.black54,
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 10),
+                            Text("${app.currentRecommendation?.countdown}s ",
+                                style: const TextStyle(fontSize: 40)),
+                            const Spacer(),
+                            Text(
+                                "${app.currentRecommendation?.distance.toStringAsFixed(0)}m",
+                                style: const TextStyle(fontSize: 40)),
+                            const SizedBox(width: 10),
+                          ],
                         ),
                       ),
                     ),
@@ -164,12 +173,12 @@ class _CyclingPageState extends State<CyclingPage> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      "Aktuelle Geschwindigkeit: ${(app.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
-                      // style: const TextStyle(fontSize: 10),
+                      "Aktuell: ${(app.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
+                      style: const TextStyle(fontSize: 30),
                     ),
                     Text(
-                      "Empfohlene Geschwindigkeit: ${(app.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
-                      // style: const TextStyle(fontSize: 10),
+                      "Empfohlen: ${(app.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
+                      style: const TextStyle(fontSize: 30),
                     ),
                     const Spacer(),
                     Text(

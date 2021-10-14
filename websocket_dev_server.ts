@@ -1,4 +1,4 @@
-// to run this, you need to have deno installed (deno.land)
+// to run this, you need to have deno installed (https://deno.land/)
 // then run 'deno run -A websocket_dev_server.ts'
 
 import {
