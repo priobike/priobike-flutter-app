@@ -17,7 +17,9 @@ class Point {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['lon'] = lon;
     data['lat'] = lat;
-    data['alt'] = alt;
+    if (alt != null) {
+      data['alt'] = alt;
+    }
     return data;
   }
 }
