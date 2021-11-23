@@ -42,9 +42,17 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 icon: const Icon(Icons.traffic),
-                label: const Text('Teststrecke vom Server'),
+                label: const Text('Teststrecke 1: Ost ➔ West'),
                 onPressed: () {
-                  app.updateRoute(51.03848, 13.734112, 51.063839, 13.746643);
+                  app.updateRoute(53.560863, 9.990909, 53.564378, 9.978001);
+                  Navigator.pushNamed(context, Routes.route);
+                },
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.traffic),
+                label: const Text('Teststrecke 2: West ➔ Ost'),
+                onPressed: () {
+                  app.updateRoute(53.56415, 9.977496, 53.560791, 9.990059);
                   Navigator.pushNamed(context, Routes.route);
                 },
               ),

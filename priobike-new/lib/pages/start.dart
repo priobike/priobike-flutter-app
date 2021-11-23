@@ -25,16 +25,6 @@ class _StartPageState extends State<StartPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                "Client ID: " + app.clientId,
-                style: const TextStyle(fontSize: 10),
-              ),
-              Text(
-                app.session.sessionId != null
-                    ? "Session ID: ${app.session.sessionId}"
-                    : 'Warte auf Session ID...',
-                style: const TextStyle(fontSize: 10),
-              ),
               const Spacer(),
               const Text(
                 "PrioBike",
@@ -44,7 +34,29 @@ class _StartPageState extends State<StartPage> {
                 "Alpha",
                 style: TextStyle(fontSize: 20),
               ),
-              const Spacer(flex: 2),
+              const Spacer(),
+              // const Text(
+              //   "Client ID:",
+              //   style: TextStyle(fontSize: 20),
+              // ),
+              // Text(
+              //   app.clientId,
+              //   style: const TextStyle(fontSize: 30),
+              // ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                "Session ID:",
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(
+                app.session.sessionId != null
+                    ? "${app.session.sessionId}"
+                    : 'Warte auf Session ID...',
+                style: const TextStyle(fontSize: 30),
+              ),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -56,6 +68,7 @@ class _StartPageState extends State<StartPage> {
                   },
                 ),
               ),
+              const Spacer()
             ],
           ),
         ),

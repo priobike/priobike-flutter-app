@@ -1,10 +1,5 @@
 import 'dart:async';
 
-// import 'package:priobike/config/logger.dart';
-// import 'package:priobike/models/api/api_route.dart';
-// import 'package:priobike/models/recommendation.dart';
-// import 'package:priobike/session/session_remote/session_remote.dart';
-// import 'package:priobike/session/session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,11 +8,12 @@ import 'package:priobike/models/route_response.dart';
 import 'package:priobike/session/remote_session.dart';
 import 'package:priobike/utils/logger.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/material.dart';
 
 class AppService with ChangeNotifier {
   Logger log = Logger("AppService");
 
-  String clientId = const Uuid().v4();
+  String clientId = "alpha-app-" + const Uuid().v4();
 
   bool loadingRoute = true;
   bool loadingRecommendation = true;

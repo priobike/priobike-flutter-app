@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/models/auth_request.dart';
 import 'package:priobike/models/auth_response.dart';
@@ -54,6 +56,14 @@ class RemoteSession {
         recommendationStreamController.add(recommendation);
       } catch (error) {
         log.e(error);
+        Fluttertoast.showToast(
+          msg: "Fehler: $error",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     });
   }
@@ -70,6 +80,14 @@ class RemoteSession {
             AuthResponse.fromJson(json.decode(response.body)).sessionId!;
       } catch (error) {
         log.e(error);
+        Fluttertoast.showToast(
+          msg: "Fehler: $error",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
       log.i('Your sessionId is $sessionId');
       connect(sessionId!);
@@ -77,7 +95,15 @@ class RemoteSession {
     }).onError((error, stackTrace) {
       log.e("Fehler bei Auth Request:");
       log.e(error);
-    }); // TODO: proper Error Handling, show a toast or something
+      Fluttertoast.showToast(
+        msg: "Fehler: $error",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    });
   }
 
   void updateRoute(
@@ -101,6 +127,14 @@ class RemoteSession {
             .add(RouteResponse.fromJson(json.decode(response.body)));
       } catch (error) {
         log.e(error);
+        Fluttertoast.showToast(
+          msg: "Fehler: $error",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       }
     });
   }
