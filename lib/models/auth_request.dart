@@ -1,5 +1,5 @@
 class AuthRequest {
-  String clientId;
+  String? clientId;
 
   AuthRequest({this.clientId});
 
@@ -8,8 +8,8 @@ class AuthRequest {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['clientId'] = this.clientId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['clientId'] = clientId;
     return data;
   }
 }

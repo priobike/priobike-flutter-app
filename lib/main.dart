@@ -1,16 +1,14 @@
-import 'package:priobike/services/status_service.dart';
-import 'package:priobike/services/app_service.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 import 'package:flutter/material.dart';
-import 'config/router.dart';
+import 'package:priobike/services/app.dart';
+import 'package:priobike/services/settings.dart';
+import 'package:provider/provider.dart';
+import 'package:priobike/utils/routes.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(const PrioBike());
 
-class MyApp extends StatelessWidget {
+class PrioBike extends StatelessWidget {
+  const PrioBike({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -18,22 +16,37 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AppService>(
           create: (context) => AppService(),
         ),
-        ChangeNotifierProvider<StatusService>(
-          create: (context) => StatusService(),
+        ChangeNotifierProvider<SettingsService>(
+          create: (context) => SettingsService(),
         ),
       ],
-      child: MaterialApp(
-        title: 'PrioBike',
-        initialRoute: AppPage.init,
-        routes: AppPage.all,
-        onUnknownRoute: (settings) => AppPage.noRoute(settings),
-        theme: new ThemeData(
-          brightness: Brightness.dark,
-          textTheme: GoogleFonts.interTextTheme(
-            Theme.of(context).textTheme,
-          ),
-        ),
-      ),
+      child: const Main(),
+    );
+  }
+}
+
+class Main extends StatefulWidget {
+  const Main({Key? key}) : super(key: key);
+
+  @override
+  State<Main> createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  late SettingsService settings;
+
+  @override
+  Widget build(BuildContext context) {
+    settings = Provider.of<SettingsService>(context);
+
+    return MaterialApp(
+      title: 'PrioBike',
+      initialRoute: Routes.start,
+      routes: Routes.all,
+      onUnknownRoute: (settings) => Routes.noRoute(settings),
+      theme: ThemeData(primarySwatch: Colors.green),
+      darkTheme: ThemeData.dark(),
+      themeMode: settings.getThemeMode(),
     );
   }
 }

@@ -1,5 +1,5 @@
 class AuthResponse {
-  String sessionId;
+  String? sessionId;
 
   AuthResponse({this.sessionId});
 
@@ -8,8 +8,8 @@ class AuthResponse {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['sessionId'] = this.sessionId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['sessionId'] = sessionId;
     return data;
   }
 }

@@ -1,9 +1,9 @@
 class UserPosition {
-  double lat;
-  double lon;
-  int speed;
+  double? lat;
+  double? lon;
+  double? speed;
 
-  UserPosition({this.lat, this.lon, this.speed});
+  UserPosition({required this.lat, required this.lon, required this.speed});
 
   UserPosition.fromJson(Map<String, dynamic> json) {
     lat = json['lat'];
@@ -12,10 +12,10 @@ class UserPosition {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['lat'] = this.lat;
-    data['lon'] = this.lon;
-    data['speed'] = this.speed;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['lat'] = lat;
+    data['lon'] = lon;
+    data['speed'] = speed;
     return data;
   }
 }
