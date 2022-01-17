@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/services/settings.dart';
 import 'package:priobike/utils/routes.dart';

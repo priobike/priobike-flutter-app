@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_response.dart';
+import 'package:priobike/services/api.dart';
 import 'package:priobike/session/remote_session.dart';
 import 'package:priobike/utils/logger.dart';
 import 'package:uuid/uuid.dart';
@@ -19,6 +20,7 @@ class AppService with ChangeNotifier {
   bool loadingRoute = true;
   bool loadingRecommendation = true;
   bool isGeolocating = false;
+  bool isStaging = true;
 
   late StreamSubscription<Position> positionStream;
 
@@ -32,6 +34,7 @@ class AppService with ChangeNotifier {
     log.i('Your clientId is $clientId');
 
     session = RemoteSession(
+      host: isStaging ? Api.hostStaging : Api.hostProduction,
       clientId: clientId,
       onDone: () {
         notifyListeners();
@@ -95,5 +98,21 @@ class AppService with ChangeNotifier {
   stopNavigation() {
     session.stopRecommendation();
     currentRecommendation = null;
+  }
+
+  setIsStaging(isStaging) {
+    log.i("set isStaging to $isStaging");
+
+    this.isStaging = isStaging;
+
+    session = RemoteSession(
+      host: isStaging ? Api.hostStaging : Api.hostProduction,
+      clientId: clientId,
+      onDone: () {
+        notifyListeners();
+      },
+    );
+
+    notifyListeners();
   }
 }

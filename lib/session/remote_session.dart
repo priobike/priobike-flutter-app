@@ -18,7 +18,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'package:http/http.dart' as http;
 
-import 'config.dart';
+import '../services/api.dart';
 
 class RemoteSession {
   late WebSocketChannel socket;
@@ -32,20 +32,72 @@ class RemoteSession {
 
   http.Client httpClient = http.Client();
 
+  String host;
+
   String? sessionId;
 
   Logger log = Logger("RemoteSession");
 
-  void connect(String sessionId) {
+  RemoteSession({
+    required this.host,
+    required String clientId,
+    required Function onDone,
+  }) {
+    log.i('-> AuthRequest');
+    log.i(Api.authenticationUrl(host));
+
+    httpClient
+        .post(Uri.parse(Api.authenticationUrl(Api.authenticationUrl(host))),
+            body: json.encode(AuthRequest(clientId: clientId).toJson()))
+        .then((http.Response response) {
+      log.i('<- AuthResponse');
+      try {
+        sessionId =
+            AuthResponse.fromJson(json.decode(response.body)).sessionId!;
+      } catch (error) {
+        log.e(error);
+        Fluttertoast.showToast(
+          msg: "Fehler: $error",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+      log.i('Your sessionId is $sessionId');
+      connectViaWebSocket();
+      onDone();
+    }).onError((error, stackTrace) {
+      log.e("Fehler bei Auth Request:");
+      log.e(error);
+      Fluttertoast.showToast(
+        msg: "Fehler: $error",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    });
+  }
+
+  void connectViaWebSocket() {
+    log.i("<-> Establish WebSocket Connection");
+    log.i(Api.backendWebSocketUrl(host, sessionId));
+
     socket = WebSocketChannel.connect(
-        Uri.parse(Config.sessionwrapperWebSocketURI + sessionId));
+        Uri.parse(Api.backendWebSocketUrl(host, sessionId)));
 
     jsonRPC = Peer(socket.cast<String>());
 
     jsonRPC.listen().then((done) {
       log.w(
           'Disconnected: ${socket.closeCode} ${socket.closeReason}, reconnect in 3 seconds');
-      Future.delayed(const Duration(seconds: 3), () => connect(sessionId));
+      Future.delayed(
+        const Duration(seconds: 3),
+        () => connectViaWebSocket(),
+      );
     });
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
@@ -68,48 +120,15 @@ class RemoteSession {
     });
   }
 
-  RemoteSession({required String clientId, required Function onDone}) {
-    log.i('-> AuthRequest');
-    httpClient
-        .post(Uri.parse('${Config.sessionwrapperRestUri}authentication'),
-            body: json.encode(AuthRequest(clientId: clientId).toJson()))
-        .then((http.Response response) {
-      log.i('<- AuthResponse');
-      try {
-        sessionId =
-            AuthResponse.fromJson(json.decode(response.body)).sessionId!;
-      } catch (error) {
-        log.e(error);
-        Fluttertoast.showToast(
-          msg: "Fehler: $error",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      }
-      log.i('Your sessionId is $sessionId');
-      connect(sessionId!);
-      onDone();
-    }).onError((error, stackTrace) {
-      log.e("Fehler bei Auth Request:");
-      log.e(error);
-      Fluttertoast.showToast(
-        msg: "Fehler: $error",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    });
-  }
-
   void updateRoute(List<Point> waypoints) {
     log.i('-> RouteRequest');
+    log.i(Api.getRouteUrl(host));
+
     httpClient
-        .post(Uri.parse('${Config.sessionwrapperRestUri}getroute'),
+        .post(
+            Uri.parse(
+              Api.getRouteUrl(Api.getRouteUrl(host)),
+            ),
             body: json.encode(RouteRequest(
               sessionId: sessionId,
               waypoints: waypoints,

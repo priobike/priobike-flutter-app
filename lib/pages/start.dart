@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
@@ -35,26 +36,35 @@ class _StartPageState extends State<StartPage> {
                 style: TextStyle(fontSize: 20),
               ),
               const Spacer(),
-              // const Text(
-              //   "Client ID:",
-              //   style: TextStyle(fontSize: 20),
-              // ),
-              // Text(
-              //   app.clientId,
-              //   style: const TextStyle(fontSize: 30),
-              // ),
               const SizedBox(
                 height: 20,
               ),
-              const Text(
-                "Session ID:",
-                style: TextStyle(fontSize: 20),
+              Text(
+                "Session ID (${app.isStaging ? 'Stagingsystem' : 'Produktivsystem'}):",
+                style: const TextStyle(fontSize: 20),
               ),
               Text(
                 app.session.sessionId != null
                     ? "${app.session.sessionId}"
                     : 'Warte auf Session ID...',
                 style: const TextStyle(fontSize: 30),
+              ),
+              const Spacer(),
+              RadioListTile(
+                title: const Text('Produktivsystem Hamburg (UDP)'),
+                value: false,
+                groupValue: app.isStaging,
+                onChanged: (value) {
+                  app.setIsStaging(value);
+                },
+              ),
+              RadioListTile(
+                title: const Text('Stagingsystem Dresden'),
+                value: true,
+                groupValue: app.isStaging,
+                onChanged: (value) {
+                  app.setIsStaging(value);
+                },
               ),
               const Spacer(),
               SizedBox(
@@ -64,11 +74,20 @@ class _StartPageState extends State<StartPage> {
                       ? 'Los geht\'s!'
                       : 'Verbinde...'),
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, Routes.home);
+                    app.session.sessionId != null
+                        ? Navigator.pushReplacementNamed(context, Routes.home)
+                        : Fluttertoast.showToast(
+                            msg: "Noch keine Session ID vorhanden",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
                   },
                 ),
               ),
-              const Spacer()
+              const Spacer(),
             ],
           ),
         ),
