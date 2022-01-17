@@ -96,10 +96,11 @@ class _HomePageState extends State<HomePage> {
                             label: const Text('Teststrecke Dresden POT'),
                             onPressed: () {
                               app.updateRoute([
-                                Point(lat: 51.03063, lon: 13.728029),
-                                Point(lat: 51.030582, lon: 13.727347),
-                                Point(lat: 51.030353, lon: 13.727385),
-                                Point(lat: 51.030576, lon: 13.728152),
+                                Point(lon: 13.728029, lat: 51.03063),
+                                Point(lon: 13.727347, lat: 51.030582),
+                                Point(lon: 13.727347, lat: 51.030353),
+                                Point(lon: 13.727791, lat: 51.030343),
+                                Point(lon: 13.728152, lat: 51.030576),
                               ]);
                               Navigator.pushNamed(context, Routes.route);
                             },
