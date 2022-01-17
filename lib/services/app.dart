@@ -32,7 +32,11 @@ class AppService with ChangeNotifier {
   AppService() {
     log.i('AppService started');
     log.i('Your clientId is $clientId');
+    initSession();
+  }
 
+  initSession() {
+    log.i('init session...');
     session = RemoteSession(
       host: isStaging ? Api.hostStaging : Api.hostProduction,
       clientId: clientId,
@@ -102,17 +106,8 @@ class AppService with ChangeNotifier {
 
   setIsStaging(isStaging) {
     log.i("set isStaging to $isStaging");
-
     this.isStaging = isStaging;
-
-    session = RemoteSession(
-      host: isStaging ? Api.hostStaging : Api.hostProduction,
-      clientId: clientId,
-      onDone: () {
-        notifyListeners();
-      },
-    );
-
+    initSession();
     notifyListeners();
   }
 }

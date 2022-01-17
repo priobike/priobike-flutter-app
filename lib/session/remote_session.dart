@@ -47,7 +47,7 @@ class RemoteSession {
     log.i(Api.authenticationUrl(host));
 
     httpClient
-        .post(Uri.parse(Api.authenticationUrl(Api.authenticationUrl(host))),
+        .post(Uri.parse(Api.authenticationUrl(host)),
             body: json.encode(AuthRequest(clientId: clientId).toJson()))
         .then((http.Response response) {
       log.i('<- AuthResponse');
@@ -127,7 +127,7 @@ class RemoteSession {
     httpClient
         .post(
             Uri.parse(
-              Api.getRouteUrl(Api.getRouteUrl(host)),
+              Api.getRouteUrl(host),
             ),
             body: json.encode(RouteRequest(
               sessionId: sessionId,
@@ -135,6 +135,7 @@ class RemoteSession {
             ).toJson()))
         .then((http.Response response) {
       log.i('<- RouteResponse');
+      log.i(json.decode(response.body));
       try {
         routeStreamController
             .add(RouteResponse.fromJson(json.decode(response.body)));
