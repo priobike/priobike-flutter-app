@@ -40,28 +40,63 @@ class _HomePageState extends State<HomePage> {
                   fontSize: 20,
                 ),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.traffic),
-                label: const Text('Teststrecke 1: Ost ➔ West'),
-                onPressed: () {
-                  app.updateRoute([
-                    Point(lat: 53.560863, lon: 9.990909),
-                    Point(lat: 53.564378, lon: 9.978001)
-                  ]);
-                  Navigator.pushNamed(context, Routes.route);
-                },
+              const SizedBox(height: 40),
+              const Text(
+                "Hamburg ",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.traffic),
-                label: const Text('Teststrecke 2: West ➔ Ost'),
-                onPressed: () {
-                  app.updateRoute([
-                    Point(lat: 53.564378, lon: 9.978001),
-                    Point(lat: 53.560863, lon: 9.990909)
-                  ]);
-                  Navigator.pushNamed(context, Routes.route);
-                },
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.traffic),
+                  label: const Text('Teststrecke 1: Ost ➔ West'),
+                  onPressed: () {
+                    app.updateRoute([
+                      Point(lat: 53.560863, lon: 9.990909),
+                      Point(lat: 53.564378, lon: 9.978001),
+                    ]);
+                    Navigator.pushNamed(context, Routes.route);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.traffic),
+                  label: const Text('Teststrecke 2: West ➔ Ost'),
+                  onPressed: () {
+                    app.updateRoute([
+                      Point(lat: 53.564378, lon: 9.978001),
+                      Point(lat: 53.560863, lon: 9.990909),
+                    ]);
+                    Navigator.pushNamed(context, Routes.route);
+                  },
+                ),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Dresden ",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.build),
+                  label: const Text('Teststrecke Dresden POT'),
+                  onPressed: () {
+                    app.updateRoute([
+                      Point(lat: 51.03063, lon: 13.728029),
+                      Point(lat: 51.030582, lon: 13.727347),
+                      Point(lat: 51.030353, lon: 13.727385),
+                      Point(lat: 51.030576, lon: 13.728152),
+                    ]);
+                    Navigator.pushNamed(context, Routes.route);
+                  },
+                ),
               ),
             ],
             crossAxisAlignment: CrossAxisAlignment.start,
