@@ -106,19 +106,13 @@ class RemoteSession {
     });
   }
 
-  void updateRoute(
-    double fromLat,
-    double fromLon,
-    double toLat,
-    double toLon,
-  ) {
+  void updateRoute(List<Point> waypoints) {
     log.i('-> RouteRequest');
     httpClient
         .post(Uri.parse('${Config.sessionwrapperRestUri}getroute'),
             body: json.encode(RouteRequest(
               sessionId: sessionId,
-              from: Point(lat: fromLat, lon: fromLon),
-              to: Point(lat: toLat, lon: toLon),
+              waypoints: waypoints,
             ).toJson()))
         .then((http.Response response) {
       log.i('<- RouteResponse');

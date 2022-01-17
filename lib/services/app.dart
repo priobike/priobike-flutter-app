@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_response.dart';
 import 'package:priobike/session/remote_session.dart';
@@ -50,31 +51,13 @@ class AppService with ChangeNotifier {
     });
   }
 
-  updateDestination(
-    double toLat,
-    double toLon,
-  ) {
-    currentRoute = null;
-    loadingRoute = true;
-
-    if (lastPosition?.latitude != null && lastPosition?.longitude != null) {
-      session.updateRoute(
-          lastPosition!.latitude, lastPosition!.longitude, toLat, toLon);
-    }
-
-    notifyListeners();
-  }
-
   updateRoute(
-    double fromLat,
-    double fromLon,
-    double toLat,
-    double toLon,
+    List<Point> waypoints,
   ) {
     currentRoute = null;
     loadingRoute = true;
 
-    session.updateRoute(fromLat, fromLon, toLat, toLon);
+    session.updateRoute(waypoints);
 
     notifyListeners();
   }

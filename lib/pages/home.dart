@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/models/point.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,10 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.traffic),
                 label: const Text('Teststrecke 1: Ost ➔ West'),
                 onPressed: () {
-                  app.updateRoute(53.560863, 9.990909, 53.564378, 9.978001);
+                  app.updateRoute([
+                    Point(lat: 53.560863, lon: 9.990909),
+                    Point(lat: 53.564378, lon: 9.978001)
+                  ]);
                   Navigator.pushNamed(context, Routes.route);
                 },
               ),
@@ -52,7 +56,10 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.traffic),
                 label: const Text('Teststrecke 2: West ➔ Ost'),
                 onPressed: () {
-                  app.updateRoute(53.56415, 9.977496, 53.560791, 9.990059);
+                  app.updateRoute([
+                    Point(lat: 53.564378, lon: 9.978001),
+                    Point(lat: 53.560863, lon: 9.990909)
+                  ]);
                   Navigator.pushNamed(context, Routes.route);
                 },
               ),

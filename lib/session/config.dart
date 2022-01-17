@@ -4,7 +4,7 @@ class Config {
   // static const sessionwrapperWebSocketURI = 'ws://10.0.2.2:8080/';
 
   static const sessionwrapperRestUri =
-      'http://bikenow.vkw.tu-dresden.de:20034/';
+      'http://priobike.vkw.tu-dresden.de/production/session-wrapper/';
   static const sessionwrapperWebSocketURI =
-      'ws://bikenow.vkw.tu-dresden.de:20034/websocket/sessions/';
+      'ws://priobike.vkw.tu-dresden.de/production/session-wrapper/websocket/sessions/';
 }
