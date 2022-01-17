@@ -102,6 +102,7 @@ class RemoteSession {
 
     jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
       log.i('<- Recommendation');
+      // log.i(params.value.toString());
       try {
         Recommendation recommendation = Recommendation.fromJsonRPC(params);
         if (recommendation.error) log.e(recommendation.errorMessage);

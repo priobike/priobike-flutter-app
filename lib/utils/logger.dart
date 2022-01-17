@@ -10,21 +10,21 @@ class Logger {
 
   i(msg) {
     // ignore: avoid_print
-    print('[${DateTime.now().toString()} $label] $msg');
+    print('[INFO][${DateTime.now().toString()} $label] $msg');
     addToLog(msg);
   }
 
   w(msg) {
     AnsiPen pen = AnsiPen()..yellow();
     // ignore: avoid_print
-    print(pen('[${DateTime.now().toString()} $label] $msg'));
+    print(pen('[WARN][${DateTime.now().toString()} $label] $msg'));
     addToLog(msg);
   }
 
   e(msg) {
     AnsiPen pen = AnsiPen()..red();
     // ignore: avoid_print
-    print(pen('[${DateTime.now().toString()} $label] $msg'));
+    print(pen('[ERROR][${DateTime.now().toString()} $label] $msg'));
     addToLog(msg);
   }
 
