@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
+import 'package:priobike/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class StartPage extends StatefulWidget {
@@ -76,13 +76,8 @@ class _StartPageState extends State<StartPage> {
                   onPressed: () {
                     app.session.sessionId != null
                         ? Navigator.pushReplacementNamed(context, Routes.home)
-                        : Fluttertoast.showToast(
-                            msg: "Noch keine Session ID vorhanden",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0,
+                        : ToastMessage.showError(
+                            "Noch keine SessionID vorhanden.",
                           );
                   },
                 ),

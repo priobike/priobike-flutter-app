@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/models/auth_request.dart';
 import 'package:priobike/models/auth_response.dart';
@@ -14,6 +12,7 @@ import 'package:priobike/models/route_response.dart';
 import 'package:priobike/models/user_position.dart';
 
 import 'package:priobike/utils/logger.dart';
+import 'package:priobike/utils/toast.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'package:http/http.dart' as http;
@@ -50,20 +49,18 @@ class RemoteSession {
         .post(Uri.parse(Api.authenticationUrl(host)),
             body: json.encode(AuthRequest(clientId: clientId).toJson()))
         .then((http.Response response) {
+      if (response.statusCode != 200) {
+        ToastMessage.showError(response.body);
+        return;
+      }
+
       log.i('<- AuthResponse');
       try {
         sessionId =
             AuthResponse.fromJson(json.decode(response.body)).sessionId!;
       } catch (error) {
         log.e(error);
-        Fluttertoast.showToast(
-          msg: "Fehler: $error",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        ToastMessage.showError(error.toString());
       }
       log.i('Your sessionId is $sessionId');
       connectViaWebSocket();
@@ -71,14 +68,7 @@ class RemoteSession {
     }).onError((error, stackTrace) {
       log.e("Fehler bei Auth Request:");
       log.e(error);
-      Fluttertoast.showToast(
-        msg: "Fehler: $error",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+      ToastMessage.showError(error.toString());
     });
   }
 
@@ -93,9 +83,9 @@ class RemoteSession {
 
     jsonRPC.listen().then((done) {
       log.w(
-          'Disconnected: ${socket.closeCode} ${socket.closeReason}, reconnect in 3 seconds');
+          'Disconnected: ${socket.closeCode} ${socket.closeReason}, reconnect in 2 seconds');
       Future.delayed(
-        const Duration(seconds: 3),
+        const Duration(seconds: 2),
         () => connectViaWebSocket(),
       );
     });
@@ -109,14 +99,7 @@ class RemoteSession {
         recommendationStreamController.add(recommendation);
       } catch (error) {
         log.e(error);
-        Fluttertoast.showToast(
-          msg: "Fehler: $error",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        ToastMessage.showError(error.toString());
       }
     });
   }
@@ -125,33 +108,39 @@ class RemoteSession {
     log.i('-> RouteRequest');
     log.i(Api.getRouteUrl(host));
 
-    httpClient
-        .post(
-            Uri.parse(
-              Api.getRouteUrl(host),
-            ),
-            body: json.encode(RouteRequest(
-              sessionId: sessionId,
-              waypoints: waypoints,
-            ).toJson()))
-        .then((http.Response response) {
-      log.i('<- RouteResponse');
-      log.i(json.decode(response.body));
-      try {
-        routeStreamController
-            .add(RouteResponse.fromJson(json.decode(response.body)));
-      } catch (error) {
-        log.e(error);
-        Fluttertoast.showToast(
-          msg: "Fehler: $error",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
+    try {
+      httpClient
+          .post(
+              Uri.parse(
+                Api.getRouteUrl(host),
+              ),
+              body: json.encode(RouteRequest(
+                sessionId: sessionId,
+                waypoints: waypoints,
+              ).toJson()))
+          .then((http.Response response) {
+        if (response.statusCode != 200) {
+          log.e(response.body);
+
+          if (response.statusCode == 403 || response.statusCode == 401) {
+            ToastMessage.showError(
+              "Session ist abgelaufen. Starten Sie die App neu.",
+            );
+          }
+
+          ToastMessage.showError("${response.statusCode} ${response.body}");
+          return;
+        }
+        log.i('<- RouteResponse');
+        log.i(json.decode(response.body));
+        routeStreamController.add(
+          RouteResponse.fromJson(json.decode(response.body)),
         );
-      }
-    });
+      });
+    } catch (error) {
+      log.e(error);
+      ToastMessage.showError(error.toString());
+    }
   }
 
   void updatePosition(
@@ -160,29 +149,44 @@ class RemoteSession {
     double speed,
   ) {
     log.i('-> Position');
-    jsonRPC.sendNotification(
-      'PositionUpdate',
-      UserPosition(
-        lat: lat,
-        lon: lon,
-        speed: speed,
-      ).toJson(),
-    );
+    try {
+      jsonRPC.sendNotification(
+        'PositionUpdate',
+        UserPosition(
+          lat: lat,
+          lon: lon,
+          speed: speed,
+        ).toJson(),
+      );
+    } catch (error) {
+      log.e(error.toString());
+      ToastMessage.showError(error.toString());
+    }
   }
 
   void startRecommendation() {
     log.i('-> Start Navigation');
-    jsonRPC.sendRequest(
-      'Navigation',
-      NavigationRequest(active: true).toJson(),
-    );
+    try {
+      jsonRPC.sendRequest(
+        'Navigation',
+        NavigationRequest(active: true).toJson(),
+      );
+    } catch (error) {
+      log.e(error.toString());
+      ToastMessage.showError(error.toString());
+    }
   }
 
   void stopRecommendation() {
     log.i('-> Stop Navigation');
-    jsonRPC.sendRequest(
-      'Navigation',
-      NavigationRequest(active: false).toJson(),
-    );
+    try {
+      jsonRPC.sendRequest(
+        'Navigation',
+        NavigationRequest(active: false).toJson(),
+      );
+    } catch (error) {
+      log.e(error.toString());
+      ToastMessage.showError(error.toString());
+    }
   }
 }
