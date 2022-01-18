@@ -106,6 +106,7 @@ class AppService with ChangeNotifier {
 
   setIsStaging(isStaging) {
     log.i("set isStaging to $isStaging");
+    session.clearSessionId();
     this.isStaging = isStaging;
     initSession();
     notifyListeners();

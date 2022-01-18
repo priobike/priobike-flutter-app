@@ -126,7 +126,9 @@ class _RoutePageState extends State<RoutePage> {
                         ],
                       ),
                     ),
-                    Text("Länge der Strecke: ${app.currentRoute?.distance}m"),
+                    const Spacer(),
+                    Text(
+                        "Länge der Strecke: ${app.currentRoute?.distance.toStringAsFixed(0)}m"),
                     Text("Anzahl der Ampeln: ${trafficLights.length}"),
                     Text("Meter nach oben: ${app.currentRoute?.ascend}"),
                     Text("Meter nach unten: ${app.currentRoute?.descend}"),
@@ -135,8 +137,9 @@ class _RoutePageState extends State<RoutePage> {
                             "Dauer: ${(app.currentRoute!.estimatedDuration / 1000 / 60).toStringAsFixed(1)} Min.")
                         : const Text(''),
                     const Spacer(),
-                    ElevatedButton(
-                      child: const Text('Zurück'),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Zurück'),
                       onPressed: () {
                         Navigator.pop(context);
                       },

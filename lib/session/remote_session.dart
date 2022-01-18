@@ -189,4 +189,8 @@ class RemoteSession {
       ToastMessage.showError(error.toString());
     }
   }
+
+  void clearSessionId() {
+    sessionId = null;
+  }
 }

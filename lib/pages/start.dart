@@ -47,11 +47,11 @@ class _StartPageState extends State<StartPage> {
                 app.session.sessionId != null
                     ? "${app.session.sessionId}"
                     : 'Warte auf Session ID...',
-                style: const TextStyle(fontSize: 30),
+                style: const TextStyle(fontSize: 16),
               ),
               const Spacer(),
               RadioListTile(
-                title: const Text('Produktivsystem Hamburg (UDP)'),
+                title: const Text('Produktivsystem (UDP Hamburg)'),
                 value: false,
                 groupValue: app.isStaging,
                 onChanged: (value) {
@@ -59,7 +59,7 @@ class _StartPageState extends State<StartPage> {
                 },
               ),
               RadioListTile(
-                title: const Text('Stagingsystem Dresden'),
+                title: const Text('Stagingsystem (Testaufbau Dresden)'),
                 value: true,
                 groupValue: app.isStaging,
                 onChanged: (value) {
@@ -73,13 +73,11 @@ class _StartPageState extends State<StartPage> {
                   child: Text(app.session.sessionId != null
                       ? 'Los geht\'s!'
                       : 'Verbinde...'),
-                  onPressed: () {
-                    app.session.sessionId != null
-                        ? Navigator.pushReplacementNamed(context, Routes.home)
-                        : ToastMessage.showError(
-                            "Noch keine SessionID vorhanden.",
-                          );
-                  },
+                  onPressed: app.session.sessionId != null
+                      ? () {
+                          Navigator.pushReplacementNamed(context, Routes.home);
+                        }
+                      : null,
                 ),
               ),
               const Spacer(),

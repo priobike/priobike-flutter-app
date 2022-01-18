@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-              'PrioBike: ${app.isStaging ? 'Stagingsystem' : 'Produktivsystem'}'),
+              'PrioBike ${app.isStaging ? '(Testaufbau Dresden)' : '(UDP Hamburg)'}'),
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.settings),
@@ -47,12 +47,6 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: !app.isStaging
                     ? [
-                        const Text(
-                          "Hamburg ",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
@@ -83,17 +77,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ]
                     : [
-                        const Text(
-                          "Dresden ",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.build),
-                            label: const Text('Teststrecke Dresden POT'),
+                            label: const Text('Teststrecke TU Dresden POT'),
                             onPressed: () {
                               app.updateRoute([
                                 Point(lon: 13.728029, lat: 51.03063),
