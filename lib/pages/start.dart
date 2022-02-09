@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
-import 'package:priobike/utils/toast.dart';
 import 'package:provider/provider.dart';
 
 class StartPage extends StatefulWidget {

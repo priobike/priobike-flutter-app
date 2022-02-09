@@ -73,9 +73,10 @@ class AppService with ChangeNotifier {
     isGeolocating = true;
     loadingRecommendation = true;
     positionStream = Geolocator.getPositionStream(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 1,
-      intervalDuration: const Duration(seconds: 1),
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
+      ),
     ).listen((Position position) {
       if (isGeolocating == true) {
         session.updatePosition(

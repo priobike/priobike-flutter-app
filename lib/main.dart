@@ -44,8 +44,15 @@ class _MainState extends State<Main> {
       initialRoute: Routes.start,
       routes: Routes.all,
       onUnknownRoute: (settings) => Routes.noRoute(settings),
-      theme: ThemeData(primarySwatch: Colors.green),
-      darkTheme: ThemeData.dark(),
+      theme: ThemeData(
+        colorSchemeSeed: Colors.blue[900],
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: Colors.blue[900],
+        brightness: Brightness.dark,
+        useMaterial3: true,
+      ),
       themeMode: settings.getThemeMode(),
     );
   }
