@@ -140,7 +140,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
             ),
             const Spacer(),
             Text(
-              "${recommendation.speedDiff > 0 ? "+" : "-"} ${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
+              "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
               style: const TextStyle(fontSize: 40),
             ),
             if (recommendation.speedDiff > 0)
