@@ -20,18 +20,14 @@ class DefaultCyclingView extends StatefulWidget {
 class _DefaultCyclingViewState extends State<DefaultCyclingView> {
   late AppService app;
 
-  final double padding = 24.0;
+  final double padding = 18.0;
   final int sliderThumbWidth = 20;
   final double maxSpeedDiff = 10.0;
 
   @override
-  void didChangeDependencies() {
-    app = Provider.of<AppService>(context);
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    app = Provider.of<AppService>(context);
+
     Recommendation recommendation = app.currentRecommendation!;
 
     num percent = DefaultCyclingView.interpolate(
@@ -50,18 +46,47 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
               recommendation.error
                   ? "Fehler: ${recommendation.errorMessage}"
                   : '',
-              style: const TextStyle(color: Colors.yellow),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.yellow,
+              ),
             ),
-            Text(recommendation.label),
-            Text("${recommendation.distance.toStringAsFixed(0)}m"),
+            Row(children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                child: Icon(
+                  Icons.arrow_upward,
+                  size: 80,
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recommendation.label,
+                    style: const TextStyle(fontSize: 35),
+                  ),
+                  Text(
+                    "${recommendation.distance.toStringAsFixed(0)} m",
+                    style: const TextStyle(
+                      fontSize: 30,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ],
+              ),
+            ]),
             const Spacer(),
             Stack(children: [
               SizedBox(
-                height: MediaQuery.of(context).size.width / 2,
-                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.width / 2.5,
+                width: MediaQuery.of(context).size.width / 2.5,
                 child: CircularProgressIndicator(
                   strokeWidth: 30,
-                  color: recommendation.green ? Colors.green : Colors.red,
+                  backgroundColor: Colors.black26,
+                  color: recommendation.green
+                      ? const Color.fromARGB(255, 54, 222, 70)
+                      : Colors.red,
                   value: recommendation.countdown / 60,
                 ),
               ),
@@ -87,7 +112,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                       colors: [
                         Colors.red,
                         Colors.transparent,
-                        Colors.green,
+                        Color.fromARGB(255, 54, 222, 70),
                         Colors.transparent,
                         Colors.red,
                       ],
@@ -113,11 +138,35 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                 ),
               ],
             ),
-            Text("${(recommendation.speedDiff * 3.6).toStringAsFixed(1)}km/h"),
-            if (recommendation.speedDiff > 0) const Text("Schneller!"),
-            if (recommendation.speedDiff < 0) const Text("Langsamer!"),
+            const Spacer(),
+            Text(
+              "${recommendation.speedDiff > 0 ? "+" : "-"} ${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
+              style: const TextStyle(fontSize: 40),
+            ),
+            if (recommendation.speedDiff > 0)
+              const Text(
+                "Schneller!",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white54,
+                ),
+              ),
+            if (recommendation.speedDiff < 0)
+              const Text(
+                "Langsamer!",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white54,
+                ),
+              ),
             if (recommendation.speedDiff == 0)
-              const Text("Geschwindigkeit halten."),
+              const Text(
+                "Geschwindigkeit halten.",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white54,
+                ),
+              ),
             const Spacer(),
             SizedBox(
               width: double.infinity,

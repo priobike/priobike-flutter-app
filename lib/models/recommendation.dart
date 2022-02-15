@@ -61,7 +61,7 @@ class Recommendation {
     data['error'] = error;
     data['errorMessage'] = errorMessage;
     data['snapPos'] = snapPos.toJson();
-    JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+    JsonEncoder encoder = const JsonEncoder.withIndent('    ');
     return encoder.convert(data);
   }
 }

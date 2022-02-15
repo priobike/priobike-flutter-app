@@ -5,6 +5,7 @@ import 'package:priobike/cycling_views/minimal_json.dart';
 import 'package:priobike/services/app.dart';
 
 import 'package:priobike/utils/logger.dart';
+import 'package:provider/provider.dart';
 
 import 'package:wakelock/wakelock.dart';
 import 'package:priobike/cycling_views/default_debug.dart';
@@ -30,6 +31,8 @@ class _CyclingPageState extends State<CyclingPage> {
   @override
   Widget build(BuildContext context) {
     Wakelock.enable();
+
+    app = Provider.of<AppService>(context);
 
     const styleTrue = TextStyle(color: Colors.green);
     const styleFalse = TextStyle(color: Colors.red);

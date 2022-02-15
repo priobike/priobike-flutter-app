@@ -16,13 +16,9 @@ class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {
   late AppService app;
 
   @override
-  void didChangeDependencies() {
-    app = Provider.of<AppService>(context);
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    app = Provider.of<AppService>(context);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(24.0),
