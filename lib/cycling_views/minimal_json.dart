@@ -1,15 +1,25 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:priobike/models/recommendation.dart';
+import 'package:priobike/services/app.dart';
+import 'package:provider/provider.dart';
 
 import '../utils/routes.dart';
 
-class MinimalDebugCyclingView extends StatelessWidget {
-  MinimalDebugCyclingView(this.recommendation);
+class MinimalDebugCyclingView extends StatefulWidget {
+  const MinimalDebugCyclingView({Key? key}) : super(key: key);
 
-  final Recommendation recommendation;
+  @override
+  State<MinimalDebugCyclingView> createState() =>
+      _MinimalDebugCyclingViewState();
+}
+
+class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {
+  late AppService app;
+
+  @override
+  void didChangeDependencies() {
+    app = Provider.of<AppService>(context);
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +30,7 @@ class MinimalDebugCyclingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              recommendation.toJson(),
+              app.currentRecommendation!.toJson(),
               style: const TextStyle(fontSize: 20),
             ),
             const Spacer(),

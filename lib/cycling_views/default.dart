@@ -1,23 +1,12 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:priobike/models/recommendation.dart';
+import 'package:priobike/services/app.dart';
+import 'package:provider/provider.dart';
 
 import '../utils/routes.dart';
 
-class DefaultCyclingView extends StatelessWidget {
-  const DefaultCyclingView(
-    this.recommendation,
-    this.lastPosition,
-  );
-
-  final Recommendation recommendation;
-  final Position lastPosition;
-
-  final double padding = 24.0;
-  final int sliderThumbWidth = 20;
-  final double maxSpeedDiff = 10.0;
+class DefaultCyclingView extends StatefulWidget {
+  const DefaultCyclingView({Key? key}) : super(key: key);
 
   static double interpolate(double min, double max, double t) {
     final double lerp = (t - min) / (max - min);
@@ -25,8 +14,27 @@ class DefaultCyclingView extends StatelessWidget {
   }
 
   @override
+  State<DefaultCyclingView> createState() => _DefaultCyclingViewState();
+}
+
+class _DefaultCyclingViewState extends State<DefaultCyclingView> {
+  late AppService app;
+
+  final double padding = 24.0;
+  final int sliderThumbWidth = 20;
+  final double maxSpeedDiff = 10.0;
+
+  @override
+  void didChangeDependencies() {
+    app = Provider.of<AppService>(context);
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    num percent = interpolate(
+    Recommendation recommendation = app.currentRecommendation!;
+
+    num percent = DefaultCyclingView.interpolate(
       -maxSpeedDiff,
       maxSpeedDiff,
       recommendation.speedDiff.clamp(-maxSpeedDiff, maxSpeedDiff),

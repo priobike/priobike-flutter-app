@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+
 import 'package:priobike/cycling_views/default.dart';
 import 'package:priobike/cycling_views/minimal_json.dart';
 import 'package:priobike/services/app.dart';
+
 import 'package:priobike/utils/logger.dart';
-import 'package:priobike/utils/routes.dart';
-import 'package:provider/provider.dart';
+
 import 'package:wakelock/wakelock.dart';
 import 'package:priobike/cycling_views/default_debug.dart';
 
@@ -21,43 +20,12 @@ class CyclingPage extends StatefulWidget {
 
 class _CyclingPageState extends State<CyclingPage> {
   Logger log = Logger("CyclingPage");
-  late AppService app;
 
-  var points = <LatLng>[];
-  var trafficLights = <Marker>[];
-  var routeDrawn = false;
+  late AppService app;
 
   final PageController _pageController = PageController(
     initialPage: 0,
   );
-
-  @override
-  void didChangeDependencies() {
-    app = Provider.of<AppService>(context);
-
-    if (app.currentRoute != null && !routeDrawn) {
-      for (var point in app.currentRoute!.route) {
-        points.add(LatLng(point.lat, point.lon));
-      }
-
-      for (var sg in app.currentRoute!.signalgroups.values) {
-        trafficLights.add(
-          Marker(
-            point: LatLng(sg.position.lat, sg.position.lon),
-            builder: (ctx) => Icon(
-              Icons.traffic,
-              color: Colors.red[900],
-              size: 20,
-            ),
-          ),
-        );
-      }
-
-      routeDrawn = true;
-    }
-
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,18 +40,10 @@ class _CyclingPageState extends State<CyclingPage> {
             ? PageView(
                 controller: _pageController,
                 scrollDirection: Axis.horizontal,
-                children: [
-                  DefaultCyclingView(
-                    app.currentRecommendation!,
-                    app.lastPosition!,
-                  ),
-                  DefaultDebugCyclingView(
-                    app.currentRecommendation!,
-                    app.lastPosition!,
-                  ),
-                  MinimalDebugCyclingView(
-                    app.currentRecommendation!,
-                  ),
+                children: const [
+                  DefaultCyclingView(),
+                  DefaultDebugCyclingView(),
+                  MinimalDebugCyclingView(),
                 ],
               )
             : Center(
