@@ -85,6 +85,7 @@ class AppService with ChangeNotifier {
           position.speed,
         );
         lastPosition = position;
+        notifyListeners();
       }
     });
     log.i('Geolocator started!');

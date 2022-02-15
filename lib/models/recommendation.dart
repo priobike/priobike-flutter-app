@@ -60,6 +60,8 @@ class Recommendation {
     data['green'] = green;
     data['error'] = error;
     data['errorMessage'] = errorMessage;
-    return json.encode(data);
+    data['snapPos'] = snapPos.toJson();
+    JsonEncoder encoder = const JsonEncoder.withIndent('  ');
+    return encoder.convert(data);
   }
 }

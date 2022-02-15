@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/cycling_views/default.dart';
+import 'package:priobike/cycling_views/minimal_json.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/logger.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:priobike/cycling_views/default_debug.dart';
 
 class CyclingPage extends StatefulWidget {
   const CyclingPage({Key? key}) : super(key: key);
@@ -23,6 +26,10 @@ class _CyclingPageState extends State<CyclingPage> {
   var points = <LatLng>[];
   var trafficLights = <Marker>[];
   var routeDrawn = false;
+
+  final PageController _pageController = PageController(
+    initialPage: 0,
+  );
 
   @override
   void didChangeDependencies() {
@@ -55,173 +62,60 @@ class _CyclingPageState extends State<CyclingPage> {
   @override
   Widget build(BuildContext context) {
     Wakelock.enable();
+
+    const styleTrue = TextStyle(color: Colors.green);
+    const styleFalse = TextStyle(color: Colors.red);
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: app.currentRecommendation != null
-            ? app.currentRecommendation!.green
-                ? const Color(0xff4caf50)
-                : const Color(0xfff44235)
-            : const Color(0xff2e2e2e),
-        body: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: app.currentRecommendation != null
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${app.currentRecommendation?.label}",
-                      style: const TextStyle(fontSize: 30),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 50,
-                      width: double.infinity,
-                      child: Container(
-                        alignment: Alignment.center,
-                        color: Colors.black54,
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 10),
-                            Text("${app.currentRecommendation?.countdown}s ",
-                                style: const TextStyle(fontSize: 40)),
-                            const Spacer(),
-                            Text(
-                                "${app.currentRecommendation?.distance.toStringAsFixed(0)}m",
-                                style: const TextStyle(fontSize: 40)),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 250,
-                      child: FlutterMap(
-                        options: MapOptions(
-                          bounds: LatLngBounds.fromPoints(points),
-                          boundsOptions: const FitBoundsOptions(
-                              padding: EdgeInsets.all(30)),
-                          zoom: 13.0,
-                          maxZoom: 20.0,
-                          minZoom: 7,
-                          interactiveFlags: InteractiveFlag.drag |
-                              InteractiveFlag.pinchZoom |
-                              InteractiveFlag.doubleTapZoom |
-                              InteractiveFlag.flingAnimation |
-                              InteractiveFlag.pinchMove,
-                        ),
-                        layers: [
-                          TileLayerOptions(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                            attributionBuilder: (_) {
-                              return const Text(
-                                "© OpenStreetMap Mitwirkende",
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 10,
-                                ),
-                              );
-                            },
-                          ),
-                          PolylineLayerOptions(
-                            polylines: [
-                              Polyline(
-                                points: points,
-                                strokeWidth: 4.0,
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
-                          MarkerLayerOptions(
-                            markers: [
-                              ...trafficLights,
-                              app.lastPosition != null
-                                  ? Marker(
-                                      point: LatLng(app.lastPosition!.latitude,
-                                          app.lastPosition!.longitude),
-                                      builder: (ctx) => Icon(
-                                        Icons.location_pin,
-                                        color: Colors.blue[900],
-                                        size: 30,
-                                      ),
-                                    )
-                                  : Marker(
-                                      point: LatLng(0, 0),
-                                      builder: (ctx) => Container()),
-                              Marker(
-                                point: points.last,
-                                builder: (ctx) => Icon(
-                                  Icons.flag,
-                                  color: Colors.green[900],
-                                  size: 30,
-                                ),
-                              ),
-                              Marker(
-                                point: LatLng(
-                                  app.currentRecommendation!.snapPos.lat,
-                                  app.currentRecommendation!.snapPos.lon,
-                                ),
-                                builder: (ctx) => Icon(
-                                  Icons.my_location,
-                                  color: Colors.green[900],
-                                  size: 30,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      "Aktuell: ${(app.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
-                      style: const TextStyle(fontSize: 25),
-                    ),
-                    Text(
-                      "Empfohlen: ${(app.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
-                      style: const TextStyle(fontSize: 25),
-                    ),
-                    const Spacer(),
-                    Text(
-                      "${(app.currentRecommendation!.speedDiff * 3.6).toStringAsFixed(1)}km/h",
-                      style: const TextStyle(fontSize: 35),
-                    ),
-                    if (app.currentRecommendation!.speedDiff > 0)
-                      const Text("Schneller!", style: TextStyle(fontSize: 25)),
-                    if (app.currentRecommendation!.speedDiff < 0)
-                      const Text("Langsamer!", style: TextStyle(fontSize: 25)),
-                    if (app.currentRecommendation!.speedDiff == 0)
-                      const Text("Geschwindigkeit halten.",
-                          style: TextStyle(fontSize: 25)),
-                    const Spacer(),
-                    Text(
-                      app.currentRecommendation!.error
-                          ? "Fehler: ${app.currentRecommendation?.errorMessage}"
-                          : '',
-                      style:
-                          const TextStyle(fontSize: 20, color: Colors.yellow),
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.stop),
-                        label: const Text('Fahrt beenden'),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(
-                              context, Routes.summary);
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
+        body: app.currentRecommendation != null
+            ? PageView(
+                controller: _pageController,
+                scrollDirection: Axis.horizontal,
+                children: [
+                  DefaultCyclingView(
+                    app.currentRecommendation!,
+                    app.lastPosition!,
+                  ),
+                  DefaultDebugCyclingView(
+                    app.currentRecommendation!,
+                    app.lastPosition!,
+                  ),
+                  MinimalDebugCyclingView(
+                    app.currentRecommendation!,
+                  ),
+                ],
+              )
+            : Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Center(child: Text("Warte auf Empfehlung vom Server...")),
+                  children: [
+                    app.currentRoute != null
+                        ? const Text(
+                            "✓ Route vorhanden",
+                            style: styleTrue,
+                          )
+                        : const Text(
+                            "✕ Route nicht berechnet",
+                            style: styleFalse,
+                          ),
+                    app.lastPosition != null
+                        ? const Text(
+                            "✓ Position vorhanden",
+                            style: styleTrue,
+                          )
+                        : const Text(
+                            "✕ Warte auf GPS Position...",
+                            style: styleFalse,
+                          ),
+                    const Text(
+                      "✕ Warte auf erste Empfehlung vom Server...",
+                      style: styleFalse,
+                    ),
                   ],
                 ),
-        ),
+              ),
       ),
     );
   }

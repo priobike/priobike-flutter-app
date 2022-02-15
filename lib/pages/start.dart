@@ -39,7 +39,7 @@ class _StartPageState extends State<StartPage> {
                 height: 20,
               ),
               Text(
-                "Session ID (${app.isStaging ? 'Stagingsystem' : 'Produktivsystem'}):",
+                "Session ID (${app.isStaging ? 'Staging' : 'Production'}):",
                 style: const TextStyle(fontSize: 20),
               ),
               Text(
@@ -58,7 +58,7 @@ class _StartPageState extends State<StartPage> {
                 },
               ),
               RadioListTile(
-                title: const Text('Stagingsystem (Testaufbau Dresden)'),
+                title: const Text('Stagingsystem (Dresden)'),
                 value: true,
                 groupValue: app.isStaging,
                 onChanged: (value) {
