@@ -1,10 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/services/settings.dart';
+import 'package:priobike/utils/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:priobike/utils/routes.dart';
 
-void main() => runApp(const PrioBike());
+void main() {
+  Logger log = Logger("Main");
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    log.e(details.toString());
+  };
+
+  runZonedGuarded(() {
+    runApp(const PrioBike());
+  }, (Object error, StackTrace stack) {
+    log.e(error.toString());
+  });
+}
 
 class PrioBike extends StatelessWidget {
   const PrioBike({Key? key}) : super(key: key);

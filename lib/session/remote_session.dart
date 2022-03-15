@@ -77,7 +77,8 @@ class RemoteSession {
     log.i(Api.backendWebSocketUrl(host, sessionId));
 
     socket = WebSocketChannel.connect(
-        Uri.parse(Api.backendWebSocketUrl(host, sessionId)));
+      Uri.parse(Api.backendWebSocketUrl(host, sessionId)),
+    );
 
     jsonRPC = Peer(socket.cast<String>());
 
