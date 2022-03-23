@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/services/settings.dart';
 import 'package:priobike/utils/logger.dart';
-import 'package:provider/provider.dart';
 import 'package:priobike/utils/routes.dart';
+import 'package:provider/provider.dart';
+import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() {
   Logger log = Logger("Main");
@@ -15,11 +17,28 @@ void main() {
     log.e(details.toString());
   };
 
-  runZonedGuarded(() {
-    runApp(const PrioBike());
-  }, (Object error, StackTrace stack) {
-    log.e(error.toString());
-  });
+  // Initialize Sentry.
+  SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://9414569965e1478cbe58f12a3a4cb39e@priobike.vkw.tu-dresden.de/2';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // It is recommended adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () => runZonedGuarded(() {
+      runApp(const PrioBike());
+    }, (Object error, StackTrace stack) {
+      // Log the error to the console.
+      log.e(error.toString());
+
+      // Dispatch the error to Sentry, if it is available.
+      try {
+        Sentry.captureException(error, stackTrace: stack);
+      } catch (e) {
+        log.e("Sentry is unavailable: $e");
+      }
+    }),
+  );
 }
 
 class PrioBike extends StatelessWidget {
