@@ -41,5 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSAllowArbitraryLoads</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TODO</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.navigation</string>
 </dict>
 </plist>
