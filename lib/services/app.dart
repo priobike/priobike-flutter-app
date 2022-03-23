@@ -37,7 +37,7 @@ class AppService with ChangeNotifier {
 
   initSession() {
     log.i('init session...');
-    session = RemoteSession(
+    session = RemoteSession( 
       host: isStaging ? Api.hostStaging : Api.hostProduction,
       clientId: clientId,
       onDone: () {
