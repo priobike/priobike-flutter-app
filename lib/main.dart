@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'services/navigation.dart';
+
 void main() {
   Logger log = Logger("Main");
 
@@ -69,10 +71,12 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   late SettingsService settings;
+  late AppService appService;
 
   @override
   Widget build(BuildContext context) {
     settings = Provider.of<SettingsService>(context);
+    appService = Provider.of<AppService>(context);
 
     return MaterialApp(
       title: 'PrioBike',
@@ -89,6 +93,7 @@ class _MainState extends State<Main> {
         useMaterial3: true,
       ),
       themeMode: settings.getThemeMode(),
+      navigatorKey: NavigationService.key,
     );
   }
 }
