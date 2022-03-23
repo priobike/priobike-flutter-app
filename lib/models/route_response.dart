@@ -20,7 +20,9 @@ class RouteResponse {
 
   RouteResponse.fromJson(Map<String, dynamic> json) {
     distance = json['distance'].toDouble();
-    estimatedDuration = json['estimatedArrival'];
+    // TODO: Remove fallback to `estimatedArrival` when production contains 
+    // priobike-data-model 0.4.+
+    estimatedDuration = json['estimatedArrival'] ?? json['estimatedDuration'] ?? 0;
     ascend = json['ascend'].toDouble();
     descend = json['descend'].toDouble();
 
