@@ -1,8 +1,6 @@
 pipeline {
 	agent { label 'bikenow-vm' }
 
-    environment {}
-
     stages {
         stage('Build and test Flutter app') {
             steps {
