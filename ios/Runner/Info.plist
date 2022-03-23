@@ -44,7 +44,7 @@
 	<key>NSAllowArbitraryLoads</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>TODO</string>
+	<string>Die App benötigt den Standort zur Navigation.</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.navigation</string>
 </dict>
