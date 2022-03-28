@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
@@ -39,7 +37,7 @@ class AppService with ChangeNotifier {
 
   initSession() {
     log.i('init session...');
-    session = RemoteSession( 
+    session = RemoteSession(
       host: isStaging ? Api.hostStaging : Api.hostProduction,
       clientId: clientId,
       onDone: () {
@@ -81,7 +79,8 @@ class AppService with ChangeNotifier {
 
     AlertDialog alert = AlertDialog(
       title: const Text("Zugriff auf Standort verweigert."),
-      content: const Text("Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen."),
+      content: const Text(
+          "Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen."),
       actions: [
         okButton,
       ],

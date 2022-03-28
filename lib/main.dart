@@ -6,7 +6,6 @@ import 'package:priobike/services/settings.dart';
 import 'package:priobike/utils/logger.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'services/navigation.dart';
@@ -22,7 +21,8 @@ void main() {
   // Initialize Sentry.
   SentryFlutter.init(
     (options) {
-      options.dsn = 'https://9414569965e1478cbe58f12a3a4cb39e@priobike.vkw.tu-dresden.de/2';
+      options.dsn =
+          'https://9414569965e1478cbe58f12a3a4cb39e@priobike.vkw.tu-dresden.de/2';
       // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
       // It is recommended adjusting this value in production.
       options.tracesSampleRate = 1.0;
