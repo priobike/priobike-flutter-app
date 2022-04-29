@@ -113,7 +113,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                 ]),
                 Expanded(
                     child: AutoSizeText(
-                  "Ampel in ${recommendation.distance.toStringAsFixed(0)}m ",
+                  "Ampel in ${recommendation.distance.toStringAsFixed(0)}m",
                   maxLines: 2,
                   style: const TextStyle(fontSize: 40),
                   textAlign: TextAlign.center,
@@ -188,6 +188,13 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                 ),
               ),
             const Spacer(),
+            Text(
+              "Prognose ${(recommendation.quality * 100).toStringAsFixed(0)}% sicher",
+              style: const TextStyle(
+                fontSize: 20,
+                color: Colors.white54,
+              ),
+            ),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

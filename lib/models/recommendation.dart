@@ -13,10 +13,10 @@ class Recommendation {
   bool error = false;
   String errorMessage = "";
   Point snapPos = Point(lon: 0, lat: 0);
-
   String navText = "";
   int navSign = 0;
   double navDist = 0;
+  double quality = 0;
 
   Recommendation({
     required this.label,
@@ -31,6 +31,7 @@ class Recommendation {
     required this.navText,
     required this.navSign,
     required this.navDist,
+    required this.quality,
   });
 
   Recommendation.fromJson(Map<String, dynamic> json) {
@@ -46,6 +47,7 @@ class Recommendation {
     navText = json['navText'];
     navSign = json['navSign'];
     navDist = json['navDist'];
+    navDist = json['quality'];
   }
 
   Recommendation.fromJsonRPC(Parameters params) {
@@ -68,6 +70,13 @@ class Recommendation {
 
     navSign = params['navSign'].asInt;
     navDist = params['navDist'].asNum as double;
+
+    // TODO: Sometimes the quality is null and we need to handle it somehow
+    try {
+      quality = params['quality'].asNum as double;
+    } catch (error) {
+      // do nothing and use empty string
+    }
   }
 
   String toJson() {
@@ -84,6 +93,7 @@ class Recommendation {
     data['navText'] = navText;
     data['navSign'] = navSign;
     data['navDist'] = navDist;
+    data['quality'] = quality;
     JsonEncoder encoder = const JsonEncoder.withIndent('    ');
     return encoder.convert(data);
   }
