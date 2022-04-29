@@ -14,6 +14,10 @@ class Recommendation {
   String errorMessage = "";
   Point snapPos = Point(lon: 0, lat: 0);
 
+  String navText = "";
+  int navSign = 0;
+  double navDist = 0;
+
   Recommendation({
     required this.label,
     required this.countdown,
@@ -24,6 +28,9 @@ class Recommendation {
     required this.error,
     required this.errorMessage,
     required this.snapPos,
+    required this.navText,
+    required this.navSign,
+    required this.navDist,
   });
 
   Recommendation.fromJson(Map<String, dynamic> json) {
@@ -36,6 +43,9 @@ class Recommendation {
     error = json['error'];
     errorMessage = json['errorMessage'];
     snapPos = Point.fromJson(json['snapPos']);
+    navText = json['navText'];
+    navSign = json['navSign'];
+    navDist = json['navDist'];
   }
 
   Recommendation.fromJsonRPC(Parameters params) {
@@ -48,6 +58,16 @@ class Recommendation {
     error = params['error'].asBoolOr(true);
     errorMessage = params['errorMessage'].asStringOr('Empfehlung fehlerhaft');
     snapPos = Point.fromJson(params['snapPos'].value);
+
+    // TODO: Sometimes the navText is null and we need to handle it somehow
+    try {
+      navText = params['navText'].asStringOr('');
+    } catch (error) {
+      // do nothing and use empty string
+    }
+
+    navSign = params['navSign'].asInt;
+    navDist = params['navDist'].asNum as double;
   }
 
   String toJson() {
@@ -61,6 +81,9 @@ class Recommendation {
     data['error'] = error;
     data['errorMessage'] = errorMessage;
     data['snapPos'] = snapPos.toJson();
+    data['navText'] = navText;
+    data['navSign'] = navSign;
+    data['navDist'] = navDist;
     JsonEncoder encoder = const JsonEncoder.withIndent('    ');
     return encoder.convert(data);
   }

@@ -20,8 +20,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-              'PrioBike ${app.isStaging ? '(Testaufbau Dresden)' : '(UDP Hamburg)'}'),
+          title: Text('PrioBike ${app.isStaging ? 'Dresden' : 'Hamburg'}'),
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.settings),
@@ -53,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                             icon: const Icon(Icons.traffic),
                             label: const Text('Teststrecke 1: Ost ➔ West'),
                             onPressed: () {
-                              app.updateRoute([
+                              app.initSessionAndUpdateRoute([
                                 Point(lat: 53.560863, lon: 9.990909),
                                 Point(lat: 53.564378, lon: 9.978001),
                               ]);
@@ -67,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                             icon: const Icon(Icons.traffic),
                             label: const Text('Teststrecke 2: West ➔ Ost'),
                             onPressed: () {
-                              app.updateRoute([
+                              app.initSessionAndUpdateRoute([
                                 Point(lat: 53.564378, lon: 9.978001),
                                 Point(lat: 53.560863, lon: 9.990909),
                               ]);
@@ -81,9 +80,27 @@ class _HomePageState extends State<HomePage> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.build),
-                            label: const Text('Teststrecke TU Dresden POT'),
+                            label: const Text('Neue Teststrecke um den POT'),
                             onPressed: () {
-                              app.updateRoute([
+                              app.initSessionAndUpdateRoute([
+                                Point(lon: 13.72757, lat: 51.03148),
+                                Point(lon: 13.728232, lat: 51.031149),
+                                Point(lon: 13.72923, lat: 51.03065),
+                                Point(lon: 13.728206, lat: 51.030218),
+                                Point(lon: 13.727809, lat: 51.030613),
+                                Point(lon: 13.727337, lat: 51.031083),
+                              ]);
+                              Navigator.pushNamed(context, Routes.route);
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.traffic),
+                            label: const Text('Alte Teststrecke vor POT'),
+                            onPressed: () {
+                              app.initSessionAndUpdateRoute([
                                 Point(lon: 13.728029, lat: 51.03063),
                                 Point(lon: 13.727347, lat: 51.030582),
                                 Point(lon: 13.727347, lat: 51.030353),

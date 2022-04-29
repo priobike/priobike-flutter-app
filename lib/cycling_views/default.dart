@@ -1,6 +1,8 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/services/app.dart';
+import 'package:priobike/widgets/navigation_arrow.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/routes.dart';
@@ -20,7 +22,7 @@ class DefaultCyclingView extends StatefulWidget {
 class _DefaultCyclingViewState extends State<DefaultCyclingView> {
   late AppService app;
 
-  final double padding = 18.0;
+  final double padding = 6.0;
   final int sliderThumbWidth = 20;
   final double maxSpeedDiff = 10.0;
 
@@ -52,54 +54,72 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
               ),
             ),
             Row(children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
-                child: Icon(
-                  Icons.arrow_upward,
-                  size: 80,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                child: NavigationArrow(
+                  sign: recommendation.navSign,
+                  width: 70,
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    recommendation.label,
-                    style: const TextStyle(fontSize: 35),
-                  ),
-                  Text(
-                    "${recommendation.distance.toStringAsFixed(0)} m",
+                    "${recommendation.navDist.toStringAsFixed(0)} m",
                     style: const TextStyle(
-                      fontSize: 30,
-                      color: Colors.white60,
+                      fontSize: 40,
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 100,
+                    child: AutoSizeText(
+                      recommendation.navText,
+                      style: const TextStyle(fontSize: 25),
+                      maxLines: 3,
                     ),
                   ),
                 ],
               ),
             ]),
             const Spacer(),
-            Stack(children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.width / 2.5,
-                width: MediaQuery.of(context).size.width / 2.5,
-                child: CircularProgressIndicator(
-                  strokeWidth: 30,
-                  backgroundColor: Colors.black26,
-                  color: recommendation.green
-                      ? const Color.fromARGB(255, 54, 222, 70)
-                      : Colors.red,
-                  value: recommendation.countdown / 60,
-                ),
-              ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "${recommendation.countdown}s ",
-                    style: const TextStyle(fontSize: 50),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Stack(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.width / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 30,
+                        backgroundColor: Colors.black26,
+                        color: recommendation.green
+                            ? const Color.fromARGB(255, 54, 222, 70)
+                            : Colors.red,
+                        value: recommendation.countdown / 60,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ]),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "${recommendation.countdown}s ",
+                        style: const TextStyle(fontSize: 50),
+                      ),
+                    ),
+                  ),
+                ]),
+                Expanded(
+                    child: AutoSizeText(
+                  "Ampel in ${recommendation.distance.toStringAsFixed(0)}m ",
+                  maxLines: 2,
+                  style: const TextStyle(fontSize: 40),
+                  textAlign: TextAlign.center,
+                ))
+              ],
+            ),
             const Spacer(),
             Stack(
               children: [

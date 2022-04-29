@@ -31,50 +31,51 @@ class RemoteSession {
 
   http.Client httpClient = http.Client();
 
-  String host;
-
   String? sessionId;
+  String host;
+  String clientId;
+
+  bool weClosedTheWebsocket = false;
 
   Logger log = Logger("RemoteSession");
 
-  RemoteSession({
-    required this.host,
-    required String clientId,
-    required Function onDone,
-  }) {
-    log.i('-> AuthRequest');
-    log.i(Api.authenticationUrl(host));
+  RemoteSession(this.host, this.clientId);
 
-    httpClient
+  Future<String?> authenticate() async {
+    http.Response response = await httpClient
         .post(Uri.parse(Api.authenticationUrl(host)),
-            body: json.encode(AuthRequest(clientId: clientId).toJson()))
-        .then((http.Response response) {
-      if (response.statusCode != 200) {
-        ToastMessage.showError(response.body);
-        return;
-      }
-
-      log.i('<- AuthResponse');
-      try {
-        sessionId =
-            AuthResponse.fromJson(json.decode(response.body)).sessionId!;
-      } catch (error) {
-        log.e(error);
-        ToastMessage.showError(error.toString());
-      }
-      log.i('Your sessionId is $sessionId');
-      connectViaWebSocket();
-      onDone();
-    }).onError((error, stackTrace) {
+            body: json.encode(
+              AuthRequest(clientId: clientId).toJson(),
+            ))
+        .onError((error, stackTrace) {
       log.e("Fehler bei Auth Request:");
       log.e(error);
       ToastMessage.showError(error.toString());
+      throw Exception();
     });
+
+    if (response.statusCode != 200) {
+      ToastMessage.showError(response.body);
+      throw Exception();
+    }
+
+    log.i('<- AuthResponse');
+    try {
+      sessionId = AuthResponse.fromJson(json.decode(response.body)).sessionId!;
+      log.i('Your sessionId is $sessionId');
+      return sessionId;
+    } catch (error) {
+      log.e(error);
+      ToastMessage.showError(error.toString());
+      throw Error();
+    }
   }
 
-  void connectViaWebSocket() {
+  void connectViaWebSocket(String sessionId) async {
     log.i("<-> Establish WebSocket Connection");
     log.i(Api.backendWebSocketUrl(host, sessionId));
+
+    weClosedTheWebsocket = false;
 
     socket = WebSocketChannel.connect(
       Uri.parse(Api.backendWebSocketUrl(host, sessionId)),
@@ -83,11 +84,15 @@ class RemoteSession {
     jsonRPC = Peer(socket.cast<String>());
 
     jsonRPC.listen().then((done) {
+      log.i('Websocket closed');
+
+      if (weClosedTheWebsocket) return;
+
       log.w(
           'Disconnected: ${socket.closeCode} ${socket.closeReason}, reconnect in 2 seconds');
       Future.delayed(
         const Duration(seconds: 2),
-        () => connectViaWebSocket(),
+        () => connectViaWebSocket(sessionId),
       );
     });
 
@@ -119,14 +124,18 @@ class RemoteSession {
                 sessionId: sessionId,
                 waypoints: waypoints,
               ).toJson()))
-          .then((http.Response response) {
+          .then((http.Response response) async {
         if (response.statusCode != 200) {
           log.e(response.body);
 
           if (response.statusCode == 403 || response.statusCode == 401) {
             ToastMessage.showError(
-              "Session ist abgelaufen. Starten Sie die App neu.",
+              "Session ist abgelaufen. Versuche erneut...",
             );
+
+            var sessionId = await authenticate();
+            connectViaWebSocket(sessionId!);
+            return;
           }
 
           ToastMessage.showError("${response.statusCode} ${response.body}");
@@ -191,7 +200,8 @@ class RemoteSession {
     }
   }
 
-  void clearSessionId() {
-    sessionId = null;
+  void closeSession() async {
+    weClosedTheWebsocket = true;
+    await jsonRPC.close();
   }
 }

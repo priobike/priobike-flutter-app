@@ -38,16 +38,6 @@ class _StartPageState extends State<StartPage> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                "Session ID (${app.isStaging ? 'Staging' : 'Production'}):",
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                app.session.sessionId != null
-                    ? "${app.session.sessionId}"
-                    : 'Warte auf Session ID...',
-                style: const TextStyle(fontSize: 16),
-              ),
               const Spacer(),
               RadioListTile(
                 title: const Text('Produktivsystem (UDP Hamburg)'),
@@ -69,14 +59,10 @@ class _StartPageState extends State<StartPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  child: Text(app.session.sessionId != null
-                      ? 'Los geht\'s!'
-                      : 'Verbinde...'),
-                  onPressed: app.session.sessionId != null
-                      ? () {
-                          Navigator.pushReplacementNamed(context, Routes.home);
-                        }
-                      : null,
+                  child: const Text('Los geht\'s!'),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, Routes.home);
+                  },
                 ),
               ),
               const Spacer(),

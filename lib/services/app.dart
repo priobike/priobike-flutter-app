@@ -20,6 +20,7 @@ class AppService with ChangeNotifier {
   bool loadingRoute = true;
   bool loadingRecommendation = true;
   bool isGeolocating = false;
+  bool isNavigating = false;
   bool isStaging = true;
 
   late StreamSubscription<Position> positionStream;
@@ -27,45 +28,46 @@ class AppService with ChangeNotifier {
   Position? lastPosition;
   RouteResponse? currentRoute;
   Recommendation? currentRecommendation;
-  late RemoteSession session;
+  RemoteSession? session;
 
   AppService() {
     log.i('AppService started');
     log.i('Your clientId is $clientId');
-    initSession();
   }
 
-  initSession() {
+  initSessionAndUpdateRoute(
+    List<Point> waypoints,
+  ) async {
+    log.i('start init session...');
+
+    if (session != null) session!.closeSession();
+
     log.i('init session...');
+
+    currentRoute = null;
+    loadingRoute = true;
+
     session = RemoteSession(
-      host: isStaging ? Api.hostStaging : Api.hostProduction,
-      clientId: clientId,
-      onDone: () {
-        notifyListeners();
-      },
+      isStaging ? Api.hostStaging : Api.hostProduction,
+      clientId,
     );
 
-    session.routeStreamController.stream.listen((route) {
+    var sessionId = await session?.authenticate();
+
+    session!.routeStreamController.stream.listen((route) {
       loadingRoute = false;
       currentRoute = route;
       notifyListeners();
     });
 
-    session.recommendationStreamController.stream.listen((recommendation) {
+    session!.recommendationStreamController.stream.listen((recommendation) {
       loadingRecommendation = false;
       currentRecommendation = recommendation;
       notifyListeners();
     });
-  }
 
-  updateRoute(
-    List<Point> waypoints,
-  ) {
-    currentRoute = null;
-    loadingRoute = true;
-
-    session.updateRoute(waypoints);
-
+    session?.connectViaWebSocket(sessionId!);
+    session?.updateRoute(waypoints);
     notifyListeners();
   }
 
@@ -160,7 +162,7 @@ class AppService with ChangeNotifier {
       ),
     ).listen((Position position) {
       if (isGeolocating == true) {
-        session.updatePosition(
+        session?.updatePosition(
           position.latitude,
           position.longitude,
           position.speed,
@@ -179,19 +181,19 @@ class AppService with ChangeNotifier {
   }
 
   startNavigation() {
-    session.startRecommendation();
+    isNavigating = true;
+    session?.startRecommendation();
   }
 
   stopNavigation() {
-    session.stopRecommendation();
+    isNavigating = false;
+    session?.stopRecommendation();
     currentRecommendation = null;
   }
 
   setIsStaging(isStaging) {
     log.i("set isStaging to $isStaging");
-    session.clearSessionId();
     this.isStaging = isStaging;
-    initSession();
     notifyListeners();
   }
 }

@@ -5,6 +5,8 @@ import 'package:priobike/utils/routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/logger.dart';
+
 class RoutePage extends StatefulWidget {
   const RoutePage({Key? key}) : super(key: key);
 
@@ -15,6 +17,7 @@ class RoutePage extends StatefulWidget {
 }
 
 class _RoutePageState extends State<RoutePage> {
+  Logger log = Logger("RoutePage");
   late AppService app;
   var points = <LatLng>[];
   var trafficLights = <Marker>[];
@@ -27,7 +30,12 @@ class _RoutePageState extends State<RoutePage> {
       app.startGeolocation();
     }
 
-    if (app.currentRoute != null) {
+    if (app.currentRoute != null && !app.loadingRoute) {
+      points = [];
+      trafficLights = [];
+
+      log.i("getting points and traffic lights from route");
+
       for (var point in app.currentRoute!.route) {
         points.add(LatLng(point.lat, point.lon));
       }
@@ -58,7 +66,7 @@ class _RoutePageState extends State<RoutePage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: app.currentRoute != null && points.isNotEmpty
+          child: !app.loadingRoute
               ? Column(
                   children: [
                     SizedBox(
@@ -162,11 +170,24 @@ class _RoutePageState extends State<RoutePage> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Center(child: Text("Warte auf Route vom Server...")),
+                    Center(
+                      child: Text("Warte auf Route vom Server..."),
+                    ),
                   ],
                 ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    log.i("RoutingPage disposed.");
+
+    if (!app.isNavigating) {
+      app.stopGeolocation();
+    }
+
+    super.dispose();
   }
 }
