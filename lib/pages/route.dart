@@ -145,6 +145,8 @@ class _RoutePageState extends State<RoutePage> {
                             "Dauer: ${(app.currentRoute!.estimatedDuration / 1000 / 60).toStringAsFixed(1)} Min.")
                         : const Text(''),
                     const Spacer(),
+                    Text("SessionID: ${app.session?.sessionId}"),
+                    const Spacer(),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Zurück'),
