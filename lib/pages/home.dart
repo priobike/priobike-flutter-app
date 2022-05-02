@@ -86,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                                 Point(lon: 13.72757, lat: 51.03148),
                                 Point(lon: 13.728232, lat: 51.031149),
                                 Point(lon: 13.72923, lat: 51.03065),
+                                Point(lon: 13.730213, lat: 51.030151),
                                 Point(lon: 13.728206, lat: 51.030218),
                                 Point(lon: 13.727809, lat: 51.030613),
                                 Point(lon: 13.727337, lat: 51.031083),
