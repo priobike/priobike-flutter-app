@@ -78,7 +78,7 @@ flutter:
     - images/dark_keep_right.png
     - images/dark_roundabout.png
     - images/dark_turn_left.png
-    - images/dark_turn_rught.png
+    - images/dark_turn_right.png
     - images/dark_turn_sharp_left.png
     - images/dark_turn_sharp_right.png
     - images/dark_turn_slight_left.png

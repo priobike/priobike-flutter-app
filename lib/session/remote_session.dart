@@ -21,7 +21,7 @@ import '../services/api.dart';
 
 class RemoteSession {
   late WebSocketChannel socket;
-  late Peer jsonRPC;
+  Peer? jsonRPC;
 
   StreamController<RouteResponse> routeStreamController =
       StreamController<RouteResponse>();
@@ -83,7 +83,7 @@ class RemoteSession {
 
     jsonRPC = Peer(socket.cast<String>());
 
-    jsonRPC.listen().then((done) {
+    jsonRPC?.listen().then((done) {
       log.i('Websocket closed');
 
       if (weClosedTheWebsocket) return;
@@ -96,7 +96,7 @@ class RemoteSession {
       );
     });
 
-    jsonRPC.registerMethod('RecommendationUpdate', (Parameters params) {
+    jsonRPC?.registerMethod('RecommendationUpdate', (Parameters params) {
       log.i('<- Recommendation');
       // log.i(params.value.toString());
       try {
@@ -160,7 +160,7 @@ class RemoteSession {
   ) {
     log.i('-> Position');
     try {
-      jsonRPC.sendNotification(
+      jsonRPC?.sendNotification(
         'PositionUpdate',
         UserPosition(
           lat: lat,
@@ -177,7 +177,7 @@ class RemoteSession {
   void startRecommendation() {
     log.i('-> Start Navigation');
     try {
-      jsonRPC.sendRequest(
+      jsonRPC?.sendRequest(
         'Navigation',
         NavigationRequest(active: true).toJson(),
       );
@@ -190,7 +190,7 @@ class RemoteSession {
   void stopRecommendation() {
     log.i('-> Stop Navigation');
     try {
-      jsonRPC.sendRequest(
+      jsonRPC?.sendRequest(
         'Navigation',
         NavigationRequest(active: false).toJson(),
       );
@@ -202,6 +202,6 @@ class RemoteSession {
 
   void closeSession() async {
     weClosedTheWebsocket = true;
-    await jsonRPC.close();
+    await jsonRPC?.close();
   }
 }
