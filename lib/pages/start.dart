@@ -73,8 +73,20 @@ class _StartPageState extends State<StartPage> {
                     BuildContext context,
                     AsyncSnapshot<PackageInfo> snapshot,
                   ) {
+                    /**
+                     * If you want to see the commit hash in the app run it with:
+                     * 
+                     * flutter run --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)
+                     */
+
+                    String commitId = const String.fromEnvironment(
+                      'COMMIT_ID',
+                      defaultValue: 'Keine Commit ID',
+                    );
+
                     return snapshot.hasData
-                        ? Text("v${snapshot.data?.version ?? '?.?.?'}")
+                        ? Text(
+                            "v${snapshot.data?.version ?? '?.?.?'} ($commitId)")
                         : const Text('Lade Versionsnummer..');
                   })
             ],
