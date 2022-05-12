@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
@@ -66,6 +67,16 @@ class _StartPageState extends State<StartPage> {
                 ),
               ),
               const Spacer(),
+              FutureBuilder(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (
+                    BuildContext context,
+                    AsyncSnapshot<PackageInfo> snapshot,
+                  ) {
+                    return snapshot.hasData
+                        ? Text("v${snapshot.data?.version ?? '?.?.?'}")
+                        : const Text('Lade Versionsnummer..');
+                  })
             ],
           ),
         ),
