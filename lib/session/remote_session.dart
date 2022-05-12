@@ -157,15 +157,30 @@ class RemoteSession {
     double lat,
     double lon,
     double speed,
+    double accuracy,
+    double heading,
+    DateTime? timestamp,
   ) {
     log.i('-> Position');
     try {
+      log.i(UserPosition(
+        lat: lat,
+        lon: lon,
+        speed: speed,
+        accuracy: accuracy,
+        heading: heading,
+        timestamp: timestamp,
+      ).toJson());
+
       jsonRPC?.sendNotification(
         'PositionUpdate',
         UserPosition(
           lat: lat,
           lon: lon,
           speed: speed,
+          accuracy: accuracy,
+          heading: heading,
+          timestamp: timestamp,
         ).toJson(),
       );
     } catch (error) {

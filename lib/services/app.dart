@@ -166,6 +166,9 @@ class AppService with ChangeNotifier {
           position.latitude,
           position.longitude,
           position.speed,
+          position.accuracy,
+          position.heading,
+          position.timestamp,
         );
         lastPosition = position;
         notifyListeners();
