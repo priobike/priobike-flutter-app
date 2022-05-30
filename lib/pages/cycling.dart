@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/cycling_views/default.dart';
 import 'package:priobike/cycling_views/minimal_countdown.dart';
 import 'package:priobike/cycling_views/minimal_json.dart';
+import 'package:priobike/cycling_views/minimal_navigation.dart';
 import 'package:priobike/cycling_views/minimal_recommendation.dart';
 import 'package:priobike/services/app.dart';
 
@@ -49,6 +50,7 @@ class _CyclingPageState extends State<CyclingPage> {
                   DefaultCyclingView(),
                   MinimalRecommendationCyclingView(),
                   MinimalCountdownCyclingView(),
+                  MinimalNavigationCyclingView(),
                   DefaultDebugCyclingView(),
                   MinimalDebugCyclingView(),
                 ],
