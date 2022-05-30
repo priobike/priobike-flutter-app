@@ -46,11 +46,13 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: !app.isStaging
                     ? [
+                        // FIXME: This is all hardcoded and should be loaded dynamically from a json file from assets or HTTP endpoint
+                        const Text("Teststrecke 1 (Edmund-Siemers-Allee)"),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.traffic),
-                            label: const Text('Teststrecke 1: Ost ➔ West'),
+                            label: const Text('Ost ➔ West'),
                             onPressed: () {
                               app.initSessionAndUpdateRoute([
                                 Point(lat: 53.560863, lon: 9.990909),
@@ -64,11 +66,115 @@ class _HomePageState extends State<HomePage> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.traffic),
-                            label: const Text('Teststrecke 2: West ➔ Ost'),
+                            label: const Text('West ➔ Ost'),
                             onPressed: () {
                               app.initSessionAndUpdateRoute([
                                 Point(lat: 53.564378, lon: 9.978001),
                                 Point(lat: 53.560863, lon: 9.990909),
+                              ]);
+                              Navigator.pushNamed(context, Routes.route);
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Text("Teststrecke 2 (B4)"),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.traffic),
+                            label: const Text('Ost ➔ West'),
+                            onPressed: () {
+                              app.initSessionAndUpdateRoute([
+                                Point(
+                                  lat: 53.547722154285324,
+                                  lon: 10.004045134575035,
+                                ),
+                                Point(
+                                  lat: 53.549482,
+                                  lon: 9.978636,
+                                ),
+                                Point(
+                                  lat: 53.550264133830126,
+                                  lon: 9.971739418506827,
+                                )
+                              ]);
+                              Navigator.pushNamed(context, Routes.route);
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.traffic),
+                            label: const Text('West ➔ Ost'),
+                            onPressed: () {
+                              app.initSessionAndUpdateRoute([
+                                Point(
+                                  lon: 9.971606990198367,
+                                  lat: 53.54990402934412,
+                                ),
+                                Point(
+                                  lon: 10.004240381440082,
+                                  lat: 53.547262160720436,
+                                ),
+                              ]);
+                              Navigator.pushNamed(context, Routes.route);
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Text("Teststrecke 3 (Lombardsbrücke)"),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.traffic),
+                            label: const Text('Ost ➔ West'),
+                            onPressed: () {
+                              app.initSessionAndUpdateRoute([
+                                Point(
+                                  lon: 10.0062077,
+                                  lat: 53.5511715,
+                                ),
+                                Point(
+                                  lon: 9.99471,
+                                  lat: 53.5575131,
+                                ),
+                                Point(
+                                  lon: 9.9828379,
+                                  lat: 53.5575762,
+                                ),
+                                Point(
+                                  lon: 9.976352,
+                                  lat: 53.55285,
+                                ),
+                              ]);
+                              Navigator.pushNamed(context, Routes.route);
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.traffic),
+                            label: const Text('West ➔ Ost'),
+                            onPressed: () {
+                              app.initSessionAndUpdateRoute([
+                                Point(
+                                  lon: 9.976352,
+                                  lat: 53.55285,
+                                ),
+                                Point(
+                                  lon: 9.9859757,
+                                  lat: 53.5579687,
+                                ),
+                                Point(
+                                  lon: 10.005804047062561,
+                                  lat: 53.551241482916915,
+                                ),
                               ]);
                               Navigator.pushNamed(context, Routes.route);
                             },
