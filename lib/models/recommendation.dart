@@ -18,6 +18,10 @@ class Recommendation {
   double navDist = 0;
   double quality = 0;
 
+  int? predictionGreentimeThreshold;
+  String? predictionStartTime;
+  List<int>? predictionValue;
+
   Recommendation({
     required this.label,
     required this.countdown,
@@ -32,6 +36,9 @@ class Recommendation {
     required this.navSign,
     required this.navDist,
     required this.quality,
+    required this.predictionGreentimeThreshold,
+    required this.predictionStartTime,
+    required this.predictionValue,
   });
 
   Recommendation.fromJson(Map<String, dynamic> json) {
@@ -48,6 +55,9 @@ class Recommendation {
     navSign = json['navSign'];
     navDist = json['navDist'];
     navDist = json['quality'];
+    predictionGreentimeThreshold = json['predictionGreentimeThreshold'];
+    predictionStartTime = json['predictionStartTime'];
+    predictionValue = json['predictionValue'].cast<int>();
   }
 
   Recommendation.fromJsonRPC(Parameters params) {
@@ -77,6 +87,15 @@ class Recommendation {
     } catch (error) {
       // do nothing and use empty string
     }
+
+    // Unwrap optional values for prediction
+    try {
+      predictionGreentimeThreshold = params['predictionGreentimeThreshold'].asNum as int;
+      predictionStartTime = params['predictionStartTime'].asString;
+      predictionValue = params['predictionValue'].asList.cast<num>().map((e) => e.toInt()).toList();
+    } catch (error) { 
+      print(error);
+    }
   }
 
   String toJson() {
@@ -94,6 +113,9 @@ class Recommendation {
     data['navSign'] = navSign;
     data['navDist'] = navDist;
     data['quality'] = quality;
+    data['predictionGreentimeThreshold'] = predictionGreentimeThreshold;
+    data['predictionStartTime'] = predictionStartTime;
+    data['predictionValue'] = predictionValue;
     JsonEncoder encoder = const JsonEncoder.withIndent('    ');
     return encoder.convert(data);
   }
