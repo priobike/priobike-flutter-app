@@ -33,7 +33,7 @@ dependencies:
   # Add sentry to the app, which is an error tracing tool.
   sentry_flutter: ^6.4.0
 
-  syncfusion_flutter_gauges: ^19.3.43
+  syncfusion_flutter_gauges: ^20.1.59
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
