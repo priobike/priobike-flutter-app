@@ -5,6 +5,7 @@ import 'package:priobike/cycling_views/minimal_countdown.dart';
 import 'package:priobike/cycling_views/minimal_json.dart';
 import 'package:priobike/cycling_views/minimal_navigation.dart';
 import 'package:priobike/cycling_views/minimal_recommendation.dart';
+import 'package:priobike/cycling_views/speedometer/view.dart';
 import 'package:priobike/services/app.dart';
 
 import 'package:priobike/utils/logger.dart';
@@ -47,6 +48,7 @@ class _CyclingPageState extends State<CyclingPage> {
                 controller: _pageController,
                 scrollDirection: Axis.horizontal,
                 children: const [
+                  SpeedometerView(),
                   DefaultCyclingView(),
                   MinimalRecommendationCyclingView(),
                   MinimalCountdownCyclingView(),
