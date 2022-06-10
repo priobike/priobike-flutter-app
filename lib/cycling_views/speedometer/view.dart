@@ -241,7 +241,7 @@ class _SpeedometerViewState extends State<SpeedometerView> {
             stops: gaugeStops,
             minSpeed: minSpeed,
             maxSpeed: maxSpeed,
-            speedKmh: app.lastPosition?.speed ?? 0 * 3.6,
+            speedKmh: (app.lastPosition?.speed ?? 0) * 3.6,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 0),
           decoration: BoxDecoration(
