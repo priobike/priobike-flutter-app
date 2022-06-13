@@ -75,6 +75,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Assets for track simulation
+    - assets/tracks/hamburg/thomas.json
+    - assets/tracks/dresden/philipp.json
+
     - assets/images/dark_continue.png
     - assets/images/dark_finish.png
     - assets/images/dark_keep_left.png

@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_response.dart';
+import 'package:priobike/positioning/interface.dart';
 import 'package:priobike/services/api.dart';
 import 'package:priobike/session/remote_session.dart';
 import 'package:priobike/utils/logger.dart';
@@ -13,6 +14,11 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 
 class AppService with ChangeNotifier {
+  /// The interface to the position source.
+  /// This can be a real position source or a mocked one.
+  /// See [PositionSource] for more information.
+  static PositionSource positionSource = PositionSource.main;
+
   Logger log = Logger("AppService");
 
   String clientId = "alpha-app-" + const Uuid().v4();
@@ -75,7 +81,7 @@ class AppService with ChangeNotifier {
     Widget okButton = TextButton(
       child: const Text("Einstellungen öffnen"),
       onPressed: () {
-        Geolocator.openLocationSettings();
+        positionSource.openLocationSettings();
       },
     );
 
@@ -101,7 +107,7 @@ class AppService with ChangeNotifier {
     LocationPermission permission;
 
     // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    serviceEnabled = await positionSource.isLocationServiceEnabled();
     if (!serviceEnabled) {
       // Location services are not enabled - don't continue
       // accessing the position and request users of the
@@ -109,9 +115,9 @@ class AppService with ChangeNotifier {
       return false;
     }
 
-    permission = await Geolocator.checkPermission();
+    permission = await positionSource.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      permission = await positionSource.requestPermission();
       if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again (this is also where
@@ -155,7 +161,7 @@ class AppService with ChangeNotifier {
     }
 
     loadingRecommendation = true;
-    positionStream = Geolocator.getPositionStream(
+    positionStream = positionSource.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 0,

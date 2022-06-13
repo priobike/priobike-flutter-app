@@ -1,0 +1,2282 @@
+[
+    {
+        "id": "90c519d9-c2f9-4464-8161-9fe6dbaee24a",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            26,
+            56,
+            476091000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03140259672466,
+        "positionLon": 13.72786890398274,
+        "speed": 0.6817764043807983,
+        "accuracy": 13.501791010968503,
+        "heading": 112.15932342338633,
+        "timestamp": "2022-06-10T11:26:56.246Z",
+        "timeUnixMillis": 1654860416000
+    },
+    {
+        "id": "1ea86ea8-7676-4caf-b306-ec12b0ac54d9",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            26,
+            57,
+            470098000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031419375193444,
+        "positionLon": 13.727871599784542,
+        "speed": 0.6817764043807983,
+        "accuracy": 15.731770252925116,
+        "heading": 110.23553802046905,
+        "timestamp": "2022-06-10T11:26:57.246Z",
+        "timeUnixMillis": 1654860417000
+    },
+    {
+        "id": "c29e39a2-1a10-4403-b6aa-294dfdc0b069",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            26,
+            58,
+            459379000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031430415507444,
+        "positionLon": 13.727853356120056,
+        "speed": 0.5761351585388184,
+        "accuracy": 20.40727310827213,
+        "heading": 91.65980139493729,
+        "timestamp": "2022-06-10T11:26:58.246Z",
+        "timeUnixMillis": 1654860418000
+    },
+    {
+        "id": "611dd34b-45bb-48e1-b634-7333afd4e265",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            26,
+            59,
+            409207000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031430273008134,
+        "positionLon": 13.727861154860639,
+        "speed": 0.5761351585388162,
+        "accuracy": 20.407273108272175,
+        "heading": 91.65980745838843,
+        "timestamp": "2022-06-10T11:26:59.196Z",
+        "timeUnixMillis": 1654860419000
+    },
+    {
+        "id": "2bf4ae3a-4431-4812-9f94-17ac7f4f9fcd",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            0,
+            400454000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031430415507764,
+        "positionLon": 13.727853356120058,
+        "speed": 0,
+        "accuracy": 14.527552380641147,
+        "heading": 91.65980139493729,
+        "timestamp": "2022-06-10T11:27:00.147Z",
+        "timeUnixMillis": 1654860420000
+    },
+    {
+        "id": "90003b8c-f91d-41cb-a030-9aa470380c93",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            1,
+            317931000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03144622919858,
+        "positionLon": 13.727816779814688,
+        "speed": 0.3179062306880947,
+        "accuracy": 21.107337656746655,
+        "heading": 99.28347832507522,
+        "timestamp": "2022-06-10T11:27:01.097Z",
+        "timeUnixMillis": 1654860421000
+    },
+    {
+        "id": "c0cd1372-e6cc-4e23-847c-f88305ec24a8",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            2,
+            279355000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03143282381255,
+        "positionLon": 13.727805934474082,
+        "speed": 0.6942534446716272,
+        "accuracy": 10.228589463430446,
+        "heading": 130.57089869297425,
+        "timestamp": "2022-06-10T11:27:02.047Z",
+        "timeUnixMillis": 1654860422000
+    },
+    {
+        "id": "0b617fd6-16a9-4fd6-90e4-ec1d01711cf1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            3,
+            210274000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0314321924643,
+        "positionLon": 13.727800999704982,
+        "speed": 0.6942534446716271,
+        "accuracy": 14.437394283647432,
+        "heading": 121.03325613524905,
+        "timestamp": "2022-06-10T11:27:02.997Z",
+        "timeUnixMillis": 1654860423000
+    },
+    {
+        "id": "04be1646-4cfc-4a7e-bd3a-47f1fad9040f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            4,
+            199495000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03143181919576,
+        "positionLon": 13.727765474672797,
+        "speed": 0.6942534446716268,
+        "accuracy": 14.910194993218585,
+        "heading": 135.361525770872,
+        "timestamp": "2022-06-10T11:27:03.994Z",
+        "timeUnixMillis": 1654860424000
+    },
+    {
+        "id": "dd701be5-101e-47fe-9543-c951d3c19b49",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            5,
+            198685000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03143414191697,
+        "positionLon": 13.727765621237824,
+        "speed": 0.7120199203491165,
+        "accuracy": 14.397545081538706,
+        "heading": 109.11195683477605,
+        "timestamp": "2022-06-10T11:27:04.994Z",
+        "timeUnixMillis": 1654860425000
+    },
+    {
+        "id": "868d013f-2b1f-45e8-b6d7-177780565900",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            6,
+            212621000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03143154742792,
+        "positionLon": 13.727777232265288,
+        "speed": 0.855043709278099,
+        "accuracy": 9.535944740430564,
+        "heading": 113.47257280987577,
+        "timestamp": "2022-06-10T11:27:05.994Z",
+        "timeUnixMillis": 1654860426000
+    },
+    {
+        "id": "cf0c7330-2dcf-4ebe-99ac-6edcc631b9a2",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            7,
+            206655000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031426502656416,
+        "positionLon": 13.727798555192402,
+        "speed": 1.064566731452927,
+        "accuracy": 8.064291784904805,
+        "heading": 115.32964816396928,
+        "timestamp": "2022-06-10T11:27:06.994Z",
+        "timeUnixMillis": 1654860427000
+    },
+    {
+        "id": "ede23012-ee06-4c94-9df3-a17b6f1e81ee",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            8,
+            217838000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03141508835755,
+        "positionLon": 13.727820059721553,
+        "speed": 1.3102531433105196,
+        "accuracy": 11.290181061895096,
+        "heading": 129.5310092189469,
+        "timestamp": "2022-06-10T11:27:07.995Z",
+        "timeUnixMillis": 1654860428000
+    },
+    {
+        "id": "92cff9d1-e08c-44c9-b78c-9aa104899a52",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            9,
+            199393000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03139730875363,
+        "positionLon": 13.727848646175154,
+        "speed": 1.310253143310519,
+        "accuracy": 7.9416612452285165,
+        "heading": 136.2052354675124,
+        "timestamp": "2022-06-10T11:27:08.995Z",
+        "timeUnixMillis": 1654860429000
+    },
+    {
+        "id": "d6570f89-5845-43d4-9d59-ef764e4110a5",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            10,
+            207103000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03137308653369,
+        "positionLon": 13.727900438421544,
+        "speed": 2.573177337646275,
+        "accuracy": 6.364830309183925,
+        "heading": 130.6557422349388,
+        "timestamp": "2022-06-10T11:27:09.996Z",
+        "timeUnixMillis": 1654860430000
+    },
+    {
+        "id": "b1410743-fa77-451c-bab7-570d8588946d",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            11,
+            209239000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03134324619154,
+        "positionLon": 13.72795572526377,
+        "speed": 3.982586622237384,
+        "accuracy": 6.291641339400851,
+        "heading": 133.86757039823678,
+        "timestamp": "2022-06-10T11:27:10.996Z",
+        "timeUnixMillis": 1654860431000
+    },
+    {
+        "id": "2cb51183-3f79-4188-a944-8f9fdff08e65",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            12,
+            209543000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03131969792654,
+        "positionLon": 13.72798962245984,
+        "speed": 3.9825866222373834,
+        "accuracy": 6.203330343859456,
+        "heading": 140.78476353099708,
+        "timestamp": "2022-06-10T11:27:11.996Z",
+        "timeUnixMillis": 1654860432000
+    },
+    {
+        "id": "c8868f40-e693-4194-8680-14c1c5e52e6a",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            13,
+            201440000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03130101224454,
+        "positionLon": 13.728026682951864,
+        "speed": 3.8229124546044164,
+        "accuracy": 6.229066442182333,
+        "heading": 133.25354950778768,
+        "timestamp": "2022-06-10T11:27:12.996Z",
+        "timeUnixMillis": 1654860433000
+    },
+    {
+        "id": "3ceb898d-b6f8-4080-ab4f-7d663ce755eb",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            14,
+            217004000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03130259737808,
+        "positionLon": 13.728079497935074,
+        "speed": 3.449326276778672,
+        "accuracy": 9.39889496182166,
+        "heading": 112.41714584178193,
+        "timestamp": "2022-06-10T11:27:13.996Z",
+        "timeUnixMillis": 1654860434000
+    },
+    {
+        "id": "291a3e99-e35c-4db5-8d33-c8231d7f8015",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            15,
+            209050000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0312834846187,
+        "positionLon": 13.728123655488101,
+        "speed": 3.172547101974096,
+        "accuracy": 9.060838664089676,
+        "heading": 124.84488956034119,
+        "timestamp": "2022-06-10T11:27:14.996Z",
+        "timeUnixMillis": 1654860435000
+    },
+    {
+        "id": "3858cdd1-8871-464e-9e17-2aa792d8f9c8",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            16,
+            307373000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03126025604562,
+        "positionLon": 13.72816611664629,
+        "speed": 3.4334437847132473,
+        "accuracy": 9.385558352391941,
+        "heading": 141.2488156734806,
+        "timestamp": "2022-06-10T11:27:15.996Z",
+        "timeUnixMillis": 1654860436000
+    },
+    {
+        "id": "7fedb568-1267-464a-92da-8f0becee53ca",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            17,
+            199660000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0312426730894,
+        "positionLon": 13.728222888471388,
+        "speed": 3.3017599582667714,
+        "accuracy": 9.869870001902928,
+        "heading": 121.21641452984106,
+        "timestamp": "2022-06-10T11:27:16.997Z",
+        "timeUnixMillis": 1654860437000
+    },
+    {
+        "id": "3f2c6f39-eae4-4fb8-a6f7-247eb020c999",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            18,
+            216778000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031207564872226,
+        "positionLon": 13.728267043810705,
+        "speed": 3.4334437847132486,
+        "accuracy": 6.380672344974185,
+        "heading": 140.64517676642276,
+        "timestamp": "2022-06-10T11:27:17.997Z",
+        "timeUnixMillis": 1654860438000
+    },
+    {
+        "id": "6d844562-4668-4bc7-ae8f-d9aa009e1051",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            19,
+            207569000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03116736772673,
+        "positionLon": 13.728369038190976,
+        "speed": 3.8863682746880013,
+        "accuracy": 6.054763311734408,
+        "heading": 123.5544643963788,
+        "timestamp": "2022-06-10T11:27:18.997Z",
+        "timeUnixMillis": 1654860439000
+    },
+    {
+        "id": "6c224467-f7f8-4a33-b86f-52f4eae76efc",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            20,
+            198866000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03113351521737,
+        "positionLon": 13.728423129894416,
+        "speed": 3.886368274688001,
+        "accuracy": 6.054426407054238,
+        "heading": 130.3784595961256,
+        "timestamp": "2022-06-10T11:27:19.997Z",
+        "timeUnixMillis": 1654860440000
+    },
+    {
+        "id": "fa9da731-c22b-4cfc-99a1-f3fdebc3cf27",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            21,
+            199458000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031110820996496,
+        "positionLon": 13.728482498679314,
+        "speed": 3.886368274688001,
+        "accuracy": 6.245739804657033,
+        "heading": 125.24615806510437,
+        "timestamp": "2022-06-10T11:27:20.997Z",
+        "timeUnixMillis": 1654860441000
+    },
+    {
+        "id": "0bbb2f69-8613-4d2d-a48b-da26b6de1a73",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            22,
+            233851000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.031085504886974,
+        "positionLon": 13.728512993744976,
+        "speed": 3.353659152984156,
+        "accuracy": 6.452326994355352,
+        "heading": 136.82401264359737,
+        "timestamp": "2022-06-10T11:27:21.997Z",
+        "timeUnixMillis": 1654860442000
+    },
+    {
+        "id": "f4714980-a74b-4f87-b152-038367cf264c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            23,
+            208822000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03106311121384,
+        "positionLon": 13.728536271807707,
+        "speed": 3.06825733184779,
+        "accuracy": 6.589385492855306,
+        "heading": 142.33300760218705,
+        "timestamp": "2022-06-10T11:27:22.997Z",
+        "timeUnixMillis": 1654860443000
+    },
+    {
+        "id": "ab712ead-75bf-49dc-a425-9eb76848eadd",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            24,
+            216915000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0310228067195,
+        "positionLon": 13.728598456802649,
+        "speed": 4.472822666167114,
+        "accuracy": 6.375136030927636,
+        "heading": 140.86031048732843,
+        "timestamp": "2022-06-10T11:27:23.997Z",
+        "timeUnixMillis": 1654860444000
+    },
+    {
+        "id": "950efc47-36bd-45e5-854f-3059a16082e1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            25,
+            209158000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03100662578785,
+        "positionLon": 13.72865932770009,
+        "speed": 4.33141374587913,
+        "accuracy": 6.178764665548133,
+        "heading": 123.84726863550425,
+        "timestamp": "2022-06-10T11:27:24.997Z",
+        "timeUnixMillis": 1654860445000
+    },
+    {
+        "id": "4d9d59d0-4a1e-4535-9e6f-c1adde02ecf1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            26,
+            215957000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03097469896633,
+        "positionLon": 13.728721994740015,
+        "speed": 4.472822666167115,
+        "accuracy": 6.138447525548315,
+        "heading": 127.12706221543354,
+        "timestamp": "2022-06-10T11:27:25.997Z",
+        "timeUnixMillis": 1654860446000
+    },
+    {
+        "id": "5cad1e3a-e6c5-4928-8a75-16720ce3c709",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            27,
+            226136000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030949331496416,
+        "positionLon": 13.72878293901312,
+        "speed": 4.300059318541505,
+        "accuracy": 5.95100401278313,
+        "heading": 125.23799875774661,
+        "timestamp": "2022-06-10T11:27:26.997Z",
+        "timeUnixMillis": 1654860447000
+    },
+    {
+        "id": "bd9302c3-986d-47af-ae49-1a57243b42fe",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            28,
+            218753000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030910692077875,
+        "positionLon": 13.728836783129886,
+        "speed": 4.927568912504635,
+        "accuracy": 6.09857951518542,
+        "heading": 135.24219971325098,
+        "timestamp": "2022-06-10T11:27:27.997Z",
+        "timeUnixMillis": 1654860448000
+    },
+    {
+        "id": "2be9d151-6dbe-42d8-b20b-296606536f9c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            29,
+            212593000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0308783497981,
+        "positionLon": 13.728892232678087,
+        "speed": 4.900113105772482,
+        "accuracy": 6.4058175481740225,
+        "heading": 133.15434355834475,
+        "timestamp": "2022-06-10T11:27:28.997Z",
+        "timeUnixMillis": 1654860449000
+    },
+    {
+        "id": "7673e461-b273-42b2-bf4b-d5ac5392469f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            30,
+            216197000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030836456582264,
+        "positionLon": 13.728942058995845,
+        "speed": 4.927568912504634,
+        "accuracy": 6.312975024234945,
+        "heading": 141.46054247593003,
+        "timestamp": "2022-06-10T11:27:29.998Z",
+        "timeUnixMillis": 1654860450000
+    },
+    {
+        "id": "62193c58-67c7-45b0-bff1-6fec774ca165",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            31,
+            208954000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030804175544965,
+        "positionLon": 13.728996978143565,
+        "speed": 4.635463237761228,
+        "accuracy": 6.308764037911668,
+        "heading": 136.54296083153466,
+        "timestamp": "2022-06-10T11:27:30.998Z",
+        "timeUnixMillis": 1654860451000
+    },
+    {
+        "id": "ce8a2abb-395e-44ad-b173-0fa595bfce8e",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            32,
+            212741000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03076493906125,
+        "positionLon": 13.729040649253566,
+        "speed": 5.111449718473701,
+        "accuracy": 6.4055275157684255,
+        "heading": 144.8244543528574,
+        "timestamp": "2022-06-10T11:27:31.998Z",
+        "timeUnixMillis": 1654860452000
+    },
+    {
+        "id": "571082b5-489e-4adc-b13c-2925f9a49fd7",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            33,
+            233537000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03072961122248,
+        "positionLon": 13.729106532003378,
+        "speed": 5.111449718473703,
+        "accuracy": 6.274176139302598,
+        "heading": 137.3503087152639,
+        "timestamp": "2022-06-10T11:27:32.998Z",
+        "timeUnixMillis": 1654860453000
+    },
+    {
+        "id": "8bc1b800-33ce-45cb-834b-27cf7a3f77cf",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            34,
+            203886000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030690175017696,
+        "positionLon": 13.729149398240695,
+        "speed": 5.111449718473701,
+        "accuracy": 6.237911428904438,
+        "heading": 147.04974021531717,
+        "timestamp": "2022-06-10T11:27:33.998Z",
+        "timeUnixMillis": 1654860454000
+    },
+    {
+        "id": "e653f6ef-b591-4f22-8d7c-67243cd2836e",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            35,
+            241680000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03066098172712,
+        "positionLon": 13.729164755547652,
+        "speed": 4.0388078689567095,
+        "accuracy": 6.531888405894699,
+        "heading": 156.81944401797142,
+        "timestamp": "2022-06-10T11:27:34.998Z",
+        "timeUnixMillis": 1654860455000
+    },
+    {
+        "id": "b7abb2db-84c1-4ce6-879e-3e6b0c07edc2",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            36,
+            233222000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030624874796786,
+        "positionLon": 13.729217562680955,
+        "speed": 4.074725627898339,
+        "accuracy": 6.460510925898599,
+        "heading": 149.0529969487018,
+        "timestamp": "2022-06-10T11:27:35.998Z",
+        "timeUnixMillis": 1654860456000
+    },
+    {
+        "id": "a4cc6ba6-5aa7-4d74-b38b-48b524236c38",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            37,
+            202928000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030597749656586,
+        "positionLon": 13.729279823200523,
+        "speed": 4.03880786895671,
+        "accuracy": 6.4827398329235475,
+        "heading": 139.6734857150016,
+        "timestamp": "2022-06-10T11:27:36.998Z",
+        "timeUnixMillis": 1654860457000
+    },
+    {
+        "id": "42ba8dc1-e3a6-4e56-847f-b9a993b7230e",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            38,
+            220507000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030569763477544,
+        "positionLon": 13.729345442724654,
+        "speed": 3.8996014595024446,
+        "accuracy": 6.568794162702146,
+        "heading": 137.5840421037027,
+        "timestamp": "2022-06-10T11:27:37.998Z",
+        "timeUnixMillis": 1654860458000
+    },
+    {
+        "id": "d01d3e84-47ed-4094-b2e0-ceb955545d90",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            39,
+            209701000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030542566560975,
+        "positionLon": 13.72941460209247,
+        "speed": 4.4877271652210595,
+        "accuracy": 6.513607652101329,
+        "heading": 132.98282064008185,
+        "timestamp": "2022-06-10T11:27:38.998Z",
+        "timeUnixMillis": 1654860459000
+    },
+    {
+        "id": "56d28c56-24fc-4a28-8efa-6e3c826ae0ca",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            40,
+            204036000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03050761044591,
+        "positionLon": 13.729486245480722,
+        "speed": 4.912653923033213,
+        "accuracy": 6.474451850011621,
+        "heading": 137.6734750045371,
+        "timestamp": "2022-06-10T11:27:39.998Z",
+        "timeUnixMillis": 1654860460000
+    },
+    {
+        "id": "05c46266-01c1-4ac4-8efd-378839e40714",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            41,
+            232658000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03047775294267,
+        "positionLon": 13.729529806094291,
+        "speed": 4.487727165221059,
+        "accuracy": 6.7594322852221325,
+        "heading": 141.26106352602696,
+        "timestamp": "2022-06-10T11:27:40.998Z",
+        "timeUnixMillis": 1654860461000
+    },
+    {
+        "id": "e2802249-41ec-4301-8059-1a74ab5e2eb4",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            42,
+            221342000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03044969197279,
+        "positionLon": 13.72956932112399,
+        "speed": 4.427511692046052,
+        "accuracy": 6.8420659447706775,
+        "heading": 146.64260018625617,
+        "timestamp": "2022-06-10T11:27:41.998Z",
+        "timeUnixMillis": 1654860462000
+    },
+    {
+        "id": "9fbca406-b6ed-4c1b-b2c9-a59ef70b68e2",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            43,
+            233011000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03042921381154,
+        "positionLon": 13.729648149573375,
+        "speed": 4.461227893828257,
+        "accuracy": 6.765498346048429,
+        "heading": 133.44210560793576,
+        "timestamp": "2022-06-10T11:27:42.998Z",
+        "timeUnixMillis": 1654860463000
+    },
+    {
+        "id": "d49f6a5c-e76e-47ef-8343-ec48e09f2abe",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            44,
+            213152000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03040534595573,
+        "positionLon": 13.729719725866063,
+        "speed": 4.461227893828256,
+        "accuracy": 6.61072628645436,
+        "heading": 131.1014315724442,
+        "timestamp": "2022-06-10T11:27:43.998Z",
+        "timeUnixMillis": 1654860464000
+    },
+    {
+        "id": "a4bd32e8-a7da-499b-a278-1ccc9d30fe07",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            45,
+            204286000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0303943706639,
+        "positionLon": 13.729784969100129,
+        "speed": 4.158400535582615,
+        "accuracy": 6.595915747619683,
+        "heading": 119.62933415520081,
+        "timestamp": "2022-06-10T11:27:44.998Z",
+        "timeUnixMillis": 1654860465000
+    },
+    {
+        "id": "3496d0ca-61e6-4f71-975e-eb8e0ae9f646",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            46,
+            202922000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03036070930072,
+        "positionLon": 13.729841419284016,
+        "speed": 4.158400535582613,
+        "accuracy": 6.599740263740713,
+        "heading": 132.04015988922575,
+        "timestamp": "2022-06-10T11:27:45.998Z",
+        "timeUnixMillis": 1654860466000
+    },
+    {
+        "id": "5cd99fcd-7ab6-4a31-a557-4b9348939361",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            47,
+            211331000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03033699157092,
+        "positionLon": 13.729919426260938,
+        "speed": 4.574526309965866,
+        "accuracy": 6.472486112107543,
+        "heading": 125.68940705216633,
+        "timestamp": "2022-06-10T11:27:46.998Z",
+        "timeUnixMillis": 1654860467000
+    },
+    {
+        "id": "678865e6-47ba-4325-9b3c-ca415f62ff45",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            48,
+            212626000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03029932086456,
+        "positionLon": 13.729975013621267,
+        "speed": 5.046172142027232,
+        "accuracy": 6.442006751415564,
+        "heading": 137.7121697490448,
+        "timestamp": "2022-06-10T11:27:47.998Z",
+        "timeUnixMillis": 1654860468000
+    },
+    {
+        "id": "a9750528-4f6b-4856-8315-e6ac897c096f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            49,
+            213429000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03026676027946,
+        "positionLon": 13.730015447391477,
+        "speed": 4.777494907377812,
+        "accuracy": 6.455749936159018,
+        "heading": 142.7222712725553,
+        "timestamp": "2022-06-10T11:27:48.998Z",
+        "timeUnixMillis": 1654860469000
+    },
+    {
+        "id": "7b0400ee-4d67-4536-b8fd-bea5fb65e2fb",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            50,
+            228150000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03022641749296,
+        "positionLon": 13.73000991898005,
+        "speed": 4.777494907377808,
+        "accuracy": 5.980120061697877,
+        "heading": 176.1918694138733,
+        "timestamp": "2022-06-10T11:27:49.998Z",
+        "timeUnixMillis": 1654860470000
+    },
+    {
+        "id": "f135e444-e0d1-4e3f-b86e-738faecfe53c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            51,
+            210652000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03020778810875,
+        "positionLon": 13.730025945609556,
+        "speed": 3.1796374320979925,
+        "accuracy": 5.60918762386723,
+        "heading": 175.33396488795353,
+        "timestamp": "2022-06-10T11:27:50.998Z",
+        "timeUnixMillis": 1654860471000
+    },
+    {
+        "id": "3f0f807e-023c-4c4e-81a7-26f3bb7b3a87",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            52,
+            203082000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03018023797675,
+        "positionLon": 13.73004544370564,
+        "speed": 3.179637432097993,
+        "accuracy": 5.483506834300165,
+        "heading": 161.59652402007853,
+        "timestamp": "2022-06-10T11:27:51.998Z",
+        "timeUnixMillis": 1654860472000
+    },
+    {
+        "id": "653915cd-b5dc-40d9-ae81-ace4fb4b76e4",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            53,
+            203384000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030158745605604,
+        "positionLon": 13.730062231106974,
+        "speed": 3.052405118941911,
+        "accuracy": 5.368243422002258,
+        "heading": 156.1672528644526,
+        "timestamp": "2022-06-10T11:27:52.998Z",
+        "timeUnixMillis": 1654860473000
+    },
+    {
+        "id": "dcd721d7-63d3-4be6-bad0-50df89025afa",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            54,
+            202948000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03014466734325,
+        "positionLon": 13.730068848625962,
+        "speed": 2.7381701469418864,
+        "accuracy": 5.20773963266585,
+        "heading": 159.9872070503467,
+        "timestamp": "2022-06-10T11:27:53.998Z",
+        "timeUnixMillis": 1654860474000
+    },
+    {
+        "id": "1c04dfa0-f4bd-4fb2-8bf6-59e4770cec4f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            55,
+            211782000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03013496531567,
+        "positionLon": 13.73006313205708,
+        "speed": 2.0935482978819673,
+        "accuracy": 5.098366109396992,
+        "heading": 159.98720460546434,
+        "timestamp": "2022-06-10T11:27:54.998Z",
+        "timeUnixMillis": 1654860475000
+    },
+    {
+        "id": "8f178bb6-b938-49a7-8b65-67977497feca",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            56,
+            202905000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030137955711474,
+        "positionLon": 13.730035070314905,
+        "speed": 0.8359444737434315,
+        "accuracy": 5.1158851647036245,
+        "heading": 159.98719982619738,
+        "timestamp": "2022-06-10T11:27:55.995Z",
+        "timeUnixMillis": 1654860476000
+    },
+    {
+        "id": "8ca93174-478c-4017-adb1-4d610f5fa6d4",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            57,
+            209745000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030133347949615,
+        "positionLon": 13.729989895365952,
+        "speed": 1.2578055858611816,
+        "accuracy": 4.917150469848149,
+        "heading": 204.92393763021929,
+        "timestamp": "2022-06-10T11:27:56.995Z",
+        "timeUnixMillis": 1654860477000
+    },
+    {
+        "id": "bd2268d0-feb4-42fb-a810-17bc9f97d027",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            58,
+            202871000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03014015207645,
+        "positionLon": 13.729941809137632,
+        "speed": 1.2578055858611816,
+        "accuracy": 4.922625193314831,
+        "heading": 241.70384046017858,
+        "timestamp": "2022-06-10T11:27:57.995Z",
+        "timeUnixMillis": 1654860478000
+    },
+    {
+        "id": "cc9f18f2-a2e7-4179-b887-616699921fdc",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            27,
+            59,
+            225803000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03013920098396,
+        "positionLon": 13.72990006282797,
+        "speed": 1.688633918762148,
+        "accuracy": 5.0885541996753805,
+        "heading": 252.48690724535757,
+        "timestamp": "2022-06-10T11:27:58.995Z",
+        "timeUnixMillis": 1654860479000
+    },
+    {
+        "id": "4565aacc-2fde-4d54-ae5d-c8c351953c96",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            0,
+            240615000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03013971824476,
+        "positionLon": 13.7298682585298,
+        "speed": 1.6886339187621482,
+        "accuracy": 5.265144542969409,
+        "heading": 258.67160949790826,
+        "timestamp": "2022-06-10T11:27:59.995Z",
+        "timeUnixMillis": 1654860480000
+    },
+    {
+        "id": "69ce5344-1eda-4852-a0c3-8f560c62bfeb",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            1,
+            241003000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03013194221859,
+        "positionLon": 13.729834570501218,
+        "speed": 1.612456321716257,
+        "accuracy": 5.5879644058059,
+        "heading": 258.4764148745729,
+        "timestamp": "2022-06-10T11:28:00.995Z",
+        "timeUnixMillis": 1654860481000
+    },
+    {
+        "id": "e0d4e0cf-88e9-49cf-9aa3-23dcfc828bd3",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            2,
+            212083000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03012442021821,
+        "positionLon": 13.72980382020273,
+        "speed": 1.612456321716257,
+        "accuracy": 5.879315182923362,
+        "heading": 257.536940282996,
+        "timestamp": "2022-06-10T11:28:01.995Z",
+        "timeUnixMillis": 1654860482000
+    },
+    {
+        "id": "90648380-a21a-4aba-a051-46b817ec8f2c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            3,
+            212755000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03011254207316,
+        "positionLon": 13.729782500984765,
+        "speed": 1.3376742601394362,
+        "accuracy": 6.110164806642616,
+        "heading": 253.57864197916547,
+        "timestamp": "2022-06-10T11:28:02.995Z",
+        "timeUnixMillis": 1654860483000
+    },
+    {
+        "id": "7dc2fda2-cd98-46d5-a7da-d209c2371e5f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            4,
+            207872000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03009087032574,
+        "positionLon": 13.729742428913104,
+        "speed": 1.337674260139436,
+        "accuracy": 6.203119891837774,
+        "heading": 244.40425116818233,
+        "timestamp": "2022-06-10T11:28:03.995Z",
+        "timeUnixMillis": 1654860484000
+    },
+    {
+        "id": "85daa3f1-9fb1-488d-906a-0fc7c64140cb",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            5,
+            211623000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03007821796913,
+        "positionLon": 13.729696153993464,
+        "speed": 1.624385118484445,
+        "accuracy": 6.308860496940269,
+        "heading": 242.7386728520412,
+        "timestamp": "2022-06-10T11:28:04.995Z",
+        "timeUnixMillis": 1654860485000
+    },
+    {
+        "id": "28beafe0-8cc5-4b50-a7dd-6b010dbe536d",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            6,
+            210773000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03007112092862,
+        "positionLon": 13.72963589393678,
+        "speed": 2.016823291778464,
+        "accuracy": 6.4039709493786265,
+        "heading": 250.3391828068415,
+        "timestamp": "2022-06-10T11:28:05.995Z",
+        "timeUnixMillis": 1654860486000
+    },
+    {
+        "id": "cb43ca70-2042-4765-80f2-709bc6d79624",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            7,
+            209669000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03007062779975,
+        "positionLon": 13.729543127995667,
+        "speed": 2.3218057155607603,
+        "accuracy": 6.411049444189229,
+        "heading": 261.04280243124936,
+        "timestamp": "2022-06-10T11:28:06.995Z",
+        "timeUnixMillis": 1654860487000
+    },
+    {
+        "id": "652e6157-cdcb-415b-8d2b-0d4cacec5757",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            8,
+            204324000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030067785199215,
+        "positionLon": 13.72948411939031,
+        "speed": 2.3218057155607594,
+        "accuracy": 6.608398133594045,
+        "heading": 265.1811553613501,
+        "timestamp": "2022-06-10T11:28:07.995Z",
+        "timeUnixMillis": 1654860488000
+    },
+    {
+        "id": "c9737e6b-2cf2-4336-827a-df4c8c2df7a9",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            9,
+            203475000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03006577674818,
+        "positionLon": 13.72941728233173,
+        "speed": 2.5544507503507483,
+        "accuracy": 6.311800102642024,
+        "heading": 267.64249531807155,
+        "timestamp": "2022-06-10T11:28:08.995Z",
+        "timeUnixMillis": 1654860489000
+    },
+    {
+        "id": "4f6077d0-800e-44c4-be0e-9ebad504babe",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            10,
+            209657000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0300511958701,
+        "positionLon": 13.729349274080414,
+        "speed": 2.669727802276378,
+        "accuracy": 6.561887337266787,
+        "heading": 264.9201363837957,
+        "timestamp": "2022-06-10T11:28:09.995Z",
+        "timeUnixMillis": 1654860490000
+    },
+    {
+        "id": "bf1fed2f-daeb-433b-8d88-91de5fe21ff3",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            11,
+            209534000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030047379030236,
+        "positionLon": 13.729278418882746,
+        "speed": 3.017368555068633,
+        "accuracy": 6.867618967352073,
+        "heading": 268.62535390398125,
+        "timestamp": "2022-06-10T11:28:10.995Z",
+        "timeUnixMillis": 1654860491000
+    },
+    {
+        "id": "913fbd96-31d4-44de-93eb-251f8db69eb9",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            12,
+            202916000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03003349342723,
+        "positionLon": 13.72922255885353,
+        "speed": 3.0475423336025584,
+        "accuracy": 7.026225183961462,
+        "heading": 254.2980448234878,
+        "timestamp": "2022-06-10T11:28:11.995Z",
+        "timeUnixMillis": 1654860492000
+    },
+    {
+        "id": "79a34989-e65d-4834-bd7c-a058e4b294cb",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            13,
+            209693000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03002786817843,
+        "positionLon": 13.729163464976645,
+        "speed": 3.0173685550686336,
+        "accuracy": 7.248142353521019,
+        "heading": 261.52990658677646,
+        "timestamp": "2022-06-10T11:28:12.995Z",
+        "timeUnixMillis": 1654860493000
+    },
+    {
+        "id": "fec836a6-eecc-491c-b29a-b46484f1e75c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            14,
+            202917000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030009832648595,
+        "positionLon": 13.72910246048333,
+        "speed": 2.8271565437314123,
+        "accuracy": 6.905873221300609,
+        "heading": 252.5001524352188,
+        "timestamp": "2022-06-10T11:28:13.995Z",
+        "timeUnixMillis": 1654860494000
+    },
+    {
+        "id": "336c718a-9cc9-46b2-80c5-101fb40e47e4",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            15,
+            209762000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030001877554376,
+        "positionLon": 13.729026019513359,
+        "speed": 2.827156543731413,
+        "accuracy": 6.921639452090345,
+        "heading": 262.52708760046835,
+        "timestamp": "2022-06-10T11:28:14.995Z",
+        "timeUnixMillis": 1654860495000
+    },
+    {
+        "id": "1072ee98-1360-4c65-a48f-c13cbb1611d2",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            16,
+            214036000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03001987519197,
+        "positionLon": 13.728901087730398,
+        "speed": 3.88658118247914,
+        "accuracy": 6.531942795742442,
+        "heading": 271.04766981124095,
+        "timestamp": "2022-06-10T11:28:15.995Z",
+        "timeUnixMillis": 1654860496000
+    },
+    {
+        "id": "bcc6969e-4edf-42dd-96d3-b2ab8969ee45",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            17,
+            203027000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030027631538296,
+        "positionLon": 13.728798385431169,
+        "speed": 3.88658118247914,
+        "accuracy": 6.413112516100282,
+        "heading": 269.9023356879357,
+        "timestamp": "2022-06-10T11:28:16.995Z",
+        "timeUnixMillis": 1654860497000
+    },
+    {
+        "id": "ad9e0318-9261-4229-897a-70e89bc651fd",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            18,
+            202635000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03002930460902,
+        "positionLon": 13.728719445612212,
+        "speed": 3.7152948379510318,
+        "accuracy": 7.863579689543247,
+        "heading": 264.9563625710987,
+        "timestamp": "2022-06-10T11:28:17.995Z",
+        "timeUnixMillis": 1654860498000
+    },
+    {
+        "id": "16664685-10b3-4853-bb3b-86002506d5c0",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            19,
+            203944000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0300340889842,
+        "positionLon": 13.728638503079262,
+        "speed": 3.715294837951032,
+        "accuracy": 6.385312633651404,
+        "heading": 256.6033387192045,
+        "timestamp": "2022-06-10T11:28:18.995Z",
+        "timeUnixMillis": 1654860499000
+    },
+    {
+        "id": "776cfdac-ab94-4e14-9151-8fac01e6313c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            20,
+            202836000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03004340120512,
+        "positionLon": 13.728547857899462,
+        "speed": 4.053978443144936,
+        "accuracy": 6.220167466397022,
+        "heading": 258.4575592098286,
+        "timestamp": "2022-06-10T11:28:19.995Z",
+        "timeUnixMillis": 1654860500000
+    },
+    {
+        "id": "ad721fa3-031b-437c-8431-84a880079c3a",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            21,
+            202805000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03004586035921,
+        "positionLon": 13.728504969834798,
+        "speed": 2.939948558807062,
+        "accuracy": 6.254941128467329,
+        "heading": 261.3518828723215,
+        "timestamp": "2022-06-10T11:28:20.995Z",
+        "timeUnixMillis": 1654860501000
+    },
+    {
+        "id": "295b871d-c427-48a6-a912-1ca878c84dec",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            22,
+            206462000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030047399664085,
+        "positionLon": 13.728436325775762,
+        "speed": 3.0477104187008255,
+        "accuracy": 6.250498538324338,
+        "heading": 269.9646008885763,
+        "timestamp": "2022-06-10T11:28:21.995Z",
+        "timeUnixMillis": 1654860502000
+    },
+    {
+        "id": "451e887d-9753-488a-b1f0-b022bbf4e69d",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            23,
+            209590000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030051338214335,
+        "positionLon": 13.72837578187226,
+        "speed": 3.0477104187008264,
+        "accuracy": 7.776113221746561,
+        "heading": 273.03631669152526,
+        "timestamp": "2022-06-10T11:28:22.995Z",
+        "timeUnixMillis": 1654860503000
+    },
+    {
+        "id": "b325c99f-b96e-4d4e-a69a-73a20b40862a",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            24,
+            203126000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03005994365686,
+        "positionLon": 13.728328525271237,
+        "speed": 3.047710418700825,
+        "accuracy": 6.624585100344426,
+        "heading": 277.2957432325119,
+        "timestamp": "2022-06-10T11:28:23.995Z",
+        "timeUnixMillis": 1654860504000
+    },
+    {
+        "id": "658f49c1-30c3-4d38-8591-430b063578b2",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            25,
+            222867000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03006362625985,
+        "positionLon": 13.728327181162426,
+        "speed": 1.6551373004912775,
+        "accuracy": 6.717589305477286,
+        "heading": 277.29575854057725,
+        "timestamp": "2022-06-10T11:28:24.995Z",
+        "timeUnixMillis": 1654860505000
+    },
+    {
+        "id": "c8603e29-de17-4feb-8e93-33674d738cef",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            26,
+            202652000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03007360126938,
+        "positionLon": 13.728332398442904,
+        "speed": 0.9697195291519052,
+        "accuracy": 6.905381531012124,
+        "heading": 277.29576607513144,
+        "timestamp": "2022-06-10T11:28:25.995Z",
+        "timeUnixMillis": 1654860506000
+    },
+    {
+        "id": "6200227c-06f9-4210-badd-78c0d74e27a6",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            27,
+            204601000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03009578498027,
+        "positionLon": 13.728319748843896,
+        "speed": 1.346458315849274,
+        "accuracy": 7.1246655756254205,
+        "heading": 303.9688331901733,
+        "timestamp": "2022-06-10T11:28:26.995Z",
+        "timeUnixMillis": 1654860507000
+    },
+    {
+        "id": "fd4d4b03-7c0a-41d5-b034-7e97666d36f1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            28,
+            209537000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030125435546786,
+        "positionLon": 13.728317392330517,
+        "speed": 1.3464583158492742,
+        "accuracy": 7.337885384727436,
+        "heading": 326.5255669400984,
+        "timestamp": "2022-06-10T11:28:27.994Z",
+        "timeUnixMillis": 1654860508000
+    },
+    {
+        "id": "2e3f6b61-0fd3-44ec-8020-5b2c90f89001",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            29,
+            224487000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03016120478593,
+        "positionLon": 13.728310494538373,
+        "speed": 1.7702727317809372,
+        "accuracy": 7.401526468712999,
+        "heading": 351.55901297274505,
+        "timestamp": "2022-06-10T11:28:28.994Z",
+        "timeUnixMillis": 1654860509000
+    },
+    {
+        "id": "f8278d6a-b5eb-4c07-89a3-e624c46164e6",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            30,
+            220348000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030215402001105,
+        "positionLon": 13.728293417370825,
+        "speed": 2.1273002624510537,
+        "accuracy": 7.573089445449757,
+        "heading": 351.6876509086939,
+        "timestamp": "2022-06-10T11:28:29.994Z",
+        "timeUnixMillis": 1654860510000
+    },
+    {
+        "id": "97f593d4-1df1-4ea3-a0de-4bd10b5e843e",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            31,
+            233170000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.0302730205053,
+        "positionLon": 13.728275064537172,
+        "speed": 3.899907112120852,
+        "accuracy": 7.850876498568696,
+        "heading": 350.25759436860625,
+        "timestamp": "2022-06-10T11:28:30.994Z",
+        "timeUnixMillis": 1654860511000
+    },
+    {
+        "id": "dd4b6589-ea82-404f-8b38-253ef08ccbd3",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            32,
+            205888000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030317864050396,
+        "positionLon": 13.728246077636086,
+        "speed": 4.452080726622449,
+        "accuracy": 8.115801343605503,
+        "heading": 349.1139760161185,
+        "timestamp": "2022-06-10T11:28:31.994Z",
+        "timeUnixMillis": 1654860512000
+    },
+    {
+        "id": "fb7c81ff-a898-487d-9035-2911eddc9b39",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            33,
+            206082000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03035367242553,
+        "positionLon": 13.728219583277152,
+        "speed": 3.8999071121208524,
+        "accuracy": 8.329114212876313,
+        "heading": 351.2683391311807,
+        "timestamp": "2022-06-10T11:28:32.994Z",
+        "timeUnixMillis": 1654860513000
+    },
+    {
+        "id": "ca11213e-4613-4042-b334-24e28d822c4e",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            34,
+            206124000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03039089438196,
+        "positionLon": 13.728198599700486,
+        "speed": 3.8398165702812856,
+        "accuracy": 8.57823455499613,
+        "heading": 350.7826126270815,
+        "timestamp": "2022-06-10T11:28:33.994Z",
+        "timeUnixMillis": 1654860514000
+    },
+    {
+        "id": "505254ac-066f-409d-b772-5f0fb63514bd",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            35,
+            195967000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030424795896685,
+        "positionLon": 13.728196208351532,
+        "speed": 3.3244812488551387,
+        "accuracy": 8.748400028188213,
+        "heading": 355.61378012162083,
+        "timestamp": "2022-06-10T11:28:34.994Z",
+        "timeUnixMillis": 1654860515000
+    },
+    {
+        "id": "ea969dff-1007-4d14-b13a-9bb46a006c72",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            36,
+            205153000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030464349870975,
+        "positionLon": 13.728210923373101,
+        "speed": 3.404200077056399,
+        "accuracy": 8.82252654445194,
+        "heading": 2.0048782675353096,
+        "timestamp": "2022-06-10T11:28:35.994Z",
+        "timeUnixMillis": 1654860516000
+    },
+    {
+        "id": "430df512-55dc-4688-862e-a29d07fbf79c",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            37,
+            203206000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030504316102466,
+        "positionLon": 13.728212527819508,
+        "speed": 3.4042000770563985,
+        "accuracy": 8.935485762170597,
+        "heading": 2.880400921370161,
+        "timestamp": "2022-06-10T11:28:36.994Z",
+        "timeUnixMillis": 1654860517000
+    },
+    {
+        "id": "720242f6-44db-4a0a-a0d2-e197a0678047",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            38,
+            234449000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030543695182736,
+        "positionLon": 13.728205891996177,
+        "speed": 3.3507616519923356,
+        "accuracy": 9.072495144684542,
+        "heading": 6.050968735029771,
+        "timestamp": "2022-06-10T11:28:37.994Z",
+        "timeUnixMillis": 1654860518000
+    },
+    {
+        "id": "bac92f49-3bbe-418d-80f9-8e9c9b3423c9",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            39,
+            245695000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03058186689861,
+        "positionLon": 13.728211566723418,
+        "speed": 3.350761651992335,
+        "accuracy": 9.29817565900185,
+        "heading": 10.84724149097448,
+        "timestamp": "2022-06-10T11:28:38.994Z",
+        "timeUnixMillis": 1654860519000
+    },
+    {
+        "id": "44fecf12-3329-4943-a8a8-cdf7f2f351b1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            40,
+            204352000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030612325554046,
+        "positionLon": 13.728195488245218,
+        "speed": 3.191009998321133,
+        "accuracy": 9.330535128617846,
+        "heading": 12.15761312142358,
+        "timestamp": "2022-06-10T11:28:39.994Z",
+        "timeUnixMillis": 1654860520000
+    },
+    {
+        "id": "5ea2ade2-b2fb-4012-a53c-a14c387b5bf8",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            41,
+            245716000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03060084273528,
+        "positionLon": 13.72816727154713,
+        "speed": 0.4322300851345062,
+        "accuracy": 9.211075488455304,
+        "heading": -1,
+        "timestamp": "2022-06-10T11:28:40.994Z",
+        "timeUnixMillis": 1654860521000
+    },
+    {
+        "id": "6d2c2648-93fe-4009-8f3c-ed8f06d83af1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            42,
+            243617000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030615323719466,
+        "positionLon": 13.728144037190402,
+        "speed": 0.45381471514701843,
+        "accuracy": 9.249005577014607,
+        "heading": -1,
+        "timestamp": "2022-06-10T11:28:41.994Z",
+        "timeUnixMillis": 1654860522000
+    },
+    {
+        "id": "a39f8e9a-884c-4913-b916-ee22a0638f46",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            43,
+            214967000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03062114479145,
+        "positionLon": 13.728114089179888,
+        "speed": 0.44986188411712646,
+        "accuracy": 9.35250748174319,
+        "heading": -1,
+        "timestamp": "2022-06-10T11:28:42.994Z",
+        "timeUnixMillis": 1654860523000
+    },
+    {
+        "id": "02d18fd5-4275-42e2-a901-11a0cab945f0",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            44,
+            213085000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03063456716457,
+        "positionLon": 13.728084858998018,
+        "speed": 0.4538147151470173,
+        "accuracy": 8.953945797473962,
+        "heading": 4.906023635021276,
+        "timestamp": "2022-06-10T11:28:43.994Z",
+        "timeUnixMillis": 1654860524000
+    },
+    {
+        "id": "8ac487d4-2722-482c-8868-737b858b6672",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            45,
+            203865000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030413088974136,
+        "positionLon": 13.727629336490967,
+        "speed": 1.6069356239284318,
+        "accuracy": 25.330730244962712,
+        "heading": 272.6011625155746,
+        "timestamp": "2022-06-10T11:28:44.994Z",
+        "timeUnixMillis": 1654860525000
+    },
+    {
+        "id": "172c6672-0f87-41ab-85f5-e8b9fdbe8436",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            46,
+            216279000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03037654629619,
+        "positionLon": 13.727648608070409,
+        "speed": 1.0545321852137433,
+        "accuracy": 15.629188572801914,
+        "heading": 272.85240799531937,
+        "timestamp": "2022-06-10T11:28:45.994Z",
+        "timeUnixMillis": 1654860526000
+    },
+    {
+        "id": "28da286f-ed2f-4355-a729-373cc33eb2d1",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            47,
+            228097000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.030393485873326,
+        "positionLon": 13.727707093066966,
+        "speed": 1.077440619552267,
+        "accuracy": 11.633118375758714,
+        "heading": 247.552268528195,
+        "timestamp": "2022-06-10T11:28:46.994Z",
+        "timeUnixMillis": 1654860527000
+    },
+    {
+        "id": "d262df9a-eda1-44d4-80bd-fb2d38ae051f",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            48,
+            213381000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03040989429464,
+        "positionLon": 13.727730195197124,
+        "speed": 1.6277130152466808,
+        "accuracy": 9.432049796925611,
+        "heading": 246.9046098880234,
+        "timestamp": "2022-06-10T11:28:47.994Z",
+        "timeUnixMillis": 1654860528000
+    },
+    {
+        "id": "48a1faf4-1345-4094-8ae7-d099695ac9b5",
+        "localDateTime": [
+            2022,
+            6,
+            10,
+            11,
+            28,
+            49,
+            212902000
+        ],
+        "sessionId": "81755bc4-5bb6-4e7b-9aec-cb3196f0ae32",
+        "positionLat": 51.03040057716244,
+        "positionLon": 13.727708500236997,
+        "speed": 1.7560145043821491,
+        "accuracy": 8.170310832276451,
+        "heading": 257.9722665267938,
+        "timestamp": "2022-06-10T11:28:48.994Z",
+        "timeUnixMillis": 1654860529000
+    }
+]
