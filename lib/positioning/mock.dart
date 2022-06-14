@@ -86,7 +86,14 @@ class MockPositionSource extends PositionSource {
 
       // Dispatch the position if the elapsed time is greater than or equal to the position time.
       if (elapsedRealTime >= elapsedPositionTime) {
-        streamController.add(positions[index]);
+        var p = positions[index];
+        // Map the position to the current time.
+        var pNow = Position(
+          latitude: p.latitude, longitude: p.longitude, altitude: p.altitude,
+          speed: p.speed, heading: p.heading, accuracy: p.accuracy, speedAccuracy: p.speedAccuracy, 
+          timestamp: DateTime.now().toUtc(),
+        );
+        streamController.add(pNow);
         index++;
       }
     });
