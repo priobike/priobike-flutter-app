@@ -85,7 +85,7 @@ class _SpeedometerViewState extends State<SpeedometerView> {
 
   /// Load the current position marker.
   void loadCurrentPositionMarker(AppService s) {
-    var currentPosition = s.lastPosition;
+    var currentPosition = s.estimatedPosition;
     if (currentPosition == null) {
       currentPositionMarker = null;
       return;
@@ -112,10 +112,10 @@ class _SpeedometerViewState extends State<SpeedometerView> {
   /// Load the gauge colors and steps.
   void loadGauge(AppService s) {
     // Check if we have the necessary position data
-    var posTime = app.lastPosition?.timestamp;
-    var posSpeed = app.lastPosition?.speed;
-    var posLat = app.lastPosition?.latitude;
-    var posLon = app.lastPosition?.longitude;
+    var posTime = app.estimatedPosition?.timestamp;
+    var posSpeed = app.estimatedPosition?.speed;
+    var posLat = app.estimatedPosition?.latitude;
+    var posLon = app.estimatedPosition?.longitude;
     var timeStr = app.currentRecommendation?.predictionStartTime;
     var tGreen = app.currentRecommendation?.predictionGreentimeThreshold;
     var phases = app.currentRecommendation?.predictionValue;
@@ -241,7 +241,7 @@ class _SpeedometerViewState extends State<SpeedometerView> {
             stops: gaugeStops,
             minSpeed: minSpeed,
             maxSpeed: maxSpeed,
-            speedKmh: (app.lastPosition?.speed ?? 0) * 3.6,
+            speedKmh: (app.estimatedPosition?.speed ?? 0) * 3.6,
           ),
           margin: const EdgeInsets.symmetric(horizontal: 0),
           decoration: BoxDecoration(

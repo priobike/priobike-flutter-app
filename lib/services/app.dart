@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_response.dart';
+import 'package:priobike/positioning/extrapolation.dart';
 import 'package:priobike/positioning/interface.dart';
 import 'package:priobike/services/api.dart';
 import 'package:priobike/session/remote_session.dart';
@@ -21,6 +22,21 @@ class AppService with ChangeNotifier {
 
   Logger log = Logger("AppService");
 
+  /// An extrapolator for the position.
+  final positionEstimator = PositionExtrapolator();
+
+  /// A subscription to the estimated position.
+  StreamSubscription<Position>? estimatorSubscription;
+
+  /// A subscription to the real position.
+  StreamSubscription<Position>? positionSubscription;
+
+  /// The current estimated position (> 1Hz).
+  Position? estimatedPosition;
+
+  /// The current measured position (1 Hz).
+  Position? lastPosition;
+
   String clientId = "alpha-app-" + const Uuid().v4();
 
   bool loadingRoute = true;
@@ -29,9 +45,6 @@ class AppService with ChangeNotifier {
   bool isNavigating = false;
   bool isStaging = true;
 
-  late StreamSubscription<Position> positionStream;
-
-  Position? lastPosition;
   RouteResponse? currentRoute;
   Recommendation? currentRecommendation;
   RemoteSession? session;
@@ -161,12 +174,23 @@ class AppService with ChangeNotifier {
     }
 
     loadingRecommendation = true;
-    positionStream = positionSource.getPositionStream(
+    var positionStream = positionSource.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 0,
       ),
-    ).listen((Position position) {
+    );
+
+    // Launch a position estimator, which will get the real 
+    // positions and extrapolate the estimated position.
+    estimatorSubscription = positionEstimator.startEstimating()
+      .listen((Position estimatedPosition) {
+        if (!isGeolocating) return;
+        this.estimatedPosition = estimatedPosition;
+        notifyListeners();
+      });
+
+    positionSubscription = positionStream.listen((Position position) {
       if (isGeolocating == true) {
         session?.updatePosition(
           position.latitude,
@@ -177,15 +201,19 @@ class AppService with ChangeNotifier {
           position.timestamp,
         );
         lastPosition = position;
+        // Update the position estimator with the new position.
+        positionEstimator.lastPosition = position; 
         notifyListeners();
       }
     });
+
     log.i('Geolocator started!');
   }
 
   stopGeolocation() {
     isGeolocating = false;
-    positionStream.cancel();
+    positionSubscription?.cancel();
+    estimatorSubscription?.cancel();
     log.i('Geolocator stopped!');
   }
 
