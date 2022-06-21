@@ -7,15 +7,24 @@ PODS:
     - Toast
   - geolocator_apple (1.2.0):
     - Flutter
+  - Mapbox-iOS-SDK (6.4.1):
+    - MapboxMobileEvents (~> 0.10.12)
+  - mapbox_gl (0.0.1):
+    - Flutter
+    - Mapbox-iOS-SDK (~> 6.4.0)
+    - MapboxAnnotationExtension (~> 0.0.1-beta.1)
+  - MapboxAnnotationExtension (0.0.1-beta.2):
+    - Mapbox-iOS-SDK (~> 6.0)
+  - MapboxMobileEvents (0.10.14)
   - package_info_plus (0.4.5):
     - Flutter
-  - Sentry (7.10.2):
-    - Sentry/Core (= 7.10.2)
-  - Sentry/Core (7.10.2)
+  - Sentry (7.11.0):
+    - Sentry/Core (= 7.11.0)
+  - Sentry/Core (7.11.0)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.10.1)
+    - Sentry (~> 7.11.0)
   - Toast (4.0.0)
   - wakelock (0.0.1):
     - Flutter
@@ -25,12 +34,16 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - mapbox_gl (from `.symlinks/plugins/mapbox_gl/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 SPEC REPOS:
   trunk:
+    - Mapbox-iOS-SDK
+    - MapboxAnnotationExtension
+    - MapboxMobileEvents
     - Sentry
     - Toast
 
@@ -43,6 +56,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
+  mapbox_gl:
+    :path: ".symlinks/plugins/mapbox_gl/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   sentry_flutter:
@@ -55,12 +70,16 @@ SPEC CHECKSUMS:
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   geolocator_apple: b741765c55dc21950e3e106e8b3584e55cf81ce5
+  Mapbox-iOS-SDK: f870f83cbdc7aa4a74afcee143aafb0dae390c82
+  mapbox_gl: 33c5ab6306cbfa72289bb3606d2cd2e8baee9ff0
+  MapboxAnnotationExtension: 4eee6c26349ef6d909f1a23a7eae2d0f7ca5fa7d
+  MapboxMobileEvents: 5a172cc9bbf8ac0e45ba86095cbee685ede248cc
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
-  Sentry: 7bf9bfe713692cf87812e55f0999260494ba7982
-  sentry_flutter: 77ccdac346608b8ce7e428e7284e7a3e4e7f4a02
+  Sentry: 0c5cd63d714187b4a39c331c1f0eb04ba7868341
+  sentry_flutter: efb3df2c203cd03aad255892a8d628a458656d14
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: f4d76110f775c61cf9f15fd6656a0d914f33cdc8
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
