@@ -2,6 +2,9 @@
 
 For getting started with development you need to set up your development environment according to the [guide](https://docs.flutter.dev/get-started/install).
 
+## Setting up for iOS development
+
+Make sure to `cp .netrc ~/.netrc` to use MapBox.
 
 ## Build APK file for Android
 
