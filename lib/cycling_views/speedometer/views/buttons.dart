@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/utils/routes.dart';
 
+/// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
+  /// Create a new cancel button.
   const CancelButton({Key? key}) : super(key: key);
 
   @override

@@ -51,6 +51,7 @@ dependencies:
   device_info_plus: ^3.1.1
   auto_size_text: ^3.0.0
   package_info_plus: ^1.4.2
+  mapbox_gl: ^0.16.0
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,11 @@ flutter:
     # Assets for track simulation
     - assets/tracks/hamburg/thomas.json
     - assets/tracks/dresden/philipp.json
+
+    - assets/images/direction.png
+    - assets/images/trafficlight.png
+    - assets/images/start.png
+    - assets/images/finish.png
 
     - assets/images/dark_continue.png
     - assets/images/dark_finish.png

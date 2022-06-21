@@ -47,5 +47,7 @@
 	<string>Die App benötigt den Standort zur Navigation.</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.navigation</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
+/// A gauge range for the speedometer.
 class SpeedometerGaugeRange extends GaugeRange {
+  /// Create a new speedometer gauge range.
   SpeedometerGaugeRange({
     Key? key, 
     required Gradient gradient ,
@@ -17,7 +19,9 @@ class SpeedometerGaugeRange extends GaugeRange {
   );
 }
 
+/// A needle pointer for the speedometer.
 class SpeedometerNeedlePointer extends NeedlePointer {
+  /// Create a new speedometer needle pointer.
   const SpeedometerNeedlePointer({Key? key, required double speedKmh}) : super(key: key, 
     value: speedKmh,
     needleLength: 0.875,
@@ -30,7 +34,9 @@ class SpeedometerNeedlePointer extends NeedlePointer {
   );
 }
 
+/// The radial gauge for the speedometer.
 class SpeedometerRadialGauge extends SfRadialGauge {
+  /// Create a new speedometer radial gauge.
   SpeedometerRadialGauge({
     Key? key, 
     required List<Color> colors, 

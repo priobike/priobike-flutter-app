@@ -1,15 +1,17 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/services/app.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import 'buttons.dart';
 import 'gauge.dart';
-import 'markers.dart';
-import 'layers.dart';
+import 'position.dart';
+
+import '../viewmodels/common.dart';
+import '../viewmodels/markers.dart';
+import '../viewmodels/layers.dart';
 
 class SpeedometerView extends StatefulWidget {
   const SpeedometerView({Key? key}) : super(key: key);
@@ -19,98 +21,127 @@ class SpeedometerView extends StatefulWidget {
 }
 
 class _SpeedometerViewState extends State<SpeedometerView> {
+  /// The minimum displayed speed.
   static const minSpeed = 0.0;
+
+  /// The maximum displayed speed.
   static const maxSpeed = 40.0;
 
-  /// The route layer that is displayed, if a route is selected.
-  RouteLayer? routeLayer;
+  /// The default gauge colors for the speedometer.
+  static const defaultGaugeColors = [Colors.grey];
+
+  /// A map controller for the map.
+  MapboxMapController? mapController;
+
+  /// A lock for concurrent updates to the map.
+  var mapIsUpdating = false;
+
+  /// The route that is displayed, if a route is selected.
+  MapElement<List<LatLng>, Line>? route;
 
   /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<TrafficLightMarker>? trafficLightMarkers;
+  List<MapElement<LatLng, Symbol>>? trafficLights;
 
-  /// The current position marker, if the user has a current position.
-  CurrentPositionMarker? currentPositionMarker;
-
-  /// The current waypoint markers, if the route is selected.
-  List<Marker>? waypointMarkers;
+  /// The current waypoints, if the route is selected.
+  List<MapElement<LatLng, Symbol>>? waypoints;
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = [Colors.grey];
+  List<Color> gaugeColors = defaultGaugeColors;
 
   /// The current gauge stops, if we have the necessary data.
   List<double> gaugeStops = [];
 
-  /// The current map bounds, if we have the necessary data.
-  LatLngBounds? mapBounds;
-
+  /// The associated app service, which is injected by the provider.
   late AppService app;
 
   @override
   void didChangeDependencies() {
     app = Provider.of<AppService>(context);
-
-    loadRouteLayer(app);
-    loadTrafficLightMarkers(app);
-    loadCurrentPositionMarker(app);
-    loadWaypointMarkers(app);
-    loadGauge(app);
-    loadMapBounds(app);
-
+    updateView(app);
     super.didChangeDependencies();
   }
 
-  /// Load the current route layer.
-  void loadRouteLayer(AppService s) {
-    var routeResponse = s.currentRoute;
-    if (routeResponse == null) {
-      routeLayer = null;
-      return;
+  /// Update the view with the current data.
+  Future<void> updateView(AppService s) async {
+    if (!mapIsUpdating) {
+      mapIsUpdating = true;
+      await loadRouteLayer(app);
+      await loadTrafficLightMarkers(app);
+      await loadWaypointMarkers(app);
+      await loadGauge(app);
+      await adaptMapController(app);
+      mapIsUpdating = false;
     }
-    var points = routeResponse.route.map((p) => LatLng(p.lat, p.lon)).toList();
-    routeLayer = RouteLayer(points: points);
+  }
+
+  /// Load the current route layer.
+  Future<void> loadRouteLayer(AppService s) async {
+    // If we have no map controller, we cannot load the route layer.
+    if (mapController == null) return;
+    if (route != null) return;
+
+    // Unwrap the points from the route response.
+    var newRoutePoints = s.currentRoute?.route.map((p) => LatLng(p.lat, p.lon)).toList();
+    if (newRoutePoints == null) return;
+    route = MapElement(newRoutePoints, await mapController!.addLine(RouteLayer(points: newRoutePoints)));
   }
 
   /// Load the current traffic lights.
-  void loadTrafficLightMarkers(AppService s) {
-    var routeResponse = s.currentRoute;
-    if (routeResponse == null) {
-      trafficLightMarkers = null;
-      return;
-    }
-    trafficLightMarkers = routeResponse.signalgroups.values.map((sg) => TrafficLightMarker(
-      lat: sg.position.lat,
-      lon: sg.position.lon,
-    )).toList();
-  }
+  Future<void> loadTrafficLightMarkers(AppService s) async {
+    // If we have no map controller, we cannot load the traffic lights.
+    if (mapController == null) return;
+    if (trafficLights != null) return;
 
-  /// Load the current position marker.
-  void loadCurrentPositionMarker(AppService s) {
-    var currentPosition = s.estimatedPosition;
-    if (currentPosition == null) {
-      currentPositionMarker = null;
-      return;
+    // Unwrap the points from the traffic lights response.
+    var newTrafficLightPoints = s.currentRoute?.signalgroups.values
+      .map((sg) => LatLng(sg.position.lat, sg.position.lon)).toList();
+    if (newTrafficLightPoints == null) return;
+    trafficLights = []; 
+    // Create a new traffic light marker for each traffic light.
+    for (var point in newTrafficLightPoints) {
+      var marker = await mapController!.addSymbol(TrafficLightMarker(geo: point));
+      trafficLights!.add(MapElement(point, marker));
     }
-    currentPositionMarker = CurrentPositionMarker(
-      lat: currentPosition.latitude,
-      lon: currentPosition.longitude,
-    );
   }
 
   /// Load the current waypoint markers.
-  void loadWaypointMarkers(AppService s) {
-    var routeResponse = s.currentRoute;
-    if (routeResponse == null) {
-      waypointMarkers = null;
-      return;
-    }   
-    waypointMarkers = [
-      StartMarker(lat: routeResponse.route.first.lat, lon: routeResponse.route.first.lon),
-      DestinationMarker(lat: routeResponse.route.last.lat, lon: routeResponse.route.last.lon),
-    ];
+  Future<void> loadWaypointMarkers(AppService s) async {
+    // If we have no map controller, we cannot load the waypoint layer.
+    if (mapController == null) return;
+    if (waypoints != null) return;
+
+    // Unwrap the waypoints from the routing response.
+    List<LatLng>? newWaypoints;
+    var route = s.currentRoute?.route;
+    if (route != null) newWaypoints = [LatLng(route.first.lat, route.first.lon), LatLng(route.last.lat, route.last.lon)];
+    if (newWaypoints == null) return;
+
+    // If the waypoints are the same as the current waypoints, we don't need to update them.
+    if (waypoints?.map((e) => e.data).toList() == newWaypoints) return;
+    waypoints = [];
+    // Create a new waypoint marker for each waypoint.
+    for (var entry in newWaypoints.asMap().entries) {
+      if (entry.key == 0) {
+        var startMarker = await mapController!.addSymbol(StartMarker(
+          geo: entry.value,
+        ));
+        waypoints!.add(MapElement(entry.value, startMarker));
+      } else if (entry.key == newWaypoints.length - 1) {
+        var endMarker = await mapController!.addSymbol(DestinationMarker(
+          geo: entry.value,
+        ));
+        waypoints!.add(MapElement(entry.value, endMarker));
+      } else {
+        var inbetweenMarker = await mapController!.addSymbol(SymbolOptions(
+          geometry: entry.value,
+        ));
+        waypoints!.add(MapElement(entry.value, inbetweenMarker));
+      }
+    }
   }
 
   /// Load the gauge colors and steps.
-  void loadGauge(AppService s) {
+  Future<void> loadGauge(AppService s) async {
     // Check if we have the necessary position data
     var posTime = app.estimatedPosition?.timestamp;
     var posSpeed = app.estimatedPosition?.speed;
@@ -161,11 +192,11 @@ class _SpeedometerViewState extends State<SpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(Color.fromARGB(255, 243, 255, 18), Color.fromARGB(255, 0, 255, 106), factor)!;
+        return Color.lerp(const Color.fromARGB(255, 243, 255, 18), const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(Color.fromARGB(255, 243, 60, 39), Color.fromARGB(255, 243, 255, 18), factor)!;
+        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), const Color.fromARGB(255, 243, 255, 18), factor)!;
       }
     }).toList();
 
@@ -209,21 +240,32 @@ class _SpeedometerViewState extends State<SpeedometerView> {
     gaugeStops = hardEdgeStops.reversed.toList();
   }
 
-  /// Load the map bounds.
-  void loadMapBounds(AppService s) {
-    var routeResponse = s.currentRoute;
-    if (routeResponse == null) {
-      // Default bounds is Germany
-      mapBounds = LatLngBounds(
-        // Northeast
-        LatLng(52.5, 13.0),
-        // Southwest
-        LatLng(47.0, 5.0),
-      );
-      return;
-    }
-    var points = routeResponse.route.map((p) => LatLng(p.lat, p.lon)).toList();
-    mapBounds =  LatLngBounds.fromPoints(points);
+  /// Adapt the map controller.
+  Future<void> adaptMapController(AppService s) async {
+    await mapController?.moveCamera(CameraUpdate.tiltTo(60));
+    await mapController?.moveCamera(CameraUpdate.newLatLngZoom(
+      app.estimatedPosition != null
+        ? LatLng(app.estimatedPosition!.latitude, app.estimatedPosition!.longitude)
+        : const LatLng(0, 0),
+      19,
+    ));
+    await mapController?.animateCamera(CameraUpdate.bearingTo(
+      app.estimatedPosition != null
+        ? app.estimatedPosition!.heading
+        : 0
+    ));
+  }
+
+  /// A callback which is executed when the map was created.
+  Future<void> onMapCreated(MapboxMapController controller) async {
+    mapController = controller;
+  }
+
+  /// A callback which is executed when the map style was loaded.
+  Future<void> onStyleLoaded() async {
+    if (mapController == null) return;
+    // Load all symbols that will be displayed on the map.
+    await SymbolLoader(mapController!).loadSymbols();
   }
 
   @override
@@ -268,42 +310,28 @@ class _SpeedometerViewState extends State<SpeedometerView> {
         const CancelButton(),
       ],
     );
-    
+
     // ignore: prefer_function_declarations_over_variables
-    var map = (screen) => FlutterMap(
-      options: MapOptions(
-        bounds: mapBounds,
-        boundsOptions: FitBoundsOptions(padding: EdgeInsets.only(bottom: (screen.maxHeight * 0.5) - 24)),
-        maxZoom: 20.0,
-        minZoom: 7,
-        interactiveFlags: InteractiveFlag.drag |
-          InteractiveFlag.pinchZoom |
-          InteractiveFlag.doubleTapZoom |
-          InteractiveFlag.flingAnimation |
-          InteractiveFlag.pinchMove,
+    var map = (screen) => MapboxMap(
+      accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+      onMapCreated: onMapCreated,
+      styleString: "mapbox://styles/mapbox/navigation-day-v1",
+      onStyleLoadedCallback: onStyleLoaded,
+      initialCameraPosition: const CameraPosition(
+        target: LatLng(53.551086, 9.993682), // Hamburg
+        tilt: 60,
+        zoom: 21
       ),
-      layers: [
-        // The base map
-        PositronMapLayer(),
-        // The route above the map
-        if (routeLayer != null) routeLayer!,
-        // All markers above the route
-        MarkerLayerOptions(
-          markers: [
-            if (trafficLightMarkers != null) ...trafficLightMarkers!,
-            if (waypointMarkers != null) ...waypointMarkers!,
-            if (currentPositionMarker != null) currentPositionMarker!,
-          ],
-        ),
-      ],
     );
 
     return LayoutBuilder(builder: (ctx, screenConstraints) {
       return Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
+          alignment: Alignment.center,
           children: [
             map(screenConstraints),
+            PositionIcon(),
             gauge(screenConstraints),
           ]
         ),
