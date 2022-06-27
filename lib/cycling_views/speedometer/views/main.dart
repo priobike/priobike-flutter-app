@@ -310,6 +310,8 @@ class _SpeedometerViewState extends State<SpeedometerView> {
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: onMapCreated,
       onStyleLoadedCallback: onStyleLoaded,
+      attributionButtonPosition: AttributionButtonPosition.TopLeft,
+      logoViewMargins: Point(38, (MediaQuery.of(context).size.height) - 109),
       initialCameraPosition: const CameraPosition(
         target: LatLng(53.551086, 9.993682), // Hamburg
         tilt: 0,
