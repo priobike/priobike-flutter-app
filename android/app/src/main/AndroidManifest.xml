@@ -5,6 +5,7 @@
    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    <application
+        android:name="${applicationName}"
         android:label="priobike"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
