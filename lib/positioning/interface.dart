@@ -7,7 +7,7 @@ import 'mock.dart';
 
 abstract class PositionSource {
   /// The position source that is used by the app.
-  static var main = mockDresden;
+  static var main = real;
 
   /// The actual implementation of the source.
   static var real = GNSSPositionSource();
