@@ -36,7 +36,7 @@ class _SpeedometerViewState extends State<SpeedometerView> {
   /// A lock for concurrent updates to the map.
   var mapIsUpdating = false;
 
-  /// The route that is displayed, if a route is selected.
+  /// The  route that is displayed, if a route is selected.
   MapElement<List<LatLng>, Line>? route;
 
   /// The traffic lights that are displayed, if there are traffic lights on the route.
@@ -63,15 +63,11 @@ class _SpeedometerViewState extends State<SpeedometerView> {
 
   /// Update the view with the current data.
   Future<void> updateView(AppService s) async {
-    if (!mapIsUpdating) {
-      mapIsUpdating = true;
-      await loadRouteLayer(app);
-      await loadTrafficLightMarkers(app);
-      await loadWaypointMarkers(app);
-      await loadGauge(app);
-      await adaptMapController(app);
-      mapIsUpdating = false;
-    }
+    loadRouteLayer(app);
+    loadTrafficLightMarkers(app);
+    loadWaypointMarkers(app);
+    loadGauge(app);
+    adaptMapController(app);
   }
 
   /// Load the current route layer.
@@ -272,70 +268,66 @@ class _SpeedometerViewState extends State<SpeedometerView> {
   Widget build(BuildContext context) {
     app = Provider.of<AppService>(context);
 
-    // ignore: prefer_function_declarations_over_variables
-    var gauge = (screen) => Column(
-      // Bottom to top
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        Container(
-          child: SpeedometerRadialGauge(
-            colors: gaugeColors,
-            stops: gaugeStops,
-            minSpeed: minSpeed,
-            maxSpeed: maxSpeed,
-            speedKmh: (app.estimatedPosition?.speed ?? 0) * 3.6,
+    var gauge = Positioned(
+      child: Column(
+        // Bottom to top
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            child: SpeedometerRadialGauge(
+              colors: gaugeColors,
+              stops: gaugeStops,
+              minSpeed: minSpeed,
+              maxSpeed: maxSpeed,
+              speedKmh: (app.estimatedPosition?.speed ?? 0) * 3.6,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 0),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromARGB(255, 44, 62, 80).withOpacity(1),
+                  spreadRadius: 4,
+                  blurRadius: 0,
+                  offset: const Offset(0, 0),
+                ),
+                BoxShadow(
+                  color: const Color.fromARGB(255, 52, 73, 94).withOpacity(0.1),
+                  spreadRadius: 32,
+                  blurRadius: 0,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
           ),
-          margin: const EdgeInsets.symmetric(horizontal: 0),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 255, 255),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromARGB(255, 44, 62, 80).withOpacity(1),
-                spreadRadius: 4,
-                blurRadius: 0,
-                offset: const Offset(0, 0),
-              ),
-              BoxShadow(
-                color: const Color.fromARGB(255, 52, 73, 94).withOpacity(0.1),
-                spreadRadius: 32,
-                blurRadius: 0,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          // Transform down by width/2
-          transform: Matrix4.translationValues(0.0, (0.5 * screen.maxWidth) - 48, 0.0),
-        ),
-        const CancelButton(),
-      ],
+        ],
+      ),
+      top: (MediaQuery.of(context).size.height / 2 + 72)
     );
 
-    // ignore: prefer_function_declarations_over_variables
-    var map = (screen) => MapboxMap(
+    var map = MapboxMap(
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: onMapCreated,
-      styleString: "mapbox://styles/mapbox/navigation-day-v1",
       onStyleLoadedCallback: onStyleLoaded,
       initialCameraPosition: const CameraPosition(
         target: LatLng(53.551086, 9.993682), // Hamburg
-        tilt: 60,
-        zoom: 21
+        tilt: 0,
+        zoom: 16
       ),
     );
 
-    return LayoutBuilder(builder: (ctx, screenConstraints) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          alignment: Alignment.center,
-          children: [
-            map(screenConstraints),
-            PositionIcon(),
-            gauge(screenConstraints),
-          ]
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        map,
+        PositionIcon(),
+        gauge,
+        const Positioned(
+          child: CancelButton(),
+          bottom: 4
         ),
-      );
-    });
+      ]
+    );
   }
 }
