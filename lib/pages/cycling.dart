@@ -8,7 +8,7 @@ import 'package:priobike/cycling_views/minimal_recommendation.dart';
 import 'package:priobike/cycling_views/speedometer/views/main.dart';
 import 'package:priobike/services/app.dart';
 
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wakelock/wakelock.dart';

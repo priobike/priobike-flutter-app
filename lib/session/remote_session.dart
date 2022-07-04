@@ -11,7 +11,7 @@ import 'package:priobike/models/route_request.dart';
 import 'package:priobike/models/route_response.dart';
 import 'package:priobike/models/user_position.dart';
 
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/utils/toast.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 

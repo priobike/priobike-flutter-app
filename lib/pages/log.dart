@@ -1,4 +1,4 @@
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 import 'package:flutter/material.dart';
 
 class LogPage extends StatefulWidget {

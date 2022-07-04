@@ -8,7 +8,7 @@ import 'package:priobike/positioning/extrapolation.dart';
 import 'package:priobike/positioning/interface.dart';
 import 'package:priobike/services/api.dart';
 import 'package:priobike/session/remote_session.dart';
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 

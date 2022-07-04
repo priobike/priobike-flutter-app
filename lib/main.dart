@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:priobike/services/app.dart';
 import 'package:priobike/services/settings.dart';
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/utils/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';

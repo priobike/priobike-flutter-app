@@ -25,6 +25,8 @@ PODS:
     - Flutter
     - FlutterMacOS
     - Sentry (~> 7.11.0)
+  - shared_preferences_ios (0.0.1):
+    - Flutter
   - Toast (4.0.0)
   - wakelock (0.0.1):
     - Flutter
@@ -37,6 +39,7 @@ DEPENDENCIES:
   - mapbox_gl (from `.symlinks/plugins/mapbox_gl/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
+  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 SPEC REPOS:
@@ -62,6 +65,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
+  shared_preferences_ios:
+    :path: ".symlinks/plugins/shared_preferences_ios/ios"
   wakelock:
     :path: ".symlinks/plugins/wakelock/ios"
 
@@ -77,6 +82,7 @@ SPEC CHECKSUMS:
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   Sentry: 0c5cd63d714187b4a39c331c1f0eb04ba7868341
   sentry_flutter: efb3df2c203cd03aad255892a8d628a458656d14
+  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 

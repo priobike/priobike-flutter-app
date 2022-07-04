@@ -5,7 +5,7 @@ import 'package:priobike/utils/routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
-import '../utils/logger.dart';
+import '../v2/common/logger.dart';
 
 class RoutePage extends StatefulWidget {
   const RoutePage({Key? key}) : super(key: key);

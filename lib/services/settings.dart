@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/utils/logger.dart';
+import 'package:priobike/v2/common/logger.dart';
 
 class SettingsService with ChangeNotifier {
   Logger log = Logger("SettingsService");
