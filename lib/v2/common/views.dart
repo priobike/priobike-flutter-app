@@ -19,6 +19,22 @@ class Fade extends ShaderMask {
   );
 }
 
+class Tile extends RawMaterialButton {
+  Tile({Key? key, required Widget content, void Function()? onPressed = null}) : super(
+    key: key,
+    fillColor: Colors.blueAccent,
+    splashColor: Colors.lightBlue,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: content,
+    ),
+    onPressed: onPressed,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(24)),
+    ),
+  );
+}
+
 /// A big button.
 class BigButton extends RawMaterialButton {
   BigButton({Key? key, required IconData icon, required String label, required void Function() onPressed}) : super(
@@ -54,37 +70,28 @@ class BigButton extends RawMaterialButton {
 
 /// A header text.
 class Header extends Text {
-  const Header({Key? key, required String text}) : super(
+  Header({Key? key, required String text, Color color = Colors.black}) : super(
     text, 
     key: key, 
-    style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600)
-  );
-}
-
-/// A colorized header text.
-class ColorHeader extends Text {
-  const ColorHeader({Key? key, required String text}) : super(
-    text, 
-    key: key, 
-    style: const TextStyle(fontSize: 38, color: Colors.blueAccent, fontWeight: FontWeight.bold)
+    style: TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: color),
   );
 }
 
 /// A sub header text.
 class SubHeader extends Text {
-  const SubHeader({Key? key, required String text}) : super(
+  SubHeader({Key? key, required String text, Color color = Colors.black}) : super(
     text, 
     key: key, 
-    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w300)
+    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: color)
   );
 }
 
 /// A content text.
 class Content extends Text {
-  const Content({Key? key, required String text}) : super(
+  Content({Key? key, required String text, Color color = Colors.black}) : super(
     text, 
     key: key, 
-    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)
+    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: color)
   );
 }
 
