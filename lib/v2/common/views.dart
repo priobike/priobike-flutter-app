@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:priobike/v2/common/colors.dart';
 
 /// A fade wrapper to fade out views at the bottom and top of the screen.
 class Fade extends ShaderMask {
@@ -20,10 +21,17 @@ class Fade extends ShaderMask {
 }
 
 class Tile extends RawMaterialButton {
-  Tile({Key? key, required Widget content, void Function()? onPressed = null}) : super(
+  Tile({
+    Key? key, 
+    required Widget content, 
+    void Function()? onPressed,
+    Color fill = AppColors.lightGrey,
+    Color splash = Colors.white,
+  }) : super(
     key: key,
-    fillColor: Colors.blueAccent,
-    splashColor: Colors.lightBlue,
+    elevation: 0,
+    fillColor: fill,
+    splashColor: splash,
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: content,
@@ -31,6 +39,45 @@ class Tile extends RawMaterialButton {
     onPressed: onPressed,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(24)),
+    ),
+  );
+}
+
+class ColorTile extends Tile {
+  ColorTile({
+    Key? key, 
+    required Widget content, 
+    void Function()? onPressed,
+    Color fill = Colors.blueAccent,
+    Color splash = Colors.lightBlue,
+  }) : super(
+    key: key,
+    content: content,
+    onPressed: onPressed,
+    fill: Colors.blueAccent,
+    splash: Colors.lightBlue,
+  );
+}
+
+/// A small icon button.
+class SmallIconButton extends SizedBox {
+  SmallIconButton({Key? key, required IconData icon, required void Function() onPressed}) : super(
+    key: key,
+    width: 48,
+    height: 48,
+    child: RawMaterialButton(
+      elevation: 0,
+      fillColor: AppColors.lightGrey,
+      splashColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Icon(
+          icon,
+          color: Colors.black,
+        ),
+      ),
+      onPressed: onPressed,
+      shape: const CircleBorder(),
     ),
   );
 }
@@ -95,6 +142,15 @@ class Content extends Text {
   );
 }
 
+/// A content text.
+class Small extends Text {
+  Small({Key? key, required String text, Color color = Colors.black}) : super(
+    text, 
+    key: key, 
+    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: color)
+  );
+}
+
 /// A regular vertical padding.
 class VPad extends Padding {
   const VPad({Key? key, required Widget child}) : super(
@@ -124,7 +180,7 @@ class Pad extends Padding {
 
 /// A regular vertical space.
 class VSpace extends SizedBox {
-  const VSpace({Key? key}) : super(key: key, height: 32);
+  const VSpace({Key? key}) : super(key: key, height: 24);
 }
 
 /// A small vertical space.
@@ -134,7 +190,7 @@ class SmallVSpace extends SizedBox {
 
 /// A regular horizontal space.
 class HSpace extends SizedBox {
-  const HSpace({Key? key}) : super(key: key, width: 32);
+  const HSpace({Key? key}) : super(key: key, width: 24);
 }
 
 /// A small horizontal space.
