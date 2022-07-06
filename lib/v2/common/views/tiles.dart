@@ -1,0 +1,27 @@
+
+import 'package:flutter/material.dart';
+import 'package:priobike/v2/common/colors.dart';
+
+class Tile extends RawMaterialButton {
+  Tile({
+    Key? key, 
+    required Widget content, 
+    void Function()? onPressed,
+    Color fill = AppColors.lightGrey,
+    Color splash = Colors.white,
+    EdgeInsets padding = const EdgeInsets.all(16),
+  }) : super(
+    key: key,
+    elevation: 0,
+    fillColor: fill,
+    splashColor: splash,
+    child: Padding(
+      padding: padding,
+      child: content,
+    ),
+    onPressed: onPressed,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(24)),
+    ),
+  );
+}

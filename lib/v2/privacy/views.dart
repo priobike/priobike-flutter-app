@@ -2,11 +2,35 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/debug.dart';
-import 'package:priobike/v2/common/views.dart';
+import 'package:priobike/v2/common/views/buttons.dart';
+import 'package:priobike/v2/common/views/fx.dart';
+import 'package:priobike/v2/common/views/spacing.dart';
+import 'package:priobike/v2/common/views/text.dart';
 import 'package:priobike/v2/privacy/models.dart';
 
 /// Debug these views.
 void main() => debug(const PrivacyProxyView(wrappedView: Text("Proxied View")));
+
+/// A list item with icon.
+class IconItem extends Row {
+  IconItem({Key? key, required IconData icon, required String text}) : super(
+    key: key,
+    children: [
+      SizedBox(
+        width: 64,
+        height: 64,
+        child: Icon(
+          icon,
+          color: Colors.blueAccent,
+          size: 64,
+          semanticLabel: text,
+        )
+      ),
+      const SmallHSpace(),
+      Expanded(child: Content(text: text)),
+    ]
+  );
+}
 
 /// A privacy proxy view that displays the following:
 /// - A loading indicator, if something is loading
