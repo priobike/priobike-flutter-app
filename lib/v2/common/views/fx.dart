@@ -10,7 +10,7 @@ class Fade extends ShaderMask {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [Colors.purple, Colors.transparent, Colors.transparent, Colors.purple],
-        stops: [0.0, 0.1, 0.7, 1.0],
+        stops: [0.0, 0.05, 0.95, 1.0],
       ).createShader(rect);
     },
     blendMode: BlendMode.dstOut, 

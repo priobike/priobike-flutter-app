@@ -12,6 +12,8 @@ class PrivacyPolicy extends ChangeNotifier {
   /// An indicator if the privacy policy has changed.
   bool hasChanged;
 
+  PrivacyPolicy({required this.text, required this.isConfirmed, required this.hasChanged});
+
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
   static const key = "priobike.privacy.accepted-policy";
 
@@ -28,10 +30,8 @@ class PrivacyPolicy extends ChangeNotifier {
   /// Confirm the privacy policy.
   Future<void> confirm() async {
     final storage = await SharedPreferences.getInstance();
-    storage.setString(key, text);
+    await storage.setString(key, text);
     isConfirmed = true;
     notifyListeners();
   }
-
-  PrivacyPolicy({required this.text, required this.isConfirmed, required this.hasChanged});
 }
