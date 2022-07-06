@@ -13,6 +13,9 @@ class Tile extends RawMaterialButton {
   }) : super(
     key: key,
     elevation: 0,
+    hoverElevation: 0,
+    focusElevation: 0,
+    highlightElevation: 0,
     fillColor: fill,
     splashColor: splash,
     child: Padding(

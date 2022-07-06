@@ -2,13 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/colors.dart';
+import 'package:priobike/v2/common/views/spacing.dart';
 import 'package:priobike/v2/common/views/text.dart';
 import 'package:priobike/v2/common/views/tiles.dart';
+import 'package:priobike/v2/home/models/shortcut.dart';
 
 class ShortcutView extends StatelessWidget {
   final IconData icon;
   final String title;
-  final bool primary;
   final double width;
   final double rightPad;
 
@@ -16,7 +17,6 @@ class ShortcutView extends StatelessWidget {
     Key? key, 
     required this.icon, 
     required this.title, 
-    this.primary = false, 
     required this.width, 
     required this.rightPad
   }) : super(key: key);
@@ -29,17 +29,21 @@ class ShortcutView extends StatelessWidget {
       padding: EdgeInsets.only(right: rightPad),
       child: Tile(
         onPressed: () {},
-        content: Row(children: [
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 64, color: primary ? Colors.white : Colors.black),
-              Content(text: title, color: primary ? Colors.white : Colors.black, maxLines: 1, overflow: TextOverflow.ellipsis),
-            ],
-          )),
-        ]),
-        fill: primary ? Colors.blueAccent : AppColors.lightGrey,
-        splash: primary ? Colors.lightBlue : Colors.white,
+        content: SizedBox(
+          height: 128,
+          child: Row(children: [
+            Expanded(child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 64, color: Colors.black),
+                Expanded(child: Container()),
+                Content(text: title, color: Colors.black, maxLines: 3, overflow: TextOverflow.ellipsis),
+              ],
+            )),
+          ])
+        ),
+        fill: AppColors.lightGrey,
+        splash: Colors.white,
       ),
     );
   }
@@ -50,33 +54,47 @@ class ShortcutsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<List<Shortcut>>(
+      future: Shortcut.loadAll(),
+      builder: (BuildContext context, AsyncSnapshot<List<Shortcut>> snapshot) {
+        if (!snapshot.hasData) {
+          // Still loading
+          return renderLoadingIndicator();
+        }
+        var profile = snapshot.data!;
+        return renderShortcuts(context, profile);
+      },
+    );
+  }
+
+  /// Render a loading indicator.
+  Widget renderLoadingIndicator() {
+    return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Tile(
+        content: Center(child: SizedBox(
+          height: 86, 
+          width: 86, 
+          child: Column(children: const [
+            CircularProgressIndicator(),
+          ])
+        ))
+      )
+    ]));
+  }
+
+  Widget renderShortcuts(BuildContext context, List<Shortcut> shortcuts) {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 24),
       scrollDirection: Axis.horizontal, 
-      child: Row(children: [
-        ShortcutView(
-          icon: Icons.route, 
-          title: "Routing starten", 
-          width: shortcutWidth, 
-          rightPad: shortcutRightPad,
-          primary: true,
-        ),
-        ShortcutView(
-          icon: Icons.home, 
-          title: "Shortcut 1", 
-          width: shortcutWidth, 
-          rightPad: shortcutRightPad,
-        ),
-        ShortcutView(
-          icon: Icons.home, 
-          title: "Shortcut 2", 
-          width: shortcutWidth, 
-          rightPad: shortcutRightPad,
-        ),
-      ]),
+      child: Row(children: shortcuts.map((shortcut) => ShortcutView(
+        icon: shortcut.icon, 
+        title: shortcut.name, 
+        width: shortcutWidth, 
+        rightPad: shortcutRightPad,
+      )).toList()),
     );
   }
 }

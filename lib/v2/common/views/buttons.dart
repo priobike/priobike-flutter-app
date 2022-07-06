@@ -11,7 +11,7 @@ class SmallIconButton extends SizedBox {
     child: RawMaterialButton(
       elevation: 0,
       fillColor: AppColors.lightGrey,
-      splashColor: Colors.white,
+      splashColor: Colors.grey,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Icon(

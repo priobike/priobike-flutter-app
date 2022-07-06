@@ -29,19 +29,15 @@ class ProfileElementButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tile(
-      padding: const EdgeInsets.all(4), 
-      content: Tile(
-        fill: backgroundColor,
-        splash: touchColor,
-        padding: const EdgeInsets.all(4),
-        content: Column(children: [
-          Icon(icon, size: 48, color: color),
-          const SmallVSpace(),
-          Small(text: title, color: color),
-        ]),
-        onPressed: onPressed,
-      ), 
-      fill: Colors.white
+      fill: backgroundColor,
+      splash: touchColor,
+      padding: const EdgeInsets.all(8),
+      content: Column(children: [
+        Icon(icon, size: 48, color: color),
+        const SmallVSpace(),
+        Small(text: title, color: color),
+      ]),
+      onPressed: onPressed,
     );
   }
 }
@@ -181,7 +177,7 @@ class ProfileViewState extends State<ProfileView> {
 
   Widget renderBikeTypeSelection(Profile profile) {
     return Column(children: [
-      const VSpace(),
+      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deinen Radtyp")),
         SmallIconButton(icon: Icons.close, onPressed: () {
@@ -211,7 +207,7 @@ class ProfileViewState extends State<ProfileView> {
 
   Widget renderPreferenceTypeSelection(Profile profile) {
     return Column(children: [
-      const VSpace(),
+      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deine Routenpräferenz")),
         SmallIconButton(icon: Icons.close, onPressed: () {
@@ -241,7 +237,7 @@ class ProfileViewState extends State<ProfileView> {
 
   Widget renderActivityTypeSelection(Profile profile) {
     return Column(children: [
-      const VSpace(),
+      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deine Aktivität")),
         SmallIconButton(icon: Icons.close, onPressed: () {
