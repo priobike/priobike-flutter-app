@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/colors.dart';
 import 'package:priobike/v2/common/debug.dart';
-import 'package:priobike/v2/common/views/fx.dart';
-import 'package:priobike/v2/common/views/spacing.dart';
-import 'package:priobike/v2/common/views/text.dart';
+import 'package:priobike/v2/common/fx.dart';
+import 'package:priobike/v2/common/layout/spacing.dart';
+import 'package:priobike/v2/common/layout/text.dart';
 import 'package:priobike/v2/home/views/nav.dart';
 import 'package:priobike/v2/home/views/profile.dart';
 import 'package:priobike/v2/home/views/shortcuts.dart';

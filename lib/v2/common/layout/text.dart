@@ -53,6 +53,23 @@ class Content extends Text {
   );
 }
 
+/// A bold content text.
+class BoldContent extends Text {
+  BoldContent({
+    Key? key, 
+    required String text, 
+    TextOverflow? overflow,
+    int? maxLines, 
+    Color color = Colors.black
+  }) : super(
+    text, 
+    key: key, 
+    overflow: overflow,
+    maxLines: maxLines,
+    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color)
+  );
+}
+
 /// A content text.
 class Small extends Text {
   Small({

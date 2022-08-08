@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:priobike/v2/routing/models.dart';
+import 'package:priobike/v2/routing/models/waypoint.dart';
 
 class Shortcut extends ChangeNotifier {
   /// The name of the shortcut.

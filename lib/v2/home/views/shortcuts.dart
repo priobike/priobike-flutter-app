@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/colors.dart';
-import 'package:priobike/v2/common/views/spacing.dart';
-import 'package:priobike/v2/common/views/text.dart';
-import 'package:priobike/v2/common/views/tiles.dart';
+import 'package:priobike/v2/common/layout/spacing.dart';
+import 'package:priobike/v2/common/layout/text.dart';
+import 'package:priobike/v2/common/layout/tiles.dart';
 import 'package:priobike/v2/home/models/shortcut.dart';
 
 class ShortcutView extends StatelessWidget {

@@ -84,6 +84,13 @@ flutter:
     - assets/tracks/hamburg/thomas.json
     - assets/tracks/dresden/philipp.json
 
+    # Map symbols
+    - assets/images/alert.drawio.png
+    - assets/images/start.drawio.png
+    - assets/images/destination.drawio.png
+    - assets/images/trafficlight.drawio.png
+    - assets/images/waypoint.drawio.png
+
     - assets/images/direction.png
     - assets/images/trafficlight.png
     - assets/images/start.png

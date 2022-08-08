@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:priobike/v2/common/views/buttons.dart';
-import 'package:priobike/v2/common/views/spacing.dart';
-import 'package:priobike/v2/common/views/text.dart';
+import 'package:priobike/v2/common/layout/buttons.dart';
+import 'package:priobike/v2/common/layout/spacing.dart';
+import 'package:priobike/v2/common/layout/text.dart';
 
 class NavBarView extends StatelessWidget {
   const NavBarView({Key? key}) : super(key: key);
