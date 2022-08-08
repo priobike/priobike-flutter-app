@@ -11,10 +11,10 @@ class AppMap extends MapboxMap {
     ),
     void Function(MapboxMapController)? onMapCreated,
     void Function()? onStyleLoaded,
-    AttributionButtonPosition? attributionButtonPosition = AttributionButtonPosition.TopLeft,
+    AttributionButtonPosition? attributionButtonPosition = AttributionButtonPosition.BottomRight,
   }) : super(
     key: key,
-    styleString: "mapbox://styles/mapbox/light-v10",
+    // styleString: "mapbox://styles/mapbox/light-v10",
     // TODO: Pass this access token by environment
     accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
     onMapCreated: onMapCreated,

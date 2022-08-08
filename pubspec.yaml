@@ -53,6 +53,7 @@ dependencies:
   package_info_plus: ^1.4.2
   mapbox_gl: ^0.16.0
   shared_preferences: ^2.0.15
+  carousel_slider: ^4.1.1
 
 dev_dependencies:
   flutter_test:

@@ -24,7 +24,7 @@ const exampleRoute = Route(
       LatLng(53.563983, 9.902759),
       LatLng(53.563605, 9.903354),
     ]),
-    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße.", coordinates: [
+    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße. Dies ist ein längerer Text.", coordinates: [
       LatLng(53.564517, 9.901752),
     ]),
   ]
@@ -56,7 +56,7 @@ const exampleAltRoute = Route(
       LatLng(53.563983, 9.902759),
       LatLng(53.563605, 9.903354),
     ]),
-    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße.", coordinates: [
+    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße. Dies ist ein längerer Text.", coordinates: [
       LatLng(53.564517, 9.901752),
     ]),
   ]
@@ -65,7 +65,7 @@ const exampleAltRoute = Route(
 class MockRoutingService extends RoutingService {
   MockRoutingService() : super(selectedWaypoints: const [
     Waypoint(53.564813, 9.901410, address: "Friedensallee, 22761 Hamburg"),
-    Waypoint(53.563083, 9.904235, address: "Friedensallee 361, 22761 Hamburg"),
+    Waypoint(53.563083, 9.904235, address: "Friedensallee 361, 22761 Hamburg, Deutschland"),
   ]);
 
   @override

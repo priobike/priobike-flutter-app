@@ -1,8 +1,7 @@
 
-
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/v2/common/colors.dart';
 import 'package:priobike/v2/common/debug.dart';
 import 'package:priobike/v2/common/layout/buttons.dart';
 import 'package:priobike/v2/common/layout/spacing.dart';
@@ -11,6 +10,7 @@ import 'package:priobike/v2/common/map/data.dart';
 import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
 import 'package:priobike/v2/common/map/view.dart';
+import 'package:priobike/v2/routing/models/discomfort.dart';
 import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +24,85 @@ void main() => debug(MultiProvider(
   ],
   child: const RoutingView(),
 ));
+
+class AlertsView extends StatefulWidget {
+  /// The discomforts to show as alerts in this view.
+  final List<Discomfort>? discomforts;
+
+  const AlertsView({required this.discomforts, Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => AlertsViewState();
+}
+
+class AlertsViewState extends State<AlertsView> {
+  var current = 0;
+
+  final CarouselController controller = CarouselController();
+
+  @override
+  Widget build(BuildContext context) {
+    // Show nothing if there are no alerts to display.
+    if (widget.discomforts == null || widget.discomforts!.isEmpty) return Container();
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Column(children: [
+          Expanded(child: CarouselSlider(
+            items: widget.discomforts!.map((e) => Padding(
+              padding: const EdgeInsets.only(left: 16), 
+              child: Row(children: [
+                const Image(
+                  image: AssetImage("assets/images/alert.drawio.png"),
+                  width: 24,
+                  height: 24,
+                  color: null,
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                ),
+                const SmallHSpace(),
+                SizedBox(
+                  width: constraints.maxWidth - 107,
+                  height: constraints.maxHeight - 28,
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                    BoldContent(text: "Hinweis zur Route"),
+                    const SizedBox(height: 2),
+                    Small(text: e.description, maxLines: 3),
+                  ])
+                ),
+              ]))
+            ).toList(),
+            carouselController: controller,
+            options: CarouselOptions(
+              enlargeCenterPage: true,
+              padEnds: false,
+              aspectRatio: constraints.maxWidth / (constraints.maxHeight - 32),
+              onPageChanged: (index, reason) {
+                setState(() { current = index; });
+              }
+            ),
+          )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: widget.discomforts!.asMap().entries.map((entry) {
+              return GestureDetector(
+                onTap: () => controller.animateToPage(entry.key),
+                child: Container(
+                  width: 8, height: 8,
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: current == entry.key ? const Color.fromARGB(255, 255, 0, 0) : Colors.grey
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ]);
+      },
+    );
+  }
+}
 
 class RoutingView extends StatefulWidget {
   const RoutingView({Key? key}) : super(key: key);
@@ -189,10 +268,16 @@ class _RoutingViewState extends State<RoutingView> {
   }
 
   /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded() async {
+  Future<void> onStyleLoaded(MediaQueryData frame) async {
     if (mapController == null) return;
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+
+    // Fit the content below the top and the bottom stuff.
+    await mapController!.updateContentInsets(EdgeInsets.only(
+      top: 164, bottom: frame.size.height * 0.3,
+      left: 8, right: 8,
+    ));
 
     // Force adapt the map controller.
     adaptMapController(s);
@@ -204,11 +289,9 @@ class _RoutingViewState extends State<RoutingView> {
     final frame = MediaQuery.of(context);
 
     return Stack(children: [
-      Container(
-        height: frame.size.height * 0.8, 
-        child: AppMap(onMapCreated: onMapCreated, onStyleLoaded: onStyleLoaded)
-      ),
+      AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(frame)),
       renderBackButton(context),
+      renderAlerts(context),
       DraggableScrollableSheet(
         initialChildSize: 0.3,
         maxChildSize: 0.6,
@@ -226,11 +309,31 @@ class _RoutingViewState extends State<RoutingView> {
     );
   }
 
+  Widget renderAlerts(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 64, left: 80), 
+      child: Container(
+        height: 92,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24.0),
+            bottomLeft: Radius.circular(24.0),
+          ),
+        ),
+        child: AlertsView(discomforts: s.selectedRoute?.discomforts),
+      ),
+    );
+  }
+
   Widget renderBottomSheet(BuildContext context, ScrollController controller) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(32.0)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(32.0),
+          topRight: Radius.circular(32.0),
+        ),
       ),
       child: ListView(controller: controller, padding: const EdgeInsets.all(8), children: [
         Column(children: [
@@ -257,7 +360,7 @@ class _RoutingViewState extends State<RoutingView> {
     if (s.fetchedWaypoints == null) return Container();
     final frame = MediaQuery.of(context);
     return Stack(children: [
-      Row( children: [
+      Row(children: [
         const SizedBox(width: 12),
         Column(children: [
           const SizedBox(height: 8),
@@ -304,7 +407,13 @@ class _RoutingViewState extends State<RoutingView> {
               padding: const EdgeInsets.all(4),
               child: Row(children: [
                 const SmallHSpace(),
-                BoldContent(text: entry.value.address),
+                Flexible(
+                  child: BoldContent(
+                    text: entry.value.address, 
+                    maxLines: 1, 
+                    overflow: TextOverflow.ellipsis
+                  ),
+                ),
               ]),
             ),
           ]),

@@ -17,7 +17,7 @@ class AltRouteLayer extends LineOptions {
   AltRouteLayer({ required List<LatLng> points }) : super(
     geometry: points,
     lineWidth: 7.0,
-    lineColor: "#C6C6C6",
+    lineColor: "#868686",
     lineJoin: "round",
   );
 }
