@@ -37,10 +37,13 @@ class DiscomfortLocationMarker extends SymbolOptions {
   /// Create a new discomfort location marker.
   DiscomfortLocationMarker({
     required LatLng geo,
+    required int number,
   }): super(
     geometry: geo,
     iconImage: "alert",
-    iconSize: 0.75,
+    iconSize: 1,
+    textField: "$number",
+    iconOffset: const Offset(2, -1.5),
   );
 }
 
@@ -52,8 +55,7 @@ class TrafficLightMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "trafficlight",
-    iconSize: 1,
-    iconOffset: const Offset(0, -24),
+    iconSize: 0.6,
   );
 }
 

@@ -70,7 +70,7 @@ class BoldContent extends Text {
   );
 }
 
-/// A content text.
+/// A small text.
 class Small extends Text {
   Small({
     Key? key, 
@@ -84,5 +84,22 @@ class Small extends Text {
     overflow: overflow,
     maxLines: maxLines,
     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: color)
+  );
+}
+
+/// A bold small text.
+class BoldSmall extends Text {
+  BoldSmall({
+    Key? key, 
+    required String text, 
+    TextOverflow? overflow,
+    int? maxLines, 
+    Color color = Colors.black
+  }) : super(
+    text, 
+    key: key, 
+    overflow: overflow,
+    maxLines: maxLines,
+    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)
   );
 }

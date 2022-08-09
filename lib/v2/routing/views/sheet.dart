@@ -27,6 +27,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    if (s.selectedRoute == null) return Container();
+    
+    final distInfo = "${((s.selectedRoute!.distance) / 1000).toStringAsFixed(1)}km";
+    final timeInfo = s.selectedRoute!.duration < 3600 ? "${(s.selectedRoute!.duration / 60).toStringAsFixed(0)}min"
+      : "${(s.selectedRoute!.duration / 3600).toStringAsFixed(0)}h";
+
     return DraggableScrollableSheet(
       initialChildSize: 0.3, maxChildSize: 0.6,
       builder: (BuildContext context, ScrollController controller) {
@@ -46,7 +52,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               const SmallVSpace(),
               renderBottomSheetWaypoints(context),
               const SmallVSpace(),
-              BigButton(label: "Starten", onPressed: () {
+              BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: () {
                 // TODO: Open ride view
               }),
               const VSpace(),

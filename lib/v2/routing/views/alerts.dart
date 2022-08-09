@@ -48,10 +48,16 @@ class AlertsViewState extends State<AlertsView> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(alignment: AlignmentDirectional.topStart, children: [
           CarouselSlider(
-            items: widget.discomforts!.map((e) => Padding(
+            items: widget.discomforts!.asMap().entries.map((e) => Padding(
               padding: const EdgeInsets.only(left: 16, top: 0), 
               child: Row(children: [
-                const AlertIcon(),
+                Stack(alignment: AlignmentDirectional.center, children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 3, bottom: 3),
+                    child: AlertIcon(),
+                  ),
+                  BoldSmall(text: "${e.key + 1}"),
+                ]),
                 const SmallHSpace(),
                 SizedBox(
                   width: constraints.maxWidth - 112,
@@ -60,7 +66,7 @@ class AlertsViewState extends State<AlertsView> {
                     crossAxisAlignment: CrossAxisAlignment.start, 
                     mainAxisAlignment: MainAxisAlignment.center, 
                     children: [
-                      Flexible(child: Small(text: e.description, maxLines: 3)),
+                      Flexible(child: Small(text: e.value.description, maxLines: 3)),
                     ],
                   ),
                 ),

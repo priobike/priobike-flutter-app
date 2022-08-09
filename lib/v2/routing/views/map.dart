@@ -42,6 +42,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
+  /// Labels for the route and alt routes.
+  List<Symbol>? labels;
+
   @override
   void didChangeDependencies() {
     s = Provider.of<RoutingService>(context);
@@ -68,10 +71,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     altRoutes = [];
     for (r.Route altRoute in s.altRoutes ?? []) {
       altRoutes!.add(await mapController!.addLine(
-        AltRouteBackgroundLayer(points: altRoute.coordinates),
-        altRoute.toJson(),
-      ));
-      altRoutes!.add(await mapController!.addLine(
         AltRouteLayer(points: altRoute.coordinates),
         altRoute.toJson(),
       ));
@@ -91,10 +90,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (s.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteBackgroundLayer(points: s.selectedRoute!.coordinates),
-      s.selectedRoute!.toJson(),
-    );
-    route = await mapController!.addLine(
       RouteLayer(points: s.selectedRoute!.coordinates),
       s.selectedRoute!.toJson(),
     );
@@ -110,20 +105,28 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
-    for (Discomfort discomfort in s.selectedRoute?.discomforts ?? []) {
-      if (discomfort.coordinates.isEmpty) continue;
-      if (discomfort.coordinates.length == 1) {
+    for (MapEntry<int, Discomfort> e in s.selectedRoute?.discomforts?.asMap().entries ?? []) {
+      if (e.value.coordinates.isEmpty) continue;
+      if (e.value.coordinates.length == 1) {
         // A single location.
-        final location =  discomfort.coordinates[0];
+        final location = e.value.coordinates.first;
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location),
-          discomfort.toJson(),
+          DiscomfortLocationMarker(geo: location, number: e.key + 1),
+          e.value.toJson(),
         ));
       } else {
         // A section of the route.
+        discomfortLocations!.add(await mapController!.addSymbol(
+          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1),
+          e.value.toJson(),
+        ));
+        discomfortLocations!.add(await mapController!.addSymbol(
+          DiscomfortLocationMarker(geo: e.value.coordinates.last, number: e.key + 1),
+          e.value.toJson(),
+        ));
         discomfortSections!.add(await mapController!.addLine(
-          DiscomfortSectionLayer(points: discomfort.coordinates),
-          discomfort.toJson(),
+          DiscomfortSectionLayer(points: e.value.coordinates),
+          e.value.toJson(),
         ));        
       }
     }
