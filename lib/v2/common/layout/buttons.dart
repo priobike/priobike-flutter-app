@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:priobike/v2/common/colors.dart';
 
 /// A small icon button.
 class SmallIconButton extends SizedBox {
