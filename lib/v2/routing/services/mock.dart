@@ -48,14 +48,8 @@ final exampleAltRoute = Route(
   ], 
   duration: 60, 
   distance: 270,
-  trafficLights: const [
-    LatLng(53.563983, 9.902759),
-  ],
+  trafficLights: const [],
   discomforts: const [
-    Discomfort(description: "Dieser Wegabschnitt ist unbefestigt.", coordinates: [
-      LatLng(53.563983, 9.902759),
-      LatLng(53.563605, 9.903354),
-    ]),
     Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße. Dies ist ein längerer Text.", coordinates: [
       LatLng(53.564517, 9.901752),
     ]),

@@ -23,6 +23,12 @@ class Route {
   /// The (optional) list of discomforts along the route.
   final List<Discomfort>? discomforts;
 
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is Route && other.id == id;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),

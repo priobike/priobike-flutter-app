@@ -37,7 +37,15 @@ class RoutingService with ChangeNotifier {
   }
 
   /// Select an alternative route.
-  selectRoute(route.Route? route) {
-    
+  switchToAltRoute(route.Route route) {
+    // Can only select an alternative route if there are some, 
+    // and if there is a currently selected route.
+    if (altRoutes == null || selectedRoute == null) return;
+    // Can only select the alternative route if it is valid.
+    if (!altRoutes!.contains(route)) return;
+    altRoutes!.remove(route);
+    altRoutes!.add(selectedRoute!);
+    selectedRoute = route;
+    notifyListeners();
   }
 }

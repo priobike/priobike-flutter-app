@@ -45,15 +45,17 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void didChangeDependencies() {
     s = Provider.of<RoutingService>(context);
-
-    loadAltRouteLayers(s);
-    loadRouteLayer(s);
-    loadDiscomforts(s);
-    loadTrafficLightMarkers(s);
-    loadWaypointMarkers(s);
-    adaptMapController(s);
-
+    adaptMap(s);
     super.didChangeDependencies();
+  }
+
+  Future<void> adaptMap(RoutingService s) async {
+    await loadAltRouteLayers(s);
+    await loadRouteLayer(s);
+    await loadDiscomforts(s);
+    await loadTrafficLightMarkers(s);
+    await loadWaypointMarkers(s);
+    await adaptMapController(s);
   }
 
   /// Load the alt route layers.
@@ -66,7 +68,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
     altRoutes = [];
     for (r.Route altRoute in s.altRoutes ?? []) {
       altRoutes!.add(await mapController!.addLine(
+        AltRouteBackgroundLayer(points: altRoute.coordinates),
+        altRoute.toJson(),
+      ));
+      altRoutes!.add(await mapController!.addLine(
         AltRouteLayer(points: altRoute.coordinates),
+        altRoute.toJson(),
+      ));
+      altRoutes!.add(await mapController!.addLine(
+        AltRouteClickLayer(points: altRoute.coordinates),
         altRoute.toJson(),
       ));
     }
@@ -80,6 +90,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (route != null) await mapController!.removeLine(route!);
     if (s.selectedRoute == null) return;
     // Add the new route layer.
+    route = await mapController!.addLine(
+      RouteBackgroundLayer(points: s.selectedRoute!.coordinates),
+      s.selectedRoute!.toJson(),
+    );
     route = await mapController!.addLine(
       RouteLayer(points: s.selectedRoute!.coordinates),
       s.selectedRoute!.toJson(),
@@ -161,7 +175,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// Adapt the map controller.
   Future<void> adaptMapController(RoutingService s) async {
     if (s.selectedRoute != null) {
-      await mapController?.moveCamera(CameraUpdate.newLatLngBounds(s.selectedRoute!.paddedBounds));
+      await mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(s.selectedRoute!.paddedBounds)
+      );
     }
   }
 
@@ -177,7 +193,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (Line altRoute in altRoutes ?? []) {
       if (line.id == altRoute.id) {
         var route = r.Route.fromJson(line.data);
-        s.selectRoute(route);
+        s.switchToAltRoute(route);
       }
     }
   }
@@ -204,7 +220,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(EdgeInsets.only(
-      top: 86, bottom: frame.size.height * 0.3 /* Sheet size */,
+      top: 108, bottom: frame.size.height * 0.3 /* Sheet size */,
       left: 8, right: 8,
     ));
 

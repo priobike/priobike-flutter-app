@@ -1,33 +1,55 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 
-/// A map layer which marks the route on the map.
 class RouteLayer extends LineOptions {
-  /// Create a new route layer.
   RouteLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 10.0,
+    lineWidth: 7.0,
     lineColor: "#0094FF",
     lineJoin: "round",
   );
 }
 
-/// A map layer which marks an alternative route on the map.
-class AltRouteLayer extends LineOptions {
-  /// Create a new alt route layer.
-  AltRouteLayer({ required List<LatLng> points }) : super(
+class RouteBackgroundLayer extends LineOptions {
+  RouteBackgroundLayer({ required List<LatLng> points }) : super(
     geometry: points,
     lineWidth: 10.0,
-    lineColor: "#868686",
+    lineColor: "#4b6584",
     lineJoin: "round",
   );
 }
 
-/// A map layer which marks a discomfort section on the map.
+class AltRouteLayer extends LineOptions {
+  AltRouteLayer({ required List<LatLng> points }) : super(
+    geometry: points,
+    lineWidth: 7.0,
+    lineColor: "#d1d8e0",
+    lineJoin: "round",
+  );
+}
+
+class AltRouteBackgroundLayer extends LineOptions {
+  AltRouteBackgroundLayer({ required List<LatLng> points }) : super(
+    geometry: points,
+    lineWidth: 9.0,
+    lineColor: "#4b6584",
+    lineJoin: "round",
+    lineBlur: 0,
+  );
+}
+
+class AltRouteClickLayer extends LineOptions {
+  AltRouteClickLayer({ required List<LatLng> points }) : super(
+    geometry: points,
+    lineWidth: 100.0,
+    lineColor: "transparent",
+    lineJoin: "round",
+  );
+}
+
 class DiscomfortSectionLayer extends LineOptions {
-  /// Create a new discomfort section layer.
   DiscomfortSectionLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 10.0,
+    lineWidth: 7.0,
     lineColor: "#FF0000",
     lineJoin: "round",
   );
