@@ -10,4 +10,16 @@ class Discomfort {
   final List<LatLng> coordinates;
 
   const Discomfort({required this.description, required this.coordinates});
+
+  Map<String, dynamic> toJson() => {
+    'description': description,
+    'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
+  };
+
+  factory Discomfort.fromJson(dynamic json) {
+    return Discomfort(
+      description: json['description'],
+      coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
+    );
+  }
 }

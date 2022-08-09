@@ -49,6 +49,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               BigButton(label: "Starten", onPressed: () {
                 // TODO: Open ride view
               }),
+              const VSpace(),
+              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Content(text: "Weitere Informationen folgen!", color: Colors.grey),
+              ]),
             ],  
           ),
         );

@@ -92,3 +92,15 @@ class DestinationMarker extends SymbolOptions {
     iconSize: 1,
   );
 }
+
+/// A map layer which marks an intermediate position on the map.
+class WaypointMarker extends SymbolOptions {
+  /// Create a new waypoint marker.
+  WaypointMarker({
+    required LatLng geo,
+  }): super(
+    geometry: geo,
+    iconImage: "destination",
+    iconSize: 1,
+  );
+}

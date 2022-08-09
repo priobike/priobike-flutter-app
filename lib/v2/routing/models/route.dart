@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 class Route {
   /// A random unique id for this route.
-  final Uuid id = const Uuid();
+  late String id;
 
   /// The coordinates of the route, as calculated by the routing service.
   final List<LatLng> coordinates;
@@ -22,6 +22,26 @@ class Route {
 
   /// The (optional) list of discomforts along the route.
   final List<Discomfort>? discomforts;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
+    'duration': duration,
+    'distance': distance,
+    'trafficLights': trafficLights?.map((e) => <double>[e.latitude, e.longitude]).toList(),
+    'discomforts': discomforts?.map((e) => e.toJson()).toList(),
+  };
+
+  factory Route.fromJson(dynamic json) {
+    return Route(
+      id: json['id'],
+      coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
+      duration: json['duration'],
+      distance: json['distance'],
+      trafficLights: (json['trafficLights'] as List?)?.map((e) => LatLng(e[0], e[1])).toList(),
+      discomforts: (json['discomforts'] as List?)?.map((e) => Discomfort.fromJson(e)).toList(),
+    );
+  }
 
   /// Calculate the bounds of this route.
   LatLngBounds get bounds {
@@ -53,11 +73,18 @@ class Route {
     );
   }
 
-  const Route({
+  Route({
+    String? id,
     required this.coordinates, 
     required this.duration, 
     required this.distance,
     this.trafficLights,
     this.discomforts,
-  });
+  }) {
+    if (id == null) {
+      this.id = const Uuid().v4();
+    } else {
+      this.id = id;
+    }
+  }
 }

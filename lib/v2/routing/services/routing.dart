@@ -35,4 +35,9 @@ class RoutingService with ChangeNotifier {
   loadRoutes() async {
     // TODO: Load routes from the server.
   }
+
+  /// Select an alternative route.
+  selectRoute(route.Route? route) {
+    
+  }
 }

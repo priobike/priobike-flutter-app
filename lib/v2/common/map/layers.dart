@@ -5,7 +5,7 @@ class RouteLayer extends LineOptions {
   /// Create a new route layer.
   RouteLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 7.0,
+    lineWidth: 10.0,
     lineColor: "#0094FF",
     lineJoin: "round",
   );
@@ -16,7 +16,7 @@ class AltRouteLayer extends LineOptions {
   /// Create a new alt route layer.
   AltRouteLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 7.0,
+    lineWidth: 10.0,
     lineColor: "#868686",
     lineJoin: "round",
   );
@@ -27,7 +27,7 @@ class DiscomfortSectionLayer extends LineOptions {
   /// Create a new discomfort section layer.
   DiscomfortSectionLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 7.0,
+    lineWidth: 10.0,
     lineColor: "#FF0000",
     lineJoin: "round",
   );

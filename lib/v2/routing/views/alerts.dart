@@ -47,7 +47,7 @@ class AlertsViewState extends State<AlertsView> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(alignment: AlignmentDirectional.topStart, children: [
-          Expanded(child: CarouselSlider(
+          CarouselSlider(
             items: widget.discomforts!.map((e) => Padding(
               padding: const EdgeInsets.only(left: 16, top: 0), 
               child: Row(children: [
@@ -75,7 +75,7 @@ class AlertsViewState extends State<AlertsView> {
                 setState(() { current = index; });
               }
             ),
-          )),
+          ),
         ]);
       },
     );
