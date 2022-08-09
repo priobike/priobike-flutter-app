@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/v2/common/map/data.dart';
 import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
 import 'package:priobike/v2/common/map/view.dart';
@@ -127,7 +126,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (LatLng point in s.selectedRoute?.trafficLights ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
         TrafficLightMarker(geo: point),
-        point.toJson(),
       ));
     }
   }
@@ -168,29 +166,24 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async {
-    print(fill);
-  }
+  Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async {
-    print(circle);
-  }
+  Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
     // If the line corresponds to an alternative route, we select that one.
     for (Line altRoute in altRoutes ?? []) {
       if (line.id == altRoute.id) {
-        print("Found");
+        var route = r.Route.fromJson(line.data);
+        s.selectRoute(route);
       }
     }
   }
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async {
-    print(symbol);
-  }
+  Future<void> onSymbolTapped(Symbol symbol) async { /* Do nothing */ }
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {

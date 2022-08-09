@@ -8,18 +8,18 @@ import 'package:priobike/v2/routing/services/routing.dart';
 /// A simple example route.
 /// Note that this route was created arbitrarily by hand and contains mock (not actual) information.
 /// See: https://www.google.com/maps/dir/53.564789,9.901472/53.5630731,9.9042051/@53.5638537,9.9017505,18z/data=!3m1!4b1!4m2!4m1!3e1
-const exampleRoute = Route(
-  coordinates: [
+final exampleRoute = Route(
+  coordinates: const [
     LatLng(53.564813, 9.901410),
     LatLng(53.564292, 9.902202),
     LatLng(53.563083, 9.904235),
   ], 
   duration: 60, 
   distance: 270,
-  trafficLights: [
+  trafficLights: const [
     LatLng(53.563983, 9.902759),
   ],
-  discomforts: [
+  discomforts: const [
     Discomfort(description: "Dieser Wegabschnitt ist unbefestigt.", coordinates: [
       LatLng(53.563983, 9.902759),
       LatLng(53.563605, 9.903354),
@@ -33,8 +33,8 @@ const exampleRoute = Route(
 /// A simple example alternative route.
 /// Note that this route was created arbitrarily by hand and contains mock (not actual) information.
 /// See: https://www.google.com/maps/dir/53.564789,9.901472/53.5630731,9.9042051/@53.5638537,9.9017505,18z/data=!3m1!4b1!4m2!4m1!3e1
-const exampleAltRoute = Route(
-  coordinates: [
+final exampleAltRoute = Route(
+  coordinates: const [
     LatLng(53.564813, 9.901410),
     LatLng(53.564292, 9.902202),
     LatLng(53.564018, 9.902728),
@@ -48,10 +48,10 @@ const exampleAltRoute = Route(
   ], 
   duration: 60, 
   distance: 270,
-  trafficLights: [
+  trafficLights: const [
     LatLng(53.563983, 9.902759),
   ],
-  discomforts: [
+  discomforts: const [
     Discomfort(description: "Dieser Wegabschnitt ist unbefestigt.", coordinates: [
       LatLng(53.563983, 9.902759),
       LatLng(53.563605, 9.903354),
