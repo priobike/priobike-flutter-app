@@ -104,10 +104,10 @@ class PositionService with ChangeNotifier {
   /// The current navigator state key of the app.
   static GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
 
-  Logger log = Logger("RideService");
+  Logger log = Logger("PositionService");
 
   /// An indicator if the data of this notifier changed.
-  bool needsLayout = true;
+  Map<String, bool> needsLayout = {};
 
   /// The interface to the position source.
   /// See [PositionSource] for more information.
@@ -133,7 +133,7 @@ class PositionService with ChangeNotifier {
 
   PositionService({required this.positionSource}) {
     log.i("PositionService started.");
-    
+    startGeolocation();
   }
 
   /// Show a dialog if the location provider was denied.
@@ -246,7 +246,7 @@ class PositionService with ChangeNotifier {
 
   @override 
   void notifyListeners() {
-    needsLayout = true;
+    needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
   }
 }

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/v2/ride/services/positioning.dart';
+import 'package:priobike/v2/ride/services/position/position.dart';
 
 /// Unwrap a double from a json source safely.
 double checkDouble(dynamic value) {
@@ -15,6 +15,10 @@ double checkDouble(dynamic value) {
   }
 }
 
+const examplePosition = LatLng(53.564292, 9.902202);
+
+const exampleHeading = 140.0;
+
 /// A mocked position source in which the user never moves.
 class StaticMockPositionSource extends PositionSource {
   /// The static position.
@@ -23,7 +27,7 @@ class StaticMockPositionSource extends PositionSource {
   /// The static heading.
   final double heading;
 
-  StaticMockPositionSource({required this.position, required this.heading});
+  StaticMockPositionSource({this.position = examplePosition, this.heading = exampleHeading});
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
@@ -48,7 +52,7 @@ class StaticMockPositionSource extends PositionSource {
         latitude: position.latitude, 
         longitude: position.longitude, 
         altitude: 0,
-        speed: 0, 
+        speed: 4, 
         heading: heading, // Not 0, since 0 indicates an error. 
         accuracy: 1, 
         speedAccuracy: 1, 
@@ -65,7 +69,7 @@ class StaticMockPositionSource extends PositionSource {
 }
 
 class StaticMockPositionService extends PositionService {
-  StaticMockPositionService({required LatLng position, required double heading}) : super(
+  StaticMockPositionService({LatLng position = examplePosition, double heading = exampleHeading}) : super(
     positionSource: StaticMockPositionSource(position: position, heading: heading),
   );
 }

@@ -9,7 +9,7 @@ class RoutingService with ChangeNotifier {
   final Logger log = Logger("RoutingService");
 
   /// An indicator if the data of this notifier changed.
-  bool needsLayout = true;
+  Map<String, bool> needsLayout = {};
 
   /// A boolean indicating if the service is currently loading the route.
   bool isFetchingRoute = true;
@@ -54,7 +54,7 @@ class RoutingService with ChangeNotifier {
 
   @override 
   void notifyListeners() {
-    needsLayout = true;
+    needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
   }
 }

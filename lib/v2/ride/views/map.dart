@@ -4,8 +4,8 @@ import 'package:priobike/v2/common/debug.dart';
 import 'package:priobike/v2/common/map/view.dart';
 import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
-import 'package:priobike/v2/ride/services/mock.dart';
-import 'package:priobike/v2/ride/services/positioning.dart';
+import 'package:priobike/v2/ride/services/position/mock.dart';
+import 'package:priobike/v2/ride/services/position/position.dart';
 import 'package:priobike/v2/ride/views/position.dart';
 import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
@@ -18,10 +18,7 @@ void main() => debug(MultiProvider(
       create: (context) => MockRoutingService(),
     ),
     ChangeNotifierProvider<PositionService>(
-      create: (context) => StaticMockPositionService(
-        position: const LatLng(53.564292, 9.902202), 
-        heading: 140,
-      ),
+      create: (context) => StaticMockPositionService(),
     ),
   ],
   child: const RideMapView(),
@@ -35,6 +32,8 @@ class RideMapView extends StatefulWidget {
 }
 
 class RideMapViewState extends State<RideMapView> {
+  static const viewId = "ride.views.map";
+
   /// The associated routing service, which is injected by the provider.
   late RoutingService rs;
 
@@ -56,16 +55,15 @@ class RideMapViewState extends State<RideMapView> {
   @override
   void didChangeDependencies() {
     rs = Provider.of<RoutingService>(context);
-    if (rs.needsLayout && mapController != null) {
+    if (rs.needsLayout[viewId] != false && mapController != null) {
       onRoutingServiceUpdate(rs);
-      rs.needsLayout = false;
+      rs.needsLayout[viewId] = false;
     }
 
     ps = Provider.of<PositionService>(context);
-    if (!ps.isGeolocating) { ps.startGeolocation(); }
-    if (ps.needsLayout && mapController != null) {
+    if (ps.needsLayout[viewId] != false && mapController != null) {
       onPositionServiceUpdate(ps);
-      ps.needsLayout = false;
+      ps.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -186,7 +184,7 @@ class RideMapViewState extends State<RideMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    await mapController!.updateContentInsets(const EdgeInsets.all(0));
+    await mapController!.updateContentInsets(const EdgeInsets.only(bottom: 0));
 
     // Force adapt the map controller.
     adaptMapController(ps);
@@ -208,7 +206,7 @@ class RideMapViewState extends State<RideMapView> {
       alignment: Alignment.center,
       children: [
         AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(context)),
-        PositionIcon(),
+        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon()),
       ]
     );
   }

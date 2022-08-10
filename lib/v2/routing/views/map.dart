@@ -18,6 +18,8 @@ class RoutingMapView extends StatefulWidget {
 }
 
 class RoutingMapViewState extends State<RoutingMapView> {
+  static const viewId = "routing.views.map";
+
   /// The associated routing service, which is injected by the provider.
   late RoutingService s;
 
@@ -48,9 +50,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void didChangeDependencies() {
     s = Provider.of<RoutingService>(context);
-    if (s.needsLayout && mapController != null) {
+    if (s.needsLayout[viewId] != false && mapController != null) {
       adaptMap(s);
-      s.needsLayout = false;
+      s.needsLayout[viewId] = false;
     }
     super.didChangeDependencies();
   }
