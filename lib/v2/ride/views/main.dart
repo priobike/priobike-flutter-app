@@ -36,13 +36,13 @@ class _SpeedometerViewState extends State<SpeedometerView> {
   var mapIsUpdating = false;
 
   /// The  route that is displayed, if a route is selected.
-  MapElement<List<LatLng>, Line>? route;
+  Line? route;
 
   /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<MapElement<LatLng, Symbol>>? trafficLights;
+  List<Symbol>? trafficLights;
 
   /// The current waypoints, if the route is selected.
-  List<MapElement<LatLng, Symbol>>? waypoints;
+  List<Symbol>? waypoints;
 
   /// The current gauge colors, if we have the necessary data.
   List<Color> gaugeColors = defaultGaugeColors;

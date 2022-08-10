@@ -8,6 +8,9 @@ class RoutingService with ChangeNotifier {
   /// The logger for this service.
   final Logger log = Logger("RoutingService");
 
+  /// An indicator if the data of this notifier changed.
+  bool needsLayout = true;
+
   /// A boolean indicating if the service is currently loading the route.
   bool isFetchingRoute = true;
 
@@ -47,5 +50,11 @@ class RoutingService with ChangeNotifier {
     altRoutes!.add(selectedRoute!);
     selectedRoute = route;
     notifyListeners();
+  }
+
+  @override 
+  void notifyListeners() {
+    needsLayout = true;
+    super.notifyListeners();
   }
 }

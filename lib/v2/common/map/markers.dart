@@ -52,10 +52,11 @@ class TrafficLightMarker extends SymbolOptions {
   /// Create a new traffic light marker.
   TrafficLightMarker({
     required LatLng geo,
+    double iconSize = 0.6,
   }): super(
     geometry: geo,
     iconImage: "trafficlight",
-    iconSize: 0.6,
+    iconSize: iconSize,
   );
 }
 
@@ -67,7 +68,7 @@ class CurrentPositionMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "direction",
-    iconSize: 1,
+    iconSize: 2,
   );
 }
 
@@ -102,7 +103,7 @@ class WaypointMarker extends SymbolOptions {
     required LatLng geo,
   }): super(
     geometry: geo,
-    iconImage: "destination",
+    iconImage: "waypoint",
     iconSize: 1,
   );
 }

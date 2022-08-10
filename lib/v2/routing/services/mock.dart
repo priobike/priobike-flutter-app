@@ -56,11 +56,18 @@ final exampleAltRoute = Route(
   ]
 );
 
+const exampleWaypoints = [
+  Waypoint(53.564813, 9.901410, address: "Friedensallee, 22761 Hamburg"),
+  Waypoint(53.563083, 9.904235, address: "Friedensallee 361, 22761 Hamburg, Deutschland"),
+];
+
 class MockRoutingService extends RoutingService {
-  MockRoutingService() : super(selectedWaypoints: const [
-    Waypoint(53.564813, 9.901410, address: "Friedensallee, 22761 Hamburg"),
-    Waypoint(53.563083, 9.904235, address: "Friedensallee 361, 22761 Hamburg, Deutschland"),
-  ]);
+  MockRoutingService() : super(
+    selectedWaypoints: exampleWaypoints,
+    selectedRoute: exampleRoute,
+    altRoutes: [exampleAltRoute],
+    fetchedWaypoints: exampleWaypoints,
+  );
 
   @override
   loadRoutes() async {

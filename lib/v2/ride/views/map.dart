@@ -1,40 +1,51 @@
-
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/v2/common/debug.dart';
+import 'package:priobike/v2/common/map/view.dart';
 import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
-import 'package:priobike/v2/common/map/view.dart';
-import 'package:priobike/v2/routing/models/discomfort.dart';
-import 'package:priobike/v2/routing/models/waypoint.dart';
+import 'package:priobike/v2/ride/services/mock.dart';
+import 'package:priobike/v2/ride/services/positioning.dart';
+import 'package:priobike/v2/ride/views/position.dart';
+import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
-import 'package:priobike/v2/routing/models/route.dart' as r;
+import 'package:priobike/v2/routing/models/waypoint.dart';
 import 'package:provider/provider.dart';
 
-class RoutingMapView extends StatefulWidget {
-  const RoutingMapView({Key? key}) : super(key: key);
+void main() => debug(MultiProvider(
+  providers: [
+    ChangeNotifierProvider<RoutingService>(
+      create: (context) => MockRoutingService(),
+    ),
+    ChangeNotifierProvider<PositionService>(
+      create: (context) => StaticMockPositionService(
+        position: const LatLng(53.564292, 9.902202), 
+        heading: 140,
+      ),
+    ),
+  ],
+  child: const RideMapView(),
+));
+
+class RideMapView extends StatefulWidget {
+  const RideMapView({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => RoutingMapViewState();
+  State<StatefulWidget> createState() => RideMapViewState();
 }
 
-class RoutingMapViewState extends State<RoutingMapView> {
+class RideMapViewState extends State<RideMapView> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  late RoutingService rs;
+
+  /// The associated positioning service, which is injected by the provider.
+  late PositionService ps;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
 
-  /// The alt routes that are displayed, if they were fetched.
-  List<Line>? altRoutes;
-
   /// The route that is displayed, if a route is selected.
   Line? route;
-
-  /// The discomfort sections that are displayed, if they were fetched.
-  List<Line>? discomfortSections;
-
-  /// The discomfort locations that are displayed, if they were fetched.
-  List<Symbol>? discomfortLocations;
 
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
@@ -42,46 +53,34 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
-  /// Labels for the route and alt routes.
-  List<Symbol>? labels;
-
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
-    if (s.needsLayout && mapController != null) {
-      adaptMap(s);
-      s.needsLayout = false;
+    rs = Provider.of<RoutingService>(context);
+    if (rs.needsLayout && mapController != null) {
+      onRoutingServiceUpdate(rs);
+      rs.needsLayout = false;
     }
+
+    ps = Provider.of<PositionService>(context);
+    if (!ps.isGeolocating) { ps.startGeolocation(); }
+    if (ps.needsLayout && mapController != null) {
+      onPositionServiceUpdate(ps);
+      ps.needsLayout = false;
+    }
+
     super.didChangeDependencies();
   }
 
-  Future<void> adaptMap(RoutingService s) async {
-    await loadAltRouteLayers(s);
-    await loadRouteLayer(s);
-    await loadDiscomforts(s);
-    await loadTrafficLightMarkers(s);
-    await loadWaypointMarkers(s);
-    await adaptMapController(s);
+  /// Update the view with the current data.
+  Future<void> onRoutingServiceUpdate(RoutingService rs) async {
+    await loadRouteLayer(rs);
+    await loadTrafficLightMarkers(rs);
+    await loadWaypointMarkers(rs);
   }
 
-  /// Load the alt route layers.
-  Future<void> loadAltRouteLayers(RoutingService s) async {
-    // If we have no map controller, we cannot load the layers.
-    if (mapController == null) return;
-    // Remove all existing layers.
-    await mapController!.removeLines(altRoutes ?? []);
-    // Add the new layers, if they exist.
-    altRoutes = [];
-    for (r.Route altRoute in s.altRoutes ?? []) {
-      altRoutes!.add(await mapController!.addLine(
-        AltRouteLayer(points: altRoute.coordinates),
-        altRoute.toJson(),
-      ));
-      altRoutes!.add(await mapController!.addLine(
-        AltRouteClickLayer(points: altRoute.coordinates),
-        altRoute.toJson(),
-      ));
-    }
+  /// Update the view with the current data.
+  Future<void> onPositionServiceUpdate(PositionService ps) async {
+    await adaptMapController(ps);
   }
 
   /// Load the current route layer.
@@ -93,46 +92,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (s.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: s.selectedRoute!.coordinates),
+      RouteLayer(points: s.selectedRoute!.coordinates, lineWidth: 14),
       s.selectedRoute!.toJson(),
     );
-  }
-
-  /// Load the discomforts.
-  Future<void> loadDiscomforts(RoutingService s) async {
-    // If we have no map controller, we cannot load the layers.
-    if (mapController == null) return;
-    // Remove all existing layers.
-    await mapController!.removeSymbols(discomfortLocations ?? []);
-    await mapController!.removeLines(discomfortSections ?? []);
-    // Add the new layers.
-    discomfortLocations = [];
-    discomfortSections = [];
-    for (MapEntry<int, Discomfort> e in s.selectedRoute?.discomforts?.asMap().entries ?? []) {
-      if (e.value.coordinates.isEmpty) continue;
-      if (e.value.coordinates.length == 1) {
-        // A single location.
-        final location = e.value.coordinates.first;
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location, number: e.key + 1),
-          e.value.toJson(),
-        ));
-      } else {
-        // A section of the route.
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1),
-          e.value.toJson(),
-        ));
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.last, number: e.key + 1),
-          e.value.toJson(),
-        ));
-        discomfortSections!.add(await mapController!.addLine(
-          DiscomfortSectionLayer(points: e.value.coordinates),
-          e.value.toJson(),
-        ));        
-      }
-    }
   }
 
   /// Load the current traffic lights.
@@ -145,7 +107,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     trafficLights = [];
     for (LatLng point in s.selectedRoute?.trafficLights ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightMarker(geo: point),
+        TrafficLightMarker(geo: point, iconSize: 1.5),
       ));
     }
   }
@@ -179,12 +141,19 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Adapt the map controller.
-  Future<void> adaptMapController(RoutingService s) async {
-    if (s.selectedRoute != null) {
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(s.selectedRoute!.paddedBounds)
-      );
-    }
+  Future<void> adaptMapController(PositionService s) async {
+    if (mapController == null ) return;
+    // await mapController!.updateMyLocationTrackingMode(MyLocationTrackingMode.TrackingGPS);
+    await mapController!.moveCamera(CameraUpdate.tiltTo(60));
+    await mapController!.moveCamera(CameraUpdate.newLatLngZoom(
+      s.estimatedPosition != null
+        ? LatLng(s.estimatedPosition!.latitude, s.estimatedPosition!.longitude)
+        : const LatLng(0, 0),
+      19,
+    ));
+    await mapController!.animateCamera(CameraUpdate.bearingTo(
+      s.estimatedPosition != null ? s.estimatedPosition!.heading : 0
+    ));
   }
 
   /// A callback that is called when the user taps a fill.
@@ -194,15 +163,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
 
   /// A callback that is called when the user taps a line.
-  Future<void> onLineTapped(Line line) async {
-    // If the line corresponds to an alternative route, we select that one.
-    for (Line altRoute in altRoutes ?? []) {
-      if (line.id == altRoute.id) {
-        var route = r.Route.fromJson(line.data);
-        s.switchToAltRoute(route);
-      }
-    }
-  }
+  Future<void> onLineTapped(Line line) async { /* Do nothing */}
 
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async { /* Do nothing */ }
@@ -225,15 +186,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    // Fit the content below the top and the bottom stuff.
-    final frame = MediaQuery.of(context);
-    await mapController!.updateContentInsets(EdgeInsets.only(
-      top: 108, bottom: frame.size.height * 0.3 /* Sheet size */,
-      left: 8, right: 8,
-    ));
+    await mapController!.updateContentInsets(const EdgeInsets.all(0));
 
     // Force adapt the map controller.
-    adaptMapController(s);
+    adaptMapController(ps);
   }
 
   @override
@@ -248,6 +204,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(context));
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(context)),
+        PositionIcon(),
+      ]
+    );
   }
 }

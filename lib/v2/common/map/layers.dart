@@ -1,9 +1,9 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 class RouteLayer extends LineOptions {
-  RouteLayer({ required List<LatLng> points }) : super(
+  RouteLayer({ required List<LatLng> points, double lineWidth = 7.0 }) : super(
     geometry: points,
-    lineWidth: 7.0,
+    lineWidth: lineWidth,
     lineColor: "#0094FF",
     lineJoin: "round",
   );
