@@ -6,8 +6,11 @@ import 'package:priobike/v2/common/layout/spacing.dart';
 import 'package:priobike/v2/common/layout/text.dart';
 import 'package:priobike/v2/common/layout/tiles.dart';
 import 'package:priobike/v2/home/models/shortcut.dart';
+import 'package:priobike/v2/home/services/shortcuts.dart';
+import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
+  final void Function() onPressed;
   final IconData icon;
   final String title;
   final double width;
@@ -15,6 +18,7 @@ class ShortcutView extends StatelessWidget {
 
   const ShortcutView({
     Key? key, 
+    required this.onPressed,
     required this.icon, 
     required this.title, 
     required this.width, 
@@ -28,7 +32,7 @@ class ShortcutView extends StatelessWidget {
       constraints: BoxConstraints(minWidth: width, maxWidth: width),
       padding: EdgeInsets.only(right: rightPad),
       child: Tile(
-        onPressed: () {},
+        onPressed: onPressed,
         content: SizedBox(
           height: 128,
           child: Row(children: [
@@ -49,22 +53,37 @@ class ShortcutView extends StatelessWidget {
   }
 }
 
-class ShortcutsView extends StatelessWidget {
-  const ShortcutsView({Key? key}) : super(key: key);
+class ShortcutsView extends StatefulWidget {
+  /// A callback that will be executed when the shortcut was selected.
+  final void Function(Shortcut shortcut) onSelectShortcut;
+
+  const ShortcutsView({required this.onSelectShortcut, Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => ShortcutsViewState();
+}
+
+
+class ShortcutsViewState extends State<ShortcutsView> {
+  /// The associated shortcuts service, which is injected by the provider.
+  late ShortcutsService s;
+
+  @override
+  void didChangeDependencies() {
+    s = Provider.of<ShortcutsService>(context);
+
+    // Load the routes, once the window was built.
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      s.loadShortcuts();
+    });
+
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Shortcut>>(
-      future: Shortcut.loadAll(),
-      builder: (BuildContext context, AsyncSnapshot<List<Shortcut>> snapshot) {
-        if (!snapshot.hasData) {
-          // Still loading
-          return renderLoadingIndicator();
-        }
-        var profile = snapshot.data!;
-        return renderShortcuts(context, profile);
-      },
-    );
+    if (s.shortcuts == null) return renderLoadingIndicator();
+    return renderShortcuts(context, s.shortcuts!);
   }
 
   /// Render a loading indicator.
@@ -90,6 +109,7 @@ class ShortcutsView extends StatelessWidget {
       padding: const EdgeInsets.only(left: 24),
       scrollDirection: Axis.horizontal, 
       child: Row(children: shortcuts.map((shortcut) => ShortcutView(
+        onPressed: () => widget.onSelectShortcut(shortcut),
         icon: shortcut.icon, 
         title: shortcut.name, 
         width: shortcutWidth, 

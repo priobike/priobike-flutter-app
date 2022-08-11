@@ -7,6 +7,8 @@ import 'package:priobike/v2/common/layout/spacing.dart';
 import 'package:priobike/v2/common/layout/text.dart';
 import 'package:priobike/v2/common/layout/tiles.dart';
 import 'package:priobike/v2/home/models/profile.dart';
+import 'package:priobike/v2/home/services/profile.dart';
+import 'package:provider/provider.dart';
 
 class ProfileElementButton extends StatelessWidget {
   final IconData icon;
@@ -50,9 +52,24 @@ class ProfileView extends StatefulWidget {
 }
 
 class ProfileViewState extends State<ProfileView> {
+  /// The associated profile service, which is injected by the provider.
+  late ProfileService s;
+
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
   bool activitySelectionActive = false;
+
+  @override
+  void didChangeDependencies() {
+    s = Provider.of<ProfileService>(context);
+
+    // Load the routes, once the window was built.
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      s.loadProfile();
+    });
+
+    super.didChangeDependencies();
+  }
 
   void toggleBikeSelection() {
     setState(() {
@@ -80,17 +97,8 @@ class ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Profile>(
-      future: Profile.load(),
-      builder: (BuildContext context, AsyncSnapshot<Profile> snapshot) {
-        if (!snapshot.hasData) {
-          // Still loading
-          return renderLoadingIndicator();
-        }
-        var profile = snapshot.data!;
-        return renderProfileSelection(profile);
-      },
-    );
+    if (!s.hasLoaded) renderLoadingIndicator();
+    return renderProfileSelection();
   }
 
   /// Render a loading indicator.
@@ -108,57 +116,59 @@ class ProfileViewState extends State<ProfileView> {
     ]));
   }
 
-  Widget renderProfileSelection(Profile profile) {
+  Widget renderProfileSelection() {
     return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Tile(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         content: Column(children: [
+          const VSpace(),
           GridView.count(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             crossAxisSpacing: 8,
             crossAxisCount: 3, 
             children: [
-              if (profile.bikeType == null) 
+              if (s.bikeType == null) 
                 ProfileElementButton(icon: Icons.electric_bike, title: "Radtyp", onPressed: () {
                   toggleBikeSelection();
                 }),
-              if (profile.bikeType != null) 
+              if (s.bikeType != null) 
                 ProfileElementButton(
-                  icon: profile.bikeType!.icon(), 
-                  title: profile.bikeType!.description(),
+                  icon: s.bikeType!.icon(), 
+                  title: s.bikeType!.description(),
                   color: Colors.white,
-                  backgroundColor: profile.bikeType!.color(),
+                  backgroundColor: s.bikeType!.color(),
                   touchColor: Colors.white,
                   onPressed: () {
                     toggleBikeSelection();
                   },
                 ),
-              if (profile.preferenceType == null) 
+              if (s.preferenceType == null) 
                 ProfileElementButton(icon: Icons.thumbs_up_down, title: "Präferenz", onPressed: () {
                   togglePreferenceSelection();
                 }),
-              if (profile.preferenceType != null) 
+              if (s.preferenceType != null) 
                 ProfileElementButton(
-                  icon: profile.preferenceType!.icon(), 
-                  title: profile.preferenceType!.description(),
+                  icon: s.preferenceType!.icon(), 
+                  title: s.preferenceType!.description(),
                   color: Colors.white,
-                  backgroundColor: profile.preferenceType!.color(),
+                  backgroundColor: s.preferenceType!.color(),
                   touchColor: Colors.white,
                   onPressed: () {
                     togglePreferenceSelection();
                   },
                 ),
-              if (profile.activityType == null) 
+              if (s.activityType == null) 
                 ProfileElementButton(icon: Icons.home_work, title: "Aktivität", onPressed: () {
                   toggleActivitySelection();
                 }),
-              if (profile.activityType != null) 
+              if (s.activityType != null) 
                 ProfileElementButton(
-                  icon: profile.activityType!.icon(), 
-                  title: profile.activityType!.description(),
+                  icon: s.activityType!.icon(), 
+                  title: s.activityType!.description(),
                   color: Colors.white,
-                  backgroundColor: profile.activityType!.color(),
+                  backgroundColor: s.activityType!.color(),
                   touchColor: Colors.white,
                   onPressed: () {
                     toggleActivitySelection();
@@ -166,27 +176,28 @@ class ProfileViewState extends State<ProfileView> {
                 ),
             ],
           ),
-          if (bikeSelectionActive) renderBikeTypeSelection(profile),
-          if (preferenceSelectionActive) renderPreferenceTypeSelection(profile),
-          if (activitySelectionActive) renderActivityTypeSelection(profile),
           const VSpace(),
+          if (bikeSelectionActive) renderBikeTypeSelection(),
+          if (preferenceSelectionActive) renderPreferenceTypeSelection(),
+          if (activitySelectionActive) renderActivityTypeSelection(),
         ]),
       ),
     ]));
   }
 
-  Widget renderBikeTypeSelection(Profile profile) {
+  Widget renderBikeTypeSelection() {
     return Column(children: [
-      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deinen Radtyp")),
         SmallIconButton(icon: Icons.close, onPressed: () {
           toggleBikeSelection();
         })
       ]),
+      const VSpace(),
       GridView.count(
         shrinkWrap: true,
         crossAxisSpacing: 8,
+        padding: EdgeInsets.zero,
         mainAxisSpacing: 8,
         crossAxisCount: 3, 
         physics: const NeverScrollableScrollPhysics(),
@@ -197,26 +208,28 @@ class ProfileViewState extends State<ProfileView> {
           backgroundColor: bikeType.color(),
           touchColor: Colors.white,
           onPressed: () {
-            profile.bikeType = bikeType;
-            setState(() { profile.store(); });
+            s.bikeType = bikeType;
+            s.store();
           },
         )).toList(),
       ),
+      const VSpace(),
     ]);
   }
 
-  Widget renderPreferenceTypeSelection(Profile profile) {
+  Widget renderPreferenceTypeSelection() {
     return Column(children: [
-      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deine Routenpräferenz")),
         SmallIconButton(icon: Icons.close, onPressed: () {
           togglePreferenceSelection();
         })
       ]),
+      const VSpace(),
       GridView.count(
         shrinkWrap: true,
         crossAxisSpacing: 8,
+        padding: EdgeInsets.zero,
         mainAxisSpacing: 8,
         crossAxisCount: 3, 
         physics: const NeverScrollableScrollPhysics(),
@@ -227,26 +240,28 @@ class ProfileViewState extends State<ProfileView> {
           backgroundColor: preferenceType.color(),
           touchColor: Colors.white,
           onPressed: () {
-            profile.preferenceType = preferenceType;
-            setState(() { profile.store(); });
+            s.preferenceType = preferenceType;
+            s.store();
           },
         )).toList(),
       ),
+      const VSpace(),
     ]);
   }
 
-  Widget renderActivityTypeSelection(Profile profile) {
+  Widget renderActivityTypeSelection() {
     return Column(children: [
-      const SmallVSpace(),
       Row(children: [
         Expanded(child: Content(text: "Wähle deine Aktivität")),
         SmallIconButton(icon: Icons.close, onPressed: () {
           toggleActivitySelection();
         })
       ]),
+      const VSpace(),
       GridView.count(
         shrinkWrap: true,
         crossAxisSpacing: 8,
+        padding: EdgeInsets.zero,
         mainAxisSpacing: 8,
         crossAxisCount: 3, 
         physics: const NeverScrollableScrollPhysics(),
@@ -257,11 +272,12 @@ class ProfileViewState extends State<ProfileView> {
           backgroundColor: activityType.color(),
           touchColor: Colors.white,
           onPressed: () {
-            profile.activityType = activityType;
-            setState(() { profile.store(); });
+            s.activityType = activityType;
+            s.store();
           },
         )).toList(),
       ),
+      const VSpace(),
     ]);
   }
 }

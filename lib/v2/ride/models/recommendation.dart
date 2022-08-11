@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_rpc_2/json_rpc_2.dart';
-import 'package:priobike/v2/ride/models/point.dart';
+import 'package:priobike/v2/common/models/point.dart';
 
 class Recommendation {
   String label = "";

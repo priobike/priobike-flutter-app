@@ -7,6 +7,7 @@ import 'package:priobike/v2/common/map/markers.dart';
 import 'package:priobike/v2/ride/services/position/mock.dart';
 import 'package:priobike/v2/ride/services/position/position.dart';
 import 'package:priobike/v2/ride/views/position.dart';
+import 'package:priobike/v2/routing/models/sg.dart';
 import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/models/waypoint.dart';
@@ -90,7 +91,10 @@ class RideMapViewState extends State<RideMapView> {
     if (s.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: s.selectedRoute!.coordinates, lineWidth: 14),
+      RouteLayer(
+        points: s.selectedRoute!.nodes.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        lineWidth: 14
+      ),
       s.selectedRoute!.toJson(),
     );
   }
@@ -103,9 +107,9 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (LatLng point in s.selectedRoute?.trafficLights ?? []) {
+    for (Sg sg in s.selectedRoute?.sgs ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightMarker(geo: point, iconSize: 1.5),
+        TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: 1.5),
       ));
     }
   }

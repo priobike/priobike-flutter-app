@@ -36,7 +36,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // Load the routes, once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      s.loadRoutes();
+      s.loadRoutes(context);
     });
 
     super.didChangeDependencies();
@@ -50,14 +50,16 @@ class RoutingViewState extends State<RoutingView> {
       const RoutingMapView(),
       
       // Top Bar
-      SafeArea(child: Row(children: [
-        AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () {}),
-        const SizedBox(width: 16),
-        SizedBox( // Avoid expansion of alerts view.
-          width: frame.size.width - 80, 
-          child: AlertsView(discomforts: s.selectedRoute?.discomforts),
-        )
-      ])),
+      SafeArea(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+          const SizedBox(width: 16),
+          SizedBox( // Avoid expansion of alerts view.
+            width: frame.size.width - 80, 
+            child: AlertsView(discomforts: s.selectedRoute?.discomforts),
+          )
+        ]),
+      ),
 
       const RouteDetailsBottomSheet(),
     ]);

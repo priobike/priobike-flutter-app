@@ -8,7 +8,7 @@ class Tile extends RawMaterialButton {
     required Widget content, 
     void Function()? onPressed,
     Color fill = AppColors.lightGrey,
-    Color splash = Colors.white,
+    Color splash = Colors.grey,
     EdgeInsets padding = const EdgeInsets.all(16),
   }) : super(
     key: key,

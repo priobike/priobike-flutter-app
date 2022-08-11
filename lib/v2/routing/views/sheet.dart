@@ -30,8 +30,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (s.selectedRoute == null) return Container();
     
     final distInfo = "${((s.selectedRoute!.distance) / 1000).toStringAsFixed(1)}km";
-    final timeInfo = s.selectedRoute!.duration < 3600 ? "${(s.selectedRoute!.duration / 60).toStringAsFixed(0)}min"
-      : "${(s.selectedRoute!.duration / 3600).toStringAsFixed(0)}h";
+    final seconds = s.selectedRoute!.duration / 1000;
+    final timeInfo = seconds < 3600 
+      ? "${(seconds / 60).toStringAsFixed(0)}min"
+      : "${(seconds / 3600).toStringAsFixed(0)}h";
 
     return DraggableScrollableSheet(
       initialChildSize: 0.3, maxChildSize: 0.6,

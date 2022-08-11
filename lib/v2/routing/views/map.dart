@@ -5,6 +5,7 @@ import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
 import 'package:priobike/v2/common/map/view.dart';
 import 'package:priobike/v2/routing/models/discomfort.dart';
+import 'package:priobike/v2/routing/models/sg.dart';
 import 'package:priobike/v2/routing/models/waypoint.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/models/route.dart' as r;
@@ -76,11 +77,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
     altRoutes = [];
     for (r.Route altRoute in s.altRoutes ?? []) {
       altRoutes!.add(await mapController!.addLine(
-        AltRouteLayer(points: altRoute.coordinates),
+        AltRouteLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
       altRoutes!.add(await mapController!.addLine(
-        AltRouteClickLayer(points: altRoute.coordinates),
+        AltRouteClickLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
     }
@@ -95,7 +96,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (s.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: s.selectedRoute!.coordinates),
+      RouteLayer(points: s.selectedRoute!.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
       s.selectedRoute!.toJson(),
     );
   }
@@ -145,9 +146,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (LatLng point in s.selectedRoute?.trafficLights ?? []) {
+    for (Sg sg in s.selectedRoute?.sgs ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightMarker(geo: point),
+        TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon)),
       ));
     }
   }
