@@ -7,6 +7,8 @@ import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/views/alerts.dart';
 import 'package:priobike/v2/routing/views/map.dart';
 import 'package:priobike/v2/routing/views/sheet.dart';
+import 'package:priobike/v2/session/services/session.dart';
+import 'package:priobike/v2/home/services/shortcuts.dart';
 import 'package:provider/provider.dart';
 
 /// Debug these views.
@@ -21,6 +23,22 @@ void main() => debug(MultiProvider(
 
 class RoutingView extends StatefulWidget {
   const RoutingView({Key? key}) : super(key: key);
+
+  /// Create the view with necessary providers from the app view hierarchy.
+  static Widget withinAppHierarchy(BuildContext context) {
+    // Fetch the necessary view models from the build context.
+    final ss = Provider.of<ShortcutsService>(context, listen: false);
+
+    return Scaffold(body: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SessionService>(create: (c) => ProductionSessionService()),
+        ChangeNotifierProvider<RoutingService>(create: (c) => RoutingService(
+          selectedWaypoints: ss.selectedShortcut?.waypoints
+        )),
+      ],
+      child: const RoutingView(),
+    ));
+  }
 
   @override
   State<StatefulWidget> createState() => RoutingViewState();

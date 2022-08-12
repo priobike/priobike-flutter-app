@@ -4,10 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/logger.dart';
-import 'package:priobike/v2/home/services/profile.dart';
-import 'package:priobike/v2/home/services/shortcuts.dart';
 import 'package:priobike/v2/home/views/main.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   final log = Logger("main.dart");
@@ -42,17 +39,7 @@ class App extends StatelessWidget {
       ),
       // The navigator key is used to access the app's build context.
       navigatorKey: navigatorKey,
-      home: Scaffold(body: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ShortcutsService>(
-            create: (context) => ShortcutsService(),
-          ),
-          ChangeNotifierProvider<ProfileService>(
-            create: (context) => ProfileService(),
-          ),
-        ],
-        child: const HomeView(),
-      )),
+      home: HomeView.withinAppHierarchy(context),
     );
   }
 }

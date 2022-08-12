@@ -8,6 +8,9 @@ class ShortcutsService with ChangeNotifier {
   /// All available shortcuts.
   List<Shortcut>? shortcuts;
 
+  /// The currently selected shortcut.
+  Shortcut? selectedShortcut;
+
   ShortcutsService();
 
   /// Load the custom shortcuts.

@@ -12,9 +12,7 @@ import 'package:priobike/v2/home/services/shortcuts.dart';
 import 'package:priobike/v2/home/views/nav.dart';
 import 'package:priobike/v2/home/views/profile.dart';
 import 'package:priobike/v2/home/views/shortcuts.dart';
-import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/views/main.dart';
-import 'package:priobike/v2/session/services/session.dart';
 import 'package:provider/provider.dart';
 
 /// Debug these views.
@@ -32,6 +30,17 @@ void main() => debug(MultiProvider(
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
+
+  /// Create the view with necessary providers from the app view hierarchy.
+  static Widget withinAppHierarchy(BuildContext context) {
+    return Scaffold(body: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ShortcutsService>(create: (c) => ShortcutsService()),
+        ChangeNotifierProvider<ProfileService>(create: (c) => ProfileService()),
+      ],
+      child: const HomeView(),
+    ));
+  }
 
   @override 
   HomeViewState createState() => HomeViewState();
@@ -53,20 +62,12 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return Scaffold(body: MultiProvider(
-        providers: [
-          // Create the session service.
-          ChangeNotifierProvider<SessionService>(
-            create: (context) => ProductionSessionService(),
-          ),
-          // Create the routing service with the waypoints.
-          ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService(
-            selectedWaypoints: shortcut.waypoints
-          )),
-        ],
-        child: const RoutingView(),
-      ));
+    // Configure the viewmodel, so that the pushed page can fetch the 
+    // selected shortcut from the buildcontext.
+    ss.selectedShortcut = shortcut; 
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return RoutingView.withinAppHierarchy(context);
     }));
   }
 

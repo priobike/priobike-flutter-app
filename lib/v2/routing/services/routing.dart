@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/v2/common/models/point.dart';
+import 'package:priobike/v2/home/services/shortcuts.dart';
 import 'package:priobike/v2/routing/messages/routing.dart';
 import 'package:priobike/v2/routing/models/route.dart' as r;
 import 'package:priobike/v2/routing/models/waypoint.dart';

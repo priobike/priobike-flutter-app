@@ -101,9 +101,6 @@ class GNSSPositionSource extends PositionSource {
 }
 
 class PositionService with ChangeNotifier {
-  /// The current navigator state key of the app.
-  static GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
-
   Logger log = Logger("PositionService");
 
   /// An indicator if the data of this notifier changed.
@@ -131,10 +128,7 @@ class PositionService with ChangeNotifier {
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
-  PositionService({required this.positionSource}) {
-    log.i("PositionService started.");
-    startGeolocation();
-  }
+  PositionService({required this.positionSource});
 
   /// Show a dialog if the location provider was denied.
   showLocationAccessDeniedDialog(BuildContext context) {
@@ -186,7 +180,7 @@ class PositionService with ChangeNotifier {
     return true;
   }
 
-  startGeolocation() async {
+  startGeolocation(BuildContext context) async {
     if (isGeolocating) {
       log.w('Attempted to start geolocation while already geolocating');
       return;
@@ -195,13 +189,7 @@ class PositionService with ChangeNotifier {
 
     final hasPermission = await requestGeolocatorPermission();
     if (!hasPermission) {
-      final context = key.currentContext;
-      if (context == null) {
-        log.e('Cannot show alert dialog, no context');
-        return;
-      }
-      // Pop to the root of the navigator stack before directing to the settings.
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).pop();
       showLocationAccessDeniedDialog(context);
       log.w('Permission to Geolocator denied');
       isGeolocating = false;
