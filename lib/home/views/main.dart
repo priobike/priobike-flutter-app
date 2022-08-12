@@ -10,7 +10,10 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/views.dart';
 import 'package:provider/provider.dart';
 
 /// Debug these views.
@@ -22,6 +25,9 @@ void main() => debug(MultiProvider(
     ChangeNotifierProvider<ProfileService>(
       create: (context) => ProfileService(),
     ),
+    ChangeNotifierProvider<SettingsService>(
+      create: (context) => SettingsService(),
+    ),
   ],
   child: const HomeView(),
 ));
@@ -29,43 +35,53 @@ void main() => debug(MultiProvider(
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
-  /// Create the view with necessary providers from the app view hierarchy.
-  static Widget withinAppHierarchy(BuildContext context) {
-    return Scaffold(body: MultiProvider(
-      providers: [
-        ChangeNotifierProvider<ShortcutsService>(create: (c) => ShortcutsService()),
-        ChangeNotifierProvider<ProfileService>(create: (c) => ProfileService()),
-      ],
-      child: const HomeView(),
-    ));
-  }
-
   @override 
   HomeViewState createState() => HomeViewState();
 }
 
 class HomeViewState extends State<HomeView> {
   /// The associated profile service, which is injected by the provider.
-  late ProfileService ps;
+  late ProfileService profileService;
+
+  /// The associated settings service, which is injected by the provider.
+  late SettingsService settingsService;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService ss;
+  late ShortcutsService shortcutsService;
+
+  /// The associated routing service, which is injected by the provider.
+  late RoutingService routingService;
 
   @override
   void didChangeDependencies() {
-    ps = Provider.of<ProfileService>(context);
-    ss = Provider.of<ShortcutsService>(context);
+    profileService = Provider.of<ProfileService>(context);
+    settingsService = Provider.of<SettingsService>(context);
+    shortcutsService = Provider.of<ShortcutsService>(context);
+    routingService = Provider.of<RoutingService>(context);
+
+    // Load once the window was built.
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await settingsService.loadSettings();
+      await profileService.loadProfile();
+      await shortcutsService.loadShortcuts(context);
+    });
+
     super.didChangeDependencies();
+  }
+
+  /// A callback that is fired when the settings button is tapped.
+  void onSettingsButtonTapped() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return const Scaffold(body: SettingsView());
+    }));
   }
 
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
-    // Configure the viewmodel, so that the pushed page can fetch the 
-    // selected shortcut from the buildcontext.
-    ss.selectedShortcut = shortcut; 
+    routingService.selectWaypoints(shortcut.waypoints);
 
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return RoutingView.withinAppHierarchy(context);
+      return const Scaffold(body: RoutingView());
     }));
   }
 
@@ -74,7 +90,7 @@ class HomeViewState extends State<HomeView> {
     return Fade(child: SingleChildScrollView(
       child: Column(children: [
         const SizedBox(height: 128),
-        const NavBarView(),
+        NavBarView(onTapSettingsButton: onSettingsButtonTapped),
         const Divider(color: AppColors.lightGrey, thickness: 2),
         const VSpace(),
         HPad(child: BoldContent(text: "Shortcuts und Radfahrprofil")),

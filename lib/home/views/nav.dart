@@ -4,7 +4,17 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 
 class NavBarView extends StatelessWidget {
-  const NavBarView({Key? key}) : super(key: key);
+  /// A callback that is fired when the settings button was pressed.
+  final void Function()? onTapSettingsButton;
+
+  /// A callback that is fired when the notification button was pressed.
+  final void Function()? onTapNotificationButton;
+
+  const NavBarView({
+    this.onTapSettingsButton, 
+    this.onTapNotificationButton, 
+    Key? key
+  }) : super(key: key);
 
   @override 
   Widget build(BuildContext context) {
@@ -18,9 +28,9 @@ class NavBarView extends StatelessWidget {
         const SmallHSpace(),
         Flexible(child: Small(text: "Wetterinformationen sind aktuell noch nicht verfügbar.", color: Colors.grey)),
         const SmallHSpace(),
-        SmallIconButton(icon: Icons.notifications, onPressed: () {}),
+        SmallIconButton(icon: Icons.notifications, onPressed: () { onTapNotificationButton?.call(); }),
         const SmallHSpace(),
-        SmallIconButton(icon: Icons.settings, onPressed: () {}),
+        SmallIconButton(icon: Icons.settings, onPressed: () { onTapSettingsButton?.call(); }),
       ]),
       const SmallVSpace(),
     ]));

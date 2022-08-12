@@ -47,7 +47,6 @@ dependencies:
   mapbox_gl: ^0.16.0
   shared_preferences: ^2.0.15
   carousel_slider: ^4.1.1
-  settings_ui: ^2.0.2
   latlong2: ^0.8.1
 
 dev_dependencies:

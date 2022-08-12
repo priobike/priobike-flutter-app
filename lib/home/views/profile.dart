@@ -60,12 +60,6 @@ class ProfileViewState extends State<ProfileView> {
   @override
   void didChangeDependencies() {
     s = Provider.of<ProfileService>(context);
-
-    // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      s.loadProfile();
-    });
-
     super.didChangeDependencies();
   }
 

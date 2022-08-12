@@ -78,6 +78,12 @@ class StaticMockPositionService extends PositionService {
 }
 
 class RecordedMockPositionSource extends PositionSource {
+  /// A mock position source for Dresden.
+  static var mockDresden = RecordedMockPositionSource("assets/tracks/dresden/philipp.json");
+
+  /// A mock position source for Hamburg.
+  static var mockHamburg = RecordedMockPositionSource("assets/tracks/hamburg/thomas.json");
+
   /// The mocked positions from the source.
   List<Position> positions = [];
 
@@ -168,27 +174,15 @@ class RecordedMockPositionSource extends PositionSource {
   @override Future<bool> openLocationSettings() async => true;
 }
 
-class RecordedMockPositionService extends PositionService {
-  /// A mock position source for Dresden.
-  static var mockDresden = RecordedMockPositionService("assets/tracks/dresden/philipp.json");
-
-  /// A mock position source for Hamburg.
-  static var mockHamburg = RecordedMockPositionService("assets/tracks/hamburg/thomas.json");
-
-  RecordedMockPositionService(String path) : super(
-    positionSource: RecordedMockPositionSource(path),
-  );
-}
-
 /// A mock position service that simply follows the route path with a static speed.
 class PathMockPositionSource extends PositionSource {
   /// The path (a list of coordinates) to follow.
   final List<LatLng> positions;
 
   /// The static speed with which the path should be followed.
-  final double speed;
+  final double speed = 18 / 3.6;
 
-  PathMockPositionSource({required this.positions, required this.speed});
+  PathMockPositionSource({required this.positions});
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
@@ -270,10 +264,4 @@ class PathMockPositionSource extends PositionSource {
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
-}
-
-class PathMockPositionService extends PositionService {
-  PathMockPositionService({required List<LatLng> positions, required double speed}) : super(
-    positionSource: PathMockPositionSource(positions: positions, speed: speed),
-  );
 }

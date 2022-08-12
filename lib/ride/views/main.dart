@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/debug.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/ride/services/position/mock.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/recommendation/mock.dart';
 import 'package:priobike/ride/services/recommendation/recommendation.dart';
@@ -9,7 +7,6 @@ import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/session/services/session.dart';
 import 'package:provider/provider.dart';
 
 void main() => debug(MultiProvider(
@@ -18,7 +15,7 @@ void main() => debug(MultiProvider(
       create: (context) => MockRoutingService(),
     ),
     ChangeNotifierProvider<PositionService>(
-      create: (context) => StaticMockPositionService(),
+      create: (context) => PositionService(),
     ),
     ChangeNotifierProvider<RecommendationService>(
       create: (context) => MockRecommendationService(),
@@ -29,27 +26,6 @@ void main() => debug(MultiProvider(
 
 class RideView extends StatefulWidget {
   const RideView({Key? key}) : super(key: key);
-
-  /// Create the view with necessary providers from the app view hierarchy.
-  static Widget withinAppHierarchy(BuildContext context) {
-    // Fetch the necessary view models from the build context.
-    final ss = Provider.of<SessionService>(context, listen: false);
-    final rs = Provider.of<RoutingService>(context, listen: false);
-
-    return Scaffold(body: MultiProvider(
-      providers: [
-        ChangeNotifierProvider<SessionService>(create: (c) => ss),
-        ChangeNotifierProvider<RoutingService>(create: (c) => rs),
-        // TODO: Use the real position source.
-        ChangeNotifierProvider<PositionService>(create: (c) => PathMockPositionService(
-          positions: rs.selectedRoute!.nodes.map((e) => LatLng(e.lat, e.lon)).toList(),
-          speed: 18 / 3.6,
-        )),
-        ChangeNotifierProvider<RecommendationService>(create: (c) => RecommendationService()),
-      ],
-      child: const RideView(),
-    ));
-  }
 
   @override
   State<StatefulWidget> createState() => RideViewState();

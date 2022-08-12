@@ -9,6 +9,7 @@ class Tile extends RawMaterialButton {
     Color fill = AppColors.lightGrey,
     Color splash = Colors.grey,
     EdgeInsets padding = const EdgeInsets.all(16),
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(24)),
   }) : super(
     key: key,
     elevation: 0,
@@ -22,8 +23,6 @@ class Tile extends RawMaterialButton {
       child: content,
     ),
     onPressed: onPressed,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(24)),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: borderRadius),
   );
 }

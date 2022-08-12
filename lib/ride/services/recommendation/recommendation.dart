@@ -5,6 +5,8 @@ import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/userposition.dart';
 import 'package:priobike/ride/messages/navigation.dart';
 import 'package:priobike/session/services/session.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +62,8 @@ class RecommendationService with ChangeNotifier {
     if (!session.isActive()) return;
     // Connect the websocket.
     log.i("Connecting to session websocket.");
-    const baseUrl = "priobike.vkw.tu-dresden.de/production"; // TODO: Make this configurable.
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    final baseUrl = settings.backend.path;
     final wsUrl = "wss://$baseUrl/session-wrapper/websocket/sessions/${session.sessionId!}";
     socket = WebSocketChannel.connect(Uri.parse(wsUrl));
     jsonRPCPeer = Peer(socket!.cast<String>());

@@ -39,6 +39,11 @@ class RoutingService with ChangeNotifier {
     this.altRoutes,
   }) { log.i("RoutingService started."); }
 
+  void selectWaypoints(List<Waypoint>? waypoints) {
+    selectedWaypoints = waypoints;
+    notifyListeners();
+  }
+
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
   Future<void> loadRoutes(BuildContext context) async {

@@ -1,9 +1,15 @@
 import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:priobike/common/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:priobike/ride/services/position/mock.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/service.dart';
+import 'package:provider/provider.dart';
 
 class PositionExtrapolator {
   /// The refresh rate that is used to update the position.
@@ -108,7 +114,7 @@ class PositionService with ChangeNotifier {
 
   /// The interface to the position source.
   /// See [PositionSource] for more information.
-  final PositionSource positionSource;
+  PositionSource? positionSource;
 
   /// An extrapolator for the position.
   final positionEstimator = PositionExtrapolator();
@@ -128,13 +134,13 @@ class PositionService with ChangeNotifier {
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
-  PositionService({required this.positionSource});
+  PositionService({this.positionSource});
 
   /// Show a dialog if the location provider was denied.
   showLocationAccessDeniedDialog(BuildContext context) {
     Widget okButton = TextButton(
       child: const Text("Einstellungen öffnen"),
-      onPressed: () => positionSource.openLocationSettings(),
+      onPressed: () => positionSource?.openLocationSettings(),
     );
     AlertDialog alert = AlertDialog(
       title: const Text("Zugriff auf Standort verweigert."),
@@ -145,11 +151,13 @@ class PositionService with ChangeNotifier {
   }
 
   Future<bool> requestGeolocatorPermission() async {
+    if (positionSource == null) return false;
+
     bool serviceEnabled;
     LocationPermission permission;
 
     // Test if location services are enabled.
-    serviceEnabled = await positionSource.isLocationServiceEnabled();
+    serviceEnabled = await positionSource!.isLocationServiceEnabled();
     if (!serviceEnabled) {
       // Location services are not enabled - don't continue
       // accessing the position and request users of the
@@ -157,9 +165,9 @@ class PositionService with ChangeNotifier {
       return false;
     }
 
-    permission = await positionSource.checkPermission();
+    permission = await positionSource!.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await positionSource.requestPermission();
+      permission = await positionSource!.requestPermission();
       if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again - this is also where
@@ -184,6 +192,24 @@ class PositionService with ChangeNotifier {
     if (isGeolocating) return;
     isGeolocating = true;
 
+    if (positionSource == null) {
+      final settings = Provider.of<SettingsService>(context, listen: false);
+      if (settings.positioning == Positioning.gnss) {
+        positionSource = GNSSPositionSource();
+      } else if (settings.positioning == Positioning.follow) {
+        final routing = Provider.of<RoutingService>(context, listen: false);
+        positionSource = PathMockPositionSource(
+          positions: routing.selectedRoute!.nodes.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
+        );
+      } else if (settings.positioning == Positioning.recordedDresden) {
+        positionSource = RecordedMockPositionSource.mockDresden;
+      } else if (settings.positioning == Positioning.recordedHamburg) {
+        positionSource = RecordedMockPositionSource.mockHamburg;
+      } else {
+        throw Exception("Unknown position source.");
+      }
+    }
+
     final hasPermission = await requestGeolocatorPermission();
     if (!hasPermission) {
       Navigator.of(context).pop();
@@ -193,7 +219,7 @@ class PositionService with ChangeNotifier {
       return;
     }
 
-    var positionStream = positionSource.getPositionStream(
+    var positionStream = positionSource!.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 0,
@@ -227,7 +253,6 @@ class PositionService with ChangeNotifier {
     positionSubscription?.cancel();
     estimatorSubscription?.cancel();
     log.i('Geolocator stopped!');
-    notifyListeners();
   }
 
   @override 
@@ -235,8 +260,4 @@ class PositionService with ChangeNotifier {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
   }
-}
-
-class GNSSPositionService extends PositionService {
-  GNSSPositionService() : super(positionSource: GNSSPositionSource());
 }
