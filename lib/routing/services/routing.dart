@@ -8,6 +8,8 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/session/services/session.dart';
 import 'package:priobike/session/views/toast.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
 
 class RoutingService with ChangeNotifier {
@@ -57,8 +59,9 @@ class RoutingService with ChangeNotifier {
       final sessionId = await session.openSession();
 
       // Session must be open to send the route request.
-      const baseUrl = "priobike.vkw.tu-dresden.de/production"; // TODO: Make this configurable.
-      const routeUrl = "https://$baseUrl/session-wrapper/getroute";
+      final settings = Provider.of<SettingsService>(context, listen: false);
+      final baseUrl = settings.backend.path;
+      final routeUrl = "https://$baseUrl/session-wrapper/getroute";
       final routeEndpoint = Uri.parse(routeUrl);
       final routeRequest = RouteRequest(
         sessionId: sessionId,
