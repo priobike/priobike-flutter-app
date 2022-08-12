@@ -72,7 +72,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   void didChangeDependencies() {
     s = Provider.of<ShortcutsService>(context);
 
-    // Load the routes, once the window was built.
+    // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       s.loadShortcuts();
     });

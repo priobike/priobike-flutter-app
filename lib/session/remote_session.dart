@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/models/auth_request.dart';
 import 'package:priobike/models/auth_response.dart';
-import 'package:priobike/models/navigation_request.dart';
+import 'package:priobike/v2/ride/messages/navigation.dart';
 import 'package:priobike/models/point.dart';
 import 'package:priobike/models/recommendation.dart';
 import 'package:priobike/models/route_request.dart';
 import 'package:priobike/models/route_response.dart';
-import 'package:priobike/models/user_position.dart';
+import 'package:priobike/v2/ride/models/userposition.dart';
 
 import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/utils/toast.dart';

@@ -9,7 +9,10 @@ import 'package:provider/provider.dart';
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
-  const RouteDetailsBottomSheet({Key? key}) : super(key: key);
+  /// A callback that is executed when the riding is started.
+  final void Function() onSelectStartButton;
+
+  const RouteDetailsBottomSheet({required this.onSelectStartButton, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -54,9 +57,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               const SmallVSpace(),
               renderBottomSheetWaypoints(context),
               const SmallVSpace(),
-              BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: () {
-                // TODO: Open ride view
-              }),
+              BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
               const VSpace(),
               Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Content(text: "Weitere Informationen folgen!", color: Colors.grey),

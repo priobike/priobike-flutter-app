@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+// latlong is an alias to not clash with MapBox's dependency.
+// We cannot use MapBox's LatLng since MapBox doesn't import Distance.
+import 'package:latlong2/latlong.dart' as l;
 import 'package:priobike/v2/ride/services/position/position.dart';
 
 /// Unwrap a double from a json source safely.
@@ -174,5 +177,103 @@ class RecordedMockPositionService extends PositionService {
 
   RecordedMockPositionService(String path) : super(
     positionSource: RecordedMockPositionSource(path),
+  );
+}
+
+/// A mock position service that simply follows the route path with a static speed.
+class PathMockPositionSource extends PositionSource {
+  /// The path (a list of coordinates) to follow.
+  final List<LatLng> positions;
+
+  /// The static speed with which the path should be followed.
+  final double speed;
+
+  PathMockPositionSource({required this.positions, required this.speed});
+
+  /// Check if location services are enabled.
+  /// With the mock client, this only returns true.
+  @override Future<bool> isLocationServiceEnabled() async => true;
+
+  /// Check the location permissions.
+  /// With the mock client, this does nothing and returns "always allowed".
+  @override Future<LocationPermission> checkPermission() async => LocationPermission.always;
+
+  /// Request the location permissions.
+  /// With the mock client, this does nothing and returns "always allowed".
+  @override Future<LocationPermission> requestPermission() async => LocationPermission.always;
+
+  /// Get the position stream of the device.
+  /// With the mock client, this starts a stream of the mocked positions.
+  @override Stream<Position> getPositionStream({ required LocationSettings? locationSettings }) {
+    if (positions.length < 2) throw Exception();
+    
+    // Create a new stream, which we will later use to push positions.
+    var streamController = StreamController<Position>();
+
+    // Map the positions so that we can use them for distance calculations.
+    final mappedPositions = positions.map((e) => l.LatLng(e.latitude, e.longitude)).toList();
+
+    const vincenty = l.Distance();
+
+    // Sum up the distances between the positions.
+    final dists = <double>[];
+    l.LatLng? prev; double? prevDist;
+    for (l.LatLng p in mappedPositions) {
+      if (prev == null && prevDist == null) {
+        double dist = 0;
+        dists.add(dist);
+        prev = p; prevDist = dist;
+      } else {
+        double dist = prevDist! + vincenty.distance(prev!, p);
+        dists.add(dist);
+        prev = p; prevDist = dist;
+      }
+    }
+
+    double distance = 0;
+    Timer.periodic(const Duration(seconds: 1), (t) {
+      // Find the current segment
+      l.LatLng? from; l.LatLng? to; double? distanceOnSegment;
+      for (MapEntry<int, double> e in dists.asMap().entries.toList()) {
+        if (e.value > distance) {
+          // We can assume that e.key > 0 since distance = 0 > 0 at the start
+          from = mappedPositions[e.key - 1];
+          to = mappedPositions[e.key];
+          final segmentLength = e.value - dists[e.key - 1];
+          distanceOnSegment = segmentLength - (e.value - distance);
+          break;
+        }
+      }
+
+      if (from == null || to == null || distanceOnSegment == null) return; // Finished.
+      final bearing = vincenty.bearing(from, to); // [-180°, 180°]
+      final currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
+      final heading = bearing > 0 ? bearing : 360 + bearing;
+
+      streamController.add(Position(
+        latitude: currentLocation.latitude, 
+        longitude: currentLocation.longitude, 
+        altitude: 0,
+        speed: speed, 
+        heading: heading, // Not 0, since 0 indicates an error. 
+        accuracy: 1, 
+        speedAccuracy: 1, 
+        timestamp: DateTime.now().toUtc(),
+      ));
+
+      distance += 1 * speed;
+    });
+
+    return streamController.stream;
+  }
+
+  /// Open the location settings.
+  /// With the mock client, this does nothing and returns true.
+  @override Future<bool> openLocationSettings() async => true;
+}
+
+class PathMockPositionService extends PositionService {
+  PathMockPositionService({required List<LatLng> positions, required double speed}) : super(
+    positionSource: PathMockPositionSource(positions: positions, speed: speed),
   );
 }

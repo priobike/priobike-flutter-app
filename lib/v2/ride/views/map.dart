@@ -1,29 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/v2/common/debug.dart';
 import 'package:priobike/v2/common/map/view.dart';
 import 'package:priobike/v2/common/map/layers.dart';
 import 'package:priobike/v2/common/map/markers.dart';
-import 'package:priobike/v2/ride/services/position/mock.dart';
 import 'package:priobike/v2/ride/services/position/position.dart';
 import 'package:priobike/v2/ride/views/position.dart';
 import 'package:priobike/v2/routing/models/sg.dart';
-import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/models/waypoint.dart';
 import 'package:provider/provider.dart';
-
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<RoutingService>(
-      create: (context) => MockRoutingService(),
-    ),
-    ChangeNotifierProvider<PositionService>(
-      create: (context) => StaticMockPositionService(),
-    ),
-  ],
-  child: const RideMapView(),
-));
 
 class RideMapView extends StatefulWidget {
   const RideMapView({Key? key}) : super(key: key);

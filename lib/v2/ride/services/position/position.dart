@@ -180,11 +180,8 @@ class PositionService with ChangeNotifier {
     return true;
   }
 
-  startGeolocation(BuildContext context) async {
-    if (isGeolocating) {
-      log.w('Attempted to start geolocation while already geolocating');
-      return;
-    }
+  startGeolocation(BuildContext context, void Function(Position pos) onNewPosition) async {
+    if (isGeolocating) return;
     isGeolocating = true;
 
     final hasPermission = await requestGeolocatorPermission();
@@ -217,6 +214,7 @@ class PositionService with ChangeNotifier {
         lastPosition = position;
         // Update the position estimator with the new position.
         positionEstimator.lastPosition = position; 
+        onNewPosition(position);
         notifyListeners();
       }
     });
@@ -240,5 +238,5 @@ class PositionService with ChangeNotifier {
 }
 
 class GNSSPositionService extends PositionService {
-  GNSSPositionService({required LatLng position}) : super(positionSource: GNSSPositionSource());
+  GNSSPositionService() : super(positionSource: GNSSPositionSource());
 }

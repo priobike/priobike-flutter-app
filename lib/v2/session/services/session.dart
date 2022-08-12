@@ -3,21 +3,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/v2/session/models/auth.dart';
 import 'package:priobike/v2/session/views/toast.dart';
 import 'package:uuid/uuid.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SessionService with ChangeNotifier {
   Logger log = Logger("SessionService");
-
-  /// The web socket channel to the backend.
-  WebSocketChannel? socket;
-
-  /// The peer used to communicate JSON RPC messages to the backend.
-  Peer? jsonRPCPeer;
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -30,23 +22,10 @@ class SessionService with ChangeNotifier {
   /// Is unset by: [closeSession].
   String? sessionId;
 
-  /// The backend host of the session.
-  String baseUrl;
+  SessionService();
 
-  /// The REST url to the session service.
-  String get restUrl => 'https://$baseUrl/session-wrapper';
-
-  /// The authentication url.
-  String get authUrl => '$restUrl/authentication';
-
-  /// The route url.
-  String get routeUrl => '$restUrl/getroute';
-
-  /// The WS url to the session service.
-  /// Is `null` if the session is not authenticated.
-  String? get wsUrl => sessionId != null ? 'wss://$baseUrl/session-wrapper/websocket/sessions/$sessionId!' : null;
-
-  SessionService({required this.baseUrl});
+  /// Check if the session is active.
+  bool isActive() => sessionId != null;
 
   /// Open the session by authentication with the backend.
   Future<String> openSession() async {
@@ -54,6 +33,7 @@ class SessionService with ChangeNotifier {
     if (sessionId != null) return sessionId!;
 
     final authRequest = AuthRequest(clientId: clientId);
+    const baseUrl = "priobike.vkw.tu-dresden.de/production"; // TODO: Make this configurable.
     final authEndpoint = Uri.parse('https://$baseUrl/session-wrapper/authentication');
     http.Response response = await httpClient
       .post(authEndpoint, body: json.encode(authRequest.toJson()))
@@ -68,7 +48,6 @@ class SessionService with ChangeNotifier {
       log.e(err); ToastMessage.showError(err); throw Exception(err);
     }
 
-    log.i('<- AuthResponse');
     try {
       final authResponse = AuthResponse.fromJson(json.decode(response.body));
       log.i("Successfully authenticated with endpoint $authEndpoint: ${response.body}");
@@ -82,15 +61,6 @@ class SessionService with ChangeNotifier {
 
   /// Close the session.
   Future<void> closeSession() async {
-    await jsonRPCPeer?.close();
     sessionId = null;
   }
-}
-
-class StagingSessionService extends SessionService {
-  StagingSessionService() : super(baseUrl: 'priobike.vkw.tu-dresden.de/staging');
-}
-
-class ProductionSessionService extends SessionService {
-  ProductionSessionService() : super(baseUrl: 'priobike.vkw.tu-dresden.de/production');
 }

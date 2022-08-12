@@ -63,7 +63,7 @@ class ProfileViewState extends State<ProfileView> {
   void didChangeDependencies() {
     s = Provider.of<ProfileService>(context);
 
-    // Load the routes, once the window was built.
+    // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       s.loadProfile();
     });

@@ -1,5 +1,5 @@
 import 'package:priobike/v2/common/models/point.dart';
-import 'package:priobike/v2/ride/models/recommendation.dart';
+import 'package:priobike/v2/ride/messages/recommendation.dart';
 import 'package:priobike/v2/ride/services/recommendation/recommendation.dart';
 
 class MockRecommendationService extends RecommendationService {

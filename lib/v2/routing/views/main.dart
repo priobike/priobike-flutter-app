@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/debug.dart';
 import 'package:priobike/v2/common/layout/buttons.dart';
+import 'package:priobike/v2/ride/views/main.dart';
 import 'package:priobike/v2/routing/services/mock.dart';
 import 'package:priobike/v2/routing/services/routing.dart';
 import 'package:priobike/v2/routing/views/alerts.dart';
@@ -31,7 +32,7 @@ class RoutingView extends StatefulWidget {
 
     return Scaffold(body: MultiProvider(
       providers: [
-        ChangeNotifierProvider<SessionService>(create: (c) => ProductionSessionService()),
+        ChangeNotifierProvider<SessionService>(create: (c) => SessionService()),
         ChangeNotifierProvider<RoutingService>(create: (c) => RoutingService(
           selectedWaypoints: ss.selectedShortcut?.waypoints
         )),
@@ -60,6 +61,13 @@ class RoutingViewState extends State<RoutingView> {
     super.didChangeDependencies();
   }
 
+  /// A callback that is fired when the ride is started.
+  void onStartRide() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return RideView.withinAppHierarchy(context);
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -79,7 +87,7 @@ class RoutingViewState extends State<RoutingView> {
         ]),
       ),
 
-      const RouteDetailsBottomSheet(),
+      RouteDetailsBottomSheet(onSelectStartButton: onStartRide),
     ]);
   }
 }

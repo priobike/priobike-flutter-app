@@ -1,12 +1,12 @@
 class UserPosition {
-  double? lat;
-  double? lon;
-  double? speed;
-  double? accuracy;
-  double? heading;
-  DateTime? timestamp;
+  final double? lat;
+  final double? lon;
+  final double? speed;
+  final double? accuracy;
+  final double? heading;
+  final DateTime? timestamp;
 
-  UserPosition({
+  const UserPosition({
     required this.lat,
     required this.lon,
     required this.speed,
@@ -15,13 +15,15 @@ class UserPosition {
     required this.timestamp,
   });
 
-  UserPosition.fromJson(Map<String, dynamic> json) {
-    lat = json['lat'];
-    lon = json['lon'];
-    speed = json['speed'];
-    accuracy = json['accuracy'];
-    heading = json['heading'];
-    timestamp = DateTime.parse(json['timestamp']);
+  factory UserPosition.fromJson(Map<String, dynamic> json) {
+    return UserPosition(
+      lat: json['lat'],
+      lon: json['lon'],
+      speed: json['speed'],
+      accuracy: json['accuracy'],
+      heading: json['heading'],
+      timestamp: DateTime.parse(json['timestamp']),
+    );
   }
 
   Map<String, dynamic> toJson() {

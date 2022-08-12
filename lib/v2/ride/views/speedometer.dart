@@ -2,24 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
-import 'package:priobike/v2/common/debug.dart';
-import 'package:priobike/v2/ride/services/position/mock.dart';
 import 'package:priobike/v2/ride/services/position/position.dart';
-import 'package:priobike/v2/ride/services/recommendation/mock.dart';
 import 'package:priobike/v2/ride/services/recommendation/recommendation.dart';
 import 'package:provider/provider.dart';
-
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<PositionService>(
-      create: (context) => StaticMockPositionService(),
-    ),
-    ChangeNotifierProvider<RecommendationService>(
-      create: (context) => MockRecommendationService(),
-    ),
-  ],
-  child: const RideSpeedometerView(),
-));
 
 /// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
@@ -35,9 +20,7 @@ class CancelButton extends StatelessWidget {
         child: ElevatedButton.icon(
           icon: const Icon(Icons.stop),
           label: const Text('Fahrt Beenden'),
-          onPressed: () {
-            // TODO: Finish ride
-          },
+          onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(

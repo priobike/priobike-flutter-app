@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/v2/common/logger.dart';
 import 'package:priobike/v2/common/models/point.dart';
-import 'package:priobike/v2/home/services/shortcuts.dart';
 import 'package:priobike/v2/routing/messages/routing.dart';
 import 'package:priobike/v2/routing/models/route.dart' as r;
 import 'package:priobike/v2/routing/models/waypoint.dart';
@@ -54,7 +53,9 @@ class RoutingService with ChangeNotifier {
       final sessionId = await session.openSession();
 
       // Session must be open to send the route request.
-      final routeEndpoint = Uri.parse(session.routeUrl);
+      const baseUrl = "priobike.vkw.tu-dresden.de/production"; // TODO: Make this configurable.
+      const routeUrl = "https://$baseUrl/session-wrapper/getroute";
+      final routeEndpoint = Uri.parse(routeUrl);
       final routeRequest = RouteRequest(
         sessionId: sessionId,
         waypoints: selectedWaypoints!.map((e) => Point(lat: e.lat, lon: e.lon)).toList(),
