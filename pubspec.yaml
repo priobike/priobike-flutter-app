@@ -38,22 +38,17 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  ansicolor: ^2.0.1
-  intl: ^0.17.0
-  uuid: ^3.0.4
   provider: ^6.0.0
-  flutter_map: ^0.14.0
   geolocator: ^8.1.1
   web_socket_channel: ^2.1.0
   json_rpc_2: ^3.0.1
-  wakelock: ^0.6.1+1
   fluttertoast: ^8.0.8
-  device_info_plus: ^3.1.1
-  auto_size_text: ^3.0.0
   package_info_plus: ^1.4.2
   mapbox_gl: ^0.16.0
   shared_preferences: ^2.0.15
   carousel_slider: ^4.1.1
+  settings_ui: ^2.0.2
+  latlong2: ^0.8.1
 
 dev_dependencies:
   flutter_test:
@@ -91,25 +86,8 @@ flutter:
     - assets/images/destination.drawio.png
     - assets/images/trafficlight.drawio.png
     - assets/images/waypoint.drawio.png
-
     - assets/images/direction.png
-    - assets/images/trafficlight.png
-    - assets/images/start.png
-    - assets/images/finish.png
 
-    - assets/images/dark_continue.png
-    - assets/images/dark_finish.png
-    - assets/images/dark_keep_left.png
-    - assets/images/dark_keep_right.png
-    - assets/images/dark_roundabout.png
-    - assets/images/dark_turn_left.png
-    - assets/images/dark_turn_right.png
-    - assets/images/dark_turn_sharp_left.png
-    - assets/images/dark_turn_sharp_right.png
-    - assets/images/dark_turn_slight_left.png
-    - assets/images/dark_turn_slight_right.png
-
-  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

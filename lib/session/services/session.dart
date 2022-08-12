@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/logger.dart';
 import 'package:priobike/session/models/auth.dart';
 import 'package:priobike/session/views/toast.dart';
-import 'package:uuid/uuid.dart';
 
 class SessionService with ChangeNotifier {
   Logger log = Logger("SessionService");
@@ -14,7 +13,7 @@ class SessionService with ChangeNotifier {
   http.Client httpClient = http.Client();
 
   /// The client id of this session.
-  final clientId = "beta-app-" + const Uuid().v4();
+  final clientId = "beta-app-" + UniqueKey().toString();
 
   /// The active session id, if authenticated.
   /// Is set by: [openSession].

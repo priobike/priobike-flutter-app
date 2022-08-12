@@ -1,10 +1,10 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';
-import 'package:uuid/uuid.dart';
 
 class Route {
   /// A random unique id for this route.
@@ -102,7 +102,7 @@ class Route {
     this.discomforts,
   }) {
     if (id == null) {
-      this.id = const Uuid().v4();
+      this.id = UniqueKey().toString();
     } else {
       this.id = id;
     }
