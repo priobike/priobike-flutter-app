@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-// latlong is an alias to not clash with MapBox's dependency.
+// l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
 import 'package:priobike/ride/services/position/position.dart';

@@ -1,4 +1,3 @@
-
 import 'package:priobike/common/models/point.dart';
 
 class Sg {

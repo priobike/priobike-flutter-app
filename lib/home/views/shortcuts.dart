@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/spacing.dart';

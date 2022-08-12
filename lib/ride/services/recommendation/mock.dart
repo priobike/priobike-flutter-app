@@ -13,7 +13,7 @@ class MockRecommendationService extends RecommendationService {
       green: true, 
       error: false, 
       errorMessage: "", 
-      snapPos: Point(lat: 53.564292, lon: 9.902202), 
+      snapPos: const Point(lat: 53.564292, lon: 9.902202), 
       navText: "Weiter auf Friedensallee", 
       navSign: 1, 
       navDist: 10, 

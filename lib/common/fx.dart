@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// A fade wrapper to fade out views at the bottom and top of the screen.
