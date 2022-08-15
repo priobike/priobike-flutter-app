@@ -227,7 +227,7 @@ class SettingsViewState extends State<SettingsView> {
             const SmallVSpace(),
             Padding(
               padding: const EdgeInsets.only(left: 32), 
-              child: Content(text: "Weitere Informationen"),
+              child: Content(text: "Nutzbarkeit"),
             ),
             const VSpace(),
             SettingsElement(title: "Problem melden", icon: Icons.thumb_down, callback: () => {
