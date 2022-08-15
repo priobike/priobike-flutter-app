@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ToastMessage {
   static showError(String message) {
     Fluttertoast.showToast(
-      msg: "Fehler: $message",
+      msg: message,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       backgroundColor: Colors.red,
