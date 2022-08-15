@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/session/views/toast.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
+  final bool isHighlighted;
   final void Function() onPressed;
   final IconData icon;
   final String title;
@@ -15,6 +18,7 @@ class ShortcutView extends StatelessWidget {
 
   const ShortcutView({
     Key? key, 
+    this.isHighlighted = false,
     required this.onPressed,
     required this.icon, 
     required this.title, 
@@ -36,15 +40,20 @@ class ShortcutView extends StatelessWidget {
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 64, color: Colors.white),
+                Icon(icon, size: 64, color: isHighlighted ? Colors.white : Colors.black),
                 Expanded(child: Container()),
-                Content(text: title, color: Colors.white, maxLines: 3, overflow: TextOverflow.ellipsis),
+                Content(
+                  text: title, 
+                  color: isHighlighted ? Colors.white : Colors.black, 
+                  maxLines: 3, 
+                  overflow: TextOverflow.ellipsis
+                ),
               ],
             )),
           ])
         ),
-        fill: Colors.blue,
-        splash: Colors.white,
+        fill: isHighlighted ? Colors.blue : AppColors.lightGrey,
+        splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );
   }
@@ -96,16 +105,27 @@ class ShortcutsViewState extends State<ShortcutsView> {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
+    var shortcutViews = shortcuts.map((shortcut) => ShortcutView(
+      onPressed: () => widget.onSelectShortcut(shortcut),
+      icon: shortcut.icon, 
+      title: shortcut.name, 
+      width: shortcutWidth, 
+      rightPad: shortcutRightPad,
+    )).toList(); 
+
+    shortcutViews = [ShortcutView(
+      onPressed: () => ToastMessage.showError("Freies Routing ist noch nicht verfügbar."),
+      isHighlighted: true,
+      icon: Icons.play_circle,
+      title: "Freies Routing starten", 
+      width: shortcutWidth, 
+      rightPad: shortcutRightPad,
+    )] + shortcutViews;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 24),
       scrollDirection: Axis.horizontal, 
-      child: Row(children: shortcuts.map((shortcut) => ShortcutView(
-        onPressed: () => widget.onSelectShortcut(shortcut),
-        icon: shortcut.icon, 
-        title: shortcut.name, 
-        width: shortcutWidth, 
-        rightPad: shortcutRightPad,
-      )).toList()),
+      child: Row(children: shortcutViews),
     );
   }
 }
