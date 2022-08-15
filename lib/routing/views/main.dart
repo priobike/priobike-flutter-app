@@ -77,6 +77,7 @@ class RoutingViewState extends State<RoutingView> {
       
       // Top Bar
       SafeArea(
+        minimum: const EdgeInsets.only(top: 64),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
           const SizedBox(width: 16),

@@ -61,9 +61,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 const SmallVSpace(),
                 BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
                 const VSpace(),
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Content(text: "Weitere Informationen folgen!", color: Colors.grey),
-                ]),
               ], 
             ), 
           ),

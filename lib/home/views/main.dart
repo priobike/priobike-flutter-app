@@ -99,9 +99,9 @@ class HomeViewState extends State<HomeView> {
         const VSpace(),
         const ProfileView(),
         const VSpace(),
+        const SmallVSpace(),
         const Divider(color: AppColors.lightGrey, thickness: 2),
         const VSpace(),
-        HPad(child: Content(text: "Weitere Inhalte sind auf dem Weg!", color: Colors.grey)),
         const SizedBox(height: 128),
       ])
     ));

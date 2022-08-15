@@ -37,14 +37,14 @@ class ShortcutView extends StatelessWidget {
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 64, color: Colors.black),
+                Icon(icon, size: 64, color: Colors.white),
                 Expanded(child: Container()),
-                Content(text: title, color: Colors.black, maxLines: 3, overflow: TextOverflow.ellipsis),
+                Content(text: title, color: Colors.white, maxLines: 3, overflow: TextOverflow.ellipsis),
               ],
             )),
           ])
         ),
-        fill: AppColors.lightGrey,
+        fill: Colors.blue,
         splash: Colors.white,
       ),
     );
