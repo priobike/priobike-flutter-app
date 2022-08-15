@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
-import 'package:priobike/common/logger.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/services/position/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -218,12 +218,8 @@ class PositionService with ChangeNotifier {
     BuildContext context, 
     void Function(Position pos) onNewPosition
   ) async {
-    print("Start geolocating");
-    print(isGeolocating);
     if (isGeolocating) return;
     isGeolocating = true;
-
-    print(positionSource);
 
     if (positionSource == null) {
       final settings = Provider.of<SettingsService>(context, listen: false);

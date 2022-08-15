@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:priobike/common/logger.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/session/models/auth.dart';
 import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/models/backend.dart';

@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/logging/views.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -223,6 +224,12 @@ class SettingsViewState extends State<SettingsView> {
                 );
               }),
             ),
+            const SmallVSpace(),
+            SettingsElement(title: "Logs", icon: Icons.list, callback: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                return const Scaffold(body: LogsView());
+              }));
+            }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             const SmallVSpace(),
