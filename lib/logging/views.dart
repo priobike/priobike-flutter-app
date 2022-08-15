@@ -16,7 +16,6 @@ class LogsViewState extends State<LogsView> {
 
   @override
   Widget build(BuildContext context) {
-    Logger("Test").addToLog("Test asdiubnasiu ndaiun iausn aiun diuan aiusb diuab  oain dosn ");
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
