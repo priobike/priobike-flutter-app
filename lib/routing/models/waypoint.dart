@@ -1,0 +1,21 @@
+class Waypoint {
+  /// The latitude of the waypoint.
+  final double lat;
+
+  /// The longitude of the waypoint.
+  final double lon;
+
+  /// The address of this location.
+  final String address;
+
+  const Waypoint(this.lat, this.lon, {required this.address});  
+
+  /// Convert the waypoint to a json map.
+  Map<String, dynamic> toJSON() {
+    return {
+      "lat": lat, 
+      "lon": lon, 
+      "address": address,
+    };
+  }
+}

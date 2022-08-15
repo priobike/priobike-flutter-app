@@ -1,0 +1,145 @@
+Vorbemerkung
+
+Das Projekt PrioBike-HH ist ein Forschungs- und Entwicklungsprojekt. Aus diesem Grund können sich im Projektverlauf technische und konzeptionelle Änderungen ergeben, die Einfluss auf den Schutz personenbezogener oder –beziehbarer Daten haben können. Dieses Dokument wird daher gegebenenfalls entsprechend fortgeschrieben. Im Rahmen des Projektes PrioBike-HH werden verschiedene Maßnahmen unabhängig voneinander entwickelt und realisiert. Entsprechend erfolgt eine datenschutzrechtliche Betrachtung der Maßnahmen in separaten Dokumenten. Als erste Maßnahme soll die PrioBike-HH App betrachtet werden. Um dennoch einen Überblick über alle Maßnahmen des Projektes zu erhalten, werden diese im Kapitel 2 übergeordnet beschrieben. 
+
+Projektbeschreibung
+
+Mit dem Projekt PrioBike-HH stärkt die Stadt Hamburg ihre Vorreiterrolle in der Digitalisierung des Radverkehrs in Deutschland. Ziel ist, die Lichtsignalanlagen (LSA) entlang hoch frequentierter Verbindungen dynamisch anzupassen, gleichzeitig Ampelprognosen und optimierte Velorouten per eigens entwickelter App anzubieten und damit das Radfahren attraktiver, komfortabler und sicherer zu machen. Im Projektvorhaben ist außerdem vorgesehen, dass in der Zufahrt zu bestimmten Ampeln Restgrünzeiten bzw. Geschwindigkeitsempfehlungen sinnvoll durch digitale Signalisierungen am Fahrbahnrand angezeigt werden. Zum Schutz von Radfahrenden ist eine Warnung an den motorisierten Verkehr durch eine zu definierende Technologie bereitzustellen.
+Für das Projekt PrioBike-HH wurden folgende Vision und daraus abgeleitet die Mission formuliert: 
+Vision für Hamburg:Zur Unterstützung der Mobilitätswende ist Hamburg im Jahr 2025 Vorreiter in der Digitalisierung des Radverkehrs in Deutschland.
+Mission für PrioBike-HH:Einsatz von digitalen Technologien zur Steigerung des Komforts und der Sicherheit im Rad-verkehr.
+
+Vorhabenziele
+
+Aus der Vision und der Mission sind folgende übergeordnete Vorhabenziele formuliert worden:
+Die Radverkehrszählung wird ausgebaut, um die Datenbasis für die Services von PrioBike-HH anzureichern.
+Anpassung der LSA-Steuerung zur Priorisierung des Radverkehrs an ausgewählten Knotenpunkten.
+Realisierung ausgewogener multimodaler Verkehrskonzepte durch die dynamische Anpassung der Steuerung der Knoten entlang ausgewählter Strecken mittels KI, um die Grüne Welle für Radfahrende zu etablieren.
+Implementierung einer Radverkehrsinformations-App zur Bereitstellung eines GLOSA- und Routing-Dienstes zur Ermöglichung einer digitalen Grünen Welle. 
+Entwicklung innovativer Interaktionsformen und deren Bereitstellung mittels unterschiedlicher Medien für verschiedene Anwendungsfelder der Mikromobilität.
+Visualisierung von Geschwindigkeitsempfehlungen bzw. Restgrünzeiten in der Infrastruktur entlang von ausgewählten Radwegen.
+Warnung des Kraftfahrzeugführers vor Radfahrenden im Knotenbereich zur Erhöhung der Sicherheit von Radfahrenden.
+Erfassung dynamischer radverkehrsrelevanter Daten sowie Nutzung von Daten anderer Projekte zur Anreicherung der Datenbasis für die Services von PrioBike-HH.
+Sicherstellung eines dauerhaften Betriebs ausgewählter Lösungen von PrioBike-HH sowie die Übertragbarkeit auf andere Städte.
+
+Funktionsweise App
+
+Mit der App sollen den Radfahrenden Geschwindigkeitsempfehlungen gegeben werden, bei deren Einhalten sie bei Grün am nächsten lichtsignalanlagengesteuerten Knotenpunkt ankommen und ohne Warten weiterfahren können. 
+Vor Fahrtbeginn werden Start- und Endpunkt der geplanten Route sowie der genutzte Fahrradtyp über die App erfragt. Aus diesen Angaben wird im Backend eine Route berechnet. Das ist notwendig, um die auf der Route liegenden LSA zu ermitteln und die entsprechenden Prognosen bereitzustellen. Während der Fahrt werden mit der App GPS-Positionsdaten, die aktuelle Geschwindigkeit und die Fahrtrichtung erfasst und an das Backend übermittelt. Dort wird die aktuelle Position auf der Route verortet, die nächste auf der Strecke liegende LSA und deren Grünzeitprognose ermittelt und an die App gesendet. In der App wird auf Basis der aktuellen Position die Entfernung zur LSA bestimmt und in Kombination mit der Grünzeitprognose eine Geschwindigkeitsempfehlung berechnet. Diese wird auf dem Display angezeigt. 
+Das System (App und Backend) sollen im Projekt zu nächst in einer Alpha- und Betatestphase getestet werden, bevor der erste Release stattfinden wird. Die Alphaphase soll mit ca.10-15 testenden Personen durchgeführt werden. Diese stehen in engem Kontakt mit dem Entwicklerteam und bekommen eine persönliche Einweisung, in der auch auf die Aspekte des Datenschutzes hingewiesen wird.Der Betatest soll mit wenigen hundert Nutzenden durchgeführt werden. Die App wird dazu in einem geschlossenen Downloadbereich zur Verfügung gestellt.
+Datenschutzrechtliche Betrachtung 
+Beim Nutzen der App werden keine personenbezogenen Daten erhoben. Es werden die im Folgenden aufgeführten erhoben und mit einer Session-ID im Backend gespeichert. 
+
+Reguläre Datenerfassung
+
+Routing (vor der Fahrt)Für die Berechnung von Geschwindigkeitsempfehlungen während der Fahrt ist vor Fahrtbeginn die Berechnung der Fahrtroute notwendig. Dazu sind vom Nutzer die Eingabe folgender Informationen notwendig:
+Start
+Ziel
+Fahrradtyp
+
+Die Informationen werden an die Backend-Dienste der PrioBike App als Parameter einer Anfrage zur Berechnung der Fahrtroute gesendet. Im Ergebnis liefert die Anfrage die Daten zur Fahrtroute.
+
+Zweck der Fahrtroute während der Nutzung der App:
+
+Ermittlung der Signalgruppen entlang der Fahrtroute während der Fahrt
+Bereitstellung von Geschwindigkeitsempfehlungen
+Bereitstellung von Navigationsanweisungen
+
+Standort (während der Fahrt)Während der Fahrt (nach Betätigen des Start-Buttons) werden kontinuierlich Standortinformationen des Nutzergerätes an die Backend-Dienste übermittelt. Dies sind die folgenden, per GNSS durch das Nutzergerät erfassten, Daten:
+GNSS-Position: Latitude, Longitude, Altitude
+Erfassungszeit
+Genauigkeit der GNSS-Position
+Geschwindigkeit
+Fahrtrichtung
+
+Standortdaten werden mit der Frequenz von bis zu 1 Hz erfasst und zeitnah (je nach Verfügbarkeit einer Kommunikationsverbindung) an den Backend-Dienst übertragen. Zusätzlich wir ein anonymer Identifikator (Session-ID) für die jeweils aufzuzeichnende Session der PrioBike App bzw. der Datenerfassungskomponente festgelegt und mit jedem Datenset versendet.
+
+Zweck der Standortdaten während der Nutzung der App:
+Ermittlung der Geschwindigkeit, Fahrtrichtung und Entfernung von der nächsten LSA
+In Kombination mit der Fahrtroute Ermittlung der nächsten Signalgruppe
+Ermittlung eines Abweichens von der Fahrtroute 
+Abfrage der Prognose für ermittelte Signalgruppe
+Berechnung der Geschwindigkeitsempfehlung
+
+Alle genannten Daten werden erfasst, verschlüsselt und versendet, während sich die App im Vordergrund befindet (App im Display dargestellt, Smartphone entsperrt). Während die App im Hintergrund ist (Smartphone gesperrt bzw. andere App im Vordergrund), werden keine Daten erfasst und versendet.
+Erweiterte Datenerfassung
+Die erweiterte Datenerfassung wird nur während der Alpha- und Betatestphase durchgeführt. Im Folgenden werden die Sensoren und die zu erfassenden Daten aufgelistet.
+Smartphone-Sensoren
+Während der Fahrt können die folgenden weiteren Smartphone-Sensoren abgetastet werden. Folgende Sensordaten können zusätzlich zum GNSS-Standort mit einer Abtastfrequenz von 100 Hz erfasst werden:
+3-Achsen Beschleunigungsdaten mit 100 Hz Abtastrate
+3-Achsen Rotationsdaten mit 100 Hz Abtastrate
+3-Achsen Magnetometerdaten mit 100 Hz Abtastrate
+
+Smartwatch-Sensoren
+O2-Sättigung
+Puls
+
+Zusätzliche Sensoren am Fahrrad
+Geschwindigkeitssensor
+Trittfrequenz
+Sensoren zur Abstandsmessung überholender Kfz
+
+Erfassung von Fehlermeldungen
+Während der Alpha- und Betatestphase wird die Sentry-Application Monitorung und Error Tracking Software genutzt, dazu wurde eine Instanz auf einem Server der TU Dresden installiert.
+Beim Absturz der App werden automatisiert Crashreports erstellt und die folgenden Daten an das Backend übermittelt. 
+Gerätetyp
+…
+Diese Daten dienen dem Erfassen und Beseitigen von Fehlern im Quellcode der App.
+NutzersessionsBei jeder Nutzung der App wird eine Nutzersession angelegt. Diese ist notwendig, um einzelne Nutzer während der Session wiederzuerkennen. Das ist zum Beispiel beim Routing und beim Anzeigen der berechneten Fahrempfehlungen notwendig. Darüber hinaus wird die Session-ID benötigt, um die aufgezeichneten Daten einer Session zuordnen und auswerten zu können.Bei jedem Start der App wird eine neue zufällige Session-ID erzeugt. Aus dieser lassen sich keine Rückschlüsse auf die Nutzenden und auf vorherige Sessions ziehen. Mit Beenden der App wird auch die Session-ID vom Endgerät gelöscht.Die beschriebene Datenschutzmaßnahme ist bereits implementiert und kommt zur Anwendung.
+
+TrackingdatenEs werden die oben genannten Daten aufgezeichnet und mit Hilfe der Session-ID zu Tracks verknüpft.  Um an den Alpha- und Betatests teilnehmen zu können, müssen die Nutzenden eine informierte Einwilligungserklärung abgeben.
+
+Für den Release ist die folgende Anonymisierungsmaßnahme vorgesehen:
+Vor dem Abspeichern der Tracks werden die ersten und letzten 100 m abgeschnitten und nicht gespeichert.  Sollte sich die Position über einen Zeitraum von 5 min nicht verändern, wird die Aufzeichnung gestoppt und dieser Zwischenstopp so behandelt, wie der Start und das Ende eines Tracks.
+
+Routingdaten, empfohlene FahrgeschwindigkeitenDie vom System vorgeschlagenen Fahrempfehlungen wie berechnete Fahrtrouten und Geschwindigkeitsempfehlungen werden verknüpft mit der Session-ID gespeichert.
+
+Im Apprelease werden vor dem Speichern der Routenemfpehlung die ersten und letzten 100 m der Route abgeschnitten und nicht gespeichert, gleiches trifft auf Fahrempfehlungen in diesem Bereich zu.
+
+Dienste DritterBei der Entwicklung des Systems wird soweit möglich auf die Verwendung von Diensten Dritter verzichtet, die eine Relevanz für den Datenschutz haben. Konkret können hier die Dienste von Google genannt werden. Dienste, auf die nicht verzichtet werden kann, werden in die Datenschutzerklärung der App aufgenommen. Zum aktuellen Entwicklungszeitpunkt handelt es sich dabei um die Kartendienstanbieter OpenStreetMap und Mapbox: Die Dienste werden benötigt, um die Position der Radfahrenden auf einer Karte in der App darzustellen.
+
+Serverdienste zur DatenverarbeitungDie Verarbeitung der Daten mit PrioBike Diensten erfolgt auf Servern in Deutschland bzw. innerhalb der EU.Während der Entwicklungs- und Testphase werden die Serverdienste des ZIH (Zentrum für Informationsdienste und Hochleistungsrechnen) der TU Dresden genutzt. Für den Betrieb der Release-Version sollen Serverkapazitäten eines noch zu bestimmenden Serverdienstleisters mit Sitz in Deutschland genutzt werden. Diese werden in das Datenschutzpapier für die Release Version der App aufgeführt werden. 
+Daten, die durch Dienste Dritter erhoben werden, werden u.U.  außerhalb der EU gespeichert und verarbeitet.
+
+Speichern der DatenAlle von uns direkt erhobenen Daten werden auf Servern in Deutschland gespeichert. Während der Entwicklungs- und Testphase werden die Serverdienste des ZIH (Zentrum für Informationsdienste und Hochleistungsrechnen) der TU Dresden genutzt. Für den Betrieb der Release-Version sollen Serverkapazitäten eines noch zu bestimmenden Serverdienstleisters mit Sitz in Deutschland genutzt werden.Gespeichert werden anonymisierte Trackingdaten und optionale Daten ohne zeitliche Begrenzung.
+
+Erklärung zur Datennutzung und Zustimmung
+In der App wird vor der Erhebung von Daten um die Zustimmung des Nutzers gebeten. Gemäß DSGVO wird der Nutzer dabei detailliert über die Nutzung und Speicherung aller Daten informiert. Nur bei erfolgter Zustimmung werden Daten erhoben. Erfolgt die Zustimmung zur Nutzung der für die Funktion notwendigen Daten nicht, wird der Nutzer darauf hingewiesen, dass die App bzw. der PrioBike Dienst nicht genutzt werden können.
+
+
+Zweck der Datenverarbeitung nach Ende der Appnutzung:
+Der Zweck der Datenerhebung ist es, Informationen über den Radverkehr zu gewinnen. Aus den aufgenommen Trackingdaten sollen Information über Geschwindigkeitsprofile, Quelle-Ziel-Relation und Wartezeiten an Knotenpunkten ermittelt werden.
+Mit den erweiterten Daten lassen sich wesentlich umfassendere bzw. genauere Analysen der Radfahrten durchführen als dies mit den GNSS-Daten alleine möglich ist. Z.B.:
+Erkennung des Verkehrsmittels (Handelt es sich überhaupt um eine Radfahrt)
+Aktivitätserkennung (Erfolgt ein Zwischenstopp? Erfolgt ein Wechsel der Fortbewegungsart?)
+
+Mit den gespeicherten Routenempfehlungen und den dazugehörigen tatsächlich gefahrenen Routen soll die Akzeptanz der vorgeschlagenen Routen evaluiert und der Routingalgorithmus verbessert werden. Die mit der Smartwatch und den zusätzlichen erhobenen Daten zur Erfassung der Physis der Nutzenden während der Fahrt und Trittfrequenzen dienen Evaluation des Komforts während der Fahrt.Die aufgezeichneten Geschwindigkeitsempfehlungen sollen mit tatsächlich gefahrenen Geschwindigkeiten und Geschwindkeitsänderungen verglichen werden um die berechneten Empfehlungen evaluieren und verbessern zu können.Durch die Erfassung des Abstandes überholender Kfz sollen Strecken mit erhöhter Gefährdung ermittelt werden.
+Rechtsgrundlage für die Verarbeitung: 
+
+
+Zusammenfassung
+
+
+
+
+
+
+
+
+
+
+An der Durchführung des Datenschutzpapiers Beteiligte 
+
+Verantwortlicher 
+Institution: TU Dresden, Professur für Verkehrsprozessautomatisierung
+Straße: Hettnerstr. 3
+PLZ/ Ort: 01062 Dresden
+Telefon: 0351 463 36718
+E-Mail: priobike@msx.tu-dresden.de
+Datenschutzbeauftragter 
+Behörde für Wirtschaft, Verkehr und Innovation 
+Straße: Alter Steinweg 4 
+PLZ/ Ort: 20459 Hamburg 
+Telefon: +49 40 428 41-1807 
+E-Mail: datenschutz@bwvi.hamburg.de￼ https://sentry.io
+￼Anonymisiert: Session-ID wie beschrieben, Anfang und Ende abgeschnitten, längere Aufenthalte an einem Ort entfernt.

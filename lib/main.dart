@@ -1,99 +1,71 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/services/app.dart';
-import 'package:priobike/services/settings.dart';
-import 'package:priobike/utils/logger.dart';
-import 'package:priobike/utils/routes.dart';
+import 'package:priobike/logging/logger.dart';
+import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/main.dart';
+import 'package:priobike/privacy/services.dart';
+import 'package:priobike/privacy/views.dart';
+import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/ride/services/recommendation/recommendation.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/session/services/session.dart';
+import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
-import 'services/navigation.dart';
 
 void main() {
-  Logger log = Logger("Main");
+  final log = Logger("main.dart");
 
+  // Display Flutter errors and log them to the logger.
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     log.e(details.toString());
   };
 
-  // Initialize Sentry.
-  SentryFlutter.init(
-    (options) {
-      options.dsn =
-          'https://9414569965e1478cbe58f12a3a4cb39e@priobike.vkw.tu-dresden.de/2';
-      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-      // It is recommended adjusting this value in production.
-      options.tracesSampleRate = 1.0;
-    },
-    appRunner: () => runZonedGuarded(() {
-      runApp(const PrioBike());
-    }, (Object error, StackTrace stack) {
-      // Log the error to the console.
-      log.e(error.toString());
-
-      // Dispatch the error to Sentry, if it is available.
-      try {
-        Sentry.captureException(error, stackTrace: stack);
-      } catch (e) {
-        log.e("Sentry is unavailable: $e");
-      }
-    }),
-  );
+  // Run the app, catch errors and dispatch them to the logger.
+  runZonedGuarded(() => runApp(const App()), (Object error, StackTrace stack) {
+    // Log the error to the console.
+    log.e(error);
+  });
 }
 
-class PrioBike extends StatelessWidget {
-  const PrioBike({Key? key}) : super(key: key);
+/// The main app widget.
+class App extends StatelessWidget {
+  /// The current navigator state key of the app.
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
+      // All providers must reside above the MaterialApp.
+      // Otherwise, they will get disposed when calling the Navigator.
       providers: [
-        ChangeNotifierProvider<AppService>(
-          create: (context) => AppService(),
-        ),
-        ChangeNotifierProvider<SettingsService>(
-          create: (context) => SettingsService(),
-        ),
+        ChangeNotifierProvider<PrivacyPolicyService>(create: (context) => PrivacyPolicyService()),
+        ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
+        ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
+        ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
+        ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService()),
+        ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
+        ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
+        ChangeNotifierProvider<RecommendationService>(create: (context) => RecommendationService()),
       ],
-      child: const Main(),
-    );
-  }
-}
-
-class Main extends StatefulWidget {
-  const Main({Key? key}) : super(key: key);
-
-  @override
-  State<Main> createState() => _MainState();
-}
-
-class _MainState extends State<Main> {
-  late SettingsService settings;
-  late AppService appService;
-
-  @override
-  Widget build(BuildContext context) {
-    settings = Provider.of<SettingsService>(context);
-    appService = Provider.of<AppService>(context);
-
-    return MaterialApp(
-      title: 'PrioBike',
-      initialRoute: Routes.start,
-      routes: Routes.all,
-      onUnknownRoute: (settings) => Routes.noRoute(settings),
-      theme: ThemeData(
-        colorSchemeSeed: Colors.blue[900],
-        useMaterial3: true,
+      child: MaterialApp(
+        title: 'PrioBike',
+        theme: ThemeData(
+          colorSchemeSeed: Colors.white,
+          useMaterial3: true,
+        ),
+        // The navigator key is used to access the app's build context.
+        navigatorKey: navigatorKey,
+        home: Scaffold(body: PrivacyPolicyView(onConfirmed: (ctx) {
+          Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (_) {
+            return const Scaffold(body: HomeView());
+          }));
+        })),
       ),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.blue[900],
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
-      themeMode: settings.getThemeMode(),
-      navigatorKey: NavigationService.key,
     );
   }
 }
