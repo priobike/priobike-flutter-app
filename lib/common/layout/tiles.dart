@@ -1,28 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/colors.dart';
 
-class Tile extends RawMaterialButton {
-  Tile({
+class Tile extends StatelessWidget {
+  /// The content of the tile.
+  final Widget content;
+
+  /// A callback that is fired when the tile was tapped.
+  final void Function()? onPressed;
+
+  /// The fill color of the tile.
+  final Color fill;
+
+  /// The splash of the tile, if the tile is tappable (a callback is passed).
+  final Color splash;
+
+  /// The padding of the tile.
+  final EdgeInsets padding;
+
+  /// The border radius of the tile.
+  final BorderRadius borderRadius;
+
+  const Tile({
     Key? key, 
-    required Widget content, 
-    void Function()? onPressed,
-    Color fill = AppColors.lightGrey,
-    Color splash = Colors.grey,
-    EdgeInsets padding = const EdgeInsets.all(16),
-    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(24)),
-  }) : super(
-    key: key,
-    elevation: 0,
-    hoverElevation: 0,
-    focusElevation: 0,
-    highlightElevation: 0,
-    fillColor: fill,
-    splashColor: splash,
-    child: Padding(
-      padding: padding,
-      child: content,
-    ),
-    onPressed: onPressed,
-    shape: RoundedRectangleBorder(borderRadius: borderRadius),
-  );
+    required this.content, 
+    this.onPressed,
+    this.fill = AppColors.lightGrey,
+    this.splash = Colors.grey,
+    this.padding = const EdgeInsets.all(16),
+    this.borderRadius = const BorderRadius.all(Radius.circular(24)),
+  }) : super(key: key);
+  
+  @override 
+  Widget build(BuildContext context) {
+    // If we have no callback, we use a container wrapper.
+    if (onPressed == null) {
+      return Container(
+        padding: padding, 
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: borderRadius,
+        ),
+        child: content,
+      );
+    }
+    // Otherwise, we use a button wrapper with splash color.
+    return RawMaterialButton(
+      elevation: 0,
+      hoverElevation: 0,
+      focusElevation: 0,
+      highlightElevation: 0,
+      fillColor: fill,
+      splashColor: splash,
+      child: Padding(padding: padding, child: content),
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+    );
+  }
 }
