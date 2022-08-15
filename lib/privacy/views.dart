@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/debug.dart';
+import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/privacy/models.dart';
-
-/// Debug these views.
-void main() => debug(const PrivacyProxyView(wrappedView: Text("Proxied View")));
+import 'package:priobike/privacy/services.dart';
+import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
@@ -30,41 +28,31 @@ class IconItem extends Row {
   );
 }
 
-/// A privacy proxy view that displays the following:
-/// - A loading indicator, if something is loading
-/// - The wrapped view, if the current privacy policy matches the accepted one
-/// - The current privacy policy, if none was accepted or if it changed
-class PrivacyProxyView extends StatefulWidget {
-  /// The wrapped view.
-  final Widget wrappedView;
+/// A view that displays the privacy policy.
+class PrivacyPolicyView extends StatefulWidget {
+  final void Function(BuildContext ctx)? onConfirmed;
 
   /// Create the privacy proxy view with the wrapped view.
-  const PrivacyProxyView({Key? key, required this.wrappedView}) : super(key: key);
+  const PrivacyPolicyView({this.onConfirmed, Key? key}) : super(key: key);
 
   @override 
-  PrivacyProxyViewState createState() => PrivacyProxyViewState();
+  PrivacyPolicyViewState createState() => PrivacyPolicyViewState();
 }
 
-class PrivacyProxyViewState extends State<PrivacyProxyView> {
-  @override 
-  Widget build(BuildContext context) {
-    return FutureBuilder<PrivacyPolicy>(
-      future: PrivacyPolicy.load(context),
-      builder: (BuildContext context, AsyncSnapshot<PrivacyPolicy> snapshot) {
-        if (!snapshot.hasData) {
-          // Still loading
-          return renderLoadingIndicator();
-        }
+class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
+  /// The associated privacy service, which is injected by the provider.
+  late PrivacyPolicyService s;
 
-        var policy = snapshot.data!;
-        if (!policy.isConfirmed) {
-          // Privacy policy not accepted
-          return renderPrivacyPolicy(policy);
-        }
-        // Privacy policy accepted
-        return widget.wrappedView;
-      },
-    );
+  @override
+  void didChangeDependencies() {
+    s = Provider.of<PrivacyPolicyService>(context);
+
+    // Load once the window was built.
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await s.loadPolicy(context, () => widget.onConfirmed?.call(context));
+    });
+
+    super.didChangeDependencies();
   }
 
   /// Render a loading indicator.
@@ -80,18 +68,26 @@ class PrivacyProxyViewState extends State<PrivacyProxyView> {
     ));
   }
 
-  /// Render the privacy policy.
-  Widget renderPrivacyPolicy(PrivacyPolicy policy) {
-    return Stack(alignment: Alignment.bottomCenter, children: [
-      HPad(child: Fade(child: ListView(children: [
-        const SizedBox(height: 64),
-        if (!policy.hasChanged) Header(text: "Diese App funktioniert mit"),
-        if (!policy.hasChanged) Header(text: "deinen Daten.", color: Colors.blueAccent),
-        if (policy.hasChanged) Header(text: "Wir haben die Erklärung zum"),
-        if (policy.hasChanged) Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent),
+  @override 
+  Widget build(BuildContext context) {
+    if (!s.hasLoaded) return renderLoadingIndicator();
+
+    return Container(color: AppColors.lightGrey, child: Stack(alignment: Alignment.bottomCenter, children: [
+      HPad(child: Fade(child: SingleChildScrollView(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const SizedBox(height: 164),
+        if (!s.hasChanged! || widget.onConfirmed == null) 
+          Header(text: "Diese App funktioniert mit"),
+        if (!s.hasChanged! || widget.onConfirmed == null) 
+          Header(text: "deinen Daten.", color: Colors.blueAccent),
+        if (s.hasChanged! && widget.onConfirmed != null) 
+          Header(text: "Wir haben die Erklärung zum"),
+        if (s.hasChanged! && widget.onConfirmed != null) 
+          Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent),
         const SmallVSpace(),
-        if (!policy.hasChanged) SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:"),
-        if (policy.hasChanged) SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch."),
+        if (!s.hasChanged!) 
+          SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:"),
+        if (s.hasChanged! && widget.onConfirmed != null) 
+          SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch."),
         const VSpace(),
         IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort."),
         const SmallVSpace(),
@@ -99,14 +95,22 @@ class PrivacyProxyViewState extends State<PrivacyProxyView> {
         const SmallVSpace(),
         IconItem(icon: Icons.lightbulb, text: "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback."),
         const VSpace(),
-        Content(text: policy.text),
+        Content(text: s.text!),
         const SizedBox(height: 256),
-      ]))),
-      Pad(child: BigButton(icon: Icons.check, label: "Akzeptieren", onPressed: () {
-        setState(() {
-          policy.confirm();
-        });
-      })),
-    ]);
+      ])))),
+      if (widget.onConfirmed == null) Column(children: [
+        const SizedBox(height: 64),
+        Row(children: [
+          AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+        ]),
+      ]),
+      if (widget.onConfirmed != null) Pad(
+        child: BigButton(
+          icon: Icons.check, 
+          label: "Akzeptieren", 
+          onPressed: () => widget.onConfirmed?.call(context),
+        ),
+      ),
+    ]));
   }
 }

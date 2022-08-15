@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/session/services/session.dart';
@@ -245,8 +246,10 @@ class SettingsViewState extends State<SettingsView> {
               child: Content(text: "Weitere Informationen"),
             ),
             const SmallVSpace(),
-            SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () => {
-              ToastMessage.showError("Datenschutz ist noch nicht verfügbar.")
+            SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                return const Scaffold(body: PrivacyPolicyView());
+              }));
             }),
             const SmallVSpace(),
             SettingsElement(title: "Lizenzen", icon: Icons.info, callback: () => {
