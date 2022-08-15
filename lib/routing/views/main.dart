@@ -46,7 +46,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// A callback that is fired when the ride is started.
   void onStartRide() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
       return const Scaffold(body: RideView());
     }));
   }

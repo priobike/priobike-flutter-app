@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:priobike/common/logger.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/userposition.dart';
 import 'package:priobike/ride/messages/navigation.dart';

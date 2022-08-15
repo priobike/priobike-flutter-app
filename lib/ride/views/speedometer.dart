@@ -10,29 +10,11 @@ import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
+  /// A callback that is fired when the cancel button is touched.
+  final void Function() onTap;
+
   /// Create a new cancel button.
-  const CancelButton({Key? key}) : super(key: key);
-
-  /// A callback that is fired when the ride is ended.
-  Future<void> onEndRide(BuildContext context) async {
-    // Reset the route service.
-    final routingService = Provider.of<RoutingService>(context, listen: false);
-    await routingService.reset();
-
-    // End the recommendations and reset the recommendation service.
-    final recommendationService = Provider.of<RecommendationService>(context, listen: false);
-    await recommendationService.reset();
-
-    // Stop the geolocation and reset the position service.
-    final positionService = Provider.of<PositionService>(context, listen: false);
-    await positionService.reset();
-
-    // Stop the session and reset the session service.
-    final session = Provider.of<SessionService>(context, listen: false);
-    await session.reset();
-
-    Navigator.of(context).popUntil((route) => route.isFirst);
-  }
+  const CancelButton({required this.onTap, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +25,7 @@ class CancelButton extends StatelessWidget {
         child: ElevatedButton.icon(
           icon: const Icon(Icons.stop),
           label: const Text("Fahrt Beenden"),
-          onPressed: () => onEndRide(context),
+          onPressed: onTap,
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
@@ -105,6 +87,25 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       rs.needsLayout[viewId] = false;
     }
     super.didChangeDependencies();
+  }
+
+  /// End the ride.
+  Future<void> endRide(BuildContext context) async {
+    // Reset the route service.
+    final routingService = Provider.of<RoutingService>(context, listen: false);
+    await routingService.reset();
+
+    // End the recommendations and reset the recommendation service.
+    final recommendationService = Provider.of<RecommendationService>(context, listen: false);
+    await recommendationService.reset();
+
+    // Stop the geolocation and reset the position service.
+    final positionService = Provider.of<PositionService>(context, listen: false);
+    await positionService.reset();
+
+    // Stop the session and reset the session service.
+    final session = Provider.of<SessionService>(context, listen: false);
+    await session.reset();
   }
 
   /// Update the view with the current data.
@@ -276,15 +277,21 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       top: ((MediaQuery.of(context).size.height * 64 /* % */ ) / 100)
     );
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        gauge,
-        const Positioned(
-          child: SafeArea(child: CancelButton()),
-          bottom: 8
-        ),
-      ]
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          gauge,
+          Positioned(
+            child: SafeArea(child: CancelButton(onTap: () async {
+              await endRide(context);
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            })),
+            bottom: 8
+          ),
+        ]
+      ),
     );
   }
 }

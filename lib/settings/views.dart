@@ -253,7 +253,7 @@ class SettingsViewState extends State<SettingsView> {
               padding: const EdgeInsets.only(left: 32), 
               child: Content(text: "Weitere Informationen"),
             ),
-            const SmallVSpace(),
+            const VSpace(),
             SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (_) {
                 return const Scaffold(body: PrivacyPolicyView());

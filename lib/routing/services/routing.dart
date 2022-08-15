@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/common/logger.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/common/models/point.dart';
 import 'package:priobike/routing/messages/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
