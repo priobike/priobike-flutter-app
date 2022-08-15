@@ -2,19 +2,25 @@ import 'package:flutter/material.dart';
 
 /// A small icon button.
 class SmallIconButton extends SizedBox {
-  SmallIconButton({Key? key, required IconData icon, required void Function() onPressed}) : super(
+  SmallIconButton({
+    Key? key, 
+    required IconData icon, 
+    required void Function() onPressed,
+    Color color = Colors.black,
+    Color fill = Colors.white,
+  }) : super(
     key: key,
     width: 48,
     height: 48,
     child: RawMaterialButton(
       elevation: 0,
-      fillColor: Colors.white,
+      fillColor: fill,
       splashColor: Colors.grey,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Icon(
           icon,
-          color: Colors.black,
+          color: color,
         ),
       ),
       onPressed: onPressed,

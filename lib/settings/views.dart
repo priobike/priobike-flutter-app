@@ -9,6 +9,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/session/services/session.dart';
+import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
@@ -23,6 +24,98 @@ void main() => debug(MultiProvider(
   ],
   child: const SettingsView(),
 ));
+
+class SettingsElement extends StatelessWidget {
+  /// The title of the settings element.
+  final String title;
+
+  /// The subtitle of the settings element.
+  final String? subtitle;
+
+  /// The icon of the settings element.
+  final IconData icon;
+
+  /// The callback when the element was selected.
+  final void Function() callback;
+
+  const SettingsElement({
+    required this.title, 
+    this.subtitle, 
+    required this.icon, 
+    required this.callback,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Tile(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24), 
+          bottomLeft: Radius.circular(24)
+        ),
+        fill: Colors.white,
+        content: Row(children: [
+          BoldContent(text: title),
+          const HSpace(),
+          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue), fit: FlexFit.tight)
+          else Flexible(child: Container()),
+          SmallIconButton(icon: icon, onPressed: callback, color: Colors.black, fill: AppColors.lightGrey),
+        ]),
+      ),
+    );
+  }
+}
+
+class SettingsSelection<E> extends StatelessWidget {
+  /// The elements of the selection.
+  final List<E> elements;
+
+  /// The selected element.
+  final E? selected;
+
+  /// The title for each element.
+  final String Function(E e) title;
+
+  /// The callback when the element was selected.
+  final void Function(E e) callback;
+
+  const SettingsSelection({
+    required this.elements, 
+    required this.selected,
+    required this.title,
+    required this.callback,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height / 2,
+      color: Colors.white,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: elements.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Tile(fill: AppColors.lightGrey, content: Row(children: [
+              Flexible(child: Content(text: title(elements[index])), fit: FlexFit.tight),
+              Expanded(child: Container()),
+              SmallIconButton(
+                icon: elements[index] == selected
+                  ? Icons.check 
+                  : Icons.check_box_outline_blank, 
+                onPressed: () => callback(elements[index]),
+              ),
+            ]))
+          );
+        }
+      )
+    );
+  }
+}
 
 class SettingsView extends StatefulWidget {
   const SettingsView({Key? key}) : super(key: key);
@@ -71,105 +164,13 @@ class SettingsViewState extends State<SettingsView> {
   }
 
   /// A callback that is executed when a positioning is selected.
-  Future<void> onSelectPositioning(BuildContext ctx, Positioning positioning) async {
+  Future<void> onSelectPositioning(Positioning positioning) async {
     // Tell the settings service that we selected the new backend.
     await settingsService.selectPositioning(positioning);
     // Reset the position service since it depends on the positioning.
     await positionService.reset();
-    Navigator.pop(ctx);
-  }
 
-  Widget renderBackendSelection() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16),
-      child: Tile(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24), 
-          bottomLeft: Radius.circular(24)
-        ),
-        fill: Colors.white,
-        content: Row(children: [
-          BoldContent(text: "Testort"),
-          const HSpace(),
-          Flexible(child: Content(text: settingsService.backend.region), fit: FlexFit.tight),
-          SmallIconButton(icon: Icons.expand_more, onPressed: () {
-            showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-              return Container(
-                height: MediaQuery.of(context).size.height / 2,
-                color: Colors.white,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: Backend.values.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Tile(fill: AppColors.lightGrey, content: Row(children: [
-                        Flexible(child: Content(text: Backend.values[index].region), fit: FlexFit.tight),
-                        Expanded(child: Container()),
-                        SmallIconButton(
-                          icon: Backend.values[index] == settingsService.backend 
-                            ? Icons.check 
-                            : Icons.check_box_outline_blank, 
-                          onPressed: () => onSelectBackend(Backend.values[index]),
-                        ),
-                      ]))
-                    );
-                  }
-                )
-              );
-            });
-          }),
-        ])
-      ),
-    );
-  }
-
-  Widget renderPositioningSelection() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16),
-      child: Tile(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24), 
-          bottomLeft: Radius.circular(24)
-        ),
-        fill: Colors.white,
-        content: Row(children: [
-          BoldContent(text: "Ortung"),
-          const HSpace(),
-          Flexible(child: Content(text: settingsService.positioning.description), fit: FlexFit.tight),
-          SmallIconButton(icon: Icons.expand_more, onPressed: () {
-            showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-              return Container(
-                height: MediaQuery.of(context).size.height / 2,
-                color: Colors.white,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: Positioning.values.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Tile(fill: AppColors.lightGrey, content: Row(children: [
-                        Flexible(child: Content(text: Positioning.values[index].description), fit: FlexFit.tight),
-                        Expanded(child: Container()),
-                        SmallIconButton(
-                          icon: Positioning.values[index] == settingsService.positioning 
-                            ? Icons.check 
-                            : Icons.check_box_outline_blank, 
-                          onPressed: () {
-                            settingsService.selectPositioning(Positioning.values[index]);
-                            Navigator.pop(context);
-                          }
-                        ),
-                      ]))
-                    );
-                  }
-                )
-              );
-            });
-          }),
-        ])
-      ),
-    );
+    Navigator.pop(context);
   }
 
   @override 
@@ -186,12 +187,75 @@ class SettingsViewState extends State<SettingsView> {
               const HSpace(),
               SubHeader(text: "Einstellungen"),
             ]),
-            const VSpace(),
-            renderBackendSelection(),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             const SmallVSpace(),
-            renderPositioningSelection(),
+            Padding(
+              padding: const EdgeInsets.only(left: 32), 
+              child: Content(text: "Test-Features"),
+            ),
+            const VSpace(),
+            SettingsElement(
+              title: "Testort", 
+              subtitle: settingsService.backend.region, 
+              icon: Icons.expand_more, 
+              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                return SettingsSelection(
+                  elements: Backend.values, 
+                  selected: settingsService.backend,
+                  title: (Backend e) => e.region, 
+                  callback: onSelectBackend
+                );
+              }),
+            ),
+            const SmallVSpace(),
+            SettingsElement(
+              title: "Ortung", 
+              subtitle: settingsService.positioning.description, 
+              icon: Icons.expand_more, 
+              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                return SettingsSelection(
+                  elements: Positioning.values, 
+                  selected: settingsService.positioning, 
+                  title: (Positioning e) => e.description,
+                  callback: onSelectPositioning,
+                );
+              }),
+            ),
+            const SmallVSpace(),
+            const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+            const SmallVSpace(),
+            Padding(
+              padding: const EdgeInsets.only(left: 32), 
+              child: Content(text: "Weitere Informationen"),
+            ),
+            const VSpace(),
+            SettingsElement(title: "Problem melden", icon: Icons.thumb_down, callback: () => {
+              ToastMessage.showError("Probleme können derzeit noch nicht gemeldet werden.")
+            }),
+            const SmallVSpace(),
+            SettingsElement(title: "Feedback geben", icon: Icons.email, callback: () => {
+              ToastMessage.showError("Feedback kann derzeit noch nicht gegeben werden.")
+            }),
+            const SmallVSpace(),
+            const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+            const SmallVSpace(),
+            Padding(
+              padding: const EdgeInsets.only(left: 32), 
+              child: Content(text: "Weitere Informationen"),
+            ),
+            const SmallVSpace(),
+            SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () => {
+              ToastMessage.showError("Datenschutz ist noch nicht verfügbar.")
+            }),
+            const SmallVSpace(),
+            SettingsElement(title: "Lizenzen", icon: Icons.info, callback: () => {
+              ToastMessage.showError("Lizenzen sind noch nicht verfügbar.")
+            }),
+            const SmallVSpace(),
+            SettingsElement(title: "Danksagung", icon: Icons.info, callback: () => {
+              ToastMessage.showError("Danksagungen sind noch nicht verfügbar.")
+            }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             const SmallVSpace(),
@@ -199,6 +263,7 @@ class SettingsViewState extends State<SettingsView> {
               padding: const EdgeInsets.only(left: 32), 
               child: Small(text: "Beta-Version PrioBike-App", color: Colors.grey),
             ),
+            const SizedBox(height: 128),
           ],
         ),
       ),
