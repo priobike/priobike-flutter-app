@@ -16,6 +16,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Debug these views.
 void main() => debug(MultiProvider(
@@ -269,10 +270,30 @@ class SettingsViewState extends State<SettingsView> {
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             const SmallVSpace(),
-            Padding(
-              padding: const EdgeInsets.only(left: 32), 
-              child: Small(text: "Beta-Version PrioBike-App", color: Colors.grey),
-            ),
+            FutureBuilder(
+              future: PackageInfo.fromPlatform(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<PackageInfo> snapshot,
+              ) {
+                /**
+                 * If you want to see the commit hash in the app run it with:
+                 * 
+                 * flutter run --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)
+                 */
+
+                String commitId = const String.fromEnvironment(
+                  'COMMIT_ID',
+                  defaultValue: 'Keine Commit ID',
+                );
+
+                return snapshot.hasData
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 32), 
+                      child: Small(text: "PrioBike-App v${snapshot.data?.version ?? '?.?.?'} ($commitId)", color: Colors.grey),
+                    )
+                  : const Text('Lade Versionsnummer..');
+              }),
             const SizedBox(height: 128),
           ],
         ),
