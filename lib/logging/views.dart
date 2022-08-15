@@ -18,32 +18,25 @@ class LogsViewState extends State<LogsView> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(children: [
-          Row(children: [
-            AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
-            const HSpace(),
-            SubHeader(text: "Logs"),
-          ]),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  for (var item in Logger.db)
-                    Text(
-                      item,
-                      style: const TextStyle(
-                        fontFamily: "monospace",
-                        fontSize: 12,
-                      ),
-                    )
-                ],
-              ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                for (var item in Logger.db)
+                  Text(
+                    item,
+                    style: const TextStyle(
+                      fontFamily: "monospace",
+                      fontSize: 12,
+                    ),
+                  )
+              ],
             ),
           ),
-        ]),
+        ),
       ),
     );
   }
