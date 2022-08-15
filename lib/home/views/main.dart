@@ -12,6 +12,7 @@ import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views.dart';
 import 'package:provider/provider.dart';
@@ -90,7 +91,10 @@ class HomeViewState extends State<HomeView> {
     return Fade(child: SingleChildScrollView(
       child: Column(children: [
         const SizedBox(height: 128),
-        NavBarView(onTapSettingsButton: onSettingsButtonTapped),
+        NavBarView(
+          onTapNotificationButton: () => ToastMessage.showError("News sind noch nicht verfügbar."),
+          onTapSettingsButton: onSettingsButtonTapped,
+        ),
         const Divider(color: AppColors.lightGrey, thickness: 2),
         const VSpace(),
         HPad(child: BoldContent(text: "Shortcuts und Radfahrprofil")),
