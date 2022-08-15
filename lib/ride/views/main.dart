@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/debug.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/recommendation/mock.dart';
 import 'package:priobike/ride/services/recommendation/recommendation.dart';
@@ -56,6 +59,27 @@ class RideViewState extends State<RideView> {
     ps = Provider.of<PositionService>(context);
     rs = Provider.of<RecommendationService>(context);
     super.didChangeDependencies();
+  }
+
+  /// Render an info bar (TODO).
+  Widget renderInfoBar(Recommendation r) {
+    return Positioned(
+      top: 64,
+      right: 0,
+      child: Tile(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24), 
+          bottomLeft: Radius.circular(24)
+        ),
+        fill: Colors.white,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Small(text: r.navText),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
