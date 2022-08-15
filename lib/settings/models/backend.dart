@@ -95,13 +95,13 @@ extension BackendShortcuts on Backend {
           name: "Teststrecke POT",
           icon: Icons.route,
           waypoints: [
-            Waypoint(13.72757, 51.03148, address: "Wegpunkt 1"),
-            Waypoint(13.728232, 51.031149, address: "Wegpunkt 2"),
-            Waypoint(13.72923, 51.03065, address: "Wegpunkt 3"),
-            Waypoint(13.730213, 51.030151, address: "Wegpunkt 4"),
-            Waypoint(13.728206, 51.030218, address: "Wegpunkt 5"),
-            Waypoint(13.727809, 51.030613, address: "Wegpunkt 6"),
-            Waypoint(13.727337, 51.031083, address: "Wegpunkt 7"),
+            Waypoint(51.03148, 13.72757, address: "Wegpunkt 1"),
+            Waypoint(51.031149, 13.728232, address: "Wegpunkt 2"),
+            Waypoint(51.03065, 13.72923, address: "Wegpunkt 3"),
+            Waypoint(51.030151, 13.730213, address: "Wegpunkt 4"),
+            Waypoint(51.030218, 13.728206, address: "Wegpunkt 5"),
+            Waypoint(51.030613, 13.727809, address: "Wegpunkt 6"),
+            Waypoint(51.031083, 13.727337, address: "Wegpunkt 7"),
           ]
         ),
       ];

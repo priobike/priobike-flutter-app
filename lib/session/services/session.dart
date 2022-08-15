@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/logger.dart';
 import 'package:priobike/session/models/auth.dart';
 import 'package:priobike/session/views/toast.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/service.dart';
+import 'package:provider/provider.dart';
 
 class SessionService with ChangeNotifier {
   Logger log = Logger("SessionService");
@@ -26,12 +29,13 @@ class SessionService with ChangeNotifier {
   bool isActive() => sessionId != null;
 
   /// Open the session by authentication with the backend.
-  Future<String> openSession() async {
+  Future<String> openSession(BuildContext context) async {
     // If the session is already open, do nothing.
     if (sessionId != null) return sessionId!;
 
     final authRequest = AuthRequest(clientId: clientId);
-    const baseUrl = "priobike.vkw.tu-dresden.de/production"; // TODO: Make this configurable.
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    final baseUrl = settings.backend.path;
     final authEndpoint = Uri.parse('https://$baseUrl/session-wrapper/authentication');
     http.Response response = await httpClient
       .post(authEndpoint, body: json.encode(authRequest.toJson()))

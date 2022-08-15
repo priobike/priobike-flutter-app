@@ -46,7 +46,7 @@ class RecommendationService with ChangeNotifier {
     try {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       if (currentRecommendation!.error) {
-        log.w("Recommendation arrived with set error: ${currentRecommendation!.error}");
+        log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
         log.i("Got recommendation via websocket.");
       }

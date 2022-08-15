@@ -56,7 +56,7 @@ class RoutingService with ChangeNotifier {
     // Get the session from the context and open it.
     final session = Provider.of<SessionService>(context, listen: false);
     try { 
-      final sessionId = await session.openSession();
+      final sessionId = await session.openSession(context);
 
       // Session must be open to send the route request.
       final settings = Provider.of<SettingsService>(context, listen: false);
@@ -69,7 +69,7 @@ class RoutingService with ChangeNotifier {
       );
       final response = await session.httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
       if (response.statusCode != 200) {
-        final err = "Route could not be fetched from endpoint $routeEndpoint: $response.body";
+        final err = "Route could not be fetched from endpoint $routeEndpoint: ${response.body}";
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
       

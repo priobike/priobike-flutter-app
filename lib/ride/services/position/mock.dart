@@ -225,6 +225,7 @@ class PathMockPositionSource extends PositionSource {
     }
 
     double distance = 0;
+    Position? lastPosition;
     Timer.periodic(const Duration(seconds: 1), (t) {
       // Find the current segment
       l.LatLng? from; l.LatLng? to; double? distanceOnSegment;
@@ -239,12 +240,26 @@ class PathMockPositionSource extends PositionSource {
         }
       }
 
-      if (from == null || to == null || distanceOnSegment == null) return; // Finished.
-      final bearing = vincenty.bearing(from, to); // [-180°, 180°]
-      final currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
+      if (from == null || to == null || distanceOnSegment == null) {
+        // Finished, publish the last position (stand still).
+        if (lastPosition != null) {
+          streamController.add(Position(
+            latitude: lastPosition!.latitude, 
+            longitude: lastPosition!.longitude, 
+            altitude: 0,
+            speed: 0, 
+            heading: lastPosition!.heading, // Not 0, since 0 indicates an error. 
+            accuracy: 1, 
+            speedAccuracy: 1, 
+            timestamp: DateTime.now().toUtc(),
+          ));
+        }
+      }
+      final bearing = vincenty.bearing(from!, to!); // [-180°, 180°]
+      final currentLocation = vincenty.offset(from, distanceOnSegment!, bearing);
       final heading = bearing > 0 ? bearing : 360 + bearing;
 
-      streamController.add(Position(
+      lastPosition = Position(
         latitude: currentLocation.latitude, 
         longitude: currentLocation.longitude, 
         altitude: 0,
@@ -253,7 +268,8 @@ class PathMockPositionSource extends PositionSource {
         accuracy: 1, 
         speedAccuracy: 1, 
         timestamp: DateTime.now().toUtc(),
-      ));
+      );
+      streamController.add(lastPosition!);
 
       distance += 1 * speed;
     });

@@ -48,20 +48,22 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               topRight: Radius.circular(32),
             ),
           ),
-          child: ListView(
+          child: SingleChildScrollView(
             controller: controller, 
             padding: const EdgeInsets.all(8), 
-            children: [
-              renderDragIndicator(context),
-              const SmallVSpace(),
-              renderBottomSheetWaypoints(context),
-              const SmallVSpace(),
-              BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
-              const VSpace(),
-              Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Content(text: "Weitere Informationen folgen!", color: Colors.grey),
-              ]),
-            ],  
+            child: Column(
+              children: [
+                renderDragIndicator(context),
+                const SmallVSpace(),
+                renderBottomSheetWaypoints(context),
+                const SmallVSpace(),
+                BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
+                const VSpace(),
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Content(text: "Weitere Informationen folgen!", color: Colors.grey),
+                ]),
+              ], 
+            ), 
           ),
         );
       },

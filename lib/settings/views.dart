@@ -137,7 +137,7 @@ class SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return Stack(children: [
       Container(color: AppColors.lightGrey),
-      ListView(children: [
+      SingleChildScrollView(child: Column( children: [
         Row(children: [
           AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
           const HSpace(),
@@ -156,7 +156,7 @@ class SettingsViewState extends State<SettingsView> {
           padding: const EdgeInsets.only(left: 16), 
           child: Small(text: "Beta-Version PrioBike-App", color: Colors.grey),
         ),
-      ]),
+      ])),
     ]);
   }
 }
