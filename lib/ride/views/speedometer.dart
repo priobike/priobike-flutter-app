@@ -42,7 +42,7 @@ class CancelButton extends StatelessWidget {
         width: 164,
         child: ElevatedButton.icon(
           icon: const Icon(Icons.stop),
-          label: const Text('Fahrt Beenden'),
+          label: const Text("Fahrt Beenden"),
           onPressed: () => onEndRide(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(

@@ -12,7 +12,7 @@ class Recommendation {
   bool green = false;
   bool error = false;
   String errorMessage = "";
-  Point snapPos = Point(lon: 0, lat: 0);
+  Point snapPos = const Point(lon: 0, lat: 0);
   String navText = "";
   int navSign = 0;
   double navDist = 0;
@@ -94,6 +94,7 @@ class Recommendation {
       predictionStartTime = params['predictionStartTime'].asString;
       predictionValue = params['predictionValue'].asList.cast<num>().map((e) => e.toInt()).toList();
     } catch (error) { 
+      // ignore: avoid_print
       print(error);
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/debug.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/recommendation/mock.dart';
@@ -33,24 +34,27 @@ class RideView extends StatefulWidget {
 
 class RideViewState extends State<RideView> {
   /// The associated position service, which is injected by the provider.
-  late PositionService ps;
+  PositionService? ps;
 
   /// The associated recommendation service, which is injected by the provider.
-  late RecommendationService rs;
+  RecommendationService? rs;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+      // Start navigating.
+      await rs?.startNavigation(context);
+      // Start geolocating and pass new positions to the recommendation service.
+      await ps?.startGeolocation(context, (pos) => rs?.updatePosition(context, pos));
+    });
+  }
 
   @override
   void didChangeDependencies() {
     ps = Provider.of<PositionService>(context);
     rs = Provider.of<RecommendationService>(context);
-
-    // Execute once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      // Start navigating.
-      await rs.startNavigation(context);
-      // Start geolocating and pass new positions to the recommendation service.
-      await ps.startGeolocation(context, (pos) => rs.updatePosition(context, pos));
-    });
-
     super.didChangeDependencies();
   }
 

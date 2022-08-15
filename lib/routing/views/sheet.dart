@@ -29,7 +29,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    if (s.selectedRoute == null) return Container();
+    if (s.selectedRoute == null || s.fetchedWaypoints == null) return Container();
     
     final distInfo = "${((s.selectedRoute!.distance) / 1000).toStringAsFixed(1)}km";
     final seconds = s.selectedRoute!.duration / 1000;
@@ -38,7 +38,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       : "${(seconds / 3600).toStringAsFixed(0)}h";
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.3, maxChildSize: 0.6,
+      initialChildSize: 0.3, 
+      maxChildSize: 0.6,
+      minChildSize: 0.1,
       builder: (BuildContext context, ScrollController controller) {
         return Container(
           decoration: const BoxDecoration(

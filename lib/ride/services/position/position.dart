@@ -18,13 +18,16 @@ class PositionExtrapolator {
   /// The last known position.
   Position? lastPosition;
 
+  /// The estimator timer.
+  Timer? timer;
+
   /// Create a position stream.
   Stream<Position> startEstimating() {
     // Create a new stream, which we will later use to push positions.
     var streamController = StreamController<Position>();
 
     // Start the stream.
-    Timer.periodic(Duration(milliseconds: (1000 / refreshRateHz).round()), (Timer timer) {
+    timer = Timer.periodic(Duration(milliseconds: (1000 / refreshRateHz).round()), (Timer timer) {
       if (lastPosition == null) return;
       var extrapolatedPosition = extrapolate(lastPosition!);
       if (extrapolatedPosition == null) return;
@@ -33,6 +36,10 @@ class PositionExtrapolator {
 
     return streamController.stream;
   } 
+
+  Future<void> stopEstimating() async {
+    timer?.cancel();
+  }
 
   /// Extrapolate the position.
   Position? extrapolate(Position lastPosition) {
@@ -78,7 +85,10 @@ abstract class PositionSource {
   Future<LocationPermission> requestPermission();
 
   /// Get the position stream of the device.
-  Stream<Position> getPositionStream({ required LocationSettings? locationSettings });
+  Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings });
+
+  /// Stop the geolocation.
+  Future<void> stopPositioning();
 
   /// Open the location settings.
   Future<bool> openLocationSettings();
@@ -98,8 +108,12 @@ class GNSSPositionSource extends PositionSource {
     => Geolocator.requestPermission();
 
   /// Get the position stream of the device.
-  @override Stream<Position> getPositionStream({ required LocationSettings? locationSettings }) 
+  @override Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings }) async 
     => Geolocator.getPositionStream(locationSettings: locationSettings);
+
+  /// Stop the geolocation.
+  @override Future<void> stopPositioning() async 
+    => { /* Not supported by flutter geolocator? */ };
 
   /// Open the location settings.
   @override Future<bool> openLocationSettings() async
@@ -204,22 +218,30 @@ class PositionService with ChangeNotifier {
     BuildContext context, 
     void Function(Position pos) onNewPosition
   ) async {
+    print("Start geolocating");
+    print(isGeolocating);
     if (isGeolocating) return;
     isGeolocating = true;
+
+    print(positionSource);
 
     if (positionSource == null) {
       final settings = Provider.of<SettingsService>(context, listen: false);
       if (settings.positioning == Positioning.gnss) {
         positionSource = GNSSPositionSource();
+        log.i("Using gnss positioning source.");
       } else if (settings.positioning == Positioning.follow) {
         final routing = Provider.of<RoutingService>(context, listen: false);
         positionSource = PathMockPositionSource(
           positions: routing.selectedRoute!.nodes.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
         );
+        log.i("Using mocked path positioning source.");
       } else if (settings.positioning == Positioning.recordedDresden) {
         positionSource = RecordedMockPositionSource.mockDresden;
+        log.i("Using mocked positioning source for Dresden.");
       } else if (settings.positioning == Positioning.recordedHamburg) {
         positionSource = RecordedMockPositionSource.mockHamburg;
+        log.i("Using mocked positioning source for Hamburg.");
       } else {
         throw Exception("Unknown position source.");
       }
@@ -234,7 +256,7 @@ class PositionService with ChangeNotifier {
       return;
     }
 
-    var positionStream = positionSource!.getPositionStream(
+    var positionStream = await positionSource!.startPositioning(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 0,
@@ -251,23 +273,24 @@ class PositionService with ChangeNotifier {
       });
 
     positionSubscription = positionStream.listen((Position position) {
-      if (isGeolocating == true) {
-        lastPosition = position;
-        // Update the position estimator with the new position.
-        positionEstimator.lastPosition = position; 
-        onNewPosition(position);
-        notifyListeners();
-      }
+      if (!isGeolocating) return;
+      lastPosition = position;
+      // Update the position estimator with the new position.
+      positionEstimator.lastPosition = position; 
+      onNewPosition(position);
+      notifyListeners();
     });
 
     log.i('Geolocator started!');
   }
 
   Future<void> stopGeolocation() async {
-    positionSubscription?.cancel();
-    estimatorSubscription?.cancel();
-    isGeolocating = false;
+    await positionEstimator.stopEstimating();
+    await positionSource?.stopPositioning();
+    await estimatorSubscription?.cancel();
+    await positionSubscription?.cancel();
     log.i('Geolocator stopped!');
+    isGeolocating = false;
   }
 
   @override 

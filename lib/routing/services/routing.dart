@@ -60,9 +60,13 @@ class RoutingService with ChangeNotifier {
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
   Future<void> loadRoutes(BuildContext context) async {
+    if (isFetchingRoute) return;
+
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints) return;
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
+
+    isFetchingRoute = true;
 
     // Get the session from the context and open it.
     final session = Provider.of<SessionService>(context, listen: false);
@@ -80,6 +84,7 @@ class RoutingService with ChangeNotifier {
       );
       final response = await session.httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
       if (response.statusCode != 200) {
+        isFetchingRoute = false;
         final err = "Route could not be fetched from endpoint $routeEndpoint: ${response.body}";
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
@@ -97,9 +102,10 @@ class RoutingService with ChangeNotifier {
       );
       altRoutes = []; // TODO: Support alternative routes.
       fetchedWaypoints = selectedWaypoints;
+      isFetchingRoute = false;
       notifyListeners();
     } catch (error) { 
-      // Show error, navigate up in view hierarchy or try again.
+      isFetchingRoute = false;
       await session.closeSession();
     }
   }

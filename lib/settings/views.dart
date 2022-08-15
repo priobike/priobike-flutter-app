@@ -7,6 +7,8 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/session/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
@@ -39,11 +41,19 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated shortcuts service, which is injected by the provider.
   late PositionService positionService;
 
+  /// The associated routing service, which is injected by the provider.
+  late RoutingService routingService;
+
+  /// The associated session service, which is injected by the provider.
+  late SessionService sessionService;
+
   @override
   void didChangeDependencies() {
     settingsService = Provider.of<SettingsService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     positionService = Provider.of<PositionService>(context);
+    routingService = Provider.of<RoutingService>(context);
+    sessionService = Provider.of<SessionService>(context);
     super.didChangeDependencies();
   }
 
@@ -51,8 +61,12 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
     await settingsService.selectBackend(backend);
-    // Reset the shortcuts service since these also depend on the backend.
+
+    // Reset the associated services.
     await shortcutsService.reset();
+    await routingService.reset();
+    await sessionService.reset();
+
     Navigator.pop(context);
   }
 

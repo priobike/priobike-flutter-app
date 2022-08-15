@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -49,8 +51,25 @@ class RoutingViewState extends State<RoutingView> {
     }));
   }
 
+  /// Render a loading indicator.
+  Widget renderLoadingIndicator() {
+    return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Tile(
+        content: Center(child: SizedBox(
+          height: 86, 
+          width: 86, 
+          child: Column(children: const [
+            CircularProgressIndicator(),
+          ])
+        ))
+      )
+    ]));
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (s.isFetchingRoute) return renderLoadingIndicator();
+  
     final frame = MediaQuery.of(context);
 
     return Stack(children: [

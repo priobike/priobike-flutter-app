@@ -30,6 +30,9 @@ class StaticMockPositionSource extends PositionSource {
   /// The static heading.
   final double heading;
 
+  /// The calculation timer.
+  Timer? timer;
+
   StaticMockPositionSource({this.position = examplePosition, this.heading = exampleHeading});
 
   /// Check if location services are enabled.
@@ -46,11 +49,11 @@ class StaticMockPositionSource extends PositionSource {
 
   /// Get the position stream of the device.
   /// With the mock client, this starts a stream of the mocked positions.
-  @override Stream<Position> getPositionStream({ required LocationSettings? locationSettings }) {
+  @override Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings }) async {
     // Create a new stream, which we will later use to push positions.
     var streamController = StreamController<Position>();
 
-    Timer.periodic(const Duration(seconds: 1), (t) {
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
       streamController.add(Position(
         latitude: position.latitude, 
         longitude: position.longitude, 
@@ -69,6 +72,9 @@ class StaticMockPositionSource extends PositionSource {
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
+
+  /// Stop the geolocation.
+  @override Future<void> stopPositioning() async => timer?.cancel();
 }
 
 class StaticMockPositionService extends PositionService {
@@ -83,6 +89,9 @@ class RecordedMockPositionSource extends PositionSource {
 
   /// A mock position source for Hamburg.
   static var mockHamburg = RecordedMockPositionSource("assets/tracks/hamburg/thomas.json");
+
+  /// The calculation timer.
+  Timer? timer;
 
   /// The mocked positions from the source.
   List<Position> positions = [];
@@ -127,14 +136,14 @@ class RecordedMockPositionSource extends PositionSource {
 
   /// Get the position stream of the device.
   /// With the mock client, this starts a stream of the mocked positions.
-  @override Stream<Position> getPositionStream({ required LocationSettings? locationSettings }) {
+  @override Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings }) async {
     // Create a new stream, which we will later use to push positions.
     var streamController = StreamController<Position>();
 
     late DateTime startPositionTime;
     late DateTime startRealTime;
 
-    Timer.periodic(const Duration(milliseconds: 100), (t) {
+    timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
       // If we have finished, reset the index.
       if (index >= positions.length) {
         index = 0;
@@ -172,6 +181,9 @@ class RecordedMockPositionSource extends PositionSource {
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
+
+  /// Stop the geolocation.
+  @override Future<void> stopPositioning() async => timer?.cancel();
 }
 
 /// A mock position service that simply follows the route path with a static speed.
@@ -181,6 +193,9 @@ class PathMockPositionSource extends PositionSource {
 
   /// The static speed with which the path should be followed.
   final double speed = 18 / 3.6;
+
+  /// The calculation timer.
+  Timer? timer;
 
   PathMockPositionSource({required this.positions});
 
@@ -198,7 +213,7 @@ class PathMockPositionSource extends PositionSource {
 
   /// Get the position stream of the device.
   /// With the mock client, this starts a stream of the mocked positions.
-  @override Stream<Position> getPositionStream({ required LocationSettings? locationSettings }) {
+  @override Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings }) async {
     if (positions.length < 2) throw Exception();
     
     // Create a new stream, which we will later use to push positions.
@@ -226,7 +241,7 @@ class PathMockPositionSource extends PositionSource {
 
     double distance = 0;
     Position? lastPosition;
-    Timer.periodic(const Duration(seconds: 1), (t) {
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
       // Find the current segment
       l.LatLng? from; l.LatLng? to; double? distanceOnSegment;
       for (MapEntry<int, double> e in dists.asMap().entries.toList()) {
@@ -253,8 +268,10 @@ class PathMockPositionSource extends PositionSource {
             speedAccuracy: 1, 
             timestamp: DateTime.now().toUtc(),
           ));
+          return;
         }
       }
+
       final bearing = vincenty.bearing(from!, to!); // [-180°, 180°]
       final currentLocation = vincenty.offset(from, distanceOnSegment!, bearing);
       final heading = bearing > 0 ? bearing : 360 + bearing;
@@ -280,4 +297,7 @@ class PathMockPositionSource extends PositionSource {
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
+
+  /// Stop the geolocation.
+  @override Future<void> stopPositioning() async => timer?.cancel();
 }

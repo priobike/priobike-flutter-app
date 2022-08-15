@@ -24,7 +24,7 @@ void main() {
   // Run the app, catch errors and dispatch them to the logger.
   runZonedGuarded(() => runApp(const App()), (Object error, StackTrace stack) {
     // Log the error to the console.
-    log.e(error.toString());
+    log.e(error);
   });
 }
 
