@@ -140,8 +140,8 @@ class RecordedMockPositionSource extends PositionSource {
     // Create a new stream, which we will later use to push positions.
     var streamController = StreamController<Position>();
 
-    late DateTime startPositionTime;
-    late DateTime startRealTime;
+    DateTime? startPositionTime;
+    DateTime? startRealTime;
 
     timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
       // If we have finished, reset the index.
@@ -151,15 +151,15 @@ class RecordedMockPositionSource extends PositionSource {
       }
 
       // If the index is 0, we need to set the reference times.
-      if (index == 0) {
+      if (index == 0 || startPositionTime == null || startRealTime == null) {
         startPositionTime = positions[index].timestamp!;
         startRealTime = DateTime.now();
       }
 
       // Compute the milliseconds between the current position and the reference position time.
-      final elapsedPositionTime = positions[index].timestamp!.difference(startPositionTime).inMilliseconds;
+      final elapsedPositionTime = positions[index].timestamp!.difference(startPositionTime!).inMilliseconds;
       // Compute the milliseconds between the current real time and the reference real time.
-      final elapsedRealTime = DateTime.now().difference(startRealTime).inMilliseconds;
+      final elapsedRealTime = DateTime.now().difference(startRealTime!).inMilliseconds;
 
       // Dispatch the position if the elapsed time is greater than or equal to the position time.
       if (elapsedRealTime >= elapsedPositionTime) {
