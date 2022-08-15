@@ -31,6 +31,16 @@ class RecommendationService with ChangeNotifier {
 
   RecommendationService({this.currentRecommendation});
 
+  /// Reset the recommendation service.
+  Future<void> reset() async {
+    await stopNavigation();
+    socket = null;
+    jsonRPCPeer = null;
+    currentRecommendation = null;
+    needsLayout = {};
+    notifyListeners();
+  }
+
   /// A callback that is executed when the websocket closes.
   Future<void> onCloseWebsocket(BuildContext context) async {
     // If this is on purpose, we don't do anything.
@@ -107,7 +117,7 @@ class RecommendationService with ChangeNotifier {
   }
 
   /// End the navigation and disconnect the websocket.
-  Future<void> stopNavigation(BuildContext context) async {
+  Future<void> stopNavigation() async {
     // Do nothing if the navigation has already been ended.
     if (!navigationIsActive) return;
     // Mark that navigation is inactive.
@@ -116,10 +126,6 @@ class RecommendationService with ChangeNotifier {
     final req = const NavigationRequest(active: false).toJson();
     log.i("Sending navigation request via websocket: $req");
     await jsonRPCPeer?.sendRequest('Navigation', req);
-    // Get the session from the context and close it.
-    final session = Provider.of<SessionService>(context, listen: false);
-    await session.closeSession();
-    // Close the json rpc peer.
     await jsonRPCPeer?.close();
   }
 

@@ -16,7 +16,7 @@ class SessionService with ChangeNotifier {
   http.Client httpClient = http.Client();
 
   /// The client id of this session.
-  final clientId = "beta-app-" + UniqueKey().toString();
+  var clientId = "beta-app-" + UniqueKey().toString();
 
   /// The active session id, if authenticated.
   /// Is set by: [openSession].
@@ -24,6 +24,11 @@ class SessionService with ChangeNotifier {
   String? sessionId;
 
   SessionService();
+
+  /// Reset the session service.
+  Future<void> reset() async {
+    await closeSession();
+  }
 
   /// Check if the session is active.
   bool isActive() => sessionId != null;

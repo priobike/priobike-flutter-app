@@ -55,14 +55,6 @@ class RideViewState extends State<RideView> {
   }
 
   @override
-  void dispose() {
-    ps.stopGeolocation();
-    rs.stopNavigation(context);
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,

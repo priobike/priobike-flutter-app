@@ -107,6 +107,9 @@ class GNSSPositionSource extends PositionSource {
 }
 
 class PositionService with ChangeNotifier {
+  /// An extrapolator for the position.
+  var positionEstimator = PositionExtrapolator();
+
   Logger log = Logger("PositionService");
 
   /// An indicator if the data of this notifier changed.
@@ -115,9 +118,6 @@ class PositionService with ChangeNotifier {
   /// The interface to the position source.
   /// See [PositionSource] for more information.
   PositionSource? positionSource;
-
-  /// An extrapolator for the position.
-  final positionEstimator = PositionExtrapolator();
 
   /// A subscription to the estimated position.
   StreamSubscription<Position>? estimatorSubscription;
@@ -135,6 +135,18 @@ class PositionService with ChangeNotifier {
   bool isGeolocating = false;
 
   PositionService({this.positionSource});
+
+  /// Reset the position service.
+  Future<void> reset() async {
+    await stopGeolocation();
+    positionEstimator = PositionExtrapolator();
+    needsLayout = {};
+    positionSource = null;
+    estimatorSubscription = null;
+    positionSubscription = null;
+    estimatedPosition = null;
+    lastPosition = null;
+  }
 
   /// Show a dialog if the location provider was denied.
   showLocationAccessDeniedDialog(BuildContext context) {
@@ -188,7 +200,10 @@ class PositionService with ChangeNotifier {
     return true;
   }
 
-  startGeolocation(BuildContext context, void Function(Position pos) onNewPosition) async {
+  Future<void> startGeolocation(
+    BuildContext context, 
+    void Function(Position pos) onNewPosition
+  ) async {
     if (isGeolocating) return;
     isGeolocating = true;
 
@@ -248,10 +263,10 @@ class PositionService with ChangeNotifier {
     log.i('Geolocator started!');
   }
 
-  stopGeolocation() {
-    isGeolocating = false;
+  Future<void> stopGeolocation() async {
     positionSubscription?.cancel();
     estimatorSubscription?.cancel();
+    isGeolocating = false;
     log.i('Geolocator stopped!');
   }
 

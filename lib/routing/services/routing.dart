@@ -20,7 +20,7 @@ class RoutingService with ChangeNotifier {
   Map<String, bool> needsLayout = {};
 
   /// A boolean indicating if the service is currently loading the route.
-  bool isFetchingRoute = true;
+  bool isFetchingRoute = false;
 
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
@@ -43,6 +43,17 @@ class RoutingService with ChangeNotifier {
 
   void selectWaypoints(List<Waypoint>? waypoints) {
     selectedWaypoints = waypoints;
+    notifyListeners();
+  }
+
+  // Reset the routing service.
+  Future<void> reset() async {
+    needsLayout = {};
+    isFetchingRoute = false;
+    fetchedWaypoints = null;
+    selectedWaypoints = null;
+    selectedRoute = null;
+    altRoutes = null;
     notifyListeners();
   }
 

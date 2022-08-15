@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/session/services/session.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/recommendation/recommendation.dart';
@@ -11,6 +13,27 @@ class CancelButton extends StatelessWidget {
   /// Create a new cancel button.
   const CancelButton({Key? key}) : super(key: key);
 
+  /// A callback that is fired when the ride is ended.
+  Future<void> onEndRide(BuildContext context) async {
+    // Reset the route service.
+    final routingService = Provider.of<RoutingService>(context, listen: false);
+    await routingService.reset();
+
+    // End the recommendations and reset the recommendation service.
+    final recommendationService = Provider.of<RecommendationService>(context, listen: false);
+    await recommendationService.reset();
+
+    // Stop the geolocation and reset the position service.
+    final positionService = Provider.of<PositionService>(context, listen: false);
+    await positionService.reset();
+
+    // Stop the session and reset the session service.
+    final session = Provider.of<SessionService>(context, listen: false);
+    await session.reset();
+
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +43,7 @@ class CancelButton extends StatelessWidget {
         child: ElevatedButton.icon(
           icon: const Icon(Icons.stop),
           label: const Text('Fahrt Beenden'),
-          onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+          onPressed: () => onEndRide(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(

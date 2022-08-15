@@ -10,6 +10,11 @@ class ShortcutsService with ChangeNotifier {
 
   ShortcutsService();
 
+  /// Reset the shortcuts service.
+  Future<void> reset() async {
+    shortcuts = null;
+  }
+
   /// Load the custom shortcuts.
   Future<void> loadShortcuts(BuildContext context) async {
     if (shortcuts != null) return;
