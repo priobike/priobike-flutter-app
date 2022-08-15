@@ -58,7 +58,7 @@ class RecommendationService with ChangeNotifier {
       if (currentRecommendation!.error) {
         log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
-        log.i("Got recommendation via websocket.");
+        log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
       }
     } catch (error) { 
       log.e("Recommendation could not be decoded: $error"); 

@@ -117,7 +117,7 @@ class Recommendation {
     data['predictionGreentimeThreshold'] = predictionGreentimeThreshold;
     data['predictionStartTime'] = predictionStartTime;
     data['predictionValue'] = predictionValue;
-    JsonEncoder encoder = const JsonEncoder.withIndent('    ');
+    JsonEncoder encoder = const JsonEncoder();
     return encoder.convert(data);
   }
 }
