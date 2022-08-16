@@ -115,7 +115,10 @@ class ShortcutsViewState extends State<ShortcutsView> {
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
     var shortcutViews = shortcuts.map((shortcut) => ShortcutView(
-      onPressed: () => widget.onSelectShortcut(shortcut),
+      onPressed: () {
+        // Allow only one shortcut to be fetched at a time.
+        if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
+      },
       isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
       icon: shortcut.icon, 
       title: shortcut.name, 
