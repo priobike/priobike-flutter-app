@@ -5,11 +5,13 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/session/views/toast.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
   final bool isHighlighted;
+  final bool isLoading;
   final void Function() onPressed;
   final IconData icon;
   final String title;
@@ -19,6 +21,7 @@ class ShortcutView extends StatelessWidget {
   const ShortcutView({
     Key? key, 
     this.isHighlighted = false,
+    this.isLoading = false,
     required this.onPressed,
     required this.icon, 
     required this.title, 
@@ -39,7 +42,9 @@ class ShortcutView extends StatelessWidget {
           child: Row(children: [
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: isLoading ? [ 
+                const Expanded(child: Center(child: CircularProgressIndicator())) 
+              ] : [
                 Icon(icon, size: 64, color: isHighlighted ? Colors.white : Colors.black),
                 Expanded(child: Container()),
                 Content(
@@ -72,18 +77,22 @@ class ShortcutsView extends StatefulWidget {
 
 class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService s;
+  late ShortcutsService ss;
+
+  /// The associated routing service, which is injected by the provider.
+  late RoutingService rs;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<ShortcutsService>(context);
+    ss = Provider.of<ShortcutsService>(context);
+    rs = Provider.of<RoutingService>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (s.shortcuts == null) return renderLoadingIndicator();
-    return renderShortcuts(context, s.shortcuts!);
+    if (ss.shortcuts == null) return renderLoadingIndicator();
+    return renderShortcuts(context, ss.shortcuts!);
   }
 
   /// Render a loading indicator.
@@ -107,6 +116,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
 
     var shortcutViews = shortcuts.map((shortcut) => ShortcutView(
       onPressed: () => widget.onSelectShortcut(shortcut),
+      isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
       icon: shortcut.icon, 
       title: shortcut.name, 
       width: shortcutWidth, 

@@ -4,6 +4,7 @@ import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -80,6 +81,7 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
     routingService.selectWaypoints(shortcut.waypoints);
+    routingService.loadRoutes(context);
 
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
       return const Scaffold(body: RoutingView());
