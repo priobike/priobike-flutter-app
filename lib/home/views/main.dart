@@ -14,7 +14,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/service.dart';
-import 'package:priobike/settings/views.dart';
+import 'package:priobike/settings/views/main.dart';
 import 'package:provider/provider.dart';
 
 /// Debug these views.
