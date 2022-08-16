@@ -58,7 +58,7 @@ class StaticMockPositionSource extends PositionSource {
         latitude: position.latitude, 
         longitude: position.longitude, 
         altitude: 0,
-        speed: 4, 
+        speed: 0, 
         heading: heading, // Not 0, since 0 indicates an error. 
         accuracy: 1, 
         speedAccuracy: 1, 

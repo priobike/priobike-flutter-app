@@ -75,7 +75,12 @@ class RideViewState extends State<RideView> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Small(text: r.navText),
+            BoldSubHeader(
+              text: "Noch ${r.countdown}s ${r.green ? 'grün' : 'rot'}",
+              color: r.green 
+                ? const Color.fromARGB(255, 0, 255, 0) 
+                : const Color.fromARGB(255, 255, 0, 0),
+            ),
           ],
         ),
       ),
@@ -86,9 +91,10 @@ class RideViewState extends State<RideView> {
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
-      children: const [
-        RideMapView(),
-        RideSpeedometerView(),
+      children: [
+        const RideMapView(),
+        const RideSpeedometerView(),
+        if (rs?.currentRecommendation != null) renderInfoBar(rs!.currentRecommendation!),
       ]
     );
   }

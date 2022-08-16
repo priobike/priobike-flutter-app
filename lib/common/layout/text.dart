@@ -34,6 +34,22 @@ class SubHeader extends Text {
   );
 }
 
+class BoldSubHeader extends Text {
+  BoldSubHeader({
+    Key? key, 
+    required String text, 
+    TextOverflow? overflow,
+    int? maxLines,
+    Color color = Colors.black
+  }) : super(
+    text, 
+    key: key, 
+    overflow: overflow,
+    maxLines: maxLines,
+    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: color)
+  );
+}
+
 /// A content text.
 class Content extends Text {
   Content({

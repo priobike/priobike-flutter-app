@@ -238,6 +238,16 @@ class PositionService with ChangeNotifier {
       } else if (settings.positioning == Positioning.recordedHamburg) {
         positionSource = RecordedMockPositionSource.mockHamburg;
         log.i("Using mocked positioning source for Hamburg.");
+      } else if (settings.positioning == Positioning.dresdenStatic1) {
+        positionSource = StaticMockPositionSource(
+          position: const mapbox.LatLng(51.030077, 13.729404), heading: 270
+        );
+        log.i("Using mocked position source for traffic light 1 in Dresden.");
+      } else if (settings.positioning == Positioning.dresdenStatic2) {
+        positionSource = StaticMockPositionSource(
+          position: const mapbox.LatLng(51.030241, 13.728205), heading: 1
+        );
+        log.i("Using mocked position source for traffic light 2 in Dresden.");
       } else {
         throw Exception("Unknown position source.");
       }
