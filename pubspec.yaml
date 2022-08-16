@@ -74,6 +74,10 @@ flutter:
   assets:
     # Privacy policy
     - assets/text/privacy.txt
+    # Licenses
+    - assets/text/licenses.txt
+    # Aknowledgements
+    - assets/text/thanks.txt
 
     # Assets for track simulation
     - assets/tracks/hamburg/thomas.json

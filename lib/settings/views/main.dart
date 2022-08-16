@@ -15,6 +15,7 @@ import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/views/text.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -260,12 +261,16 @@ class SettingsViewState extends State<SettingsView> {
               }));
             }),
             const SmallVSpace(),
-            SettingsElement(title: "Lizenzen", icon: Icons.info, callback: () => {
-              ToastMessage.showError("Lizenzen sind noch nicht verfügbar.")
+            SettingsElement(title: "Lizenzen", icon: Icons.info, callback: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                return const Scaffold(body: AssetTextView(asset: "assets/text/licenses.txt"));
+              }));
             }),
             const SmallVSpace(),
-            SettingsElement(title: "Danksagung", icon: Icons.info, callback: () => {
-              ToastMessage.showError("Danksagungen sind noch nicht verfügbar.")
+            SettingsElement(title: "Danksagung", icon: Icons.info, callback: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                return const Scaffold(body: AssetTextView(asset: "assets/text/thanks.txt"));
+              }));
             }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
