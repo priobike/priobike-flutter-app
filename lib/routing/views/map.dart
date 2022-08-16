@@ -50,28 +50,25 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void didChangeDependencies() {
     s = Provider.of<RoutingService>(context);
-    if (s.needsLayout[viewId] != false && mapController != null) {
-      adaptMap(s);
-      s.needsLayout[viewId] = false;
-    }
+    adaptMap();
     super.didChangeDependencies();
   }
 
-  Future<void> adaptMap(RoutingService s) async {
-    await loadAltRouteLayers(s);
-    await loadRouteLayer(s);
-    await loadDiscomforts(s);
-    await loadTrafficLightMarkers(s);
-    await loadWaypointMarkers(s);
-    await adaptMapController(s);
+  Future<void> adaptMap() async {
+    await loadAltRouteLayers();
+    await loadRouteLayer();
+    await loadDiscomforts();
+    await loadTrafficLightMarkers();
+    await loadWaypointMarkers();
+    await moveMap();
   }
 
   /// Load the alt route layers.
-  Future<void> loadAltRouteLayers(RoutingService s) async {
+  Future<void> loadAltRouteLayers() async {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
     // Remove all existing layers.
-    await mapController!.removeLines(altRoutes ?? []);
+    if (altRoutes != null) mapController!.removeLines(altRoutes!);
     // Add the new layers, if they exist.
     altRoutes = [];
     for (r.Route altRoute in s.altRoutes ?? []) {
@@ -87,7 +84,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the current route layer.
-  Future<void> loadRouteLayer(RoutingService s) async {
+  Future<void> loadRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
     // Remove the existing route layer.
@@ -101,12 +98,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the discomforts.
-  Future<void> loadDiscomforts(RoutingService s) async {
+  Future<void> loadDiscomforts() async {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
     // Remove all existing layers.
-    await mapController!.removeSymbols(discomfortLocations ?? []);
-    await mapController!.removeLines(discomfortSections ?? []);
+    if (discomfortLocations != null) mapController!.removeSymbols(discomfortLocations!);
+    if (discomfortSections != null) mapController!.removeLines(discomfortSections!);
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
@@ -138,11 +135,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the current traffic lights.
-  Future<void> loadTrafficLightMarkers(RoutingService s) async {
+  Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
     // Remove all existing layers.
-    await mapController!.removeSymbols(trafficLights ?? []);
+    if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     for (Sg sg in s.selectedRoute?.sgs ?? []) {
@@ -153,11 +150,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the current waypoint markers.
-  Future<void> loadWaypointMarkers(RoutingService s) async {
+  Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
     if (mapController == null) return;
     // Remove the existing waypoint markers.
-    await mapController!.removeSymbols(waypoints ?? []);
+    if (waypoints != null) await mapController!.removeSymbols(waypoints!);
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
     for (MapEntry<int, Waypoint> entry in s.selectedWaypoints?.asMap().entries ?? []) {
@@ -181,8 +178,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Adapt the map controller.
-  Future<void> adaptMapController(RoutingService s) async {
-    if (s.selectedRoute != null) {
+  Future<void> moveMap() async {
+    if (mapController == null) return;
+    if (s.selectedRoute != null && !mapController!.isCameraMoving) {
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(s.selectedRoute!.paddedBounds)
       );
@@ -218,6 +216,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     controller.onCircleTapped.add(onCircleTapped);
     controller.onLineTapped.add(onLineTapped);
     controller.onSymbolTapped.add(onSymbolTapped);
+
+    // Dont call any line/symbol/... removal/add operations here.
+    // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
   /// A callback which is executed when the map style was loaded.
@@ -234,8 +235,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
       left: 8, right: 8,
     ));
 
-    // Force adapt the map controller.
-    adaptMapController(s);
+    // Allow overlaps so that important symbols and texts are not hidden.
+    await mapController!.setSymbolIconAllowOverlap(true);
+    await mapController!.setSymbolIconIgnorePlacement(true);
+    await mapController!.setSymbolTextAllowOverlap(true);
+    await mapController!.setSymbolTextIgnorePlacement(true);
+
+    // Force adapt the map.
+    await adaptMap();
   }
 
   @override
@@ -250,6 +257,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(context));
+    return AppMap(
+      onMapCreated: onMapCreated, 
+      onStyleLoaded: () => onStyleLoaded(context),
+      onCameraIdle: () => moveMap(),
+    );
   }
 }

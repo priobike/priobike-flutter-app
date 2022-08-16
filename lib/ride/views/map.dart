@@ -164,6 +164,9 @@ class RideMapViewState extends State<RideMapView> {
     controller.onCircleTapped.add(onCircleTapped);
     controller.onLineTapped.add(onLineTapped);
     controller.onSymbolTapped.add(onSymbolTapped);
+
+    // Dont call any line/symbol/... removal/add operations here.
+    // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
   /// A callback which is executed when the map style was loaded.
@@ -174,6 +177,12 @@ class RideMapViewState extends State<RideMapView> {
     await SymbolLoader(mapController!).loadSymbols();
 
     await mapController!.updateContentInsets(const EdgeInsets.only(bottom: 0));
+
+    // Allow overlaps so that important symbols and texts are not hidden.
+    await mapController!.setSymbolIconAllowOverlap(true);
+    await mapController!.setSymbolIconIgnorePlacement(true);
+    await mapController!.setSymbolTextAllowOverlap(true);
+    await mapController!.setSymbolTextIgnorePlacement(true);
 
     // Force adapt the map controller.
     adaptMapController(ps);
@@ -194,7 +203,10 @@ class RideMapViewState extends State<RideMapView> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        AppMap(onMapCreated: onMapCreated, onStyleLoaded: () => onStyleLoaded(context)),
+        AppMap(
+          onMapCreated: onMapCreated, 
+          onStyleLoaded: () => onStyleLoaded(context),
+        ),
         Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon()),
       ]
     );

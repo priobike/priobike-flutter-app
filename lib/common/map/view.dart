@@ -11,9 +11,13 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the style was loaded.
   final void Function()? onStyleLoaded;
 
+  /// A callback that is executed when the camera is idle.
+  final void Function()? onCameraIdle;
+
   const AppMap({
     this.onMapCreated,
     this.onStyleLoaded,
+    this.onCameraIdle,
     Key? key
   }) : super(key: key);
 
@@ -38,6 +42,7 @@ class AppMapState extends State<AppMap> {
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
+      onCameraIdle: widget.onCameraIdle,
       attributionButtonPosition: AttributionButtonPosition.BottomRight,
       initialCameraPosition: CameraPosition(
         target: settingsService.backend.center,

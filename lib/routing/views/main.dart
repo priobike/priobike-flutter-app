@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/mock.dart';
@@ -53,17 +54,19 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Tile(
+    return SafeArea(child: Pad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Expanded(child: Tile(
         content: Center(child: SizedBox(
           height: 86, 
-          width: 86, 
-          child: Column(children: const [
-            CircularProgressIndicator(),
+          width: 256, 
+          child: Column(children: [
+            const CircularProgressIndicator(),
+            const VSpace(),
+            BoldContent(text: "Lade Route...", maxLines: 1),
           ])
         ))
-      )
-    ]));
+      )),
+    ])));
   }
 
   @override

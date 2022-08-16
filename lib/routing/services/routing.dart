@@ -67,6 +67,7 @@ class RoutingService with ChangeNotifier {
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
 
     isFetchingRoute = true;
+    notifyListeners();
 
     // Get the session from the context and open it.
     final session = Provider.of<SessionService>(context, listen: false);
@@ -85,6 +86,7 @@ class RoutingService with ChangeNotifier {
       final response = await session.httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
       if (response.statusCode != 200) {
         isFetchingRoute = false;
+        notifyListeners();
         final err = "Route could not be fetched from endpoint $routeEndpoint: ${response.body}";
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
@@ -106,6 +108,7 @@ class RoutingService with ChangeNotifier {
       notifyListeners();
     } catch (error) { 
       isFetchingRoute = false;
+      notifyListeners();
       await session.closeSession();
     }
   }
