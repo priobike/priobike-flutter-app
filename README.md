@@ -1,5 +1,7 @@
 # PrioBike-HH Flutter App
 
+**Required Flutter Version: `2.10.5`**
+
 For getting started with development you need to set up your development environment according to the [guide](https://docs.flutter.dev/get-started/install).
 
 ## Setting up for iOS development
