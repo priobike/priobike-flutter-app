@@ -8,6 +8,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/session/views/toast.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -205,7 +206,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (Line altRoute in altRoutes ?? []) {
       if (line.id == altRoute.id) {
         final route = r.Route.fromJson(line.data);
-        s.switchToAltRoute(route);
+        // TODO: Support switching to alt routes in the session wrapper.
+        // s.switchToAltRoute(route);
+        ToastMessage.showError("Alternativrouten können noch nicht gewählt werden.");
       }
     }
     // If the line corresponds to a discomfort line, we select the discomfort.
