@@ -104,6 +104,14 @@ extension BackendShortcuts on Backend {
             Waypoint(51.031083, 13.727337, address: "Wegpunkt 7"),
           ]
         ),
+        Shortcut(
+          name: "Quer durch Dresden",
+          icon: Icons.route,
+          waypoints: [
+            Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),
+            Waypoint(50.979067, 13.882596, address: "Elberadweg Heidenau"),
+          ]
+        ),
       ];
     }
   }

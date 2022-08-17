@@ -20,13 +20,14 @@ void main() {
   // Display Flutter errors and log them to the logger.
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    log.e(details.toString());
+    log.e(details.stack);
   };
 
   // Run the app, catch errors and dispatch them to the logger.
   runZonedGuarded(() => runApp(const App()), (Object error, StackTrace stack) {
     // Log the error to the console.
     log.e(error);
+    log.e(stack);
   });
 }
 
