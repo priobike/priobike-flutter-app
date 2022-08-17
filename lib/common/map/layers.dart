@@ -35,3 +35,12 @@ class DiscomfortSectionLayer extends LineOptions {
     lineJoin: "round",
   );
 }
+
+class DiscomfortSectionClickLayer extends LineOptions {
+  DiscomfortSectionClickLayer({ required List<LatLng> points }) : super(
+    geometry: points,
+    lineWidth: 100.0,
+    lineColor: "transparent",
+    lineJoin: "round",
+  );
+}

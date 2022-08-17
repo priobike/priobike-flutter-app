@@ -86,7 +86,7 @@ class RoutingViewState extends State<RoutingView> {
           const SizedBox(width: 16),
           SizedBox( // Avoid expansion of alerts view.
             width: frame.size.width - 80, 
-            child: AlertsView(discomforts: s.selectedRoute?.discomforts),
+            child: const AlertsView(),
           )
         ]),
       ),

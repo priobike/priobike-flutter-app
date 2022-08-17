@@ -76,6 +76,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         AltRouteLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
+      // Make it easier to click the alt route layer.
       altRoutes!.add(await mapController!.addLine(
         AltRouteClickLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
@@ -129,7 +130,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
         discomfortSections!.add(await mapController!.addLine(
           DiscomfortSectionLayer(points: e.value.coordinates),
           e.value.toJson(),
-        ));        
+        ));
+        // Make it easier to click the discomfort section layer.
+        discomfortSections!.add(await mapController!.addLine(
+          DiscomfortSectionClickLayer(points: e.value.coordinates),
+          e.value.toJson(),
+        ));
       }
     }
   }
@@ -198,14 +204,29 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // If the line corresponds to an alternative route, we select that one.
     for (Line altRoute in altRoutes ?? []) {
       if (line.id == altRoute.id) {
-        var route = r.Route.fromJson(line.data);
+        final route = r.Route.fromJson(line.data);
         s.switchToAltRoute(route);
+      }
+    }
+    // If the line corresponds to a discomfort line, we select the discomfort.
+    for (Line discomfortLine in discomfortSections ?? []) {
+      if (line.id == discomfortLine.id) {
+        final discomfort = Discomfort.fromJson(line.data);
+        s.selectDiscomfort(discomfort);
       }
     }
   }
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async { /* Do nothing */ }
+  Future<void> onSymbolTapped(Symbol symbol) async { 
+    // If the symbol corresponds to a discomfort, we select that discomfort.
+    for (Symbol discomfortLocation in discomfortLocations ?? []) {
+      if (symbol.id == discomfortLocation.id) {
+        final discomfort = Discomfort.fromJson(symbol.data);
+        s.selectDiscomfort(discomfort);
+      }
+    }
+  }
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {

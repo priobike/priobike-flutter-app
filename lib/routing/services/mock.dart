@@ -24,11 +24,11 @@ final exampleRoute = r.Route(
   sgs: const [
     Sg(id: 'sg-1', label: 'sg-1', position: Point(lat: 53.563983, lon: 9.902759)),
   ],
-  discomforts: const [
-    Discomfort(description: "Radweg endet, Weiterfahrt auf der Straße.", coordinates: [
+  discomforts: [
+    Discomfort(description: "Radweg endet, Weiterfahrt auf der Straße.", coordinates: const [
       LatLng(53.564517, 9.901752),
     ]),
-    Discomfort(description: "Unbefestigter Abschnitt.", coordinates: [
+    Discomfort(description: "Unbefestigter Abschnitt.", coordinates: const [
       LatLng(53.563983, 9.902759),
       LatLng(53.563605, 9.903354),
     ]),
@@ -56,8 +56,8 @@ final exampleAltRoute = r.Route(
   descend: 20,
   distance: 400,
   sgs: const [],
-  discomforts: const [
-    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße.", coordinates: [
+  discomforts: [
+    Discomfort(description: "Radweg endet hier, Weiterfahrt auf der Straße.", coordinates: const [
       LatLng(53.564517, 9.901752),
     ]),
   ]

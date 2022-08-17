@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
 class Discomfort {
+  /// A random unique id for this route.
+  late String id;
+
   /// The localized description of this discomfort.
   final String description;
 
@@ -9,15 +13,29 @@ class Discomfort {
   /// Otherwise, this will be interpreted as a point.
   final List<LatLng> coordinates;
 
-  const Discomfort({required this.description, required this.coordinates});
+  Discomfort({String? id, required this.description, required this.coordinates}) {
+    if (id == null) {
+      this.id = UniqueKey().toString();
+    } else {
+      this.id = id;
+    }
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is Discomfort && other.id == id;
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'description': description,
     'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
   };
 
   factory Discomfort.fromJson(dynamic json) {
     return Discomfort(
+      id: json['id'],
       description: json['description'],
       coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
     );

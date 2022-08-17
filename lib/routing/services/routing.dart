@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/common/models/point.dart';
 import 'package:priobike/routing/messages/routing.dart';
+import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/session/services/session.dart';
 import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -34,11 +36,15 @@ class RoutingService with ChangeNotifier {
   /// The alternative routes, if they were fetched.
   List<r.Route>? altRoutes;
 
+  /// The currently selected discomfort.
+  Discomfort? selectedDiscomfort;
+
   RoutingService({
     this.fetchedWaypoints,
     this.selectedWaypoints,
     this.selectedRoute,
     this.altRoutes,
+    this.selectedDiscomfort,
   }) { log.i("RoutingService started."); }
 
   void selectWaypoints(List<Waypoint>? waypoints) {
@@ -54,6 +60,7 @@ class RoutingService with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     altRoutes = null;
+    selectedDiscomfort = null;
     notifyListeners();
   }
 
@@ -91,7 +98,6 @@ class RoutingService with ChangeNotifier {
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
       
-      print(response.body);
       final routeResponse = RouteResponse.fromJson(json.decode(response.body));
       // Map the route response to our model.
       selectedRoute = r.Route(
@@ -101,7 +107,7 @@ class RoutingService with ChangeNotifier {
         duration: routeResponse.path.time,
         distance: routeResponse.path.distance,
         sgs: routeResponse.signalgroups.values.toList(),
-        discomforts: [], // TODO: Support discomforts.
+        discomforts: await DiscomfortFinder(path: routeResponse.path).findDiscomforts(context),
       );
       altRoutes = []; // TODO: Support alternative routes.
       fetchedWaypoints = selectedWaypoints;
@@ -114,6 +120,12 @@ class RoutingService with ChangeNotifier {
     }
   }
 
+  /// Select a discomfort.
+  selectDiscomfort(Discomfort discomfort) {
+    selectedDiscomfort = discomfort;
+    notifyListeners();
+  }
+
   /// Select an alternative route.
   switchToAltRoute(r.Route route) {
     // Can only select an alternative route if there are some, 
@@ -124,6 +136,7 @@ class RoutingService with ChangeNotifier {
     altRoutes!.remove(route);
     altRoutes!.add(selectedRoute!);
     selectedRoute = route;
+    selectedDiscomfort = null;
     notifyListeners();
   }
 

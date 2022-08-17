@@ -41,9 +41,11 @@ class DiscomfortLocationMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "alert",
-    iconSize: 1,
+    iconSize: 0.5,
     textField: "$number",
+    textSize: 8,
     iconOffset: const Offset(2, -1.5),
+    zIndex: 1,
   );
 }
 
@@ -57,6 +59,7 @@ class TrafficLightMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "trafficlight",
     iconSize: iconSize,
+    zIndex: 2,
   );
 }
 
@@ -105,5 +108,6 @@ class WaypointMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "waypoint",
     iconSize: 1,
+    zIndex: 3,
   );
 }
