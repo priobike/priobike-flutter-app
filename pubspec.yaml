@@ -48,9 +48,9 @@ dependencies:
   shared_preferences: ^2.0.15
   carousel_slider: ^4.1.1
   latlong2: ^0.8.1
+  flutter_native_splash: ^2.1.6
 
 dev_dependencies:
-  flutter_native_splash: ^2.1.6
   flutter_launcher_icons: ^0.10.0
   flutter_test:
     sdk: flutter

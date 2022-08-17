@@ -91,14 +91,15 @@ class RoutingService with ChangeNotifier {
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
       
+      print(response.body);
       final routeResponse = RouteResponse.fromJson(json.decode(response.body));
       // Map the route response to our model.
       selectedRoute = r.Route(
         nodes: routeResponse.route,
-        ascend: routeResponse.ascend,
-        descend: routeResponse.descend,
-        duration: routeResponse.estimatedDuration,
-        distance: routeResponse.distance,
+        ascend: routeResponse.path.ascend,
+        descend: routeResponse.path.descend,
+        duration: routeResponse.path.time,
+        distance: routeResponse.path.distance,
         sgs: routeResponse.signalgroups.values.toList(),
         discomforts: [], // TODO: Support discomforts.
       );
