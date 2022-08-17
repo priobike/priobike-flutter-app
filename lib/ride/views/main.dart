@@ -94,7 +94,7 @@ class RideViewState extends State<RideView> {
       children: [
         const RideMapView(),
         const RideSpeedometerView(),
-        if (rs?.currentRecommendation != null) renderInfoBar(rs!.currentRecommendation!),
+        if (rs?.currentRecommendation != null && !rs!.currentRecommendation!.error) renderInfoBar(rs!.currentRecommendation!),
       ]
     );
   }
