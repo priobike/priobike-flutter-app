@@ -51,7 +51,7 @@ class Route {
   factory Route.fromJson(dynamic json) {
     return Route(
       id: json['id'],
-      nodes: (json['coordinates'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+      nodes: (json['nodes'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
       ascend: json['ascend'],
       descend: json['descend'],
       duration: json['duration'],

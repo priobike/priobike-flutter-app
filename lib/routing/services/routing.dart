@@ -109,7 +109,25 @@ class RoutingService with ChangeNotifier {
         sgs: routeResponse.signalgroups.values.toList(),
         discomforts: await DiscomfortFinder(path: routeResponse.path).findDiscomforts(context),
       );
-      altRoutes = []; // TODO: Support alternative routes.
+      if (
+        routeResponse.alternativePath != null && 
+        routeResponse.alternativeRoute != null && 
+        routeResponse.alternativeSignalGroups != null
+      ) {
+        altRoutes = [
+          r.Route(
+            nodes: routeResponse.alternativeRoute!,
+            ascend: routeResponse.alternativePath!.ascend,
+            descend: routeResponse.alternativePath!.descend,
+            duration: routeResponse.alternativePath!.time,
+            distance: routeResponse.alternativePath!.distance,
+            sgs: routeResponse.alternativeSignalGroups!.values.toList(),
+            discomforts: await DiscomfortFinder(path: routeResponse.alternativePath!).findDiscomforts(context),
+          ),
+        ];
+      } else {
+        altRoutes = [];
+      }
       fetchedWaypoints = selectedWaypoints;
       isFetchingRoute = false;
       notifyListeners();

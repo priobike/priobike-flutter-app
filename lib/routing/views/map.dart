@@ -209,6 +209,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         // TODO: Support switching to alt routes in the session wrapper.
         // s.switchToAltRoute(route);
         ToastMessage.showError("Alternativrouten können noch nicht gewählt werden.");
+        return;
       }
     }
     // If the line corresponds to a discomfort line, we select the discomfort.
@@ -216,6 +217,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       if (line.id == discomfortLine.id) {
         final discomfort = Discomfort.fromJson(line.data);
         s.selectDiscomfort(discomfort);
+        return;
       }
     }
   }
