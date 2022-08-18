@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -20,17 +20,20 @@ class RoutingView extends StatefulWidget {
 
 class RoutingViewState extends State<RoutingView> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  RoutingService? s;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+      await s?.loadRoutes(context);
+    });
+  }
 
   @override
   void didChangeDependencies() {
     s = Provider.of<RoutingService>(context);
-
-    // Load the routes, once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await s.loadRoutes(context);
-    });
-
     super.didChangeDependencies();
   }
 
@@ -58,9 +61,29 @@ class RoutingViewState extends State<RoutingView> {
     ])));
   }
 
+  /// Render a try again button.
+  Widget renderTryAgainButton() {
+    return SafeArea(child: Pad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Expanded(child: Tile(
+        content: Center(child: SizedBox(
+          height: 128, 
+          width: 256, 
+          child: Column(children: [
+            BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1),
+            const VSpace(),
+            BigButton(label: "Erneut Laden", onPressed: () async {
+              await s?.loadRoutes(context);
+            }),
+          ])
+        ))
+      )),
+    ])));
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (s.isFetchingRoute) return renderLoadingIndicator();
+    if (s!.isFetchingRoute) return renderLoadingIndicator();
+    if (s!.hadErrorDuringFetch) return renderTryAgainButton();
   
     final frame = MediaQuery.of(context);
 

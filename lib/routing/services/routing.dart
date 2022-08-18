@@ -26,6 +26,9 @@ class RoutingService with ChangeNotifier {
   /// A boolean indicating if the service is currently loading the route.
   bool isFetchingRoute = false;
 
+  /// A boolean indicating if there was an error.
+  bool hadErrorDuringFetch = false;
+
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
 
@@ -53,6 +56,7 @@ class RoutingService with ChangeNotifier {
   // Reset the routing service.
   Future<void> reset() async {
     needsLayout = {};
+    hadErrorDuringFetch = false;
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
@@ -72,6 +76,8 @@ class RoutingService with ChangeNotifier {
 
     isFetchingRoute = true;
     notifyListeners();
+
+    hadErrorDuringFetch = false;
 
     try {
       // Session must be open to send the route request.
@@ -105,6 +111,7 @@ class RoutingService with ChangeNotifier {
     } catch (error) { 
       log.e("Error during load routes: $error");
       isFetchingRoute = false;
+      hadErrorDuringFetch = true;
       notifyListeners();
     }
   }
