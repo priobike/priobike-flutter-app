@@ -128,10 +128,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
           DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1),
           e.value.toJson(),
         ));
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.last, number: e.key + 1),
-          e.value.toJson(),
-        ));
         discomfortSections!.add(await mapController!.addLine(
           DiscomfortSectionLayer(points: e.value.coordinates),
           e.value.toJson(),
