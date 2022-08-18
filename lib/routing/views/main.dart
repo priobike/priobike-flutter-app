@@ -39,8 +39,11 @@ class RoutingViewState extends State<RoutingView> {
 
   /// A callback that is fired when the ride is started.
   void onStartRide() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
-      return const Scaffold(body: RideView());
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: const Scaffold(body: RideView()),
+      );
     }));
   }
 

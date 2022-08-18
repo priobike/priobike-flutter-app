@@ -66,7 +66,7 @@ class App extends StatelessWidget {
         home: Scaffold(body: PrivacyPolicyView(onConfirmed: (ctx) {
           Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (_) {
             return const Scaffold(body: HomeView());
-          }));
+          }), result: "navigate-forward");
         })),
       ),
     );
