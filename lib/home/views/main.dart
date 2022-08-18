@@ -13,6 +13,8 @@ import 'package:priobike/home/views/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:provider/provider.dart';
@@ -87,6 +89,29 @@ class HomeViewState extends State<HomeView> {
     }));
   }
 
+  Widget renderDebugHint() {
+    String? description;
+    if (settingsService.backend != Backend.production) description = "Testort ist gewählt.";
+    if (settingsService.positioning != Positioning.gnss) description = "Testortung ist aktiv.";
+    if (description == null) return Container();
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(246, 255, 232, 147),
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        child: HPad(child: Row(children: [
+          const Icon(Icons.warning_rounded),
+          const SmallHSpace(),
+          Flexible(child: Content(text: description)),
+        ])),
+      ),
+    );
+  }
+
   @override 
   Widget build(BuildContext context) {
     return Fade(child: SingleChildScrollView(
@@ -107,6 +132,7 @@ class HomeViewState extends State<HomeView> {
         const SmallVSpace(),
         const Divider(color: AppColors.lightGrey, thickness: 2),
         const VSpace(),
+        renderDebugHint(),
         const SizedBox(height: 128),
       ])
     ));
