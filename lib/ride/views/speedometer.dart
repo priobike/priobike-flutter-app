@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/session/services/session.dart';
+import 'package:priobike/ride/services/session/session.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/recommendation/recommendation.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
@@ -56,8 +56,8 @@ class RideSpeedometerView extends StatefulWidget {
 class RideSpeedometerViewState extends State<RideSpeedometerView> {
   static const viewId = "ride.views.speedometer";
 
-  /// The associated recommendation service, which is injected by the provider.
-  late RecommendationService rs;
+  /// The associated ride service, which is injected by the provider.
+  late RideService rs;
 
   /// The associated positioning service, which is injected by the provider.
   late PositionService ps;
@@ -79,7 +79,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   void didChangeDependencies() {
-    rs = Provider.of<RecommendationService>(context);
+    rs = Provider.of<RideService>(context);
     ps = Provider.of<PositionService>(context);
     if (ps.needsLayout[viewId] != false || rs.needsLayout[viewId] != false) {
       updateView(rs, ps);
@@ -96,7 +96,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     await routingService.reset();
 
     // End the recommendations and reset the recommendation service.
-    final recommendationService = Provider.of<RecommendationService>(context, listen: false);
+    final recommendationService = Provider.of<RideService>(context, listen: false);
     await recommendationService.reset();
 
     // Stop the geolocation and reset the position service.
@@ -109,12 +109,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   }
 
   /// Update the view with the current data.
-  Future<void> updateView(RecommendationService rs, PositionService ps) async {
+  Future<void> updateView(RideService rs, PositionService ps) async {
     await loadGauge(rs, ps);
   }
 
   /// Load the gauge colors and steps.
-  Future<void> loadGauge(RecommendationService rs, PositionService ps) async {
+  Future<void> loadGauge(RideService rs, PositionService ps) async {
     // Check if we have the necessary position data
     var posTime = ps.estimatedPosition?.timestamp;
     var posSpeed = ps.estimatedPosition?.speed;

@@ -1,32 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/recommendation/mock.dart';
-import 'package:priobike/ride/services/recommendation/recommendation.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/session/session.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
-import 'package:priobike/routing/services/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
-
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<RoutingService>(
-      create: (context) => MockRoutingService(),
-    ),
-    ChangeNotifierProvider<PositionService>(
-      create: (context) => PositionService(),
-    ),
-    ChangeNotifierProvider<RecommendationService>(
-      create: (context) => MockRecommendationService(),
-    ),
-  ],
-  child: const RideView(),
-));
 
 class RideView extends StatefulWidget {
   const RideView({Key? key}) : super(key: key);
@@ -37,27 +20,40 @@ class RideView extends StatefulWidget {
 
 class RideViewState extends State<RideView> {
   /// The associated position service, which is injected by the provider.
-  PositionService? ps;
+  PositionService? positionService;
 
   /// The associated recommendation service, which is injected by the provider.
-  RecommendationService? rs;
+  RideService? rideService;
+
+  /// The associated session service, which is injected by the provider.
+  SessionService? sessionService;
+
+  /// The associated routing service, which is injected by the provider.
+  RoutingService? routingService;
 
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
+      if (routingService?.selectedRoute == null) return;
+      // Authenticate a new session.
+      await sessionService?.openSession(context);
+      // Select the ride.
+      await rideService?.selectRide(context, routingService!.selectedRoute!);
       // Start navigating.
-      await rs?.startNavigation(context);
+      await rideService?.startNavigation(context);
       // Start geolocating and pass new positions to the recommendation service.
-      await ps?.startGeolocation(context, (pos) => rs?.updatePosition(context, pos));
+      await positionService?.startGeolocation(context, (pos) => rideService?.updatePosition(context, pos));
     });
   }
 
   @override
   void didChangeDependencies() {
-    ps = Provider.of<PositionService>(context);
-    rs = Provider.of<RecommendationService>(context);
+    positionService = Provider.of<PositionService>(context);
+    rideService = Provider.of<RideService>(context);
+    sessionService = Provider.of<SessionService>(context);
+    routingService = Provider.of<RoutingService>(context);
     super.didChangeDependencies();
   }
 
@@ -94,7 +90,8 @@ class RideViewState extends State<RideView> {
       children: [
         const RideMapView(),
         const RideSpeedometerView(),
-        if (rs?.currentRecommendation != null && !rs!.currentRecommendation!.error) renderInfoBar(rs!.currentRecommendation!),
+        if (rideService?.currentRecommendation != null && !rideService!.currentRecommendation!.error) 
+          renderInfoBar(rideService!.currentRecommendation!),
       ]
     );
   }

@@ -1,76 +1,55 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/routing/models/discomfort.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';
 
 class Route {
-  /// A random unique id for this route.
-  late String id;
+  /// The GraphHopper route response path.
+  final GHRouteResponsePath path;
 
-  /// The navigation nodes of the route, as calculated by the routing service.
-  final List<NavigationNode> nodes;
+  /// A list of navigation nodes representing the route.
+  /// 
+  /// This is set by the SG selector with an interpolated 
+  /// route that contains the signal groups.
+  final List<NavigationNode> route;
 
-  /// The ascend of this route in meters.
-  final double ascend;
+  /// A mapping of signal group ids to signal groups.
+  /// 
+  /// All signal groups must occur in the route.
+  final Map<String, Sg> signalGroups;
 
-  /// The descend of this route in meters.
-  final double descend;
-
-  /// The duration of this route in seconds.
-  final int duration;
-
-  /// The length of this route in meters.
-  final double distance;
-
-  /// The (optional) list of traffic lights along the route.
-  final List<Sg>? sgs;
-
-  /// The (optional) list of discomforts along the route.
-  final List<Discomfort>? discomforts;
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  bool operator ==(Object other) => other is Route && other.id == id;
+  const Route({
+    required this.path,
+    required this.route,
+    required this.signalGroups,
+  });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'nodes': nodes.map((e) => e.toJson()).toList(),
-    'ascend': ascend,
-    'descend': descend,
-    'duration': duration,
-    'distance': distance,
-    'sgs': sgs?.map((e) => e.toJson()).toList(),
-    'discomforts': discomforts?.map((e) => e.toJson()).toList(),
+    'path': path.toJson(),
+    'route': route.map((e) => e.toJson()).toList(),
+    'signalGroups': { for (var e in signalGroups.entries) e.key: e.value.toJson() },
   };
 
   factory Route.fromJson(dynamic json) {
     return Route(
-      id: json['id'],
-      nodes: (json['nodes'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-      ascend: json['ascend'],
-      descend: json['descend'],
-      duration: json['duration'],
-      distance: json['distance'],
-      sgs: (json['sgs'] as List?)?.map((e) => Sg.fromJson(e)).toList(),
-      discomforts: (json['discomforts'] as List?)?.map((e) => Discomfort.fromJson(e)).toList(),
+      path: GHRouteResponsePath.fromJson(json['path']),
+      route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+      signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
     );
   }
 
   /// Calculate the bounds of this route.
   LatLngBounds get bounds {
-    assert(nodes.isNotEmpty);
-    var first = nodes.first;
+    assert(route.isNotEmpty);
+    var first = route.first;
     var s = first.lat,
         n = first.lat,
         w = first.lon,
         e = first.lon;
-    for (var i = 1; i < nodes.length; i++) {
-      var node = nodes[i];
+    for (var i = 1; i < route.length; i++) {
+      var node = route[i];
       s = min(s, node.lat);
       n = max(n, node.lat);
       w = min(w, node.lon);
@@ -89,22 +68,5 @@ class Route {
       southwest: LatLng(bounds.southwest.latitude - pad, bounds.southwest.longitude - pad), 
       northeast: LatLng(bounds.northeast.latitude + pad, bounds.northeast.longitude + pad),
     );
-  }
-
-  Route({
-    String? id,
-    required this.nodes,
-    required this.ascend,
-    required this.descend, 
-    required this.duration, 
-    required this.distance,
-    this.sgs,
-    this.discomforts,
-  }) {
-    if (id == null) {
-      this.id = UniqueKey().toString();
-    } else {
-      this.id = id;
-    }
   }
 }

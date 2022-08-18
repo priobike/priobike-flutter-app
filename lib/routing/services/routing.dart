@@ -1,15 +1,14 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/common/models/point.dart';
 import 'package:priobike/routing/messages/routing.dart';
-import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/session/services/session.dart';
-import 'package:priobike/session/views/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +16,9 @@ import 'package:provider/provider.dart';
 class RoutingService with ChangeNotifier {
   /// The logger for this service.
   final Logger log = Logger("RoutingService");
+
+  /// The HTTP client used to make requests to the backend.
+  http.Client httpClient = http.Client();
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -33,18 +35,14 @@ class RoutingService with ChangeNotifier {
   /// The currently selected route, if one was fetched.
   r.Route? selectedRoute;
 
-  /// The alternative routes, if they were fetched.
-  List<r.Route>? altRoutes;
-
-  /// The currently selected discomfort.
-  Discomfort? selectedDiscomfort;
+  /// All routes, if they were fetched.
+  List<r.Route>? allRoutes;
 
   RoutingService({
     this.fetchedWaypoints,
     this.selectedWaypoints,
     this.selectedRoute,
-    this.altRoutes,
-    this.selectedDiscomfort,
+    this.allRoutes,
   }) { log.i("RoutingService started."); }
 
   void selectWaypoints(List<Waypoint>? waypoints) {
@@ -59,8 +57,7 @@ class RoutingService with ChangeNotifier {
     fetchedWaypoints = null;
     selectedWaypoints = null;
     selectedRoute = null;
-    altRoutes = null;
-    selectedDiscomfort = null;
+    allRoutes = null;
     notifyListeners();
   }
 
@@ -76,21 +73,16 @@ class RoutingService with ChangeNotifier {
     isFetchingRoute = true;
     notifyListeners();
 
-    // Get the session from the context and open it.
-    final session = Provider.of<SessionService>(context, listen: false);
-    try { 
-      final sessionId = await session.openSession(context);
-
+    try {
       // Session must be open to send the route request.
       final settings = Provider.of<SettingsService>(context, listen: false);
       final baseUrl = settings.backend.path;
-      final routeUrl = "https://$baseUrl/session-wrapper/getroute";
+      final routeUrl = "https://$baseUrl/backend-service/routes";
       final routeEndpoint = Uri.parse(routeUrl);
       final routeRequest = RouteRequest(
-        sessionId: sessionId,
         waypoints: selectedWaypoints!.map((e) => Point(lat: e.lat, lon: e.lon)).toList(),
       );
-      final response = await session.httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
+      final response = await httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
       if (response.statusCode != 200) {
         isFetchingRoute = false;
         notifyListeners();
@@ -98,63 +90,34 @@ class RoutingService with ChangeNotifier {
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
       
-      final routeResponse = RouteResponse.fromJson(json.decode(response.body));
-      // Map the route response to our model.
-      selectedRoute = r.Route(
-        nodes: routeResponse.route,
-        ascend: routeResponse.path.ascend,
-        descend: routeResponse.path.descend,
-        duration: routeResponse.path.time,
-        distance: routeResponse.path.distance,
-        sgs: routeResponse.signalgroups.values.toList(),
-        discomforts: await DiscomfortFinder(path: routeResponse.path).findDiscomforts(context),
-      );
-      if (
-        routeResponse.alternativePath != null && 
-        routeResponse.alternativeRoute != null && 
-        routeResponse.alternativeSignalGroups != null
-      ) {
-        altRoutes = [
-          r.Route(
-            nodes: routeResponse.alternativeRoute!,
-            ascend: routeResponse.alternativePath!.ascend,
-            descend: routeResponse.alternativePath!.descend,
-            duration: routeResponse.alternativePath!.time,
-            distance: routeResponse.alternativePath!.distance,
-            sgs: routeResponse.alternativeSignalGroups!.values.toList(),
-            discomforts: await DiscomfortFinder(path: routeResponse.alternativePath!).findDiscomforts(context),
-          ),
-        ];
-      } else {
-        altRoutes = [];
-      }
+      final decoded = json.decode(response.body);
+      final routeResponse = RoutesResponse.fromJson(decoded);
+      if (routeResponse.routes.isEmpty) return;
+      selectedRoute = routeResponse.routes.first;
+      allRoutes = routeResponse.routes;
       fetchedWaypoints = selectedWaypoints;
       isFetchingRoute = false;
+
+      final discomforts = Provider.of<DiscomfortService>(context, listen: false);
+      await discomforts.findDiscomforts(context, selectedRoute!.path);
+
       notifyListeners();
     } catch (error) { 
+      log.e("Error during load routes: $error");
       isFetchingRoute = false;
       notifyListeners();
-      await session.closeSession();
     }
   }
 
-  /// Select a discomfort.
-  selectDiscomfort(Discomfort discomfort) {
-    selectedDiscomfort = discomfort;
-    notifyListeners();
-  }
-
-  /// Select an alternative route.
-  switchToAltRoute(r.Route route) {
+  /// Select a route.
+  Future<void> switchToRoute(BuildContext context, r.Route route) async {
     // Can only select an alternative route if there are some, 
     // and if there is a currently selected route.
-    if (altRoutes == null || selectedRoute == null) return;
-    // Can only select the alternative route if it is valid.
-    if (!altRoutes!.contains(route)) return;
-    altRoutes!.remove(route);
-    altRoutes!.add(selectedRoute!);
     selectedRoute = route;
-    selectedDiscomfort = null;
+
+    final discomforts = Provider.of<DiscomfortService>(context, listen: false);
+    await discomforts.findDiscomforts(context, route.path);
+
     notifyListeners();
   }
 

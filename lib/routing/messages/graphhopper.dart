@@ -13,6 +13,13 @@ class GHRouteResponse {
       info: GHResponseInfo.fromJson(json['info']),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['paths'] = paths.map((e) => e.toJson()).toList();
+    data['info'] = info.toJson();
+    return data;
+  }
 }
 
 class GHResponseInfo {
@@ -29,6 +36,13 @@ class GHResponseInfo {
       copyrights: json['paths'],
       took: json['took'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['copyrights'] = copyrights;
+    data['took'] = took;
+    return data;
   }
 }
 
@@ -103,6 +117,22 @@ class GHRouteResponsePath {
       pointsOrder: (json['points_order'] as List?)?.map((e) => e as int).toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['distance'] = distance;
+    data['time'] = time;
+    data['ascend'] = ascend;
+    data['descend'] = descend;
+    data['points'] = points.toJson();
+    data['snapped_waypoints'] = snappedWaypoints.toJson();
+    data['points_encoded'] = pointsEncoded;
+    data['bbox'] = bbox.toJson();
+    data['instructions'] = instructions.map((e) => e.toJson()).toList();
+    data['details'] = details.toJson();
+    if (pointsOrder != null) data['points_order'] = pointsOrder;
+    return data;
+  }
 }
 
 class GHLineString {
@@ -120,6 +150,13 @@ class GHLineString {
       coordinates: (json['coordinates'] as List).map((e) => GHCoordinate.fromJson(e)).toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['type'] = type;
+    data['coordinates'] = coordinates.map((e) => e.toJson()).toList();
+    return data;
+  }
 }
 
 class GHCoordinate {
@@ -135,6 +172,14 @@ class GHCoordinate {
       lat: json[1], 
       elevation: json.length > 2 ? json[2] : null
     );
+  }
+
+  List<double> toJson() {
+    return [
+      lon,
+      lat, 
+      if (elevation != null) elevation!,
+    ];
   }
 }
 
@@ -158,6 +203,10 @@ class GHBoundingBox {
       maxLon: json[2],
       maxLat: json[3],
     );
+  }
+
+  List<double> toJson() {
+    return [minLon, minLat, maxLon, maxLat];
   }
 }
 
@@ -212,6 +261,19 @@ class GHInstruction {
       turnAngle: json['turn_angle'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['text'] = text;
+    data['street_name'] = streetName;
+    data['distance'] = distance;
+    data['time'] = time;
+    data['interval'] = interval;
+    data['sign'] = sign;
+    if (exitNumber != null) data['exit_number'] = exitNumber;
+    if (turnAngle != null) data['turn_angle'] = turnAngle;
+    return data;
+  }
 }
 
 class GHDetails {
@@ -242,6 +304,15 @@ class GHDetails {
       lanes: (json['lanes'] as List).map((e) => GHSegment<int>.fromJson(e)).toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['surface'] = surface.map((e) => e.toJson()).toList();
+    data['max_speed'] = maxSpeed.map((e) => e.toJson()).toList();
+    data['smoothness'] = smoothness.map((e) => e.toJson()).toList();
+    data['lanes'] = lanes.map((e) => e.toJson()).toList();
+    return data;
+  }
 }
 
 class GHSegment<T> {
@@ -266,5 +337,13 @@ class GHSegment<T> {
       to: json[1], 
       value: json.length > 2 ? json[2] : null,
     );
+  }
+
+  List<dynamic> toJson() {
+    return [
+      from,
+      to, 
+      if (value != null) value!,
+    ];
   }
 }

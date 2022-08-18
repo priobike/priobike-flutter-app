@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/session/views/toast.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {

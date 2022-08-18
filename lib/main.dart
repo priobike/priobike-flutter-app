@@ -8,9 +8,10 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/recommendation/recommendation.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/session/services/session.dart';
+import 'package:priobike/ride/services/session/session.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
 
@@ -48,10 +49,11 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
+        ChangeNotifierProvider<DiscomfortService>(create: (context) => DiscomfortService()),
         ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService()),
         ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
-        ChangeNotifierProvider<RecommendationService>(create: (context) => RecommendationService()),
+        ChangeNotifierProvider<RideService>(create: (context) => RideService()),
       ],
       child: MaterialApp(
         title: 'PrioBike',

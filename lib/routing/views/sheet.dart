@@ -31,8 +31,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget build(BuildContext context) {
     if (s.selectedRoute == null || s.fetchedWaypoints == null) return Container();
     
-    final distInfo = "${((s.selectedRoute!.distance) / 1000).toStringAsFixed(1)}km";
-    final seconds = s.selectedRoute!.duration / 1000;
+    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)}km";
+    final seconds = s.selectedRoute!.path.time / 1000;
     final timeInfo = seconds < 3600 
       ? "${(seconds / 60).toStringAsFixed(0)}min"
       : "${(seconds / 3600).toStringAsFixed(0)}h";

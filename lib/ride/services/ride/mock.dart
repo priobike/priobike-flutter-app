@@ -1,9 +1,9 @@
 import 'package:priobike/common/models/point.dart';
 import 'package:priobike/ride/messages/recommendation.dart';
-import 'package:priobike/ride/services/recommendation/recommendation.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
 
-class MockRecommendationService extends RecommendationService {
-  MockRecommendationService() : super(
+class MockRideService extends RideService {
+  MockRideService() : super(
     currentRecommendation: Recommendation(
       label: "SG 1", 
       countdown: 8, 

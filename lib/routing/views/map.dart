@@ -6,9 +6,9 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
-import 'package:priobike/session/views/toast.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -22,13 +22,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
   static const viewId = "routing.views.map";
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  late RoutingService rs;
+
+  /// The associated discomfort service, which is injected by the provider.
+  late DiscomfortService ds;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
 
-  /// The alt routes that are displayed, if they were fetched.
-  List<Line>? altRoutes;
+  /// All routes that are displayed, if they were fetched.
+  List<Line>? allRoutes;
 
   /// The route that is displayed, if a route is selected.
   Line? route;
@@ -50,52 +53,53 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
+    rs = Provider.of<RoutingService>(context);
+    ds = Provider.of<DiscomfortService>(context);
     adaptMap();
     super.didChangeDependencies();
   }
 
   Future<void> adaptMap() async {
-    await loadAltRouteLayers();
-    await loadRouteLayer();
+    await loadAllRouteLayers();
+    await loadSelectedRouteLayer();
     await loadDiscomforts();
     await loadTrafficLightMarkers();
     await loadWaypointMarkers();
     await moveMap();
   }
 
-  /// Load the alt route layers.
-  Future<void> loadAltRouteLayers() async {
+  /// Load the route layers.
+  Future<void> loadAllRouteLayers() async {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
     // Remove all existing layers.
-    if (altRoutes != null) mapController!.removeLines(altRoutes!);
+    if (allRoutes != null) mapController!.removeLines(allRoutes!);
     // Add the new layers, if they exist.
-    altRoutes = [];
-    for (r.Route altRoute in s.altRoutes ?? []) {
-      altRoutes!.add(await mapController!.addLine(
-        AltRouteLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
+    allRoutes = [];
+    for (r.Route altRoute in rs.allRoutes ?? []) {
+      allRoutes!.add(await mapController!.addLine(
+        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
       // Make it easier to click the alt route layer.
-      altRoutes!.add(await mapController!.addLine(
-        AltRouteClickLayer(points: altRoute.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
+      allRoutes!.add(await mapController!.addLine(
+        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
     }
   }
 
   /// Load the current route layer.
-  Future<void> loadRouteLayer() async {
+  Future<void> loadSelectedRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
     // Remove the existing route layer.
     if (route != null) await mapController!.removeLine(route!);
-    if (s.selectedRoute == null) return;
+    if (rs.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: s.selectedRoute!.nodes.map((e) => LatLng(e.lat, e.lon)).toList()),
-      s.selectedRoute!.toJson(),
+      RouteLayer(points: rs.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+      rs.selectedRoute!.toJson(),
     );
   }
 
@@ -109,7 +113,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
-    for (MapEntry<int, Discomfort> e in s.selectedRoute?.discomforts?.asMap().entries ?? []) {
+    for (MapEntry<int, Discomfort> e in ds.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
@@ -149,7 +153,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in s.selectedRoute?.sgs ?? []) {
+    for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
         TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon)),
       ));
@@ -164,13 +168,13 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (waypoints != null) await mapController!.removeSymbols(waypoints!);
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in s.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry in rs.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
         ));
-      } else if (entry.key == s.selectedWaypoints!.length - 1) {
+      } else if (entry.key == rs.selectedWaypoints!.length - 1) {
         waypoints!.add(await mapController!.addSymbol(
           DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
@@ -187,9 +191,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// Adapt the map controller.
   Future<void> moveMap() async {
     if (mapController == null) return;
-    if (s.selectedRoute != null && !mapController!.isCameraMoving) {
+    if (rs.selectedRoute != null && !mapController!.isCameraMoving) {
       await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(s.selectedRoute!.paddedBounds)
+        CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds)
       );
     }
   }
@@ -203,12 +207,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
     // If the line corresponds to an alternative route, we select that one.
-    for (Line altRoute in altRoutes ?? []) {
-      if (line.id == altRoute.id) {
+    for (Line routeLine in allRoutes ?? []) {
+      if (line.id == routeLine.id) {
         final route = r.Route.fromJson(line.data);
-        // TODO: Support switching to alt routes in the session wrapper.
-        // s.switchToAltRoute(route);
-        ToastMessage.showError("Alternativrouten können noch nicht gewählt werden.");
+        rs.switchToRoute(context, route);
         return;
       }
     }
@@ -216,7 +218,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (Line discomfortLine in discomfortSections ?? []) {
       if (line.id == discomfortLine.id) {
         final discomfort = Discomfort.fromJson(line.data);
-        s.selectDiscomfort(discomfort);
+        ds.selectDiscomfort(discomfort);
         return;
       }
     }
@@ -228,7 +230,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {
         final discomfort = Discomfort.fromJson(symbol.data);
-        s.selectDiscomfort(discomfort);
+        ds.selectDiscomfort(discomfort);
       }
     }
   }

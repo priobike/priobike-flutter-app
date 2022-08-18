@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
@@ -15,22 +16,26 @@ class AlertsView extends StatefulWidget {
 }
 
 class AlertsViewState extends State<AlertsView> {
+  /// The associated discomfort service, which is injected by the provider.
+  late DiscomfortService discomfortService;
+
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  late RoutingService routingService;
 
   /// The controller for the carousel.
   final controller = CarouselController();
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
+    discomfortService = Provider.of<DiscomfortService>(context);
+    routingService = Provider.of<RoutingService>(context);
 
     // Scroll to a discomfort if one was selected.
-    if (s.selectedDiscomfort != null) {
-      final discomforts = s.selectedRoute?.discomforts;
+    if (discomfortService.selectedDiscomfort != null) {
+      final discomforts = discomfortService.foundDiscomforts;
       if (discomforts != null && discomforts.isNotEmpty) {
-        for (int i = 0; i <= discomforts.length; i++) {
-          if (discomforts[i] == s.selectedDiscomfort) {
+        for (int i = 0; i < discomforts.length; i++) {
+          if (discomforts[i] == discomfortService.selectedDiscomfort) {
             controller.animateToPage(i);
             break;
           }
@@ -44,7 +49,7 @@ class AlertsViewState extends State<AlertsView> {
   @override
   Widget build(BuildContext context) {
     // Show nothing if there are no alerts to display.
-    if (s.selectedRoute?.discomforts == null || s.selectedRoute!.discomforts!.isEmpty) return Container();
+    if (discomfortService.foundDiscomforts == null || discomfortService.foundDiscomforts!.isEmpty) return Container();
 
     return Stack(
       alignment: AlignmentDirectional.bottomEnd,
@@ -81,7 +86,7 @@ class AlertsViewState extends State<AlertsView> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(alignment: AlignmentDirectional.topStart, children: [
           CarouselSlider(
-            items: s.selectedRoute!.discomforts!.asMap().entries.map((e) => Padding(
+            items: discomfortService.foundDiscomforts!.asMap().entries.map((e) => Padding(
               padding: const EdgeInsets.only(left: 16, top: 0), 
               child: Row(children: [
                 Stack(alignment: AlignmentDirectional.center, children: [

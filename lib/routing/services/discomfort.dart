@@ -4,18 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/routing/messages/graphhopper/response.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:provider/provider.dart';
 
-class DiscomfortFinder {
-  /// The calculated GraphHopper path.
-  final GHRouteResponsePath path;
+class DiscomfortService with ChangeNotifier {
+  /// The found discomforts.
+  List<Discomfort>? foundDiscomforts;
 
-  const DiscomfortFinder({required this.path});
+  /// The currently selected discomfort.
+  Discomfort? selectedDiscomfort;
+
+  DiscomfortService({
+    this.foundDiscomforts,
+    this.selectedDiscomfort,
+  });
+
+  /// Select a discomfort.
+  selectDiscomfort(Discomfort discomfort) {
+    selectedDiscomfort = discomfort;
+    notifyListeners();
+  }
 
   /// Get the coordinates for a given segment.
-  List<LatLng> getCoordinates(GHSegment segment) {
+  List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
     List<LatLng> coordinates = [];
     for (int i = segment.from; i <= segment.to; i++) {
       final c = path.points.coordinates[i];
@@ -24,7 +36,7 @@ class DiscomfortFinder {
     return coordinates;
   }
 
-  Future<List<Discomfort>> findDiscomforts(BuildContext context) async {
+  Future<void> findDiscomforts(BuildContext context, GHRouteResponsePath path) async {
     final profile = Provider.of<ProfileService>(context, listen: false);
     
     // Use the smoothness values to determine unsmooth sections.
@@ -32,7 +44,7 @@ class DiscomfortFinder {
     final unsmooth = path.details.smoothness
       .map((segment) {
         if (segment.value == null) return null;
-        final cs = getCoordinates(segment);
+        final cs = getCoordinates(segment, path);
         if (segment.value == "impassable") {
           return Discomfort(coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
         } else if (segment.value == "very_horrible") {
@@ -51,6 +63,7 @@ class DiscomfortFinder {
       .map((e) => e!)
       .toList();
     
-    return unsmooth;
+    foundDiscomforts = unsmooth;
+    notifyListeners();
   }
 }

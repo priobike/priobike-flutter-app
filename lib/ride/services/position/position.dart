@@ -229,7 +229,7 @@ class PositionService with ChangeNotifier {
       } else if (settings.positioning == Positioning.follow) {
         final routing = Provider.of<RoutingService>(context, listen: false);
         positionSource = PathMockPositionSource(
-          positions: routing.selectedRoute!.nodes.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
+          positions: routing.selectedRoute!.route.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
         );
         log.i("Using mocked path positioning source.");
       } else if (settings.positioning == Positioning.recordedDresden) {

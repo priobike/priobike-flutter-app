@@ -1,0 +1,832 @@
+{
+    "routes": [
+        {
+            "path": {
+                "distance": 584.984,
+                "time": 454213,
+                "ascend": 12.0,
+                "descend": 12.0,
+                "points": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [
+                            13.727676,
+                            51.031574,
+                            138.0
+                        ],
+                        [
+                            13.728058,
+                            51.031403,
+                            138.0
+                        ],
+                        [
+                            13.72807,
+                            51.031361,
+                            138.0
+                        ],
+                        [
+                            13.728038,
+                            51.031267,
+                            138.0
+                        ],
+                        [
+                            13.728256,
+                            51.03117,
+                            137.0
+                        ],
+                        [
+                            13.728872,
+                            51.030889,
+                            136.0
+                        ],
+                        [
+                            13.729236,
+                            51.030655,
+                            140.0
+                        ],
+                        [
+                            13.730142,
+                            51.03026,
+                            139.0
+                        ],
+                        [
+                            13.73024,
+                            51.030161,
+                            137.0
+                        ],
+                        [
+                            13.730276,
+                            51.030125,
+                            135.0
+                        ],
+                        [
+                            13.730035,
+                            51.030109,
+                            139.0
+                        ],
+                        [
+                            13.729608,
+                            51.030085,
+                            139.0
+                        ],
+                        [
+                            13.728226,
+                            51.030006,
+                            142.0
+                        ],
+                        [
+                            13.728201,
+                            51.030218,
+                            142.0
+                        ],
+                        [
+                            13.728149,
+                            51.030638,
+                            142.0
+                        ],
+                        [
+                            13.727993,
+                            51.030627,
+                            142.0
+                        ],
+                        [
+                            13.727809,
+                            51.030614,
+                            142.0
+                        ],
+                        [
+                            13.727267,
+                            51.030575,
+                            142.0
+                        ],
+                        [
+                            13.727253,
+                            51.030632,
+                            142.0
+                        ],
+                        [
+                            13.727189,
+                            51.030891,
+                            138.0
+                        ],
+                        [
+                            13.727182,
+                            51.03092,
+                            138.0
+                        ],
+                        [
+                            13.727146,
+                            51.031064,
+                            138.0
+                        ]
+                    ]
+                },
+                "bbox": [
+                    13.727146,
+                    51.030006,
+                    13.730276,
+                    51.031574
+                ],
+                "instructions": [
+                    {
+                        "text": "Dem StraÃenverlauf von NÃ¼rnberger StraÃe, S 172 folgen",
+                        "distance": 32.765,
+                        "time": 7372,
+                        "interval": [
+                            0,
+                            1
+                        ],
+                        "sign": 0,
+                        "street_name": "NÃ¼rnberger StraÃe, S 172",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Leicht rechts abbiegen auf NÃ¼rnberger StraÃe, S 172",
+                        "distance": 4.809,
+                        "time": 1082,
+                        "interval": [
+                            1,
+                            2
+                        ],
+                        "sign": 1,
+                        "street_name": "NÃ¼rnberger StraÃe, S 172",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Rechts halten",
+                        "distance": 29.326,
+                        "time": 26393,
+                        "interval": [
+                            2,
+                            4
+                        ],
+                        "sign": 7,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Wegpunkt 1",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            4,
+                            4
+                        ],
+                        "sign": 5,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Dem StraÃenverlauf folgen",
+                        "distance": 90.237,
+                        "time": 128602,
+                        "interval": [
+                            4,
+                            6
+                        ],
+                        "sign": 0,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Wegpunkt 2",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            6,
+                            6
+                        ],
+                        "sign": 5,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Dem StraÃenverlauf folgen",
+                        "distance": 77.166,
+                        "time": 86376,
+                        "interval": [
+                            6,
+                            7
+                        ],
+                        "sign": 0,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Leicht rechts abbiegen",
+                        "distance": 13.062,
+                        "time": 2612,
+                        "interval": [
+                            7,
+                            8
+                        ],
+                        "sign": 1,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Wegpunkt 3",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            8,
+                            8
+                        ],
+                        "sign": 5,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Dem StraÃenverlauf folgen",
+                        "distance": 5.205,
+                        "time": 1040,
+                        "interval": [
+                            8,
+                            9
+                        ],
+                        "sign": 0,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Scharf rechts abbiegen auf George-BÃ¤hr-StraÃe",
+                        "distance": 144.505,
+                        "time": 68881,
+                        "interval": [
+                            9,
+                            12
+                        ],
+                        "sign": 3,
+                        "street_name": "George-BÃ¤hr-StraÃe",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Rechts abbiegen",
+                        "distance": 23.589,
+                        "time": 21230,
+                        "interval": [
+                            12,
+                            13
+                        ],
+                        "sign": 2,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Wegpunkt 4",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            13,
+                            13
+                        ],
+                        "sign": 5,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Dem StraÃenverlauf folgen",
+                        "distance": 46.825,
+                        "time": 42141,
+                        "interval": [
+                            13,
+                            14
+                        ],
+                        "sign": 0,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Links abbiegen",
+                        "distance": 23.941,
+                        "time": 21545,
+                        "interval": [
+                            14,
+                            16
+                        ],
+                        "sign": -2,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Wegpunkt 5",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            16,
+                            16
+                        ],
+                        "sign": 5,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Dem StraÃenverlauf folgen",
+                        "distance": 38.115,
+                        "time": 34303,
+                        "interval": [
+                            16,
+                            17
+                        ],
+                        "sign": 0,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Rechts abbiegen auf HettnerstraÃe",
+                        "distance": 55.44,
+                        "time": 12636,
+                        "interval": [
+                            17,
+                            21
+                        ],
+                        "sign": 2,
+                        "street_name": "HettnerstraÃe",
+                        "exit_number": null,
+                        "turn_angle": null
+                    },
+                    {
+                        "text": "Ziel erreicht",
+                        "distance": 0.0,
+                        "time": 0,
+                        "interval": [
+                            21,
+                            21
+                        ],
+                        "sign": 4,
+                        "street_name": "",
+                        "exit_number": null,
+                        "turn_angle": null
+                    }
+                ],
+                "details": {
+                    "surface": [
+                        [
+                            0,
+                            2,
+                            "asphalt"
+                        ],
+                        [
+                            2,
+                            11,
+                            "paving_stones"
+                        ],
+                        [
+                            11,
+                            12,
+                            "asphalt"
+                        ],
+                        [
+                            12,
+                            15,
+                            "cobblestone"
+                        ],
+                        [
+                            15,
+                            17,
+                            "paving_stones"
+                        ],
+                        [
+                            17,
+                            18,
+                            "cobblestone"
+                        ],
+                        [
+                            18,
+                            19,
+                            "asphalt"
+                        ],
+                        [
+                            19,
+                            20,
+                            "cobblestone"
+                        ],
+                        [
+                            20,
+                            21,
+                            "asphalt"
+                        ]
+                    ],
+                    "smoothness": [
+                        [
+                            0,
+                            2,
+                            "intermediate"
+                        ],
+                        [
+                            2,
+                            7,
+                            "missing"
+                        ],
+                        [
+                            7,
+                            10,
+                            "good"
+                        ],
+                        [
+                            10,
+                            11,
+                            "intermediate"
+                        ],
+                        [
+                            11,
+                            12,
+                            "good"
+                        ],
+                        [
+                            12,
+                            15,
+                            "bad"
+                        ],
+                        [
+                            15,
+                            17,
+                            "good"
+                        ],
+                        [
+                            17,
+                            18,
+                            "missing"
+                        ],
+                        [
+                            18,
+                            19,
+                            "good"
+                        ],
+                        [
+                            19,
+                            20,
+                            "missing"
+                        ],
+                        [
+                            20,
+                            21,
+                            "good"
+                        ]
+                    ],
+                    "lanes": [
+                        [
+                            0,
+                            1,
+                            5
+                        ],
+                        [
+                            1,
+                            2,
+                            2
+                        ],
+                        [
+                            2,
+                            17,
+                            1
+                        ],
+                        [
+                            17,
+                            18,
+                            2
+                        ],
+                        [
+                            18,
+                            19,
+                            1
+                        ],
+                        [
+                            19,
+                            20,
+                            2
+                        ],
+                        [
+                            20,
+                            21,
+                            1
+                        ]
+                    ],
+                    "max_speed": [
+                        [
+                            0,
+                            2,
+                            50.0
+                        ],
+                        [
+                            2,
+                            4
+                        ],
+                        [
+                            4,
+                            6
+                        ],
+                        [
+                            6,
+                            8
+                        ],
+                        [
+                            8,
+                            11
+                        ],
+                        [
+                            11,
+                            12,
+                            30.0
+                        ],
+                        [
+                            12,
+                            13
+                        ],
+                        [
+                            13,
+                            16
+                        ],
+                        [
+                            16,
+                            17
+                        ],
+                        [
+                            17,
+                            21,
+                            30.0
+                        ]
+                    ]
+                },
+                "snapped_waypoints": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [
+                            13.727676,
+                            51.031574,
+                            138.0
+                        ],
+                        [
+                            13.728256,
+                            51.03117,
+                            137.0
+                        ],
+                        [
+                            13.729236,
+                            51.030655,
+                            140.0
+                        ],
+                        [
+                            13.73024,
+                            51.030161,
+                            137.0
+                        ],
+                        [
+                            13.728201,
+                            51.030218,
+                            142.0
+                        ],
+                        [
+                            13.727809,
+                            51.030614,
+                            142.0
+                        ],
+                        [
+                            13.727146,
+                            51.031064,
+                            138.0
+                        ]
+                    ]
+                },
+                "points_encoded": false,
+                "points_order": null
+            },
+            "route": [
+                {
+                    "lon": 13.727676,
+                    "lat": 51.031574,
+                    "alt": 138.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 350.4972726842871,
+                    "distanceOnRoute": 0.0
+                },
+                {
+                    "lon": 13.728058,
+                    "lat": 51.031403,
+                    "alt": 138.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 317.6340076765672,
+                    "distanceOnRoute": 32.86326500771991
+                },
+                {
+                    "lon": 13.72807,
+                    "lat": 51.031361,
+                    "alt": 138.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 312.8863293636087,
+                    "distanceOnRoute": 37.61094332067842
+                },
+                {
+                    "lon": 13.728038,
+                    "lat": 51.031267,
+                    "alt": 138.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 302.19070950280434,
+                    "distanceOnRoute": 48.30656318148278
+                },
+                {
+                    "lon": 13.728256,
+                    "lat": 51.03117,
+                    "alt": 137.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 283.47389543253354,
+                    "distanceOnRoute": 67.02337725175357
+                },
+                {
+                    "lon": 13.728872,
+                    "lat": 51.030889,
+                    "alt": 136.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 230.1390808853017,
+                    "distanceOnRoute": 120.35819179898542
+                },
+                {
+                    "lon": 13.729236,
+                    "lat": 51.030655,
+                    "alt": 140.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 193.67380998011828,
+                    "distanceOnRoute": 156.82346270416883
+                },
+                {
+                    "lon": 13.730142,
+                    "lat": 51.03026,
+                    "alt": 139.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 116.40439280509028,
+                    "distanceOnRoute": 234.09287987919683
+                },
+                {
+                    "lon": 13.73024,
+                    "lat": 51.030161,
+                    "alt": 137.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 103.42115367874408,
+                    "distanceOnRoute": 247.07611900554303
+                },
+                {
+                    "lon": 13.730276,
+                    "lat": 51.030125,
+                    "alt": 135.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 98.68641643087241,
+                    "distanceOnRoute": 251.8108562534147
+                },
+                {
+                    "lon": 13.730035,
+                    "lat": 51.030109,
+                    "alt": 139.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 81.68628826885208,
+                    "distanceOnRoute": 268.81098441543503
+                },
+                {
+                    "lon": 13.729608,
+                    "lat": 51.030085,
+                    "alt": 139.0,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 51.61252056749652,
+                    "distanceOnRoute": 298.8847521167906
+                },
+                {
+                    "lon": 13.728875283455206,
+                    "lat": 51.03004311533499,
+                    "alt": 140.59055689897272,
+                    "signalGroupId": "hamburg/SG1",
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 350.4972726842871
+                },
+                {
+                    "lon": 13.728226,
+                    "lat": 51.030006,
+                    "alt": 142.0,
+                    "signalGroupId": "hamburg/SG2",
+                    "distanceToNextSignal": 68.29736483397232,
+                    "distanceOnRoute": 396.2328087169491
+                },
+                {
+                    "lon": 13.728201,
+                    "lat": 51.030218,
+                    "alt": 142.0,
+                    "signalGroupId": "hamburg/SG2",
+                    "distanceToNextSignal": 44.6474896904254,
+                    "distanceOnRoute": 419.882683860496
+                },
+                {
+                    "lon": 13.728151462284488,
+                    "lat": 51.0306181123176,
+                    "alt": 142.0,
+                    "signalGroupId": "hamburg/SG2",
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 464.5301735509214
+                },
+                {
+                    "lon": 13.728149,
+                    "lat": 51.030638,
+                    "alt": 142.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 466.7493881668191
+                },
+                {
+                    "lon": 13.727993,
+                    "lat": 51.030627,
+                    "alt": 142.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 477.761221353187
+                },
+                {
+                    "lon": 13.727809,
+                    "lat": 51.030614,
+                    "alt": 142.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 490.7498580403297
+                },
+                {
+                    "lon": 13.727267,
+                    "lat": 51.030575,
+                    "alt": 142.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 529.0187165682645
+                },
+                {
+                    "lon": 13.727253,
+                    "lat": 51.030632,
+                    "alt": 142.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 535.4355063335739
+                },
+                {
+                    "lon": 13.727189,
+                    "lat": 51.030891,
+                    "alt": 138.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 564.5966532348851
+                },
+                {
+                    "lon": 13.727182,
+                    "lat": 51.03092,
+                    "alt": 138.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 567.8600279567074
+                },
+                {
+                    "lon": 13.727146,
+                    "lat": 51.031064,
+                    "alt": 138.0,
+                    "signalGroupId": null,
+                    "distanceToNextSignal": 0.0,
+                    "distanceOnRoute": 584.0777034101527
+                }
+            ],
+            "signalGroups": {
+                "hamburg/SG2": {
+                    "id": "hamburg/SG2",
+                    "position": {
+                        "lon": 13.728149235248566,
+                        "lat": 51.03061783658934
+                    },
+                    "label": "hamburg/SG2",
+                    "lsaId": "13",
+                    "connectionId": "1",
+                    "laneType": "Radfahrer",
+                    "visited": false
+                },
+                "hamburg/SG1": {
+                    "id": "hamburg/SG1",
+                    "position": {
+                        "lon": 13.728873431682585,
+                        "lat": 51.03007550963579
+                    },
+                    "label": "hamburg/SG1",
+                    "lsaId": "11",
+                    "connectionId": "1",
+                    "laneType": "Radfahrer",
+                    "visited": false
+                }
+            }
+        }
+    ]
+}

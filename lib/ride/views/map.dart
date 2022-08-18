@@ -77,7 +77,7 @@ class RideMapViewState extends State<RideMapView> {
     // Add the new route layer.
     route = await mapController!.addLine(
       RouteLayer(
-        points: s.selectedRoute!.nodes.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: s.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
         lineWidth: 14
       ),
       s.selectedRoute!.toJson(),
@@ -92,7 +92,7 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in s.selectedRoute?.sgs ?? []) {
+    for (Sg sg in s.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
         TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: 1.5),
       ));

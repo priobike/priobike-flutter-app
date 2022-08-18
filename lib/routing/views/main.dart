@@ -1,26 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/routing/services/mock.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:provider/provider.dart';
-
-/// Debug these views.
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<RoutingService>(
-      create: (context) => MockRoutingService(),
-    ),
-  ],
-  child: const RoutingView(),
-));
 
 class RoutingView extends StatefulWidget {
   const RoutingView({Key? key}) : super(key: key);
@@ -38,8 +27,8 @@ class RoutingViewState extends State<RoutingView> {
     s = Provider.of<RoutingService>(context);
 
     // Load the routes, once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      s.loadRoutes(context);
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await s.loadRoutes(context);
     });
 
     super.didChangeDependencies();
