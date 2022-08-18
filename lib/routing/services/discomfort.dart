@@ -20,6 +20,13 @@ class DiscomfortService with ChangeNotifier {
     this.selectedDiscomfort,
   });
 
+  // Reset the discomfort service.
+  Future<void> reset() async {
+    foundDiscomforts = null;
+    selectedDiscomfort = null;
+    notifyListeners();
+  }
+
   /// Select a discomfort.
   selectDiscomfort(Discomfort discomfort) {
     selectedDiscomfort = discomfort;

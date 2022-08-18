@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
@@ -68,7 +67,14 @@ class ShortcutsView extends StatefulWidget {
   /// A callback that will be executed when the shortcut was selected.
   final void Function(Shortcut shortcut) onSelectShortcut;
 
-  const ShortcutsView({required this.onSelectShortcut, Key? key}) : super(key: key);
+  /// A callback that will be executed when free routing is started.
+  final void Function() onStartFreeRouting;
+
+  const ShortcutsView({
+    required this.onSelectShortcut, 
+    required this.onStartFreeRouting, 
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ShortcutsViewState();
@@ -127,7 +133,9 @@ class ShortcutsViewState extends State<ShortcutsView> {
     )).toList(); 
 
     shortcutViews = [ShortcutView(
-      onPressed: () => ToastMessage.showError("Freies Routing ist noch nicht verfügbar."),
+      onPressed: () {
+        if (!rs.isFetchingRoute) widget.onStartFreeRouting();
+      },
       isHighlighted: true,
       icon: Icons.play_circle,
       title: "Freies Routing starten", 

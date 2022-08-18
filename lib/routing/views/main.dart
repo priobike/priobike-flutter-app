@@ -46,7 +46,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return SafeArea(child: Pad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Expanded(child: Tile(
         content: Center(child: SizedBox(
           height: 86, 
@@ -58,7 +58,7 @@ class RoutingViewState extends State<RoutingView> {
           ])
         ))
       )),
-    ])));
+    ]);
   }
 
   /// Render a try again button.
@@ -82,13 +82,14 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (s!.isFetchingRoute) return renderLoadingIndicator();
     if (s!.hadErrorDuringFetch) return renderTryAgainButton();
   
     final frame = MediaQuery.of(context);
 
     return Stack(children: [
       const RoutingMapView(),
+
+      if (s!.isFetchingRoute) renderLoadingIndicator(),
       
       // Top Bar
       SafeArea(

@@ -188,6 +188,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> moveMap() async {
     if (mapController == null) return;
     if (rs.selectedRoute != null && !mapController!.isCameraMoving) {
+      await Future.delayed(Duration(milliseconds: 400));
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds)
       );
@@ -269,6 +270,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await adaptMap();
   }
 
+  /// A callback that is executed when the map was longclicked.
+  Future<void> onMapLongClick(LatLng coord) async {
+    // TODO: Perform reverse geocoding.
+    int nr = rs.selectedWaypoints?.length ?? 0;
+    await rs.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: "Wegpunkt ${nr + 1}"));
+    await rs.loadRoutes(context);
+  }
+
   @override
   void dispose() {
     // Unbind the interaction callbacks.
@@ -284,7 +293,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     return AppMap(
       onMapCreated: onMapCreated, 
       onStyleLoaded: () => onStyleLoaded(context),
-      onCameraIdle: () => moveMap(),
+      onMapLongClick: (_, coord) => onMapLongClick(coord),
     );
   }
 }

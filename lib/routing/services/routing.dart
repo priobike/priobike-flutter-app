@@ -48,6 +48,15 @@ class RoutingService with ChangeNotifier {
     this.allRoutes,
   }) { log.i("RoutingService started."); }
 
+  Future<void> addWaypoint(Waypoint waypoint) async {
+    if (selectedWaypoints == null) {
+      selectedWaypoints = [waypoint];
+    } else {
+      selectedWaypoints = selectedWaypoints! + [waypoint];
+    }
+    notifyListeners();
+  }
+
   void selectWaypoints(List<Waypoint>? waypoints) {
     selectedWaypoints = waypoints;
     notifyListeners();
@@ -73,6 +82,7 @@ class RoutingService with ChangeNotifier {
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints) return;
     if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
+    if (selectedWaypoints!.length < 2) return;
 
     isFetchingRoute = true;
     notifyListeners();
@@ -80,8 +90,8 @@ class RoutingService with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      // Session must be open to send the route request.
       final settings = Provider.of<SettingsService>(context, listen: false);
+
       final baseUrl = settings.backend.path;
       final routeUrl = "https://$baseUrl/backend-service/routes";
       final routeEndpoint = Uri.parse(routeUrl);
@@ -105,11 +115,11 @@ class RoutingService with ChangeNotifier {
       isFetchingRoute = false;
 
       final discomforts = Provider.of<DiscomfortService>(context, listen: false);
-      await discomforts.findDiscomforts(context, selectedRoute!.path);
+      await discomforts.findDiscomforts(context, routeResponse.routes.first.path);
 
       notifyListeners();
-    } catch (error) { 
-      log.e("Error during load routes: $error");
+    } catch (error, stacktrace) { 
+      log.e("Error during load routes: $error $stacktrace");
       isFetchingRoute = false;
       hadErrorDuringFetch = true;
       notifyListeners();

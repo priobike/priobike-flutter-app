@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -14,10 +16,14 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
+  /// A callback that is executed when the map is longclicked.
+  final void Function(Point<double>, LatLng)? onMapLongClick;
+
   const AppMap({
     this.onMapCreated,
     this.onStyleLoaded,
     this.onCameraIdle,
+    this.onMapLongClick,
     Key? key
   }) : super(key: key);
 
@@ -43,6 +49,7 @@ class AppMapState extends State<AppMap> {
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
       onCameraIdle: widget.onCameraIdle,
+      onMapLongClick: widget.onMapLongClick,
       attributionButtonPosition: AttributionButtonPosition.BottomRight,
       initialCameraPosition: CameraPosition(
         target: settingsService.backend.center,

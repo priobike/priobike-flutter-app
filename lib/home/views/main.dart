@@ -10,6 +10,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/logging/toast.dart';
@@ -55,12 +56,17 @@ class HomeViewState extends State<HomeView> {
   /// The associated routing service, which is injected by the provider.
   late RoutingService routingService;
 
+  /// The associated discomfort service, which is injected by the provider.
+  late DiscomfortService discomfortService;
+
   @override
   void didChangeDependencies() {
     profileService = Provider.of<ProfileService>(context);
     settingsService = Provider.of<SettingsService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
-    routingService = Provider.of<RoutingService>(context);
+
+    routingService = Provider.of<RoutingService>(context, listen: false);
+    discomfortService = Provider.of<DiscomfortService>(context, listen: false);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
@@ -84,9 +90,26 @@ class HomeViewState extends State<HomeView> {
     routingService.selectWaypoints(shortcut.waypoints);
     routingService.loadRoutes(context);
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return const Scaffold(body: RoutingView());
-    }));
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) {
+        return const Scaffold(body: RoutingView());
+      }))
+      .then((_) {
+        routingService.reset();
+        discomfortService.reset();
+      });
+  }
+
+  /// A callback that is fired when free routing was selected.
+  void onStartFreeRouting() {
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) {
+        return const Scaffold(body: RoutingView());
+      }))
+      .then((_) {
+        routingService.reset();
+        discomfortService.reset();
+      });
   }
 
   Widget renderDebugHint() {
@@ -125,7 +148,7 @@ class HomeViewState extends State<HomeView> {
         const VSpace(),
         HPad(child: BoldContent(text: "Shortcuts und Radfahrprofil")),
         const VSpace(),
-        ShortcutsView(onSelectShortcut: onSelectShortcut),
+        ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
         const VSpace(),
         const ProfileView(),
         const VSpace(),
