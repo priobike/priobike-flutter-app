@@ -80,9 +80,7 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return const Scaffold(body: SettingsView());
-    }));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsView()));
   }
 
   /// A callback that is fired when a shortcut was selected.
@@ -91,9 +89,7 @@ class HomeViewState extends State<HomeView> {
     routingService.loadRoutes(context);
 
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) {
-        return const Scaffold(body: RoutingView());
-      }))
+      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
       .then((_) {
         routingService.reset();
         discomfortService.reset();
@@ -103,9 +99,7 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) {
-        return const Scaffold(body: RoutingView());
-      }))
+      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
       .then((_) {
         routingService.reset();
         discomfortService.reset();
@@ -137,7 +131,7 @@ class HomeViewState extends State<HomeView> {
 
   @override 
   Widget build(BuildContext context) {
-    return Fade(child: SingleChildScrollView(
+    return Scaffold(body: Fade(child: SingleChildScrollView(
       child: Column(children: [
         const SizedBox(height: 128),
         NavBarView(
@@ -158,6 +152,6 @@ class HomeViewState extends State<HomeView> {
         renderDebugHint(),
         const SizedBox(height: 128),
       ])
-    ));
+    )));
   }
 }

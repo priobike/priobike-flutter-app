@@ -85,7 +85,7 @@ class RideViewState extends State<RideView> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Scaffold(body: Stack(
       alignment: Alignment.center,
       children: [
         const RideMapView(),
@@ -93,6 +93,6 @@ class RideViewState extends State<RideView> {
         if (rideService?.currentRecommendation != null && !rideService!.currentRecommendation!.error) 
           renderInfoBar(rideService!.currentRecommendation!),
       ]
-    );
+    ));
   }
 }

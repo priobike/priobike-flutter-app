@@ -71,7 +71,6 @@ class Recommendation {
     errorMessage = params['errorMessage'].asStringOr('Empfehlung fehlerhaft');
     snapPos = Point.fromJson(params['snapPos'].value);
 
-    // TODO: Sometimes the navText is null and we need to handle it somehow
     try {
       navText = params['navText'].asStringOr('');
     } catch (error) {
@@ -81,7 +80,6 @@ class Recommendation {
     navSign = params['navSign'].asInt;
     navDist = params['navDist'].asNum as double;
 
-    // TODO: Sometimes the quality is null and we need to handle it somehow
     try {
       quality = params['quality'].asNum as double;
     } catch (error) {

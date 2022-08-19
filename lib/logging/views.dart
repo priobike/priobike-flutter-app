@@ -13,7 +13,7 @@ class LogsViewState extends State<LogsView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scaffold(body: SafeArea(
       child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -35,6 +35,6 @@ class LogsViewState extends State<LogsView> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

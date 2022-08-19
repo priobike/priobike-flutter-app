@@ -15,7 +15,7 @@ class AssetTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return Scaffold(body: FutureBuilder(
       future: DefaultAssetBundle.of(context).loadString(asset),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         return Container(
@@ -47,6 +47,6 @@ class AssetTextView extends StatelessWidget {
           ),
         );
       },
-    );
+    ));
   }
 }

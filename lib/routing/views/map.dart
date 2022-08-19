@@ -7,6 +7,7 @@ import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:provider/provider.dart';
@@ -188,7 +189,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> moveMap() async {
     if (mapController == null) return;
     if (rs.selectedRoute != null && !mapController!.isCameraMoving) {
-      await Future.delayed(Duration(milliseconds: 400));
+      // The delay is necessary, otherwise sometimes the camera won't move.
+      await Future.delayed(const Duration(milliseconds: 500));
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds)
       );
@@ -271,10 +273,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is executed when the map was longclicked.
-  Future<void> onMapLongClick(LatLng coord) async {
-    // TODO: Perform reverse geocoding.
-    int nr = rs.selectedWaypoints?.length ?? 0;
-    await rs.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: "Wegpunkt ${nr + 1}"));
+  Future<void> onMapLongClick(BuildContext context, LatLng coord) async {
+    final geocoding = Provider.of<GeocodingService>(context, listen: false);
+    String fallback = "Wegpunkt ${(rs.selectedWaypoints?.length ?? 0) + 1}";
+    String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
+    await rs.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
     await rs.loadRoutes(context);
   }
 
@@ -293,7 +296,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     return AppMap(
       onMapCreated: onMapCreated, 
       onStyleLoaded: () => onStyleLoaded(context),
-      onMapLongClick: (_, coord) => onMapLongClick(coord),
+      onMapLongClick: (_, coord) => onMapLongClick(context, coord),
     );
   }
 }

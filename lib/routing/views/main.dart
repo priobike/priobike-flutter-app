@@ -40,9 +40,12 @@ class RoutingViewState extends State<RoutingView> {
   /// A callback that is fired when the ride is started.
   void onStartRide() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      // Avoid navigation back, only allow stop button to be pressed.
+      // Note: Don't use pushReplacement since this will call
+      // the result handler of the RouteView's host.
       return WillPopScope(
         onWillPop: () async => false,
-        child: const Scaffold(body: RideView()),
+        child: const RideView(),
       );
     }));
   }
@@ -89,7 +92,7 @@ class RoutingViewState extends State<RoutingView> {
   
     final frame = MediaQuery.of(context);
 
-    return Stack(children: [
+    return Scaffold(body: Stack(children: [
       const RoutingMapView(),
 
       if (s!.isFetchingRoute) renderLoadingIndicator(),
@@ -108,6 +111,6 @@ class RoutingViewState extends State<RoutingView> {
       ),
 
       RouteDetailsBottomSheet(onSelectStartButton: onStartRide),
-    ]);
+    ]));
   }
 }

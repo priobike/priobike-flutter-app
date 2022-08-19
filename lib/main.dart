@@ -10,6 +10,7 @@ import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session/session.dart';
 import 'package:priobike/settings/service.dart';
@@ -50,6 +51,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
         ChangeNotifierProvider<DiscomfortService>(create: (context) => DiscomfortService()),
+        ChangeNotifierProvider<GeocodingService>(create: (context) => GeocodingService()),
         ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService()),
         ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
@@ -65,7 +67,7 @@ class App extends StatelessWidget {
         navigatorKey: navigatorKey,
         home: Scaffold(body: PrivacyPolicyView(onConfirmed: (ctx) {
           Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (_) {
-            return const Scaffold(body: HomeView());
+            return const HomeView();
           }), result: "navigate-forward");
         })),
       ),

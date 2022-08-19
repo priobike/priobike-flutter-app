@@ -159,6 +159,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       maxValue = phasesFromNow.reduce(max);
       minValue = phasesFromNow.reduce(min);
     }
+    if (maxValue == minValue) {
+      gaugeColors = [Colors.grey];
+      gaugeStops = [];
+      return;
+    }
 
     // Map each second from now to the corresponding predicted signal color
     var colors = phasesFromNow.map((phase) {

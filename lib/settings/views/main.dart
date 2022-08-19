@@ -179,7 +179,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override 
   Widget build(BuildContext context) {
-    return Stack(children: [
+    return Scaffold(body: Stack(children: [
       Container(color: AppColors.lightGrey),
       SingleChildScrollView(
         child: Column(
@@ -228,9 +228,7 @@ class SettingsViewState extends State<SettingsView> {
             ),
             const SmallVSpace(),
             SettingsElement(title: "Logs", icon: Icons.list, callback: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return const Scaffold(body: LogsView());
-              }));
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()));
             }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
@@ -256,20 +254,18 @@ class SettingsViewState extends State<SettingsView> {
             ),
             const VSpace(),
             SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return const Scaffold(body: PrivacyPolicyView());
-              }));
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
             }),
             const SmallVSpace(),
             SettingsElement(title: "Lizenzen", icon: Icons.info, callback: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return const Scaffold(body: AssetTextView(asset: "assets/text/licenses.txt"));
+                return const AssetTextView(asset: "assets/text/licenses.txt");
               }));
             }),
             const SmallVSpace(),
             SettingsElement(title: "Danksagung", icon: Icons.info, callback: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return const Scaffold(body: AssetTextView(asset: "assets/text/thanks.txt"));
+                return const AssetTextView(asset: "assets/text/thanks.txt");
               }));
             }),
             const SmallVSpace(),
@@ -303,6 +299,6 @@ class SettingsViewState extends State<SettingsView> {
           ],
         ),
       ),
-    ]);
+    ]));
   }
 }
