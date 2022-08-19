@@ -10,10 +10,11 @@ import 'package:priobike/logging/views.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/ride/services/session/session.dart';
+import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:provider/provider.dart';
@@ -177,6 +178,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a rerouting is selected.
+  Future<void> onSelectRerouting(Rerouting rerouting) async {
+    // Tell the settings service that we selected the new backend.
+    await settingsService.selectRerouting(rerouting);
+
+    Navigator.pop(context);
+  }
+
   @override 
   Widget build(BuildContext context) {
     return Scaffold(body: Stack(children: [
@@ -223,6 +232,20 @@ class SettingsViewState extends State<SettingsView> {
                   selected: settingsService.positioning, 
                   title: (Positioning e) => e.description,
                   callback: onSelectPositioning,
+                );
+              }),
+            ),
+            const SmallVSpace(),
+            SettingsElement(
+              title: "Rerouting", 
+              subtitle: settingsService.rerouting.description, 
+              icon: Icons.expand_more, 
+              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                return SettingsSelection(
+                  elements: Rerouting.values, 
+                  selected: settingsService.rerouting,
+                  title: (Rerouting e) => e.description, 
+                  callback: onSelectRerouting
                 );
               }),
             ),

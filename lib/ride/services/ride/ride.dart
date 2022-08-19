@@ -9,7 +9,7 @@ import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/ride.dart';
 import 'package:priobike/ride/messages/userposition.dart';
 import 'package:priobike/ride/messages/navigation.dart';
-import 'package:priobike/ride/services/session/session.dart';
+import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';

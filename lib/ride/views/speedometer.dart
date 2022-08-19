@@ -1,8 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/ride/services/session/session.dart';
+import 'package:priobike/ride/services/session.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -91,6 +92,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   /// End the ride.
   Future<void> endRide(BuildContext context) async {
+    // Stop the reroute service.
+    final rerouteService = Provider.of<RerouteService>(context, listen: false);
+    await rerouteService.reset();
+
     // Reset the route service.
     final routingService = Provider.of<RoutingService>(context, listen: false);
     await routingService.reset();

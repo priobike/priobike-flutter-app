@@ -8,6 +8,12 @@ class Waypoint {
   /// The address of this location.
   final String address;
 
+  @override
+  bool operator ==(other) => other is Waypoint && other.lat == lat && other.lon == lon;
+
+  @override
+  int get hashCode => Object.hash(lat, lon);
+
   const Waypoint(this.lat, this.lon, {required this.address});  
 
   /// Convert the waypoint to a json map.

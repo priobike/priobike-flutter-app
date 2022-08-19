@@ -8,11 +8,12 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/ride/services/session/session.dart';
+import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
 
@@ -56,6 +57,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
         ChangeNotifierProvider<RideService>(create: (context) => RideService()),
+        ChangeNotifierProvider<RerouteService>(create: (context) => RerouteService()),
       ],
       child: MaterialApp(
         title: 'PrioBike',

@@ -4,8 +4,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
-import 'package:priobike/ride/services/session/session.dart';
+import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -28,6 +29,9 @@ class RideViewState extends State<RideView> {
   /// The associated session service, which is injected by the provider.
   SessionService? sessionService;
 
+  /// The associated reroute service, which is injected by the provider.
+  RerouteService? rerouteService;
+
   /// The associated routing service, which is injected by the provider.
   RoutingService? routingService;
 
@@ -43,6 +47,8 @@ class RideViewState extends State<RideView> {
       await rideService?.selectRide(context, routingService!.selectedRoute!);
       // Start navigating.
       await rideService?.startNavigation(context);
+      // Check for reroutes.
+      await rerouteService?.runRerouteScheduler(context);
       // Start geolocating and pass new positions to the recommendation service.
       await positionService?.startGeolocation(context, (pos) => rideService?.updatePosition(context, pos));
     });
@@ -53,6 +59,7 @@ class RideViewState extends State<RideView> {
     positionService = Provider.of<PositionService>(context);
     rideService = Provider.of<RideService>(context);
     sessionService = Provider.of<SessionService>(context);
+    rerouteService = Provider.of<RerouteService>(context);
     routingService = Provider.of<RoutingService>(context);
     super.didChangeDependencies();
   }

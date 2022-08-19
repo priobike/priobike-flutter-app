@@ -48,6 +48,7 @@ class RoutingService with ChangeNotifier {
     this.allRoutes,
   }) { log.i("RoutingService started."); }
 
+  /// Add a new waypoint.
   Future<void> addWaypoint(Waypoint waypoint) async {
     if (selectedWaypoints == null) {
       selectedWaypoints = [waypoint];
@@ -57,7 +58,8 @@ class RoutingService with ChangeNotifier {
     notifyListeners();
   }
 
-  void selectWaypoints(List<Waypoint>? waypoints) {
+  /// Select new waypoints.
+  Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
     notifyListeners();
   }
@@ -76,13 +78,13 @@ class RoutingService with ChangeNotifier {
 
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
-  Future<void> loadRoutes(BuildContext context) async {
-    if (isFetchingRoute) return;
+  Future<RoutesResponse?> loadRoutes(BuildContext context) async {
+    if (isFetchingRoute) return null;
 
     // Do nothing if the waypoints were already fetched (or both are null).
-    if (fetchedWaypoints == selectedWaypoints) return;
-    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return;
-    if (selectedWaypoints!.length < 2) return;
+    if (fetchedWaypoints == selectedWaypoints) return null;
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return null;
+    if (selectedWaypoints!.length < 2) return null;
 
     isFetchingRoute = true;
     notifyListeners();
@@ -108,7 +110,7 @@ class RoutingService with ChangeNotifier {
       
       final decoded = json.decode(response.body);
       final routeResponse = RoutesResponse.fromJson(decoded);
-      if (routeResponse.routes.isEmpty) return;
+      if (routeResponse.routes.isEmpty) return null;
       selectedRoute = routeResponse.routes.first;
       allRoutes = routeResponse.routes;
       fetchedWaypoints = selectedWaypoints;
@@ -118,11 +120,13 @@ class RoutingService with ChangeNotifier {
       await discomforts.findDiscomforts(context, routeResponse.routes.first.path);
 
       notifyListeners();
+      return routeResponse;
     } catch (error, stacktrace) { 
       log.e("Error during load routes: $error $stacktrace");
       isFetchingRoute = false;
       hadErrorDuringFetch = true;
       notifyListeners();
+      return null;
     }
   }
 
