@@ -31,6 +31,13 @@ class ShortcutsService with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update the shortcuts.
+  Future<void> updateShortcuts(List<Shortcut> newShortcuts, BuildContext context) async {
+    shortcuts = newShortcuts;
+    await storeShortcuts(context);
+    notifyListeners();
+  }
+
   /// Store all shortcuts.
   Future<void> storeShortcuts(BuildContext context) async {
     if (shortcuts == null) return;

@@ -4,7 +4,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';

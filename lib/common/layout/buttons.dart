@@ -8,7 +8,8 @@ class SmallIconButton extends SizedBox {
     required IconData icon, 
     required void Function() onPressed,
     Color color = Colors.black,
-    Color fill = AppColors.lightGrey
+    Color fill = AppColors.lightGrey,
+    Color splash = Colors.grey,
   }) : super(
     key: key,
     width: 48,
@@ -16,7 +17,7 @@ class SmallIconButton extends SizedBox {
     child: RawMaterialButton(
       elevation: 0,
       fillColor: fill,
-      splashColor: Colors.grey,
+      splashColor: splash,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Icon(

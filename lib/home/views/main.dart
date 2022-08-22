@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -9,7 +10,8 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
-import 'package:priobike/home/views/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/edit.dart';
+import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -106,6 +108,12 @@ class HomeViewState extends State<HomeView> {
       });
   }
 
+  /// A callback that is fired when the shortcuts should be edited.
+  void onOpenShortcutEditView() {
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+  }
+
   Widget renderDebugHint() {
     String? description;
     if (settingsService.backend != Backend.production) description = "Testort ist gewählt.";
@@ -132,26 +140,40 @@ class HomeViewState extends State<HomeView> {
   @override 
   Widget build(BuildContext context) {
     return Scaffold(body: Fade(child: SingleChildScrollView(
-      child: Column(children: [
-        const SizedBox(height: 128),
-        NavBarView(
-          onTapNotificationButton: () => ToastMessage.showError("News sind noch nicht verfügbar."),
-          onTapSettingsButton: onSettingsButtonTapped,
-        ),
-        const Divider(color: AppColors.lightGrey, thickness: 2),
-        const VSpace(),
-        HPad(child: BoldContent(text: "Shortcuts und Radfahrprofil")),
-        const VSpace(),
-        ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
-        const VSpace(),
-        const ProfileView(),
-        const VSpace(),
-        const SmallVSpace(),
-        const Divider(color: AppColors.lightGrey, thickness: 2),
-        const VSpace(),
-        renderDebugHint(),
-        const SizedBox(height: 128),
-      ])
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 128),
+          NavBarView(
+            onTapNotificationButton: () => ToastMessage.showError("News sind noch nicht verfügbar."),
+            onTapSettingsButton: onSettingsButtonTapped,
+          ),
+          const Divider(color: AppColors.lightGrey, thickness: 2),
+          const VSpace(),
+          Row(children: [
+            const HSpace(),
+            BoldContent(text: "Shortcuts"),
+            Expanded(child: Container()),
+            SmallIconButton(
+              icon: Icons.edit, 
+              fill: Colors.white, 
+              splash: Colors.white, 
+              onPressed: onOpenShortcutEditView,
+            ),
+            const HSpace(),
+          ]),
+          const SmallVSpace(),
+          ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
+          const VSpace(),
+          const ProfileView(),
+          const VSpace(),
+          const SmallVSpace(),
+          const Divider(color: AppColors.lightGrey, thickness: 2),
+          const VSpace(),
+          renderDebugHint(),
+          const SizedBox(height: 128),
+        ],
+      ),
     )));
   }
 }
