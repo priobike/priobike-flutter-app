@@ -32,11 +32,17 @@ class ProfileElementButton extends StatelessWidget {
       fill: backgroundColor,
       splash: touchColor,
       padding: const EdgeInsets.all(8),
-      content: Column(children: [
-        Icon(icon, size: 48, color: color),
-        const SmallVSpace(),
-        Small(text: title, color: color),
-      ]),
+      content: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(children: [
+            Icon(icon, size: 48, color: color),
+            const SmallVSpace(),
+            Small(text: title, color: color),
+          ]),
+        ],
+      ),
       onPressed: onPressed,
     );
   }
@@ -113,7 +119,7 @@ class ProfileViewState extends State<ProfileView> {
       Tile(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         content: Column(children: [
-          const VSpace(),
+          const SizedBox(height: 16),
           GridView.count(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -133,9 +139,9 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: s.bikeType!.icon(), 
                   title: s.bikeType!.description(),
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  touchColor: Colors.blue,
+                  color: Colors.white,
+                  backgroundColor: Colors.blue,
+                  touchColor: Colors.white,
                   onPressed: toggleBikeSelection,
                 ),
               if (s.preferenceType == null) 
@@ -150,9 +156,9 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: s.preferenceType!.icon(), 
                   title: s.preferenceType!.description(),
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  touchColor: Colors.blue,
+                  color: Colors.white,
+                  backgroundColor: Colors.blue,
+                  touchColor: Colors.white,
                   onPressed: togglePreferenceSelection,
                 ),
               if (s.activityType == null) 
@@ -167,14 +173,14 @@ class ProfileViewState extends State<ProfileView> {
                 ProfileElementButton(
                   icon: s.activityType!.icon(), 
                   title: s.activityType!.description(),
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  touchColor: Colors.blue,
+                  color: Colors.white,
+                  backgroundColor: Colors.blue,
+                  touchColor: Colors.white,
                   onPressed: toggleActivitySelection,
                 ),
             ],
           ),
-          const VSpace(),
+          const SizedBox(height: 16),
           if (bikeSelectionActive) renderBikeTypeSelection(),
           if (preferenceSelectionActive) renderPreferenceTypeSelection(),
           if (activitySelectionActive) renderActivityTypeSelection(),
@@ -202,9 +208,9 @@ class ProfileViewState extends State<ProfileView> {
         children: BikeType.values.map((bikeType) => ProfileElementButton(
           icon: bikeType.icon(), 
           title: bikeType.description(),
-          color: Colors.black,
-          backgroundColor: Colors.white,
-          touchColor: Colors.blue,
+          color: Colors.white,
+          backgroundColor: Colors.blue,
+          touchColor: Colors.white,
           onPressed: () {
             s.bikeType = bikeType;
             s.store();
@@ -234,9 +240,9 @@ class ProfileViewState extends State<ProfileView> {
         children: PreferenceType.values.map((preferenceType) => ProfileElementButton(
           icon: preferenceType.icon(), 
           title: preferenceType.description(),
-          color: Colors.black,
-          backgroundColor: Colors.white,
-          touchColor: Colors.blue,
+          color: Colors.white,
+          backgroundColor: Colors.blue,
+          touchColor: Colors.white,
           onPressed: () {
             s.preferenceType = preferenceType;
             s.store();
@@ -266,9 +272,9 @@ class ProfileViewState extends State<ProfileView> {
         children: ActivityType.values.map((activityType) => ProfileElementButton(
           icon: activityType.icon(), 
           title: activityType.description(),
-          color: Colors.black,
-          backgroundColor: Colors.white,
-          touchColor: Colors.blue,
+          color: Colors.white,
+          backgroundColor: Colors.blue,
+          touchColor: Colors.white,
           onPressed: () {
             s.activityType = activityType;
             s.store();

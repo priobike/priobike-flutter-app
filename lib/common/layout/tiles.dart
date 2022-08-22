@@ -39,6 +39,7 @@ class Tile extends StatelessWidget {
         decoration: BoxDecoration(
           color: fill,
           borderRadius: borderRadius,
+          border: Border.all(color: Colors.black.withOpacity(0.1)),
         ),
         child: content,
       );
@@ -51,7 +52,14 @@ class Tile extends StatelessWidget {
       highlightElevation: 0,
       fillColor: fill,
       splashColor: splash,
-      child: Padding(padding: padding, child: content),
+      child: Container(
+        padding: padding, 
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          border: Border.all(color: Colors.black.withOpacity(0.1)),
+        ),
+        child: content,
+      ),
       onPressed: onPressed,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
     );
