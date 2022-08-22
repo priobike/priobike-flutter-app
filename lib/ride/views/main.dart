@@ -82,8 +82,8 @@ class RideViewState extends State<RideView> {
             BoldSubHeader(
               text: "Noch ${r.countdown}s ${r.green ? 'grün' : 'rot'}",
               color: r.green 
-                ? const Color.fromARGB(255, 0, 255, 0) 
-                : const Color.fromARGB(255, 255, 0, 0),
+                ? const Color.fromARGB(255, 50, 180, 50) 
+                : const Color.fromARGB(255, 208, 19, 19),
             ),
           ],
         ),
