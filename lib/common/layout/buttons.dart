@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/colors.dart';
 
 /// A small icon button.
 class SmallIconButton extends SizedBox {
@@ -7,7 +8,7 @@ class SmallIconButton extends SizedBox {
     required IconData icon, 
     required void Function() onPressed,
     Color color = Colors.black,
-    Color fill = Colors.white,
+    Color fill = AppColors.lightGrey
   }) : super(
     key: key,
     width: 48,
