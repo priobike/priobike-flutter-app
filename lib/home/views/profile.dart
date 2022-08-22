@@ -122,9 +122,13 @@ class ProfileViewState extends State<ProfileView> {
             crossAxisCount: 3, 
             children: [
               if (s.bikeType == null) 
-                ProfileElementButton(icon: Icons.electric_bike, title: "Radtyp", onPressed: () {
-                  toggleBikeSelection();
-                }),
+                ProfileElementButton(
+                  icon: Icons.electric_bike, 
+                  title: "Radtyp", 
+                  color: Colors.black,
+                  backgroundColor: Colors.white,
+                  onPressed: toggleBikeSelection
+                ),
               if (s.bikeType != null) 
                 ProfileElementButton(
                   icon: s.bikeType!.icon(), 
@@ -132,14 +136,16 @@ class ProfileViewState extends State<ProfileView> {
                   color: Colors.black,
                   backgroundColor: Colors.white,
                   touchColor: Colors.blue,
-                  onPressed: () {
-                    toggleBikeSelection();
-                  },
+                  onPressed: toggleBikeSelection,
                 ),
               if (s.preferenceType == null) 
-                ProfileElementButton(icon: Icons.thumbs_up_down, title: "Präferenz", onPressed: () {
-                  togglePreferenceSelection();
-                }),
+                ProfileElementButton(
+                  icon: Icons.thumbs_up_down, 
+                  title: "Präferenz", 
+                  color: Colors.black,
+                  backgroundColor: Colors.white,
+                  onPressed: togglePreferenceSelection,
+                ),
               if (s.preferenceType != null) 
                 ProfileElementButton(
                   icon: s.preferenceType!.icon(), 
@@ -147,14 +153,16 @@ class ProfileViewState extends State<ProfileView> {
                   color: Colors.black,
                   backgroundColor: Colors.white,
                   touchColor: Colors.blue,
-                  onPressed: () {
-                    togglePreferenceSelection();
-                  },
+                  onPressed: togglePreferenceSelection,
                 ),
               if (s.activityType == null) 
-                ProfileElementButton(icon: Icons.home_work, title: "Aktivität", onPressed: () {
-                  toggleActivitySelection();
-                }),
+                ProfileElementButton(
+                  icon: Icons.home_work, 
+                  title: "Aktivität", 
+                  color: Colors.black,
+                  backgroundColor: Colors.white,
+                  onPressed: toggleActivitySelection,
+                ),
               if (s.activityType != null) 
                 ProfileElementButton(
                   icon: s.activityType!.icon(), 
@@ -162,9 +170,7 @@ class ProfileViewState extends State<ProfileView> {
                   color: Colors.black,
                   backgroundColor: Colors.white,
                   touchColor: Colors.blue,
-                  onPressed: () {
-                    toggleActivitySelection();
-                  },
+                  onPressed: toggleActivitySelection,
                 ),
             ],
           ),
