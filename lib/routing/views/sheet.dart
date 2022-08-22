@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,92 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
 }
 
+class RouteWaypointItem extends StatelessWidget {
+  /// The associated waypoint.
+  final Waypoint waypoint;
+
+  /// The index of the waypoint in the route.
+  final int idx;
+
+  /// The total number of waypoints.
+  final int count;
+
+  /// If the waypoint is the first waypoint.
+  bool get isFirst => idx == 0;
+
+  /// If the waypoint is the last waypoint.
+  bool get isLast => idx == count - 1;
+
+  const RouteWaypointItem({
+    required this.waypoint,
+    required this.idx,
+    required this.count,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final frame = MediaQuery.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(4), 
+      child: Row(children: [
+        if (isFirst) const StartIcon(width: 32, height: 32)
+        else if (isLast) const DestinationIcon(width: 32, height: 32) 
+        else const WaypointIcon(width: 32, height: 32),
+
+        const SmallHSpace(),
+
+        Container(
+          height: 32, width: frame.size.width - 64,
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 241, 241, 241),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(children: [
+            const SmallHSpace(),
+            Flexible(
+              child: BoldContent(
+                text: waypoint.address, 
+                maxLines: 1, 
+                overflow: TextOverflow.ellipsis
+              ),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+class DraggingWaypointItem extends RouteWaypointItem {
+  final GlobalKey dragKey;
+
+  const DraggingWaypointItem({
+    required this.dragKey,
+    required waypoint,
+    required idx,
+    required count,
+    Key? key,
+  }) : super(waypoint: waypoint, idx: idx, count: count, key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionalTranslation(
+      translation: const Offset(-0.5, -0.5),
+      child: ClipRRect(
+        key: dragKey,
+        borderRadius: BorderRadius.circular(12.0),
+        child: Opacity(
+          opacity: 0.85,
+          child: super.build(context),
+        ),
+      ),
+    );
+  }
+}
+
 class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late RoutingService s;
@@ -27,46 +114,20 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     super.didChangeDependencies();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (s.selectedRoute == null || s.fetchedWaypoints == null) return Container();
-    
-    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)}km";
-    final seconds = s.selectedRoute!.path.time / 1000;
-    final timeInfo = seconds < 3600 
-      ? "${(seconds / 60).toStringAsFixed(0)}min"
-      : "${(seconds / 3600).toStringAsFixed(0)}h";
+  /// A callback that is executed when the order of the waypoints change.
+  Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
+    if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.3, 
-      maxChildSize: 0.6,
-      minChildSize: 0.1,
-      builder: (BuildContext context, ScrollController controller) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
-            ),
-          ),
-          child: SingleChildScrollView(
-            controller: controller, 
-            padding: const EdgeInsets.all(8), 
-            child: Column(
-              children: [
-                renderDragIndicator(context),
-                const SmallVSpace(),
-                renderBottomSheetWaypoints(context),
-                const SmallVSpace(),
-                BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
-                const VSpace(),
-              ], 
-            ), 
-          ),
-        );
-      },
-    );
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    final reorderedWaypoints = s.selectedWaypoints!.toList();
+    final waypoint = reorderedWaypoints.removeAt(oldIndex);
+    reorderedWaypoints.insert(newIndex, waypoint);
+
+    s.selectWaypoints(reorderedWaypoints);
+    s.loadRoutes(context);
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -83,9 +144,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   Widget renderBottomSheetWaypoints(BuildContext context) {
-    if (s.fetchedWaypoints == null) return Container();
+    if (s.selectedWaypoints == null) return Container();
     
-    final frame = MediaQuery.of(context);
     return Stack(children: [
       Row(children: [
         const SizedBox(width: 12),
@@ -93,42 +153,73 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           const SizedBox(height: 8),
           Stack(alignment: AlignmentDirectional.center, children: [
             Container(color: const Color.fromARGB(255, 241, 241, 241), width: 16, height: s.fetchedWaypoints!.length * 32),
-            Container(color: Colors.blueAccent, width: 8, height: s.fetchedWaypoints!.length * 32),
+            Container(color: Colors.blueAccent, width: 8, height: s.selectedWaypoints!.length * 32),
           ]),
         ]),
       ]),
-      Column(children: s.fetchedWaypoints!.asMap().entries.map<Widget>((entry) {
-        return Padding(
-          padding: const EdgeInsets.all(4), 
-          child: Row(children: [
-            if (entry.key == 0) 
-              const StartIcon(width: 32, height: 32)
-            else if (entry.key == (s.fetchedWaypoints!.length - 1)) 
-              const DestinationIcon(width: 32, height: 32) 
-            else 
-              const WaypointIcon(width: 32, height: 32),
-            const SmallHSpace(),
-            Container(
-              height: 32, width: frame.size.width - 64,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 241, 241, 241),
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Row(children: [
-                const SmallHSpace(),
-                Flexible(
-                  child: BoldContent(
-                    text: entry.value.address, 
-                    maxLines: 1, 
-                    overflow: TextOverflow.ellipsis
-                  ),
-                ),
-              ]),
-            ),
-          ]),
+      LayoutBuilder(builder: ((context, constraints) {
+        return ReorderableListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          proxyDecorator: (proxyWidget, idx, anim) {
+            return proxyWidget;
+          },
+          children: s.selectedWaypoints!.asMap().entries.map<Widget>((entry) {
+            return RouteWaypointItem(
+              key: Key("$entry.key"),
+              count: s.selectedWaypoints!.length,
+              idx: entry.key,
+              waypoint: entry.value,
+            );
+          }).toList(),
+          onReorder: onChangeWaypointOrder,
         );
-      }).toList()),
+      })),
     ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (s.selectedRoute == null || s.fetchedWaypoints == null) return Container();
+    
+    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)}km";
+    final seconds = s.selectedRoute!.path.time / 1000;
+    final timeInfo = seconds < 3600 
+      ? "${(seconds / 60).toStringAsFixed(0)}min"
+      : "${(seconds / 3600).toStringAsFixed(0)}h";
+
+    return SizedBox(
+      height: MediaQuery.of(context).size.height, // Needed for reorderable list.
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.3, 
+        maxChildSize: 0.6,
+        minChildSize: 0.1,
+        builder: (BuildContext context, ScrollController controller) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            child: SingleChildScrollView(
+              controller: controller, 
+              padding: const EdgeInsets.all(8), 
+              child: Column(
+                children: [
+                  renderDragIndicator(context),
+                  const SmallVSpace(),
+                  renderBottomSheetWaypoints(context),
+                  const SmallVSpace(),
+                  BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
+                  const VSpace(),
+                ], 
+              ), 
+            ),
+          );
+        },
+      ),
+    );
   }
 }
