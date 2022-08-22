@@ -12,7 +12,14 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when the riding is started.
   final void Function() onSelectStartButton;
 
-  const RouteDetailsBottomSheet({required this.onSelectStartButton, Key? key}) : super(key: key);
+  /// A callback that is executed when a shortcut should be saved.
+  final void Function() onSelectSaveButton;
+
+  const RouteDetailsBottomSheet({
+    required this.onSelectStartButton, 
+    required this.onSelectSaveButton,
+    Key? key
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -188,10 +195,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       ? "${(seconds / 60).toStringAsFixed(0)}min"
       : "${(seconds / 3600).toStringAsFixed(0)}h";
 
+    final frame = MediaQuery.of(context);
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height, // Needed for reorderable list.
+      height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 0.3, 
+        initialChildSize: 0.25, 
         maxChildSize: 0.6,
         minChildSize: 0.1,
         builder: (BuildContext context, ScrollController controller) {
@@ -211,8 +220,24 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderDragIndicator(context),
                   const SmallVSpace(),
                   renderBottomSheetWaypoints(context),
-                  const SmallVSpace(),
-                  BigButton(label: "Starten: $timeInfo, $distInfo", onPressed: widget.onSelectStartButton),
+                  const SizedBox(height: 2),
+                  const Divider(indent: 16, endIndent: 16),
+                  const SizedBox(height: 2),
+                  BigButton(
+                    icon: Icons.pedal_bike,
+                    label: "Starten: $timeInfo, $distInfo", 
+                    onPressed: widget.onSelectStartButton,
+                    boxConstraints: BoxConstraints(minWidth: frame.size.width),
+                  ),
+                  const SizedBox(height: 2),
+                  const Divider(indent: 16, endIndent: 16),
+                  const SizedBox(height: 2),
+                  BigButton(
+                    icon: Icons.save,
+                    label: "Route speichern", 
+                    onPressed: widget.onSelectSaveButton,
+                    boxConstraints: BoxConstraints(minWidth: frame.size.width),
+                  ),
                   const VSpace(),
                 ], 
               ), 

@@ -59,33 +59,48 @@ class AppBackButton extends SizedBox {
 
 /// A big button.
 class BigButton extends RawMaterialButton {
-  BigButton({Key? key, IconData? icon, required String label, required void Function() onPressed}) : super(
+  BigButton({
+    Key? key, 
+    IconData? icon, 
+    required String label, 
+    required void Function() onPressed,
+    Color fillColor = Colors.blueAccent,
+    Color splashColor = Colors.white,
+    BoxConstraints boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
+  }) : super(
     key: key,
-    fillColor: Colors.blueAccent,
-    splashColor: Colors.lightBlue,
+    fillColor: fillColor,
+    splashColor: splashColor,
+    constraints: boxConstraints,
+    elevation: 0,
+    focusElevation: 0,
+    hoverElevation: 0,
+    highlightElevation: 0,
     child: Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const SizedBox(width: 8),
+          const SizedBox(width: 32),
           if (icon != null) Icon(
             icon,
             color: Colors.white,
           ),
-          const SizedBox(width: 8),
-          Text(
+          const SizedBox(width: 12),
+          Flexible(child: Text(
             label,
             maxLines: 1,
-            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.normal),
-          ),
-          const SizedBox(width: 8),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          )),
+          const SizedBox(width: 32),
         ],
       ),
     ),
     onPressed: onPressed,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(24)),
+      borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
   );
 }

@@ -126,7 +126,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
         if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
       },
       isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
-      icon: shortcut.icon, 
+      icon: Icons.route, 
       title: shortcut.name, 
       width: shortcutWidth, 
       rightPad: shortcutRightPad,

@@ -4,6 +4,9 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
@@ -20,20 +23,24 @@ class RoutingView extends StatefulWidget {
 
 class RoutingViewState extends State<RoutingView> {
   /// The associated routing service, which is injected by the provider.
-  RoutingService? s;
+  RoutingService? routingService;
+
+  /// The associated shortcuts service, which is injected by the provider.
+  ShortcutsService? shortcutsService;
 
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await s?.loadRoutes(context);
+      await routingService?.loadRoutes(context);
     });
   }
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
+    routingService = Provider.of<RoutingService>(context);
+    shortcutsService = Provider.of<ShortcutsService>(context);
     super.didChangeDependencies();
   }
 
@@ -48,6 +55,42 @@ class RoutingViewState extends State<RoutingView> {
         child: const RideView(),
       );
     }));
+  }
+
+  /// A callback that is fired when the shortcut should be saved but a name is required.
+  void onRequestShortcutName() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        final nameController = TextEditingController();
+        return AlertDialog(
+          title: BoldContent(text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.'),
+          content: SizedBox(height: 48, child: Column(
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
+              ),
+            ],
+          )),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                final name = nameController.text;
+                if (name.isEmpty) ToastMessage.showError("Name darf nicht leer sein.");
+                await shortcutsService?.saveNewShortcut(name, context);
+                ToastMessage.showSuccess("Route gespeichert!");
+                Navigator.pop(context);
+              },
+              child: BoldContent(text: 'Speichern', color: Colors.blue),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Render a loading indicator.
@@ -78,7 +121,7 @@ class RoutingViewState extends State<RoutingView> {
             BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1),
             const VSpace(),
             BigButton(label: "Erneut Laden", onPressed: () async {
-              await s?.loadRoutes(context);
+              await routingService?.loadRoutes(context);
             }),
           ])
         ))
@@ -88,14 +131,14 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (s!.hadErrorDuringFetch) return renderTryAgainButton();
+    if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
   
     final frame = MediaQuery.of(context);
 
     return Scaffold(body: Stack(children: [
       const RoutingMapView(),
 
-      if (s!.isFetchingRoute) renderLoadingIndicator(),
+      if (routingService!.isFetchingRoute) renderLoadingIndicator(),
       
       // Top Bar
       SafeArea(
@@ -110,7 +153,7 @@ class RoutingViewState extends State<RoutingView> {
         ]),
       ),
 
-      RouteDetailsBottomSheet(onSelectStartButton: onStartRide),
+      RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
     ]));
   }
 }
