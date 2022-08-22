@@ -49,6 +49,7 @@ dependencies:
   carousel_slider: ^4.1.1
   latlong2: ^0.8.1
   flutter_native_splash: ^2.1.6
+  wakelock: ^0.6.2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0

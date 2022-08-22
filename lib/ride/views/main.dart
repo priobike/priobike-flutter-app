@@ -11,6 +11,7 @@ import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock/wakelock.dart';
 
 class RideView extends StatefulWidget {
   const RideView({Key? key}) : super(key: key);
@@ -92,6 +93,9 @@ class RideViewState extends State<RideView> {
 
   @override
   Widget build(BuildContext context) {
+    // Keep the device active during navigation.
+    Wakelock.enable();
+
     return Scaffold(body: Stack(
       alignment: Alignment.center,
       children: [
