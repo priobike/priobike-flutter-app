@@ -67,11 +67,11 @@ class App extends StatelessWidget {
         ),
         // The navigator key is used to access the app's build context.
         navigatorKey: navigatorKey,
-        home: Scaffold(body: PrivacyPolicyView(onConfirmed: (ctx) {
+        home: PrivacyPolicyView(onConfirmed: (ctx) {
           Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (_) {
             return const HomeView();
           }), result: "navigate-forward");
-        })),
+        }),
       ),
     );
   }

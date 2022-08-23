@@ -68,6 +68,12 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     ));
   }
 
+  /// A callback that is executed when the accept button was pressed.
+  Future<void> onAcceptButtonPressed() async {
+    await s.confirm();
+    widget.onConfirmed?.call(context);
+  }
+
   @override 
   Widget build(BuildContext context) {
     if (!s.hasLoaded) return renderLoadingIndicator();
@@ -122,7 +128,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
               child: BigButton(
                 icon: Icons.check, 
                 label: "Akzeptieren", 
-                onPressed: () => widget.onConfirmed?.call(context),
+                onPressed: onAcceptButtonPressed,
               ),
             ),
           ],
