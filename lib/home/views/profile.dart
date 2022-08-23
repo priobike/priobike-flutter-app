@@ -127,57 +127,80 @@ class ProfileViewState extends State<ProfileView> {
             crossAxisSpacing: 8,
             crossAxisCount: 3, 
             children: [
-              if (s.bikeType == null) 
-                ProfileElementButton(
-                  icon: Icons.electric_bike, 
-                  title: "Radtyp", 
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  onPressed: toggleBikeSelection
-                ),
-              if (s.bikeType != null) 
-                ProfileElementButton(
-                  icon: s.bikeType!.icon(), 
-                  title: s.bikeType!.description(),
-                  color: Colors.white,
-                  backgroundColor: Colors.blue,
-                  touchColor: Colors.white,
-                  onPressed: toggleBikeSelection,
-                ),
-              if (s.preferenceType == null) 
-                ProfileElementButton(
-                  icon: Icons.thumbs_up_down, 
-                  title: "Präferenz", 
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  onPressed: togglePreferenceSelection,
-                ),
-              if (s.preferenceType != null) 
-                ProfileElementButton(
-                  icon: s.preferenceType!.icon(), 
-                  title: s.preferenceType!.description(),
-                  color: Colors.white,
-                  backgroundColor: Colors.blue,
-                  touchColor: Colors.white,
-                  onPressed: togglePreferenceSelection,
-                ),
-              if (s.activityType == null) 
-                ProfileElementButton(
-                  icon: Icons.home_work, 
-                  title: "Aktivität", 
-                  color: Colors.black,
-                  backgroundColor: Colors.white,
-                  onPressed: toggleActivitySelection,
-                ),
-              if (s.activityType != null) 
-                ProfileElementButton(
-                  icon: s.activityType!.icon(), 
-                  title: s.activityType!.description(),
-                  color: Colors.white,
-                  backgroundColor: Colors.blue,
-                  touchColor: Colors.white,
-                  onPressed: toggleActivitySelection,
-                ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: s.bikeType == null 
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      icon: Icons.electric_bike, 
+                      title: "Radtyp", 
+                      color: Colors.black,
+                      backgroundColor: Colors.white,
+                      onPressed: toggleBikeSelection
+                    )
+                  : ProfileElementButton(
+                      key: ValueKey<String>(s.bikeType!.description()),
+                      icon: s.bikeType!.icon(), 
+                      title: s.bikeType!.description(),
+                      color: Colors.white,
+                      backgroundColor: Colors.blue,
+                      touchColor: Colors.white,
+                      onPressed: toggleBikeSelection,
+                    )
+              ),
+
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: s.preferenceType == null 
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      icon: Icons.thumbs_up_down, 
+                      title: "Präferenz", 
+                      color: Colors.black,
+                      backgroundColor: Colors.white,
+                      onPressed: togglePreferenceSelection,
+                    )
+                  : ProfileElementButton(
+                      key: ValueKey<String>(s.preferenceType!.description()),
+                      icon: s.preferenceType!.icon(), 
+                      title: s.preferenceType!.description(),
+                      color: Colors.white,
+                      backgroundColor: Colors.blue,
+                      touchColor: Colors.white,
+                      onPressed: togglePreferenceSelection,
+                    ),
+              ),
+
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: s.activityType == null 
+                  ? ProfileElementButton(
+                      key: const ValueKey<String>("None"),
+                      icon: Icons.home_work, 
+                      title: "Aktivität", 
+                      color: Colors.black,
+                      backgroundColor: Colors.white,
+                      onPressed: toggleActivitySelection,
+                    )
+                  : ProfileElementButton(
+                      key: ValueKey<String>(s.activityType!.description()),
+                      icon: s.activityType!.icon(), 
+                      title: s.activityType!.description(),
+                      color: Colors.white,
+                      backgroundColor: Colors.blue,
+                      touchColor: Colors.white,
+                      onPressed: toggleActivitySelection,
+                    ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
