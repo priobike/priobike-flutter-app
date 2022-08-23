@@ -51,6 +51,9 @@ dependencies:
   flutter_native_splash: ^2.1.6
   wakelock: ^0.6.2
 
+  # Only needed for legacy ride views.
+  flutter_map: ^2.2.0
+
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0
   flutter_test:
@@ -102,6 +105,19 @@ flutter:
     - assets/images/trafficlight.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
+
+    # Legacy
+    - assets/images/dark_continue.png
+    - assets/images/dark_finish.png
+    - assets/images/dark_keep_left.png
+    - assets/images/dark_keep_right.png
+    - assets/images/dark_roundabout.png
+    - assets/images/dark_turn_left.png
+    - assets/images/dark_turn_right.png
+    - assets/images/dark_turn_sharp_left.png
+    - assets/images/dark_turn_sharp_right.png
+    - assets/images/dark_turn_slight_left.png
+    - assets/images/dark_turn_slight_right.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
