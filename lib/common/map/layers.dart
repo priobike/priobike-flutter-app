@@ -10,9 +10,9 @@ class RouteLayer extends LineOptions {
 }
 
 class RouteBackgroundLayer extends LineOptions {
-  RouteBackgroundLayer({ required List<LatLng> points }) : super(
+  RouteBackgroundLayer({ required List<LatLng> points, double lineWidth = 9.0 }) : super(
     geometry: points,
-    lineWidth: 9.0,
+    lineWidth: lineWidth,
     lineColor: "#C6C6C6",
     lineJoin: "round",
   );

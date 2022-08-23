@@ -32,6 +32,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The route that is displayed, if a route is selected.
   Line? route;
 
+  /// The route background that is displayed, if a route is selected.
+  Line? routeBackground;
+
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
 
@@ -73,8 +76,16 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     // Remove the existing route layer.
     if (route != null) await mapController!.removeLine(route!);
+    if (routeBackground != null) await mapController!.removeLine(routeBackground!);
     if (s.selectedRoute == null) return;
     // Add the new route layer.
+    routeBackground = await mapController!.addLine(
+      RouteBackgroundLayer(
+        points: s.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        lineWidth: 20,
+      ),
+      s.selectedRoute!.toJson(),
+    );
     route = await mapController!.addLine(
       RouteLayer(
         points: s.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
