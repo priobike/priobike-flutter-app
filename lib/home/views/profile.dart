@@ -204,9 +204,24 @@ class ProfileViewState extends State<ProfileView> {
             ],
           ),
           const SizedBox(height: 16),
-          if (bikeSelectionActive) renderBikeTypeSelection(),
-          if (preferenceSelectionActive) renderPreferenceTypeSelection(),
-          if (activitySelectionActive) renderActivityTypeSelection(),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            firstChild: Container(),
+            secondChild: renderBikeTypeSelection(),
+            crossFadeState: bikeSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          ),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            firstChild: Container(),
+            secondChild: renderPreferenceTypeSelection(),
+            crossFadeState: preferenceSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          ),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            firstChild: Container(),
+            secondChild: renderActivityTypeSelection(),
+            crossFadeState: activitySelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          ),
         ]),
       ),
     ]));
