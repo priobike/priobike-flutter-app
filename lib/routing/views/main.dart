@@ -12,6 +12,7 @@ import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RoutingView extends StatefulWidget {
   const RoutingView({Key? key}) : super(key: key);
@@ -44,8 +45,8 @@ class RoutingViewState extends State<RoutingView> {
   }
 
   /// A callback that is fired when the ride is started.
-  void onStartRide() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+  Future<void> onStartRide() async {
+    void startRide () => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
       // Avoid navigation back, only allow stop button to be pressed.
       // Note: Don't use pushReplacement since this will call
       // the result handler of the RouteView's host.
@@ -54,6 +55,31 @@ class RoutingViewState extends State<RoutingView> {
         child: const RideView(),
       );
     }));
+
+    final preferences = await SharedPreferences.getInstance();
+    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
+    if (didViewWarning) {
+      startRide();
+    } else {
+      showDialog(context: context, builder: (_) => AlertDialog(
+        alignment: AlignmentDirectional.center,
+        actionsAlignment: MainAxisAlignment.center,
+        title: BoldContent(text: 'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.'),
+        content: Container(height: 0),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              preferences.setBool("priobike.routing.warning", true);
+              startRide();
+            },
+            child: BoldContent(text: 'OK', color: Colors.blue),
+          ),
+        ],
+      ));
+    }
   }
 
   /// A callback that is fired when the shortcut should be saved but a name is required.
