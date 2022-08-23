@@ -7,6 +7,12 @@ import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/ride/views/legacy/default.dart';
+import 'package:priobike/ride/views/legacy/default_debug.dart';
+import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
+import 'package:priobike/ride/views/legacy/minimal_json.dart';
+import 'package:priobike/ride/views/legacy/minimal_navigation.dart';
+import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -96,14 +102,28 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    return Scaffold(body: Stack(
-      alignment: Alignment.center,
-      children: [
-        const RideMapView(),
-        const RideSpeedometerView(),
-        if (rideService?.currentRecommendation != null && !rideService!.currentRecommendation!.error) 
-          renderInfoBar(rideService!.currentRecommendation!),
-      ]
+    final PageController controller = PageController();
+    return Scaffold(body: PageView(
+      /// [PageView.scrollDirection] defaults to [Axis.horizontal].
+      /// Use [Axis.vertical] to scroll vertically.
+      controller: controller,
+      children: <Widget>[
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            const RideMapView(),
+            const RideSpeedometerView(),
+            if (rideService?.currentRecommendation != null && !rideService!.currentRecommendation!.error) 
+              renderInfoBar(rideService!.currentRecommendation!),
+          ]
+        ),
+        const SafeArea(child: DefaultCyclingView()),
+        const SafeArea(child: MinimalRecommendationCyclingView()),
+        const SafeArea(child: MinimalCountdownCyclingView()),
+        const SafeArea(child: MinimalNavigationCyclingView()),
+        const SafeArea(child: DefaultDebugCyclingView()),
+        const SafeArea(child: MinimalDebugCyclingView()),
+      ],
     ));
   }
 }
