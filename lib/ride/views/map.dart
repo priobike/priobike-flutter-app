@@ -195,12 +195,17 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextAllowOverlap(true);
     await mapController!.setSymbolTextIgnorePlacement(true);
 
-    // Force adapt the map controller.
-    adaptMapController(ps);
+    onRoutingServiceUpdate(rs);
+    onPositionServiceUpdate(ps);
   }
 
   @override
   void dispose() {
+    // Remove all layers from the map.
+    route = null;
+    routeBackground = null;
+    trafficLights = null;
+    waypoints = null;
     // Unbind the interaction callbacks.
     mapController?.onFillTapped.remove(onFillTapped);
     mapController?.onCircleTapped.remove(onCircleTapped);
