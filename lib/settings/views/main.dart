@@ -15,6 +15,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
+import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:provider/provider.dart';
@@ -180,8 +181,16 @@ class SettingsViewState extends State<SettingsView> {
 
   /// A callback that is executed when a rerouting is selected.
   Future<void> onSelectRerouting(Rerouting rerouting) async {
-    // Tell the settings service that we selected the new backend.
+    // Tell the settings service that we selected the new rerouting.
     await settingsService.selectRerouting(rerouting);
+
+    Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a ride views mode is selected.
+  Future<void> onSelectRideViewsMode(RideViewsMode rideViewsMode) async {
+    // Tell the settings service that we selected the new rideViewsMode.
+    await settingsService.selectRideViewsMode(rideViewsMode);
 
     Navigator.pop(context);
   }
@@ -232,6 +241,20 @@ class SettingsViewState extends State<SettingsView> {
                   selected: settingsService.positioning, 
                   title: (Positioning e) => e.description,
                   callback: onSelectPositioning,
+                );
+              }),
+            ),
+            const SmallVSpace(),
+            SettingsElement(
+              title: "Fahrtansicht", 
+              subtitle: settingsService.rideViewsMode.description, 
+              icon: Icons.expand_more, 
+              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                return SettingsSelection(
+                  elements: RideViewsMode.values, 
+                  selected: settingsService.rideViewsMode,
+                  title: (RideViewsMode e) => e.description, 
+                  callback: onSelectRideViewsMode
                 );
               }),
             ),
