@@ -72,7 +72,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 100,
                     child: Text(
-                      recommendation.navText,
+                      recommendation.navText ?? "",
                       style: const TextStyle(fontSize: 25),
                       maxLines: 3,
                     ),
@@ -93,7 +93,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                       child: CircularProgressIndicator(
                         strokeWidth: 30,
                         backgroundColor: Colors.black26,
-                        color: recommendation.green
+                        color: recommendation.isGreen
                             ? const Color.fromARGB(255, 54, 222, 70)
                             : Colors.red,
                         value: recommendation.countdown / 60,
@@ -188,7 +188,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
               ),
             const Spacer(),
             Text(
-              "Prognose ${(recommendation.quality * 100).toStringAsFixed(0)}% sicher",
+              "Prognose ${((recommendation.quality ?? 0.0) * 100).toStringAsFixed(0)}% sicher",
               style: const TextStyle(
                 fontSize: 20,
                 color: Colors.white54,

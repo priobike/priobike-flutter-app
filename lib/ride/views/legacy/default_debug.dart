@@ -59,7 +59,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
     if (rideService.currentRecommendation == null) return Container();
     if (positionService.lastPosition == null) return Container();
     return Scaffold(
-      backgroundColor: rideService.currentRecommendation!.green
+      backgroundColor: rideService.currentRecommendation!.isGreen
           ? const Color(0xff4caf50)
           : const Color(0xfff44235),
       body: Padding(

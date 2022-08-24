@@ -42,7 +42,7 @@ class _MinimalCountdownCyclingViewState
                   height: MediaQuery.of(context).size.width / 2.0,
                   width: MediaQuery.of(context).size.width / 2.0,
                   decoration: BoxDecoration(
-                    color: recommendation.green
+                    color: recommendation.isGreen
                         ? const Color.fromARGB(255, 23, 94, 30)
                         : const Color.fromARGB(255, 109, 29, 25),
                     shape: BoxShape.circle,
@@ -57,7 +57,7 @@ class _MinimalCountdownCyclingViewState
                   child: CircularProgressIndicator(
                     strokeWidth: 40,
                     // backgroundColor: Colors.black,
-                    color: recommendation.green
+                    color: recommendation.isGreen
                         ? const Color.fromARGB(255, 54, 222, 70)
                         : Colors.red,
                     value: recommendation.countdown / 60,

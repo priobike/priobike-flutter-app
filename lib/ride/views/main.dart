@@ -92,8 +92,8 @@ class RideViewState extends State<RideView> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             BoldSubHeader(
-              text: "Noch ${r.countdown}s ${r.green ? 'grün' : 'rot'}",
-              color: r.green 
+              text: "Noch ${r.countdown}s ${r.isGreen ? 'grün' : 'rot'}",
+              color: r.isGreen 
                 ? const Color.fromARGB(255, 50, 180, 50) 
                 : const Color.fromARGB(255, 208, 19, 19),
             ),

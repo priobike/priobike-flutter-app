@@ -10,7 +10,7 @@ class MockRideService extends RideService {
       distance: 30, 
       speedRec: 18, 
       speedDiff: 2, 
-      green: true, 
+      isGreen: true, 
       error: false, 
       errorMessage: "", 
       snapPos: const Point(lat: 53.564292, lon: 9.902202), 
@@ -28,7 +28,9 @@ class MockRideService extends RideService {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 100, 100,
-      ]
+      ],
+      sgId: "SG 1",
+      sgPos: const Point(lat: 53.564292, lon: 9.902202),
     ),
   );
 }

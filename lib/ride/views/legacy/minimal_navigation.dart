@@ -88,7 +88,7 @@ class _MinimalNavigationCyclingViewState
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 130,
                     child: Text(
-                      recommendation.navText,
+                      recommendation.navText ?? "",
                       style: const TextStyle(fontSize: 25),
                       maxLines: 3,
                     ),

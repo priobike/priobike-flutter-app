@@ -4,31 +4,73 @@ import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/common/models/point.dart';
 
 class Recommendation {
-  String label = "";
-  int countdown = 0;
-  double distance = 0;
-  double speedRec = 0;
-  double speedDiff = 0;
-  bool green = false;
-  bool error = false;
-  String errorMessage = "";
-  Point snapPos = const Point(lon: 0, lat: 0);
-  String navText = "";
-  int navSign = 0;
-  double navDist = 0;
-  double quality = 0;
+  /// The label of the next point of interest.
+  final String label;
 
-  int? predictionGreentimeThreshold;
-  String? predictionStartTime;
-  List<int>? predictionValue;
+  /// The countdown in seconds until the next signal change.
+  final int countdown;
 
-  Recommendation({
+  /// The distance to the signal in meters.
+  final double distance;
+
+  /// The speed recommendation to the next signal in km/h.
+  final double speedRec;
+
+  /// The difference in speed to reach the speed recommendation in km/h.
+  final double speedDiff;
+
+  /// A flag to indicate whether the signal is predicted to be green right now.
+  final bool isGreen;
+
+  /// A flag to indicate whether there was an error while calculating the recommendation.
+  final bool error;
+
+  /// The error message. Is only set if `error` is `true`.
+  final String? errorMessage;
+
+  /// The user position, snapped to the route.
+  final Point snapPos;
+
+  /// A quality indicator for the recommendation, between 0 and 1.
+  final double? quality;
+
+  /// A text indicating the next navigation event.
+  final String? navText;
+
+  /// A sign for the next navigation event.
+  final int navSign;
+
+  /// The distance to the next navigation event in meters.
+  final double navDist;
+
+  /// The prediction greentime threshold, between 0 and 1.
+  final int? predictionGreentimeThreshold;
+
+  /// The prediction start reference time, in ISO_DATE_TIME format.
+  /// See: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_DATE_TIME
+  final String? predictionStartTime;
+
+  /// A list of signal values, by second off the `predictionStartTime`.
+  /// The values are given in probabilities that the signal is green.
+  /// Use the `predictionGreentimeThreshold` to determine when a signal is green.
+  /// That is, if the value is greater than the threshold.
+  final List<int>? predictionValue;
+
+  /// The id of the upcoming signal group.
+  /// Can be null if there is no upcoming signal group.
+  final String? sgId;
+
+  /// The position of the upcoming signal group.
+  /// Can be null if there is no upcoming signal group.
+  final Point? sgPos;
+
+  const Recommendation({
     required this.label,
     required this.countdown,
     required this.distance,
     required this.speedRec,
     required this.speedDiff,
-    required this.green,
+    required this.isGreen,
     required this.error,
     required this.errorMessage,
     required this.snapPos,
@@ -39,62 +81,39 @@ class Recommendation {
     required this.predictionGreentimeThreshold,
     required this.predictionStartTime,
     required this.predictionValue,
+    required this.sgId,
+    required this.sgPos,
   });
 
-  Recommendation.fromJson(Map<String, dynamic> json) {
-    label = json['label'];
-    countdown = json['countdown'];
-    distance = json['distance'].toDouble();
-    speedRec = json['speedRec'].toDouble();
-    speedDiff = json['speedDiff'].toDouble();
-    green = json['green'];
-    error = json['error'];
-    errorMessage = json['errorMessage'];
-    snapPos = Point.fromJson(json['snapPos']);
-    navText = json['navText'];
-    navSign = json['navSign'];
-    navDist = json['navDist'];
-    navDist = json['quality'];
-    predictionGreentimeThreshold = json['predictionGreentimeThreshold'];
-    predictionStartTime = json['predictionStartTime'];
-    predictionValue = json['predictionValue'].cast<int>();
+  factory Recommendation.fromJson(Map<String, dynamic> json) {
+    return Recommendation(
+      label: json['label'],
+      countdown: json['countdown'],
+      distance: json['distance'],
+      speedRec: json['speedRec'],
+      speedDiff: json['speedDiff'],
+      isGreen: json['green'],
+      error: json['error'],
+      errorMessage: json['errorMessage'],
+      snapPos: Point.fromJson(json['snapPos']),
+      quality: json['quality'],
+      navText: json['navText'],
+      navSign: json['navSign'],
+      navDist: json['navDist'],
+      predictionGreentimeThreshold: json['predictionGreentimeThreshold'],
+      predictionStartTime: json['predictionStartTime'],
+      predictionValue: (json['predictionValue'] as List?)?.map((e) => e as int).toList(),
+      sgId: json['sgId'],
+      sgPos: json['sgPos'] != null ? Point.fromJson(json['sgPos']) : null,
+    );
   }
 
-  Recommendation.fromJsonRPC(Parameters params) {
-    label = params['label'].asStringOr('Unbekannt');
-    countdown = params['countdown'].asInt;
-    distance = params['distance'].asNumOr(0.0) as double;
-    green = params['green'].asBoolOr(false);
-    speedRec = params['speedRec'].asNumOr(0.0) as double;
-    speedDiff = params['speedDiff'].asNumOr(0.0) as double;
-    error = params['error'].asBoolOr(true);
-    errorMessage = params['errorMessage'].asStringOr('Empfehlung fehlerhaft');
-    snapPos = Point.fromJson(params['snapPos'].value);
-
-    try {
-      navText = params['navText'].asStringOr('');
-    } catch (error) {
-      // do nothing and use empty string
-    }
-
-    navSign = params['navSign'].asInt;
-    navDist = params['navDist'].asNum as double;
-
-    try {
-      quality = params['quality'].asNum as double;
-    } catch (error) {
-      // do nothing and use empty string
-    }
-
-    // Unwrap optional values for prediction
-    try {
-      predictionGreentimeThreshold = params['predictionGreentimeThreshold'].asNum as int;
-      predictionStartTime = params['predictionStartTime'].asString;
-      predictionValue = params['predictionValue'].asList.cast<num>().map((e) => e.toInt()).toList();
-    } catch (error) { 
-      // ignore: avoid_print
-      print(error);
-    }
+  factory Recommendation.fromJsonRPC(Parameters params) {
+    final map = params.asMap.map((key, value) {
+      return MapEntry<String, dynamic>(key, value);
+    });
+    
+    return Recommendation.fromJson(map);
   }
 
   String toJson() {
@@ -104,7 +123,7 @@ class Recommendation {
     data['distance'] = distance;
     data['speedRec'] = speedRec;
     data['speedDiff'] = speedDiff;
-    data['green'] = green;
+    data['green'] = isGreen;
     data['error'] = error;
     data['errorMessage'] = errorMessage;
     data['snapPos'] = snapPos.toJson();
@@ -115,6 +134,8 @@ class Recommendation {
     data['predictionGreentimeThreshold'] = predictionGreentimeThreshold;
     data['predictionStartTime'] = predictionStartTime;
     data['predictionValue'] = predictionValue;
+    data['sgId'] = sgId;
+    data['sgPos'] = sgPos;
     JsonEncoder encoder = const JsonEncoder();
     return encoder.convert(data);
   }
