@@ -18,7 +18,9 @@ class SymbolLoader {
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
     await addImageFromAsset("destination", "assets/images/destination.drawio.png");
-    await addImageFromAsset("trafficlight", "assets/images/trafficlight.drawio.png");
+    await addImageFromAsset("trafficlightoff", "assets/images/trafficlight-off.drawio.png");
+    await addImageFromAsset("trafficlightred", "assets/images/trafficlight-red-countdown.drawio.png");
+    await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
     await addImageFromAsset("direction", "assets/images/direction.png");
@@ -50,16 +52,59 @@ class DiscomfortLocationMarker extends SymbolOptions {
 }
 
 /// A map layer which marks a traffic light on the map.
-class TrafficLightMarker extends SymbolOptions {
+class TrafficLightOffMarker extends SymbolOptions {
   /// Create a new traffic light marker.
-  TrafficLightMarker({
+  TrafficLightOffMarker({
     required LatLng geo,
     double iconSize = 0.6,
   }): super(
     geometry: geo,
-    iconImage: "trafficlight",
+    iconImage: "trafficlightoff",
     iconSize: iconSize,
+    iconOffset: const Offset(0, -20),
     zIndex: 2,
+  );
+}
+
+/// A map layer which marks a traffic light on the map.
+class TrafficLightGreenMarker extends SymbolOptions {
+  /// Create a new traffic light marker.
+  TrafficLightGreenMarker({
+    required LatLng geo,
+    required int countdown,
+    double iconSize = 0.6,
+  }): super(
+    geometry: geo,
+    iconImage: "trafficlightgreen",
+    iconSize: iconSize,
+    iconOffset: const Offset(20.5, -20),
+    textField: "$countdown",
+    textSize: 60,
+    textOffset: const Offset(1.3, -0.5),
+    textHaloColor: "white",
+    textHaloWidth: 3,
+    zIndex: 3,
+  );
+}
+
+/// A map layer which marks a traffic light on the map.
+class TrafficLightRedMarker extends SymbolOptions {
+  /// Create a new traffic light marker.
+  TrafficLightRedMarker({
+    required LatLng geo,
+    required int countdown,
+    double iconSize = 0.6,
+  }): super(
+    geometry: geo,
+    iconImage: "trafficlightred",
+    iconSize: iconSize,
+    iconOffset: const Offset(20.5, -24),
+    textField: "$countdown",
+    textSize: 60,
+    textOffset: const Offset(1.3, -1.65),
+    textHaloColor: "white",
+    textHaloWidth: 3,
+    zIndex: 3,
   );
 }
 
@@ -108,6 +153,6 @@ class WaypointMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "waypoint",
     iconSize: 1,
-    zIndex: 3,
+    zIndex: 4,
   );
 }

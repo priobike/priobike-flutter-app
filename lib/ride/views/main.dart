@@ -77,32 +77,6 @@ class RideViewState extends State<RideView> {
     super.didChangeDependencies();
   }
 
-  /// Render an info bar (TODO).
-  Widget renderInfoBar(Recommendation r) {
-    return Positioned(
-      top: 64,
-      right: 0,
-      child: Tile(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24), 
-          bottomLeft: Radius.circular(24)
-        ),
-        fill: Colors.white,
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            BoldSubHeader(
-              text: "Noch ${r.countdown}s ${r.isGreen ? 'grün' : 'rot'}",
-              color: r.isGreen 
-                ? const Color.fromARGB(255, 50, 180, 50) 
-                : const Color.fromARGB(255, 208, 19, 19),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Keep the device active during navigation.
@@ -119,11 +93,9 @@ class RideViewState extends State<RideView> {
       children: <Widget>[
         Stack(
           alignment: Alignment.center,
-          children: [
-            const RideMapView(),
-            const RideSpeedometerView(),
-            if (rideService?.currentRecommendation != null && !rideService!.currentRecommendation!.error) 
-              renderInfoBar(rideService!.currentRecommendation!),
+          children: const [
+            RideMapView(),
+            RideSpeedometerView(),
           ]
         ),
 

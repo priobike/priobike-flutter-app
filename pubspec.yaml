@@ -103,6 +103,9 @@ flutter:
     - assets/images/start.drawio.png
     - assets/images/destination.drawio.png
     - assets/images/trafficlight.drawio.png
+    - assets/images/trafficlight-green-countdown.drawio.png
+    - assets/images/trafficlight-off.drawio.png
+    - assets/images/trafficlight-red-countdown.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
 

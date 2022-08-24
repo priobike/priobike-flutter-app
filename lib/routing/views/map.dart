@@ -152,7 +152,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     trafficLights = [];
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon)),
+        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon)),
       ));
     }
   }

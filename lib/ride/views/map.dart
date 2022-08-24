@@ -4,6 +4,7 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -21,10 +22,13 @@ class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService rs;
+  late RoutingService routingService;
 
   /// The associated positioning service, which is injected by the provider.
-  late PositionService ps;
+  late PositionService positionService;
+
+  /// The associated ride service, which is injected by the provider.
+  late RideService rideService;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -41,18 +45,27 @@ class RideMapViewState extends State<RideMapView> {
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
+  /// The next traffic light that is displayed, if it is known.
+  Symbol? upcomingTrafficLight;
+
   @override
   void didChangeDependencies() {
-    rs = Provider.of<RoutingService>(context);
-    if (rs.needsLayout[viewId] != false && mapController != null) {
-      onRoutingServiceUpdate(rs);
-      rs.needsLayout[viewId] = false;
+    routingService = Provider.of<RoutingService>(context);
+    if (routingService.needsLayout[viewId] != false && mapController != null) {
+      onRoutingServiceUpdate(routingService);
+      routingService.needsLayout[viewId] = false;
     }
 
-    ps = Provider.of<PositionService>(context);
-    if (ps.needsLayout[viewId] != false && mapController != null) {
-      onPositionServiceUpdate(ps);
-      ps.needsLayout[viewId] = false;
+    positionService = Provider.of<PositionService>(context);
+    if (positionService.needsLayout[viewId] != false && mapController != null) {
+      onPositionServiceUpdate(positionService);
+      positionService.needsLayout[viewId] = false;
+    }
+
+    rideService = Provider.of<RideService>(context);
+    if (rideService.needsLayout[viewId] != false && mapController != null) {
+      onRideServiceUpdate(rideService);
+      rideService.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -68,6 +81,11 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onPositionServiceUpdate(PositionService ps) async {
     await adaptMapController(ps);
+  }
+
+  /// Update the view with the current data.
+  Future<void> onRideServiceUpdate(RideService rs) async {
+    await loadNextTrafficLightLayer(rs);
   }
 
   /// Load the current route layer.
@@ -105,7 +123,7 @@ class RideMapViewState extends State<RideMapView> {
     trafficLights = [];
     for (Sg sg in s.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: 1.5),
+        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: 2.5),
       ));
     }
   }
@@ -140,7 +158,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Adapt the map controller.
   Future<void> adaptMapController(PositionService s) async {
-    if (mapController == null ) return;
+    if (mapController == null) return;
     // await mapController!.updateMyLocationTrackingMode(MyLocationTrackingMode.TrackingGPS);
     await mapController!.moveCamera(CameraUpdate.tiltTo(60));
     await mapController!.moveCamera(CameraUpdate.newLatLngZoom(
@@ -152,6 +170,37 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.animateCamera(CameraUpdate.bearingTo(
       s.estimatedPosition != null ? s.estimatedPosition!.heading : 0
     ));
+  }
+
+  /// Load the upcoming traffic light layer.
+  Future<void> loadNextTrafficLightLayer(RideService rs) async {
+    if (mapController == null) return;
+
+    // Cache the already displayed one to remove it after we have drawn on top.
+    final currentTrafficLight = upcomingTrafficLight;
+
+    final r = rs.currentRecommendation;
+    if (r != null && !r.error && r.sgPos != null) {
+      if (r.isGreen) {
+        upcomingTrafficLight = await mapController!.addSymbol(
+          TrafficLightGreenMarker(
+            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
+            iconSize: 2.5,
+            countdown: r.countdown,
+          ),
+        );
+      } else {
+        upcomingTrafficLight = await mapController!.addSymbol(
+          TrafficLightRedMarker(
+            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
+            iconSize: 2.5,
+            countdown: r.countdown,
+          ),
+        );
+      }
+    }
+
+    if (currentTrafficLight != null) await mapController!.removeSymbol(currentTrafficLight!);
   }
 
   /// A callback that is called when the user taps a fill.
@@ -195,8 +244,9 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextAllowOverlap(true);
     await mapController!.setSymbolTextIgnorePlacement(true);
 
-    onRoutingServiceUpdate(rs);
-    onPositionServiceUpdate(ps);
+    onRoutingServiceUpdate(routingService);
+    onPositionServiceUpdate(positionService);
+    onRideServiceUpdate(rideService);
   }
 
   @override

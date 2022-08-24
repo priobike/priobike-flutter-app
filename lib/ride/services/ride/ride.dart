@@ -69,6 +69,7 @@ class RideService with ChangeNotifier {
       } else {
         log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
       }
+      notifyListeners();
     } catch (error, stacktrace) { 
       log.e("Recommendation could not be decoded: $error $stacktrace"); 
     }
