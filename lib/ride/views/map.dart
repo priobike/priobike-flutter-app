@@ -200,7 +200,7 @@ class RideMapViewState extends State<RideMapView> {
       }
     }
 
-    if (currentTrafficLight != null) await mapController!.removeSymbol(currentTrafficLight!);
+    if (currentTrafficLight != null) await mapController!.removeSymbol(currentTrafficLight);
   }
 
   /// A callback that is called when the user taps a fill.

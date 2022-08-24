@@ -80,9 +80,10 @@ class TrafficLightGreenMarker extends SymbolOptions {
     iconOffset: const Offset(20.5, -20),
     textField: "$countdown",
     textSize: 60,
+    textColor: "white",
     textOffset: const Offset(1.3, -0.5),
-    textHaloColor: "white",
-    textHaloWidth: 3,
+    textHaloColor: "black",
+    textHaloWidth: 2,
     zIndex: 3,
   );
 }
@@ -101,9 +102,10 @@ class TrafficLightRedMarker extends SymbolOptions {
     iconOffset: const Offset(20.5, -24),
     textField: "$countdown",
     textSize: 60,
+    textColor: "white",
     textOffset: const Offset(1.3, -1.65),
-    textHaloColor: "white",
-    textHaloWidth: 3,
+    textHaloColor: "black",
+    textHaloWidth: 2,
     zIndex: 3,
   );
 }

@@ -44,7 +44,7 @@ class AppMapState extends State<AppMap> {
   @override 
   Widget build(BuildContext context) {
     return MapboxMap(
-      styleString: "mapbox://styles/mapbox/light-v10",
+      styleString: "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu",
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
