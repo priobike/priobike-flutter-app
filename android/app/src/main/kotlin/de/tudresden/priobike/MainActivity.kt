@@ -1,4 +1,4 @@
-package com.example.priobike
+package de.tudresden.priobike
 
 import io.flutter.embedding.android.FlutterActivity
 
