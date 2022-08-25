@@ -12,6 +12,12 @@ pipeline {
             }
         }
 
+        stage('Build fastlane docker image') {
+            steps {
+                sh 'docker build -t fastlane -f ${PWD}/Dockerfile.fastlane .'
+            }
+        }
+
         stage('Distribute App to Google Play - Internal Track') {
             when {
                 branch 'dev'
@@ -22,7 +28,6 @@ pipeline {
                     // See: https://hub.docker.com/r/cirrusci/flutter
                     sh 'docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter build appbundle --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)"'
                     // Distribute it with Fastlane.
-                    sh 'docker build -t fastlane -f Dockerfile.fastlane ${PWD}'
                     sh 'docker run --rm -v ${PWD}:/app -w /app/android fastlane fastlane internal'
                 }
             }
@@ -38,7 +43,6 @@ pipeline {
                     // See: https://hub.docker.com/r/cirrusci/flutter
                     sh 'docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter build appbundle --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)"'
                     // Distribute it with Fastlane.
-                    sh 'docker build -t fastlane -f Dockerfile.fastlane ${PWD}'
                     sh 'docker run --rm -v ${PWD}:/app -w /app/android fastlane fastlane closed'
                 }
             }
