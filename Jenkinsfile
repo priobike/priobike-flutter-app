@@ -2,6 +2,12 @@ pipeline {
 	agent { label 'bikenow-vm' }
 
     stages {
+        stage('Build necessary docker images') {
+            steps {
+                sh 'docker build -t fastlane -f ${PWD}/Dockerfile.fastlane /home/jenkins/'
+            }
+        }
+
         stage('Run Unit Tests') {
             steps {
                 script {
@@ -9,12 +15,6 @@ pipeline {
                     // See: https://hub.docker.com/r/cirrusci/flutter
                     sh 'docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter test"'
                 }
-            }
-        }
-
-        stage('Build fastlane docker image') {
-            steps {
-                sh 'docker build -t fastlane -f ${PWD}/Dockerfile.fastlane .'
             }
         }
 
