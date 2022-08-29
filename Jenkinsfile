@@ -48,4 +48,11 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            echo 'Build and test complete. Uploading artifacts...'
+            archiveArtifacts artifacts: 'build/app/outputs/bundle/release/*.aab'
+        }
+    }
 }
