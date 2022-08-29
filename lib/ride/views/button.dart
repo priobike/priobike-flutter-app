@@ -14,6 +14,7 @@ class CancelButton extends StatelessWidget {
   const CancelButton({Key? key}) : super(key: key);
 
   /// End the ride.
+  /// TODO: Here, we should not reset all services but rather show the feedback section.
   Future<void> endRide(BuildContext context) async {
     // Stop the reroute service.
     final rerouteService = Provider.of<RerouteService>(context, listen: false);
