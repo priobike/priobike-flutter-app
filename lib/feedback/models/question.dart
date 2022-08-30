@@ -1,18 +1,19 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 class Question {
   /// The text of the question. Max length: 300.
-  final String questionText;
+  final String text;
 
-  /// The optional image of the question.
-  final Image? questionImage;
+  /// The optional image data of the question.
+  final Uint8List? imageData;
 
   /// The optional answer to the question.
   final String? answer;
 
   const Question({
-    required this.questionText,
-    this.questionImage,
+    required this.text,
+    this.imageData,
     this.answer,
   });
 }

@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/privacy/views.dart';
@@ -283,13 +284,12 @@ class SettingsViewState extends State<SettingsView> {
               padding: const EdgeInsets.only(left: 32), 
               child: Content(text: "Nutzbarkeit"),
             ),
-            const VSpace(),
-            SettingsElement(title: "Problem melden", icon: Icons.thumb_down, callback: () => {
-              ToastMessage.showError("Probleme können derzeit noch nicht gemeldet werden.")
-            }),
             const SmallVSpace(),
-            SettingsElement(title: "Feedback geben", icon: Icons.email, callback: () => {
-              ToastMessage.showError("Feedback kann derzeit noch nicht gegeben werden.")
+            SettingsElement(title: "Feedback geben", icon: Icons.email, callback: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => FeedbackView(
+                onSubmitted: (context) async { Navigator.pop(context); },
+                showBackButton: true,
+              )));
             }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),

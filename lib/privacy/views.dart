@@ -57,15 +57,20 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Center(child: SizedBox(
-      height: 128, 
-      width: 128, 
-      child: Column(children: const [
-        CircularProgressIndicator(),
-        SizedBox(height: 16),
-        Text("Lade...", style: TextStyle(fontSize: 16)),
-      ])
-    ));
+    return Scaffold(body: 
+      Container(
+        color: AppColors.lightGrey,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text("Lade...", style: TextStyle(fontSize: 16)),
+          ]
+        ),
+      ),
+    );
   }
 
   /// A callback that is executed when the accept button was pressed.

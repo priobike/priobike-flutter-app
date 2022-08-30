@@ -53,6 +53,7 @@ dependencies:
 
   # Only needed for legacy ride views.
   flutter_map: ^2.2.0
+  device_info_plus: ^4.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0

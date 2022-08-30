@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -13,34 +12,44 @@ class CancelButton extends StatelessWidget {
   /// Create a new cancel button.
   const CancelButton({Key? key}) : super(key: key);
 
-  /// End the ride.
-  /// TODO: Here, we should not reset all services but rather show the feedback section.
-  Future<void> endRide(BuildContext context) async {
-    // Stop the reroute service.
-    final rerouteService = Provider.of<RerouteService>(context, listen: false);
-    await rerouteService.reset();
-
-    // Reset the route service.
-    final routingService = Provider.of<RoutingService>(context, listen: false);
-    await routingService.reset();
-
-    // End the recommendations and reset the recommendation service.
-    final recommendationService = Provider.of<RideService>(context, listen: false);
-    await recommendationService.reset();
-
-    // Stop the geolocation and reset the position service.
-    final positionService = Provider.of<PositionService>(context, listen: false);
-    await positionService.reset();
-
-    // Stop the session and reset the session service.
-    final session = Provider.of<SessionService>(context, listen: false);
-    await session.reset();
-  }
-
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
-    await endRide(context);
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    // Stop the reroute service.
+    final rerouteService = Provider.of<RerouteService>(context, listen: false);
+    await rerouteService.stopRerouteScheduler();
+
+    // End the recommendations.
+    final recommendationService = Provider.of<RideService>(context, listen: false);
+    await recommendationService.stopNavigation();
+
+    // Stop the geolocation.
+    final positionService = Provider.of<PositionService>(context, listen: false);
+    await positionService.stopGeolocation();
+
+    // Show the feedback dialog.
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => FeedbackView(
+      onSubmitted: (context) async {
+        // Reset the reroute service.
+        await rerouteService.reset();
+
+        // Reset the recommendation service.
+        await recommendationService.reset();
+
+        // Reset the position service.
+        await positionService.reset();
+
+        // Reset the route service.
+        final routingService = Provider.of<RoutingService>(context, listen: false);
+        await routingService.reset();
+
+        // Stop the session and reset the session service.
+        final sessionService = Provider.of<SessionService>(context, listen: false);
+        await sessionService.reset();
+
+        // Leave the feedback view.
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      },
+    )));
   }
 
   @override
