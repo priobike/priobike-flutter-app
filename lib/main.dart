@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -58,6 +59,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
         ChangeNotifierProvider<RideService>(create: (context) => RideService()),
         ChangeNotifierProvider<RerouteService>(create: (context) => RerouteService()),
+        ChangeNotifierProvider<FeedbackService>(create: (context) => FeedbackService()),
       ],
       child: MaterialApp(
         title: 'PrioBike',
