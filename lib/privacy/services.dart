@@ -19,7 +19,7 @@ class PrivacyPolicyService with ChangeNotifier {
   bool? hasChanged;
 
   /// Load the privacy policy.
-  Future<void> loadPolicy(BuildContext context, void Function() onConfirmed) async {
+  Future<void> loadPolicy(BuildContext context) async {
     if (hasLoaded) return;
     text = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
     final storage = await SharedPreferences.getInstance();
@@ -28,7 +28,6 @@ class PrivacyPolicyService with ChangeNotifier {
     hasChanged = accepted != null && !isConfirmed!;
     hasLoaded = true;
 
-    if (isConfirmed!) onConfirmed();
     notifyListeners();
   }
 

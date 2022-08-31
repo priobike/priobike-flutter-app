@@ -29,10 +29,10 @@ class IconItem extends Row {
 
 /// A view that displays the privacy policy.
 class PrivacyPolicyView extends StatefulWidget {
-  final void Function(BuildContext ctx)? onConfirmed;
+  final Widget? child;
 
   /// Create the privacy proxy view with the wrapped view.
-  const PrivacyPolicyView({this.onConfirmed, Key? key}) : super(key: key);
+  const PrivacyPolicyView({this.child, Key? key}) : super(key: key);
 
   @override 
   PrivacyPolicyViewState createState() => PrivacyPolicyViewState();
@@ -48,7 +48,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await s.loadPolicy(context, () => widget.onConfirmed?.call(context));
+      await s.loadPolicy(context);
     });
 
     super.didChangeDependencies();
@@ -75,12 +75,13 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
     await s.confirm();
-    widget.onConfirmed?.call(context);
   }
 
   @override 
   Widget build(BuildContext context) {
-    if (!s.hasLoaded) return renderLoadingIndicator();
+    if (!s.hasLoaded) return Container();
+
+    if (s.isConfirmed == true && widget.child != null) return widget.child!;
 
     return Scaffold(body: 
       Container(
@@ -95,18 +96,18 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start, 
                     children: [
                       const SizedBox(height: 164),
-                      if (!s.hasChanged! || widget.onConfirmed == null) 
+                      if (!s.hasChanged!) 
                         Header(text: "Diese App funktioniert mit"),
-                      if (!s.hasChanged! || widget.onConfirmed == null) 
+                      if (!s.hasChanged!) 
                         Header(text: "deinen Daten.", color: Colors.blueAccent),
-                      if (s.hasChanged! && widget.onConfirmed != null) 
+                      if (s.hasChanged!) 
                         Header(text: "Wir haben die Erklärung zum"),
-                      if (s.hasChanged! && widget.onConfirmed != null) 
+                      if (s.hasChanged!) 
                         Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent),
                       const SmallVSpace(),
                       if (!s.hasChanged!) 
                         SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:"),
-                      if (s.hasChanged! && widget.onConfirmed != null) 
+                      if (s.hasChanged!) 
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch."),
                       const VSpace(),
                       IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort."),
@@ -122,13 +123,13 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                 ),
               ),
             ),
-            if (widget.onConfirmed == null) Column(children: [
+            if (widget.child == null) Column(children: [
               const SizedBox(height: 64),
               Row(children: [
                 AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
               ]),
             ]),
-            if (widget.onConfirmed != null) Pad(
+            if (widget.child != null) Pad(
               child: BigButton(
                 icon: Icons.check, 
                 label: "Akzeptieren", 
