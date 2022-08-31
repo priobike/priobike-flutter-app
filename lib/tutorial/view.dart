@@ -51,14 +51,14 @@ class TutorialViewState extends State<TutorialView> {
   @override
   void didChangeDependencies() {
     tutorialService = Provider.of<TutorialService>(context);
-    final wasCompleted = tutorialService.isCompleted(widget.id) ?? false;
-    if (!wasCompleted) {
+    final wasCompleted = tutorialService.isCompleted(widget.id);
+    if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
       setState(() {
         checkmarkIsShown = false;
         tutorialIsShown = true;
       });
-    } else if (!checkmarkIsShown && tutorialIsShown) {
+    } else if (wasCompleted != null && !checkmarkIsShown && tutorialIsShown) {
       // If the tutorial was just completed, show the checkmark and hide it after a short delay.
       setState(() {
         checkmarkIsShown = true;
@@ -76,6 +76,9 @@ class TutorialViewState extends State<TutorialView> {
 
   @override
   Widget build(BuildContext context) {
+    if (!tutorialIsShown) {
+      return Container();
+    }
     return AnimatedCrossFade(
       duration: const Duration(milliseconds: 300),
       firstChild: Container(),
