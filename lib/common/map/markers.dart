@@ -46,7 +46,6 @@ class DiscomfortLocationMarker extends SymbolOptions {
     iconSize: 0.5,
     textField: "$number",
     textSize: 8,
-    iconOffset: const Offset(2, -1.5),
     zIndex: 1,
   );
 }
@@ -56,12 +55,11 @@ class TrafficLightOffMarker extends SymbolOptions {
   /// Create a new traffic light marker.
   TrafficLightOffMarker({
     required LatLng geo,
-    double iconSize = 0.6,
+    double iconSize = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightoff",
     iconSize: iconSize,
-    iconOffset: const Offset(0, -20),
     zIndex: 2,
   );
 }
@@ -72,16 +70,17 @@ class TrafficLightGreenMarker extends SymbolOptions {
   TrafficLightGreenMarker({
     required LatLng geo,
     required int countdown,
-    double iconSize = 0.6,
+    double iconSize = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
-    iconOffset: const Offset(20.5, -20),
     textField: "$countdown",
     textSize: 60,
     textColor: "white",
-    textOffset: const Offset(1.3, -0.5),
+    textOffset: const Offset(1.55, -0.9),
+    textJustify: "center",
+    textAnchor: "center",
     textHaloColor: "black",
     textHaloWidth: 2,
     zIndex: 3,
@@ -94,17 +93,18 @@ class TrafficLightRedMarker extends SymbolOptions {
   TrafficLightRedMarker({
     required LatLng geo,
     required int countdown,
-    double iconSize = 0.6,
+    double iconSize = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightred",
     iconSize: iconSize,
-    iconOffset: const Offset(20.5, -24),
     textField: "$countdown",
     textSize: 60,
     textColor: "white",
-    textOffset: const Offset(1.3, -1.65),
+    textOffset: const Offset(1.55, -2.2),
     textHaloColor: "black",
+    textJustify: "center",
+    textAnchor: "center",
     textHaloWidth: 2,
     zIndex: 3,
   );

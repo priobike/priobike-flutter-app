@@ -117,13 +117,16 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> loadTrafficLightMarkers(RoutingService s) async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
+
+    final iconSize = MediaQuery.of(context).devicePixelRatio;
+
     // Remove all existing layers.
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     for (Sg sg in s.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: 2.5),
+        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: iconSize),
       ));
     }
   }
@@ -179,13 +182,15 @@ class RideMapViewState extends State<RideMapView> {
     // Cache the already displayed one to remove it after we have drawn on top.
     final currentTrafficLight = upcomingTrafficLight;
 
+    final iconSize = MediaQuery.of(context).devicePixelRatio;
+
     final r = rs.currentRecommendation;
     if (r != null && !r.error && r.sgPos != null) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
-            iconSize: 2.5,
+            iconSize: iconSize,
             countdown: r.countdown,
           ),
         );
@@ -193,7 +198,7 @@ class RideMapViewState extends State<RideMapView> {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightRedMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
-            iconSize: 2.5,
+            iconSize: iconSize,
             countdown: r.countdown,
           ),
         );
