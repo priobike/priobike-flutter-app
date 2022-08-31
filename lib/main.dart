@@ -16,6 +16,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/service.dart';
+import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -49,6 +50,7 @@ class App extends StatelessWidget {
       // Otherwise, they will get disposed when calling the Navigator.
       providers: [
         ChangeNotifierProvider<PrivacyPolicyService>(create: (context) => PrivacyPolicyService()),
+        ChangeNotifierProvider<TutorialService>(create: (context) => TutorialService()),
         ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
@@ -64,8 +66,12 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'PrioBike',
         theme: ThemeData(
-          colorSchemeSeed: Colors.white,
-          useMaterial3: true,
+          colorScheme: const ColorScheme.light(
+            background: Color(0xF6F6F6FF),
+            primary: Color.fromARGB(255, 0, 115, 255),
+            secondary: Color.fromARGB(255, 0, 198, 255),
+            surface: Color(0xFFFFFFFF),
+          ),
         ),
         // The navigator key is used to access the app's build context.
         navigatorKey: navigatorKey,

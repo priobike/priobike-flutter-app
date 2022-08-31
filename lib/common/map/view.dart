@@ -7,6 +7,9 @@ import 'package:priobike/settings/service.dart';
 import 'package:provider/provider.dart';
 
 class AppMap extends StatefulWidget {
+  /// If dragging is enabled.
+  final bool dragEnabled;
+
   /// A callback that is executed when the map was created.
   final void Function(MapboxMapController)? onMapCreated;
 
@@ -20,6 +23,7 @@ class AppMap extends StatefulWidget {
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
   const AppMap({
+    this.dragEnabled = true,
     this.onMapCreated,
     this.onStyleLoaded,
     this.onCameraIdle,
@@ -48,6 +52,8 @@ class AppMapState extends State<AppMap> {
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
+      compassEnabled: false,
+      dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,
       onMapLongClick: widget.onMapLongClick,
       attributionButtonPosition: AttributionButtonPosition.BottomRight,

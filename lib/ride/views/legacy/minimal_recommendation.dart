@@ -75,7 +75,7 @@ class _MinimalRecommendationCyclingViewState extends State<MinimalRecommendation
                 ),
               ),
             const Spacer(),
-            SizedBox(
+            const SizedBox(
               width: double.infinity,
               child: CancelButton(),
             ),

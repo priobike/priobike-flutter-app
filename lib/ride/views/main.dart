@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';

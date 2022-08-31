@@ -130,7 +130,7 @@ class StartMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "start",
-    iconSize: 1,
+    iconSize: 0.75,
   );
 }
 
@@ -142,7 +142,7 @@ class DestinationMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "destination",
-    iconSize: 1,
+    iconSize: 0.75,
   );
 }
 
@@ -154,7 +154,7 @@ class WaypointMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "waypoint",
-    iconSize: 1,
+    iconSize: 0.75,
     zIndex: 4,
   );
 }

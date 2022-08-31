@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 
 class Tile extends StatelessWidget {
   /// The content of the tile.
@@ -9,7 +8,7 @@ class Tile extends StatelessWidget {
   final void Function()? onPressed;
 
   /// The fill color of the tile.
-  final Color fill;
+  final Color? fill;
 
   /// The splash of the tile, if the tile is tappable (a callback is passed).
   final Color splash;
@@ -24,7 +23,7 @@ class Tile extends StatelessWidget {
     Key? key, 
     required this.content, 
     this.onPressed,
-    this.fill = AppColors.lightGrey,
+    this.fill,
     this.splash = Colors.grey,
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
@@ -50,7 +49,7 @@ class Tile extends StatelessWidget {
       hoverElevation: 0,
       focusElevation: 0,
       highlightElevation: 0,
-      fillColor: fill,
+      fillColor: fill ?? Theme.of(context).colorScheme.background,
       splashColor: splash,
       child: Container(
         padding: padding, 

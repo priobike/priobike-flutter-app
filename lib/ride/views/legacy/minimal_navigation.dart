@@ -99,7 +99,6 @@ class _MinimalNavigationCyclingViewState
             const Spacer(),
             SizedBox(
               height: MediaQuery.of(context).size.height - 400,
-              // TODO: Replace FlutterMap with MapboxGL in the future
               child: FlutterMap(
                 options: MapOptions(
                   bounds: LatLngBounds.fromPoints(points),

@@ -7,13 +7,14 @@ class Header extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
+    double fontSize = 38,
     Color color = Colors.black
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: color),
+    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600, color: color),
   );
 }
 

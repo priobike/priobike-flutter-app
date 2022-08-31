@@ -55,15 +55,15 @@ class DiscomfortService with ChangeNotifier {
         if (segment.value == "impassable") {
           return Discomfort(coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
         } else if (segment.value == "very_horrible") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit tiefen Spurrillen oder anderen größeren Hindernissen.");
+          return Discomfort(coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
         } else if (segment.value == "horrible") {
-          return Discomfort(coordinates: cs, description: "Nicht versiegelter oder unbefestigter Wegabschnitt mit Spurrillen, Felsen oder anderen Hindernissen.");
+          return Discomfort(coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "very_bad") {
-          return Discomfort(coordinates: cs, description: "Nicht versiegelter oder unbefestigter Wegabschnitt mit Schlaglöchern, Spurrillen oder anderen Hindernissen.");
+          return Discomfort(coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "bad") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit stark beschädigter Oberfläche.");
+          return Discomfort(coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
         } else if (segment.value == "intermediate" && profile.bikeType == BikeType.racingbike) {
-          return Discomfort(coordinates: cs, description: "Asphaltierter Wegabschnitt mit Beschädigungen, die für Rennräder ungeeignet sind.");
+          return Discomfort(coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
         }
       })
       .where((e) => e != null)

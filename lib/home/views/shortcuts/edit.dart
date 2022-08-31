@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -85,7 +84,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         icon: Icons.delete, 
                         onPressed: () => onDeleteShortcut(entry.key), 
                         color: Colors.black, 
-                        fill: AppColors.lightGrey,
+                        fill: Theme.of(context).colorScheme.background,
                       ),
                     ]),
                   ),

@@ -1,50 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
 
 class ProfileElementButton extends StatelessWidget {
   final IconData icon;
   final String title;
-  final Color color;
-  final Color backgroundColor;
-  final Color touchColor;
+  final Color? color;
+  final Color? backgroundColor;
+  final Color? touchColor;
   final void Function()? onPressed;
 
   const ProfileElementButton({
     Key? key, 
     required this.icon, 
     required this.title,
-    this.color = Colors.grey,
-    this.backgroundColor = AppColors.lightGrey,
-    this.touchColor = Colors.grey,
+    this.color,
+    this.backgroundColor,
+    this.touchColor,
     this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Tile(
-      fill: backgroundColor,
-      splash: touchColor,
-      padding: const EdgeInsets.all(8),
-      content: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(children: [
-            Icon(icon, size: 48, color: color),
-            const SmallVSpace(),
-            Small(text: title, color: color),
-          ]),
-        ],
-      ),
-      onPressed: onPressed,
-    );
+    final theme = Theme.of(context);
+    return LayoutBuilder(builder: (context, constraints) {
+      return Tile(
+        fill: backgroundColor ?? theme.colorScheme.background,
+        splash: touchColor ?? theme.colorScheme.primary,
+        padding: const EdgeInsets.all(8),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon, 
+                  size: constraints.maxWidth * 0.4, 
+                  color: color ?? theme.colorScheme.onBackground
+                ),
+                const SmallVSpace(),
+                Small(text: title, color: color ?? theme.colorScheme.onBackground),
+              ]
+            ),
+          ],
+        ),
+        onPressed: onPressed,
+      );
+    });
   }
 }
 
@@ -70,6 +82,9 @@ class ProfileViewState extends State<ProfileView> {
   }
 
   void toggleBikeSelection() {
+    // Tell the tutorial that the user has seen a profile selection.
+    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+
     setState(() {
       bikeSelectionActive = !bikeSelectionActive;
       preferenceSelectionActive = false;
@@ -78,6 +93,9 @@ class ProfileViewState extends State<ProfileView> {
   }
 
   void togglePreferenceSelection() {
+    // Tell the tutorial that the user has seen a profile selection.
+    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+
     setState(() {
       bikeSelectionActive = false;
       preferenceSelectionActive = !preferenceSelectionActive;
@@ -86,6 +104,9 @@ class ProfileViewState extends State<ProfileView> {
   }
 
   void toggleActivitySelection() {
+    // Tell the tutorial that the user has seen a profile selection.
+    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+
     setState(() {
       bikeSelectionActive = false;
       preferenceSelectionActive = false;
@@ -116,6 +137,11 @@ class ProfileViewState extends State<ProfileView> {
 
   Widget renderProfileSelection() {
     return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const TutorialView(
+        id: "priobike.tutorial.configure-profile", 
+        text: 'Unten kannst du dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 24),
+      ),
       Tile(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         content: Column(children: [
@@ -146,7 +172,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: s.bikeType!.icon(), 
                       title: s.bikeType!.description(),
                       color: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: toggleBikeSelection,
                     )
@@ -171,7 +197,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: s.preferenceType!.icon(), 
                       title: s.preferenceType!.description(),
                       color: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: togglePreferenceSelection,
                     ),
@@ -196,7 +222,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: s.activityType!.icon(), 
                       title: s.activityType!.description(),
                       color: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: toggleActivitySelection,
                     ),
@@ -247,7 +273,7 @@ class ProfileViewState extends State<ProfileView> {
           icon: bikeType.icon(), 
           title: bikeType.description(),
           color: Colors.white,
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           touchColor: Colors.white,
           onPressed: () {
             s.bikeType = bikeType;
@@ -279,7 +305,7 @@ class ProfileViewState extends State<ProfileView> {
           icon: preferenceType.icon(), 
           title: preferenceType.description(),
           color: Colors.white,
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           touchColor: Colors.white,
           onPressed: () {
             s.preferenceType = preferenceType;
@@ -311,7 +337,7 @@ class ProfileViewState extends State<ProfileView> {
           icon: activityType.icon(), 
           title: activityType.description(),
           color: Colors.white,
-          backgroundColor: Colors.blue,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           touchColor: Colors.white,
           onPressed: () {
             s.activityType = activityType;

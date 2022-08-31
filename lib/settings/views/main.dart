@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -12,13 +11,13 @@ import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views/text.dart';
+import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -68,7 +67,12 @@ class SettingsElement extends StatelessWidget {
           const HSpace(),
           if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue), fit: FlexFit.tight)
           else Flexible(child: Container()),
-          SmallIconButton(icon: icon, onPressed: callback, color: Colors.black, fill: AppColors.lightGrey),
+          SmallIconButton(
+            icon: icon, 
+            onPressed: callback, 
+            color: Colors.black, 
+            fill: Theme.of(context).colorScheme.background,
+          ),
         ]),
       ),
     );
@@ -107,7 +111,7 @@ class SettingsSelection<E> extends StatelessWidget {
         itemBuilder: (BuildContext context, int index) {
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: Tile(fill: AppColors.lightGrey, content: Row(children: [
+            child: Tile(fill: Theme.of(context).colorScheme.background, content: Row(children: [
               Flexible(child: Content(text: title(elements[index])), fit: FlexFit.tight),
               Expanded(child: Container()),
               SmallIconButton(
@@ -199,7 +203,7 @@ class SettingsViewState extends State<SettingsView> {
   @override 
   Widget build(BuildContext context) {
     return Scaffold(body: Stack(children: [
-      Container(color: AppColors.lightGrey),
+      Container(color: Theme.of(context).colorScheme.background),
       SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +251,7 @@ class SettingsViewState extends State<SettingsView> {
             ),
             const SmallVSpace(),
             SettingsElement(
-              title: "Fahrtansicht", 
+              title: "Ansicht", 
               subtitle: settingsService.rideViewsMode.description, 
               icon: Icons.expand_more, 
               callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
@@ -261,7 +265,7 @@ class SettingsViewState extends State<SettingsView> {
             ),
             const SmallVSpace(),
             SettingsElement(
-              title: "Rerouting", 
+              title: "Routing", 
               subtitle: settingsService.rerouting.description, 
               icon: Icons.expand_more, 
               callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
@@ -276,6 +280,10 @@ class SettingsViewState extends State<SettingsView> {
             const SmallVSpace(),
             SettingsElement(title: "Logs", icon: Icons.list, callback: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()));
+            }),
+            const SmallVSpace(),
+            SettingsElement(title: "Tutorials zurücksetzen", icon: Icons.recycling, callback: () {
+              Provider.of<TutorialService>(context, listen: false).deleteCompleted();
             }),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),

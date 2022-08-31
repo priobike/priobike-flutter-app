@@ -122,6 +122,7 @@ class RoutingViewState extends State<RoutingView> {
   Widget renderLoadingIndicator() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Expanded(child: Tile(
+        fill: Theme.of(context).colorScheme.background,
         content: Center(child: SizedBox(
           height: 86, 
           width: 256, 

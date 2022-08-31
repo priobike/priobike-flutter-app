@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
@@ -169,17 +171,18 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
         children: <Widget>[
           Container(
             child: SfRadialGauge(
+              enableLoadingAnimation: true,
               axes: [RadialAxis(
                 minimum: minSpeed, maximum: maxSpeed, 
                 startAngle: 165, endAngle: 15,
-                interval: 5, minorTicksPerInterval: 4,
+                interval: 10, minorTicksPerInterval: 1,
                 showAxisLine: true, 
-                radiusFactor: 0.95,
-                labelOffset: 15,
+                radiusFactor: 1,
+                labelOffset: 20,
                 axisLineStyle: const AxisLineStyle(thicknessUnit: GaugeSizeUnit.factor, thickness: 0.25),
-                majorTickStyle: const MajorTickStyle(length: 10, thickness: 4, color: Color.fromARGB(255, 44, 62, 80)),
-                minorTickStyle: const MinorTickStyle(length: 5, thickness: 1, color: Color.fromARGB(255, 52, 73, 94)),
-                axisLabelStyle: const GaugeTextStyle(color: Color.fromARGB(255, 44, 62, 80), fontWeight: FontWeight.bold, fontSize: 14),
+                majorTickStyle: const MajorTickStyle(length: 5, thickness: 4, color: Color.fromARGB(255, 44, 62, 80)),
+                minorTickStyle: const MinorTickStyle(length: 5, thickness: 2, color: Color.fromARGB(255, 52, 73, 94)),
+                axisLabelStyle: const GaugeTextStyle(color: Color.fromARGB(255, 44, 62, 80), fontWeight: FontWeight.bold, fontSize: 24),
                 ranges: [GaugeRange(
                   startValue: minSpeed, endValue: maxSpeed,
                   sizeUnit: GaugeSizeUnit.factor,
@@ -189,13 +192,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
                 )],
                 pointers: [NeedlePointer(
                   value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
-                  needleLength: 0.875,
+                  needleLength: 1,
                   enableAnimation: true,
                   animationType: AnimationType.ease,
-                  needleStartWidth: 1,
-                  needleEndWidth: 8,
+                  needleStartWidth: 3,
+                  needleEndWidth: 10,
                   needleColor: const Color.fromARGB(255, 44, 62, 80),
-                  knobStyle: const KnobStyle(knobRadius: 0.05, sizeUnit: GaugeSizeUnit.factor, color: Color.fromARGB(255, 44, 62, 80))
+                  knobStyle: const KnobStyle(knobRadius: 0.075, sizeUnit: GaugeSizeUnit.factor, color: Color.fromARGB(255, 44, 62, 80))
                 )],
               )],
             ),
@@ -221,7 +224,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ),
         ],
       ),
-      top: ((MediaQuery.of(context).size.height * 64 /* % */ ) / 100)
+      left: 0,
+      right: 0,
+      bottom: - MediaQuery.of(context).size.width * 0.4 + MediaQuery.of(context).padding.bottom + 8,
     );
 
     return WillPopScope(
@@ -232,7 +237,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           gauge,
           const Positioned(
             child: SafeArea(child: CancelButton()),
-            bottom: 8
+            bottom: 0,
           ),
         ]
       ),

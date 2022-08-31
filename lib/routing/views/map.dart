@@ -256,9 +256,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await SymbolLoader(mapController!).loadSymbols();
 
     // Fit the content below the top and the bottom stuff.
-    final frame = MediaQuery.of(context);
-    await mapController!.updateContentInsets(EdgeInsets.only(
-      top: 108, bottom: frame.size.height * 0.3 /* Sheet size */,
+    await mapController!.updateContentInsets(const EdgeInsets.only(
+      top: 108, bottom: 80,
       left: 8, right: 8,
     ));
 

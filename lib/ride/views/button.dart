@@ -57,10 +57,10 @@ class CancelButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: SizedBox(
-        width: 164,
+        width: 112,
         child: ElevatedButton.icon(
-          icon: const Icon(Icons.stop),
-          label: const Text("Fahrt Beenden"),
+          icon: const Icon(Icons.done),
+          label: const Text("Fertig"),
           onPressed: () => onTap(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -73,7 +73,7 @@ class CancelButton extends StatelessWidget {
               const Color.fromARGB(255, 236, 240, 241)
             ),
             backgroundColor: MaterialStateProperty.all<Color>(
-              const Color.fromARGB(255, 44, 62, 80)
+              Theme.of(context).colorScheme.primary
             ),
           )
         ),

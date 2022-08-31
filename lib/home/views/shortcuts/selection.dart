@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -56,7 +55,7 @@ class ShortcutView extends StatelessWidget {
             )),
           ])
         ),
-        fill: isHighlighted ? Colors.blue : AppColors.lightGrey,
+        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );

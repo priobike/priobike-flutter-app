@@ -3,8 +3,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
 
 /// A bottom sheet to display route details.
@@ -26,6 +29,9 @@ class RouteDetailsBottomSheet extends StatefulWidget {
 }
 
 class RouteWaypointItem extends StatelessWidget {
+  /// A callback that is executed when the item is deleted.
+  final void Function()? onDelete;
+
   /// The associated waypoint.
   final Waypoint waypoint;
 
@@ -42,6 +48,7 @@ class RouteWaypointItem extends StatelessWidget {
   bool get isLast => idx == count - 1;
 
   const RouteWaypointItem({
+    this.onDelete,
     required this.waypoint,
     required this.idx,
     required this.count,
@@ -62,7 +69,7 @@ class RouteWaypointItem extends StatelessWidget {
         const SmallHSpace(),
 
         Container(
-          height: 32, width: frame.size.width - 64,
+          height: 32, width: frame.size.width - 104,
           decoration: const BoxDecoration(
             color: Color.fromARGB(255, 241, 241, 241),
             borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -78,6 +85,28 @@ class RouteWaypointItem extends StatelessWidget {
               ),
             ),
           ]),
+        ),
+
+        const SmallHSpace(),
+
+        // A button to remove the waypoint.
+        if (onDelete != null) SizedBox(
+          width: 32,
+          height: 32,
+          child: RawMaterialButton(
+            elevation: 0,
+            fillColor: const Color.fromARGB(255, 241, 241, 241),
+            splashColor: Colors.black,
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(
+                Icons.close,
+                color: Colors.grey,
+              ),
+            ),
+            onPressed: onDelete,
+            shape: const CircleBorder(),
+          ),
         ),
       ]),
     );
@@ -123,6 +152,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
+    // Tell the tutorial that the user has changed the order of the waypoints.
+    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
+
+    if (oldIndex == newIndex) return;
     if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
 
     if (oldIndex < newIndex) {
@@ -134,6 +167,17 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     reorderedWaypoints.insert(newIndex, waypoint);
 
     s.selectWaypoints(reorderedWaypoints);
+    s.loadRoutes(context);
+  }
+
+  /// A callback that is executed when the user removes a waypoint.
+  Future<void> onRemoveWaypoint(int index) async {
+    if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
+
+    final removedWaypoints = s.selectedWaypoints!.toList();
+    removedWaypoints.removeAt(index);
+
+    s.selectWaypoints(removedWaypoints);
     s.loadRoutes(context);
   }
 
@@ -173,6 +217,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           },
           children: s.selectedWaypoints!.asMap().entries.map<Widget>((entry) {
             return RouteWaypointItem(
+              onDelete: () => onRemoveWaypoint(entry.key),
               key: Key("$entry.key"),
               count: s.selectedWaypoints!.length,
               idx: entry.key,
@@ -187,7 +232,17 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    if (s.selectedRoute == null || s.fetchedWaypoints == null) return Container();
+    if (s.selectedRoute == null || s.fetchedWaypoints == null) {
+      return Positioned(
+        bottom: 24, left: 24, right: 24,
+        child: SafeArea(child: Tile(
+          fill: Theme.of(context).colorScheme.background,
+          content: Content(
+            text: "Drücke lange auf die Karte, um eine Route zu zeichnen.",
+          ),
+        )),
+      );
+    }
     
     final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)}km";
     final seconds = s.selectedRoute!.path.time / 1000;
@@ -200,9 +255,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 0.25, 
-        maxChildSize: 0.6,
-        minChildSize: 0.1,
+        initialChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height), 
+        maxChildSize: 1.0,
+        minChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: const BoxDecoration(
@@ -219,16 +274,19 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 children: [
                   renderDragIndicator(context),
                   const SmallVSpace(),
-                  renderBottomSheetWaypoints(context),
-                  const SizedBox(height: 2),
-                  const Divider(indent: 16, endIndent: 16),
-                  const SizedBox(height: 2),
                   BigButton(
                     icon: Icons.pedal_bike,
-                    label: "Starten: $timeInfo, $distInfo", 
+                    label: "Los ($timeInfo, $distInfo)", 
                     onPressed: widget.onSelectStartButton,
                     boxConstraints: BoxConstraints(minWidth: frame.size.width),
                   ),
+                  const TutorialView(
+                    id: "priobike.tutorial.draw-waypoints", 
+                    text: "Du kannst die Wegpunkte durch Ziehen neu anordnen.",
+                    padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  ),
+                  const SmallVSpace(),
+                  renderBottomSheetWaypoints(context),
                   const SizedBox(height: 2),
                   const Divider(indent: 16, endIndent: 16),
                   const SizedBox(height: 2),

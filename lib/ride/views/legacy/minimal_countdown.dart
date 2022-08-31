@@ -75,7 +75,7 @@ class _MinimalCountdownCyclingViewState
               ),
             ]),
             const Spacer(),
-            SizedBox(
+            const SizedBox(
               width: double.infinity,
               child: CancelButton(),
             ),

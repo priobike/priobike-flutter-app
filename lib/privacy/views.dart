@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -59,7 +58,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   Widget renderLoadingIndicator() {
     return Scaffold(body: 
       Container(
-        color: AppColors.lightGrey,
+        color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -85,7 +84,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     return Scaffold(body: 
       Container(
-        color: AppColors.lightGrey, 
+        color: Theme.of(context).colorScheme.background,
         child: Stack(
           alignment: Alignment.bottomCenter, 
           children: [

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -53,7 +52,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(body: 
       Container(
-        color: AppColors.lightGrey,
+        color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +74,7 @@ class FeedbackViewState extends State<FeedbackView> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: Stack(children: [
         Container(
-          color: AppColors.lightGrey,
+          color: Theme.of(context).colorScheme.background,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
             child: Column(

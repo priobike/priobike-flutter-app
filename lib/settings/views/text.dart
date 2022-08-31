@@ -1,7 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -19,7 +18,7 @@ class AssetTextView extends StatelessWidget {
       future: DefaultAssetBundle.of(context).loadString(asset),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         return Container(
-          color: AppColors.lightGrey, 
+          color: Theme.of(context).colorScheme.background, 
           child: Stack(
             alignment: Alignment.bottomCenter, 
             children: [

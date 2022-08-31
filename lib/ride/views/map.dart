@@ -270,6 +270,7 @@ class RideMapViewState extends State<RideMapView> {
       alignment: Alignment.center,
       children: [
         AppMap(
+          dragEnabled: false,
           onMapCreated: onMapCreated, 
           onStyleLoaded: () => onStyleLoaded(context),
         ),

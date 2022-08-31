@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/colors.dart';
 import 'package:priobike/common/debug.dart';
-import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -20,6 +18,8 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/service.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
 
 /// Debug these views.
@@ -87,6 +87,9 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
+    // Tell the tutorial service that the shortcut was selected.
+    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.select-shortcut");
+
     routingService.selectWaypoints(shortcut.waypoints);
     routingService.loadRoutes(context);
 
@@ -121,7 +124,7 @@ class HomeViewState extends State<HomeView> {
     if (description == null) return Container();
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
@@ -139,20 +142,23 @@ class HomeViewState extends State<HomeView> {
 
   @override 
   Widget build(BuildContext context) {
-    return Scaffold(body: Fade(child: SingleChildScrollView(
+    return Scaffold(body: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 128),
           NavBarView(
             onTapNotificationButton: () => ToastMessage.showError("News sind noch nicht verfügbar."),
             onTapSettingsButton: onSettingsButtonTapped,
           ),
-          const Divider(color: AppColors.lightGrey, thickness: 2),
           const VSpace(),
+          const SmallVSpace(),
           Row(children: [
             const HSpace(),
-            BoldContent(text: "Shortcuts"),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              BoldContent(text: "Deine Shortcuts"),
+              const SizedBox(height: 4),
+              Small(text: "Direkt zum Ziel navigieren"),
+            ]),
             Expanded(child: Container()),
             SmallIconButton(
               icon: Icons.edit, 
@@ -162,18 +168,23 @@ class HomeViewState extends State<HomeView> {
             ),
             const HSpace(),
           ]),
-          const SmallVSpace(),
+          const VSpace(),
+          const TutorialView(
+            id: "priobike.tutorial.select-shortcut", 
+            text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+            padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+          ),
           ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
           const VSpace(),
           const ProfileView(),
           const VSpace(),
           const SmallVSpace(),
-          const Divider(color: AppColors.lightGrey, thickness: 2),
+          Divider(color: Theme.of(context).colorScheme.background, thickness: 2),
           const VSpace(),
           renderDebugHint(),
           const SizedBox(height: 128),
         ],
       ),
-    )));
+    ));
   }
 }
