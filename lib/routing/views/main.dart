@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/ride/views/main.dart';
+import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -52,7 +52,7 @@ class RoutingViewState extends State<RoutingView> {
       // the result handler of the RouteView's host.
       return WillPopScope(
         onWillPop: () async => false,
-        child: const RideView(),
+        child: const SelectionView(),
       );
     }));
 

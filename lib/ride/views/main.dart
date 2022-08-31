@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/ride/services/position/position.dart';
@@ -101,8 +102,8 @@ class RideViewState extends State<RideView> {
         const SafeArea(child: MinimalRecommendationCyclingView()),
         const SafeArea(child: MinimalCountdownCyclingView()),
         const SafeArea(child: MinimalNavigationCyclingView()),
-        const SafeArea(child: DefaultDebugCyclingView()),
-        const SafeArea(child: MinimalDebugCyclingView()),
+        if (kDebugMode) const SafeArea(child: DefaultDebugCyclingView()),
+        if (kDebugMode) const SafeArea(child: MinimalDebugCyclingView()),
       ],
     ));
   }
