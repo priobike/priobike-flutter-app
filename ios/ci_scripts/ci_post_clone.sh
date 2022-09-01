@@ -23,7 +23,12 @@ flutter pub get
 HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.
 brew install cocoapods
 
+# Copy the .git folder to the ios folder where the artifact will be built.
+cp -R .git ios/
+
+cd ios 
+
 # Install CocoaPods dependencies.
-cd ios && pod install # run `pod install` in the `ios` directory.
+pod install # run `pod install` in the `ios` directory.
 
 exit 0
