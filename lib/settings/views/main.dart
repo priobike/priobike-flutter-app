@@ -192,10 +192,10 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
-  /// A callback that is executed when a ride views mode is selected.
-  Future<void> onSelectRideViewsMode(RideViewsMode rideViewsMode) async {
-    // Tell the settings service that we selected the new rideViewsMode.
-    await settingsService.selectRideViewsMode(rideViewsMode);
+  /// A callback that is executed when a ride views preference is selected.
+  Future<void> onSelectRidePreference(RidePreference ridePreference) async {
+    // Tell the settings service that we selected the new ridePreference.
+    await settingsService.selectRidePreference(ridePreference);
 
     Navigator.pop(context);
   }
@@ -252,14 +252,14 @@ class SettingsViewState extends State<SettingsView> {
             const SmallVSpace(),
             SettingsElement(
               title: "Ansicht", 
-              subtitle: settingsService.rideViewsMode.description, 
+              subtitle: settingsService.ridePreference?.description, 
               icon: Icons.expand_more, 
               callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                 return SettingsSelection(
-                  elements: RideViewsMode.values, 
-                  selected: settingsService.rideViewsMode,
-                  title: (RideViewsMode e) => e.description, 
-                  callback: onSelectRideViewsMode
+                  elements: RidePreference.values, 
+                  selected: settingsService.ridePreference,
+                  title: (RidePreference e) => e.description, 
+                  callback: onSelectRidePreference
                 );
               }),
             ),

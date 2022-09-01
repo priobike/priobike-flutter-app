@@ -17,8 +17,8 @@ class SettingsService with ChangeNotifier {
   /// The rerouting strategy.
   Rerouting rerouting;
 
-  /// The ride views mode.
-  RideViewsMode rideViewsMode;
+  /// The ride views preference.
+  RidePreference? ridePreference;
 
   Future<void> selectBackend(Backend backend) async {
     this.backend = backend;
@@ -35,8 +35,8 @@ class SettingsService with ChangeNotifier {
     await store();
   }
 
-  Future<void> selectRideViewsMode(RideViewsMode rideViewsMode) async {
-    this.rideViewsMode = rideViewsMode;
+  Future<void> selectRidePreference(RidePreference ridePreference) async {
+    this.ridePreference = ridePreference;
     await store();
   }
 
@@ -44,7 +44,7 @@ class SettingsService with ChangeNotifier {
     this.backend = Backend.production, 
     this.positioning = Positioning.gnss,
     this.rerouting = Rerouting.disabled,
-    this.rideViewsMode = RideViewsMode.onlySpeedometerView,
+    this.ridePreference,
   });
 
   /// Load the stored settings.
@@ -55,12 +55,16 @@ class SettingsService with ChangeNotifier {
     final backendStr = storage.getString("priobike.settings.backend");
     final positioningStr = storage.getString("priobike.settings.positioning");
     final reroutingStr = storage.getString("priobike.settings.rerouting");
-    final rideViewsModeStr = storage.getString("priobike.settings.rideviewsmode");
+    final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
 
     if (backendStr != null) backend = Backend.values.byName(backendStr);
     if (positioningStr != null) positioning = Positioning.values.byName(positioningStr);
     if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
-    if (rideViewsModeStr != null) rideViewsMode = RideViewsMode.values.byName(rideViewsModeStr);
+    if (ridePreferenceStr != null) {
+      ridePreference = RidePreference.values.byName(ridePreferenceStr);
+    } else {
+      ridePreference = null;
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -73,7 +77,12 @@ class SettingsService with ChangeNotifier {
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioning", positioning.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
-    await storage.setString("priobike.settings.rideviewsmode", rideViewsMode.name);
+
+    if (ridePreference != null) {
+      await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
+    } else {
+      await storage.remove("priobike.settings.ridePreference");
+    }
 
     notifyListeners();
   }

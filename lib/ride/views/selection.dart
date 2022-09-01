@@ -1,24 +1,63 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/ride/views/main.dart';
+import 'package:priobike/settings/models/ride.dart';
+import 'package:priobike/settings/service.dart';
+import 'package:provider/provider.dart';
 
-class SelectionView extends StatelessWidget {
-  const SelectionView({Key? key}) : super(key: key);
+class RideSelectionView extends StatelessWidget {
+  const RideSelectionView({Key? key}) : super(key: key);
+
+  /// A callback that is fired when a ride preference is selected.
+  Future<void> onRideSelected(BuildContext context, RidePreference preference) async {
+    final settingsService = Provider.of<SettingsService>(context, listen: false);
+    await settingsService.selectRidePreference(preference);
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      // Avoid navigation back, only allow stop button to be pressed.
+      // Note: Don't use pushReplacement since this will call
+      // the result handler of the RouteView's host.
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: const RideView(),
+      );
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {
+    final elements = RidePreference.values.map((e) => Tile(
+      fill: Theme.of(context).colorScheme.background,
+      onPressed: () => onRideSelected(context, e),
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          e.icon,
+          const Divider(),
+          Small(text: e.description, maxLines: 4),
+        ],
+      ),
+    )).toList();
+    // Make sure to shuffle the elements to avoid bias.
+    elements.shuffle();
+
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Fade(child: SingleChildScrollView(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            const SizedBox(height: 128),
             HPad(child: Header(text: "Wähle eine Fahrtansicht.", color: Theme.of(context).colorScheme.primary)),
             const SmallVSpace(),
-            HPad(child: SubHeader(text: "Keine Sorge, durch Wischen kannst du immer zwischen den Ansichten wechseln.")),
+            HPad(child: Content(text: "Keine Sorge, durch Wischen kannst du immer zwischen den Ansichten wechseln.")),
             GridView.count(
               primary: false,
               shrinkWrap: true,
@@ -26,68 +65,12 @@ class SelectionView extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               crossAxisCount: 2,
-              children: <Widget>[
-                Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.speed, size: 32),
-                      const Divider(),
-                      Content(text: "Tachoansicht mit Navigation"),
-                    ],
-                  ),
-                ),
-                Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                        Icon(Icons.arrow_upward, size: 32),
-                        Icon(Icons.arrow_downward, size: 32),
-                      ]),
-                      const Divider(),
-                      Content(text: "Nur Langsamer/Schneller"),
-                    ],
-                  ),
-                ),
-                Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        const Icon(Icons.av_timer, size: 32),
-                        Content(text: "4s"),
-                      ]),
-                      const Divider(),
-                      Content(text: "Nur Countdown"),
-                    ],
-                  ),
-                ),
-                Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        const Icon(Icons.roundabout_left, size: 32),
-                        Content(text: "..."),
-                      ]),
-                      const Divider(),
-                      Content(text: "Nur Navigation von Oben"),
-                    ],
-                  ),
-                ),
-              ],
+              children: elements,
             ),
+            const SizedBox(height: 128),
           ]),
-        )
+        )),
+      ),
     );
   }
 }

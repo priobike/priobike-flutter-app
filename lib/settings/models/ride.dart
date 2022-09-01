@@ -1,13 +1,48 @@
-enum RideViewsMode {
-  onlySpeedometerView,
-  displayAlternativeRideViews,
+import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
+
+enum RidePreference {
+  speedometerView,
+  defaultCyclingView,
+  minimalRecommendationCyclingView,
+  minimalCountdownCyclingView,
+  minimalNavigationCyclingView,
 }
 
-extension RideViewsModeDescription on RideViewsMode {
+extension RidePreferenceDescription on RidePreference {
   String get description {
     switch (this) {
-      case RideViewsMode.onlySpeedometerView: return "Nur Tacho-Ansicht";
-      case RideViewsMode.displayAlternativeRideViews: return "Alternative Fahrtansichten anzeigen";
+      case RidePreference.speedometerView: return "Tacho-Ansicht mit Karte und Navigation";
+      case RidePreference.defaultCyclingView: return "Empfehlungs-Ansicht mit Navigation";
+      case RidePreference.minimalRecommendationCyclingView: return "Nur Langsamer/Schneller";
+      case RidePreference.minimalCountdownCyclingView: return "Nur Countdown";
+      case RidePreference.minimalNavigationCyclingView: return "Nur Navigation von Oben";
+    }
+  }
+}
+
+extension RidePreferenceIcon on RidePreference {
+  Widget get icon {
+    switch (this) {
+      case RidePreference.speedometerView: 
+        return const Icon(Icons.speed, size: 32);
+      case RidePreference.defaultCyclingView: 
+        return const Icon(Icons.horizontal_distribute, size: 32);
+      case RidePreference.minimalRecommendationCyclingView: 
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.arrow_upward, size: 32),
+          Icon(Icons.arrow_downward, size: 32),
+        ]);
+      case RidePreference.minimalCountdownCyclingView: 
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Icon(Icons.av_timer, size: 32),
+          Content(text: "4s"),
+        ]);
+      case RidePreference.minimalNavigationCyclingView:
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Icon(Icons.roundabout_left, size: 32),
+          Content(text: "..."),
+        ]);
     }
   }
 }

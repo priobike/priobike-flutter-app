@@ -45,6 +45,25 @@ class RideViewState extends State<RideView> {
   /// The associated settings service, which is injected by the provider.
   SettingsService? settingsService;
 
+  /// Get the initial page index.
+  /// Note: Make sure that the indices match the order of the pages.
+  int get initialPage {
+    switch (settingsService?.ridePreference) {
+      case RidePreference.speedometerView:
+        return 0;
+      case RidePreference.defaultCyclingView:
+        return 1;
+      case RidePreference.minimalRecommendationCyclingView:
+        return 2;
+      case RidePreference.minimalCountdownCyclingView:
+        return 3;
+      case RidePreference.minimalNavigationCyclingView:
+        return 4;
+      default:
+        return 0;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -80,15 +99,11 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    final PageController controller = PageController();
+    final PageController controller = PageController(initialPage: initialPage);
     return Scaffold(body: PageView(
-      /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-      /// Use [Axis.vertical] to scroll vertically.
       controller: controller,
-      physics: settingsService?.rideViewsMode == RideViewsMode.onlySpeedometerView
-        ? const NeverScrollableScrollPhysics() 
-        : null,
       children: <Widget>[
+        // RidePreference.speedometerView
         Stack(
           alignment: Alignment.center,
           children: const [
@@ -97,11 +112,19 @@ class RideViewState extends State<RideView> {
           ]
         ),
 
-        // Alternative ride views.
+        // RidePreference.defaultCyclingView
         const SafeArea(child: DefaultCyclingView()),
+
+        // RidePreference.minimalRecommendationCyclingView
         const SafeArea(child: MinimalRecommendationCyclingView()),
+
+        // RidePreference.minimalCountdownCyclingView
         const SafeArea(child: MinimalCountdownCyclingView()),
+
+        // RidePreference.minimalNavigationCyclingView
         const SafeArea(child: MinimalNavigationCyclingView()),
+
+        // Other debug views.
         if (kDebugMode) const SafeArea(child: DefaultDebugCyclingView()),
         if (kDebugMode) const SafeArea(child: MinimalDebugCyclingView()),
       ],
