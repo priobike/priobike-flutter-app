@@ -55,7 +55,6 @@ dependencies:
   # Only needed for legacy ride views.
   flutter_map: ^2.2.0
   device_info_plus: ^4.0.0
-  screenshot: ^1.2.3
   package_info_plus: ^1.4.2
 
 dev_dependencies:
