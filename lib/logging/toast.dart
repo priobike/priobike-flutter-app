@@ -6,10 +6,10 @@ class ToastMessage {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
+      gravity: ToastGravity.TOP,
       backgroundColor: Colors.red,
       textColor: Colors.white,
-      fontSize: 16.0,
+      fontSize: 20.0,
     );
   }
 
@@ -17,10 +17,10 @@ class ToastMessage {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
+      gravity: ToastGravity.TOP,
       backgroundColor: Colors.green,
       textColor: Colors.white,
-      fontSize: 16.0,
+      fontSize: 20.0,
     );
   }
 }
