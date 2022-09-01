@@ -356,7 +356,7 @@ class SettingsViewState extends State<SettingsView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32), 
               child: Small(
-                text: "PrioBike ${featureService.gitHead}", 
+                text: "PrioBike v${featureService.appVersion} ${featureService.gitHead}", 
                 color: Colors.grey
               ),
             ),

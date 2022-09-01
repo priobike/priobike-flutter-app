@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
 
 class FeatureService with ChangeNotifier {
@@ -12,6 +13,18 @@ class FeatureService with ChangeNotifier {
 
   /// The current git head.
   late String gitHead;
+
+  /// The current app name.
+  late String appName;
+
+  /// The current app version.
+  late String appVersion;
+
+  /// The current app build number.
+  late String appBuildNumber;
+
+  /// The current package name.
+  late String packageName;
 
   /// If internal features can be enabled.
   late bool canEnableInternalFeatures;
@@ -34,6 +47,12 @@ class FeatureService with ChangeNotifier {
 
     // Check if the user has the right to enable beta features.
     canEnableBetaFeatures = gitHead.endsWith("beta") || gitHead.endsWith("dev");
+
+    final info = await PackageInfo.fromPlatform();
+    appName = info.appName;
+    appVersion = info.version;
+    appBuildNumber = info.buildNumber;
+    packageName = info.packageName;
 
     hasLoaded = true;
     notifyListeners();
