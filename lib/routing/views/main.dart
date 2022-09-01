@@ -138,21 +138,30 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    return SafeArea(child: Pad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Expanded(child: Tile(
-        content: Center(child: SizedBox(
-          height: 128, 
-          width: 256, 
-          child: Column(children: [
-            BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1),
-            const VSpace(),
-            BigButton(label: "Erneut Laden", onPressed: () async {
-              await routingService?.loadRoutes(context);
-            }),
-          ])
-        ))
-      )),
-    ])));
+    return Scaffold(
+      body: SafeArea(
+        child: Pad(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, 
+            children: [
+              Expanded(child: Tile(
+                fill: Theme.of(context).colorScheme.background,
+                content: Center(child: SizedBox(
+                  height: 128, 
+                  width: 256, 
+                  child: Column(children: [
+                    BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1),
+                    const VSpace(),
+                    BigButton(label: "Erneut Laden", onPressed: () async {
+                      await routingService?.loadRoutes(context);
+                    }),
+                  ])
+                ))
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override

@@ -51,6 +51,8 @@ dependencies:
   flutter_native_splash: ^2.1.6
   wakelock: ^0.6.2
 
+  http: ^0.13.5
+
   # Only needed for legacy ride views.
   flutter_map: ^2.2.0
   device_info_plus: ^4.0.0

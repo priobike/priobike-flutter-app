@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -19,7 +20,24 @@ import 'package:priobike/settings/service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
+/// For older Android devices (Android 5), there will sometimes be a 
+/// HTTP error due to an expired certificate. This certificate lies within 
+/// the Android operating system and is not part of the app. For our app 
+/// to work on older Android devices, we need to ignore the certificate error. 
+/// Note that this is a workaround and should be handled with care.
+/// See: https://github.com/flutter/flutter/issues/19588#issuecomment-406779390
+class OldAndroidHttpOverrides extends HttpOverrides{
+  @override
+  HttpClient createHttpClient(SecurityContext? context){
+    return super
+      .createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() {
+  HttpOverrides.global = OldAndroidHttpOverrides();
+
   final log = Logger("main.dart");
 
   // Display Flutter errors and log them to the logger.
