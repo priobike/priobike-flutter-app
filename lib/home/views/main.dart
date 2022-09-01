@@ -8,12 +8,13 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/news/service.dart';
+import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -46,6 +47,9 @@ class HomeView extends StatefulWidget {
 }
 
 class HomeViewState extends State<HomeView> {
+  /// The associated news service, which is injected by the provider.
+  late NewsService newsService;
+
   /// The associated profile service, which is injected by the provider.
   late ProfileService profileService;
 
@@ -63,6 +67,7 @@ class HomeViewState extends State<HomeView> {
 
   @override
   void didChangeDependencies() {
+    newsService = Provider.of<NewsService>(context);
     profileService = Provider.of<ProfileService>(context);
     settingsService = Provider.of<SettingsService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
@@ -72,12 +77,23 @@ class HomeViewState extends State<HomeView> {
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await newsService.getArticles(context);
       await settingsService.loadSettings();
       await profileService.loadProfile();
       await shortcutsService.loadShortcuts(context);
     });
 
     super.didChangeDependencies();
+  }
+
+  /// A callback that is fired when the notification button is tapped.
+  void onNotificationsButtonTapped() {
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const NewsView()))
+      .then((_) {
+        // Mark all notifications as read.
+        newsService.markAllArticlesAsRead();
+      });
   }
 
   /// A callback that is fired when the settings button is tapped.
@@ -147,7 +163,7 @@ class HomeViewState extends State<HomeView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           NavBarView(
-            onTapNotificationButton: () => ToastMessage.showError("News sind noch nicht verfügbar."),
+            onTapNotificationButton: onNotificationsButtonTapped,
             onTapSettingsButton: onSettingsButtonTapped,
           ),
           const VSpace(),

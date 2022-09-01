@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/news/views/button.dart';
 
 class NavBarView extends StatelessWidget {
   /// A callback that is fired when the settings button was pressed.
@@ -62,13 +63,7 @@ class NavBarView extends StatelessWidget {
             const SmallHSpace(),
             Flexible(child: Small(text: "Wetterinformationen sind aktuell noch nicht verfügbar.", color: Colors.white)),
             const SmallHSpace(),
-            SmallIconButton(
-              icon: Icons.notifications, 
-              color: Theme.of(context).colorScheme.background, 
-              splash: Colors.white,
-              fill: const Color.fromARGB(50, 255, 255, 255),
-              onPressed: () { onTapNotificationButton?.call(); }
-            ),
+            NewsButton(onPressed: () { onTapNotificationButton?.call(); }),
             const SmallHSpace(),
             SmallIconButton(
               icon: Icons.settings, 

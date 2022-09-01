@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/views.dart';
+import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -154,6 +155,9 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated session service, which is injected by the provider.
   late SessionService sessionService;
 
+  /// The associated news service, which is injected by the provider.
+  late NewsService newsService;
+
   @override
   void didChangeDependencies() {
     featureService = Provider.of<FeatureService>(context);
@@ -162,6 +166,7 @@ class SettingsViewState extends State<SettingsView> {
     positionService = Provider.of<PositionService>(context);
     routingService = Provider.of<RoutingService>(context);
     sessionService = Provider.of<SessionService>(context);
+    newsService = Provider.of<NewsService>(context);
     super.didChangeDependencies();
   }
 
@@ -174,6 +179,7 @@ class SettingsViewState extends State<SettingsView> {
     await shortcutsService.reset();
     await routingService.reset();
     await sessionService.reset();
+    await newsService.reset();
 
     Navigator.pop(context);
   }

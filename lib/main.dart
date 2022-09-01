@@ -7,6 +7,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
+import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/position/position.dart';
@@ -74,6 +75,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<TutorialService>(create: (context) => TutorialService()),
         ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
+        ChangeNotifierProvider<NewsService>(create: (context) => NewsService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
         ChangeNotifierProvider<DiscomfortService>(create: (context) => DiscomfortService()),
         ChangeNotifierProvider<GeocodingService>(create: (context) => GeocodingService()),
