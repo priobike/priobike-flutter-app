@@ -92,8 +92,6 @@ flutter:
   assets:
     # Files needed to get git info within the app, e.g. current branch or tag.
     - .git/HEAD         # Branch/Tag Name
-    - .git/ORIG_HEAD    # Commit ID
-    - .git/COMMIT_EDITMSG  # Commit Message
 
     # Privacy policy
     - assets/text/privacy.txt

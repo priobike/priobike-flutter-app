@@ -356,18 +356,11 @@ class SettingsViewState extends State<SettingsView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32), 
               child: Small(
-                text: "PrioBike ${featureService.gitHead} ${featureService.gitCommitId.substring(0, 6)}", 
+                text: "PrioBike ${featureService.gitHead}", 
                 color: Colors.grey
               ),
             ),
 
-            if (settingsService.enableInternalFeatures) Padding(
-              padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
-              child: Small(
-                text: "Commit: ${featureService.gitCommitMessage}", 
-                color: Colors.grey
-              ),
-            ),
             const SizedBox(height: 128),
           ],
         ),

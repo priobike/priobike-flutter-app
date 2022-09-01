@@ -64,7 +64,7 @@ class FeedbackService with ChangeNotifier {
       deviceId = info.androidId ?? "n/a";
     }
 
-    final appVersion = Provider.of<FeatureService>(context, listen: false).gitCommitId;
+    final appVersion = Provider.of<FeatureService>(context, listen: false).gitHead;
     final sessionId = Provider.of<SessionService>(context, listen: false).sessionId;
 
     // Send all of the answered questions to the backend.

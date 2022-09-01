@@ -13,12 +13,6 @@ class FeatureService with ChangeNotifier {
   /// The current git head.
   late String gitHead;
 
-  /// The current git commit id.
-  late String gitCommitId;
-
-  /// The current git commit message.
-  late String gitCommitMessage;
-
   /// If internal features can be enabled.
   late bool canEnableInternalFeatures;
 
@@ -34,8 +28,6 @@ class FeatureService with ChangeNotifier {
     if (hasLoaded) return;
 
     gitHead = (await rootBundle.loadString('.git/HEAD')).trim();
-    gitCommitId = (await rootBundle.loadString('.git/ORIG_HEAD')).trim();
-    gitCommitMessage = (await rootBundle.loadString('.git/COMMIT_EDITMSG')).trim();
 
     // Check if the user has the right to enable experimental features.
     canEnableInternalFeatures = gitHead.endsWith("dev");
