@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
@@ -296,6 +297,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     onPressed: widget.onSelectSaveButton,
                     boxConstraints: BoxConstraints(minWidth: frame.size.width),
                   ),
+                  const VSpace(),
+                  const SizedBox(height: 2),
+                  const RouteHeightChart(),
                   const VSpace(),
                 ], 
               ), 

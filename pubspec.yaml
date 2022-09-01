@@ -49,13 +49,11 @@ dependencies:
   latlong2: ^0.8.1
   flutter_native_splash: ^2.1.6
   wakelock: ^0.6.2
-
   http: ^0.13.5
-
-  # Only needed for legacy ride views.
   flutter_map: ^2.2.0
   device_info_plus: ^4.0.0
   package_info_plus: ^1.4.2
+  charts_flutter: ^0.12.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0
