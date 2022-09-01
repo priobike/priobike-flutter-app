@@ -256,7 +256,14 @@ class ProfileViewState extends State<ProfileView> {
   Widget renderBikeTypeSelection() {
     return Column(children: [
       Row(children: [
-        Expanded(child: Content(text: "Wähle deinen Radtyp")),
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Content(text: "Radtyp"),
+            const SmallVSpace(),
+            Small(text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt."),
+          ],
+        )),
         SmallIconButton(icon: Icons.close, onPressed: () {
           toggleBikeSelection();
         })
@@ -279,7 +286,19 @@ class ProfileViewState extends State<ProfileView> {
             s.bikeType = bikeType;
             s.store();
           },
-        )).toList(),
+        )).toList() + [
+          ProfileElementButton(
+            icon: Icons.delete, 
+            title: "Löschen",
+            color: Theme.of(context).colorScheme.onBackground,
+            backgroundColor: Theme.of(context).colorScheme.background,
+            touchColor: Theme.of(context).colorScheme.onBackground,
+            onPressed: () {
+              s.bikeType = null;
+              s.store();
+            },
+          )
+        ],
       ),
       const VSpace(),
     ]);
@@ -288,7 +307,15 @@ class ProfileViewState extends State<ProfileView> {
   Widget renderPreferenceTypeSelection() {
     return Column(children: [
       Row(children: [
-        Expanded(child: Content(text: "Wähle deine Routenpräferenz")),
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Content(text: "Routenpräferenz"),
+            const SmallVSpace(),
+            Small(text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen."),
+          ],
+        )),
+        const SmallHSpace(),
         SmallIconButton(icon: Icons.close, onPressed: () {
           togglePreferenceSelection();
         })
@@ -311,7 +338,19 @@ class ProfileViewState extends State<ProfileView> {
             s.preferenceType = preferenceType;
             s.store();
           },
-        )).toList(),
+        )).toList() + [
+          ProfileElementButton(
+            icon: Icons.delete, 
+            title: "Löschen",
+            color: Theme.of(context).colorScheme.onBackground,
+            backgroundColor: Theme.of(context).colorScheme.background,
+            touchColor: Theme.of(context).colorScheme.onBackground,
+            onPressed: () {
+              s.preferenceType = null;
+              s.store();
+            },
+          )
+        ],
       ),
       const VSpace(),
     ]);
@@ -320,7 +359,15 @@ class ProfileViewState extends State<ProfileView> {
   Widget renderActivityTypeSelection() {
     return Column(children: [
       Row(children: [
-        Expanded(child: Content(text: "Wähle deine Aktivität")),
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Content(text: "Aktivität"),
+            const SmallVSpace(),
+            Small(text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht."),
+          ],
+        )),
+        const SmallHSpace(),
         SmallIconButton(icon: Icons.close, onPressed: () {
           toggleActivitySelection();
         })
@@ -343,7 +390,19 @@ class ProfileViewState extends State<ProfileView> {
             s.activityType = activityType;
             s.store();
           },
-        )).toList(),
+        )).toList() + [
+          ProfileElementButton(
+            icon: Icons.delete, 
+            title: "Löschen",
+            color: Theme.of(context).colorScheme.onBackground,
+            backgroundColor: Theme.of(context).colorScheme.background,
+            touchColor: Theme.of(context).colorScheme.onBackground,
+            onPressed: () {
+              s.activityType= null;
+              s.store();
+            },
+          )
+        ],
       ),
       const VSpace(),
     ]);

@@ -53,9 +53,9 @@ enum PreferenceType {
 extension PreferenceTypeDescription on PreferenceType {
   String description() {
     switch (this) {
-      case PreferenceType.fast: return "Schnell";
-      case PreferenceType.short: return "Kurz";
-      case PreferenceType.comfortible: return "Komfortabel";
+      case PreferenceType.fast: return "Zeit";
+      case PreferenceType.short: return "Distanz";
+      case PreferenceType.comfortible: return "Komfort";
     }
   }
 }
@@ -81,7 +81,6 @@ extension PreferenceTypeIcon on PreferenceType {
 }
 
 enum ActivityType {
-  free,
   work,
   sport,
 }
@@ -89,7 +88,6 @@ enum ActivityType {
 extension ActivityTypeColor on ActivityType {
   Color color() {
     switch (this) {
-      case ActivityType.free: return const Color.fromRGBO(163, 203, 56,1.0);
       case ActivityType.work: return const Color.fromRGBO(6, 82, 221,1.0);
       case ActivityType.sport: return const Color.fromRGBO(234, 32, 39,1.0);
     }
@@ -99,7 +97,6 @@ extension ActivityTypeColor on ActivityType {
 extension ActivityTypeIcon on ActivityType {
   IconData icon() {
     switch (this) {
-      case ActivityType.free: return Icons.question_mark;
       case ActivityType.work: return Icons.work;
       case ActivityType.sport: return Icons.sports_gymnastics;
     }
@@ -109,8 +106,7 @@ extension ActivityTypeIcon on ActivityType {
 extension ActivityTypeDescription on ActivityType {
   String description() {
     switch (this) {
-      case ActivityType.free: return "Freie Fahrt";
-      case ActivityType.work: return "Zur Arbeit";
+      case ActivityType.work: return "Arbeit";
       case ActivityType.sport: return "Sport";
     }
   }
