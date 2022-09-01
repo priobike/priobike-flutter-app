@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/settings/models/ride.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RideSelectionView extends StatelessWidget {

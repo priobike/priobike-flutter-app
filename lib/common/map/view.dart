@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class AppMap extends StatefulWidget {

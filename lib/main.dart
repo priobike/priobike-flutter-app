@@ -16,7 +16,9 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/features.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/features.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
@@ -67,6 +69,7 @@ class App extends StatelessWidget {
       // All providers must reside above the MaterialApp.
       // Otherwise, they will get disposed when calling the Navigator.
       providers: [
+        ChangeNotifierProvider<FeatureService>(create: (context) => FeatureService()),
         ChangeNotifierProvider<PrivacyPolicyService>(create: (context) => PrivacyPolicyService()),
         ChangeNotifierProvider<TutorialService>(create: (context) => TutorialService()),
         ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
@@ -93,8 +96,10 @@ class App extends StatelessWidget {
         ),
         // The navigator key is used to access the app's build context.
         navigatorKey: navigatorKey,
-        home: const PrivacyPolicyView(
-          child: HomeView(),
+        home: const FeatureLoaderView(
+          child: PrivacyPolicyView(
+            child: HomeView(),
+          ),
         ),
       ),
     );

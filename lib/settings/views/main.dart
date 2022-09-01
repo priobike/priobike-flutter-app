@@ -15,11 +15,11 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/features.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 /// Debug these views.
 void main() => debug(MultiProvider(
@@ -136,6 +136,9 @@ class SettingsView extends StatefulWidget {
 }
 
 class SettingsViewState extends State<SettingsView> {
+  /// The associeted feature service, which is injected by the provider.
+  late FeatureService featureService;
+
   /// The associated settings service, which is injected by the provider.
   late SettingsService settingsService;
 
@@ -153,6 +156,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   void didChangeDependencies() {
+    featureService = Provider.of<FeatureService>(context);
     settingsService = Provider.of<SettingsService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     positionService = Provider.of<PositionService>(context);
@@ -216,38 +220,91 @@ class SettingsViewState extends State<SettingsView> {
             ]),
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+            if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
+              Padding(
+                padding: const EdgeInsets.only(left: 32, top: 8), 
+                child: Content(text: "Test-Features"),
+              ),
+
+            if (featureService.canEnableBetaFeatures)
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Beta Features", 
+                icon: settingsService.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
+                callback: () => settingsService.setEnableBetaFeatures(!settingsService.enableBetaFeatures),
+              )),
+
+            if (featureService.canEnableInternalFeatures)
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Interne Features", 
+                icon: settingsService.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
+                callback: () => settingsService.setEnableInternalFeatures(!settingsService.enableInternalFeatures),
+              )),
+
+            if (settingsService.enableInternalFeatures) 
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Testort", 
+                subtitle: settingsService.backend.region, 
+                icon: Icons.expand_more, 
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                    elements: Backend.values, 
+                    selected: settingsService.backend,
+                    title: (Backend e) => e.region, 
+                    callback: onSelectBackend
+                  );
+                }),
+              )),
+              
+            if (settingsService.enableInternalFeatures) 
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Ortung", 
+                subtitle: settingsService.positioning.description, 
+                icon: Icons.expand_more, 
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                    elements: Positioning.values, 
+                    selected: settingsService.positioning, 
+                    title: (Positioning e) => e.description,
+                    callback: onSelectPositioning,
+                  );
+                }),
+              )),
+
+            if (settingsService.enableInternalFeatures)
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Tutorials zurücksetzen", 
+                icon: Icons.recycling, 
+                callback: () => Provider.of<TutorialService>(context, listen: false).deleteCompleted(),
+              )),
+
+            if (settingsService.enableBetaFeatures || settingsService.enableInternalFeatures)
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Routing", 
+                subtitle: settingsService.rerouting.description, 
+                icon: Icons.expand_more, 
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                    elements: Rerouting.values, 
+                    selected: settingsService.rerouting,
+                    title: (Rerouting e) => e.description, 
+                    callback: onSelectRerouting
+                  );
+                }),
+              )),
+
+            if (settingsService.enableBetaFeatures || settingsService.enableInternalFeatures)
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Logs", 
+                icon: Icons.list, 
+                callback: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
+              ),
+
+            const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
+
             const SmallVSpace(),
             Padding(
               padding: const EdgeInsets.only(left: 32), 
-              child: Content(text: "Test-Features"),
-            ),
-            const VSpace(),
-            SettingsElement(
-              title: "Testort", 
-              subtitle: settingsService.backend.region, 
-              icon: Icons.expand_more, 
-              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                return SettingsSelection(
-                  elements: Backend.values, 
-                  selected: settingsService.backend,
-                  title: (Backend e) => e.region, 
-                  callback: onSelectBackend
-                );
-              }),
-            ),
-            const SmallVSpace(),
-            SettingsElement(
-              title: "Ortung", 
-              subtitle: settingsService.positioning.description, 
-              icon: Icons.expand_more, 
-              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                return SettingsSelection(
-                  elements: Positioning.values, 
-                  selected: settingsService.positioning, 
-                  title: (Positioning e) => e.description,
-                  callback: onSelectPositioning,
-                );
-              }),
+              child: Content(text: "Nutzbarkeit"),
             ),
             const SmallVSpace(),
             SettingsElement(
@@ -262,35 +319,6 @@ class SettingsViewState extends State<SettingsView> {
                   callback: onSelectRidePreference
                 );
               }),
-            ),
-            const SmallVSpace(),
-            SettingsElement(
-              title: "Routing", 
-              subtitle: settingsService.rerouting.description, 
-              icon: Icons.expand_more, 
-              callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                return SettingsSelection(
-                  elements: Rerouting.values, 
-                  selected: settingsService.rerouting,
-                  title: (Rerouting e) => e.description, 
-                  callback: onSelectRerouting
-                );
-              }),
-            ),
-            const SmallVSpace(),
-            SettingsElement(title: "Logs", icon: Icons.list, callback: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()));
-            }),
-            const SmallVSpace(),
-            SettingsElement(title: "Tutorials zurücksetzen", icon: Icons.recycling, callback: () {
-              Provider.of<TutorialService>(context, listen: false).deleteCompleted();
-            }),
-            const SmallVSpace(),
-            const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-            const SmallVSpace(),
-            Padding(
-              padding: const EdgeInsets.only(left: 32), 
-              child: Content(text: "Nutzbarkeit"),
             ),
             const SmallVSpace(),
             SettingsElement(title: "Feedback geben", icon: Icons.email, callback: () {
@@ -325,30 +353,21 @@ class SettingsViewState extends State<SettingsView> {
             const SmallVSpace(),
             const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             const SmallVSpace(),
-            FutureBuilder(
-              future: PackageInfo.fromPlatform(),
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<PackageInfo> snapshot,
-              ) {
-                /**
-                 * If you want to see the commit hash in the app run it with:
-                 * 
-                 * flutter run --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)
-                 */
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32), 
+              child: Small(
+                text: "PrioBike ${featureService.gitHead} ${featureService.gitCommitId.substring(0, 6)}", 
+                color: Colors.grey
+              ),
+            ),
 
-                String commitId = const String.fromEnvironment(
-                  'COMMIT_ID',
-                  defaultValue: 'Keine Commit ID',
-                );
-
-                return snapshot.hasData
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 32), 
-                      child: Small(text: "PrioBike-App v${snapshot.data?.version ?? '?.?.?'} ($commitId)", color: Colors.grey),
-                    )
-                  : const Text('Lade Versionsnummer..');
-              }),
+            if (settingsService.enableInternalFeatures) Padding(
+              padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
+              child: Small(
+                text: "Commit: ${featureService.gitCommitMessage}", 
+                color: Colors.grey
+              ),
+            ),
             const SizedBox(height: 128),
           ],
         ),

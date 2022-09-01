@@ -5,14 +5,14 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/feedback/messages/answer.dart';
 import 'package:priobike/feedback/models/question.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/features.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class FeedbackService with ChangeNotifier {
@@ -63,7 +63,8 @@ class FeedbackService with ChangeNotifier {
       deviceType = info.model ?? "n/a";
       deviceId = info.androidId ?? "n/a";
     }
-    final appVersion = (await PackageInfo.fromPlatform()).version;
+
+    final appVersion = Provider.of<FeatureService>(context, listen: false).gitCommitId;
     final sessionId = Provider.of<SessionService>(context, listen: false).sessionId;
 
     // Send all of the answered questions to the backend.

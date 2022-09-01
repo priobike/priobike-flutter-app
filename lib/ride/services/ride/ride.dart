@@ -11,7 +11,7 @@ import 'package:priobike/ride/messages/userposition.dart';
 import 'package:priobike/ride/messages/navigation.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:provider/provider.dart';

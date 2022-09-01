@@ -8,6 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService with ChangeNotifier {
   var hasLoaded = false;
 
+  /// Whether internal test features should be enabled.
+  bool enableInternalFeatures;
+
+  /// Whether beta features should be enabled.
+  bool enableBetaFeatures;
+
   /// The selected backend.
   Backend backend;
 
@@ -19,6 +25,16 @@ class SettingsService with ChangeNotifier {
 
   /// The ride views preference.
   RidePreference? ridePreference;
+
+  Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
+    this.enableInternalFeatures = enableInternalFeatures;
+    await store();
+  }
+
+  Future<void> setEnableBetaFeatures(bool enableBetaFeatures) async {
+    this.enableBetaFeatures = enableBetaFeatures;
+    await store();
+  }
 
   Future<void> selectBackend(Backend backend) async {
     this.backend = backend;
@@ -41,6 +57,8 @@ class SettingsService with ChangeNotifier {
   }
 
   SettingsService({
+    this.enableBetaFeatures = false,
+    this.enableInternalFeatures = false,
     this.backend = Backend.production, 
     this.positioning = Positioning.gnss,
     this.rerouting = Rerouting.disabled,
@@ -51,6 +69,9 @@ class SettingsService with ChangeNotifier {
   Future<void> loadSettings() async {
     if (hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
+
+    enableBetaFeatures = storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
+    enableInternalFeatures = storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
 
     final backendStr = storage.getString("priobike.settings.backend");
     final positioningStr = storage.getString("priobike.settings.positioning");
@@ -74,6 +95,8 @@ class SettingsService with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
+    await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
+    await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioning", positioning.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);

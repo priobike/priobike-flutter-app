@@ -43,7 +43,6 @@ dependencies:
   web_socket_channel: ^2.1.0
   json_rpc_2: ^3.0.1
   fluttertoast: ^8.0.8
-  package_info_plus: ^1.4.2
   mapbox_gl: ^0.16.0
   shared_preferences: ^2.0.15
   carousel_slider: ^4.1.1
@@ -90,6 +89,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Files needed to get git info within the app, e.g. current branch or tag.
+    - .git/HEAD         # Branch/Tag Name
+    - .git/ORIG_HEAD    # Commit ID
+    - .git/COMMIT_EDITMSG  # Commit Message
+
     # Privacy policy
     - assets/text/privacy.txt
     # Licenses

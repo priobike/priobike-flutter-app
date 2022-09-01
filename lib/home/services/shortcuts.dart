@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

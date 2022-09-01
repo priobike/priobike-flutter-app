@@ -15,7 +15,7 @@ import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/ride.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 

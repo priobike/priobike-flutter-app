@@ -7,7 +7,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/service.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class GeocodingService with ChangeNotifier {
