@@ -113,6 +113,14 @@ flutter:
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
 
+    # Mocked data for the news screen
+    - assets/news/articles/2022-07-05.json
+    - assets/news/articles/2022-07-10.json
+    - assets/news/categories/1.json
+    - assets/news/categories/2.json
+    - assets/news/categories/3.json
+    - assets/news/categories/4.json
+
     # Legacy
     - assets/images/dark_continue.png
     - assets/images/dark_finish.png
@@ -125,7 +133,6 @@ flutter:
     - assets/images/dark_turn_sharp_right.png
     - assets/images/dark_turn_slight_left.png
     - assets/images/dark_turn_slight_right.png
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
