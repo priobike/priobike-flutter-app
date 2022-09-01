@@ -73,7 +73,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                     width: MediaQuery.of(context).size.width - 100,
                     child: Text(
                       recommendation.navText ?? "",
-                      style: const TextStyle(fontSize: 25),
+                      style: const TextStyle(fontSize: 16),
                       maxLines: 3,
                     ),
                   ),
@@ -88,8 +88,8 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                   Padding(
                     padding: const EdgeInsets.all(18.0),
                     child: SizedBox(
-                      height: MediaQuery.of(context).size.width / 2.5,
-                      width: MediaQuery.of(context).size.width / 2.5,
+                      height: MediaQuery.of(context).size.width / 3,
+                      width: MediaQuery.of(context).size.width / 3,
                       child: CircularProgressIndicator(
                         strokeWidth: 30,
                         backgroundColor: Colors.black26,

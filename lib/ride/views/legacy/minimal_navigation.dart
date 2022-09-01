@@ -71,7 +71,7 @@ class _MinimalNavigationCyclingViewState
                 padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
                 child: NavigationArrow(
                   sign: recommendation.navSign,
-                  width: 70,
+                  width: 50,
                 ),
               ),
               Column(
@@ -86,11 +86,10 @@ class _MinimalNavigationCyclingViewState
                         )
                       : const Text(''),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width - 130,
+                    width: MediaQuery.of(context).size.width - 110,
                     child: Text(
                       recommendation.navText ?? "",
-                      style: const TextStyle(fontSize: 25),
-                      maxLines: 3,
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ),
                 ],
