@@ -278,7 +278,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 children: [
                   renderDragIndicator(context),
                   const SizedBox(height: 4),
-                  BoldContent(text: "Normalerweise $hours Std. $minutes Min.", color: Colors.green),
+                  BoldContent(text: "Normalerweise ${hours == 0 ? '' : '$hours Std. '}$minutes Min.", color: Colors.green),
                   const SizedBox(height: 2),
                   Content(text: "Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo"),
                   const SizedBox(height: 4),
