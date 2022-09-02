@@ -225,7 +225,8 @@ class SettingsViewState extends State<SettingsView> {
               SubHeader(text: "Einstellungen"),
             ]),
             const SmallVSpace(),
-            const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+            if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
+              const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
             if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
               Padding(
                 padding: const EdgeInsets.only(left: 32, top: 8), 
