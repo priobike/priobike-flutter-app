@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/layers.dart';
@@ -13,7 +16,10 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
-  const RoutingMapView({Key? key}) : super(key: key);
+  /// The stream that receives notifications when the bottom sheet is dragged.
+  final Stream<DraggableScrollableNotification>? sheetMovement;
+
+  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -52,12 +58,37 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// Labels for the route and alt routes.
   List<Symbol>? labels;
 
+  /// The stream that receives notifications when the bottom sheet is dragged.
+  StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
+
+  /// The default map insets.
+  final defaultMapInsets = const EdgeInsets.only(
+    top: 108, bottom: 80,
+    left: 8, right: 8,
+  );
+
+  @override 
+  void initState() {
+    super.initState();
+    sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
+  }
+
   @override
   void didChangeDependencies() {
     rs = Provider.of<RoutingService>(context);
     ds = Provider.of<DiscomfortService>(context);
     adaptMap();
     super.didChangeDependencies();
+  }
+
+  /// A callback that gets fired when the bottom sheet of the parent view is dragged.
+  Future<void> onScrollBottomSheet(DraggableScrollableNotification n) async {
+    final frame = MediaQuery.of(context);
+    final maxBottomInset = frame.size.height - frame.padding.top - 300;
+    final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
+    mapController?.updateContentInsets(EdgeInsets.fromLTRB(
+      defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset
+    ), false);
   }
 
   Future<void> adaptMap() async {
@@ -256,10 +287,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await SymbolLoader(mapController!).loadSymbols();
 
     // Fit the content below the top and the bottom stuff.
-    await mapController!.updateContentInsets(const EdgeInsets.only(
-      top: 108, bottom: 80,
-      left: 8, right: 8,
-    ));
+    await mapController!.updateContentInsets(defaultMapInsets);
 
     // Allow overlaps so that important symbols and texts are not hidden.
     await mapController!.setSymbolIconAllowOverlap(true);
@@ -282,11 +310,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void dispose() {
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
+
     // Unbind the interaction callbacks.
     mapController?.onFillTapped.remove(onFillTapped);
     mapController?.onCircleTapped.remove(onCircleTapped);
     mapController?.onLineTapped.remove(onLineTapped);
     mapController?.onSymbolTapped.remove(onSymbolTapped);
+
     super.dispose();
   }
 
