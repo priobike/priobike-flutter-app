@@ -27,34 +27,49 @@ class NavBarView extends StatelessWidget {
 
   @override 
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24), 
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          stops: [
-            0.1,
-            0.9,
-          ],
-          colors: [
-            Color.fromARGB(255, 0, 198, 255),
-            Color.fromARGB(255, 0, 115, 255)
-          ],
-        )
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 64),
-          Row(children: [
-            Flexible(child: Content(text: "PrioBike", color: Colors.white), fit: FlexFit.tight),
-            BoldContent(text: greeting, color: Colors.white),
-          ]),
-          const SmallVSpace(),
-          const Divider(color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
-          const SmallVSpace(),
-          Row(children: [
+    return SliverAppBar(
+      pinned: true,
+      snap: false,
+      floating: false,
+      shadowColor: const Color.fromARGB(26, 0, 37, 100),
+      expandedHeight: 128,
+      collapsedHeight: 64,
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: const [StretchMode.blurBackground],
+        collapseMode: CollapseMode.parallax,
+        expandedTitleScale: 1,
+        titlePadding: const EdgeInsets.only(top: 24, bottom: 12),
+        background: Container(
+          padding: EdgeInsets.only(left: 24, right: 24, bottom: 32, top: MediaQuery.of(context).padding.top + 14), 
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              stops: [
+                0.1,
+                0.9,
+              ],
+              colors: [
+                Color.fromARGB(255, 0, 198, 255),
+                Color.fromARGB(255, 0, 115, 255)
+              ],
+            )
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Flexible(child: Content(text: "PrioBike", color: Colors.white), fit: FlexFit.tight),
+                BoldContent(text: greeting, color: Colors.white),
+              ]),
+              const SmallVSpace(),
+              const Divider(color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
+            ],
+          ),
+        ),
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(children: [
             const Icon(
               Icons.cloudy_snowing,
               size: 32,
@@ -73,8 +88,7 @@ class NavBarView extends StatelessWidget {
               onPressed: () { onTapSettingsButton?.call(); }
             ),
           ]),
-          const VSpace(),
-        ],
+        ),
       ),
     );
   }

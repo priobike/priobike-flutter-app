@@ -158,49 +158,50 @@ class HomeViewState extends State<HomeView> {
 
   @override 
   Widget build(BuildContext context) {
-    return Scaffold(body: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          NavBarView(
-            onTapNotificationButton: onNotificationsButtonTapped,
-            onTapSettingsButton: onSettingsButtonTapped,
-          ),
-          const VSpace(),
-          const SmallVSpace(),
-          Row(children: [
-            const HSpace(),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              BoldContent(text: "Deine Shortcuts"),
-              const SizedBox(height: 4),
-              Small(text: "Direkt zum Ziel navigieren"),
+    return Scaffold(body: CustomScrollView(
+      slivers: <Widget>[
+        NavBarView(
+          onTapNotificationButton: onNotificationsButtonTapped,
+          onTapSettingsButton: onSettingsButtonTapped,
+        ),
+        SliverList(
+          delegate: SliverChildListDelegate([
+            const VSpace(),
+            const SmallVSpace(),
+            Row(children: [
+              const HSpace(),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                BoldContent(text: "Deine Shortcuts"),
+                const SizedBox(height: 4),
+                Small(text: "Direkt zum Ziel navigieren"),
+              ]),
+              Expanded(child: Container()),
+              SmallIconButton(
+                icon: Icons.edit, 
+                fill: Colors.white, 
+                splash: Colors.white, 
+                onPressed: onOpenShortcutEditView,
+              ),
+              const HSpace(),
             ]),
-            Expanded(child: Container()),
-            SmallIconButton(
-              icon: Icons.edit, 
-              fill: Colors.white, 
-              splash: Colors.white, 
-              onPressed: onOpenShortcutEditView,
+            const VSpace(),
+            const TutorialView(
+              id: "priobike.tutorial.select-shortcut", 
+              text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
             ),
-            const HSpace(),
+            ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
+            const VSpace(),
+            const ProfileView(),
+            const VSpace(),
+            const SmallVSpace(),
+            Divider(color: Theme.of(context).colorScheme.background, thickness: 2),
+            const VSpace(),
+            renderDebugHint(),
+            const SizedBox(height: 128),
           ]),
-          const VSpace(),
-          const TutorialView(
-            id: "priobike.tutorial.select-shortcut", 
-            text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
-            padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          ),
-          ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
-          const VSpace(),
-          const ProfileView(),
-          const VSpace(),
-          const SmallVSpace(),
-          Divider(color: Theme.of(context).colorScheme.background, thickness: 2),
-          const VSpace(),
-          renderDebugHint(),
-          const SizedBox(height: 128),
-        ],
-      ),
+        ),
+      ],
     ));
   }
 }
