@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -23,7 +22,7 @@ class AlertsViewState extends State<AlertsView> {
   late RoutingService routingService;
 
   /// The controller for the carousel.
-  final controller = CarouselController();
+  final controller = PageController();
 
   @override
   void didChangeDependencies() {
@@ -36,7 +35,7 @@ class AlertsViewState extends State<AlertsView> {
       if (discomforts != null && discomforts.isNotEmpty) {
         for (int i = 0; i < discomforts.length; i++) {
           if (discomforts[i] == discomfortService.selectedDiscomfort) {
-            controller.animateToPage(i);
+            controller.jumpToPage(i);
             break;
           }
         }
@@ -85,8 +84,8 @@ class AlertsViewState extends State<AlertsView> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(alignment: AlignmentDirectional.topStart, children: [
-          CarouselSlider(
-            items: discomfortService.foundDiscomforts!.asMap().entries.map((e) => Padding(
+          PageView(
+            children: discomfortService.foundDiscomforts!.asMap().entries.map((e) => Padding(
               padding: const EdgeInsets.only(left: 16, top: 0), 
               child: Row(children: [
                 Stack(alignment: AlignmentDirectional.center, children: [
@@ -110,13 +109,8 @@ class AlertsViewState extends State<AlertsView> {
                 ),
               ]))
             ).toList(),
-            carouselController: controller,
-            options: CarouselOptions(
-              enlargeCenterPage: true,
-              padEnds: false,
-              aspectRatio: constraints.maxWidth / constraints.maxHeight,
-              onPageChanged: (index, reason) { /* Do nothing */ },
-            ),
+            controller: controller,
+            onPageChanged: (index) { /* Do nothing */ }, 
           ),
         ]);
       },
