@@ -245,20 +245,23 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       );
     }
     
-    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)}km";
+    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
     final seconds = s.selectedRoute!.path.time / 1000;
-    final timeInfo = seconds < 3600 
-      ? "${(seconds / 60).toStringAsFixed(0)}min"
-      : "${(seconds / 3600).toStringAsFixed(0)}h";
+    // Get the full hours needed to cover the route.
+    final hours = seconds ~/ 3600;
+    // Get the remaining minutes.
+    final minutes = (seconds - hours * 3600) ~/ 60;
+    // Calculate the time when the user will reach the destination.
+    final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
 
     final frame = MediaQuery.of(context);
 
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height), 
+        initialChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height), 
         maxChildSize: 1.0 - (frame.padding.top / frame.size.height),
-        minChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height),
+        minChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: const BoxDecoration(
@@ -274,10 +277,14 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               child: Column(
                 children: [
                   renderDragIndicator(context),
-                  const SmallVSpace(),
+                  const SizedBox(height: 4),
+                  BoldContent(text: "Normalerweise $hours Std. $minutes Min.", color: Colors.green),
+                  const SizedBox(height: 2),
+                  Content(text: "Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo"),
+                  const SizedBox(height: 4),
                   BigButton(
                     icon: Icons.pedal_bike,
-                    label: "Los ($timeInfo, $distInfo)", 
+                    label: "Losfahren", 
                     onPressed: widget.onSelectStartButton,
                     boxConstraints: BoxConstraints(minWidth: frame.size.width),
                   ),
