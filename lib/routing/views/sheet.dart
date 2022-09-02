@@ -257,7 +257,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
         initialChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height), 
-        maxChildSize: 1.0,
+        maxChildSize: 1.0 - (frame.padding.top / frame.size.height),
         minChildSize: 80 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
