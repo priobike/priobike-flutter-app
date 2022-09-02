@@ -84,19 +84,36 @@ class TutorialViewState extends State<TutorialView> {
       firstChild: Container(),
       secondChild: Padding(
         padding: widget.padding ?? const EdgeInsets.all(0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(child: Small(
-              text: widget.text,
-              color: Colors.grey,
-            )),
-            const SmallHSpace(),
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 300),
-              firstChild: const Icon(Icons.check, color: Colors.green),
-              secondChild: const Icon(Icons.info, color: Colors.grey),
-              crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(child: BoldSmall(
+                  text: widget.text,
+                  color: const Color.fromARGB(255, 91, 91, 91),
+                )),
+                const SmallHSpace(),
+                Column(children: [
+                  AnimatedCrossFade(
+                    duration: const Duration(milliseconds: 300),
+                    firstChild: const Icon(Icons.check, color: Colors.green),
+                    secondChild: const Padding(
+                      padding: EdgeInsets.only(left: 6), 
+                      child: Icon(Icons.tips_and_updates, 
+                      color: Color.fromARGB(255, 91, 91, 91))
+                    ),
+                    crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  ),
+                  const SmallVSpace(),
+                  Small(
+                    text: "Tutorial",
+                    color: const Color.fromARGB(255, 91, 91, 91),
+                  ),
+                ]),
+              ],
             ),
           ],
         ),
