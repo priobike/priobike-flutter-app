@@ -1,4 +1,4 @@
-class NominatimReverseResponse {
+class NominatimAddress {
   /// Reference to the Nominatim internal database id.
   final int placeId;
 
@@ -42,7 +42,7 @@ class NominatimReverseResponse {
   /// The full geojson geometry of the object (with polygon_geojson=1).
   final Map<String, dynamic>? geoJsonGeometry;
 
-  const NominatimReverseResponse({
+  const NominatimAddress({
     required this.placeId,
     required this.osmType,
     required this.osmId,
@@ -59,8 +59,8 @@ class NominatimReverseResponse {
     required this.geoJsonGeometry,
   });
 
-  factory NominatimReverseResponse.fromJson(Map<String, dynamic> json) {
-    return NominatimReverseResponse(
+  factory NominatimAddress.fromJson(Map<String, dynamic> json) {
+    return NominatimAddress(
       placeId: json['place_id'] as int,
       osmType: json['osm_type'] as String?,
       osmId: json['osm_id'] as int?,

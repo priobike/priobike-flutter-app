@@ -15,6 +15,7 @@ import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -79,6 +80,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),
         ChangeNotifierProvider<DiscomfortService>(create: (context) => DiscomfortService()),
         ChangeNotifierProvider<GeocodingService>(create: (context) => GeocodingService()),
+        ChangeNotifierProvider<GeosearchService>(create: (context) => GeosearchService()),
         ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService()),
         ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
