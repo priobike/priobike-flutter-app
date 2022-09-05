@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -28,26 +28,28 @@ class GeocodingService with ChangeNotifier {
   }
 
   /// Fetch the address to a given coordinate.
-  /// See: https://docs.graphhopper.com/#operation/getGeocode
+  /// See: https://nominatim.org/release-docs/develop/api/Reverse/
   Future<String?> reverseGeocode(BuildContext context, LatLng coordinate) async {
-    // TODO: Currently not supported.
-    return null;
-
     if (isFetchingAddress) return null;
 
     isFetchingAddress = true;
     notifyListeners();
 
     hadErrorDuringFetch = false;
-
+ 
     try {
       final settings = Provider.of<SettingsService>(context, listen: false);
       final baseUrl = settings.backend.path;
-      var url = "https://$baseUrl/graphhopper/geocode";
-      url += "?locale=de";
-      url += "&limit=1";
-      url += "&reverse=true";
-      url += "&point=${coordinate.latitude},${coordinate.longitude}";
+      var url = "https://$baseUrl/nominatim/reverse";
+      url += "?accept-language=de";
+      url += "&lat=${coordinate.latitude}";
+      url += "&lon=${coordinate.longitude}";
+      url += "&format=json";
+      url += "&zoom=18";
+      url += "&addressdetails=1";
+      url += "&extratags=1";
+      url += "&namedetails=1";
+      url += "&polygon_geojson=1";
       final endpoint = Uri.parse(url);
 
       final response = await httpClient.get(endpoint);
@@ -59,9 +61,12 @@ class GeocodingService with ChangeNotifier {
       }
 
       final decoded = json.decode(response.body);
-      final geocodeResponse = GHGeocodeResponse.fromJson(decoded);
-      if (geocodeResponse.hits.isEmpty) return null;
-      return geocodeResponse.hits.first.name;
+      final geocodeResponse = NominatimReverseResponse.fromJson(decoded);
+
+      isFetchingAddress = false;
+      hadErrorDuringFetch = false;
+      notifyListeners();
+      return geocodeResponse.displayName;
     } catch (error, stacktrace) { 
       log.e("Error during reverse geocode: $error $stacktrace");
       isFetchingAddress = false;
