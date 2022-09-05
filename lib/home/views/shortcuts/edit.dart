@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -51,50 +52,53 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   @override
   Widget build(BuildContext context) {
     if (shortcutsService.shortcuts == null) return Container();
-    return Scaffold(body: 
-      SingleChildScrollView(
-        child: Column(children: [
-          const SizedBox(height: 128),
-          Row(children: [
-            AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
-            const HSpace(),
-            SubHeader(text: "Shortcuts"),
-          ]),
-          ReorderableListView(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            proxyDecorator: (proxyWidget, idx, anim) {
-              return proxyWidget;
-            },
-            children: shortcutsService.shortcuts!.asMap().entries.map<Widget>((entry) {
-              return Container(
-                key: Key("$entry.key"),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 8),
-                  child: Tile(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24), 
-                      bottomLeft: Radius.circular(24)
-                    ),
-                    fill: Colors.white,
-                    content: Row(children: [
-                      Flexible(child: BoldContent(text: entry.value.name), fit: FlexFit.tight),
-                      const HSpace(),
-                      SmallIconButton(
-                        icon: Icons.delete, 
-                        onPressed: () => onDeleteShortcut(entry.key), 
-                        color: Colors.black, 
-                        fill: Theme.of(context).colorScheme.background,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(body: 
+        SingleChildScrollView(
+          child: Column(children: [
+            const SizedBox(height: 128),
+            Row(children: [
+              AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+              const HSpace(),
+              SubHeader(text: "Shortcuts"),
+            ]),
+            ReorderableListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              proxyDecorator: (proxyWidget, idx, anim) {
+                return proxyWidget;
+              },
+              children: shortcutsService.shortcuts!.asMap().entries.map<Widget>((entry) {
+                return Container(
+                  key: Key("$entry.key"),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16, top: 8),
+                    child: Tile(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(24), 
+                        bottomLeft: Radius.circular(24)
                       ),
-                    ]),
-                  ),
-                )
-              );
-            }).toList(),
-            onReorder: onChangeShortcutOrder,
-          ),
-          const SizedBox(height: 128),
-        ]),
+                      fill: Colors.white,
+                      content: Row(children: [
+                        Flexible(child: BoldContent(text: entry.value.name), fit: FlexFit.tight),
+                        const HSpace(),
+                        SmallIconButton(
+                          icon: Icons.delete, 
+                          onPressed: () => onDeleteShortcut(entry.key), 
+                          color: Colors.black, 
+                          fill: Theme.of(context).colorScheme.background,
+                        ),
+                      ]),
+                    ),
+                  )
+                );
+              }).toList(),
+              onReorder: onChangeShortcutOrder,
+            ),
+            const SizedBox(height: 128),
+          ]),
+        ),
       ),
     );
   }

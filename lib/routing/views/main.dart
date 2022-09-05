@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -182,32 +183,35 @@ class RoutingViewState extends State<RoutingView> {
   
     final frame = MediaQuery.of(context);
 
-    return Scaffold(body: NotificationListener<DraggableScrollableNotification>(
-      onNotification: (notification) {
-        sheetMovement.add(notification);
-        return false;
-      },
-      child: Stack(children: [
-        RoutingMapView(sheetMovement: sheetMovement.stream),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(body: NotificationListener<DraggableScrollableNotification>(
+        onNotification: (notification) {
+          sheetMovement.add(notification);
+          return false;
+        },
+        child: Stack(children: [
+          RoutingMapView(sheetMovement: sheetMovement.stream),
 
-        if (routingService!.isFetchingRoute) renderLoadingIndicator(),
-        
-        // Top Bar
-        SafeArea(
-          minimum: const EdgeInsets.only(top: 64),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-            const SizedBox(width: 16),
-            SizedBox( // Avoid expansion of alerts view.
-              width: frame.size.width - 80, 
-              child: const AlertsView(),
-            )
-          ]),
-        ),
+          if (routingService!.isFetchingRoute) renderLoadingIndicator(),
+          
+          // Top Bar
+          SafeArea(
+            minimum: const EdgeInsets.only(top: 64),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+              const SizedBox(width: 16),
+              SizedBox( // Avoid expansion of alerts view.
+                width: frame.size.width - 80, 
+                child: const AlertsView(),
+              )
+            ]),
+          ),
 
-        RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
-      ]),
-    ));
+          RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
+        ]),
+      )),
+    );
   }
 
   @override

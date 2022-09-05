@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -33,56 +34,59 @@ class NewsViewState extends State<NewsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: Fade(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 128),
-                Row(
-                  children: [
-                    Row(children: [
-                      AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
-                      const HSpace(),
-                      SubHeader(text: "Neuigkeiten"),
-                    ]),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: !newsService.hasLoaded
-                    ? SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : newsService.articles.isEmpty
-                        ? const Center(
-                            child: Text('Keine Neuigkeiten verfügbar.'),
-                          )
-                        : ListView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            children: <Widget>[
-                              for (int i = 0; i < newsService.articles.length; i++)
-                                ArticleListItem(
-                                  article: newsService.articles[i],
-                                  category: newsService.categories[newsService.articles[i].categoryId],
-                                  wasRead: newsService.readArticles.contains(newsService.articles[i]),
-                                  totalNumberOfArticles: newsService.articles.length,
-                                  articleIndex: i
-                                )
-                            ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: Fade(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 128),
+                  Row(
+                    children: [
+                      Row(children: [
+                        AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                        const HSpace(),
+                        SubHeader(text: "Neuigkeiten"),
+                      ]),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: !newsService.hasLoaded
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
                           ),
-                ),
-                const SizedBox(height: 128),
-              ],
+                        )
+                      : newsService.articles.isEmpty
+                          ? const Center(
+                              child: Text('Keine Neuigkeiten verfügbar.'),
+                            )
+                          : ListView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              children: <Widget>[
+                                for (int i = 0; i < newsService.articles.length; i++)
+                                  ArticleListItem(
+                                    article: newsService.articles[i],
+                                    category: newsService.categories[newsService.articles[i].categoryId],
+                                    wasRead: newsService.readArticles.contains(newsService.articles[i]),
+                                    totalNumberOfArticles: newsService.articles.length,
+                                    articleIndex: i
+                                  )
+                              ],
+                            ),
+                  ),
+                  const SizedBox(height: 128),
+                ],
+              ),
             ),
-          ),
-        )
+          )
+        ),
       ),
     );
   }
