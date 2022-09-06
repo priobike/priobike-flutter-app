@@ -85,7 +85,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BoldContent(text: "Höhenprofil dieser Route"),
+          BoldContent(text: "Höhenprofil dieser Route", context: context,),
           SizedBox(
             height: 128,
             width: frame.size.width - 16,

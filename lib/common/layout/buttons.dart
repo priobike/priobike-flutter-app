@@ -29,8 +29,7 @@ class SmallIconButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Icon(
-            icon,
-            color: color ?? Theme.of(context).colorScheme.onBackground,
+            icon
           ),
         ),
         onPressed: onPressed,
@@ -61,7 +60,6 @@ class AppBackButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 32,
-            color: Colors.black,
           ),
         ),
         onPressed: onPressed,
@@ -113,7 +111,6 @@ class BigButton extends StatelessWidget {
             const SizedBox(width: 32),
             if (icon != null) Icon(
               icon,
-              color: Colors.white,
             ),
             const SizedBox(width: 12),
             Flexible(child: Text(

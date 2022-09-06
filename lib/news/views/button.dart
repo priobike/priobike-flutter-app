@@ -42,7 +42,7 @@ class NewsButtonState extends State<NewsButton> {
       children: [
         SmallIconButton(
           icon: Icons.notifications, 
-          color: Theme.of(context).colorScheme.background, 
+          color: Colors.white,
           splash: Colors.white,
           fill: const Color.fromARGB(50, 255, 255, 255),
           onPressed: widget.onPressed,

@@ -49,7 +49,8 @@ class ShortcutView extends StatelessWidget {
                   text: title, 
                   color: isHighlighted ? Colors.white : Colors.black, 
                   maxLines: 3, 
-                  overflow: TextOverflow.ellipsis
+                  overflow: TextOverflow.ellipsis,
+                  context: context
                 ),
               ],
             )),

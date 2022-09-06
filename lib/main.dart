@@ -99,18 +99,38 @@ class App extends StatelessWidget {
             title: 'PrioBike',
             theme: ThemeData(
               colorScheme: const ColorScheme.light(
-                background: Color(0xF6F6F6FF),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
-                surface: Color(0xFFFFFFFF),
+                  background: Color(0xF6F6F6FF),
+                  primary: Color.fromARGB(255, 0, 115, 255),
+                  secondary: Color.fromARGB(255, 0, 198, 255),
+                  surface: Color(0xFFFFFFFF),
+                  brightness: Brightness.light),
+              textTheme: const TextTheme(
+                headline1: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF000000)),
+                bodyText1: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    color: Color(0xFF000000)),
               ),
             ),
             darkTheme: ThemeData(
-              colorScheme: const ColorScheme.light(
-                background: Color(0xF61D1D1D),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
-                surface: Color(0xFF2B2B2B),
+              colorScheme: const ColorScheme.dark(
+                  background: Color(0xFF232323),
+                  primary: Color.fromARGB(255, 0, 115, 255),
+                  secondary: Color.fromARGB(255, 0, 198, 255),
+                  surface: Color(0xF63B3B3B),
+                  brightness: Brightness.dark),
+              textTheme: const TextTheme(
+                headline1: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFFFFFF)),
+                bodyText1: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    color: Color(0xF6FFFFFF)),
               ),
             ),
             themeMode: colorMode == ColorMode.light

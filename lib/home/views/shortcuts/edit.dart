@@ -81,7 +81,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       ),
                       fill: Colors.white,
                       content: Row(children: [
-                        Flexible(child: BoldContent(text: entry.value.name), fit: FlexFit.tight),
+                        Flexible(child: BoldContent(text: entry.value.name, context: context,), fit: FlexFit.tight),
                         const HSpace(),
                         SmallIconButton(
                           icon: Icons.delete, 

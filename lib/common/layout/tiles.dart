@@ -38,7 +38,11 @@ class Tile extends StatelessWidget {
         decoration: BoxDecoration(
           color: fill,
           borderRadius: borderRadius,
-          border: Border.all(color: Colors.black.withOpacity(0.1)),
+          border: Border.all(
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.black.withOpacity(0.1)),
         ),
         child: content,
       );

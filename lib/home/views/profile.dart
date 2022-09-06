@@ -259,7 +259,7 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Radtyp"),
+            Content(text: "Radtyp", context: context),
             const SmallVSpace(),
             Small(text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt."),
           ],
@@ -310,7 +310,7 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Routenpräferenz"),
+            Content(text: "Routenpräferenz", context: context),
             const SmallVSpace(),
             Small(text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen."),
           ],
@@ -362,7 +362,7 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Aktivität"),
+            Content(text: "Aktivität", context: context),
             const SmallVSpace(),
             Small(text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht."),
           ],

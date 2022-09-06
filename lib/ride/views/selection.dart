@@ -57,7 +57,7 @@ class RideSelectionView extends StatelessWidget {
             const SizedBox(height: 128),
             HPad(child: Header(text: "Wähle eine Fahrtansicht.", color: Theme.of(context).colorScheme.primary)),
             const SmallVSpace(),
-            HPad(child: Content(text: "Keine Sorge, durch Wischen kannst du immer zwischen den Ansichten wechseln.")),
+            HPad(child: Content(text: "Keine Sorge, durch Wischen kannst du immer zwischen den Ansichten wechseln.", context: context)),
             GridView.count(
               primary: false,
               shrinkWrap: true,

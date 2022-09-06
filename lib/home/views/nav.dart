@@ -59,8 +59,8 @@ class NavBarView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Flexible(child: Content(text: "PrioBike", color: Colors.white), fit: FlexFit.tight),
-                BoldContent(text: greeting, color: Colors.white),
+                Flexible(child: Content(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
+                BoldContent(text: greeting, color: Colors.white, context: context),
               ]),
               const SmallVSpace(),
               const Divider(color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
@@ -82,7 +82,7 @@ class NavBarView extends StatelessWidget {
             const SmallHSpace(),
             SmallIconButton(
               icon: Icons.settings, 
-              color: Theme.of(context).colorScheme.background, 
+              color: Colors.white,
               splash: Colors.white,
               fill: const Color.fromARGB(50, 255, 255, 255),
               onPressed: () { onTapSettingsButton?.call(); }

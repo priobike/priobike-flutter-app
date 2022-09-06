@@ -150,7 +150,7 @@ class HomeViewState extends State<HomeView> {
         child: HPad(child: Row(children: [
           const Icon(Icons.warning_rounded),
           const SmallHSpace(),
-          Flexible(child: Content(text: description)),
+          Flexible(child: Content(text: description, context: context)),
         ])),
       ),
     );
@@ -158,7 +158,8 @@ class HomeViewState extends State<HomeView> {
 
   @override 
   Widget build(BuildContext context) {
-    return Scaffold(body: CustomScrollView(
+    return Scaffold(
+    body: CustomScrollView(
       slivers: <Widget>[
         NavBarView(
           onTapNotificationButton: onNotificationsButtonTapped,
@@ -171,15 +172,15 @@ class HomeViewState extends State<HomeView> {
             Row(children: [
               const HSpace(),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                BoldContent(text: "Deine Shortcuts"),
+                BoldContent(text: "Deine Shortcuts", context: context),
                 const SizedBox(height: 4),
                 Small(text: "Direkt zum Ziel navigieren"),
               ]),
               Expanded(child: Container()),
               SmallIconButton(
                 icon: Icons.edit, 
-                fill: Colors.white, 
-                splash: Colors.white, 
+                fill: Theme.of(context).backgroundColor,
+                splash: Colors.white,
                 onPressed: onOpenShortcutEditView,
               ),
               const HSpace(),

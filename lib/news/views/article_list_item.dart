@@ -65,7 +65,7 @@ class ArticleListItem extends StatelessWidget {
         const SmallVSpace(),
         BoldSubHeader(text: article.title),
         const SmallVSpace(),
-        Content(text: article.text),
+        Content(text: article.text, context: context),
         if (divider) const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider())
       ],
     );

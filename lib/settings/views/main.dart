@@ -64,16 +64,15 @@ class SettingsElement extends StatelessWidget {
           topLeft: Radius.circular(24), 
           bottomLeft: Radius.circular(24)
         ),
-        fill: Colors.white,
+        fill: Theme.of(context).colorScheme.surface,
         content: Row(children: [
-          BoldContent(text: title),
+          BoldContent(text: title, context: context),
           const HSpace(),
-          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue), fit: FlexFit.tight)
+          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue, context: context), fit: FlexFit.tight)
           else Flexible(child: Container()),
           SmallIconButton(
             icon: icon, 
-            onPressed: callback, 
-            color: Colors.black, 
+            onPressed: callback,
             fill: Theme.of(context).colorScheme.background,
           ),
         ]),
@@ -107,7 +106,7 @@ class SettingsSelection<E> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.background,
       child: ListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: elements.length,
@@ -115,7 +114,7 @@ class SettingsSelection<E> extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(fill: Theme.of(context).colorScheme.background, content: Row(children: [
-              Flexible(child: Content(text: title(elements[index])), fit: FlexFit.tight),
+              Flexible(child: Content(text: title(elements[index]), context: context), fit: FlexFit.tight),
               Expanded(child: Container()),
               SmallIconButton(
                 icon: elements[index] == selected
@@ -242,7 +241,7 @@ class SettingsViewState extends State<SettingsView> {
               if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
                 Padding(
                   padding: const EdgeInsets.only(left: 32, top: 8), 
-                  child: Content(text: "Test-Features"),
+                  child: Content(text: "Test-Features", context: context),
                 ),
 
               if (featureService.canEnableBetaFeatures)
@@ -337,7 +336,7 @@ class SettingsViewState extends State<SettingsView> {
               const SmallVSpace(),
               Padding(
                 padding: const EdgeInsets.only(left: 32), 
-                child: Content(text: "Nutzbarkeit"),
+                child: Content(text: "Nutzbarkeit", context: context),
               ),
               const SmallVSpace(),
               SettingsElement(
@@ -365,7 +364,7 @@ class SettingsViewState extends State<SettingsView> {
               const SmallVSpace(),
               Padding(
                 padding: const EdgeInsets.only(left: 32), 
-                child: Content(text: "Weitere Informationen"),
+                child: Content(text: "Weitere Informationen", context: context),
               ),
               const VSpace(),
               SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () {

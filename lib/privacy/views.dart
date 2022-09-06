@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text}) : super(
+  IconItem({Key? key, required IconData icon, required String text, required BuildContext context}) : super(
     key: key,
     children: [
       SizedBox(
@@ -22,7 +22,7 @@ class IconItem extends Row {
         )
       ),
       const SmallHSpace(),
-      Expanded(child: Content(text: text)),
+      Expanded(child: Content(text: text, context: context)),
     ]
   );
 }
@@ -110,13 +110,13 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                       if (s.hasChanged!) 
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch."),
                       const VSpace(),
-                      IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort."),
+                      IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.", context: context),
                       const SmallVSpace(),
-                      IconItem(icon: Icons.lock, text: "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert."),
+                      IconItem(icon: Icons.lock, text: "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.", context: context),
                       const SmallVSpace(),
-                      IconItem(icon: Icons.lightbulb, text: "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback."),
+                      IconItem(icon: Icons.lightbulb, text: "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.", context: context),
                       const VSpace(),
-                      Content(text: s.text!),
+                      Content(text: s.text!, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),

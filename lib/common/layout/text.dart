@@ -58,13 +58,21 @@ class Content extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: color)
+    style: color != null ? Theme
+      .of(context)
+        .textTheme
+      .bodyMedium!
+      .merge(TextStyle(color: color)) : Theme
+      .of(context)
+      .textTheme
+      .bodyMedium
   );
 }
 
@@ -75,13 +83,21 @@ class BoldContent extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color)
+      style: color != null ? Theme
+          .of(context)
+          .textTheme
+          .headline1!
+          .merge(TextStyle(color: color)) : Theme
+          .of(context)
+          .textTheme
+          .headline1
   );
 }
 
