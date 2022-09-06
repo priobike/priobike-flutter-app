@@ -11,6 +11,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
+import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -27,6 +28,9 @@ class RoutingView extends StatefulWidget {
 }
 
 class RoutingViewState extends State<RoutingView> {
+  /// The associated geocoding service, which is injected by the provider.
+  GeocodingService? geocodingService;
+
   /// The associated routing service, which is injected by the provider.
   RoutingService? routingService;
 
@@ -47,6 +51,7 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   void didChangeDependencies() {
+    geocodingService = Provider.of<GeocodingService>(context);
     routingService = Provider.of<RoutingService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     super.didChangeDependencies();
@@ -142,9 +147,9 @@ class RoutingViewState extends State<RoutingView> {
           child: Column(children: [
             const CircularProgressIndicator(),
             const VSpace(),
-            BoldContent(text: "Lade Route...", maxLines: 1),
-          ])
-        ))
+            BoldContent(text: "Lade...", maxLines: 1),
+          ]),
+        )),
       )),
     ]);
   }
@@ -194,6 +199,7 @@ class RoutingViewState extends State<RoutingView> {
           RoutingMapView(sheetMovement: sheetMovement.stream),
 
           if (routingService!.isFetchingRoute) renderLoadingIndicator(),
+          if (geocodingService!.isFetchingAddress) renderLoadingIndicator(),
           
           // Top Bar
           SafeArea(
