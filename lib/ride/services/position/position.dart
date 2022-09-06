@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 
 class PositionExtrapolator {
   /// The refresh rate that is used to update the position.
-  static num refreshRateHz = 25;
+  static int refreshRateHz = 5;
 
   /// The last known position.
   Position? lastPosition;
