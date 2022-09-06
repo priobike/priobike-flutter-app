@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/views/button.dart';
+import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -162,82 +163,119 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   Widget build(BuildContext context) {
-    var gauge = Positioned(
-      child: Column(
-        // Bottom to top
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Container(
-            child: SfRadialGauge(
-              enableLoadingAnimation: true,
-              axes: [RadialAxis(
-                minimum: minSpeed, maximum: maxSpeed, 
-                startAngle: 165, endAngle: 15,
-                interval: 10, minorTicksPerInterval: 1,
-                showAxisLine: true, 
-                radiusFactor: 1,
-                labelOffset: 20,
-                axisLineStyle: const AxisLineStyle(thicknessUnit: GaugeSizeUnit.factor, thickness: 0.25),
-                majorTickStyle: const MajorTickStyle(length: 5, thickness: 4, color: Color.fromARGB(255, 44, 62, 80)),
-                minorTickStyle: const MinorTickStyle(length: 5, thickness: 2, color: Color.fromARGB(255, 52, 73, 94)),
-                axisLabelStyle: const GaugeTextStyle(color: Color.fromARGB(255, 44, 62, 80), fontWeight: FontWeight.bold, fontSize: 24),
-                ranges: [GaugeRange(
-                  startValue: minSpeed, endValue: maxSpeed,
-                  sizeUnit: GaugeSizeUnit.factor,
-                  startWidth: 0.25,
-                  endWidth: 0.25,
-                  gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
-                )],
-                pointers: [NeedlePointer(
-                  value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
-                  needleLength: 1,
-                  enableAnimation: true,
-                  animationType: AnimationType.ease,
-                  needleStartWidth: 3,
-                  needleEndWidth: 10,
-                  needleColor: const Color.fromARGB(255, 44, 62, 80),
-                  knobStyle: const KnobStyle(knobRadius: 0.075, sizeUnit: GaugeSizeUnit.factor, color: Color.fromARGB(255, 44, 62, 80))
-                )],
-              )],
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 0),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 255, 255, 255),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromARGB(255, 44, 62, 80).withOpacity(1),
-                  spreadRadius: 32,
-                  blurRadius: 0,
-                  offset: const Offset(0, 24),
-                ),
-                BoxShadow(
-                  color: const Color.fromARGB(255, 52, 73, 94).withOpacity(0.1),
-                  spreadRadius: 64,
-                  blurRadius: 0,
-                  offset: const Offset(0, 50),
-                ),
-              ],
-            ),
+    var gauge = SfRadialGauge(
+      enableLoadingAnimation: true,
+      axes: [
+        RadialAxis(
+          minimum: minSpeed, maximum: maxSpeed, 
+          startAngle: 165, endAngle: 15,
+          showTicks: false,
+          showLabels: false,
+          showAxisLine: false, 
+          radiusFactor: 1,
+          labelOffset: 15,
+          axisLineStyle: const AxisLineStyle(
+            thicknessUnit: GaugeSizeUnit.factor, 
+            thickness: 0.25, 
+            color: Color.fromARGB(255, 44, 62, 80), 
+            cornerStyle: CornerStyle.bothFlat,
           ),
-        ],
-      ),
-      left: 0,
-      right: 0,
-      bottom: - MediaQuery.of(context).size.width * 0.4 + MediaQuery.of(context).padding.bottom + 8,
+          ranges: [
+            GaugeRange(
+              startValue: minSpeed, endValue: maxSpeed,
+              startWidth: 43,
+              endWidth: 43,
+              color: Colors.black,
+            ),
+          ],
+        ),
+        RadialAxis(
+          minimum: minSpeed, maximum: maxSpeed, 
+          startAngle: 166, endAngle: 14,
+          interval: 10, minorTicksPerInterval: 4,
+          showAxisLine: true, 
+          radiusFactor: 0.985,
+          labelOffset: 16,
+          axisLineStyle: const AxisLineStyle(
+            thicknessUnit: GaugeSizeUnit.factor, 
+            thickness: 0.25, 
+            color: Color.fromARGB(255, 0, 0, 0), 
+            cornerStyle: CornerStyle.bothFlat,
+          ),
+          majorTickStyle: const MajorTickStyle(
+            length: 7.5, 
+            thickness: 1.5, 
+            color: Color.fromARGB(255, 0, 0, 0)
+          ),
+          minorTickStyle: const MinorTickStyle(
+            length: 5, 
+            thickness: 1.5, 
+            color: Color.fromARGB(255, 0, 0, 0)
+          ),
+          axisLabelStyle: const GaugeTextStyle(
+            color: Color.fromARGB(255, 0, 0, 0), 
+            fontWeight: FontWeight.bold, 
+            fontSize: 18
+          ),
+          ranges: [
+            GaugeRange(
+              startValue: minSpeed, endValue: maxSpeed,
+              startWidth: 38,
+              endWidth: 38,
+              gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
+            ),
+          ],
+          pointers: [
+            MarkerPointer(
+              value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
+              markerType: MarkerType.rectangle,
+              markerHeight: 22,
+              markerOffset: 0,
+              elevation: 4,
+              markerWidth: 56,
+              enableAnimation: true,
+              animationType: AnimationType.ease,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            MarkerPointer(
+              value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
+              markerType: MarkerType.rectangle,
+              markerHeight: 16,
+              markerOffset: 0,
+              elevation: 4,
+              markerWidth: 50,
+              enableAnimation: true,
+              borderWidth: 4,
+              borderColor: Theme.of(context).colorScheme.background,
+              animationType: AnimationType.ease,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
+      ],
     );
 
     return WillPopScope(
       onWillPop: () async => false,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          gauge,
-          const Positioned(
-            child: SafeArea(child: CancelButton()),
-            bottom: 0,
+      child: Transform.translate(
+        offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom), 
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                child: gauge, 
+                height: (MediaQuery.of(context).size.width - 16),
+                  decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.75),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const RideTrafficLightView(),
+            ]
           ),
-        ]
+        )
       ),
     );
   }

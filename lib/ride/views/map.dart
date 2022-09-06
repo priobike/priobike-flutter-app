@@ -193,7 +193,6 @@ class RideMapViewState extends State<RideMapView> {
     final currentTrafficLight = upcomingTrafficLight;
 
     final iconSize = MediaQuery.of(context).devicePixelRatio;
-
     final r = rideService.currentRecommendation;
     if (r != null && !r.error && r.sgPos != null) {
       if (r.isGreen) {
@@ -201,7 +200,6 @@ class RideMapViewState extends State<RideMapView> {
           TrafficLightGreenMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
             iconSize: iconSize,
-            countdown: r.countdown,
           ),
         );
       } else {
@@ -209,7 +207,6 @@ class RideMapViewState extends State<RideMapView> {
           TrafficLightRedMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
             iconSize: iconSize,
-            countdown: r.countdown,
           ),
         );
       }
@@ -251,7 +248,7 @@ class RideMapViewState extends State<RideMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    await mapController!.updateContentInsets(const EdgeInsets.only(bottom: 0));
+    await mapController!.updateContentInsets(EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.6));
 
     // Allow overlaps so that important symbols and texts are not hidden.
     await mapController!.setSymbolIconAllowOverlap(true);

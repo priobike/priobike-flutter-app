@@ -5,6 +5,7 @@ import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/default_debug.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
@@ -13,6 +14,7 @@ import 'package:priobike/ride/views/legacy/minimal_navigation.dart';
 import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
+import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -109,6 +111,7 @@ class RideViewState extends State<RideView> {
           children: const [
             RideMapView(),
             RideSpeedometerView(),
+            Positioned(child: SafeArea(child: CancelButton()), top: 8, left: 8)
           ]
         ),
 
