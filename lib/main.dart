@@ -18,6 +18,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/features.dart';
@@ -88,23 +89,44 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<RerouteService>(create: (context) => RerouteService()),
         ChangeNotifierProvider<FeedbackService>(create: (context) => FeedbackService()),
       ],
-      child: MaterialApp(
-        title: 'PrioBike',
-        theme: ThemeData(
-          colorScheme: const ColorScheme.light(
-            background: Color(0xF6F6F6FF),
-            primary: Color.fromARGB(255, 0, 115, 255),
-            secondary: Color.fromARGB(255, 0, 198, 255),
-            surface: Color(0xFFFFFFFF),
-          ),
-        ),
-        // The navigator key is used to access the app's build context.
-        navigatorKey: navigatorKey,
-        home: const FeatureLoaderView(
-          child: PrivacyPolicyView(
-            child: HomeView(),
-          ),
-        ),
+      child: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          SettingsService settingsService =
+              Provider.of<SettingsService>(context);
+          ColorMode colorMode = settingsService.colorMode;
+
+          return MaterialApp(
+            title: 'PrioBike',
+            theme: ThemeData(
+              colorScheme: const ColorScheme.light(
+                background: Color(0xF6F6F6FF),
+                primary: Color.fromARGB(255, 0, 115, 255),
+                secondary: Color.fromARGB(255, 0, 198, 255),
+                surface: Color(0xFFFFFFFF),
+              ),
+            ),
+            darkTheme: ThemeData(
+              colorScheme: const ColorScheme.light(
+                background: Color(0xF61D1D1D),
+                primary: Color.fromARGB(255, 0, 115, 255),
+                secondary: Color.fromARGB(255, 0, 198, 255),
+                surface: Color(0xFF2B2B2B),
+              ),
+            ),
+            themeMode: colorMode == ColorMode.light
+                ? ThemeMode.light
+                : colorMode == ColorMode.dark
+                    ? ThemeMode.dark
+                    : ThemeMode.system,
+            // The navigator key is used to access the app's build context.
+            navigatorKey: navigatorKey,
+            home: const FeatureLoaderView(
+              child: PrivacyPolicyView(
+                child: HomeView(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

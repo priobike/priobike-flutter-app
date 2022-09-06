@@ -14,6 +14,7 @@ import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
@@ -138,7 +139,7 @@ class SettingsView extends StatefulWidget {
 }
 
 class SettingsViewState extends State<SettingsView> {
-  /// The associeted feature service, which is injected by the provider.
+  /// The associated feature service, which is injected by the provider.
   late FeatureService featureService;
 
   /// The associated settings service, which is injected by the provider.
@@ -211,7 +212,15 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
-  @override 
+  /// A callback that is executed when darkMode is changed
+  Future<void> onChangeColorMode(ColorMode colorMode) async {
+    // Tell the settings service that we selected the new colorModePreference.
+    await settingsService.selectColorMode(colorMode);
+
+    Navigator.pop(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
@@ -308,6 +317,20 @@ class SettingsViewState extends State<SettingsView> {
                   icon: Icons.list, 
                   callback: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
                 ),
+
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Farbmodus",
+                icon: Icons.expand_more,
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                      elements: ColorMode.values,
+                      selected: settingsService.colorMode,
+                      title: (ColorMode e) => e.description,
+                      callback: onChangeColorMode
+                  );
+                }),
+                ),
+              ),
 
               const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
 
