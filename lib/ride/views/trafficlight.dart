@@ -23,17 +23,21 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
   @override
   Widget build(BuildContext context) {
-    if (rs.currentRecommendation == null) return Container();
-    if (rs.currentRecommendation!.distance > 100) return Container();
-    return Container(
+    final alternativeView = Container(
       width: 128, height: 128,
       decoration: BoxDecoration(
-        gradient: RadialGradient(
-          stops: const [0.25, 1.0],
-          colors: rs.currentRecommendation!.isGreen 
-            ? const [Color.fromARGB(255, 0, 255, 0), Color.fromARGB(255, 0, 128, 0)]
-            : const [Color.fromARGB(255, 255, 0, 0), Color.fromARGB(255, 140, 0, 0)],
-        ),
+        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(64),
+        border: Border.all(color: Colors.black, width: 2),
+      ),
+    );
+
+    if (rs.currentRecommendation == null) return alternativeView;
+    
+    final trafficLight = Container(
+      width: 128, height: 128,
+      decoration: BoxDecoration(
+        color: rs.currentRecommendation!.isGreen ? const Color.fromARGB(255, 0, 255, 106) : const Color.fromARGB(255, 243, 60, 39),
         borderRadius: BorderRadius.circular(64),
         border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),
@@ -47,7 +51,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
             foreground: Paint()
               ..style = PaintingStyle.stroke
               ..strokeWidth = 4
-              ..color = Color.fromARGB(255, 0, 0, 0),
+              ..color = const Color.fromARGB(255, 0, 0, 0),
           ),
         ),
         Text(
@@ -60,6 +64,15 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
           ),
         ),
       ])),
+    );
+
+    final showCountdown = rs.currentRecommendation!.distance < 100 && (rs.currentRecommendation!.quality ?? 0) > 0.9;
+
+    return AnimatedCrossFade(
+      duration: const Duration(milliseconds: 300),
+      firstChild: trafficLight,
+      secondChild: alternativeView,
+      crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }
 }

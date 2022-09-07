@@ -168,7 +168,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       axes: [
         RadialAxis(
           minimum: minSpeed, maximum: maxSpeed, 
-          startAngle: 165, endAngle: 15,
+          startAngle: 0, endAngle: 360,
           showTicks: false,
           showLabels: false,
           showAxisLine: false, 
@@ -183,19 +183,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ranges: [
             GaugeRange(
               startValue: minSpeed, endValue: maxSpeed,
-              startWidth: 43,
-              endWidth: 43,
+              startWidth: 53,
+              endWidth: 53,
               color: Colors.black,
             ),
           ],
         ),
         RadialAxis(
           minimum: minSpeed, maximum: maxSpeed, 
-          startAngle: 166, endAngle: 14,
+          startAngle: 160, endAngle: 20,
           interval: 10, minorTicksPerInterval: 4,
           showAxisLine: true, 
           radiusFactor: 0.985,
-          labelOffset: 16,
+          labelOffset: 14,
           axisLineStyle: const AxisLineStyle(
             thicknessUnit: GaugeSizeUnit.factor, 
             thickness: 0.25, 
@@ -203,12 +203,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
             cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: const MajorTickStyle(
-            length: 7.5, 
+            length: 20, 
             thickness: 1.5, 
             color: Color.fromARGB(255, 0, 0, 0)
           ),
           minorTickStyle: const MinorTickStyle(
-            length: 5, 
+            length: 16, 
             thickness: 1.5, 
             color: Color.fromARGB(255, 0, 0, 0)
           ),
@@ -220,8 +220,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ranges: [
             GaugeRange(
               startValue: minSpeed, endValue: maxSpeed,
-              startWidth: 38,
-              endWidth: 38,
+              startWidth: 48,
+              endWidth: 48,
               gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
             ),
           ],
@@ -229,10 +229,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
             MarkerPointer(
               value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
-              markerHeight: 22,
-              markerOffset: 0,
+              markerHeight: 24,
+              markerOffset: 4,
               elevation: 4,
-              markerWidth: 56,
+              markerWidth: 64,
               enableAnimation: true,
               animationType: AnimationType.ease,
               color: Theme.of(context).colorScheme.onBackground,
@@ -240,10 +240,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
             MarkerPointer(
               value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
-              markerHeight: 16,
-              markerOffset: 0,
+              markerHeight: 18,
+              markerOffset: 4,
               elevation: 4,
-              markerWidth: 50,
+              markerWidth: 58,
               enableAnimation: true,
               borderWidth: 4,
               borderColor: Theme.of(context).colorScheme.background,
@@ -260,16 +260,34 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       child: Transform.translate(
         offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom), 
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: Stack(
             alignment: Alignment.center,
             children: [
               Container(
                 child: gauge, 
                 height: (MediaQuery.of(context).size.width - 16),
-                  decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.75),
-                  shape: BoxShape.circle,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                child: gauge, 
+                height: (MediaQuery.of(context).size.width - 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
                 ),
               ),
               const RideTrafficLightView(),

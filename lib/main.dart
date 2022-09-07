@@ -92,7 +92,7 @@ class App extends StatelessWidget {
         title: 'PrioBike',
         theme: ThemeData(
           colorScheme: const ColorScheme.light(
-            background: Color(0xF6F6F6FF),
+            background: Color.fromARGB(255, 246, 246, 255),
             primary: Color.fromARGB(255, 0, 115, 255),
             secondary: Color.fromARGB(255, 0, 198, 255),
             surface: Color(0xFFFFFFFF),

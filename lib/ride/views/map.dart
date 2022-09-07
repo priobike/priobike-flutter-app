@@ -122,7 +122,7 @@ class RideMapViewState extends State<RideMapView> {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
 
     // Remove all existing layers.
     await mapController!.removeSymbols(trafficLights ?? []);
@@ -192,7 +192,7 @@ class RideMapViewState extends State<RideMapView> {
     // Cache the already displayed one to remove it after we have drawn on top.
     final currentTrafficLight = upcomingTrafficLight;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     final r = rideService.currentRecommendation;
     if (r != null && !r.error && r.sgPos != null) {
       if (r.isGreen) {
@@ -247,8 +247,6 @@ class RideMapViewState extends State<RideMapView> {
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
-
-    await mapController!.updateContentInsets(EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.6));
 
     // Allow overlaps so that important symbols and texts are not hidden.
     await mapController!.setSymbolIconAllowOverlap(true);
