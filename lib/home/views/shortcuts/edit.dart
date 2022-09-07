@@ -75,22 +75,26 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 16, top: 8),
                     child: Tile(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24), 
-                        bottomLeft: Radius.circular(24)
+                        fill: Theme.of(context).colorScheme.background,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            bottomLeft: Radius.circular(24)),
+                        content: Row(children: [
+                          Flexible(
+                              child: BoldContent(
+                                text: entry.value.name,
+                                context: context,
+                              ),
+                              fit: FlexFit.tight),
+                          const HSpace(),
+                          SmallIconButton(
+                            icon: Icons.delete,
+                            onPressed: () => onDeleteShortcut(entry.key),
+                            fill: Theme.of(context).colorScheme.surface,
+                          ),
+                        ]),
                       ),
-                      content: Row(children: [
-                        Flexible(child: BoldContent(text: entry.value.name, context: context,), fit: FlexFit.tight),
-                        const HSpace(),
-                        SmallIconButton(
-                          icon: Icons.delete, 
-                          onPressed: () => onDeleteShortcut(entry.key), 
-                          color: Colors.black, 
-                          fill: Theme.of(context).colorScheme.background,
-                        ),
-                      ]),
-                    ),
-                  )
+                    )
                 );
               }).toList(),
               onReorder: onChangeShortcutOrder,

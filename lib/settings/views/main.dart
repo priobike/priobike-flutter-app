@@ -64,16 +64,16 @@ class SettingsElement extends StatelessWidget {
           topLeft: Radius.circular(24), 
           bottomLeft: Radius.circular(24)
         ),
-        fill: Theme.of(context).colorScheme.surface,
+        fill: Theme.of(context).colorScheme.background,
         content: Row(children: [
           BoldContent(text: title, context: context),
           const HSpace(),
-          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue, context: context), fit: FlexFit.tight)
+          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context), fit: FlexFit.tight)
           else Flexible(child: Container()),
           SmallIconButton(
             icon: icon, 
             onPressed: callback,
-            fill: Theme.of(context).colorScheme.background,
+            fill: Theme.of(context).colorScheme.surface,
           ),
         ]),
       ),
@@ -224,7 +224,7 @@ class SettingsViewState extends State<SettingsView> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(body: Stack(children: [
-        Container(color: Theme.of(context).colorScheme.background),
+        Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -54,8 +54,8 @@ class AppBackButton extends StatelessWidget {
       height: 64,
       child: RawMaterialButton(
         elevation: 0,
-        fillColor: Theme.of(context).colorScheme.surface,
-        splashColor: Theme.of(context).colorScheme.onBackground,
+        fillColor: Theme.of(context).colorScheme.background,
+        splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Icon(

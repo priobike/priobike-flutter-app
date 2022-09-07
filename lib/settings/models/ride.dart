@@ -41,7 +41,7 @@ extension RidePreferenceIcon on RidePreference {
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300,
-                    color: Color(0xFF000000)),
+                    color: Colors.grey),
               ),
             ]);
       case RidePreference.minimalNavigationCyclingView:
@@ -53,7 +53,7 @@ extension RidePreferenceIcon on RidePreference {
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w300,
-                color: Color(0xFF000000)),
+                color: Colors.grey),
           ),
         ]);
     }
