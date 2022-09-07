@@ -53,24 +53,35 @@ class DiscomfortService with ChangeNotifier {
         if (segment.value == null) return null;
         final cs = getCoordinates(segment, path);
         if (segment.value == "impassable") {
-          return Discomfort(coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
         } else if (segment.value == "very_horrible") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
         } else if (segment.value == "horrible") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "very_bad") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "bad") {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
         } else if (segment.value == "intermediate" && profile.bikeType == BikeType.racingbike) {
-          return Discomfort(coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
         }
-      })
-      .where((e) => e != null)
-      .map((e) => e!)
-      .toList();
+      }).where((e) => e != null).map((e) => e!).toList();
+
+    /// Use the speed limit values to determine uncomfortable sections.
+    // See: https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
+    final unwantedSpeed = path.details.maxSpeed
+      .map((segment) {
+        if (segment.value == null) return null;
+        final cs = getCoordinates(segment, path);
+        if (segment.value! >= 100) {
+          return Discomfort(segment: segment, coordinates: cs, description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
+        } else if (segment.value! <= 10) {
+          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
+        }
+      }).where((e) => e != null).map((e) => e!).toList();
     
-    foundDiscomforts = unsmooth;
+    foundDiscomforts = [...unsmooth, ...unwantedSpeed];
+    foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));
     notifyListeners();
   }
 }
