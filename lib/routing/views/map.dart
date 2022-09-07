@@ -151,19 +151,20 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
     for (MapEntry<int, Discomfort> e in ds.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
         final location = e.value.coordinates.first;
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location, number: e.key + 1),
+          DiscomfortLocationMarker(geo: location, number: e.key + 1, iconSize: iconSize),
           e.value.toJson(),
         ));
       } else {
         // A section of the route.
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1),
+          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1, iconSize: iconSize),
           e.value.toJson(),
         ));
         discomfortSections!.add(await mapController!.addLine(
@@ -246,19 +247,19 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
-    // If the line corresponds to an alternative route, we select that one.
-    for (Line routeLine in allRoutes ?? []) {
-      if (line.id == routeLine.id) {
-        final route = r.Route.fromJson(line.data);
-        rs.switchToRoute(context, route);
-        return;
-      }
-    }
     // If the line corresponds to a discomfort line, we select the discomfort.
     for (Line discomfortLine in discomfortSections ?? []) {
       if (line.id == discomfortLine.id) {
         final discomfort = Discomfort.fromJson(line.data);
         ds.selectDiscomfort(discomfort);
+        return;
+      }
+    }
+    // If the line corresponds to an alternative route, we select that one.
+    for (Line routeLine in allRoutes ?? []) {
+      if (line.id == routeLine.id) {
+        final route = r.Route.fromJson(line.data);
+        rs.switchToRoute(context, route);
         return;
       }
     }

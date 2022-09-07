@@ -40,12 +40,13 @@ class DiscomfortLocationMarker extends SymbolOptions {
   DiscomfortLocationMarker({
     required LatLng geo,
     required int number,
+    double iconSize = 0.5,
   }): super(
     geometry: geo,
     iconImage: "alert",
-    iconSize: 0.5,
+    iconSize: iconSize,
     textField: "$number",
-    textSize: 8,
+    textSize: 12,
     zIndex: 1,
   );
 }

@@ -10,8 +10,11 @@ import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
+  /// The border radius of the button.
+  final double borderRadius;
+
   /// Create a new cancel button.
-  const CancelButton({Key? key}) : super(key: key);
+  const CancelButton({this.borderRadius = 32, Key? key}) : super(key: key);
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
@@ -66,7 +69,7 @@ class CancelButton extends StatelessWidget {
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(borderRadius),
                 side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241))
               )
             ),
