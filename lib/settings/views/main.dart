@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -23,16 +22,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
-
-/// Debug these views.
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<SettingsService>(
-      create: (context) => SettingsService(),
-    ),
-  ],
-  child: const SettingsView(),
-));
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
