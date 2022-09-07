@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/views/button.dart';
+import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -42,26 +43,20 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   void didChangeDependencies() {
     rs = Provider.of<RideService>(context);
     ps = Provider.of<PositionService>(context);
-    if (ps.needsLayout[viewId] != false || rs.needsLayout[viewId] != false) {
-      updateView(rs, ps);
-      ps.needsLayout[viewId] = false;
+    if (rs.needsLayout[viewId] != false) {
       rs.needsLayout[viewId] = false;
+      loadGauge(rs, ps);
     }
     super.didChangeDependencies();
-  }
-
-  /// Update the view with the current data.
-  Future<void> updateView(RideService rs, PositionService ps) async {
-    await loadGauge(rs, ps);
   }
 
   /// Load the gauge colors and steps.
   Future<void> loadGauge(RideService rs, PositionService ps) async {
     // Check if we have the necessary position data
-    var posTime = ps.estimatedPosition?.timestamp;
-    var posSpeed = ps.estimatedPosition?.speed;
-    var posLat = ps.estimatedPosition?.latitude;
-    var posLon = ps.estimatedPosition?.longitude;
+    var posTime = ps.lastPosition?.timestamp;
+    var posSpeed = ps.lastPosition?.speed;
+    var posLat = ps.lastPosition?.latitude;
+    var posLon = ps.lastPosition?.longitude;
     var timeStr = rs.currentRecommendation?.predictionStartTime;
     var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
     var phases = rs.currentRecommendation?.predictionValue;
@@ -162,82 +157,137 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   Widget build(BuildContext context) {
-    var gauge = Positioned(
-      child: Column(
-        // Bottom to top
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Container(
-            child: SfRadialGauge(
-              enableLoadingAnimation: true,
-              axes: [RadialAxis(
-                minimum: minSpeed, maximum: maxSpeed, 
-                startAngle: 165, endAngle: 15,
-                interval: 10, minorTicksPerInterval: 1,
-                showAxisLine: true, 
-                radiusFactor: 1,
-                labelOffset: 20,
-                axisLineStyle: const AxisLineStyle(thicknessUnit: GaugeSizeUnit.factor, thickness: 0.25),
-                majorTickStyle: const MajorTickStyle(length: 5, thickness: 4, color: Color.fromARGB(255, 44, 62, 80)),
-                minorTickStyle: const MinorTickStyle(length: 5, thickness: 2, color: Color.fromARGB(255, 52, 73, 94)),
-                axisLabelStyle: const GaugeTextStyle(color: Color.fromARGB(255, 44, 62, 80), fontWeight: FontWeight.bold, fontSize: 24),
-                ranges: [GaugeRange(
-                  startValue: minSpeed, endValue: maxSpeed,
-                  sizeUnit: GaugeSizeUnit.factor,
-                  startWidth: 0.25,
-                  endWidth: 0.25,
-                  gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
-                )],
-                pointers: [NeedlePointer(
-                  value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
-                  needleLength: 1,
-                  enableAnimation: true,
-                  animationType: AnimationType.ease,
-                  needleStartWidth: 3,
-                  needleEndWidth: 10,
-                  needleColor: const Color.fromARGB(255, 44, 62, 80),
-                  knobStyle: const KnobStyle(knobRadius: 0.075, sizeUnit: GaugeSizeUnit.factor, color: Color.fromARGB(255, 44, 62, 80))
-                )],
-              )],
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 0),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 255, 255, 255),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromARGB(255, 44, 62, 80).withOpacity(1),
-                  spreadRadius: 32,
-                  blurRadius: 0,
-                  offset: const Offset(0, 24),
-                ),
-                BoxShadow(
-                  color: const Color.fromARGB(255, 52, 73, 94).withOpacity(0.1),
-                  spreadRadius: 64,
-                  blurRadius: 0,
-                  offset: const Offset(0, 50),
-                ),
-              ],
-            ),
+    var gauge = SfRadialGauge(
+      enableLoadingAnimation: true,
+      axes: [
+        RadialAxis(
+          minimum: minSpeed, maximum: maxSpeed, 
+          startAngle: 0, endAngle: 360,
+          showTicks: false,
+          showLabels: false,
+          showAxisLine: false, 
+          radiusFactor: 1,
+          labelOffset: 15,
+          axisLineStyle: const AxisLineStyle(
+            thicknessUnit: GaugeSizeUnit.factor, 
+            thickness: 0.25, 
+            color: Color.fromARGB(255, 44, 62, 80), 
+            cornerStyle: CornerStyle.bothFlat,
           ),
-        ],
-      ),
-      left: 0,
-      right: 0,
-      bottom: - MediaQuery.of(context).size.width * 0.4 + MediaQuery.of(context).padding.bottom + 8,
+          ranges: [
+            GaugeRange(
+              startValue: minSpeed, endValue: maxSpeed,
+              startWidth: 53,
+              endWidth: 53,
+              color: Colors.black,
+            ),
+          ],
+        ),
+        RadialAxis(
+          minimum: minSpeed, maximum: maxSpeed, 
+          startAngle: 160, endAngle: 20,
+          interval: 10, minorTicksPerInterval: 4,
+          showAxisLine: true, 
+          radiusFactor: 0.985,
+          labelOffset: 14,
+          axisLineStyle: const AxisLineStyle(
+            thicknessUnit: GaugeSizeUnit.factor, 
+            thickness: 0.25, 
+            color: Color.fromARGB(255, 0, 0, 0), 
+            cornerStyle: CornerStyle.bothFlat,
+          ),
+          majorTickStyle: const MajorTickStyle(
+            length: 20, 
+            thickness: 1.5, 
+            color: Color.fromARGB(255, 0, 0, 0)
+          ),
+          minorTickStyle: const MinorTickStyle(
+            length: 16, 
+            thickness: 1.5, 
+            color: Color.fromARGB(255, 0, 0, 0)
+          ),
+          axisLabelStyle: const GaugeTextStyle(
+            color: Color.fromARGB(255, 0, 0, 0), 
+            fontWeight: FontWeight.bold, 
+            fontSize: 18
+          ),
+          ranges: [
+            GaugeRange(
+              startValue: minSpeed, endValue: maxSpeed,
+              startWidth: 48,
+              endWidth: 48,
+              gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
+            ),
+          ],
+          pointers: [
+            MarkerPointer(
+              value: (ps.lastPosition?.speed ?? 0) * 3.6,
+              markerType: MarkerType.rectangle,
+              markerHeight: 24,
+              markerOffset: 4,
+              elevation: 4,
+              markerWidth: 64,
+              enableAnimation: true,
+              animationType: AnimationType.ease,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+            MarkerPointer(
+              value: (ps.lastPosition?.speed ?? 0) * 3.6,
+              markerType: MarkerType.rectangle,
+              markerHeight: 18,
+              markerOffset: 4,
+              elevation: 4,
+              markerWidth: 58,
+              enableAnimation: true,
+              borderWidth: 4,
+              borderColor: Theme.of(context).colorScheme.background,
+              animationType: AnimationType.ease,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
+      ],
     );
 
     return WillPopScope(
       onWillPop: () async => false,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          gauge,
-          const Positioned(
-            child: SafeArea(child: CancelButton()),
-            bottom: 0,
+      child: Transform.translate(
+        offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom), 
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                child: gauge, 
+                height: (MediaQuery.of(context).size.width - 16),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                child: gauge, 
+                height: (MediaQuery.of(context).size.width - 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+                ),
+              ),
+              const RideTrafficLightView(),
+            ]
           ),
-        ]
+        )
       ),
     );
   }

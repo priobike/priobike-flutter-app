@@ -69,20 +69,11 @@ class TrafficLightGreenMarker extends SymbolOptions {
   /// Create a new traffic light marker.
   TrafficLightGreenMarker({
     required LatLng geo,
-    required int countdown,
     double iconSize = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
-    textField: "$countdown",
-    textSize: 60,
-    textColor: "white",
-    textOffset: const Offset(1.55, -0.9),
-    textJustify: "center",
-    textAnchor: "center",
-    textHaloColor: "black",
-    textHaloWidth: 2,
     zIndex: 3,
   );
 }
@@ -92,20 +83,11 @@ class TrafficLightRedMarker extends SymbolOptions {
   /// Create a new traffic light marker.
   TrafficLightRedMarker({
     required LatLng geo,
-    required int countdown,
     double iconSize = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightred",
     iconSize: iconSize,
-    textField: "$countdown",
-    textSize: 60,
-    textColor: "white",
-    textOffset: const Offset(1.55, -2.2),
-    textHaloColor: "black",
-    textJustify: "center",
-    textAnchor: "center",
-    textHaloWidth: 2,
     zIndex: 3,
   );
 }

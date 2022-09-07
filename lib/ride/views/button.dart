@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/ride/services/reroute.dart';
@@ -57,10 +58,10 @@ class CancelButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: SizedBox(
-        width: 112,
+        width: 96,
         child: ElevatedButton.icon(
           icon: const Icon(Icons.done),
-          label: const Text("Fertig"),
+          label: BoldSmall(text: "Fertig", color: Theme.of(context).colorScheme.onPrimary, context: context),
           onPressed: () => onTap(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(

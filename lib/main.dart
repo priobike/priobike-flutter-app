@@ -31,9 +31,9 @@ import 'package:provider/provider.dart';
 /// to work on older Android devices, we need to ignore the certificate error. 
 /// Note that this is a workaround and should be handled with care.
 /// See: https://github.com/flutter/flutter/issues/19588#issuecomment-406779390
-class OldAndroidHttpOverrides extends HttpOverrides{
+class OldAndroidHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext? context){
+  HttpClient createHttpClient(SecurityContext? context) {
     return super
       .createHttpClient(context)
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;

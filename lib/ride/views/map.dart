@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/algorithms/sma.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
@@ -48,23 +49,26 @@ class RideMapViewState extends State<RideMapView> {
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
+  /// A simple moving average for the camera heading.
+  final cameraHeadingSMA = SMA(k: PositionExtrapolator.refreshRateHz * 4 /* seconds */);
+
   @override
   void didChangeDependencies() {
     routingService = Provider.of<RoutingService>(context);
     if (routingService.needsLayout[viewId] != false && mapController != null) {
-      onRoutingServiceUpdate(routingService);
+      onRoutingServiceUpdate();
       routingService.needsLayout[viewId] = false;
     }
 
     positionService = Provider.of<PositionService>(context);
     if (positionService.needsLayout[viewId] != false && mapController != null) {
-      onPositionServiceUpdate(positionService);
+      onPositionServiceUpdate();
       positionService.needsLayout[viewId] = false;
     }
 
     rideService = Provider.of<RideService>(context);
     if (rideService.needsLayout[viewId] != false && mapController != null) {
-      onRideServiceUpdate(rideService);
+      onRideServiceUpdate();
       rideService.needsLayout[viewId] = false;
     }
 
@@ -72,59 +76,59 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// Update the view with the current data.
-  Future<void> onRoutingServiceUpdate(RoutingService rs) async {
-    await loadRouteLayer(rs);
-    await loadTrafficLightMarkers(rs);
-    await loadWaypointMarkers(rs);
+  Future<void> onRoutingServiceUpdate() async {
+    await loadRouteLayer();
+    await loadTrafficLightMarkers();
+    await loadWaypointMarkers();
   }
 
   /// Update the view with the current data.
-  Future<void> onPositionServiceUpdate(PositionService ps) async {
-    await adaptMapController(ps);
+  Future<void> onPositionServiceUpdate() async {
+    await adaptMapController();
   }
 
   /// Update the view with the current data.
-  Future<void> onRideServiceUpdate(RideService rs) async {
-    await loadNextTrafficLightLayer(rs);
+  Future<void> onRideServiceUpdate() async {
+    await loadNextTrafficLightLayer();
   }
 
   /// Load the current route layer.
-  Future<void> loadRouteLayer(RoutingService s) async {
+  Future<void> loadRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
     // Remove the existing route layer.
     if (route != null) await mapController!.removeLine(route!);
     if (routeBackground != null) await mapController!.removeLine(routeBackground!);
-    if (s.selectedRoute == null) return;
+    if (routingService.selectedRoute == null) return;
     // Add the new route layer.
     routeBackground = await mapController!.addLine(
       RouteBackgroundLayer(
-        points: s.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: routingService.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
         lineWidth: 20,
       ),
-      s.selectedRoute!.toJson(),
+      routingService.selectedRoute!.toJson(),
     );
     route = await mapController!.addLine(
       RouteLayer(
-        points: s.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: routingService.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
         lineWidth: 14
       ),
-      s.selectedRoute!.toJson(),
+      routingService.selectedRoute!.toJson(),
     );
   }
 
   /// Load the current traffic lights.
-  Future<void> loadTrafficLightMarkers(RoutingService s) async {
+  Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
 
     // Remove all existing layers.
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in s.selectedRoute?.signalGroups.values ?? []) {
+    for (Sg sg in routingService.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
         TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: iconSize),
       ));
@@ -132,20 +136,20 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// Load the current waypoint markers.
-  Future<void> loadWaypointMarkers(RoutingService s) async {
+  Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
     if (mapController == null) return;
     // Remove the existing waypoint markers.
     await mapController!.removeSymbols(waypoints ?? []);
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in s.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry in routingService.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
         ));
-      } else if (entry.key == s.selectedWaypoints!.length - 1) {
+      } else if (entry.key == routingService.selectedWaypoints!.length - 1) {
         waypoints!.add(await mapController!.addSymbol(
           DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
@@ -160,38 +164,42 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// Adapt the map controller.
-  Future<void> adaptMapController(PositionService s) async {
+  Future<void> adaptMapController() async {
     if (mapController == null) return;
-    // await mapController!.updateMyLocationTrackingMode(MyLocationTrackingMode.TrackingGPS);
-    await mapController!.moveCamera(CameraUpdate.tiltTo(60));
-    await mapController!.moveCamera(CameraUpdate.newLatLngZoom(
-      s.estimatedPosition != null
-        ? LatLng(s.estimatedPosition!.latitude, s.estimatedPosition!.longitude)
-        : const LatLng(0, 0),
-      19,
-    ));
-    await mapController!.animateCamera(CameraUpdate.bearingTo(
-      s.estimatedPosition != null ? s.estimatedPosition!.heading : 0
-    ));
+    if (routingService.selectedRoute == null) return;
+    if (positionService.estimatedPosition == null) {
+      await mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
+      );
+    } else {
+      await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        bearing: cameraHeadingSMA.next(
+          positionService.estimatedPosition != null ? positionService.estimatedPosition!.heading : 0
+        ),
+        target: LatLng(
+          positionService.estimatedPosition!.latitude, positionService.estimatedPosition!.longitude
+        ),
+        zoom: 18,
+        tilt: 60,
+      )));
+    }
   }
 
   /// Load the upcoming traffic light layer.
-  Future<void> loadNextTrafficLightLayer(RideService rs) async {
+  Future<void> loadNextTrafficLightLayer() async {
     if (mapController == null) return;
 
     // Cache the already displayed one to remove it after we have drawn on top.
     final currentTrafficLight = upcomingTrafficLight;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
-
-    final r = rs.currentRecommendation;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    final r = rideService.currentRecommendation;
     if (r != null && !r.error && r.sgPos != null) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
             iconSize: iconSize,
-            countdown: r.countdown,
           ),
         );
       } else {
@@ -199,7 +207,6 @@ class RideMapViewState extends State<RideMapView> {
           TrafficLightRedMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
             iconSize: iconSize,
-            countdown: r.countdown,
           ),
         );
       }
@@ -241,17 +248,15 @@ class RideMapViewState extends State<RideMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    await mapController!.updateContentInsets(const EdgeInsets.only(bottom: 0));
-
     // Allow overlaps so that important symbols and texts are not hidden.
     await mapController!.setSymbolIconAllowOverlap(true);
     await mapController!.setSymbolIconIgnorePlacement(true);
     await mapController!.setSymbolTextAllowOverlap(true);
     await mapController!.setSymbolTextIgnorePlacement(true);
 
-    onRoutingServiceUpdate(routingService);
-    onPositionServiceUpdate(positionService);
-    onRideServiceUpdate(rideService);
+    onRoutingServiceUpdate();
+    onPositionServiceUpdate();
+    onRideServiceUpdate();
   }
 
   @override
