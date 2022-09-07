@@ -40,7 +40,7 @@ class RideSelectionView extends StatelessWidget {
         children: [
           e.icon,
           const Divider(),
-          Small(text: e.description, maxLines: 4),
+          Small(text: e.description, maxLines: 4, context: context),
         ],
       ),
     )).toList();
@@ -55,7 +55,7 @@ class RideSelectionView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 128),
-            HPad(child: Header(text: "Wähle eine Fahrtansicht.", color: Theme.of(context).colorScheme.primary)),
+            HPad(child: Header(text: "Wähle eine Fahrtansicht.", color: Theme.of(context).colorScheme.primary, context: context)),
             const SmallVSpace(),
             HPad(child: Content(text: "Keine Sorge, durch Wischen kannst du immer zwischen den Ansichten wechseln.", context: context)),
             GridView.count(

@@ -84,7 +84,7 @@ class RouteSearchState extends State<RouteSearch> {
         itemCount: geosearchService.results?.length ?? 0,
         itemBuilder: (context, index) {
           return ListTile(
-            title: BoldSmall(text: geosearchService.results![index].address),
+            title: BoldSmall(text: geosearchService.results![index].address, context: context),
             trailing: const Icon(Icons.arrow_forward),
             onTap: () => onWaypointTapped(geosearchService.results![index]),
           );

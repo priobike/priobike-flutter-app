@@ -114,7 +114,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               )
             ),
           ),
-          Small(text: "Distanz der Route in Kilometer"),
+          Small(text: "Distanz der Route in Kilometer", context: context),
         ],
       ),
     );

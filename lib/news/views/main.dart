@@ -49,7 +49,7 @@ class NewsViewState extends State<NewsView> {
                       Row(children: [
                         AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
                         const HSpace(),
-                        SubHeader(text: "Neuigkeiten"),
+                        SubHeader(text: "Neuigkeiten", context: context),
                       ]),
                     ],
                   ),

@@ -7,15 +7,18 @@ class Header extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    double fontSize = 38,
-    Color color = Colors.black
+    double? fontSize,
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600, color: color),
-  );
+    style: Theme.of(context).textTheme.headline1!.merge(
+                TextStyle(color: color, fontSize: fontSize),
+              ),
+        );
 }
 
 /// A sub header text.
@@ -25,14 +28,17 @@ class SubHeader extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines,
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: color)
-  );
+    style: Theme.of(context).textTheme.subtitle1!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }
 
 class BoldSubHeader extends Text {
@@ -41,14 +47,17 @@ class BoldSubHeader extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines,
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: color)
-  );
+    style: Theme.of(context).textTheme.subtitle2!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }
 
 /// A content text.
@@ -65,15 +74,10 @@ class Content extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: color != null ? Theme
-      .of(context)
-        .textTheme
-      .bodyMedium!
-      .merge(TextStyle(color: color)) : Theme
-      .of(context)
-      .textTheme
-      .bodyMedium
-  );
+    style: Theme.of(context).textTheme.bodyMedium!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }
 
 /// A bold content text.
@@ -90,15 +94,10 @@ class BoldContent extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-      style: color != null ? Theme
-          .of(context)
-          .textTheme
-          .headline1!
-          .merge(TextStyle(color: color)) : Theme
-          .of(context)
-          .textTheme
-          .headline1
-  );
+      style: Theme.of(context).textTheme.headline2!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }
 
 /// A small text.
@@ -108,14 +107,17 @@ class Small extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: color)
-  );
+    style: Theme.of(context).textTheme.headline3!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }
 
 /// A bold small text.
@@ -125,12 +127,15 @@ class BoldSmall extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)
-  );
+    style: Theme.of(context).textTheme.headline4!.merge(
+                TextStyle(color: color),
+              ),
+        );
 }

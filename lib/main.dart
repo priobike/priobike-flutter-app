@@ -105,15 +105,34 @@ class App extends StatelessWidget {
                   surface: Color(0xFFFFFFFF),
                   brightness: Brightness.light),
               textTheme: const TextTheme(
-                headline1: TextStyle(
+                  headline1: TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF000000)),
+                  headline2: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF000000)),
-                bodyText1: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xFF000000)),
-              ),
+                  headline3: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF000000)),
+                  headline4: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF000000)),
+                  bodyText1: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF000000)),
+                  subtitle1: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFF000000)),
+                  subtitle2: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF000000))),
             ),
             darkTheme: ThemeData(
               colorScheme: const ColorScheme.dark(
@@ -123,15 +142,34 @@ class App extends StatelessWidget {
                   surface: Color(0xF63B3B3B),
                   brightness: Brightness.dark),
               textTheme: const TextTheme(
-                headline1: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFFFFFF)),
-                bodyText1: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xF6FFFFFF)),
-              ),
+                  headline1: TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFFFFF)),
+                  headline2: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFFFFF)),
+                  headline3: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFFFFFFFF)),
+                  headline4: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFFFFF)),
+                  bodyText1: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFFFFFFFF)),
+                  subtitle1: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Color(0xFFFFFFFF)),
+                  subtitle2: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFFFFFF))),
             ),
             themeMode: colorMode == ColorMode.light
                 ? ThemeMode.light

@@ -92,9 +92,10 @@ class TutorialViewState extends State<TutorialView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(child: BoldSmall(
-                  text: widget.text,
-                  color: const Color.fromARGB(255, 91, 91, 91),
-                )),
+                      text: widget.text,
+                      color: const Color.fromARGB(255, 91, 91, 91),
+                      context: context),
+                ),
                 const SmallHSpace(),
                 Column(children: [
                   AnimatedCrossFade(
@@ -111,6 +112,7 @@ class TutorialViewState extends State<TutorialView> {
                   Small(
                     text: "Tutorial",
                     color: const Color.fromARGB(255, 91, 91, 91),
+                    context: context
                   ),
                 ]),
               ],

@@ -52,7 +52,7 @@ class StarRatingViewState extends State<StarRatingView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Small(text: widget.text),
+        Small(text: widget.text, context: context),
         const SmallVSpace(),
         LayoutBuilder(
           builder: (context, constraints) {

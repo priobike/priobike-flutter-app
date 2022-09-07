@@ -74,7 +74,7 @@ class AlertsViewState extends State<AlertsView> {
               bottomLeft: Radius.circular(24.0),
             ),
           ),
-          child: BoldSmall(text: "Hinweise"),
+          child: BoldSmall(text: "Hinweise", context: context),
         )),
       ],
     );
@@ -93,7 +93,7 @@ class AlertsViewState extends State<AlertsView> {
                     padding: EdgeInsets.only(left: 3, bottom: 3),
                     child: AlertIcon(),
                   ),
-                  BoldSmall(text: "${e.key + 1}"),
+                  BoldSmall(text: "${e.key + 1}", context: context),
                 ]),
                 const SmallHSpace(),
                 SizedBox(
@@ -103,7 +103,7 @@ class AlertsViewState extends State<AlertsView> {
                     crossAxisAlignment: CrossAxisAlignment.start, 
                     mainAxisAlignment: MainAxisAlignment.center, 
                     children: [
-                      Flexible(child: BoldSmall(text: e.value.description, maxLines: 3, color: Colors.white)),
+                      Flexible(child: BoldSmall(text: e.value.description, maxLines: 3, color: Colors.white, context: context)),
                     ],
                   ),
                 ),

@@ -55,7 +55,7 @@ class NewsButtonState extends State<NewsButton> {
             shape: BoxShape.circle,
             color: Colors.red,
           ),
-          child: Small(text: "$unread", color: Colors.white),
+          child: Small(text: "$unread", color: Colors.white, context: context),
         ),
       ],
     );

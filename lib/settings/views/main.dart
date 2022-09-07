@@ -233,7 +233,7 @@ class SettingsViewState extends State<SettingsView> {
               Row(children: [
                 AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
                 const HSpace(),
-                SubHeader(text: "Einstellungen"),
+                SubHeader(text: "Einstellungen", context: context),
               ]),
               const SmallVSpace(),
               if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
@@ -389,7 +389,8 @@ class SettingsViewState extends State<SettingsView> {
                 padding: const EdgeInsets.symmetric(horizontal: 32), 
                 child: Small(
                   text: "PrioBike v${featureService.appVersion} ${featureService.gitHead}", 
-                  color: Colors.grey
+                  color: Colors.grey,
+                  context: context
                 ),
               ),
 

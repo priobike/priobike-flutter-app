@@ -97,18 +97,18 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     children: [
                       const SizedBox(height: 164),
                       if (!s.hasChanged!) 
-                        Header(text: "Diese App funktioniert mit"),
+                        Header(text: "Diese App funktioniert mit", context: context),
                       if (!s.hasChanged!) 
-                        Header(text: "deinen Daten.", color: Colors.blueAccent),
+                        Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
                       if (s.hasChanged!) 
-                        Header(text: "Wir haben die Erklärung zum"),
+                        Header(text: "Wir haben die Erklärung zum", context: context),
                       if (s.hasChanged!) 
-                        Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent),
+                        Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
                       if (!s.hasChanged!) 
-                        SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:"),
+                        SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:", context: context),
                       if (s.hasChanged!) 
-                        SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch."),
+                        SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.", context: context),
                       const SmallVSpace(),

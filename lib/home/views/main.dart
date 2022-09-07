@@ -174,7 +174,7 @@ class HomeViewState extends State<HomeView> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 BoldContent(text: "Deine Shortcuts", context: context),
                 const SizedBox(height: 4),
-                Small(text: "Direkt zum Ziel navigieren"),
+                Small(text: "Direkt zum Ziel navigieren", context: context),
               ]),
               Expanded(child: Container()),
               SmallIconButton(

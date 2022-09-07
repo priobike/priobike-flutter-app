@@ -76,7 +76,7 @@ class NavBarView extends StatelessWidget {
               color: Colors.white
             ),
             const SmallHSpace(),
-            Flexible(child: Small(text: "Wetterinformationen sind aktuell noch nicht verfügbar.", color: Colors.white)),
+            Flexible(child: Small(text: "Wetterinformationen sind aktuell noch nicht verfügbar.", color: Colors.white, context: context)),
             const SmallHSpace(),
             NewsButton(onPressed: () { onTapNotificationButton?.call(); }),
             const SmallHSpace(),

@@ -61,9 +61,9 @@ class ArticleListItem extends StatelessWidget {
             ),
         ]),
         const SmallVSpace(),
-        Small(text: '${DateFormat.E('de').format(article.pubDate)}. ${DateFormat.yMMMMd('de').format(article.pubDate)}'),
+        Small(text: '${DateFormat.E('de').format(article.pubDate)}. ${DateFormat.yMMMMd('de').format(article.pubDate)}', context: context),
         const SmallVSpace(),
-        BoldSubHeader(text: article.title),
+        BoldSubHeader(text: article.title, context: context),
         const SmallVSpace(),
         Content(text: article.text, context: context),
         if (divider) const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider())
