@@ -56,11 +56,20 @@ class TrafficLightOffMarker extends SymbolOptions {
   TrafficLightOffMarker({
     required LatLng geo,
     double iconSize = 1,
+    String? label,
   }): super(
     geometry: geo,
     iconImage: "trafficlightoff",
     iconSize: iconSize,
     zIndex: 2,
+    textField: label,
+    textSize: 16,
+    textOffset: const Offset(0, -3.5),
+    textAnchor: "bottom",
+    textJustify: "center",
+    textHaloColor: "#ffffff",
+    textHaloWidth: 1,
+    textHaloBlur: 1,
   );
 }
 

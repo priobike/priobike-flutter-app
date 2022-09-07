@@ -13,6 +13,8 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -33,6 +35,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The associated discomfort service, which is injected by the provider.
   late DiscomfortService ds;
+
+  /// The associated settings service, which is injected by the provider.
+  late SettingsService ss;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -77,6 +82,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   void didChangeDependencies() {
     rs = Provider.of<RoutingService>(context);
     ds = Provider.of<DiscomfortService>(context);
+    ss = Provider.of<SettingsService>(context);
     adaptMap();
     super.didChangeDependencies();
   }
@@ -181,9 +187,13 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
+    final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon)),
+        TrafficLightOffMarker(
+          geo: LatLng(sg.position.lat, sg.position.lon),
+          label: willShowLabels ? sg.label : null,
+        ),
       ));
     }
   }

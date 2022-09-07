@@ -17,6 +17,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
+import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
@@ -185,6 +186,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a sg labels mode is selected.
+  Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
+    // Tell the settings service that we selected the new sg labels mode.
+    await settingsService.selectSGLabelsMode(mode);
+
+    Navigator.pop(context);
+  }
+
   /// A callback that is executed when a positioning is selected.
   Future<void> onSelectPositioning(Positioning positioning) async {
     // Tell the settings service that we selected the new backend.
@@ -276,6 +285,21 @@ class SettingsViewState extends State<SettingsView> {
                       selected: settingsService.positioning, 
                       title: (Positioning e) => e.description,
                       callback: onSelectPositioning,
+                    );
+                  }),
+                )),
+
+              if (settingsService.enableInternalFeatures) 
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "SG-Info", 
+                  subtitle: settingsService.sgLabelsMode.description, 
+                  icon: Icons.expand_more, 
+                  callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                    return SettingsSelection(
+                      elements: SGLabelsMode.values, 
+                      selected: settingsService.sgLabelsMode,
+                      title: (SGLabelsMode e) => e.description, 
+                      callback: onSelectSGLabelsMode,
                     );
                   }),
                 )),

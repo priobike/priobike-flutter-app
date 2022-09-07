@@ -21,7 +21,7 @@ class RouteBackgroundLayer extends LineOptions {
 class RouteBackgroundClickLayer extends LineOptions {
   RouteBackgroundClickLayer({ required List<LatLng> points }) : super(
     geometry: points,
-    lineWidth: 50.0,
+    lineWidth: 25.0,
     lineColor: "transparent",
     lineJoin: "round",
   );
