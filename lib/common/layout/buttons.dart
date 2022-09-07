@@ -84,6 +84,7 @@ class BigButton extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
+    this.iconColor
   }) : super(key: key);
 
   final IconData? icon;
@@ -92,6 +93,7 @@ class BigButton extends StatelessWidget {
   final Color? fillColor;
   final Color? splashColor;
   final BoxConstraints boxConstraints;
+  final Color? iconColor;
 
   @override 
   Widget build(BuildContext context) {
@@ -112,6 +114,7 @@ class BigButton extends StatelessWidget {
             const SizedBox(width: 32),
             if (icon != null) Icon(
               icon,
+              color: iconColor,
             ),
             const SizedBox(width: 12),
             Flexible(child: Text(

@@ -88,7 +88,7 @@ class RoutingViewState extends State<RoutingView> {
               preferences.setBool("priobike.routing.warning", true);
               startRide();
             },
-            child: BoldContent(text: 'OK', color: Colors.blue, context: context),
+            child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
           ),
         ],
       ));
@@ -123,7 +123,7 @@ class RoutingViewState extends State<RoutingView> {
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
-              child: BoldContent(text: 'Speichern', color: Colors.blue, context: context),
+              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
             ),
           ],
         );
