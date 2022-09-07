@@ -79,7 +79,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                         topLeft: Radius.circular(24), 
                         bottomLeft: Radius.circular(24)
                       ),
-                      fill: Colors.white,
                       content: Row(children: [
                         Flexible(child: BoldContent(text: entry.value.name, context: context,), fit: FlexFit.tight),
                         const HSpace(),

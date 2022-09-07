@@ -29,7 +29,8 @@ class SmallIconButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Icon(
-            icon
+            icon,
+            color: color ?? Theme.of(context).colorScheme.onBackground,
           ),
         ),
         onPressed: onPressed,

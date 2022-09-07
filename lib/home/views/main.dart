@@ -179,7 +179,7 @@ class HomeViewState extends State<HomeView> {
               Expanded(child: Container()),
               SmallIconButton(
                 icon: Icons.edit, 
-                fill: Theme.of(context).backgroundColor,
+                fill: Theme.of(context).colorScheme.surface,
                 splash: Colors.white,
                 onPressed: onOpenShortcutEditView,
               ),
