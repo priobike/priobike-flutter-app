@@ -24,6 +24,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/features.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -40,8 +41,15 @@ class OldAndroidHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
+Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  /// ColorMode has to be loaded before first build method
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  ColorMode colorMode = ColorMode.system;
+  final colorModeStr = storage.getString("priobike.settings.colorMode");
+  if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
 
   final log = Logger("main.dart");
 
@@ -52,7 +60,7 @@ void main() {
   };
 
   // Run the app, catch errors and dispatch them to the logger.
-  runZonedGuarded(() => runApp(const App()), (Object error, StackTrace stack) {
+  runZonedGuarded(() => runApp(App(colorMode: colorMode)), (Object error, StackTrace stack) {
     // Log the error to the console.
     log.e(error);
     log.e(stack);
@@ -63,8 +71,9 @@ void main() {
 class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
+  final ColorMode colorMode;
 
-  const App({Key? key}) : super(key: key);
+  const App({Key? key, required this.colorMode}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +84,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<FeatureService>(create: (context) => FeatureService()),
         ChangeNotifierProvider<PrivacyPolicyService>(create: (context) => PrivacyPolicyService()),
         ChangeNotifierProvider<TutorialService>(create: (context) => TutorialService()),
-        ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService()),
+        ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService(colorMode: colorMode)),
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
         ChangeNotifierProvider<NewsService>(create: (context) => NewsService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),

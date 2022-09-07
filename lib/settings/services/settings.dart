@@ -72,7 +72,7 @@ class SettingsService with ChangeNotifier {
     this.positioning = Positioning.gnss,
     this.rerouting = Rerouting.disabled,
     this.ridePreference,
-    this.colorMode = ColorMode.system
+    required this.colorMode
   });
 
   /// Load the stored settings.

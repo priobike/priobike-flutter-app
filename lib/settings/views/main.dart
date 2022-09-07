@@ -28,7 +28,7 @@ import 'package:provider/provider.dart';
 void main() => debug(MultiProvider(
   providers: [
     ChangeNotifierProvider<SettingsService>(
-      create: (context) => SettingsService(),
+      create: (context) => SettingsService(colorMode: ColorMode.system),
     ),
   ],
   child: const SettingsView(),

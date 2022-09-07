@@ -16,6 +16,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
@@ -33,7 +34,7 @@ void main() => debug(MultiProvider(
       create: (context) => ProfileService(),
     ),
     ChangeNotifierProvider<SettingsService>(
-      create: (context) => SettingsService(),
+      create: (context) => SettingsService(colorMode: ColorMode.system),
     ),
   ],
   child: const HomeView(),
@@ -179,7 +180,7 @@ class HomeViewState extends State<HomeView> {
               Expanded(child: Container()),
               SmallIconButton(
                 icon: Icons.edit, 
-                fill: Theme.of(context).colorScheme.surface,
+                fill: Theme.of(context).colorScheme.background,
                 splash: Colors.white,
                 onPressed: onOpenShortcutEditView,
               ),
