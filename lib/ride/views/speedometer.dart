@@ -43,26 +43,20 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   void didChangeDependencies() {
     rs = Provider.of<RideService>(context);
     ps = Provider.of<PositionService>(context);
-    if (ps.needsLayout[viewId] != false || rs.needsLayout[viewId] != false) {
-      updateView(rs, ps);
-      ps.needsLayout[viewId] = false;
+    if (rs.needsLayout[viewId] != false) {
       rs.needsLayout[viewId] = false;
+      loadGauge(rs, ps);
     }
     super.didChangeDependencies();
-  }
-
-  /// Update the view with the current data.
-  Future<void> updateView(RideService rs, PositionService ps) async {
-    await loadGauge(rs, ps);
   }
 
   /// Load the gauge colors and steps.
   Future<void> loadGauge(RideService rs, PositionService ps) async {
     // Check if we have the necessary position data
-    var posTime = ps.estimatedPosition?.timestamp;
-    var posSpeed = ps.estimatedPosition?.speed;
-    var posLat = ps.estimatedPosition?.latitude;
-    var posLon = ps.estimatedPosition?.longitude;
+    var posTime = ps.lastPosition?.timestamp;
+    var posSpeed = ps.lastPosition?.speed;
+    var posLat = ps.lastPosition?.latitude;
+    var posLon = ps.lastPosition?.longitude;
     var timeStr = rs.currentRecommendation?.predictionStartTime;
     var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
     var phases = rs.currentRecommendation?.predictionValue;
@@ -227,7 +221,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ],
           pointers: [
             MarkerPointer(
-              value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
+              value: (ps.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 24,
               markerOffset: 4,
@@ -238,7 +232,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               color: Theme.of(context).colorScheme.onBackground,
             ),
             MarkerPointer(
-              value: (ps.estimatedPosition?.speed ?? 0) * 3.6,
+              value: (ps.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 18,
               markerOffset: 4,
