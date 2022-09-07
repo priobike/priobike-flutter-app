@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/algorithms/sma.dart';
 import 'package:priobike/common/map/view.dart';
@@ -54,6 +55,8 @@ class RideMapViewState extends State<RideMapView> {
 
   /// A simple moving average for the camera heading.
   final cameraHeadingSMA = SMA(k: PositionEstimatorService.refreshRateHz * 2 /* seconds */);
+
+  final vincenty = const l.Distance();
 
   @override
   void didChangeDependencies() {
@@ -170,7 +173,50 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> adaptMapController() async {
     if (mapController == null) return;
     if (routingService.selectedRoute == null) return;
-    if (positionEstimatorService.estimatedPosition == null) {
+
+    // Within those thresholds the bearing to the next SG is used.
+    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
+    // min-threshold: Often the SGs are slightly on the left or right side of the route and 
+    //                without this threshold the camera would orient away from the route
+    //                when it's close to the SG.
+    const maxDistanceThreshold = 450;
+    const minDistanceThreshold = 100;
+
+    double? cameraBearing;
+    double? cameraZoom;
+
+    final currentUserPosition = rideService.currentRecommendation!.snapPos;
+    final nextSgPosition = rideService.currentRecommendation!.sgPos;
+
+    if (nextSgPosition != null){
+      final currentUserPostionLatLng = l.LatLng(currentUserPosition.lat, currentUserPosition.lon);
+      final nextSgPositionLatLng = l.LatLng(nextSgPosition.lat, nextSgPosition.lon);
+
+      final distanceUserSg = vincenty.distance(currentUserPostionLatLng, nextSgPositionLatLng);
+
+      cameraZoom ??= 19 - (distanceUserSg / 100) ;
+
+      // Limit how far in and out the camera can zoom
+      if (cameraZoom < 17) {
+        cameraZoom = 17;
+      }else if (cameraZoom > 19) {
+        cameraZoom = 19;
+      }
+
+      // Only apply bearing if the distance to the next SG is within the thresholds.
+      if (distanceUserSg < maxDistanceThreshold * 1.5 && distanceUserSg > minDistanceThreshold){
+        final bearing = vincenty.bearing(currentUserPostionLatLng, nextSgPositionLatLng); // [-180°, 180°]
+        cameraBearing = bearing > 0 ? bearing : 360 + bearing;
+      }
+    }
+
+    // If no bearing and/or zoom got set w.r.t. the next SG apply the standard zoom and bearing w.r.t. to the route.
+    cameraZoom ??= 19;
+    cameraBearing ??= cameraHeadingSMA.next(
+        positionEstimatorService.estimatedPosition != null ? positionEstimatorService.estimatedPosition!.heading : 0
+    );
+    
+    if (positionEstimatorService.estimatedPosition == null && cameraBearing == null) {
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
       );
