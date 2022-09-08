@@ -245,7 +245,7 @@ class RideMapViewState extends State<RideMapView> {
 
       // If no gnss is used (hence the native Mapbox marker can't be used), use the fallback marker.
       if (settingsService.positioning != Positioning.gnss){
-        lastUserMarker = await mapController!.addSymbol(
+        final currentMarker = await mapController!.addSymbol(
           CurrentPositionMarker(
             geo: LatLng(positionEstimatorService.estimatedPosition!.latitude, positionEstimatorService.estimatedPosition!.longitude),
             orientation: (positionEstimatorService.estimatedPosition!.heading + 270) % 360
@@ -253,6 +253,7 @@ class RideMapViewState extends State<RideMapView> {
         );
 
         if (lastUserMarker != null) await mapController!.removeSymbol(lastUserMarker!);
+        lastUserMarker = currentMarker;
       }
     }
   }
