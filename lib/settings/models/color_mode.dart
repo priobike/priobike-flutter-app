@@ -7,9 +7,9 @@ enum ColorMode {
 extension ColorModeDescription on ColorMode {
   String get description {
     switch (this) {
-      case ColorMode.light: return "Lightmode";
-      case ColorMode.dark: return "Darkmode";
-      case ColorMode.system: return "Wie das System";
+      case ColorMode.light: return "Hell";
+      case ColorMode.dark: return "Dunkel";
+      case ColorMode.system: return "System";
     }
   }
 }

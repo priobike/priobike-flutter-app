@@ -50,16 +50,23 @@ class SettingsElement extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 16),
       child: Tile(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24), 
           bottomLeft: Radius.circular(24)
         ),
         fill: Theme.of(context).colorScheme.background,
         content: Row(children: [
-          BoldContent(text: title, context: context),
-          const HSpace(),
-          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context), fit: FlexFit.tight)
-          else Flexible(child: Container()),
+          Flexible(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldContent(text: title, context: context),
+              if (subtitle != null)
+                const SmallVSpace(),
+              if (subtitle != null) 
+                Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+            ],
+          ), fit: FlexFit.tight),
           SmallIconButton(
             icon: icon, 
             onPressed: callback,
@@ -96,23 +103,34 @@ class SettingsSelection<E> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: ListView.builder(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 64),
         itemCount: elements.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: Tile(fill: Theme.of(context).colorScheme.background, content: Row(children: [
-              Flexible(child: Content(text: title(elements[index]), context: context), fit: FlexFit.tight),
-              Expanded(child: Container()),
-              SmallIconButton(
-                icon: elements[index] == selected
-                  ? Icons.check 
-                  : Icons.check_box_outline_blank, 
-                onPressed: () => callback(elements[index]),
-              ),
-            ]))
+            child: Tile(
+              fill: elements[index] == selected
+                ? Theme.of(context).colorScheme.primary 
+                : Theme.of(context).colorScheme.background, 
+              content: Row(children: [
+                Flexible(child: Content(
+                  text: title(elements[index]), 
+                  context: context,
+                  color: elements[index] == selected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onBackground,
+                ), fit: FlexFit.tight),
+                Expanded(child: Container()),
+                SmallIconButton(
+                  icon: elements[index] == selected
+                    ? Icons.check 
+                    : Icons.check_box_outline_blank, 
+                  onPressed: () => callback(elements[index]),
+                ),
+              ])
+            )
           );
         }
       )
@@ -237,20 +255,14 @@ class SettingsViewState extends State<SettingsView> {
                 SubHeader(text: "Einstellungen", context: context),
               ]),
               const SmallVSpace(),
-              if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
+
+              if (featureService.canEnableInternalFeatures) 
                 const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-              if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
+              if (featureService.canEnableInternalFeatures) 
                 Padding(
                   padding: const EdgeInsets.only(left: 32, top: 8), 
-                  child: Content(text: "Test-Features", context: context),
+                  child: Content(text: "Interne Testfeatures", context: context),
                 ),
-
-              if (featureService.canEnableBetaFeatures)
-                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
-                  title: "Beta Features", 
-                  icon: settingsService.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
-                  callback: () => settingsService.setEnableBetaFeatures(!settingsService.enableBetaFeatures),
-                )),
 
               if (featureService.canEnableInternalFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
@@ -311,7 +323,22 @@ class SettingsViewState extends State<SettingsView> {
                   callback: () => Provider.of<TutorialService>(context, listen: false).deleteCompleted(),
                 )),
 
-              if (settingsService.enableBetaFeatures || settingsService.enableInternalFeatures)
+              if (featureService.canEnableBetaFeatures) 
+                const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+              if (featureService.canEnableBetaFeatures) 
+                Padding(
+                  padding: const EdgeInsets.only(left: 32, top: 8), 
+                  child: Content(text: "Beta Testfeatures", context: context),
+                ),
+
+              if (featureService.canEnableBetaFeatures)
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "Beta Features", 
+                  icon: settingsService.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
+                  callback: () => settingsService.setEnableBetaFeatures(!settingsService.enableBetaFeatures),
+                )),
+
+              if (settingsService.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Routing", 
                   subtitle: settingsService.rerouting.description, 
@@ -326,13 +353,21 @@ class SettingsViewState extends State<SettingsView> {
                   }),
                 )),
 
-              if (settingsService.enableBetaFeatures || settingsService.enableInternalFeatures)
+              if (settingsService.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Logs", 
                   icon: Icons.list, 
                   callback: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
                 ),
 
+              const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
+
+              const SmallVSpace(),
+              Padding(
+                padding: const EdgeInsets.only(left: 32), 
+                child: Content(text: "Nutzbarkeit", context: context),
+              ),
+              const SmallVSpace(),
               Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                 title: "Farbmodus",
                 subtitle: settingsService.colorMode.description,
@@ -347,17 +382,9 @@ class SettingsViewState extends State<SettingsView> {
                 }),
                 ),
               ),
-
-              const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
-
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.only(left: 32), 
-                child: Content(text: "Nutzbarkeit", context: context),
-              ),
               const SmallVSpace(),
               SettingsElement(
-                title: "Ansicht", 
+                title: "Fahrtansicht", 
                 subtitle: settingsService.ridePreference?.description, 
                 icon: Icons.expand_more, 
                 callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {

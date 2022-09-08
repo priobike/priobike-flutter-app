@@ -20,7 +20,7 @@ extension BackendRegion on Backend {
   String get region {
     switch (this) {
       case Backend.production: return "Hamburg";
-      case Backend.staging: return "Dresden (Teststrecke)";
+      case Backend.staging: return "Dresden";
     }
   }
 
