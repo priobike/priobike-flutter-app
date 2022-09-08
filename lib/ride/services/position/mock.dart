@@ -256,24 +256,14 @@ class PathMockPositionSource extends PositionSource {
       }
 
       if (from == null || to == null || distanceOnSegment == null) {
-        // Finished, publish the last position (stand still).
-        if (lastPosition != null) {
-          streamController.add(Position(
-            latitude: lastPosition!.latitude, 
-            longitude: lastPosition!.longitude, 
-            altitude: 0,
-            speed: 0, 
-            heading: lastPosition!.heading, // Not 0, since 0 indicates an error. 
-            accuracy: 1, 
-            speedAccuracy: 1, 
-            timestamp: DateTime.now().toUtc(),
-          ));
-          return;
-        }
+        // Finished, restart.
+        distance = 0;
+        lastPosition = null;
+        return;
       }
 
-      final bearing = vincenty.bearing(from!, to!); // [-180°, 180°]
-      final currentLocation = vincenty.offset(from, distanceOnSegment!, bearing);
+      final bearing = vincenty.bearing(from, to); // [-180°, 180°]
+      final currentLocation = vincenty.offset(from, distanceOnSegment, bearing);
       final heading = bearing > 0 ? bearing : 360 + bearing;
 
       lastPosition = Position(
