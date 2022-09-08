@@ -15,10 +15,9 @@ class Header extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.headline1!.merge(
-                TextStyle(color: color, fontSize: fontSize),
-              ),
-        );
+    style: Theme.of(context).textTheme.headline1!
+      .merge(TextStyle(color: color, fontSize: fontSize)),
+  );
 }
 
 /// A sub header text.
@@ -35,10 +34,9 @@ class SubHeader extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.subtitle1!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.subtitle1!
+      .merge(TextStyle(color: color)),
+  );
 }
 
 class BoldSubHeader extends Text {
@@ -54,10 +52,9 @@ class BoldSubHeader extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.subtitle2!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.subtitle2!
+      .merge(TextStyle(color: color)),
+  );
 }
 
 /// A content text.
@@ -74,10 +71,9 @@ class Content extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.bodyMedium!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.bodyMedium!
+      .merge(TextStyle(color: color)),
+  );
 }
 
 /// A bold content text.
@@ -94,10 +90,9 @@ class BoldContent extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-      style: Theme.of(context).textTheme.headline2!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.headline2!
+      .merge(TextStyle(color: color)),
+  );
 }
 
 /// A small text.
@@ -114,10 +109,9 @@ class Small extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.headline3!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.headline3!
+      .merge(TextStyle(color: color)),
+  );
 }
 
 /// A bold small text.
@@ -134,8 +128,7 @@ class BoldSmall extends Text {
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: Theme.of(context).textTheme.headline4!.merge(
-                TextStyle(color: color),
-              ),
-        );
+    style: Theme.of(context).textTheme.headline4!
+      .merge(TextStyle(color: color)),
+  );
 }

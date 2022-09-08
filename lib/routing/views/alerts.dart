@@ -74,10 +74,13 @@ class AlertsViewState extends State<AlertsView> {
               bottomLeft: Radius.circular(24.0),
             ),
           ),
-          child: BoldSmall(text: discomfortService.foundDiscomforts!.length > 1
-              ? "${discomfortService.foundDiscomforts!
-              .length} Hinweise zu deiner Route"
-              : "1 Hinweis zu deiner Route", context: context),
+          child: BoldSmall(
+            text: discomfortService.foundDiscomforts!.length > 1
+              ? "${discomfortService.foundDiscomforts!.length} Hinweise zu deiner Route"
+              : "1 Hinweis zu deiner Route", 
+            context: context, 
+            color: Colors.black,
+          ),
         ),),
       ],
     );
@@ -93,7 +96,7 @@ class AlertsViewState extends State<AlertsView> {
               child: Row(children: [
                 Stack(alignment: AlignmentDirectional.center, children: [
                   const AlertIcon(width: 42, height: 42),
-                  BoldContent(text: "${e.key + 1}", context: context),
+                  BoldContent(text: "${e.key + 1}", context: context, color: Colors.black),
                 ]),
                 const SmallHSpace(),
                 SizedBox(
