@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/ride/services/position/position.dart';

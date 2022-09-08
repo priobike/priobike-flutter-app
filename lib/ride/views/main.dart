@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/ride/services/snapping.dart';
 import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/default_debug.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
@@ -14,6 +15,7 @@ import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -27,8 +29,14 @@ class RideView extends StatefulWidget {
 }
 
 class RideViewState extends State<RideView> {
+  /// The distance in meters at which a new route is requested.
+  static double rerouteDistance = 50;
+
   /// The associated position service, which is injected by the provider.
   PositionService? positionService;
+
+  /// The associated position estimation service, which is injected by the provider.
+  PositionEstimatorService? positionEstimatorService;
 
   /// The associated recommendation service, which is injected by the provider.
   RideService? rideService;
@@ -36,8 +44,8 @@ class RideViewState extends State<RideView> {
   /// The associated session service, which is injected by the provider.
   SessionService? sessionService;
 
-  /// The associated reroute service, which is injected by the provider.
-  RerouteService? rerouteService;
+  /// The associated snapping service, which is injected by the provider.
+  SnappingService? snappingService;
 
   /// The associated routing service, which is injected by the provider.
   RoutingService? routingService;
@@ -76,19 +84,37 @@ class RideViewState extends State<RideView> {
       await rideService?.selectRide(context, routingService!.selectedRoute!);
       // Start navigating.
       await rideService?.startNavigation(context);
-      // Check for reroutes.
-      await rerouteService?.runRerouteScheduler(context);
-      // Start geolocating and pass new positions to the recommendation service.
-      await positionService?.startGeolocation(context, (pos) => rideService?.updatePosition(context, pos));
+      // Start the position estimation.
+      await positionEstimatorService?.startEstimating(context);
+      // Start geolocating.
+      await positionService?.startGeolocation(context: context, onNewPosition: (pos) async {
+        // Pass new positions to the ride service.
+        await rideService?.updatePosition(context);
+        // Notify the snapping service.
+        await snappingService?.updatePosition(context);
+        // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
+        if (
+          settingsService?.rerouting == Rerouting.enabled && 
+          (snappingService?.distance ?? 0) > rerouteDistance && 
+          (snappingService?.remainingWaypoints?.isNotEmpty ?? false)
+        ) {
+          await routingService?.selectWaypoints(snappingService!.remainingWaypoints);
+          final response = await routingService?.loadRoutes(context);
+          if (response != null || response!.routes.isNotEmpty) {
+            await rideService?.selectRide(context, response.routes.first);
+          }
+        }
+      });
     });
   }
 
   @override
   void didChangeDependencies() {
     positionService = Provider.of<PositionService>(context);
+    positionEstimatorService = Provider.of<PositionEstimatorService>(context);
     rideService = Provider.of<RideService>(context);
     sessionService = Provider.of<SessionService>(context);
-    rerouteService = Provider.of<RerouteService>(context);
+    snappingService = Provider.of<SnappingService>(context);
     routingService = Provider.of<RoutingService>(context);
     settingsService = Provider.of<SettingsService>(context);
     super.didChangeDependencies();

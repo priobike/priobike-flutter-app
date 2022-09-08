@@ -4,49 +4,49 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class RerouteService with ChangeNotifier {
+/// A node in the snapping graph.
+class Node {
+  /// The coordinates of the node.
+  final LatLng position;
+
+  /// The index of the node in the route.
+  final int idx;
+
+  const Node(this.position, this.idx);
+}
+
+class SnappingService with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("RerouteService");
+  final Logger log = Logger("SnappingService");
 
-  /// A boolean indicating if the service is currently checking.
-  var isChecking = false;
+  /// The current distance to the route.
+  double? distance;
 
-  /// The scheduler timer.
-  Timer? timer;
+  /// The current snapped position.
+  LatLng? snappedPosition;
 
-  RerouteService() { log.i("RerouteService started."); }
+  /// The current snapped heading.
+  double? snappedHeading;
 
-  /// Run a scheduler that checks periodically for reroutes.
-  Future<void> runRerouteScheduler(BuildContext context) async {
-    final settings = Provider.of<SettingsService>(context, listen: false);
-    if (settings.rerouting == Rerouting.disabled) return;
+  /// A boolean indicating if the service is updating.
+  bool isUpdating = false;
 
-    if (timer != null) return; // Already running.
-    timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) async {
-      if (isChecking) return; // Skip this check.
-      isChecking = true;
-      try {
-        await check(context);
-      } catch (e) {
-        // Context was invalidated somehow, stop the scheduler.
-        await stopRerouteScheduler();
-      }
-      isChecking = false;
-    });
-  }
+  /// The remaining waypoints.
+  List<Waypoint>? remainingWaypoints;
 
-  /// Execute a scheduled checking for reroutes.
-  Future<void> check(BuildContext context) async {
+  SnappingService() { log.i("SnappingService started."); }
+
+  /// Snap the current position to the route and calculate the remaining waypoints.
+  Future<void> updatePosition(BuildContext context) async {
+    if (isUpdating) return;
+    isUpdating = true;
+
     final position = Provider.of<PositionService>(context, listen: false);
     final routing = Provider.of<RoutingService>(context, listen: false);
-    final ride = Provider.of<RideService>(context, listen: false);
 
     if (position.lastPosition == null) return;
     if (routing.selectedRoute == null || routing.selectedWaypoints == null) return;
@@ -58,37 +58,44 @@ class RerouteService with ChangeNotifier {
     final p = LatLng(position.lastPosition!.latitude, position.lastPosition!.longitude);
     const vincenty = Distance();
     double dist(n) => vincenty.distance(n, p);
-    final nodes = routing.selectedRoute!.route.map((n) => LatLng(n.lat, n.lon)).toList();
-    final nodesAsc = nodes.toList(); nodesAsc.sort(((a, b) => dist(a).compareTo(dist(b))));
+    // Keep the index of the nodes to reconstruct the order.
+    final nodes = routing.selectedRoute!.route.asMap().entries
+      .map((e) => Node(LatLng(e.value.lat, e.value.lon), e.key));
+    final nodesAsc = nodes.toList(); nodesAsc
+      .sort(((a, b) => dist(a.position).compareTo(dist(b.position))));
     final p1 = nodesAsc[0]; final p2 = nodesAsc[1];
-    final closest = snap(p, p1, p2);
-
-    if (vincenty.distance(p, closest) < 50) return; // No need to reroute.
+    // Find the nearest point on the finite line between p1 and p2.
+    snappedPosition = snap(p, p1.position, p2.position);
+    // Calculate the shortest distance to the route.
+    distance = vincenty.distance(snappedPosition!, p);
+    // Make sure that we calculate the heading into the right 
+    // direction, since p1 and p2 can be in any order.
+    final bearing = p1.idx < p2.idx 
+      ? vincenty.bearing(p1.position, p2.position) 
+      : vincenty.bearing(p2.position, p1.position);
+    // Map the bearing from [-180, 180] to a heading in [0, 360].
+    snappedHeading = bearing > 0 ? bearing : 360 + bearing;
 
     // Find the waypoint segment with the shortest distance to our position.
-    final pCoord = LatLng(position.lastPosition!.latitude, position.lastPosition!.longitude);
     double? shortestDistance; 
     int? shortestToIdx;
     for (int i = 0; i < (routing.selectedWaypoints!.length - 1); i++) {
       final from = routing.selectedWaypoints![i], to = routing.selectedWaypoints![i + 1];
       final fromCoord = LatLng(from.lat, from.lon), toCoord = LatLng(to.lat, to.lon);
-      final snappedCoord = snap(pCoord, fromCoord, toCoord);
-      final distance = vincenty.distance(pCoord, snappedCoord);
+      final snappedCoord = snap(p, fromCoord, toCoord);
+      final distance = vincenty.distance(p, snappedCoord);
       if (shortestDistance == null || shortestDistance > distance) {
         shortestDistance = distance; 
         shortestToIdx = i + 1;
       }
     }
 
-    final remainingWaypoints = [
+    remainingWaypoints = [
       Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")
     ] + routing.selectedWaypoints!.sublist(shortestToIdx!);
 
-    log.i("Requesting reroute with new waypoints: ${remainingWaypoints.map((e) => e.address)}");
-    await routing.selectWaypoints(remainingWaypoints);
-    final response = await routing.loadRoutes(context);
-    if (response == null || response.routes.isEmpty) return;
-    await ride.selectRide(context, response.routes.first);
+    isUpdating = false;
+    notifyListeners();
   }
 
   /// Calculate the nearest point on the line between p1 and p2,
@@ -123,13 +130,8 @@ class RerouteService with ChangeNotifier {
   }
 
   Future<void> reset() async {
-    await stopRerouteScheduler();
-    isChecking = false;
-    timer = null;
-  }
-
-  /// Stop the scheduled checking for reroutes.
-  Future<void> stopRerouteScheduler() async {
-    timer?.cancel();
+    snappedPosition = null;
+    distance = null;
+    notifyListeners();
   }
 }

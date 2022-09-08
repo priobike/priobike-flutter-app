@@ -4,7 +4,7 @@ import 'package:priobike/common/algorithms/sma.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
@@ -25,8 +25,8 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated routing service, which is injected by the provider.
   late RoutingService routingService;
 
-  /// The associated positioning service, which is injected by the provider.
-  late PositionService positionService;
+  /// The associated position estimator service, which is injected by the provider.
+  late PositionEstimatorService positionEstimatorService;
 
   /// The associated ride service, which is injected by the provider.
   late RideService rideService;
@@ -50,7 +50,7 @@ class RideMapViewState extends State<RideMapView> {
   Symbol? upcomingTrafficLight;
 
   /// A simple moving average for the camera heading.
-  final cameraHeadingSMA = SMA(k: PositionExtrapolator.refreshRateHz * 4 /* seconds */);
+  final cameraHeadingSMA = SMA(k: PositionEstimatorService.refreshRateHz * 2 /* seconds */);
 
   @override
   void didChangeDependencies() {
@@ -60,16 +60,16 @@ class RideMapViewState extends State<RideMapView> {
       routingService.needsLayout[viewId] = false;
     }
 
-    positionService = Provider.of<PositionService>(context);
-    if (positionService.needsLayout[viewId] != false && mapController != null) {
-      onPositionServiceUpdate();
-      positionService.needsLayout[viewId] = false;
-    }
-
     rideService = Provider.of<RideService>(context);
     if (rideService.needsLayout[viewId] != false && mapController != null) {
       onRideServiceUpdate();
       rideService.needsLayout[viewId] = false;
+    }
+
+    positionEstimatorService = Provider.of<PositionEstimatorService>(context);
+    if (positionEstimatorService.needsLayout[viewId] != false && mapController != null) {
+      onPositionEstimatorServiceUpdate();
+      positionEstimatorService.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -83,7 +83,7 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// Update the view with the current data.
-  Future<void> onPositionServiceUpdate() async {
+  Future<void> onPositionEstimatorServiceUpdate() async {
     await adaptMapController();
   }
 
@@ -167,17 +167,16 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> adaptMapController() async {
     if (mapController == null) return;
     if (routingService.selectedRoute == null) return;
-    if (positionService.estimatedPosition == null) {
+    if (positionEstimatorService.estimatedPosition == null) {
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
       );
     } else {
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: cameraHeadingSMA.next(
-          positionService.estimatedPosition != null ? positionService.estimatedPosition!.heading : 0
-        ),
+        bearing: cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading),
         target: LatLng(
-          positionService.estimatedPosition!.latitude, positionService.estimatedPosition!.longitude
+          positionEstimatorService.estimatedPosition!.latitude, 
+          positionEstimatorService.estimatedPosition!.longitude
         ),
         zoom: 18,
         tilt: 60,
@@ -255,7 +254,7 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextIgnorePlacement(true);
 
     onRoutingServiceUpdate();
-    onPositionServiceUpdate();
+    onPositionEstimatorServiceUpdate();
     onRideServiceUpdate();
   }
 

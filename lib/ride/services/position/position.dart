@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
@@ -11,64 +10,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-
-class PositionExtrapolator {
-  /// The refresh rate that is used to update the position.
-  static int refreshRateHz = 5;
-
-  /// The last known position.
-  Position? lastPosition;
-
-  /// The estimator timer.
-  Timer? timer;
-
-  /// Create a position stream.
-  Stream<Position> startEstimating() {
-    // Create a new stream, which we will later use to push positions.
-    var streamController = StreamController<Position>();
-
-    // Start the stream.
-    timer = Timer.periodic(Duration(milliseconds: (1000 / refreshRateHz).round()), (Timer timer) {
-      if (lastPosition == null) return;
-      var extrapolatedPosition = extrapolate(lastPosition!);
-      streamController.add(extrapolatedPosition);
-    });
-
-    return streamController.stream;
-  } 
-
-  Future<void> stopEstimating() async {
-    timer?.cancel();
-  }
-
-  /// Extrapolate the position.
-  Position extrapolate(Position lastPosition) {
-    // Calculate the elapsed time since the last position.
-    final last = lastPosition.timestamp?.toUtc();
-    if (last == null) return lastPosition;
-    final elapsed = DateTime.now().toUtc().difference(last).inMilliseconds;
-    if (elapsed < 0) return lastPosition;
-
-    // Offset the position by the traveled distance and bearing
-    if (lastPosition.heading < 0 || lastPosition.heading > 360) return lastPosition;
-    final newLatLng = const Distance().offset(
-      LatLng(lastPosition.latitude, lastPosition.longitude), 
-      lastPosition.speed * (elapsed / 1000), 
-      lastPosition.heading
-    );
-    
-    return Position(
-      latitude: newLatLng.latitude,
-      longitude: newLatLng.longitude,
-      altitude: lastPosition.altitude,
-      timestamp: DateTime.now().toUtc(),
-      accuracy: lastPosition.accuracy,
-      speed: lastPosition.speed,
-      heading: lastPosition.heading,
-      speedAccuracy: lastPosition.speedAccuracy,
-    );
-  }
-}
 
 abstract class PositionSource {
   /// Check if location services are enabled.
@@ -117,9 +58,6 @@ class GNSSPositionSource extends PositionSource {
 }
 
 class PositionService with ChangeNotifier {
-  /// An extrapolator for the position.
-  var positionEstimator = PositionExtrapolator();
-
   Logger log = Logger("PositionService");
 
   /// An indicator if the data of this notifier changed.
@@ -129,14 +67,8 @@ class PositionService with ChangeNotifier {
   /// See [PositionSource] for more information.
   PositionSource? positionSource;
 
-  /// A subscription to the estimated position.
-  StreamSubscription<Position>? estimatorSubscription;
-
   /// A subscription to the real position.
   StreamSubscription<Position>? positionSubscription;
-
-  /// The current estimated position (> 1Hz).
-  Position? estimatedPosition;
 
   /// The current measured position (1 Hz).
   Position? lastPosition;
@@ -149,12 +81,9 @@ class PositionService with ChangeNotifier {
   /// Reset the position service.
   Future<void> reset() async {
     await stopGeolocation();
-    positionEstimator = PositionExtrapolator();
     needsLayout = {};
     positionSource = null;
-    estimatorSubscription = null;
     positionSubscription = null;
-    estimatedPosition = null;
     lastPosition = null;
   }
 
@@ -210,10 +139,10 @@ class PositionService with ChangeNotifier {
     return true;
   }
 
-  Future<void> startGeolocation(
-    BuildContext context, 
-    void Function(Position pos) onNewPosition
-  ) async {
+  Future<void> startGeolocation({
+    required BuildContext context, 
+    required void Function(Position pos) onNewPosition,
+  }) async {
     if (isGeolocating) return;
     isGeolocating = true;
 
@@ -271,20 +200,9 @@ class PositionService with ChangeNotifier {
       ),
     );
 
-    // Launch a position estimator, which will get the real 
-    // positions and extrapolate the estimated position.
-    estimatorSubscription = positionEstimator.startEstimating()
-      .listen((Position estimatedPosition) {
-        if (!isGeolocating) return;
-        this.estimatedPosition = estimatedPosition;
-        notifyListeners();
-      });
-
     positionSubscription = positionStream.listen((Position position) {
       if (!isGeolocating) return;
       lastPosition = position;
-      // Update the position estimator with the new position.
-      positionEstimator.lastPosition = position; 
       onNewPosition(position);
       notifyListeners();
     });
@@ -293,9 +211,7 @@ class PositionService with ChangeNotifier {
   }
 
   Future<void> stopGeolocation() async {
-    await positionEstimator.stopEstimating();
     await positionSource?.stopPositioning();
-    await estimatorSubscription?.cancel();
     await positionSubscription?.cancel();
     log.i('Geolocator stopped!');
     isGeolocating = false;
