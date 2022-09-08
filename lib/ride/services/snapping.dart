@@ -8,20 +8,12 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
-/// A node in the snapping graph.
-class Node {
-  /// The coordinates of the node.
-  final LatLng position;
-
-  /// The index of the node in the route.
-  final int idx;
-
-  const Node(this.position, this.idx);
-}
-
 class SnappingService with ChangeNotifier {
   /// The logger for this service.
   final Logger log = Logger("SnappingService");
+
+  /// The distance model.
+  final vincenty = const Distance();
 
   /// The current distance to the route.
   double? distance;
@@ -32,9 +24,6 @@ class SnappingService with ChangeNotifier {
   /// The current snapped heading.
   double? snappedHeading;
 
-  /// A boolean indicating if the service is updating.
-  bool isUpdating = false;
-
   /// The remaining waypoints.
   List<Waypoint>? remainingWaypoints;
 
@@ -42,9 +31,6 @@ class SnappingService with ChangeNotifier {
 
   /// Snap the current position to the route and calculate the remaining waypoints.
   Future<void> updatePosition(BuildContext context) async {
-    if (isUpdating) return;
-    isUpdating = true;
-
     final position = Provider.of<PositionService>(context, listen: false);
     final routing = Provider.of<RoutingService>(context, listen: false);
 
@@ -52,49 +38,52 @@ class SnappingService with ChangeNotifier {
     if (routing.selectedRoute == null || routing.selectedWaypoints == null) return;
     if (routing.selectedRoute!.route.length < 2 || routing.selectedWaypoints!.length < 2) return;
 
-    // Find the shortest path to the route. To do this, we perform two steps:
-    // 1. Find the 2 closest points to the current location.
-    // 2. Find the nearest point on the finite line between, to the current location.
     final p = LatLng(position.lastPosition!.latitude, position.lastPosition!.longitude);
-    const vincenty = Distance();
-    double dist(n) => vincenty.distance(n, p);
-    // Keep the index of the nodes to reconstruct the order.
-    final nodes = routing.selectedRoute!.route.asMap().entries
-      .map((e) => Node(LatLng(e.value.lat, e.value.lon), e.key));
-    final nodesAsc = nodes.toList(); nodesAsc
-      .sort(((a, b) => dist(a.position).compareTo(dist(b.position))));
-    final p1 = nodesAsc[0]; final p2 = nodesAsc[1];
-    // Find the nearest point on the finite line between p1 and p2.
-    snappedPosition = snap(p, p1.position, p2.position);
-    // Calculate the shortest distance to the route.
-    distance = vincenty.distance(snappedPosition!, p);
-    // Make sure that we calculate the heading into the right 
-    // direction, since p1 and p2 can be in any order.
-    final bearing = p1.idx < p2.idx 
-      ? vincenty.bearing(p1.position, p2.position) 
-      : vincenty.bearing(p2.position, p1.position);
-    // Map the bearing from [-180, 180] to a heading in [0, 360].
-    snappedHeading = bearing > 0 ? bearing : 360 + bearing;
+    final nodes = routing.selectedRoute!.route;
+    
+    // Draw snapping lines to all route segments.
+    var shortestDistance = double.infinity;
+    var shortestDistanceP1 = LatLng(0, 0);
+    var shortestDistanceP2 = LatLng(0, 0);
+    var shortestDistancePSnapped = LatLng(0, 0);
+    for (int i = 0; i < routing.selectedRoute!.route.length - 1; i++) {
+      final n1 = nodes[i], n2 = nodes[i + 1];
+      final p1 = LatLng(n1.lat, n1.lon), p2 = LatLng(n2.lat, n2.lon);
+      final s = snap(p, p1, p2);
+      final d = vincenty.distance(p, s);
+      if (d < shortestDistance) {
+        shortestDistance = d;
+        shortestDistanceP1 = p1;
+        shortestDistanceP2 = p2;
+        shortestDistancePSnapped = s;
+      }
+    }
+
+    distance = shortestDistance;
+    snappedPosition = shortestDistancePSnapped;
+    final bearing = vincenty.bearing(shortestDistanceP1, shortestDistanceP2); // [-180°, 180°]
+    snappedHeading = bearing > 0 ? bearing : 360 + bearing; // [0°, 360°]
 
     // Find the waypoint segment with the shortest distance to our position.
-    double? shortestDistance; 
-    int? shortestToIdx;
-    for (int i = 0; i < (routing.selectedWaypoints!.length - 1); i++) {
-      final from = routing.selectedWaypoints![i], to = routing.selectedWaypoints![i + 1];
-      final fromCoord = LatLng(from.lat, from.lon), toCoord = LatLng(to.lat, to.lon);
-      final snappedCoord = snap(p, fromCoord, toCoord);
-      final distance = vincenty.distance(p, snappedCoord);
-      if (shortestDistance == null || shortestDistance > distance) {
-        shortestDistance = distance; 
-        shortestToIdx = i + 1;
+    final waypoints = routing.selectedWaypoints!;
+
+    var shortestWaypointDistance = double.infinity;
+    var shortestWaypointToIdx = 0;
+    for (int i = 0; i < (waypoints.length - 1); i++) {
+      final w1 = waypoints[i], w2 = waypoints[i + 1];
+      final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
+      final s = snap(p, p1, p2);
+      final d = vincenty.distance(p, s);
+      if (d < shortestWaypointDistance) {
+        shortestWaypointDistance = d; 
+        shortestWaypointToIdx = i + 1;
       }
     }
 
     remainingWaypoints = [
       Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")
-    ] + routing.selectedWaypoints!.sublist(shortestToIdx!);
+    ] + routing.selectedWaypoints!.sublist(shortestWaypointToIdx);
 
-    isUpdating = false;
     notifyListeners();
   }
 
