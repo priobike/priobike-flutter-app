@@ -60,11 +60,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
     var phases = rs.currentRecommendation?.predictionValue;
     var dist = rs.currentRecommendation?.distance;
+    var sgId = rs.currentRecommendation?.sgId;
 
     // Check if we have all necessary data to display the speedometer
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
-        timeStr == null || tGreen == null || phases == null || dist == null) {
-      gaugeColors = [Colors.grey];
+        timeStr == null || tGreen == null || phases == null || dist == null || sgId == null) {
+      gaugeColors = defaultGaugeColors;
       gaugeStops = [];
       return;
     }
@@ -76,7 +77,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (timeStr.endsWith('[UTC]')) timeStr = timeStr.substring(0, timeStr.length - 5);
     var time = DateTime.tryParse(timeStr);
     if (time == null) {
-      gaugeColors = [Colors.grey];
+      gaugeColors = defaultGaugeColors;
       gaugeStops = [];
       return;
     }
@@ -96,7 +97,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       minValue = phasesFromNow.reduce(min);
     }
     if (maxValue == minValue) {
-      gaugeColors = [Colors.grey];
+      gaugeColors = defaultGaugeColors;
       gaugeStops = [];
       return;
     }
