@@ -14,6 +14,8 @@ import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -35,6 +37,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated ride service, which is injected by the provider.
   late RideService rideService;
 
+  /// The associated settings service, which is injected by the provider.
+  late SettingsService settingsService;
+
   /// A map controller for the map.
   MapboxMapController? mapController;
 
@@ -53,6 +58,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
+  /// The last displayed user marker (saved to remove it after playing the new one at the new position).
+  Symbol? lastUserMarker;
+
   /// A simple moving average for the camera heading.
   final cameraHeadingSMA = SMA(k: PositionEstimatorService.refreshRateHz * 2 /* seconds */);
 
@@ -61,6 +69,7 @@ class RideMapViewState extends State<RideMapView> {
   @override
   void didChangeDependencies() {
     routingService = Provider.of<RoutingService>(context);
+    settingsService = Provider.of<SettingsService>(context);
     if (routingService.needsLayout[viewId] != false && mapController != null) {
       onRoutingServiceUpdate();
       routingService.needsLayout[viewId] = false;
@@ -174,48 +183,6 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     if (routingService.selectedRoute == null) return;
 
-    // Within those thresholds the bearing to the next SG is used.
-    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
-    // min-threshold: Often the SGs are slightly on the left or right side of the route and 
-    //                without this threshold the camera would orient away from the route
-    //                when it's close to the SG.
-    const maxDistanceThreshold = 450;
-    const minDistanceThreshold = 100;
-
-    double? cameraBearing;
-    double? cameraZoom;
-
-    final currentUserPosition = rideService.currentRecommendation!.snapPos;
-    final nextSgPosition = rideService.currentRecommendation!.sgPos;
-
-    if (nextSgPosition != null){
-      final currentUserPostionLatLng = l.LatLng(currentUserPosition.lat, currentUserPosition.lon);
-      final nextSgPositionLatLng = l.LatLng(nextSgPosition.lat, nextSgPosition.lon);
-
-      final distanceUserSg = vincenty.distance(currentUserPostionLatLng, nextSgPositionLatLng);
-
-      // When the distance between the user and the SG is closer than 200 it starts to zoom in slowly.
-      // Can't zoom in more than to zoom level 19.
-      cameraZoom ??= 19 - (distanceUserSg / 100);
-
-      // Limit how far the the camera can zoom out.
-      if (cameraZoom < 17) {
-        cameraZoom = 17;
-      }
-
-      // Only apply bearing if the distance to the next SG is within the thresholds.
-      if (distanceUserSg < maxDistanceThreshold * 1.5 && distanceUserSg > minDistanceThreshold){
-        final bearing = vincenty.bearing(currentUserPostionLatLng, nextSgPositionLatLng); // [-180°, 180°]
-        cameraBearing = bearing > 0 ? bearing : 360 + bearing;
-      }
-    }
-
-    // If no bearing and/or zoom got set w.r.t. the next SG apply the standard zoom and bearing w.r.t. to the route.
-    cameraZoom ??= 19;
-    cameraBearing ??= cameraHeadingSMA.next(
-        positionEstimatorService.estimatedPosition != null ? positionEstimatorService.estimatedPosition!.heading : 0
-    );
-
     if (positionEstimatorService.estimatedPosition == null) {
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
@@ -228,6 +195,7 @@ class RideMapViewState extends State<RideMapView> {
         snappingService.distanceToNextTurn ?? double.infinity, 
         snappingService.distanceToNextSG ?? double.infinity,
       );
+
       if (distanceOfInterest > 25) zoom = 18.5;
       if (distanceOfInterest > 50) zoom = 18.25;
       if (distanceOfInterest > 100) zoom = 18.0;
@@ -236,8 +204,37 @@ class RideMapViewState extends State<RideMapView> {
       if (distanceOfInterest > 400) zoom = 17.25;
       if (distanceOfInterest > 500) zoom = 17.0;
 
+      // Within those thresholds the bearing to the next SG is used.
+      // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
+      // min-threshold: Often the SGs are slightly on the left or right side of the route and
+      //                without this threshold the camera would orient away from the route
+      //                when it's close to the SG.
+      const maxDistanceThreshold = 450;
+      const minDistanceThreshold = 100;
+
+      double? cameraBearing;
+      final nextSgPosition = rideService.currentRecommendation!.sgPos;
+
+      if (nextSgPosition != null){
+        final currentUserPosition = rideService.currentRecommendation!.snapPos;
+
+        final currentUserPositionLatLng = l.LatLng(currentUserPosition.lat, currentUserPosition.lon);
+        final nextSgPositionLatLng = l.LatLng(nextSgPosition.lat, nextSgPosition.lon);
+
+        final distanceUserSg = vincenty.distance(currentUserPositionLatLng, nextSgPositionLatLng);
+
+        // Only apply bearing if the distance to the next SG is within the thresholds.
+        if (distanceUserSg < maxDistanceThreshold * 1.5 && distanceUserSg > minDistanceThreshold){
+          final bearing = vincenty.bearing(currentUserPositionLatLng, nextSgPositionLatLng); // [-180°, 180°]
+          cameraBearing = bearing > 0 ? bearing : 360 + bearing;
+        }
+      }
+
+      // If no bearing got set w.r.t. the next SG apply the standard bearing w.r.t. to the route.
+      cameraBearing ??= cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading);
+
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading),
+        bearing: cameraBearing,
         target: LatLng(
           positionEstimatorService.estimatedPosition!.latitude, 
           positionEstimatorService.estimatedPosition!.longitude
@@ -245,6 +242,18 @@ class RideMapViewState extends State<RideMapView> {
         zoom: zoom,
         tilt: 60,
       )));
+
+      // If no gnss is used (hence the native Mapbox marker can't be used), use the fallback marker.
+      if (settingsService.positioning != Positioning.gnss){
+        lastUserMarker = await mapController!.addSymbol(
+          CurrentPositionMarker(
+            geo: LatLng(positionEstimatorService.estimatedPosition!.latitude, positionEstimatorService.estimatedPosition!.longitude),
+            orientation: (positionEstimatorService.estimatedPosition!.heading + 270) % 360
+          ),
+        );
+
+        if (lastUserMarker != null) await mapController!.removeSymbol(lastUserMarker!);
+      }
     }
   }
 
@@ -347,7 +356,6 @@ class RideMapViewState extends State<RideMapView> {
           onMapCreated: onMapCreated, 
           onStyleLoaded: () => onStyleLoaded(context),
         ),
-        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon()),
       ]
     );
   }

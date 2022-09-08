@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +61,8 @@ class AppMapState extends State<AppMap> {
       dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,
       onMapLongClick: widget.onMapLongClick,
+      myLocationEnabled: settingsService.positioning == Positioning.gnss ? true : false,
+      myLocationRenderMode: MyLocationRenderMode.GPS,
       attributionButtonPosition: widget.attributionButtonPosition,
       initialCameraPosition: CameraPosition(
         target: settingsService.backend.center,
