@@ -188,9 +188,7 @@ class RoutingViewState extends State<RoutingView> {
   
     final frame = MediaQuery.of(context);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(body: NotificationListener<DraggableScrollableNotification>(
+    return Scaffold(body: NotificationListener<DraggableScrollableNotification>(
         onNotification: (notification) {
           sheetMovement.add(notification);
           return false;
@@ -216,7 +214,7 @@ class RoutingViewState extends State<RoutingView> {
 
           RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
         ]),
-      )),
+      ),
     );
   }
 

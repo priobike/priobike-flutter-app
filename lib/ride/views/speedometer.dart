@@ -157,6 +157,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     var gauge = SfRadialGauge(
       enableLoadingAnimation: true,
       axes: [
@@ -179,7 +180,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               startValue: minSpeed, endValue: maxSpeed,
               startWidth: 53,
               endWidth: 53,
-              color: Colors.black,
+              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             ),
           ],
         ),
@@ -190,24 +191,24 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           showAxisLine: true, 
           radiusFactor: 0.985,
           labelOffset: 14,
-          axisLineStyle: const AxisLineStyle(
+          axisLineStyle: AxisLineStyle(
             thicknessUnit: GaugeSizeUnit.factor, 
             thickness: 0.25, 
-            color: Color.fromARGB(255, 0, 0, 0), 
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             cornerStyle: CornerStyle.bothFlat,
           ),
-          majorTickStyle: const MajorTickStyle(
+          majorTickStyle: MajorTickStyle(
             length: 20, 
             thickness: 1.5, 
-            color: Color.fromARGB(255, 0, 0, 0)
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)
           ),
-          minorTickStyle: const MinorTickStyle(
+          minorTickStyle: MinorTickStyle(
             length: 16, 
             thickness: 1.5, 
-            color: Color.fromARGB(255, 0, 0, 0)
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)
           ),
-          axisLabelStyle: const GaugeTextStyle(
-            color: Color.fromARGB(255, 0, 0, 0), 
+          axisLabelStyle: GaugeTextStyle(
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             fontWeight: FontWeight.bold, 
             fontSize: 18
           ),

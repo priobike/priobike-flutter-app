@@ -221,9 +221,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(body: Stack(children: [
+    return Scaffold(body: Stack(children: [
         Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
           child: Column(
@@ -398,7 +396,7 @@ class SettingsViewState extends State<SettingsView> {
             ],
           ),
         ),
-      ])),
+      ]),
     );
   }
 }

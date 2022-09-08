@@ -10,7 +10,7 @@ class NavigationArrow extends StatelessWidget {
   final int sign;
   final double width;
 
-  Widget inv(String asset) {
+  Widget inv(String asset, bool isDark) {
     final filter = <double>[
       //R  G   B  A  Const
       -1,  0,  0, 0, 255, //
@@ -18,6 +18,13 @@ class NavigationArrow extends StatelessWidget {
       0,   0, -1, 0, 255, //
       0,   0,  0, 1, 0, //
     ];
+
+    if (isDark) {
+      return Image.asset(
+        asset,
+        width: width,
+      );
+    }
 
     return ColorFiltered(
       colorFilter: ColorFilter.matrix(filter),
@@ -30,31 +37,32 @@ class NavigationArrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     switch (sign) {
       case -7:
-        return inv('assets/images/dark_keep_left.png');
+        return inv('assets/images/dark_keep_left.png', isDark);
       case -3:
-        return inv('assets/images/dark_turn_sharp_left.png');
+        return inv('assets/images/dark_turn_sharp_left.png', isDark);
       case -2:
-        return inv('assets/images/dark_turn_left.png');
+        return inv('assets/images/dark_turn_left.png', isDark);
       case -1:
-        return inv('assets/images/dark_turn_slight_left.png');
+        return inv('assets/images/dark_turn_slight_left.png', isDark);
       case 0:
-        return inv('assets/images/dark_continue.png');
+        return inv('assets/images/dark_continue.png', isDark);
       case 1:
-        return inv('assets/images/dark_turn_slight_right.png');
+        return inv('assets/images/dark_turn_slight_right.png', isDark);
       case 2:
-        return inv('assets/images/dark_turn_right.png');
+        return inv('assets/images/dark_turn_right.png', isDark);
       case 3:
-        return inv('assets/images/dark_turn_sharp_right.png');
+        return inv('assets/images/dark_turn_sharp_right.png', isDark);
       case 7:
-        return inv('assets/images/dark_keep_right.png');
+        return inv('assets/images/dark_keep_right.png', isDark);
       case 4:
-        return inv('assets/images/dark_finish.png');
+        return inv('assets/images/dark_finish.png', isDark);
       case 6:
-        return inv('assets/images/dark_roundabout.png');
+        return inv('assets/images/dark_roundabout.png', isDark);
       default:
-        return inv('assets/images/dark_continue.png');
+        return inv('assets/images/dark_continue.png', isDark);
     }
   }
 }
