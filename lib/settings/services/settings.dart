@@ -70,7 +70,7 @@ class SettingsService with ChangeNotifier {
     this.enableInternalFeatures = false,
     this.backend = Backend.production, 
     this.positioning = Positioning.gnss,
-    this.rerouting = Rerouting.disabled,
+    this.rerouting = Rerouting.enabled,
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
   });
