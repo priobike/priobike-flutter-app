@@ -13,6 +13,7 @@ import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
@@ -53,17 +54,16 @@ class SettingsElement extends StatelessWidget {
           topLeft: Radius.circular(24), 
           bottomLeft: Radius.circular(24)
         ),
-        fill: Colors.white,
+        fill: Theme.of(context).colorScheme.background,
         content: Row(children: [
-          BoldContent(text: title),
+          BoldContent(text: title, context: context),
           const HSpace(),
-          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Colors.blue), fit: FlexFit.tight)
+          if (subtitle != null) Flexible(child: Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context), fit: FlexFit.tight)
           else Flexible(child: Container()),
           SmallIconButton(
             icon: icon, 
-            onPressed: callback, 
-            color: Colors.black, 
-            fill: Theme.of(context).colorScheme.background,
+            onPressed: callback,
+            fill: Theme.of(context).colorScheme.surface,
           ),
         ]),
       ),
@@ -96,7 +96,7 @@ class SettingsSelection<E> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.background,
       child: ListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: elements.length,
@@ -104,7 +104,7 @@ class SettingsSelection<E> extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Tile(fill: Theme.of(context).colorScheme.background, content: Row(children: [
-              Flexible(child: Content(text: title(elements[index])), fit: FlexFit.tight),
+              Flexible(child: Content(text: title(elements[index]), context: context), fit: FlexFit.tight),
               Expanded(child: Container()),
               SmallIconButton(
                 icon: elements[index] == selected
@@ -128,7 +128,7 @@ class SettingsView extends StatefulWidget {
 }
 
 class SettingsViewState extends State<SettingsView> {
-  /// The associeted feature service, which is injected by the provider.
+  /// The associated feature service, which is injected by the provider.
   late FeatureService featureService;
 
   /// The associated settings service, which is injected by the provider.
@@ -209,12 +209,23 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
-  @override 
+  /// A callback that is executed when darkMode is changed
+  Future<void> onChangeColorMode(ColorMode colorMode) async {
+    // Tell the settings service that we selected the new colorModePreference.
+    await settingsService.selectColorMode(colorMode);
+
+    Navigator.pop(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light 
+        ? SystemUiOverlayStyle.dark 
+        : SystemUiOverlayStyle.light,
       child: Scaffold(body: Stack(children: [
-        Container(color: Theme.of(context).colorScheme.background),
+        Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +234,7 @@ class SettingsViewState extends State<SettingsView> {
               Row(children: [
                 AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
                 const HSpace(),
-                SubHeader(text: "Einstellungen"),
+                SubHeader(text: "Einstellungen", context: context),
               ]),
               const SmallVSpace(),
               if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
@@ -231,7 +242,7 @@ class SettingsViewState extends State<SettingsView> {
               if (featureService.canEnableBetaFeatures || featureService.canEnableInternalFeatures) 
                 Padding(
                   padding: const EdgeInsets.only(left: 32, top: 8), 
-                  child: Content(text: "Test-Features"),
+                  child: Content(text: "Test-Features", context: context),
                 ),
 
               if (featureService.canEnableBetaFeatures)
@@ -322,12 +333,27 @@ class SettingsViewState extends State<SettingsView> {
                   callback: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
                 ),
 
+              Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                title: "Farbmodus",
+                subtitle: settingsService.colorMode.description,
+                icon: Icons.expand_more,
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                      elements: ColorMode.values,
+                      selected: settingsService.colorMode,
+                      title: (ColorMode e) => e.description,
+                      callback: onChangeColorMode
+                  );
+                }),
+                ),
+              ),
+
               const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
 
               const SmallVSpace(),
               Padding(
                 padding: const EdgeInsets.only(left: 32), 
-                child: Content(text: "Nutzbarkeit"),
+                child: Content(text: "Nutzbarkeit", context: context),
               ),
               const SmallVSpace(),
               SettingsElement(
@@ -355,7 +381,7 @@ class SettingsViewState extends State<SettingsView> {
               const SmallVSpace(),
               Padding(
                 padding: const EdgeInsets.only(left: 32), 
-                child: Content(text: "Weitere Informationen"),
+                child: Content(text: "Weitere Informationen", context: context),
               ),
               const VSpace(),
               SettingsElement(title: "Datenschutz", icon: Icons.info, callback: () {
@@ -380,7 +406,8 @@ class SettingsViewState extends State<SettingsView> {
                 padding: const EdgeInsets.symmetric(horizontal: 32), 
                 child: Small(
                   text: "PrioBike v${featureService.appVersion} ${featureService.gitHead}", 
-                  color: Colors.grey
+                  color: Colors.grey,
+                  context: context
                 ),
               ),
 
@@ -388,7 +415,7 @@ class SettingsViewState extends State<SettingsView> {
             ],
           ),
         ),
-      ])),
-    );
+      ]),
+    ));
   }
 }

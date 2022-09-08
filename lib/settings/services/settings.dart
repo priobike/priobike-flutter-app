@@ -3,6 +3,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,6 +30,9 @@ class SettingsService with ChangeNotifier {
 
   /// The ride views preference.
   RidePreference? ridePreference;
+
+  /// The colorMode preference
+  ColorMode colorMode;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -65,6 +69,11 @@ class SettingsService with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectColorMode(ColorMode colorMode) async {
+    this.colorMode = colorMode;
+    await store();
+  }
+
   SettingsService({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
@@ -73,6 +82,7 @@ class SettingsService with ChangeNotifier {
     this.rerouting = Rerouting.enabled,
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
+    required this.colorMode
   });
 
   /// Load the stored settings.
@@ -88,6 +98,7 @@ class SettingsService with ChangeNotifier {
     final reroutingStr = storage.getString("priobike.settings.rerouting");
     final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
+    final colorModeStr = storage.getString("priobike.settings.colorMode");
 
     if (backendStr != null) backend = Backend.values.byName(backendStr);
     if (positioningStr != null) positioning = Positioning.values.byName(positioningStr);
@@ -98,6 +109,7 @@ class SettingsService with ChangeNotifier {
     } else {
       ridePreference = null;
     }
+    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
 
     hasLoaded = true;
     notifyListeners();
@@ -112,6 +124,7 @@ class SettingsService with ChangeNotifier {
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioning", positioning.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
+    await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
 
     if (ridePreference != null) {

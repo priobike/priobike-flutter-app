@@ -24,7 +24,8 @@ class ShortcutView extends StatelessWidget {
     required this.icon, 
     required this.title, 
     required this.width, 
-    required this.rightPad
+    required this.rightPad,
+    required BuildContext context
   }) : super(key: key);
 
   @override
@@ -38,24 +39,43 @@ class ShortcutView extends StatelessWidget {
         content: SizedBox(
           height: 128,
           child: Row(children: [
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: isLoading ? [ 
-                const Expanded(child: Center(child: CircularProgressIndicator())) 
-              ] : [
-                Icon(icon, size: 64, color: isHighlighted ? Colors.white : Colors.black),
-                Expanded(child: Container()),
-                Content(
-                  text: title, 
-                  color: isHighlighted ? Colors.white : Colors.black, 
-                  maxLines: 3, 
-                  overflow: TextOverflow.ellipsis
-                ),
-              ],
-            )),
-          ])
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: isLoading
+                    ? [
+                        const Expanded(
+                            child: Center(child: CircularProgressIndicator()))
+                      ]
+                    : [
+                        Icon(icon,
+                            size: 64,
+                            color: isHighlighted
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey
+                                    : Colors.black),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Content(
+                            text: title,
+                            color: isHighlighted
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey
+                                    : Colors.black,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            context: context),
+                      ],
+              ),
+            ),
+          ]),
         ),
-        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
+        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
         splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );
@@ -129,6 +149,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
       title: shortcut.name, 
       width: shortcutWidth, 
       rightPad: shortcutRightPad,
+      context: context,
     )).toList(); 
 
     shortcutViews = [ShortcutView(
@@ -140,6 +161,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
       title: "Freies Routing starten", 
       width: shortcutWidth, 
       rightPad: shortcutRightPad,
+      context: context,
     )] + shortcutViews;
 
     return SingleChildScrollView(

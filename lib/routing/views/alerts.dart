@@ -75,11 +75,13 @@ class AlertsViewState extends State<AlertsView> {
             ),
           ),
           child: BoldSmall(
-            text: discomfortService.foundDiscomforts!.length > 1 
+            text: discomfortService.foundDiscomforts!.length > 1
               ? "${discomfortService.foundDiscomforts!.length} Hinweise zu deiner Route"
-              : "1 Hinweis zu deiner Route",
+              : "1 Hinweis zu deiner Route", 
+            context: context, 
+            color: Colors.black,
           ),
-        )),
+        ),),
       ],
     );
   }
@@ -94,7 +96,7 @@ class AlertsViewState extends State<AlertsView> {
               child: Row(children: [
                 Stack(alignment: AlignmentDirectional.center, children: [
                   const AlertIcon(width: 42, height: 42),
-                  BoldContent(text: "${e.key + 1}"),
+                  BoldContent(text: "${e.key + 1}", context: context, color: Colors.black),
                 ]),
                 const SmallHSpace(),
                 SizedBox(
@@ -104,7 +106,7 @@ class AlertsViewState extends State<AlertsView> {
                     crossAxisAlignment: CrossAxisAlignment.start, 
                     mainAxisAlignment: MainAxisAlignment.center, 
                     children: [
-                      Flexible(child: BoldSmall(text: e.value.description, maxLines: 3, color: Colors.white)),
+                      Flexible(child: BoldSmall(text: e.value.description, maxLines: 3, color: Colors.white, context: context)),
                     ],
                   ),
                 ),

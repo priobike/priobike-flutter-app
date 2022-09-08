@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 
 enum RidePreference {
   speedometerView,
@@ -34,14 +33,28 @@ extension RidePreferenceIcon on RidePreference {
           Icon(Icons.arrow_downward, size: 32),
         ]);
       case RidePreference.minimalCountdownCyclingView: 
-        return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Icon(Icons.av_timer, size: 32),
-          Content(text: "4s"),
-        ]);
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.av_timer, size: 32),
+          /// Can't use Theme here cause it's not in a build context
+          Text(
+                "4s",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.grey),
+              ),
+            ]);
       case RidePreference.minimalNavigationCyclingView:
-        return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Icon(Icons.roundabout_left, size: 32),
-          Content(text: "..."),
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.roundabout_left, size: 32),
+          /// Can't use Theme here cause it's not in a build context
+          Text(
+            "...",
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+                color: Colors.grey),
+          ),
         ]);
     }
   }

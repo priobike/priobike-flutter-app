@@ -49,7 +49,7 @@ class ProfileElementButton extends StatelessWidget {
                   color: color ?? theme.colorScheme.onBackground
                 ),
                 const SmallVSpace(),
-                Small(text: title, color: color ?? theme.colorScheme.onBackground),
+                Small(text: title, color: color ?? theme.colorScheme.onBackground, context: context),
               ]
             ),
           ],
@@ -259,9 +259,9 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Radtyp"),
+            Content(text: "Radtyp", context: context),
             const SmallVSpace(),
-            Small(text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt."),
+            Small(text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.", context: context),
           ],
         )),
         SmallIconButton(icon: Icons.close, onPressed: () {
@@ -310,9 +310,9 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Routenpräferenz"),
+            Content(text: "Routenpräferenz", context: context),
             const SmallVSpace(),
-            Small(text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen."),
+            Small(text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.", context: context),
           ],
         )),
         const SmallHSpace(),
@@ -362,9 +362,9 @@ class ProfileViewState extends State<ProfileView> {
         Expanded(child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Content(text: "Aktivität"),
+            Content(text: "Aktivität", context: context),
             const SmallVSpace(),
-            Small(text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht."),
+            Small(text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht.", context: context),
           ],
         )),
         const SmallHSpace(),

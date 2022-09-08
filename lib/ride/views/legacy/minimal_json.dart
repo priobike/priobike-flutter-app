@@ -26,7 +26,7 @@ class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Small(text: app.currentRecommendation!.toJson()),
+            Small(text: app.currentRecommendation!.toJson(), context: context),
             const Spacer(),
             const SizedBox(
               width: double.infinity,

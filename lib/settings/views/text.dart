@@ -18,7 +18,7 @@ class AssetTextView extends StatelessWidget {
       future: DefaultAssetBundle.of(context).loadString(asset),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         return Container(
-          color: Theme.of(context).colorScheme.background, 
+          color: Theme.of(context).colorScheme.surface,
           child: Stack(
             alignment: Alignment.bottomCenter, 
             children: [
@@ -29,7 +29,7 @@ class AssetTextView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start, 
                       children: [
                         const SizedBox(height: 256),
-                        Content(text: snapshot.data ?? "Lade Text..."),
+                        Content(text: snapshot.data ?? "Lade Text...", context: context),
                         const SizedBox(height: 256),
                       ],
                     ),

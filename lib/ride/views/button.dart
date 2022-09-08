@@ -69,7 +69,7 @@ class CancelButton extends StatelessWidget {
         width: 96,
         child: ElevatedButton.icon(
           icon: const Icon(Icons.done),
-          label: BoldSmall(text: "Fertig", color: Theme.of(context).colorScheme.onPrimary),
+          label: BoldSmall(text: "Fertig", context: context, color: Colors.white),
           onPressed: () => onTap(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(

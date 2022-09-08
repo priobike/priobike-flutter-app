@@ -52,7 +52,7 @@ class TextFeedbackViewState extends State<TextFeedbackView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Small(text: widget.text),
+        Small(text: widget.text, context: context),
         const SmallVSpace(),
         TextField(
           keyboardType: TextInputType.multiline,

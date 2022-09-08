@@ -7,14 +7,16 @@ class Header extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    double fontSize = 38,
-    Color color = Colors.black
+    double? fontSize,
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600, color: color),
+    style: Theme.of(context).textTheme.headline1!
+      .merge(TextStyle(color: color, fontSize: fontSize)),
   );
 }
 
@@ -25,13 +27,15 @@ class SubHeader extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines,
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: color)
+    style: Theme.of(context).textTheme.subtitle1!
+      .merge(TextStyle(color: color)),
   );
 }
 
@@ -41,13 +45,15 @@ class BoldSubHeader extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines,
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: color)
+    style: Theme.of(context).textTheme.subtitle2!
+      .merge(TextStyle(color: color)),
   );
 }
 
@@ -58,13 +64,15 @@ class Content extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: color)
+    style: Theme.of(context).textTheme.bodyMedium!
+      .merge(TextStyle(color: color)),
   );
 }
 
@@ -75,13 +83,15 @@ class BoldContent extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color)
+    style: Theme.of(context).textTheme.headline2!
+      .merge(TextStyle(color: color)),
   );
 }
 
@@ -92,13 +102,15 @@ class Small extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: color)
+    style: Theme.of(context).textTheme.headline3!
+      .merge(TextStyle(color: color)),
   );
 }
 
@@ -109,12 +121,14 @@ class BoldSmall extends Text {
     required String text, 
     TextOverflow? overflow,
     int? maxLines, 
-    Color color = Colors.black
+    Color? color,
+    required BuildContext context
   }) : super(
     text, 
     key: key, 
     overflow: overflow,
     maxLines: maxLines,
-    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color)
+    style: Theme.of(context).textTheme.headline4!
+      .merge(TextStyle(color: color)),
   );
 }

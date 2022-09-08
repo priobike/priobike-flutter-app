@@ -82,7 +82,7 @@ class RoutingViewState extends State<RoutingView> {
       showDialog(context: context, builder: (_) => AlertDialog(
         alignment: AlignmentDirectional.center,
         actionsAlignment: MainAxisAlignment.center,
-        title: BoldContent(text: 'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.'),
+        title: BoldContent(text: 'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.', context: context),
         content: Container(height: 0),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(24)),
@@ -93,7 +93,7 @@ class RoutingViewState extends State<RoutingView> {
               preferences.setBool("priobike.routing.warning", true);
               startRide();
             },
-            child: BoldContent(text: 'OK', color: Colors.blue),
+            child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
           ),
         ],
       ));
@@ -107,7 +107,7 @@ class RoutingViewState extends State<RoutingView> {
       builder: (_) {
         final nameController = TextEditingController();
         return AlertDialog(
-          title: BoldContent(text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.'),
+          title: BoldContent(text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.', context: context),
           content: SizedBox(height: 48, child: Column(
             children: [
               TextFormField(
@@ -128,7 +128,7 @@ class RoutingViewState extends State<RoutingView> {
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
-              child: BoldContent(text: 'Speichern', color: Colors.blue),
+              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
             ),
           ],
         );
@@ -147,9 +147,9 @@ class RoutingViewState extends State<RoutingView> {
           child: Column(children: [
             const CircularProgressIndicator(),
             const VSpace(),
-            BoldContent(text: "Lade...", maxLines: 1),
-          ]),
-        )),
+            BoldContent(text: "Lade...", maxLines: 1, context: context),
+          ])
+        ))
       )),
     ]);
   }
@@ -167,7 +167,7 @@ class RoutingViewState extends State<RoutingView> {
                   height: 128, 
                   width: 256, 
                   child: Column(children: [
-                    BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1),
+                    BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
                     const VSpace(),
                     BigButton(label: "Erneut Laden", onPressed: () async {
                       await routingService?.loadRoutes(context);
@@ -185,11 +185,14 @@ class RoutingViewState extends State<RoutingView> {
   @override
   Widget build(BuildContext context) {
     if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
-  
-    final frame = MediaQuery.of(context);
 
+    final frame = MediaQuery.of(context);
+  
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light 
+        ? SystemUiOverlayStyle.dark 
+        : SystemUiOverlayStyle.light,
       child: Scaffold(body: NotificationListener<DraggableScrollableNotification>(
         onNotification: (notification) {
           sheetMovement.add(notification);
@@ -216,8 +219,8 @@ class RoutingViewState extends State<RoutingView> {
 
           RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
         ]),
-      )),
-    );
+      ),
+    ));
   }
 
   @override

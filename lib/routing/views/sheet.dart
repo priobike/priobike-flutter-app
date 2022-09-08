@@ -53,7 +53,7 @@ class SearchWaypointItem extends StatelessWidget {
         SizedBox(
           height: 42, width: frame.size.width - 114,
           child: Tile(
-            fill: const Color.fromARGB(255, 241, 241, 241),
+            fill: Theme.of(context).colorScheme.surface,
             onPressed: onSelect,
             padding: const EdgeInsets.all(10),
             content: Row(children: [
@@ -63,7 +63,8 @@ class SearchWaypointItem extends StatelessWidget {
                   color: Colors.grey,
                   text: "Adresse suchen", 
                   maxLines: 1, 
-                  overflow: TextOverflow.ellipsis
+                  overflow: TextOverflow.ellipsis,
+                  context: context,
                 ),
               ),
             ]),
@@ -77,7 +78,7 @@ class SearchWaypointItem extends StatelessWidget {
           height: 42,
           child: RawMaterialButton(
             elevation: 0,
-            fillColor: const Color.fromARGB(255, 241, 241, 241),
+            fillColor: Theme.of(context).colorScheme.surface,
             splashColor: Colors.black,
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -137,9 +138,9 @@ class RouteWaypointItem extends StatelessWidget {
 
         Container(
           height: 42, width: frame.size.width - 114,
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 241, 241, 241),
-            borderRadius: BorderRadius.all(Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
           ),
           padding: const EdgeInsets.all(10),
           child: Row(children: [
@@ -148,7 +149,8 @@ class RouteWaypointItem extends StatelessWidget {
               child: BoldContent(
                 text: waypoint.address, 
                 maxLines: 1, 
-                overflow: TextOverflow.ellipsis
+                overflow: TextOverflow.ellipsis,
+                context: context,
               ),
             ),
           ]),
@@ -162,7 +164,7 @@ class RouteWaypointItem extends StatelessWidget {
           height: 42,
           child: RawMaterialButton(
             elevation: 0,
-            fillColor: const Color.fromARGB(255, 241, 241, 241),
+            fillColor: Theme.of(context).colorScheme.surface,
             splashColor: Colors.black,
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -282,12 +284,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
           const SizedBox(height: 36),
           Stack(alignment: AlignmentDirectional.center, children: [
             Container(
-              color: const Color.fromARGB(255, 241, 241, 241), 
+              color: Theme.of(context).colorScheme.surface,
               width: 16, 
               height: s.selectedWaypoints!.length * 42
             ),
             Container(
-              color: Colors.blueAccent, 
+              color: Theme.of(context).colorScheme.primary,
               width: 8, 
               height: s.selectedWaypoints!.length * 42
             ),
@@ -331,9 +333,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     // Calculate the time when the user will reach the destination.
     final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
     return Column(children: [
-      BoldContent(text: "Normalerweise ${hours == 0 ? '' : '$hours Std. '}$minutes Min.", color: Colors.green),
+      BoldContent(text: "Normalerweise ${hours == 0 ? '' : '$hours Std. '}$minutes Min.", color: Colors.green, context: context),
       const SizedBox(height: 2),
-      Content(text: "Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo"),
+      Content(text: "Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo", context: context),
     ]);
   }
 
@@ -342,6 +344,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (s.selectedRoute == null) return Container();
     return BigButton(
       icon: Icons.pedal_bike,
+      iconColor: Colors.white,
       label: "Losfahren", 
       onPressed: widget.onSelectStartButton,
       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
@@ -353,6 +356,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (s.selectedRoute == null) return Container();
     return BigButton(
       icon: Icons.save,
+      iconColor: Colors.white,
       label: "Route speichern", 
       onPressed: widget.onSelectSaveButton,
       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
@@ -371,9 +375,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         minChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(32),
                 topRight: Radius.circular(32),
               ),

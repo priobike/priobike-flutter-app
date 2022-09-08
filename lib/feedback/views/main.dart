@@ -52,7 +52,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(body: 
       Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -74,7 +74,7 @@ class FeedbackViewState extends State<FeedbackView> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: Stack(children: [
         Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
             child: Column(
@@ -84,7 +84,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 if (widget.showBackButton) Row(children: [
                   AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
                   const HSpace(),
-                  SubHeader(text: "Feedback"),
+                  SubHeader(text: "Feedback", context: context),
                 ]),
                 const VSpace(),
                 const Divider(),
@@ -102,6 +102,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 const Divider(),
                 const VSpace(),
                 BigButton(
+                  iconColor: Colors.white,
                   icon: feedbackService.willSendFeedback ? Icons.send : Icons.check,
                   label: feedbackService.willSendFeedback ? "Senden" : "Fertig",
                   onPressed: () => submit(context),
