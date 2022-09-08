@@ -34,8 +34,12 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       child: const CancelButton(borderRadius: 128),
     );
 
-    // Don't show a countdown if we have no recommendation or if no signal group is focused.
-    if (rs.currentRecommendation == null || rs.currentRecommendation!.sgId == null) return alternativeView;
+    // Don't show a countdown if...
+    if (
+      rs.currentRecommendation == null || // we have no recommendation
+      rs.currentRecommendation!.sgId == null || // if no signal group is focused
+      rs.currentRecommendation!.error // or if there is an error
+    ) return alternativeView;
     
     final trafficLight = Container(
       width: 128, height: 128,
