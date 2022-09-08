@@ -194,13 +194,13 @@ class RideMapViewState extends State<RideMapView> {
 
       final distanceUserSg = vincenty.distance(currentUserPostionLatLng, nextSgPositionLatLng);
 
-      cameraZoom ??= 19 - (distanceUserSg / 100) ;
+      // When the distance between the user and the SG is closer than 200 it starts to zoom in slowly.
+      // Can't zoom in more than to zoom level 19.
+      cameraZoom ??= 19 - (distanceUserSg / 100);
 
-      // Limit how far in and out the camera can zoom
+      // Limit how far the the camera can zoom out.
       if (cameraZoom < 17) {
         cameraZoom = 17;
-      }else if (cameraZoom > 19) {
-        cameraZoom = 19;
       }
 
       // Only apply bearing if the distance to the next SG is within the thresholds.
@@ -215,8 +215,8 @@ class RideMapViewState extends State<RideMapView> {
     cameraBearing ??= cameraHeadingSMA.next(
         positionEstimatorService.estimatedPosition != null ? positionEstimatorService.estimatedPosition!.heading : 0
     );
-    
-    if (positionEstimatorService.estimatedPosition == null && cameraBearing == null) {
+
+    if (positionEstimatorService.estimatedPosition == null) {
       await mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
       );
