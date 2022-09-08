@@ -10,9 +10,10 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
+import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/snapping.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -94,8 +95,9 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<RoutingService>(create: (context) => RoutingService()),
         ChangeNotifierProvider<SessionService>(create: (context) => SessionService()),
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
+        ChangeNotifierProvider<PositionEstimatorService>(create: (context) => PositionEstimatorService()),
         ChangeNotifierProvider<RideService>(create: (context) => RideService()),
-        ChangeNotifierProvider<RerouteService>(create: (context) => RerouteService()),
+        ChangeNotifierProvider<SnappingService>(create: (context) => SnappingService()),
         ChangeNotifierProvider<FeedbackService>(create: (context) => FeedbackService()),
       ],
       child: StatefulBuilder(

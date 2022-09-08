@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/ride/services/position/position.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/ride.dart';
@@ -147,12 +147,15 @@ class RideService with ChangeNotifier {
   }
 
   /// Update the current user position and send it to the server.
-  Future<void> updatePosition(BuildContext context, Position position) async {
+  Future<void> updatePosition(BuildContext context) async {
     // Get the session from the context and verify that it is active.
     final session = Provider.of<SessionService>(context, listen: false);
     if (!session.isActive()) return;
     // Start the navigation if it isn't active.
     if (!navigationIsActive) await startNavigation(context);
+    final positionService = Provider.of<PositionService>(context, listen: false);
+    if (positionService.lastPosition == null) return;
+    final position = positionService.lastPosition!;
     // Send the position update.
     final req = UserPosition(
       lat: position.latitude,

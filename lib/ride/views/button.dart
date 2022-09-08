@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/reroute.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/ride/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
+  /// The border radius of the button.
+  final double borderRadius;
+
   /// Create a new cancel button.
-  const CancelButton({Key? key}) : super(key: key);
+  const CancelButton({this.borderRadius = 32, Key? key}) : super(key: key);
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
-    // Stop the reroute service.
-    final rerouteService = Provider.of<RerouteService>(context, listen: false);
-    await rerouteService.stopRerouteScheduler();
-
     // End the recommendations.
     final recommendationService = Provider.of<RideService>(context, listen: false);
     await recommendationService.stopNavigation();
@@ -27,14 +27,22 @@ class CancelButton extends StatelessWidget {
     final positionService = Provider.of<PositionService>(context, listen: false);
     await positionService.stopGeolocation();
 
+    // Stop the position estimation.
+    final positionEstimatorService = Provider.of<PositionEstimatorService>(context, listen: false);
+    positionEstimatorService.stopEstimating();
+
     // Show the feedback dialog.
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => FeedbackView(
       onSubmitted: (context) async {
-        // Reset the reroute service.
-        await rerouteService.reset();
+        // Reset the snapping service.
+        final snappingService = Provider.of<SnappingService>(context, listen: false);
+        await snappingService.reset();
 
         // Reset the recommendation service.
         await recommendationService.reset();
+
+        // Reset the position estimation service.
+        await positionEstimatorService.reset();
 
         // Reset the position service.
         await positionService.reset();
@@ -66,7 +74,7 @@ class CancelButton extends StatelessWidget {
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(borderRadius),
                 side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241))
               )
             ),

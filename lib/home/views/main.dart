@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/debug.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -23,22 +22,6 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
-
-/// Debug these views.
-void main() => debug(MultiProvider(
-  providers: [
-    ChangeNotifierProvider<ShortcutsService>(
-      create: (context) => ShortcutsService(),
-    ),
-    ChangeNotifierProvider<ProfileService>(
-      create: (context) => ProfileService(),
-    ),
-    ChangeNotifierProvider<SettingsService>(
-      create: (context) => SettingsService(colorMode: ColorMode.system),
-    ),
-  ],
-  child: const HomeView(),
-));
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
