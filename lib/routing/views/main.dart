@@ -185,10 +185,15 @@ class RoutingViewState extends State<RoutingView> {
   @override
   Widget build(BuildContext context) {
     if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
-  
-    final frame = MediaQuery.of(context);
 
-    return Scaffold(body: NotificationListener<DraggableScrollableNotification>(
+    final frame = MediaQuery.of(context);
+  
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light 
+        ? SystemUiOverlayStyle.dark 
+        : SystemUiOverlayStyle.light,
+      child: Scaffold(body: NotificationListener<DraggableScrollableNotification>(
         onNotification: (notification) {
           sheetMovement.add(notification);
           return false;
@@ -215,7 +220,7 @@ class RoutingViewState extends State<RoutingView> {
           RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
         ]),
       ),
-    );
+    ));
   }
 
   @override

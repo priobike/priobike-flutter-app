@@ -30,7 +30,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   static const maxSpeed = 40.0;
 
   /// The default gauge colors for the speedometer.
-  static const defaultGaugeColors = [Colors.grey];
+  static const defaultGaugeColors = [Color.fromARGB(255, 109, 109, 109)];
 
   /// The current gauge colors, if we have the necessary data.
   List<Color> gaugeColors = defaultGaugeColors;
@@ -180,7 +180,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               startValue: minSpeed, endValue: maxSpeed,
               startWidth: 53,
               endWidth: 53,
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+              color: const Color.fromARGB(255, 0, 0, 0),
             ),
           ],
         ),

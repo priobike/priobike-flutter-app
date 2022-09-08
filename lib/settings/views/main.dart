@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -218,7 +219,12 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Stack(children: [
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light 
+        ? SystemUiOverlayStyle.dark 
+        : SystemUiOverlayStyle.light,
+      child: Scaffold(body: Stack(children: [
         Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
           child: Column(
@@ -329,6 +335,7 @@ class SettingsViewState extends State<SettingsView> {
 
               Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                 title: "Farbmodus",
+                subtitle: settingsService.colorMode.description,
                 icon: Icons.expand_more,
                 callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                   return SettingsSelection(
@@ -409,6 +416,6 @@ class SettingsViewState extends State<SettingsView> {
           ),
         ),
       ]),
-    );
+    ));
   }
 }

@@ -102,6 +102,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 const Divider(),
                 const VSpace(),
                 BigButton(
+                  iconColor: Colors.white,
                   icon: feedbackService.willSendFeedback ? Icons.send : Icons.check,
                   label: feedbackService.willSendFeedback ? "Senden" : "Fertig",
                   onPressed: () => submit(context),

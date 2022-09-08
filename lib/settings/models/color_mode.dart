@@ -9,7 +9,7 @@ extension ColorModeDescription on ColorMode {
     switch (this) {
       case ColorMode.light: return "Lightmode";
       case ColorMode.dark: return "Darkmode";
-      case ColorMode.system: return "System entsprechend";
+      case ColorMode.system: return "Wie das System";
     }
   }
 }
