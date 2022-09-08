@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/algorithms/sma.dart';
@@ -6,6 +8,7 @@ import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/snapping.dart';
 import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -172,13 +175,28 @@ class RideMapViewState extends State<RideMapView> {
         CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
       );
     } else {
+      // Adapt the focus dynamically to the next interesting feature.
+      double zoom = 19;
+      final snappingService = Provider.of<SnappingService>(context, listen: false);
+      final distanceOfInterest = min(
+        snappingService.distanceToNextTurn ?? double.infinity, 
+        snappingService.distanceToNextSG ?? double.infinity,
+      );
+      if (distanceOfInterest > 25) zoom = 18.5;
+      if (distanceOfInterest > 50) zoom = 18.25;
+      if (distanceOfInterest > 100) zoom = 18.0;
+      if (distanceOfInterest > 200) zoom = 17.75;
+      if (distanceOfInterest > 300) zoom = 17.5;
+      if (distanceOfInterest > 400) zoom = 17.25;
+      if (distanceOfInterest > 500) zoom = 17.0;
+
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         bearing: cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading),
         target: LatLng(
           positionEstimatorService.estimatedPosition!.latitude, 
           positionEstimatorService.estimatedPosition!.longitude
         ),
-        zoom: 18,
+        zoom: zoom,
         tilt: 60,
       )));
     }
