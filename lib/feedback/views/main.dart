@@ -52,7 +52,7 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderLoadingIndicator() {
     return Scaffold(body: 
       Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -74,7 +74,7 @@ class FeedbackViewState extends State<FeedbackView> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(body: Stack(children: [
         Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
             child: Column(

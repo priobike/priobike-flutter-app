@@ -85,7 +85,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
     return Scaffold(body: 
       Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Stack(
           alignment: Alignment.bottomCenter, 
           children: [
