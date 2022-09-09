@@ -248,7 +248,8 @@ class RideMapViewState extends State<RideMapView> {
         final currentMarker = await mapController!.addSymbol(
           CurrentPositionMarker(
             geo: LatLng(positionEstimatorService.estimatedPosition!.latitude, positionEstimatorService.estimatedPosition!.longitude),
-            orientation: (positionEstimatorService.estimatedPosition!.heading + 270) % 360
+            // symbol icon orientation is relative to the camera, therefore you have to subtract the cameraBearing
+            orientation: (cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading) - cameraBearing) % 360
           ),
         );
 
