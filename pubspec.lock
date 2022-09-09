@@ -390,9 +390,11 @@ packages:
   mapbox_gl:
     dependency: "direct main"
     description:
-      name: mapbox_gl
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      url: "https://github.com/PrioBike-App/maps"
+    source: git
     version: "0.16.0"
   mapbox_gl_dart:
     dependency: transitive
@@ -404,16 +406,20 @@ packages:
   mapbox_gl_platform_interface:
     dependency: transitive
     description:
-      name: mapbox_gl_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: mapbox_gl_platform_interface
+      ref: HEAD
+      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      url: "https://github.com/PrioBike-App/maps"
+    source: git
     version: "0.16.0"
   mapbox_gl_web:
     dependency: transitive
     description:
-      name: mapbox_gl_web
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: mapbox_gl_web
+      ref: HEAD
+      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      url: "https://github.com/PrioBike-App/maps"
+    source: git
     version: "0.16.0"
   matcher:
     dependency: transitive
