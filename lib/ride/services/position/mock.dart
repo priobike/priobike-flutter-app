@@ -192,12 +192,12 @@ class PathMockPositionSource extends PositionSource {
   final List<LatLng> positions;
 
   /// The static speed with which the path should be followed.
-  final double speed = 18 / 3.6;
+  final double speed;
 
   /// The calculation timer.
   Timer? timer;
 
-  PathMockPositionSource({required this.positions});
+  PathMockPositionSource({required this.positions, this.speed = 18 / 3.6});
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.

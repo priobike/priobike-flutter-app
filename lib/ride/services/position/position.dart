@@ -151,12 +151,20 @@ class PositionService with ChangeNotifier {
       if (settings.positioning == Positioning.gnss) {
         positionSource = GNSSPositionSource();
         log.i("Using gnss positioning source.");
-      } else if (settings.positioning == Positioning.follow) {
+      } else if (settings.positioning == Positioning.follow18kmh) {
         final routing = Provider.of<RoutingService>(context, listen: false);
         positionSource = PathMockPositionSource(
+          speed: 18 / 3.6,
           positions: routing.selectedRoute!.route.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
         );
-        log.i("Using mocked path positioning source.");
+        log.i("Using mocked path positioning source (18 km/h).");
+      } else if (settings.positioning == Positioning.follow40kmh) {
+        final routing = Provider.of<RoutingService>(context, listen: false);
+        positionSource = PathMockPositionSource(
+          speed: 40 / 3.6,
+          positions: routing.selectedRoute!.route.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
+        );
+        log.i("Using mocked path positioning source (40 km/h).");
       } else if (settings.positioning == Positioning.recordedDresden) {
         positionSource = RecordedMockPositionSource.mockDresden;
         log.i("Using mocked positioning source for Dresden.");
