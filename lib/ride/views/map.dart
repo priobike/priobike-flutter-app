@@ -10,11 +10,9 @@ import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/snapping.dart';
-import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
@@ -58,9 +56,6 @@ class RideMapViewState extends State<RideMapView> {
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
-  /// The last displayed user marker (saved to remove it after playing the new one at the new position).
-  Symbol? lastUserMarker;
-
   /// A simple moving average for the camera heading.
   final cameraHeadingSMA = SMA(k: PositionEstimatorService.refreshRateHz * 2 /* seconds */);
 
@@ -99,7 +94,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onPositionEstimatorServiceUpdate() async {
-    await adaptMapController();
+    await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
@@ -178,85 +173,84 @@ class RideMapViewState extends State<RideMapView> {
     }
   }
 
-  /// Adapt the map controller.
-  Future<void> adaptMapController() async {
+  /// Adapt the map controller to a changed position.
+  Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
     if (routingService.selectedRoute == null) return;
 
-    if (positionEstimatorService.estimatedPosition == null) {
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(routingService.selectedRoute!.paddedBounds)
-      );
-    } else {
-      // Adapt the focus dynamically to the next interesting feature.
-      double zoom = 19;
-      final snappingService = Provider.of<SnappingService>(context, listen: false);
-      final distanceOfInterest = min(
-        snappingService.distanceToNextTurn ?? double.infinity, 
-        snappingService.distanceToNextSG ?? double.infinity,
-      );
+    // Get the snapping service which provides additional information about the current position.
+    final snappingService = Provider.of<SnappingService>(context, listen: false);
 
-      if (distanceOfInterest > 25) zoom = 18.5;
-      if (distanceOfInterest > 50) zoom = 18.25;
-      if (distanceOfInterest > 100) zoom = 18.0;
-      if (distanceOfInterest > 200) zoom = 17.75;
-      if (distanceOfInterest > 300) zoom = 17.5;
-      if (distanceOfInterest > 400) zoom = 17.25;
-      if (distanceOfInterest > 500) zoom = 17.0;
+    // Get some data that we will need for adaptive camera control.
+    final sgPos = rideService.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
+    final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
+    final userSnapPos = snappingService.snappedPosition;
+    final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
+    final estPos = positionEstimatorService.estimatedPosition;
+    final estPosLatLng = estPos == null ? null : l.LatLng(estPos.latitude, estPos.longitude);
 
-      // Within those thresholds the bearing to the next SG is used.
-      // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
-      // min-threshold: Often the SGs are slightly on the left or right side of the route and
-      //                without this threshold the camera would orient away from the route
-      //                when it's close to the SG.
-      const maxDistanceThreshold = 450;
-      const minDistanceThreshold = 100;
-
-      double? cameraBearing;
-      final nextSgPosition = rideService.currentRecommendation!.sgPos;
-
-      if (nextSgPosition != null){
-        final currentUserPosition = rideService.currentRecommendation!.snapPos;
-
-        final currentUserPositionLatLng = l.LatLng(currentUserPosition.lat, currentUserPosition.lon);
-        final nextSgPositionLatLng = l.LatLng(nextSgPosition.lat, nextSgPosition.lon);
-
-        final distanceUserSg = vincenty.distance(currentUserPositionLatLng, nextSgPositionLatLng);
-
-        // Only apply bearing if the distance to the next SG is within the thresholds.
-        if (distanceUserSg < maxDistanceThreshold * 1.5 && distanceUserSg > minDistanceThreshold){
-          final bearing = vincenty.bearing(currentUserPositionLatLng, nextSgPositionLatLng); // [-180°, 180°]
-          cameraBearing = bearing > 0 ? bearing : 360 + bearing;
-        }
-      }
-
-      // If no bearing got set w.r.t. the next SG apply the standard bearing w.r.t. to the route.
-      cameraBearing ??= cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading);
-
-      await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: cameraBearing,
-        target: LatLng(
-          positionEstimatorService.estimatedPosition!.latitude, 
-          positionEstimatorService.estimatedPosition!.longitude
-        ),
-        zoom: zoom,
-        tilt: 60,
-      )));
-
-      // If no gnss is used (hence the native Mapbox marker can't be used), use the fallback marker.
-      if (settingsService.positioning != Positioning.gnss){
-        final currentMarker = await mapController!.addSymbol(
-          CurrentPositionMarker(
-            geo: LatLng(positionEstimatorService.estimatedPosition!.latitude, positionEstimatorService.estimatedPosition!.longitude),
-            // symbol icon orientation is relative to the camera, therefore you have to subtract the cameraBearing
-            orientation: (cameraHeadingSMA.next(positionEstimatorService.estimatedPosition!.heading) - cameraBearing) % 360
-          ),
-        );
-
-        if (lastUserMarker != null) await mapController!.removeSymbol(lastUserMarker!);
-        lastUserMarker = currentMarker;
-      }
+    if (estPos == null || estPosLatLng == null) {
+      await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
+        routingService.selectedRoute!.paddedBounds
+      ));
+      return;
     }
+
+    // Calculate the distance to the next traffic light.
+    double? sgDistance = (userSnapPosLatLng == null || sgPosLatLng == null) 
+      ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
+
+    // Calculate the bearing to the next traffic light.
+    double? sgBearing = (userSnapPosLatLng == null || sgPosLatLng == null) 
+      ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
+
+    // Adapt the focus dynamically to the next interesting feature.
+    double cameraZoom = 19;
+    final distanceOfInterest = min(
+      snappingService.distanceToNextTurn ?? double.infinity, 
+      sgDistance ?? double.infinity,
+    );
+    if (distanceOfInterest > 25) cameraZoom = 18.5;
+    if (distanceOfInterest > 50) cameraZoom = 18.25;
+    if (distanceOfInterest > 100) cameraZoom = 18.0;
+    if (distanceOfInterest > 200) cameraZoom = 17.75;
+    if (distanceOfInterest > 300) cameraZoom = 17.5;
+    if (distanceOfInterest > 400) cameraZoom = 17.25;
+    if (distanceOfInterest > 500) cameraZoom = 17.0;
+
+    // Within those thresholds the bearing to the next SG is used.
+    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
+    // min-threshold: Often the SGs are slightly on the left or right side of the route and
+    //                without this threshold the camera would orient away from the route
+    //                when it's close to the SG.
+    double? cameraHeading;
+    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 100) {
+      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
+    }
+    // Avoid looking to far away from the route.
+    if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 90) {
+      cameraHeading = estPos.heading; // Look into the direction of the user.
+    }
+    cameraHeading = cameraHeadingSMA.next(cameraHeading);
+
+    // The camera target is the estimated user position.
+    final cameraTarget = LatLng(estPosLatLng.latitude, estPosLatLng.longitude);
+
+    await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      bearing: cameraHeading,
+      target: cameraTarget,
+      zoom: cameraZoom,
+      tilt: 60,
+    )));
+
+    await mapController!.updateUserLocation(
+      lat: estPos.latitude, 
+      lon: estPos.longitude,
+      alt: estPos.altitude,
+      acc: estPos.accuracy,
+      heading: estPos.heading,
+      speed: estPos.speed,
+    );
   }
 
   /// Load the upcoming traffic light layer.
