@@ -30,9 +30,6 @@ class SnappingService with ChangeNotifier {
   /// The distance to the next turn.
   double? distanceToNextTurn;
 
-  /// The distance to the next signal group.
-  double? distanceToNextSG;
-
   /// The remaining waypoints.
   List<Waypoint>? remainingWaypoints;
 
@@ -86,14 +83,6 @@ class SnappingService with ChangeNotifier {
       if ((b - bearing).abs() > bearingThreshold) break;
     }
     this.distanceToNextTurn = distanceToNextTurn;
-
-    // Calculate the shortest distance to the signal groups.
-    var distanceToNextSG = double.infinity;
-    for (final sg in routing.selectedRoute!.signalGroups.values) {
-      final d = vincenty.distance(p, LatLng(sg.position.lat, sg.position.lon));
-      if (d < distanceToNextSG) distanceToNextSG = d;
-    }
-    this.distanceToNextSG = distanceToNextSG;
 
     // Find the waypoint segment with the shortest distance to our position.
     final waypoints = routing.selectedWaypoints!;
@@ -154,7 +143,6 @@ class SnappingService with ChangeNotifier {
     distance = null;
     snappedHeading = null;
     distanceToNextTurn = null;
-    distanceToNextSG = null;
     remainingWaypoints = null;
     needsLayout = {};
     notifyListeners();
