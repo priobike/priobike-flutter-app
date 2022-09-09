@@ -109,7 +109,9 @@ class RoutingService with ChangeNotifier {
       }
       
       final decoded = json.decode(response.body);
-      final routeResponse = RoutesResponse.fromJson(decoded);
+      final routeResponse = RoutesResponse
+        .fromJson(decoded)
+        .connected(selectedWaypoints!.first, selectedWaypoints!.last);
       if (routeResponse.routes.isEmpty) return null;
       selectedRoute = routeResponse.routes.first;
       allRoutes = routeResponse.routes;
