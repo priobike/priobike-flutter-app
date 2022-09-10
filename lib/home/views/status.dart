@@ -54,7 +54,8 @@ class StatusViewState extends State<StatusView> {
     ) {
       problem = "Im Moment kann die Qualität der Prognosen für ${((status.numBadPredictions / status.numPredictions) * 100).round()}% der Ampeln niedriger als gewohnt sein.";
     } else if(
-      status.averagePredictionQuality < 0.5
+      status.averagePredictionQuality != null &&
+      status.averagePredictionQuality! < 0.5
     ) {
       problem = "Im Moment kann die Qualität der Vorhersagen für Ampeln niedriger als gewohnt sein.";
     }

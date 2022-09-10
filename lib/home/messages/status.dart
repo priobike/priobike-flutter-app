@@ -18,7 +18,7 @@ class PredictionMonitorStatusResponse {
   final int? oldestPredictionTime;
 
   /// The average prediction quality.
-  final double averagePredictionQuality;
+  final double? averagePredictionQuality;
 
   const PredictionMonitorStatusResponse({
     required this.statusUpdateTime,
@@ -27,7 +27,7 @@ class PredictionMonitorStatusResponse {
     required this.numBadPredictions,
     this.mostRecentPredictionTime,
     this.oldestPredictionTime,
-    required this.averagePredictionQuality,
+    this.averagePredictionQuality,
   });
 
   factory PredictionMonitorStatusResponse.fromJson(Map<String, dynamic> json) {
