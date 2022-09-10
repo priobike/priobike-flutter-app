@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/services/status.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
@@ -155,6 +156,9 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated shortcuts service, which is injected by the provider.
   late ShortcutsService shortcutsService;
 
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatusService predictionStatusService;
+
   /// The associated shortcuts service, which is injected by the provider.
   late PositionService positionService;
 
@@ -171,6 +175,7 @@ class SettingsViewState extends State<SettingsView> {
   void didChangeDependencies() {
     featureService = Provider.of<FeatureService>(context);
     settingsService = Provider.of<SettingsService>(context);
+    predictionStatusService = Provider.of<PredictionStatusService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     positionService = Provider.of<PositionService>(context);
     routingService = Provider.of<RoutingService>(context);
@@ -185,6 +190,7 @@ class SettingsViewState extends State<SettingsView> {
     await settingsService.selectBackend(backend);
 
     // Reset the associated services.
+    await predictionStatusService.reset();
     await shortcutsService.reset();
     await routingService.reset();
     await sessionService.reset();

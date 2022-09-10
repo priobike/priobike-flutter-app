@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/home/services/status.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -86,6 +87,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<PrivacyPolicyService>(create: (context) => PrivacyPolicyService()),
         ChangeNotifierProvider<TutorialService>(create: (context) => TutorialService()),
         ChangeNotifierProvider<SettingsService>(create: (context) => SettingsService(colorMode: colorMode)),
+        ChangeNotifierProvider<PredictionStatusService>(create: (context) => PredictionStatusService()),
         ChangeNotifierProvider<ProfileService>(create: (context) => ProfileService()),
         ChangeNotifierProvider<NewsService>(create: (context) => NewsService()),
         ChangeNotifierProvider<ShortcutsService>(create: (context) => ShortcutsService()),

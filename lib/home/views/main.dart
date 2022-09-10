@@ -7,6 +7,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/home/views/status.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
@@ -151,6 +152,7 @@ class HomeViewState extends State<HomeView> {
         SliverList(
           delegate: SliverChildListDelegate([
             const VSpace(),
+            const StatusView(),
             const SmallVSpace(),
             Row(children: [
               const HSpace(),
