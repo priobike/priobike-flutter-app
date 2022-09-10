@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -24,9 +23,9 @@ class SGStatusViewState extends State<SGStatusView> {
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
-    mapController?.updateContentInsets(const EdgeInsets.only(
+    mapController?.updateContentInsets(EdgeInsets.only(
       top: 0,
-      bottom: 142,
+      bottom: 142 + MediaQuery.of(context).padding.bottom,
       left: 0,
       right: 0,
     ));
@@ -75,7 +74,7 @@ class SGStatusViewState extends State<SGStatusView> {
     await mapController?.addLayer(
       "signal-groups",
       "signal-group-ids",
-      const SymbolLayerProperties(
+      SymbolLayerProperties(
         textField: ["get", "prediction_sg_id"],
         textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
         textSize: 16,
@@ -83,6 +82,9 @@ class SGStatusViewState extends State<SGStatusView> {
           Expressions.literal,
           [0, 1]
         ],
+        textColor: Theme.of(context).colorScheme.brightness == Brightness.dark
+          ? "#ffffff"
+          : "#000000",
         // Hide after zoom level 15.
         textOpacity: [
           "interpolate",
@@ -119,7 +121,6 @@ class SGStatusViewState extends State<SGStatusView> {
           child: SizedBox(height: 128, child: Tile(
             fill: Colors.white,
             content: Column(children: [
-              // Red
               Row(children: [
                 Container(
                   height: 16,
@@ -130,7 +131,7 @@ class SGStatusViewState extends State<SGStatusView> {
                   ),
                 ),
                 const HSpace(),
-                Text("Keine Daten", style: Theme.of(context).textTheme.bodyText2),
+                Text("-1 Prognosequalität", style: Theme.of(context).textTheme.bodyText2),
               ]),
               const SmallVSpace(),
               Row(children: [

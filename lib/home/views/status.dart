@@ -37,9 +37,12 @@ class StatusViewState extends State<StatusView> {
     String? problem;
     if (
       status.mostRecentPredictionTime != null && 
-      (status.mostRecentPredictionTime! - status.statusUpdateTime).abs() > Duration(minutes: 5).inSeconds
+      (status.mostRecentPredictionTime! - status.statusUpdateTime).abs() > const Duration(minutes: 5).inSeconds
     ) {
-      problem = "Im Moment gibt es keine Vorhersagen für Ampeln.";
+      // Render the most recent prediction time as hh:mm.
+      final time = DateTime.fromMillisecondsSinceEpoch(status.mostRecentPredictionTime! * 1000);
+      final formattedTime = "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}";
+      problem = "Seit $formattedTime Uhr stehen keine Ampeldaten zur Verfügung.";
     } else if(
       status.numThings != 0 &&
       status.numPredictions / status.numThings < 0.5
@@ -60,7 +63,7 @@ class StatusViewState extends State<StatusView> {
 
     bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24), 
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0), 
       child: Tile(
         fill: isDark 
         ? const Color.fromARGB(255, 134, 79, 79) 

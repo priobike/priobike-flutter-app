@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/services/status.dart';
+import 'package:priobike/home/views/status.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
@@ -277,6 +278,9 @@ class SettingsViewState extends State<SettingsView> {
                   icon: settingsService.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
                   callback: () => settingsService.setEnableInternalFeatures(!settingsService.enableInternalFeatures),
                 )),
+
+              if (settingsService.enableInternalFeatures)
+                const Padding(padding: EdgeInsets.only(top: 8), child: StatusView()),
 
               if (settingsService.enableInternalFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
