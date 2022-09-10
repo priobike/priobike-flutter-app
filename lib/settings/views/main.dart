@@ -21,6 +21,7 @@ import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/status.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
@@ -275,6 +276,16 @@ class SettingsViewState extends State<SettingsView> {
                   title: "Interne Features", 
                   icon: settingsService.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
                   callback: () => settingsService.setEnableInternalFeatures(!settingsService.enableInternalFeatures),
+                )),
+
+              if (settingsService.enableInternalFeatures)
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "Status Signalgruppen", 
+                  subtitle: "Es fallen ca. 1MB Daten an", 
+                  icon: Icons.traffic,
+                  callback: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusView()));
+                  },
                 )),
 
               if (settingsService.enableInternalFeatures) 
