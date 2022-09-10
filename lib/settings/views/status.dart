@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -131,7 +132,7 @@ class SGStatusViewState extends State<SGStatusView> {
                   ),
                 ),
                 const HSpace(),
-                Text("-1 Prognosequalität", style: Theme.of(context).textTheme.bodyText2),
+                Small(text: "-1 Prognosequalität", context: context, color: Colors.black),
               ]),
               const SmallVSpace(),
               Row(children: [
@@ -144,7 +145,7 @@ class SGStatusViewState extends State<SGStatusView> {
                   ),
                 ),
                 const HSpace(),
-                Text("0% Prognosequalität", style: Theme.of(context).textTheme.bodyText2),
+                Small(text: "0% Prognosequalität", context: context, color: Colors.black),
               ]),
               const SmallVSpace(),
               Row(children: [
@@ -157,7 +158,7 @@ class SGStatusViewState extends State<SGStatusView> {
                   ),
                 ),
                 const HSpace(),
-                Text("50% Prognosequalität", style: Theme.of(context).textTheme.bodyText2),
+                Small(text: "50% Prognosequalität", context: context, color: Colors.black),
               ]),
               const SmallVSpace(),
               Row(children: [
@@ -170,7 +171,7 @@ class SGStatusViewState extends State<SGStatusView> {
                   ),
                 ),
                 const HSpace(),
-                Text("100% Prognosequalität", style: Theme.of(context).textTheme.bodyText2),
+                Small(text: "100% Prognosequalität", context: context, color: Colors.black),
               ]),
             ])
           )),
