@@ -285,7 +285,7 @@ class SettingsViewState extends State<SettingsView> {
               if (settingsService.enableInternalFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Status Signalgruppen", 
-                  subtitle: "Es fallen ca. 1MB Daten an", 
+                  subtitle: "Es fallen ca. 3MB Daten an", 
                   icon: Icons.traffic,
                   callback: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusView()));
