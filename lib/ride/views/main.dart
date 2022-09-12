@@ -65,8 +65,6 @@ class RideViewState extends State<RideView> {
         return 2;
       case RidePreference.minimalCountdownCyclingView:
         return 3;
-      case RidePreference.minimalNavigationCyclingView:
-        return 4;
       default:
         return 0;
     }
@@ -147,10 +145,8 @@ class RideViewState extends State<RideView> {
         // RidePreference.minimalCountdownCyclingView
         const SafeArea(child: MinimalCountdownCyclingView()),
 
-        // RidePreference.minimalNavigationCyclingView
-        const SafeArea(child: MinimalNavigationCyclingView()),
-
         // Other debug views.
+        if (kDebugMode) const SafeArea(child: MinimalNavigationCyclingView()),
         if (kDebugMode) const SafeArea(child: DefaultDebugCyclingView()),
         if (kDebugMode) const SafeArea(child: MinimalDebugCyclingView()),
       ],
