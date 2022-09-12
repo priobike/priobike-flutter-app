@@ -70,6 +70,9 @@ class PositionService with ChangeNotifier {
   /// A subscription to the real position.
   StreamSubscription<Position>? positionSubscription;
 
+  /// The recorded positions of the user.
+  final positions = List<Position>.empty(growable: true);
+
   /// The current measured position (1 Hz).
   Position? lastPosition;
 
@@ -84,6 +87,7 @@ class PositionService with ChangeNotifier {
     needsLayout = {};
     positionSource = null;
     positionSubscription = null;
+    positions.clear();
     lastPosition = null;
   }
 
@@ -211,6 +215,7 @@ class PositionService with ChangeNotifier {
     positionSubscription = positionStream.listen((Position position) {
       if (!isGeolocating) return;
       lastPosition = position;
+      positions.add(position);
       onNewPosition(position);
       notifyListeners();
     });

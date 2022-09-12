@@ -24,6 +24,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/features.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,6 +100,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<PositionService>(create: (context) => PositionService()),
         ChangeNotifierProvider<PositionEstimatorService>(create: (context) => PositionEstimatorService()),
         ChangeNotifierProvider<RideService>(create: (context) => RideService()),
+        ChangeNotifierProvider<StatisticsService>(create: (context) => StatisticsService()),
         ChangeNotifierProvider<SnappingService>(create: (context) => SnappingService()),
         ChangeNotifierProvider<FeedbackService>(create: (context) => FeedbackService()),
       ],

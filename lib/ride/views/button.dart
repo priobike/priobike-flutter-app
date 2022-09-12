@@ -7,6 +7,7 @@ import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/ride/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
@@ -22,6 +23,10 @@ class CancelButton extends StatelessWidget {
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
+    // Calculate a summary of the ride.
+    final statisticsService = Provider.of<StatisticsService>(context, listen: false);
+    statisticsService.calculateSummary(context);
+    
     // End the recommendations.
     final recommendationService = Provider.of<RideService>(context, listen: false);
     await recommendationService.stopNavigation();
@@ -37,6 +42,9 @@ class CancelButton extends StatelessWidget {
     // Show the feedback dialog.
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => FeedbackView(
       onSubmitted: (context) async {
+        // Reset the statistics.
+        statisticsService.reset();
+
         // Reset the snapping service.
         final snappingService = Provider.of<SnappingService>(context, listen: false);
         await snappingService.reset();
