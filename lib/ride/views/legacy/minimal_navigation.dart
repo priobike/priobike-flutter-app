@@ -170,7 +170,7 @@ class _MinimalNavigationCyclingViewState
             const Spacer(),
             const SizedBox(
               width: double.infinity,
-              child: CancelButton(),
+              child: CancelButton(text: "Fahrt beenden"),
             ),
           ],
         ),

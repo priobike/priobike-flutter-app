@@ -14,8 +14,11 @@ class CancelButton extends StatelessWidget {
   /// The border radius of the button.
   final double borderRadius;
 
+  /// The text of the button.
+  final String text;
+
   /// Create a new cancel button.
-  const CancelButton({this.borderRadius = 32, Key? key}) : super(key: key);
+  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
@@ -69,7 +72,7 @@ class CancelButton extends StatelessWidget {
         width: 96,
         child: ElevatedButton.icon(
           icon: const Icon(Icons.done),
-          label: BoldSmall(text: "Fertig", context: context, color: Colors.white),
+          label: BoldSmall(text: text, context: context, color: Colors.white),
           onPressed: () => onTap(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(

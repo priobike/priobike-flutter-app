@@ -167,7 +167,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
 
           const SizedBox(
             width: double.infinity,
-            child: CancelButton(),
+            child: CancelButton(text: "Fahrt beenden"),
           ),
         ],
       )),
