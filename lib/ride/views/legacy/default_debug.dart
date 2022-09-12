@@ -189,7 +189,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
               rideService.currentRecommendation!.error
                   ? "Fehler: ${rideService.currentRecommendation!.errorMessage}"
                   : '',
-              style: const TextStyle(fontSize: 20, color: Colors.yellow),
+              style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.primary),
             ),
             const SizedBox(
               width: double.infinity,

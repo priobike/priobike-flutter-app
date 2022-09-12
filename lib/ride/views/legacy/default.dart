@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/arrow.dart';
@@ -20,7 +22,6 @@ class DefaultCyclingView extends StatefulWidget {
 class _DefaultCyclingViewState extends State<DefaultCyclingView> {
   late RideService rideService;
 
-  final double padding = 6.0;
   final int sliderThumbWidth = 20;
   final double maxSpeedDiff = 10.0;
 
@@ -38,169 +39,138 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
     );
 
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              recommendation.error
-                  ? "Fehler: ${recommendation.errorMessage}"
-                  : '',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.yellow,
+      body: SafeArea(child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SmallVSpace(),
+          BoldSmall(text: recommendation.error
+                ? "Fehler: ${recommendation.errorMessage}"
+                : '', context: context),
+          Row(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+              child: NavigationArrow(
+                sign: recommendation.navSign,
+                width: 70,
               ),
             ),
-            Row(children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
-                child: NavigationArrow(
-                  sign: recommendation.navSign,
-                  width: 70,
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${recommendation.navDist.toStringAsFixed(0)} m",
-                    style: const TextStyle(
-                      fontSize: 40,
-                    ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 100,
-                    child: Text(
-                      recommendation.navText ?? "",
-                      style: const TextStyle(fontSize: 16),
-                      maxLines: 3,
-                    ),
-                  ),
-                ],
-              ),
-            ]),
-            const Spacer(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.width / 3,
-                      width: MediaQuery.of(context).size.width / 3,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 30,
-                        backgroundColor: Colors.black26,
-                        color: recommendation.isGreen
-                            ? const Color.fromARGB(255, 54, 222, 70)
-                            : Colors.red,
-                        value: recommendation.countdown / 60,
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "${recommendation.countdown}s ",
-                        style: const TextStyle(fontSize: 50),
-                      ),
-                    ),
-                  ),
-                ]),
-                Expanded(
-                    child: Text(
-                  "Ampel in ${recommendation.distance.toStringAsFixed(0)}m",
-                  maxLines: 2,
-                  style: const TextStyle(fontSize: 40),
-                  textAlign: TextAlign.center,
-                ))
-              ],
-            ),
-            const Spacer(),
-            Stack(
-              children: [
-                Container(
-                  height: 100,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Colors.red,
-                        Colors.transparent,
-                        Color.fromARGB(255, 54, 222, 70),
-                        Colors.transparent,
-                        Colors.red,
-                      ],
-                    ),
+                Text(
+                  "${recommendation.navDist.toStringAsFixed(0)} m",
+                  style: const TextStyle(
+                    fontSize: 40,
                   ),
                 ),
-                Positioned.directional(
-                  textDirection: TextDirection.ltr,
-                  start: (MediaQuery.of(context).size.width - padding * 2) *
-                          percent -
-                      (sliderThumbWidth / 2),
-                  child: Container(
-                    height: 100,
-                    width: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 54, 54, 54),
-                        width: 2,
-                      ),
-                    ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 100,
+                  child: Text(
+                    recommendation.navText ?? "",
+                    style: const TextStyle(fontSize: 16),
+                    maxLines: 2,
                   ),
                 ),
               ],
             ),
-            const Spacer(),
-            Text(
-              "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
-              style: const TextStyle(fontSize: 40),
-            ),
-            if (recommendation.speedDiff > 0)
-              const Text(
-                "Schneller!",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white54,
+          ]),
+          const Spacer(),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 18), child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Stack(children: [
+                Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.width / 3,
+                    width: MediaQuery.of(context).size.width / 3,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 30,
+                      backgroundColor: Colors.black26,
+                      color: recommendation.isGreen
+                          ? const Color.fromARGB(255, 54, 222, 70)
+                          : Colors.red,
+                      value: recommendation.countdown / 60,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "${recommendation.countdown}s ",
+                      style: const TextStyle(fontSize: 50),
+                    ),
+                  ),
+                ),
+              ]),
+              const SmallHSpace(),
+              Expanded(
+                  child: Header(text:
+                "Ampel in ${recommendation.distance.toStringAsFixed(0)}m", fontSize: 28, context: context
+              ))
+            ],
+          )),
+          const Spacer(),
+          Stack(
+            children: [
+              Container(
+                height: 100,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.red,
+                      Colors.black,
+                      Color.fromARGB(255, 54, 222, 70),
+                      Colors.black,
+                      Colors.red,
+                    ],
+                  ),
                 ),
               ),
-            if (recommendation.speedDiff < 0)
-              const Text(
-                "Langsamer!",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white54,
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Transform.translate(
+                    offset: Offset(
+                      percent * constraints.maxWidth - sliderThumbWidth / 2,
+                      0,
+                    ),
+                    child: Container(
+                      height: 100,
+                      width: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 54, 54, 54),
+                          width: 2,
+                        ),
+                      ),
+                    )
+                  );
+                },
               ),
-            if (recommendation.speedDiff == 0)
-              const Text(
-                "Geschwindigkeit halten.",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white54,
-                ),
-              ),
-            const Spacer(),
-            Text(
-              "Prognose ${((recommendation.quality ?? 0.0) * 100).toStringAsFixed(0)}% sicher",
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.white54,
-              ),
-            ),
-            const SizedBox(
-              width: double.infinity,
-              child: CancelButton(),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+          const SmallVSpace(),
+          Header(
+            text: "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
+            context: context,
+          ),
+          if (recommendation.speedDiff > 0)
+            SubHeader(text: "Schneller!", context: context),
+          if (recommendation.speedDiff < 0)
+            SubHeader(text: "Langsamer!", context: context),
+          if (recommendation.speedDiff == 0)
+            SubHeader(text: "Geschwindigkeit halten.", context: context),
+
+          const SizedBox(
+            width: double.infinity,
+            child: CancelButton(),
+          ),
+        ],
+      )),
     );
   }
 }
