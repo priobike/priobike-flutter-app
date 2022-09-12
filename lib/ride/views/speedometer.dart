@@ -61,10 +61,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var phases = rs.currentRecommendation?.predictionValue;
     var dist = rs.currentRecommendation?.distance;
     var sgId = rs.currentRecommendation?.sgId;
+    var error = rs.currentRecommendation?.error;
 
     // Check if we have all necessary data to display the speedometer
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
-        timeStr == null || tGreen == null || phases == null || dist == null || sgId == null) {
+        timeStr == null || tGreen == null || phases == null || dist == null || 
+        sgId == null || error == true) {
       gaugeColors = defaultGaugeColors;
       gaugeStops = [];
       return;
