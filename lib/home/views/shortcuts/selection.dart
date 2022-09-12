@@ -116,30 +116,10 @@ class ShortcutsViewState extends State<ShortcutsView> {
 
   @override
   Widget build(BuildContext context) {
-    if (ss.shortcuts == null) return renderLoadingIndicator();
-    return renderShortcuts(context, ss.shortcuts!);
-  }
-
-  /// Render a loading indicator.
-  Widget renderLoadingIndicator() {
-    return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Tile(
-        content: Center(child: SizedBox(
-          height: 86, 
-          width: 86, 
-          child: Column(children: const [
-            CircularProgressIndicator(),
-          ])
-        ))
-      )
-    ]));
-  }
-
-  Widget renderShortcuts(BuildContext context, List<Shortcut> shortcuts) {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
-    var shortcutViews = shortcuts.map((shortcut) => ShortcutView(
+    var shortcutViews = ss.shortcuts?.map((shortcut) => ShortcutView(
       onPressed: () {
         // Allow only one shortcut to be fetched at a time.
         if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
@@ -150,7 +130,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
       width: shortcutWidth, 
       rightPad: shortcutRightPad,
       context: context,
-    )).toList(); 
+    )).toList() ?? []; 
 
     shortcutViews = [ShortcutView(
       onPressed: () {
