@@ -5,6 +5,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
+import 'package:priobike/ride/algorithms/sma.dart';
 import 'package:priobike/ride/services/position/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/snapping.dart';
@@ -50,6 +51,9 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
+
+  /// A SMA for the zoom.
+  final zoomSMA = SMA(k: PositionEstimatorService.refreshRateHz * 5 /* seconds */);
 
   @override
   void didChangeDependencies() {
@@ -172,19 +176,15 @@ class RideMapViewState extends State<RideMapView> {
       );
     } else {
       // Adapt the focus dynamically to the next interesting feature.
-      double zoom = 18;
       final snappingService = Provider.of<SnappingService>(context, listen: false);
       final distanceOfInterest = min(
         snappingService.distanceToNextTurn ?? double.infinity, 
         snappingService.distanceToNextSG ?? double.infinity,
       );
-      if (distanceOfInterest > 25) zoom = 17.5;
-      if (distanceOfInterest > 50) zoom = 17.25;
-      if (distanceOfInterest > 100) zoom = 17.0;
-      if (distanceOfInterest > 200) zoom = 16.75;
-      if (distanceOfInterest > 300) zoom = 16.5;
-      if (distanceOfInterest > 400) zoom = 16.25;
-      if (distanceOfInterest > 500) zoom = 16.0;
+      // Scale the zoom level with the distance of interest.
+      // Between 0 meters: zoom 18 and 500 meters: zoom 16.
+      double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
+      zoom = zoomSMA.next(zoom);
 
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         bearing: positionEstimatorService.estimatedPosition!.heading,
