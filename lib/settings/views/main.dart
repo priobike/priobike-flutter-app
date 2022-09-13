@@ -11,7 +11,7 @@ import 'package:priobike/home/views/status.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';

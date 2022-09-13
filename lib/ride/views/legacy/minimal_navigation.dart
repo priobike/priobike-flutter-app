@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/arrow.dart';

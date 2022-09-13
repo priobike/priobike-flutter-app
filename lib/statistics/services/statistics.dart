@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

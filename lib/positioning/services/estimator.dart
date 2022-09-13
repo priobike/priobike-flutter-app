@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/position.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:provider/provider.dart';
 
 class PositionEstimatorService with ChangeNotifier {

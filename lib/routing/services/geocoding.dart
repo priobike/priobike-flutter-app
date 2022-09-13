@@ -29,6 +29,12 @@ class GeocodingService with ChangeNotifier {
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
+  Future<String?> reverseGeocodeLatLng(BuildContext context, double lat, double lng) async {
+    return await reverseGeocode(context, LatLng(lat, lng));
+  }
+
+  /// Fetch the address to a given coordinate.
+  /// See: https://nominatim.org/release-docs/develop/api/Reverse/
   Future<String?> reverseGeocode(BuildContext context, LatLng coordinate) async {
     if (isFetchingAddress) return null;
 

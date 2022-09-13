@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/ride/services/position/estimator.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/estimator.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/default_debug.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
@@ -84,7 +84,7 @@ class RideViewState extends State<RideView> {
       await rideService?.startNavigation(context);
       // Start the position estimation.
       await positionEstimatorService?.startEstimating(context);
-      // Start geolocating.
+      // Start geolocating. This must only be executed once.
       await positionService?.startGeolocation(context: context, onNewPosition: (pos) async {
         // Pass new positions to the ride service.
         await rideService?.updatePosition(context);

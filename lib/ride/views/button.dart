@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/ride/services/position/estimator.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/estimator.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';

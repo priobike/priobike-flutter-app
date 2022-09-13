@@ -7,7 +7,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 // l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/sources/interface.dart';
 
 /// Unwrap a double from a json source safely.
 double checkDouble(dynamic value) {
@@ -69,18 +69,27 @@ class StaticMockPositionSource extends PositionSource {
     return streamController.stream;
   }
 
+  /// Get one position of the device.
+  /// With the mock client, this returns the mocked position.
+  @override Future<Position> getPosition({ required LocationAccuracy desiredAccuracy }) async {
+    return Position(
+      latitude: position.latitude, 
+      longitude: position.longitude, 
+      altitude: 0,
+      speed: 0, 
+      heading: heading, // Not 0, since 0 indicates an error. 
+      accuracy: 1, 
+      speedAccuracy: 1, 
+      timestamp: DateTime.now().toUtc(),
+    );
+  }
+
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
 
   /// Stop the geolocation.
   @override Future<void> stopPositioning() async => timer?.cancel();
-}
-
-class StaticMockPositionService extends PositionService {
-  StaticMockPositionService({LatLng position = examplePosition, double heading = exampleHeading}) : super(
-    positionSource: StaticMockPositionSource(position: position, heading: heading),
-  );
 }
 
 class RecordedMockPositionSource extends PositionSource {
@@ -178,6 +187,15 @@ class RecordedMockPositionSource extends PositionSource {
     return streamController.stream;
   }
 
+  /// Get one position of the device.
+  /// With the mock client, this returns the mocked position.
+  @override Future<Position> getPosition({ required LocationAccuracy desiredAccuracy }) async {
+    if (index >= positions.length) {
+      index = 0;
+    }
+    return positions[index];
+  }
+
   /// Open the location settings.
   /// With the mock client, this does nothing and returns true.
   @override Future<bool> openLocationSettings() async => true;
@@ -196,6 +214,9 @@ class PathMockPositionSource extends PositionSource {
 
   /// The calculation timer.
   Timer? timer;
+
+  /// The last position.
+  Position? lastPosition;
 
   PathMockPositionSource({required this.positions, this.speed = 18 / 3.6});
 
@@ -240,7 +261,6 @@ class PathMockPositionSource extends PositionSource {
     }
 
     double distance = 0;
-    Position? lastPosition;
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       // Find the current segment
       l.LatLng? from; l.LatLng? to; double? distanceOnSegment;
@@ -282,6 +302,26 @@ class PathMockPositionSource extends PositionSource {
     });
 
     return streamController.stream;
+  }
+
+  /// Get one position of the device.
+  /// With the mock client, this returns the mocked position.
+  @override Future<Position> getPosition({ required LocationAccuracy desiredAccuracy }) async {
+    if (lastPosition == null) {
+      // Get the first position.
+      final firstPosition = positions.first;
+      return Position(
+        latitude: firstPosition.latitude, 
+        longitude: firstPosition.longitude, 
+        altitude: 0,
+        speed: speed, 
+        heading: 0, 
+        accuracy: 1, 
+        speedAccuracy: 1, 
+        timestamp: DateTime.now().toUtc(),
+      );
+    }
+    return lastPosition!;
   }
 
   /// Open the location settings.
