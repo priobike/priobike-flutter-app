@@ -17,7 +17,7 @@ class WaypointListItemView extends StatefulWidget {
   final bool isCurrentPosition;
 
   /// The associated waypoint.
-  final Waypoint waypoint;
+  final Waypoint? waypoint;
 
   /// A callback function that is called when the user taps on the item.
   final void Function(Waypoint) onTap;
@@ -57,11 +57,11 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// Update the distance to the waypoint.
   void updateDistance() {
     if (positionService?.lastPosition == null) return;
+    if (widget.waypoint == null) return;
     final lastPos = LatLng(positionService!.lastPosition!.latitude, positionService!.lastPosition!.longitude);
-    final waypointPos = LatLng(widget.waypoint.lat, widget.waypoint.lon);
+    final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
     const vincenty = Distance();
-    final distance = vincenty.distance(lastPos, waypointPos);
-    setState(() => this.distance = distance);
+    distance = vincenty.distance(lastPos, waypointPos);
   }
 
   @override
@@ -69,8 +69,8 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
-        title: BoldSmall(
-          text: widget.waypoint.address, 
+        title: widget.waypoint == null ? null : BoldSmall(
+          text: widget.waypoint!.address, 
           context: context,
           color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
         ),
@@ -85,7 +85,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
               )
             )
           ),
-        trailing: Icon(
+        trailing: widget.waypoint == null ? CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ) : Icon(
           widget.isCurrentPosition ?
             Icons.location_on :
             Icons.arrow_forward, 
@@ -100,7 +102,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
         tileColor: widget.isCurrentPosition 
           ? Theme.of(context).colorScheme.primary
           : Theme.of(context).colorScheme.background,
-        onTap: () => widget.onTap(widget.waypoint),
+        onTap: () { if (widget.waypoint != null) widget.onTap(widget.waypoint!); },
       ),
     );
   }
@@ -126,14 +128,16 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   @override
   void didChangeDependencies() {
     positionService = Provider.of<PositionService>(context);
-    updateWaypoint();
+    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+      await updateWaypoint();
+    });
     super.didChangeDependencies();
   }
 
   /// Update the waypoint.
   Future<void> updateWaypoint() async {
     if (positionService?.lastPosition == null) {
-      setState(() => waypoint = null);
+      waypoint = null;
       return;
     }
     if (
@@ -145,19 +149,15 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
     final pos = positionService!.lastPosition!;
     final address = await geocodingService.reverseGeocodeLatLng(context, pos.latitude, pos.longitude);
     if (address == null) return;
-    setState(() => waypoint = Waypoint(pos.latitude, pos.longitude, address: address));
+    waypoint = Waypoint(pos.latitude, pos.longitude, address: address);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: waypoint == null
-        ? Container()
-        : WaypointListItemView(
-          isCurrentPosition: true,
-          waypoint: waypoint!, 
-          onTap: widget.onTap
-        )
+    return WaypointListItemView(
+      isCurrentPosition: true,
+      waypoint: waypoint, 
+      onTap: widget.onTap
     );
   }
 }
@@ -272,7 +272,7 @@ class RouteSearchState extends State<RouteSearch> {
             ] else ...[
               Padding(
                 padding: const EdgeInsets.only(top: 16),
-                child: Small(text: "Keine Ergebnisse", context: context),
+                child: Small(text: "Keine weiteren Ergebnisse", context: context),
               )
             ],
           ])
