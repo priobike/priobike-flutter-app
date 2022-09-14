@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Feedback;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -27,16 +27,16 @@ class FeedbackView extends StatefulWidget {
 
 class FeedbackViewState extends State<FeedbackView> {
   /// The associated feedback service, which is injected by the provider.
-  late FeedbackService feedbackService;
+  late Feedback feedback;
 
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
     // Send the feedback and reset the feedback service.
-    if (feedbackService.willSendFeedback) {
-      await feedbackService.send(context);
+    if (feedback.willSendFeedback) {
+      await feedback.send(context);
       ToastMessage.showSuccess("Danke für Dein Feedback!");
     }
-    await feedbackService.reset();
+    await feedback.reset();
 
     // Call the callback.
     await widget.onSubmitted(context);
@@ -44,7 +44,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   void didChangeDependencies() {
-    feedbackService = Provider.of<FeedbackService>(context);
+    feedback = Provider.of<Feedback>(context);
     super.didChangeDependencies();
   }
 
@@ -68,7 +68,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override 
   Widget build(BuildContext context) {
-    if (feedbackService.isSendingFeedback) return renderLoadingIndicator();
+    if (feedback.isSendingFeedback) return renderLoadingIndicator();
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -82,7 +82,7 @@ class FeedbackViewState extends State<FeedbackView> {
               children: [
                 const SizedBox(height: 128),
                 if (widget.showBackButton) Row(children: [
-                  AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                  AppBackButton(onPressed: () => Navigator.pop(context)),
                   const HSpace(),
                   SubHeader(text: "Feedback", context: context),
                 ]),
@@ -103,8 +103,8 @@ class FeedbackViewState extends State<FeedbackView> {
                 const VSpace(),
                 BigButton(
                   iconColor: Colors.white,
-                  icon: feedbackService.willSendFeedback ? Icons.send : Icons.check,
-                  label: feedbackService.willSendFeedback ? "Senden" : "Fertig",
+                  icon: feedback.willSendFeedback ? Icons.send : Icons.check,
+                  label: feedback.willSendFeedback ? "Senden" : "Fertig",
                   onPressed: () => submit(context),
                 ),
                 const SizedBox(height: 128),

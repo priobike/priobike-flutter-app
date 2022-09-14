@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -29,13 +29,13 @@ class RoutingView extends StatefulWidget {
 
 class RoutingViewState extends State<RoutingView> {
   /// The associated geocoding service, which is injected by the provider.
-  GeocodingService? geocodingService;
+  Geocoding? geocoding;
 
   /// The associated routing service, which is injected by the provider.
-  RoutingService? routingService;
+  Routing? routing;
 
   /// The associated shortcuts service, which is injected by the provider.
-  ShortcutsService? shortcutsService;
+  Shortcuts? shortcuts;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -45,22 +45,22 @@ class RoutingViewState extends State<RoutingView> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routingService?.loadRoutes(context);
+      await routing?.loadRoutes(context);
     });
   }
 
   @override
   void didChangeDependencies() {
-    geocodingService = Provider.of<GeocodingService>(context);
-    routingService = Provider.of<RoutingService>(context);
-    shortcutsService = Provider.of<ShortcutsService>(context);
+    geocoding = Provider.of<Geocoding>(context);
+    routing = Provider.of<Routing>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
     super.didChangeDependencies();
   }
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
-    final settingsService = Provider.of<SettingsService>(context, listen: false);
-    final nextView = settingsService.ridePreference == null 
+    final settings = Provider.of<Settings>(context, listen: false);
+    final nextView = settings.ridePreference == null 
       ? const RideSelectionView() // Need to select a ride preference.
       : const RideView();
 
@@ -124,7 +124,7 @@ class RoutingViewState extends State<RoutingView> {
               onPressed: () async {
                 final name = nameController.text;
                 if (name.isEmpty) ToastMessage.showError("Name darf nicht leer sein.");
-                await shortcutsService?.saveNewShortcut(name, context);
+                await shortcuts?.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
@@ -170,7 +170,7 @@ class RoutingViewState extends State<RoutingView> {
                     BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
                     const VSpace(),
                     BigButton(label: "Erneut Laden", onPressed: () async {
-                      await routingService?.loadRoutes(context);
+                      await routing?.loadRoutes(context);
                     }),
                   ])
                 ))
@@ -184,7 +184,7 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
+    if (routing!.hadErrorDuringFetch) return renderTryAgainButton();
 
     final frame = MediaQuery.of(context);
   
@@ -201,8 +201,8 @@ class RoutingViewState extends State<RoutingView> {
         child: Stack(children: [
           RoutingMapView(sheetMovement: sheetMovement.stream),
 
-          if (routingService!.isFetchingRoute) renderLoadingIndicator(),
-          if (geocodingService!.isFetchingAddress) renderLoadingIndicator(),
+          if (routing!.isFetchingRoute) renderLoadingIndicator(),
+          if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
           
           // Top Bar
           SafeArea(

@@ -16,25 +16,25 @@ class AlertsView extends StatefulWidget {
 
 class AlertsViewState extends State<AlertsView> {
   /// The associated discomfort service, which is injected by the provider.
-  late DiscomfortService discomfortService;
+  late Discomforts discomforts;
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routing;
 
   /// The controller for the carousel.
   final controller = PageController();
 
   @override
   void didChangeDependencies() {
-    discomfortService = Provider.of<DiscomfortService>(context);
-    routingService = Provider.of<RoutingService>(context);
+    discomforts = Provider.of<Discomforts>(context);
+    routing = Provider.of<Routing>(context);
 
     // Scroll to a discomfort if one was selected.
-    if (discomfortService.selectedDiscomfort != null) {
-      final discomforts = discomfortService.foundDiscomforts;
-      if (discomforts != null && discomforts.isNotEmpty) {
-        for (int i = 0; i < discomforts.length; i++) {
-          if (discomforts[i] == discomfortService.selectedDiscomfort) {
+    if (discomforts.selectedDiscomfort != null) {
+      final found = discomforts.foundDiscomforts;
+      if (found != null && found.isNotEmpty) {
+        for (int i = 0; i < found.length; i++) {
+          if (found[i] == discomforts.selectedDiscomfort) {
             controller.jumpToPage(i);
             break;
           }
@@ -48,7 +48,7 @@ class AlertsViewState extends State<AlertsView> {
   @override
   Widget build(BuildContext context) {
     // Show nothing if there are no alerts to display.
-    if (discomfortService.foundDiscomforts == null || discomfortService.foundDiscomforts!.isEmpty) return Container();
+    if (discomforts.foundDiscomforts == null || discomforts.foundDiscomforts!.isEmpty) return Container();
 
     return Stack(
       alignment: AlignmentDirectional.bottomEnd,
@@ -75,8 +75,8 @@ class AlertsViewState extends State<AlertsView> {
             ),
           ),
           child: BoldSmall(
-            text: discomfortService.foundDiscomforts!.length > 1
-              ? "${discomfortService.foundDiscomforts!.length} Hinweise zu deiner Route"
+            text: discomforts.foundDiscomforts!.length > 1
+              ? "${discomforts.foundDiscomforts!.length} Hinweise zu deiner Route"
               : "1 Hinweis zu deiner Route", 
             context: context, 
             color: Colors.black,
@@ -91,7 +91,7 @@ class AlertsViewState extends State<AlertsView> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(alignment: AlignmentDirectional.topStart, children: [
           PageView(
-            children: discomfortService.foundDiscomforts!.asMap().entries.map((e) => Padding(
+            children: discomforts.foundDiscomforts!.asMap().entries.map((e) => Padding(
               padding: const EdgeInsets.only(left: 16, top: 0), 
               child: Row(children: [
                 Stack(alignment: AlignmentDirectional.center, children: [

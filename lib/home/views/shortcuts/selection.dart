@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -101,15 +101,15 @@ class ShortcutsView extends StatefulWidget {
 
 class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService ss;
+  late Shortcuts ss;
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService rs;
+  late Routing rs;
 
   @override
   void didChangeDependencies() {
-    ss = Provider.of<ShortcutsService>(context);
-    rs = Provider.of<RoutingService>(context);
+    ss = Provider.of<Shortcuts>(context);
+    rs = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 

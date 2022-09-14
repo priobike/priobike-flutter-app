@@ -31,7 +31,7 @@ class TutorialView extends StatefulWidget {
 
 class TutorialViewState extends State<TutorialView> {
   /// The associated tutorial service, which is injected by the provider.
-  late TutorialService tutorialService;
+  late Tutorial tutorial;
 
   /// Whether a green checkmark should be shown.
   bool checkmarkIsShown = false;
@@ -44,14 +44,14 @@ class TutorialViewState extends State<TutorialView> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      tutorialService.loadCompleted();
+      tutorial.loadCompleted();
     });
   }
 
   @override
   void didChangeDependencies() {
-    tutorialService = Provider.of<TutorialService>(context);
-    final wasCompleted = tutorialService.isCompleted(widget.id);
+    tutorial = Provider.of<Tutorial>(context);
+    final wasCompleted = tutorial.isCompleted(widget.id);
     if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
       setState(() {

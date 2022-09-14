@@ -16,16 +16,14 @@ class Waypoint {
 
   const Waypoint(this.lat, this.lon, {required this.address});  
 
-  factory Waypoint.fromJson(Map<String, dynamic> json) {
-    return Waypoint(json['lat'], json['lon'], address: json['address']);
-  }
+  factory Waypoint.fromJson(Map<String, dynamic> json) => Waypoint(
+    json['lat'], json['lon'], address: json['address']
+  );
 
   /// Convert the waypoint to a json map.
-  Map<String, dynamic> toJSON() {
-    return {
-      "lat": lat, 
-      "lon": lon, 
-      "address": address,
-    };
-  }
+  Map<String, dynamic> toJSON() => {
+    "lat": lat, 
+    "lon": lon, 
+    "address": address,
+  };
 }

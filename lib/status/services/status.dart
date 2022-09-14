@@ -1,8 +1,7 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/home/messages/status.dart';
+import 'package:priobike/status/messages/status.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:priobike/logging/toast.dart';
@@ -10,9 +9,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class PredictionStatusService with ChangeNotifier {
+class PredictionStatus with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("PredictionStatusService");
+  final log = Logger("PredictionStatus");
 
   /// The http client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -26,8 +25,8 @@ class PredictionStatusService with ChangeNotifier {
   /// The current status of the prediction.
   PredictionMonitorStatusResponse? status;
 
-  PredictionStatusService() {
-    log.i("PredictionStatusService started.");
+  PredictionStatus() {
+    log.i("PredictionStatus started.");
   }
 
   /// Fetch the status of the prediction.
@@ -40,7 +39,7 @@ class PredictionStatusService with ChangeNotifier {
     hadError = false;
 
     try {
-      final settings = Provider.of<SettingsService>(context, listen: false);
+      final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/prediction-monitor-nginx/status.json";
       final endpoint = Uri.parse(url);

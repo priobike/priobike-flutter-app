@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/positioning/services/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class StatisticsService with ChangeNotifier {
+class Statistics with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("StatisticsService");
+  final log = Logger("Statistics");
 
   var hasLoaded = false;
 
@@ -40,13 +40,13 @@ class StatisticsService with ChangeNotifier {
   /// The summaries of the statistics.
   List<Summary>? summaries;
 
-  StatisticsService({
+  Statistics({
     this.totalDistanceMeters,
     this.totalDurationSeconds,
     this.totalElevationGain,
     this.totalElevationLoss,
     this.summaries,
-  }) { log.i("StatisticsService started."); }
+  }) { log.i("Statistics started."); }
 
   /// Reset the statistics.
   /// Note: This will only reset volatile data, not the data stored on disk.
@@ -76,8 +76,8 @@ class StatisticsService with ChangeNotifier {
     await loadStatistics();
 
     // Get the positioning service.
-    final positioningService = Provider.of<PositionService>(context, listen: false);
-    final positions = positioningService.positions;
+    final positioning = Provider.of<Positioning>(context, listen: false);
+    final positions = positioning.positions;
     if (positions.isEmpty) return;
 
     // Calculate the summary.

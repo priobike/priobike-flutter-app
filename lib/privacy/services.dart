@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PrivacyPolicyService with ChangeNotifier {
+class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
   static const key = "priobike.privacy.accepted-policy";
 

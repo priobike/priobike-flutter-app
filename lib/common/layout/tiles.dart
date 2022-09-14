@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A reusable stylized container with optional on-click listener.
 class Tile extends StatelessWidget {
   /// The content of the tile.
   final Widget content;
@@ -32,6 +33,9 @@ class Tile extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     // If we have no callback, we use a container wrapper.
+    // This is to optimize the UI performance, since
+    // no additional splash layer etc. needs to be generated
+    // and the tile is widely used in the UI.
     if (onPressed == null) {
       return Container(
         padding: padding, 
@@ -39,16 +43,17 @@ class Tile extends StatelessWidget {
           color: fill,
           borderRadius: borderRadius,
           border: Border.all(
-              color:
-                  Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.1)),
+            color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.1),
+          ),
         ),
         child: content,
       );
     }
     // Otherwise, we use a button wrapper with splash color.
     return RawMaterialButton(
+      // Hide ugly material shadows.
       elevation: 0,
       hoverElevation: 0,
       focusElevation: 0,

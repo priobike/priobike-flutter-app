@@ -7,19 +7,15 @@ class GHRouteResponse {
 
   const GHRouteResponse({required this.paths, required this.info});
 
-  factory GHRouteResponse.fromJson(Map<String, dynamic> json) {
-    return GHRouteResponse(
-      paths: (json['paths'] as List).map((e) => GHRouteResponsePath.fromJson(e)).toList(),
-      info: GHResponseInfo.fromJson(json['info']),
-    );
-  }
+  factory GHRouteResponse.fromJson(Map<String, dynamic> json) => GHRouteResponse(
+    paths: (json['paths'] as List).map((e) => GHRouteResponsePath.fromJson(e)).toList(),
+    info: GHResponseInfo.fromJson(json['info']),
+  );
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['paths'] = paths.map((e) => e.toJson()).toList();
-    data['info'] = info.toJson();
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'paths': paths.map((e) => e.toJson()).toList(),
+    'info': info.toJson(),
+  };
 }
 
 class GHResponseInfo {
@@ -38,12 +34,10 @@ class GHResponseInfo {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['copyrights'] = copyrights;
-    data['took'] = took;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'copyrights': copyrights,
+    'took': took,
+  };
 }
 
 class GHRouteResponsePath {
@@ -102,37 +96,33 @@ class GHRouteResponsePath {
     required this.pointsOrder,
   });
 
-  factory GHRouteResponsePath.fromJson(Map<String, dynamic> json) {
-    return GHRouteResponsePath(
-      distance: json['distance'],
-      time: json['time'],
-      ascend: json['ascend'],
-      descend: json['descend'],
-      points: GHLineString.fromJson(json['points']),
-      snappedWaypoints: GHLineString.fromJson(json['snapped_waypoints']),
-      pointsEncoded: json['points_encoded'],
-      bbox: GHBoundingBox.fromJson(json['bbox']),
-      instructions: (json['instructions'] as List).map((e) => GHInstruction.fromJson(e)).toList(),
-      details: GHDetails.fromJson(json['details']),
-      pointsOrder: (json['points_order'] as List?)?.map((e) => e as int).toList(),
-    );
-  }
+  factory GHRouteResponsePath.fromJson(Map<String, dynamic> json) => GHRouteResponsePath(
+    distance: json['distance'],
+    time: json['time'],
+    ascend: json['ascend'],
+    descend: json['descend'],
+    points: GHLineString.fromJson(json['points']),
+    snappedWaypoints: GHLineString.fromJson(json['snapped_waypoints']),
+    pointsEncoded: json['points_encoded'],
+    bbox: GHBoundingBox.fromJson(json['bbox']),
+    instructions: (json['instructions'] as List).map((e) => GHInstruction.fromJson(e)).toList(),
+    details: GHDetails.fromJson(json['details']),
+    pointsOrder: (json['points_order'] as List?)?.map((e) => e as int).toList(),
+  );
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['distance'] = distance;
-    data['time'] = time;
-    data['ascend'] = ascend;
-    data['descend'] = descend;
-    data['points'] = points.toJson();
-    data['snapped_waypoints'] = snappedWaypoints.toJson();
-    data['points_encoded'] = pointsEncoded;
-    data['bbox'] = bbox.toJson();
-    data['instructions'] = instructions.map((e) => e.toJson()).toList();
-    data['details'] = details.toJson();
-    if (pointsOrder != null) data['points_order'] = pointsOrder;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'distance': distance,
+    'time': time,
+    'ascend': ascend,
+    'descend': descend,
+    'points': points.toJson(),
+    'snapped_waypoints': snappedWaypoints.toJson(),
+    'points_encoded': pointsEncoded,
+    'bbox': bbox.toJson(),
+    'instructions': instructions.map((e) => e.toJson()).toList(),
+    'details': details.toJson(),
+    if (pointsOrder != null) 'points_order': pointsOrder,
+  };
 }
 
 class GHLineString {
@@ -144,19 +134,15 @@ class GHLineString {
 
   const GHLineString({required this.type, required this.coordinates});
 
-  factory GHLineString.fromJson(Map<String, dynamic> json) {
-    return GHLineString(
-      type: json['type'],
-      coordinates: (json['coordinates'] as List).map((e) => GHCoordinate.fromJson(e)).toList(),
-    );
-  }
+  factory GHLineString.fromJson(Map<String, dynamic> json) => GHLineString(
+    type: json['type'],
+    coordinates: (json['coordinates'] as List).map((e) => GHCoordinate.fromJson(e)).toList(),
+  );
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['type'] = type;
-    data['coordinates'] = coordinates.map((e) => e.toJson()).toList();
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'coordinates': coordinates.map((e) => e.toJson()).toList(),
+  };
 }
 
 class GHCoordinate {
@@ -174,13 +160,11 @@ class GHCoordinate {
     );
   }
 
-  List<double> toJson() {
-    return [
-      lon,
-      lat, 
-      if (elevation != null) elevation!,
-    ];
-  }
+  List<double> toJson() => [
+    lon,
+    lat, 
+    if (elevation != null) elevation!,
+  ];
 }
 
 class GHBoundingBox {
@@ -196,18 +180,14 @@ class GHBoundingBox {
     required this.maxLat,
   });
 
-  factory GHBoundingBox.fromJson(List<dynamic> json) {
-    return GHBoundingBox(
-      minLon: json[0], 
-      minLat: json[1], 
-      maxLon: json[2],
-      maxLat: json[3],
-    );
-  }
+  factory GHBoundingBox.fromJson(List<dynamic> json) => GHBoundingBox(
+    minLon: json[0], 
+    minLat: json[1], 
+    maxLon: json[2],
+    maxLat: json[3],
+  );
 
-  List<double> toJson() {
-    return [minLon, minLat, maxLon, maxLat];
-  }
+  List<double> toJson() => [minLon, minLat, maxLon, maxLat];
 }
 
 class GHInstruction {
@@ -249,31 +229,27 @@ class GHInstruction {
     required this.turnAngle,
   });
 
-  factory GHInstruction.fromJson(Map<String, dynamic> json) {
-    return GHInstruction(
-      text: json['text'],
-      streetName: json['street_name'],
-      distance: json['distance'],
-      time: json['time'],
-      interval: (json['interval'] as List).map((e) => e as int).toList(),
-      sign: json['sign'],
-      exitNumber: json['exit_number'],
-      turnAngle: json['turn_angle'],
-    );
-  }
+  factory GHInstruction.fromJson(Map<String, dynamic> json) => GHInstruction(
+    text: json['text'],
+    streetName: json['street_name'],
+    distance: json['distance'],
+    time: json['time'],
+    interval: (json['interval'] as List).map((e) => e as int).toList(),
+    sign: json['sign'],
+    exitNumber: json['exit_number'],
+    turnAngle: json['turn_angle'],
+  );
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['text'] = text;
-    data['street_name'] = streetName;
-    data['distance'] = distance;
-    data['time'] = time;
-    data['interval'] = interval;
-    data['sign'] = sign;
-    if (exitNumber != null) data['exit_number'] = exitNumber;
-    if (turnAngle != null) data['turn_angle'] = turnAngle;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'text': text,
+    'street_name': streetName,
+    'distance': distance,
+    'time': time,
+    'interval': interval,
+    'sign': sign,
+    if (exitNumber != null) 'exit_number': exitNumber,
+    if (turnAngle != null) 'turn_angle': turnAngle,
+  };
 }
 
 class GHDetails {
@@ -305,14 +281,12 @@ class GHDetails {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['surface'] = surface.map((e) => e.toJson()).toList();
-    data['max_speed'] = maxSpeed.map((e) => e.toJson()).toList();
-    data['smoothness'] = smoothness.map((e) => e.toJson()).toList();
-    data['lanes'] = lanes.map((e) => e.toJson()).toList();
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'surface': surface.map((e) => e.toJson()).toList(),
+    'max_speed': maxSpeed.map((e) => e.toJson()).toList(),
+    'smoothness': smoothness.map((e) => e.toJson()).toList(),
+    'lanes': lanes.map((e) => e.toJson()).toList(),
+  };
 }
 
 class GHSegment<T> {
@@ -339,11 +313,9 @@ class GHSegment<T> {
     );
   }
 
-  List<dynamic> toJson() {
-    return [
-      from,
-      to, 
-      if (value != null) value!,
-    ];
-  }
+  List<dynamic> toJson() => [
+    from,
+    to, 
+    if (value != null) value!,
+  ];
 }

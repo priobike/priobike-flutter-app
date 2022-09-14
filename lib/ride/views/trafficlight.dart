@@ -14,11 +14,11 @@ class RideTrafficLightView extends StatefulWidget {
 
 class RideTrafficLightViewState extends State<RideTrafficLightView> {
   /// The associated ride service, which is injected by the provider.
-  late RideService rs;
+  late Ride rs;
 
   @override
   void didChangeDependencies() {
-    rs = Provider.of<RideService>(context);
+    rs = Provider.of<Ride>(context);
     super.didChangeDependencies();
   }
 

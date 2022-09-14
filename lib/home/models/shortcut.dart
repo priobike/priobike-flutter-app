@@ -16,10 +16,8 @@ class Shortcut {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['name'] = name;
-    data['waypoints'] = waypoints.map((e) => e.toJSON()).toList();
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'waypoints': waypoints.map((e) => e.toJSON()).toList(),
+  };
 }

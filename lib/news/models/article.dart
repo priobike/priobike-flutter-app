@@ -41,16 +41,14 @@ class Article {
   }
 
   /// Returns a json representation of the article object calling this method.
-  Map<String, Object?> toJson() {
-    return {
-      'id': _id,
-      'title': title,
-      'text': text,
-      'pub_date': pubDate.toString(),
-      'category_id': categoryId,
-      'md5': _md5
-    };
-  }
+  Map<String, Object?> toJson() => {
+    'id': _id,
+    'title': title,
+    'text': text,
+    'pub_date': pubDate.toString(),
+    'category_id': categoryId,
+    'md5': _md5
+  };
 
   @override
   int get hashCode => _md5.hashCode;

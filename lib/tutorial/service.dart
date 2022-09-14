@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TutorialService with ChangeNotifier {
+class Tutorial with ChangeNotifier {
   /// Tutorial ids and if they have been completed.
   Map<String, bool>? completed;
 
-  TutorialService({
+  Tutorial({
     this.completed,
   });
 

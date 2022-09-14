@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/positioning/services/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/ride.dart';
@@ -17,8 +17,8 @@ import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-class RideService with ChangeNotifier {
-  Logger log = Logger("RideService");
+class Ride with ChangeNotifier {
+  final log = Logger("Ride");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -38,7 +38,7 @@ class RideService with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
-  RideService({this.currentRecommendation});
+  Ride({this.currentRecommendation});
 
   /// Reset the recommendation service.
   Future<void> reset() async {
@@ -78,11 +78,11 @@ class RideService with ChangeNotifier {
   /// Connect the websocket.
   Future<void> connectWebsocket(BuildContext context) async {
     // Get the session from the context and verify that it is active.
-    final session = Provider.of<SessionService>(context, listen: false);
+    final session = Provider.of<Session>(context, listen: false);
     if (!session.isActive()) return;
     // Connect the websocket.
     log.i("Connecting to session websocket.");
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final wsUrl = "wss://$baseUrl/session-wrapper/websocket/sessions/${session.sessionId!}";
     socket = WebSocketChannel.connect(Uri.parse(wsUrl));
@@ -95,7 +95,7 @@ class RideService with ChangeNotifier {
   /// Select a new ride.
   Future<void> selectRide(BuildContext context, r.Route selectedRoute) async {
     // Get the session from the context and verify that it is active.
-    final session = Provider.of<SessionService>(context, listen: false);
+    final session = Provider.of<Session>(context, listen: false);
     if (!session.isActive()) return;
 
     // Select the ride.
@@ -106,7 +106,7 @@ class RideService with ChangeNotifier {
       navigationPath: selectedRoute.path, 
       signalGroups: selectedRoute.signalGroups
     );
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final selectRideEndpoint = Uri.parse('https://$baseUrl/session-wrapper/ride');
     http.Response response = await httpClient
@@ -149,13 +149,13 @@ class RideService with ChangeNotifier {
   /// Update the current user position and send it to the server.
   Future<void> updatePosition(BuildContext context) async {
     // Get the session from the context and verify that it is active.
-    final session = Provider.of<SessionService>(context, listen: false);
+    final session = Provider.of<Session>(context, listen: false);
     if (!session.isActive()) return;
     // Start the navigation if it isn't active.
     if (!navigationIsActive) await startNavigation(context);
-    final positionService = Provider.of<PositionService>(context, listen: false);
-    if (positionService.lastPosition == null) return;
-    final position = positionService.lastPosition!;
+    final positioning = Provider.of<Positioning>(context, listen: false);
+    if (positioning.lastPosition == null) return;
+    final position = positioning.lastPosition!;
     // Send the position update.
     final req = UserPosition(
       lat: position.latitude,

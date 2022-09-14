@@ -37,7 +37,7 @@ class StaticMockPositionSource extends PositionSource {
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
-  @override Future<bool> isLocationServiceEnabled() async => true;
+  @override Future<bool> isLocationServicesEnabled() async => true;
 
   /// Check the location permissions.
   /// With the mock client, this does nothing and returns "always allowed".
@@ -133,7 +133,7 @@ class RecordedMockPositionSource extends PositionSource {
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
-  @override Future<bool> isLocationServiceEnabled() async => true;
+  @override Future<bool> isLocationServicesEnabled() async => true;
 
   /// Check the location permissions.
   /// With the mock client, this does nothing and returns "always allowed".
@@ -222,7 +222,7 @@ class PathMockPositionSource extends PositionSource {
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.
-  @override Future<bool> isLocationServiceEnabled() async => true;
+  @override Future<bool> isLocationServicesEnabled() async => true;
 
   /// Check the location permissions.
   /// With the mock client, this does nothing and returns "always allowed".

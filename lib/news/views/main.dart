@@ -18,7 +18,7 @@ class NewsView extends StatefulWidget {
 
 class NewsViewState extends State<NewsView> {
   /// The associated articles service, which is injected by the provider.
-  late NewsService newsService;
+  late News news;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class NewsViewState extends State<NewsView> {
 
   @override
   void didChangeDependencies() {
-    newsService = Provider.of<NewsService>(context);
+    news = Provider.of<News>(context);
     super.didChangeDependencies();
   }
 
@@ -47,7 +47,7 @@ class NewsViewState extends State<NewsView> {
                   Row(
                     children: [
                       Row(children: [
-                        AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
                         const HSpace(),
                         SubHeader(text: "Neuigkeiten", context: context),
                       ]),
@@ -55,14 +55,14 @@ class NewsViewState extends State<NewsView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: !newsService.hasLoaded
+                    child: !news.hasLoaded
                       ? SizedBox(
                           height: MediaQuery.of(context).size.height * 0.5,
                           child: const Center(
                             child: CircularProgressIndicator(),
                           ),
                         )
-                      : newsService.articles.isEmpty
+                      : news.articles.isEmpty
                           ? const Center(
                               child: Text('Keine Neuigkeiten verfügbar.'),
                             )
@@ -70,12 +70,12 @@ class NewsViewState extends State<NewsView> {
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               children: <Widget>[
-                                for (int i = 0; i < newsService.articles.length; i++)
+                                for (int i = 0; i < news.articles.length; i++)
                                   ArticleListItem(
-                                    article: newsService.articles[i],
-                                    category: newsService.categories[newsService.articles[i].categoryId],
-                                    wasRead: newsService.readArticles.contains(newsService.articles[i]),
-                                    totalNumberOfArticles: newsService.articles.length,
+                                    article: news.articles[i],
+                                    category: news.categories[news.articles[i].categoryId],
+                                    wasRead: news.readArticles.contains(news.articles[i]),
+                                    totalNumberOfArticles: news.articles.length,
                                     articleIndex: i
                                   )
                               ],
