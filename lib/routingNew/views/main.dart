@@ -64,14 +64,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     routingService = Provider.of<RoutingService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     mapControllerService = Provider.of<MapControllerService>(context);
-    print("CHanged");
+
     super.didChangeDependencies();
   }
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
     final settingsService =
-    Provider.of<SettingsService>(context, listen: false);
+        Provider.of<SettingsService>(context, listen: false);
     final nextView = settingsService.ridePreference == null
         ? const RideSelectionView() // Need to select a ride preference.
         : const RideView();
@@ -95,13 +95,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     } else {
       showDialog(
           context: context,
-          builder: (_) =>
-              AlertDialog(
+          builder: (_) => AlertDialog(
                 alignment: AlignmentDirectional.center,
                 actionsAlignment: MainAxisAlignment.center,
                 title: BoldContent(
                     text:
-                    'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                        'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
                     context: context),
                 content: Container(height: 0),
                 shape: const RoundedRectangleBorder(
@@ -115,10 +114,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     },
                     child: BoldContent(
                         text: 'OK',
-                        color: Theme
-                            .of(context)
-                            .colorScheme
-                            .primary,
+                        color: Theme.of(context).colorScheme.primary,
                         context: context),
                   ),
                 ],
@@ -135,7 +131,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         return AlertDialog(
           title: BoldContent(
               text:
-              'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.',
+                  'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.',
               context: context),
           content: SizedBox(
               height: 48,
@@ -163,10 +159,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               },
               child: BoldContent(
                   text: 'Speichern',
-                  color: Theme
-                      .of(context)
-                      .colorScheme
-                      .primary,
+                  color: Theme.of(context).colorScheme.primary,
                   context: context),
             ),
           ],
@@ -180,10 +173,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Expanded(
         child: Tile(
-          fill: Theme
-              .of(context)
-              .colorScheme
-              .background,
+          fill: Theme.of(context).colorScheme.background,
           content: Center(
             child: SizedBox(
               height: 86,
@@ -210,10 +200,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             children: [
               Expanded(
                 child: Tile(
-                  fill: Theme
-                      .of(context)
-                      .colorScheme
-                      .background,
+                  fill: Theme.of(context).colorScheme.background,
                   content: Center(
                     child: SizedBox(
                       height: 128,
@@ -255,6 +242,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapControllerService?.setMyLocationTrackingModeTracking();
   }
 
+  void _centerNorth() {
+    mapControllerService?.centerNorth();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
@@ -263,9 +254,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme
-          .of(context)
-          .brightness == Brightness.light
+      value: Theme.of(context).brightness == Brightness.light
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -286,7 +275,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,13 +294,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     const ShortCuts(),
                     Padding(
                       /// Align with FAB
-                      padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 20),
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const CompassButton(),
-                            ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
+                            CompassButton(centerNorth: _centerNorth),
+                            ZoomInAndOutButton(
+                                zoomIn: _zoomIn, zoomOut: _zoomOut),
                             const FilterButton(),
                           ]),
                     ),
@@ -326,7 +316,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           children: [
             GPSButton(
                 myLocationTrackingMode:
-                mapControllerService?.myLocationTrackingMode,
+                    mapControllerService?.myLocationTrackingMode,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
@@ -341,10 +331,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 borderRadius: BorderRadius.circular(15.0),
               ),
               heroTag: "fab2",
-              backgroundColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),

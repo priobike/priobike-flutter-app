@@ -3,9 +3,12 @@ import 'package:priobike/common/layout/buttons.dart';
 
 /// A view that displays alerts in the routing context.
 class ZoomInAndOutButton extends StatelessWidget {
-  final Function? zoomIn;
-  final Function? zoomOut;
-  const ZoomInAndOutButton({Key? key, this.zoomIn, this.zoomOut}) : super(key: key);
+  final Function zoomIn;
+  final Function zoomOut;
+
+  const ZoomInAndOutButton(
+      {Key? key, required this.zoomIn, required this.zoomOut})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +31,7 @@ class ZoomInAndOutButton extends StatelessWidget {
               children: [
                 Expanded(
                   child: SmallIconButton(
-                    icon: Icons.add,
-                    onPressed: () => {
-                      zoomIn!()
-                    }
-                  ),
+                      icon: Icons.add, onPressed: () => zoomIn()),
                 ),
                 Container(
                   width: 40,
@@ -44,11 +43,7 @@ class ZoomInAndOutButton extends StatelessWidget {
                 ),
                 Expanded(
                   child: SmallIconButton(
-                    icon: Icons.remove,
-                    onPressed: () => {
-                      zoomOut!()
-                    }
-                  ),
+                      icon: Icons.remove, onPressed: () => zoomOut()),
                 ),
               ],
             ),

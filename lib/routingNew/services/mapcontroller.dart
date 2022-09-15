@@ -34,6 +34,10 @@ class MapControllerService with ChangeNotifier {
     controller?.animateCamera(CameraUpdate.zoomOut());
   }
 
+  void centerNorth() {
+    controller?.animateCamera(CameraUpdate.bearingTo(0));
+  }
+
   void setMyLocationTrackingModeTracking() {
     myLocationTrackingMode = MyLocationTrackingMode.Tracking;
     notifyListeners();

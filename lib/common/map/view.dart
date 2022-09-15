@@ -73,7 +73,7 @@ class AppMapState extends State<AppMap> {
       onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       attributionButtonPosition: widget.attributionButtonPosition,
       initialCameraPosition: CameraPosition(
-          target: settingsService.backend.center, tilt: 0, zoom: 11),
+          target: settingsService.backend.center, tilt: 0, zoom: 11, bearing: 0),
       myLocationEnabled: true,
       myLocationTrackingMode: mapControllerService.myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
