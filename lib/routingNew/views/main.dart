@@ -14,6 +14,7 @@ import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/map.dart';
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/views/compassButton.dart';
 import 'package:priobike/routingNew/views/filterButton.dart';
 import 'package:priobike/routingNew/views/gpsButton.dart';
@@ -42,6 +43,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated shortcuts service, which is injected by the provider.
   ShortcutsService? shortcutsService;
 
+  /// The associated shortcuts service, which is injected by the provider.
+  MapControllerService? mapControllerService;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -59,6 +63,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     geocodingService = Provider.of<GeocodingService>(context);
     routingService = Provider.of<RoutingService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
+    mapControllerService = Provider.of<MapControllerService>(context);
     super.didChangeDependencies();
   }
 
@@ -222,6 +227,16 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
   }
 
+  /// Private ZoomIn Function which calls mapControllerService
+  void _zoomIn() {
+    mapControllerService?.zoomIn();
+  }
+
+  /// Private ZoomOut Function which calls mapControllerService
+  void _zoomOut() {
+    mapControllerService?.zoomOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
@@ -280,10 +295,11 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children: const [
-                      CompassButton(),
-                      ZoomInAndOutButton(),
-                      FilterButton(),
+                    children: [
+                      const CompassButton(),
+                      ZoomInAndOutButton(
+                          zoomIn: _zoomIn, zoomOut: _zoomOut),
+                      const FilterButton(),
                     ]),
               ),
             ),
@@ -293,10 +309,15 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const GPSButton(),
-            const SizedBox(height: 15,),
+            const SizedBox(
+              height: 15,
+            ),
             FloatingActionButton(
               onPressed: () => {},
-              child: const Icon(Icons.directions, color: Colors.white,),
+              child: const Icon(
+                Icons.directions,
+                color: Colors.white,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
               ),

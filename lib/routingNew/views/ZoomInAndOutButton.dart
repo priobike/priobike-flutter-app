@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
-class ZoomInAndOutButton extends StatefulWidget {
-  const ZoomInAndOutButton({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => ZoomInAndOutButtonState();
-}
-
-class ZoomInAndOutButtonState extends State<ZoomInAndOutButton> {
-  /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
-
-  @override
-  void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    super.didChangeDependencies();
-  }
+class ZoomInAndOutButton extends StatelessWidget {
+  final Function? zoomIn;
+  final Function? zoomOut;
+  const ZoomInAndOutButton({Key? key, this.zoomIn, this.zoomOut}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +26,13 @@ class ZoomInAndOutButtonState extends State<ZoomInAndOutButton> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
-                  child: Icon(Icons.add),
+                Expanded(
+                  child: SmallIconButton(
+                    icon: Icons.add,
+                    onPressed: () => {
+                      zoomIn!()
+                    }
+                  ),
                 ),
                 Container(
                   width: 40,
@@ -51,8 +42,13 @@ class ZoomInAndOutButtonState extends State<ZoomInAndOutButton> {
                       ? Colors.white
                       : Colors.black,
                 ),
-                const Expanded(
-                  child: Icon(Icons.remove),
+                Expanded(
+                  child: SmallIconButton(
+                    icon: Icons.remove,
+                    onPressed: () => {
+                      zoomOut!()
+                    }
+                  ),
                 ),
               ],
             ),

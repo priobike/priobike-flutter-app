@@ -13,6 +13,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The associated settings service, which is injected by the provider.
   late SettingsService ss;
+
+  /// The associated map controller service, which is injected by the provider.
+  late MapControllerService ms;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -83,6 +87,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     rs = Provider.of<RoutingService>(context);
     ds = Provider.of<DiscomfortService>(context);
     ss = Provider.of<SettingsService>(context);
+    ms = Provider.of<MapControllerService>(context);
     adaptMap();
     super.didChangeDependencies();
   }
@@ -280,6 +285,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    ms.setController(controller);
+
     // Bind the interaction callbacks.
     controller.onFillTapped.add(onFillTapped);
     controller.onCircleTapped.add(onCircleTapped);
@@ -329,6 +336,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     mapController?.onCircleTapped.remove(onCircleTapped);
     mapController?.onLineTapped.remove(onLineTapped);
     mapController?.onSymbolTapped.remove(onSymbolTapped);
+
+    ms.unsetController();
 
     super.dispose();
   }

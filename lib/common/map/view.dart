@@ -43,6 +43,9 @@ class AppMapState extends State<AppMap> {
   /// The associated settings service, which is injected by the provider.
   late SettingsService settingsService;
 
+  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
+
+
   @override
   void didChangeDependencies() {
     settingsService = Provider.of<SettingsService>(context);
@@ -66,6 +69,9 @@ class AppMapState extends State<AppMap> {
         tilt: 0,
         zoom: 11
       ),
+      myLocationEnabled: true,
+      myLocationTrackingMode: _myLocationTrackingMode,
+      myLocationRenderMode: MyLocationRenderMode.GPS,
     );
   }
 }

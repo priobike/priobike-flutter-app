@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/status.dart';
 import 'package:priobike/logging/logger.dart';
@@ -20,6 +21,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -103,6 +105,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<StatisticsService>(create: (context) => StatisticsService()),
         ChangeNotifierProvider<SnappingService>(create: (context) => SnappingService()),
         ChangeNotifierProvider<FeedbackService>(create: (context) => FeedbackService()),
+        ChangeNotifierProvider<MapControllerService>(create: (context) => MapControllerService()),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
