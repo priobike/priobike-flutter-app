@@ -297,6 +297,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
+  void onCameraTrackingDismissed() {
+    ms.setMyLocationTrackingModeNone();
+  }
+
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
@@ -348,6 +352,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       onMapCreated: onMapCreated, 
       onStyleLoaded: () => onStyleLoaded(context),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
+      onCameraTrackingDismissed: onCameraTrackingDismissed,
     );
   }
 }

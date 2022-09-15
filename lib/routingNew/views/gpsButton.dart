@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
-class GPSButton extends StatefulWidget {
-  const GPSButton({Key? key}) : super(key: key);
+class GPSButton extends StatelessWidget {
+  final MyLocationTrackingMode? myLocationTrackingMode;
+  final Function gpsCentralization;
 
-  @override
-  State<StatefulWidget> createState() => GPSButtonState();
-}
-
-class GPSButtonState extends State<GPSButton> {
-  /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
-
-  @override
-  void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    super.didChangeDependencies();
-  }
+  const GPSButton(
+      {Key? key, this.myLocationTrackingMode, required this.gpsCentralization})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +17,12 @@ class GPSButtonState extends State<GPSButton> {
       elevation: 5,
       borderRadius: const BorderRadius.all(Radius.circular(24.0)),
       child: SmallIconButton(
-        icon: Icons.gps_not_fixed,
+        icon: myLocationTrackingMode != null &&
+                myLocationTrackingMode == MyLocationTrackingMode.Tracking
+            ? Icons.gps_fixed
+            : Icons.gps_not_fixed,
         color: Theme.of(context).colorScheme.primary,
-        onPressed: () {
-          print("kompass");
-        },
+        onPressed: () => gpsCentralization(),
       ),
     );
   }

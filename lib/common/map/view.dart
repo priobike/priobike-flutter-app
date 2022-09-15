@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -19,23 +20,26 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
+  final void Function()? onCameraTrackingDismissed;
+
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
 
-  const AppMap({
-    this.dragEnabled = true,
-    this.onMapCreated,
-    this.onStyleLoaded,
-    this.onCameraIdle,
-    this.onMapLongClick,
-    this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
-    Key? key
-  }) : super(key: key);
+  const AppMap(
+      {this.dragEnabled = true,
+      this.onMapCreated,
+      this.onStyleLoaded,
+      this.onCameraIdle,
+      this.onMapLongClick,
+      this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
+      this.onCameraTrackingDismissed,
+      Key? key})
+      : super(key: key);
 
-  @override 
+  @override
   AppMapState createState() => AppMapState();
 }
 
@@ -43,34 +47,35 @@ class AppMapState extends State<AppMap> {
   /// The associated settings service, which is injected by the provider.
   late SettingsService settingsService;
 
-  MyLocationTrackingMode _myLocationTrackingMode = MyLocationTrackingMode.Tracking;
-
+  late MapControllerService mapControllerService;
 
   @override
   void didChangeDependencies() {
     settingsService = Provider.of<SettingsService>(context);
+    mapControllerService = Provider.of<MapControllerService>(context);
     super.didChangeDependencies();
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return MapboxMap(
-      styleString: Theme.of(context).colorScheme.brightness == Brightness.light ? "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu" : "mapbox://styles/mapbox/dark-v10" ,
-      accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+      styleString: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu"
+          : "mapbox://styles/mapbox/dark-v10",
+      accessToken:
+          "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,
       onMapLongClick: widget.onMapLongClick,
+      onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       attributionButtonPosition: widget.attributionButtonPosition,
       initialCameraPosition: CameraPosition(
-        target: settingsService.backend.center,
-        tilt: 0,
-        zoom: 11
-      ),
+          target: settingsService.backend.center, tilt: 0, zoom: 11),
       myLocationEnabled: true,
-      myLocationTrackingMode: _myLocationTrackingMode,
+      myLocationTrackingMode: mapControllerService.myLocationTrackingMode,
       myLocationRenderMode: MyLocationRenderMode.GPS,
     );
   }

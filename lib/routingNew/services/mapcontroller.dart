@@ -6,6 +6,9 @@ class MapControllerService with ChangeNotifier {
   /// MapboxMapController
   MapboxMapController? controller;
 
+  /// MyLocationTrackingMode determines tracking of position
+  MyLocationTrackingMode myLocationTrackingMode = MyLocationTrackingMode.None;
+
   /// The logger for this service.
   final Logger log = Logger("MapControllerService");
 
@@ -15,18 +18,29 @@ class MapControllerService with ChangeNotifier {
 
   void setController(MapboxMapController controller) {
     this.controller = controller;
+    notifyListeners();
   }
 
   void unsetController() {
     controller = null;
+    notifyListeners();
   }
 
   void zoomIn() {
-    print("ZOOMIN");
     controller?.animateCamera(CameraUpdate.zoomIn());
   }
 
   void zoomOut() {
     controller?.animateCamera(CameraUpdate.zoomOut());
+  }
+
+  void setMyLocationTrackingModeTracking() {
+    myLocationTrackingMode = MyLocationTrackingMode.Tracking;
+    notifyListeners();
+  }
+
+  void setMyLocationTrackingModeNone() {
+    myLocationTrackingMode = MyLocationTrackingMode.None;
+    notifyListeners();
   }
 }
