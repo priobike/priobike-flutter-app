@@ -42,10 +42,11 @@ class SmallIconButton extends StatelessWidget {
 
 /// Convert the appbackbutton to a stateless widget
 class AppBackButton extends StatelessWidget {
-  const AppBackButton({Key? key, required this.icon, required this.onPressed}) : super(key: key);
+  const AppBackButton({Key? key, required this.icon, required this.onPressed, this.elevation}) : super(key: key);
 
   final IconData icon;
   final void Function() onPressed;
+  final double? elevation;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class AppBackButton extends StatelessWidget {
       width: 64,
       height: 64,
       child: RawMaterialButton(
-        elevation: 0,
+        elevation: elevation ?? 0,
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(

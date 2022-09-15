@@ -15,6 +15,7 @@ import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routingNew/views/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -105,7 +106,7 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
+      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
       .then((_) {
         routingService.reset();
         discomfortService.reset();
