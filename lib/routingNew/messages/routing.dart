@@ -1,6 +1,6 @@
 import 'package:priobike/common/models/point.dart';
-import 'package:priobike/routing/models/route.dart' as r;
-import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routingNew/models/route.dart' as r;
+import 'package:priobike/routingNew/models/waypoint.dart';
 
 class RouteRequest {
   /// The selected waypoints.

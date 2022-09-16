@@ -7,9 +7,9 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/position.dart';
-import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routing/services/geosearch.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
+import 'package:priobike/routingNew/services/geocoding.dart';
+import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:provider/provider.dart';
 
 class WaypointListItemView extends StatefulWidget {

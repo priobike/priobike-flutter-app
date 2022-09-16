@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routingNew/messages/graphhopper.dart';
 
 class Discomfort {
   /// A random unique id for this route.

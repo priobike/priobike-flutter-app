@@ -1,4 +1,4 @@
-import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 
 class Shortcut {
   /// The name of the shortcut.

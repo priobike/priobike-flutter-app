@@ -1,6 +1,6 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 
 enum Backend {
   production,

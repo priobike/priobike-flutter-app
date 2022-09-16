@@ -6,7 +6,7 @@ import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';
 

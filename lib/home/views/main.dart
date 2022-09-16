@@ -12,9 +12,8 @@ import 'package:priobike/news/service.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
-import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -96,7 +95,7 @@ class HomeViewState extends State<HomeView> {
     routingService.loadRoutes(context);
 
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
+      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
       .then((_) {
         routingService.reset();
         discomfortService.reset();

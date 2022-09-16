@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.

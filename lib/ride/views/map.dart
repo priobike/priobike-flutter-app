@@ -10,9 +10,9 @@ import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/position.dart';
-import 'package:priobike/routing/models/sg.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routingNew/models/sg.dart';
+import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {

@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:latlong2/latlong.dart' as latlng;
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/sg.dart';
-import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routingNew/messages/graphhopper.dart';
+import 'package:priobike/routingNew/models/sg.dart';
+import 'package:priobike/routingNew/models/navigation.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 
 class Route {
   /// The GraphHopper route response path.
