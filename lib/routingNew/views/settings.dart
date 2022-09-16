@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routingNew/views/locations.dart';
 import 'package:priobike/routingNew/views/routes.dart';
+import 'package:priobike/routingNew/views/widgets/deleteDialog.dart';
 import 'package:provider/provider.dart';
 
 class SettingsView extends StatefulWidget {
@@ -179,7 +180,7 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Suchhistorie löschen", context: context),
                         ),
                         onTap: () {
-                          print("tapped on container");
+                          showDeleteDialog(context, profileService, "Suchanfragen");
                         },
                       ),
                       InkWell(
@@ -190,7 +191,7 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Meine Orte löschen", context: context),
                         ),
                         onTap: () {
-                          print("tapped on container");
+                          showDeleteDialog(context, profileService, "Orte");
                         },
                       ),
                       InkWell(
@@ -201,7 +202,7 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Routen löschen", context: context),
                         ),
                         onTap: () {
-                          print("tapped on container");
+                          showDeleteDialog(context, profileService, "Routen");
                         },
                       ),
                     ],
