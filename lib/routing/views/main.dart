@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/positioning/services/position.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -34,11 +35,17 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated routing service, which is injected by the provider.
   RoutingService? routingService;
 
+  /// The associated position service, which is injected by the provider.
+  PositionService? positionService;
+
   /// The associated shortcuts service, which is injected by the provider.
   ShortcutsService? shortcutsService;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
+
+  /// The threshold for the location accuracy in meter
+  final int locationAccuracyThreshold = 20;
 
   @override
   void initState() {
@@ -46,6 +53,13 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       await routingService?.loadRoutes(context);
+
+      /// Calling requestSingleLocation function to fill lastPosition of PositionService
+      await positionService?.requestSingleLocation(context);
+      /// Checking threshold for location accuracy
+      if (positionService?.lastPosition?.accuracy != null && positionService!.lastPosition!.accuracy >= locationAccuracyThreshold) {
+        _showAlertGPSQualityDialog();
+      }
     });
   }
 
@@ -53,6 +67,7 @@ class RoutingViewState extends State<RoutingView> {
   void didChangeDependencies() {
     geocodingService = Provider.of<GeocodingService>(context);
     routingService = Provider.of<RoutingService>(context);
+    positionService = Provider.of<PositionService>(context);
     shortcutsService = Provider.of<ShortcutsService>(context);
     super.didChangeDependencies();
   }
@@ -179,6 +194,29 @@ class RoutingViewState extends State<RoutingView> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Alert dialog for location accuracy
+  void _showAlertGPSQualityDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: BoldSubHeader(text: 'Achtung!', context: context),
+          content: Content( text:
+              'Die Qualität der Positionsbestimmung ist nicht optimal. Prüfen sie gegebenenfalls die Einstellungen des GPS für die App.', context: context),
+          actions: <Widget>[
+            TextButton(
+              child: Content(text: 'Okay', context: context, color: Theme.of(context).colorScheme.primary),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
