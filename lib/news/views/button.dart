@@ -18,15 +18,15 @@ class NewsButton extends StatefulWidget {
 
 class NewsButtonState extends State<NewsButton> {
   /// The associated articles service, which is injected by the provider.
-  late NewsService newsService;
+  late News news;
 
   /// The number of unread articles.
   int unread = 0;
 
   @override
   void didChangeDependencies() {
-    newsService = Provider.of<NewsService>(context);
-    final unread = newsService.articles.where((article) => !newsService.readArticles.contains(article)).length;
+    news = Provider.of<News>(context);
+    final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
     if (unread != this.unread) {
       setState(() {
         this.unread = unread;

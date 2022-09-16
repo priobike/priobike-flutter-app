@@ -13,23 +13,19 @@ class NavigationNode {
     this.signalGroupId
   });
 
-  factory NavigationNode.fromJson(Map<String, dynamic> json) {
-    return NavigationNode(
-      lon: json['lon'].toDouble(),
-      lat: json['lat'].toDouble(),
-      alt: json['alt'].toDouble(),
-      distanceToNextSignal: json['distanceToNextSignal']?.toDouble(),
-      signalGroupId: json['signalGroupId'],
-    );
-  }
+  factory NavigationNode.fromJson(Map<String, dynamic> json) => NavigationNode(
+    lon: json['lon'].toDouble(),
+    lat: json['lat'].toDouble(),
+    alt: json['alt'].toDouble(),
+    distanceToNextSignal: json['distanceToNextSignal']?.toDouble(),
+    signalGroupId: json['signalGroupId'],
+  );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['lon'] = lon;
-    data['lat'] = lat;
-    data['alt'] = alt;
-    data['distanceToNextSignal'] = distanceToNextSignal;
-    data['signalGroupId'] = signalGroupId;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'lon': lon,
+    'lat': lat,
+    'alt': alt,
+    'distanceToNextSignal': distanceToNextSignal,
+    'signalGroupId': signalGroupId,
+  };
 }

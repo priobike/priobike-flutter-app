@@ -1,5 +1,6 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+/// A line layer for the route.
 class RouteLayer extends LineOptions {
   RouteLayer({ required List<LatLng> points, double lineWidth = 7.0 }) : super(
     geometry: points,
@@ -9,6 +10,7 @@ class RouteLayer extends LineOptions {
   );
 }
 
+/// A background line layer for the route.
 class RouteBackgroundLayer extends LineOptions {
   RouteBackgroundLayer({ required List<LatLng> points, double lineWidth = 9.0 }) : super(
     geometry: points,
@@ -18,6 +20,8 @@ class RouteBackgroundLayer extends LineOptions {
   );
 }
 
+/// A transparent layer that is much wider than the route.
+/// This layer can be used to make tapping a route easier.
 class RouteBackgroundClickLayer extends LineOptions {
   RouteBackgroundClickLayer({ required List<LatLng> points }) : super(
     geometry: points,
@@ -27,6 +31,7 @@ class RouteBackgroundClickLayer extends LineOptions {
   );
 }
 
+/// A line layer that shows a discomfortable section.
 class DiscomfortSectionLayer extends LineOptions {
   DiscomfortSectionLayer({ required List<LatLng> points }) : super(
     geometry: points,
@@ -36,6 +41,8 @@ class DiscomfortSectionLayer extends LineOptions {
   );
 }
 
+/// A transparent line layer that is much wider than a discomfort 
+/// section layer, to make clicking on discomforts easier.
 class DiscomfortSectionClickLayer extends LineOptions {
   DiscomfortSectionClickLayer({ required List<LatLng> points }) : super(
     geometry: points,

@@ -9,8 +9,8 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class SessionService with ChangeNotifier {
-  Logger log = Logger("SessionService");
+class Session with ChangeNotifier {
+  final log = Logger("Session");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -23,7 +23,7 @@ class SessionService with ChangeNotifier {
   /// Is unset by: [closeSession].
   String? sessionId;
 
-  SessionService();
+  Session();
 
   /// Reset the session service.
   Future<void> reset() async {
@@ -39,7 +39,7 @@ class SessionService with ChangeNotifier {
     if (sessionId != null) return sessionId!;
 
     final authRequest = AuthRequest(clientId: clientId);
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final authEndpoint = Uri.parse('https://$baseUrl/session-wrapper/authentication');
     http.Response response = await httpClient

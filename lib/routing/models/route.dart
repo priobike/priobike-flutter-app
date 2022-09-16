@@ -34,13 +34,11 @@ class Route {
     'signalGroups': { for (var e in signalGroups.entries) e.key: e.value.toJson() },
   };
 
-  factory Route.fromJson(dynamic json) {
-    return Route(
-      path: GHRouteResponsePath.fromJson(json['path']),
-      route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-      signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
-    );
-  }
+  factory Route.fromJson(dynamic json) => Route(
+    path: GHRouteResponsePath.fromJson(json['path']),
+    route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+    signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
+  );
 
   /// The route, connected to the start and end point.
   Route connected(Waypoint startpoint, Waypoint endpoint) {

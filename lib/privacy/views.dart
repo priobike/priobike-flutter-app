@@ -40,11 +40,11 @@ class PrivacyPolicyView extends StatefulWidget {
 
 class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
-  late PrivacyPolicyService s;
+  late PrivacyPolicy s;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<PrivacyPolicyService>(context);
+    s = Provider.of<PrivacyPolicy>(context);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
@@ -126,7 +126,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
             if (widget.child == null) Column(children: [
               const SizedBox(height: 64),
               Row(children: [
-                AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                AppBackButton(onPressed: () => Navigator.pop(context)),
               ]),
             ]),
             if (widget.child != null) Pad(

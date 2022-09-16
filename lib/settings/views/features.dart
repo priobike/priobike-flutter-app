@@ -13,11 +13,11 @@ class FeatureLoaderView extends StatefulWidget {
 
 class FeatureLoaderViewState extends State<FeatureLoaderView> {
   /// The associated feature service, which is injected by the provider.
-  late FeatureService s;
+  late Feature s;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<FeatureService>(context);
+    s = Provider.of<Feature>(context);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {

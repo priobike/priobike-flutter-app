@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
 
-class FeatureService with ChangeNotifier {
-  final log = Logger('FeatureService');
+class Feature with ChangeNotifier {
+  final log = Logger('Feature');
 
   /// If the service has been loaded.
   bool hasLoaded = false;
@@ -32,8 +32,8 @@ class FeatureService with ChangeNotifier {
   /// if beta features can be enabled.
   late bool canEnableBetaFeatures;
 
-  FeatureService() {
-    log.i("FeatureService started.");
+  Feature() {
+    log.i("Feature started.");
   }
 
   /// Load the service.

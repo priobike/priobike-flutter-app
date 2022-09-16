@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileService with ChangeNotifier {
+class Profile with ChangeNotifier {
   var hasLoaded = false;
 
   /// The selected type of bike.
@@ -14,7 +14,7 @@ class ProfileService with ChangeNotifier {
   /// The type of activity.
   ActivityType? activityType;
 
-  ProfileService({this.bikeType, this.preferenceType, this.activityType});
+  Profile({this.bikeType, this.preferenceType, this.activityType});
 
   /// Load the stored profile.
   Future<void> loadProfile() async {

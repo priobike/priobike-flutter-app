@@ -9,9 +9,7 @@ class NavigationRequest {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['active'] = active;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'active': active
+  };
 }

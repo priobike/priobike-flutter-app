@@ -117,26 +117,25 @@ class Recommendation {
   }
 
   String toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['label'] = label;
-    data['countdown'] = countdown;
-    data['distance'] = distance;
-    data['speedRec'] = speedRec;
-    data['speedDiff'] = speedDiff;
-    data['green'] = isGreen;
-    data['error'] = error;
-    data['errorMessage'] = errorMessage;
-    data['snapPos'] = snapPos.toJson();
-    data['navText'] = navText;
-    data['navSign'] = navSign;
-    data['navDist'] = navDist;
-    data['quality'] = quality;
-    data['predictionGreentimeThreshold'] = predictionGreentimeThreshold;
-    data['predictionStartTime'] = predictionStartTime;
-    data['predictionValue'] = predictionValue;
-    data['sgId'] = sgId;
-    data['sgPos'] = sgPos;
-    JsonEncoder encoder = const JsonEncoder();
-    return encoder.convert(data);
+    return const JsonEncoder().convert({
+      'label': label,
+      'countdown': countdown,
+      'distance': distance,
+      'speedRec': speedRec,
+      'speedDiff': speedDiff,
+      'green': isGreen,
+      'error': error,
+      'errorMessage': errorMessage,
+      'snapPos': snapPos.toJson(),
+      'navText': navText,
+      'navSign': navSign,
+      'navDist': navDist,
+      'quality': quality,
+      'predictionGreentimeThreshold': predictionGreentimeThreshold,
+      'predictionStartTime': predictionStartTime,
+      'predictionValue': predictionValue,
+      'sgId': sgId,
+      'sgPos': sgPos,
+    });
   }
 }

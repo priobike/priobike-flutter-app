@@ -13,9 +13,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class RoutingService with ChangeNotifier {
+class Routing with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("RoutingService");
+  final log = Logger("Routing");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -35,18 +35,18 @@ class RoutingService with ChangeNotifier {
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
 
-  /// The currently selected route, if one was fetched.
+  /// The currently selected route, if one wetched.
   r.Route? selectedRoute;
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  RoutingService({
+  Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
     this.selectedRoute,
     this.allRoutes,
-  }) { log.i("RoutingService started."); }
+  }) { log.i("Routing started."); }
 
   /// Add a new waypoint.
   Future<void> addWaypoint(Waypoint waypoint) async {
@@ -92,7 +92,7 @@ class RoutingService with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      final settings = Provider.of<SettingsService>(context, listen: false);
+      final settings = Provider.of<Settings>(context, listen: false);
 
       final baseUrl = settings.backend.path;
       final routeUrl = "https://$baseUrl/backend-service/routes";
@@ -118,7 +118,7 @@ class RoutingService with ChangeNotifier {
       fetchedWaypoints = selectedWaypoints;
       isFetchingRoute = false;
 
-      final discomforts = Provider.of<DiscomfortService>(context, listen: false);
+      final discomforts = Provider.of<Discomforts>(context, listen: false);
       await discomforts.findDiscomforts(context, routeResponse.routes.first.path);
 
       notifyListeners();
@@ -138,7 +138,7 @@ class RoutingService with ChangeNotifier {
     // and if there is a currently selected route.
     selectedRoute = route;
 
-    final discomforts = Provider.of<DiscomfortService>(context, listen: false);
+    final discomforts = Provider.of<Discomforts>(context, listen: false);
     await discomforts.findDiscomforts(context, route.path);
 
     notifyListeners();

@@ -12,11 +12,11 @@ class MinimalRecommendationCyclingView extends StatefulWidget {
 }
 
 class _MinimalRecommendationCyclingViewState extends State<MinimalRecommendationCyclingView> {
-  late RideService app;
+  late Ride app;
 
   @override
   Widget build(BuildContext context) {
-    app = Provider.of<RideService>(context);
+    app = Provider.of<Ride>(context);
     if (app.currentRecommendation == null) return Container();
 
     final recommendation = app.currentRecommendation!;

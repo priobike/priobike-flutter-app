@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/positioning/services/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -35,18 +35,18 @@ class WaypointListItemView extends StatefulWidget {
 
 class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  PositionService? positionService;
+  Positioning? positioning;
 
   /// The associated geosearch service, which is injected by the provider.
-  GeosearchService? geosearchService;
+  Geosearch? geosearch;
 
   /// The distance to the waypoint in meters.
   double? distance;
 
   @override
   void didChangeDependencies() {
-    geosearchService = Provider.of<GeosearchService>(context);
-    positionService = Provider.of<PositionService>(context);
+    geosearch = Provider.of<Geosearch>(context);
+    positioning = Provider.of<Positioning>(context);
 
     // Update the distance to the waypoint.
     updateDistance();
@@ -56,9 +56,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   /// Update the distance to the waypoint.
   void updateDistance() {
-    if (positionService?.lastPosition == null) return;
+    if (positioning?.lastPosition == null) return;
     if (widget.waypoint == null) return;
-    final lastPos = LatLng(positionService!.lastPosition!.latitude, positionService!.lastPosition!.longitude);
+    final lastPos = LatLng(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude);
     final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
     const vincenty = Distance();
     distance = vincenty.distance(lastPos, waypointPos);
@@ -120,14 +120,14 @@ class CurrentPositionWaypointListItemView extends StatefulWidget {
 
 class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  PositionService? positionService;
+  Positioning? positioning;
 
   /// The currently fetched address.
   Waypoint? waypoint;
 
   @override
   void didChangeDependencies() {
-    positionService = Provider.of<PositionService>(context);
+    positioning = Provider.of<Positioning>(context);
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       await updateWaypoint();
     });
@@ -136,18 +136,18 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
 
   /// Update the waypoint.
   Future<void> updateWaypoint() async {
-    if (positionService?.lastPosition == null) {
+    if (positioning?.lastPosition == null) {
       waypoint = null;
       return;
     }
     if (
       waypoint != null && 
-      waypoint!.lat == positionService!.lastPosition!.latitude && 
-      waypoint!.lon == positionService!.lastPosition!.longitude
+      waypoint!.lat == positioning!.lastPosition!.latitude && 
+      waypoint!.lon == positioning!.lastPosition!.longitude
     ) return;
-    final geocodingService = Provider.of<GeocodingService>(context, listen: false);
-    final pos = positionService!.lastPosition!;
-    final address = await geocodingService.reverseGeocodeLatLng(context, pos.latitude, pos.longitude);
+    final geocoding = Provider.of<Geocoding>(context, listen: false);
+    final pos = positioning!.lastPosition!;
+    final address = await geocoding.reverseGeocodeLatLng(context, pos.latitude, pos.longitude);
     if (address == null) return;
     waypoint = Waypoint(pos.latitude, pos.longitude, address: address);
   }
@@ -187,10 +187,10 @@ class RouteSearch extends StatefulWidget {
 
 class RouteSearchState extends State<RouteSearch> {
   /// The geosearch service that is injected by the provider.
-  late GeosearchService geosearchService;
+  late Geosearch geosearch;
 
   /// The positioning service that is injected by the provider.
-  late PositionService positionService;
+  late Positioning positioning;
 
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
@@ -200,14 +200,14 @@ class RouteSearchState extends State<RouteSearch> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await positionService.requestSingleLocation(context);
+      await positioning.requestSingleLocation(context);
     });
   }
 
   @override
   void didChangeDependencies() {
-    geosearchService = Provider.of<GeosearchService>(context);
-    positionService = Provider.of<PositionService>(context);
+    geosearch = Provider.of<Geosearch>(context);
+    positioning = Provider.of<Positioning>(context);
     super.didChangeDependencies();
   }
 
@@ -215,7 +215,7 @@ class RouteSearchState extends State<RouteSearch> {
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
     debouncer.run(() {
-      geosearchService.geosearch(context, query);
+      geosearch.geosearch(context, query);
     });
   }
 
@@ -233,7 +233,7 @@ class RouteSearchState extends State<RouteSearch> {
           padding: EdgeInsets.only(top: frame.padding.top),
           color: Theme.of(context).colorScheme.background,
           child: Row(children: [
-            AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+            AppBackButton(onPressed: () => Navigator.pop(context)),
             const SmallHSpace(),
             Container(
               padding: const EdgeInsets.only(top: 16, bottom: 16),
@@ -249,7 +249,7 @@ class RouteSearchState extends State<RouteSearch> {
                       bottomLeft: Radius.circular(24)
                     )
                   ),
-                  suffixIcon: geosearchService.isFetchingAddress 
+                  suffixIcon: geosearch.isFetchingAddress 
                     ? const Padding(
                         padding: EdgeInsets.all(12), 
                         child: CircularProgressIndicator()
@@ -263,10 +263,10 @@ class RouteSearchState extends State<RouteSearch> {
         Expanded(child: SingleChildScrollView(
           child: Column(children: [
             const SmallVSpace(),
-            if (positionService.lastPosition != null)
+            if (positioning.lastPosition != null)
               CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
-            if (geosearchService.results?.isNotEmpty == true) ...[
-              for (final waypoint in geosearchService.results!) ...[
+            if (geosearch.results?.isNotEmpty == true) ...[
+              for (final waypoint in geosearch.results!) ...[
                 WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
               ]
             ] else ...[

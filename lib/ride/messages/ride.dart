@@ -22,14 +22,12 @@ class SelectRideRequest {
     required this.signalGroups,
   });
 
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['sessionId'] = sessionId;
-    data['route'] = route.map((e) => e.toJson()).toList();
-    data['navigationPath'] = navigationPath.toJson();
-    data['signalGroups'] = { for (var e in signalGroups.entries) e.key : e.value.toJson() };
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'sessionId': sessionId,
+    'route': route.map((e) => e.toJson()).toList(),
+    'navigationPath': navigationPath.toJson(),
+    'signalGroups': { for (var e in signalGroups.entries) e.key : e.value.toJson() },
+  };
 }
 
 class SelectRideResponse {

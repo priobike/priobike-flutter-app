@@ -43,11 +43,11 @@ class TotalStatisticsView extends StatefulWidget {
 
 class TotalStatisticsViewState extends State<TotalStatisticsView> {
   /// The statistics service, which is injected by the provider.
-  late StatisticsService statisticsService;
+  late Statistics statistics;
 
   @override
   void didChangeDependencies() {
-    statisticsService = Provider.of<StatisticsService>(context);
+    statistics = Provider.of<Statistics>(context);
     super.didChangeDependencies();
   }
 
@@ -101,27 +101,27 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           children: [
             StatisticsElementView(
               icon: Icons.directions_bike,
-              title: "Distanz: ${((statisticsService.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
+              title: "Distanz: ${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.timer,
-              title: "Zeit: ${Duration(seconds: (statisticsService.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first}",
+              title: "Zeit: ${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first}",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.speed,
-              title: "Im Schnitt: ${(statisticsService.averageSpeedKmH ?? 0).round()} km/h",
+              title: "Im Schnitt: ${(statistics.averageSpeedKmH ?? 0).round()} km/h",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.arrow_upward,
-              title: "Aufwärts: ${(statisticsService.totalElevationGain ?? 0)} m",
+              title: "Aufwärts: ${(statistics.totalElevationGain ?? 0)} m",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.arrow_downward,
-              title: "Abwärts: ${(statisticsService.totalElevationLoss ?? 0)} m",
+              title: "Abwärts: ${(statistics.totalElevationLoss ?? 0)} m",
               context: context,
             ),
           ],

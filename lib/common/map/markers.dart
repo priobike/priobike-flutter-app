@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -28,9 +26,9 @@ class SymbolLoader {
 
   /// Adds an asset image to the currently displayed style
   Future<void> addImageFromAsset(String name, String assetName) async {
-    final ByteData bytes = await rootBundle.load(assetName);
-    final Uint8List list = bytes.buffer.asUint8List();
-    return mapController.addImage(name, list);
+    final bytes = await rootBundle.load(assetName);
+    final bytesArr = bytes.buffer.asUint8List();
+    return mapController.addImage(name, bytesArr);
   }
 }
 

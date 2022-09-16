@@ -9,14 +9,14 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class SGStatusViewLegendElement {
+class SGStatusMapViewLegendElement {
   final String title;
   final Color color;
 
-  SGStatusViewLegendElement(this.title, this.color);
+  SGStatusMapViewLegendElement(this.title, this.color);
 }
 
-class SGStatusViewMode {
+class SGStatusMapViewMode {
   /// The name of the mode.
   final String name;
 
@@ -30,9 +30,9 @@ class SGStatusViewMode {
   final dynamic secondLabel;
 
   /// The legend.
-  final List<SGStatusViewLegendElement> legend;
+  final List<SGStatusMapViewLegendElement> legend;
 
-  const SGStatusViewMode({
+  const SGStatusMapViewMode({
     required this.name,
     required this.color,
     required this.firstLabel,
@@ -41,7 +41,7 @@ class SGStatusViewMode {
   });
 
   static final all = [
-    SGStatusViewMode(
+    SGStatusMapViewMode(
       name: "Prognosequalität",
       color: [
         "interpolate", ["linear"],
@@ -59,13 +59,13 @@ class SGStatusViewMode {
       ],
       secondLabel: ["get", "prediction_quality"],
       legend: [
-        SGStatusViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusViewLegendElement("Schlechte Prognose", const Color(0xffff0000)),
-        SGStatusViewLegendElement("Mittlere Prognose", const Color(0xffffff00)),
-        SGStatusViewLegendElement("Gute Prognose", const Color(0xff00ff00)),
+        SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
+        SGStatusMapViewLegendElement("Schlechte Prognose", const Color(0xffff0000)),
+        SGStatusMapViewLegendElement("Mittlere Prognose", const Color(0xffffff00)),
+        SGStatusMapViewLegendElement("Gute Prognose", const Color(0xff00ff00)),
       ],
     ),
-    SGStatusViewMode(
+    SGStatusMapViewMode(
       name: "Zeit seit letzter Prognose",
       color: [
         "case",
@@ -107,28 +107,28 @@ class SGStatusViewMode {
           ]
       ],
       legend: [
-        SGStatusViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusViewLegendElement("Letzte Prognose vor >1h", const Color(0xffff0000)),
-        SGStatusViewLegendElement("Letzte Prognose vor 10min", const Color(0xffffff00)),
-        SGStatusViewLegendElement("Letzte Prognose vor 1min", const Color(0xff00ff00)),
+        SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor >1h", const Color(0xffff0000)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor 10min", const Color(0xffffff00)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor 1min", const Color(0xff00ff00)),
       ],
     ),
   ];
 }
 
-class SGStatusView extends StatefulWidget {
-  const SGStatusView({Key? key}) : super(key: key);
+class SGStatusMapView extends StatefulWidget {
+  const SGStatusMapView({Key? key}) : super(key: key);
 
   @override 
-  SGStatusViewState createState() => SGStatusViewState();
+  SGStatusMapViewState createState() => SGStatusMapViewState();
 }
 
-class SGStatusViewState extends State<SGStatusView> {
+class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
   MapboxMapController? mapController;
 
   /// The current mode.
-  SGStatusViewMode mode = SGStatusViewMode.all.first;
+  SGStatusMapViewMode mode = SGStatusMapViewMode.all.first;
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
@@ -143,7 +143,7 @@ class SGStatusViewState extends State<SGStatusView> {
   }
 
   /// A callback that is executed when the mode was changed.
-  Future<void> updateMapMode(SGStatusViewMode mode) async {
+  Future<void> updateMapMode(SGStatusMapViewMode mode) async {
     await mapController?.removeLayer("sg-lines-bg");
     await mapController?.addLayer("sg-lanes", "sg-lines-bg", const LineLayerProperties(
       lineColor: "#000000", 
@@ -221,7 +221,7 @@ class SGStatusViewState extends State<SGStatusView> {
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
 
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
     await mapController?.addSource("sg-locs", GeojsonSourceProperties(
@@ -256,15 +256,15 @@ class SGStatusViewState extends State<SGStatusView> {
           child: Tile(
             fill: Colors.white,
             content: SizedBox(height: 80, child: PageView.builder(
-              itemCount: SGStatusViewMode.all.length,
+              itemCount: SGStatusMapViewMode.all.length,
               onPageChanged: (index) {
                 setState(() {
-                  mode = SGStatusViewMode.all[index];
+                  mode = SGStatusMapViewMode.all[index];
                 });
                 updateMapMode(mode);
               },
               itemBuilder: (context, index) {
-                final mode = SGStatusViewMode.all[index];
+                final mode = SGStatusMapViewMode.all[index];
                 return Column(children: mode.legend.map((e) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(children: [

@@ -8,14 +8,14 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:provider/provider.dart';
 
-class DiscomfortService with ChangeNotifier {
+class Discomforts with ChangeNotifier {
   /// The found discomforts.
-  List<Discomfort>? foundDiscomforts;
+  List<DiscomfortSegment>? foundDiscomforts;
 
   /// The currently selected discomfort.
-  Discomfort? selectedDiscomfort;
+  DiscomfortSegment? selectedDiscomfort;
 
-  DiscomfortService({
+  Discomforts({
     this.foundDiscomforts,
     this.selectedDiscomfort,
   });
@@ -28,8 +28,8 @@ class DiscomfortService with ChangeNotifier {
   }
 
   /// Select a discomfort.
-  selectDiscomfort(Discomfort discomfort) {
-    selectedDiscomfort = discomfort;
+  selectDiscomfort(DiscomfortSegment discomfortSegment) {
+    selectedDiscomfort = discomfortSegment;
     notifyListeners();
   }
 
@@ -44,7 +44,7 @@ class DiscomfortService with ChangeNotifier {
   }
 
   Future<void> findDiscomforts(BuildContext context, GHRouteResponsePath path) async {
-    final profile = Provider.of<ProfileService>(context, listen: false);
+    final profile = Provider.of<Profile>(context, listen: false);
     
     // Use the smoothness values to determine unsmooth sections.
     // See: https://wiki.openstreetmap.org/wiki/DE:Key:smoothness
@@ -53,17 +53,17 @@ class DiscomfortService with ChangeNotifier {
         if (segment.value == null) return null;
         final cs = getCoordinates(segment, path);
         if (segment.value == "impassable") {
-          return Discomfort(segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
         } else if (segment.value == "very_horrible") {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
         } else if (segment.value == "horrible") {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "very_bad") {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "bad") {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
         } else if (segment.value == "intermediate" && profile.bikeType == BikeType.racingbike) {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
         }
       }).where((e) => e != null).map((e) => e!).toList();
 
@@ -74,9 +74,9 @@ class DiscomfortService with ChangeNotifier {
         if (segment.value == null) return null;
         final cs = getCoordinates(segment, path);
         if (segment.value! >= 100) {
-          return Discomfort(segment: segment, coordinates: cs, description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
         } else if (segment.value! <= 10) {
-          return Discomfort(segment: segment, coordinates: cs, description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
         }
       }).where((e) => e != null).map((e) => e!).toList();
     
