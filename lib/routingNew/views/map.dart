@@ -11,6 +11,7 @@ import 'package:priobike/routingNew/models/sg.dart';
 import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/routingNew/services/geocoding.dart';
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
@@ -38,6 +39,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The associated settings service, which is injected by the provider.
   late Settings ss;
+
+  /// The associated settings service, which is injected by the provider.
+  late MapController mc;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -83,6 +87,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     rs = Provider.of<Routing>(context);
     ds = Provider.of<Discomforts>(context);
     ss = Provider.of<Settings>(context);
+    mc = Provider.of<MapController>(context);
     adaptMap();
     super.didChangeDependencies();
   }
@@ -280,6 +285,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    mc.controller = controller;
+
     // Bind the interaction callbacks.
     controller.onFillTapped.add(onFillTapped);
     controller.onCircleTapped.add(onCircleTapped);
@@ -319,6 +326,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await rs.loadRoutes(context);
   }
 
+  void onCameraTrackingDismissed() {
+    mc.setMyLocationTrackingModeNone();
+  }
+
+
   @override
   void dispose() {
     // Unbind the sheet movement listener.
@@ -336,7 +348,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      onMapCreated: onMapCreated, 
+      onMapCreated: onMapCreated,
+      onCameraTrackingDismissed: onCameraTrackingDismissed,
       onStyleLoaded: () => onStyleLoaded(context),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
     );

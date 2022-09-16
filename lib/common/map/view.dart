@@ -47,12 +47,12 @@ class AppMapState extends State<AppMap> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  late MapControllerService mapControllerService;
+  late MapController mapControllerService;
 
   @override
   void didChangeDependencies() {
 
-    mapControllerService = Provider.of<MapControllerService>(context);
+    mapControllerService = Provider.of<MapController>(context);
     settings = Provider.of<Settings>(context);
 
     super.didChangeDependencies();

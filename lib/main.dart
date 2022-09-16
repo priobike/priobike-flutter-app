@@ -113,7 +113,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<Statistics>(create: (context) => Statistics()),
         ChangeNotifierProvider<Snapping>(create: (context) => Snapping()),
         ChangeNotifierProvider<Feedback>(create: (context) => Feedback()),
-        ChangeNotifierProvider<MapControllerService>(create: (context) => MapControllerService()),
+        ChangeNotifierProvider<MapController>(create: (context) => MapController()),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {

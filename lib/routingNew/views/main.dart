@@ -48,7 +48,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Positioning? positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  MapControllerService? mapControllerService;
+  MapController? mapControllerService;
 
   /// The associated shortcuts service, which is injected by the provider.
   Profile? profileService;
@@ -73,7 +73,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       if (positioning?.lastPosition?.accuracy != null && positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
         _showAlertGPSQualityDialog();
       }
-
     });
   }
 
@@ -82,7 +81,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     geocodingService = Provider.of<Geocoding>(context);
     routingService = Provider.of<Routing>(context);
     shortcutsService = Provider.of<Shortcuts>(context);
-    mapControllerService = Provider.of<MapControllerService>(context);
+    mapControllerService = Provider.of<MapController>(context);
     profileService = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
 
