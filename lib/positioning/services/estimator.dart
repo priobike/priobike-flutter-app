@@ -6,19 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/ride/services/position/position.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:provider/provider.dart';
 
-class PositionEstimatorService with ChangeNotifier {
+class PositionEstimator with ChangeNotifier {
   /// The refresh rate that is used to update the position.
+  /// Note that this rate should not be too high, to save energy.
   static int refreshRateHz = 5;
 
   /// The distance in meters at which the position will be clamped to the route.
   static double clampDistance = 25;
 
   /// A log for this service.
-  final Logger log = Logger("PositionEstimatorService");
+  final log = Logger("PositionEstimator");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -29,38 +30,38 @@ class PositionEstimatorService with ChangeNotifier {
   /// The current estimated position (> 1Hz).
   Position? estimatedPosition;
 
-  PositionEstimatorService() { log.i("PositionEstimatorService started."); }
+  PositionEstimator() { log.i("PositionEstimator started."); }
 
   /// Start estimating the position.
   Future<void> startEstimating(BuildContext context) async {
     // Start the estimator.
     timer = Timer.periodic(Duration(milliseconds: (1000 / refreshRateHz).round()), (Timer timer) {
-      final positionService = Provider.of<PositionService>(context, listen: false);
-      final snappingService = Provider.of<SnappingService>(context, listen: false);
-      if (positionService.lastPosition == null) return;
+      final positioning = Provider.of<Positioning>(context, listen: false);
+      final snapping = Provider.of<Snapping>(context, listen: false);
+      if (positioning.lastPosition == null) return;
 
       // Use the snapped position and heading if it is less than <x>m away from the route.
       final useSnappedPosition = 
-        snappingService.snappedPosition != null && 
-        snappingService.snappedHeading != null &&
-        snappingService.distance != null && 
-        snappingService.distance! < clampDistance;
+        snapping.snappedPosition != null && 
+        snapping.snappedHeading != null &&
+        snapping.distance != null && 
+        snapping.distance! < clampDistance;
       
       estimatedPosition = extrapolate(Position(
         latitude: useSnappedPosition 
-          ? snappingService.snappedPosition!.latitude 
-          : positionService.lastPosition!.latitude,
+          ? snapping.snappedPosition!.latitude 
+          : positioning.lastPosition!.latitude,
         longitude: useSnappedPosition 
-          ? snappingService.snappedPosition!.longitude 
-          : positionService.lastPosition!.longitude,
+          ? snapping.snappedPosition!.longitude 
+          : positioning.lastPosition!.longitude,
         heading: useSnappedPosition 
-          ? snappingService.snappedHeading! 
-          : positionService.lastPosition!.heading,
-        altitude: positionService.lastPosition!.altitude,
-        timestamp: positionService.lastPosition!.timestamp,
-        accuracy: positionService.lastPosition!.accuracy,
-        speed: positionService.lastPosition!.speed,
-        speedAccuracy: positionService.lastPosition!.speedAccuracy,
+          ? snapping.snappedHeading! 
+          : positioning.lastPosition!.heading,
+        altitude: positioning.lastPosition!.altitude,
+        timestamp: positioning.lastPosition!.timestamp,
+        accuracy: positioning.lastPosition!.accuracy,
+        speed: positioning.lastPosition!.speed,
+        speedAccuracy: positioning.lastPosition!.speedAccuracy,
       ));
       notifyListeners();
     });
@@ -81,9 +82,6 @@ class PositionEstimatorService with ChangeNotifier {
       lastPosition.speed * (elapsed / 1000), 
       lastPosition.heading
     );
-
-    // If we have an active route and we are less than <x> meters from the route,
-    // we can snap the estimated position to the route.
     
     return Position(
       latitude: newLatLng.latitude,

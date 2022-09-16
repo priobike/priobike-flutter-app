@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
-class SnappingService with ChangeNotifier {
+class Snapping with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("SnappingService");
+  final log = Logger("Snapping");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -33,18 +33,18 @@ class SnappingService with ChangeNotifier {
   /// The remaining waypoints.
   List<Waypoint>? remainingWaypoints;
 
-  SnappingService() { log.i("SnappingService started."); }
+  Snapping() { log.i("Snapping started."); }
 
   /// Snap the current position to the route and calculate the remaining waypoints.
   Future<void> updatePosition(BuildContext context) async {
-    final position = Provider.of<PositionService>(context, listen: false);
-    final routing = Provider.of<RoutingService>(context, listen: false);
+    final positioning = Provider.of<Positioning>(context, listen: false);
+    final routing = Provider.of<Routing>(context, listen: false);
 
-    if (position.lastPosition == null) return;
+    if (positioning.lastPosition == null) return;
     if (routing.selectedRoute == null || routing.selectedWaypoints == null) return;
     if (routing.selectedRoute!.route.length < 2 || routing.selectedWaypoints!.length < 2) return;
 
-    final p = LatLng(position.lastPosition!.latitude, position.lastPosition!.longitude);
+    final p = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final nodes = routing.selectedRoute!.route;
     
     // Draw snapping lines to all route segments.

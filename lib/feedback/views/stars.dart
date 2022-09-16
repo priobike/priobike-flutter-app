@@ -1,6 +1,4 @@
-
-
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Feedback;
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/models/question.dart';
@@ -20,14 +18,14 @@ class StarRatingView extends StatefulWidget {
 
 class StarRatingViewState extends State<StarRatingView> {
   /// The feedback service, which is injected by the provider.
-  late FeedbackService feedbackService;
+  late Feedback feedback;
 
   /// The current rating.
   int rating = 0;
 
   @override
   void didChangeDependencies() {
-    feedbackService = Provider.of<FeedbackService>(context);
+    feedback = Provider.of<Feedback>(context);
     super.didChangeDependencies();
   }
 
@@ -45,7 +43,7 @@ class StarRatingViewState extends State<StarRatingView> {
       answer: "$rating Stars",
     );
 
-    await feedbackService.update(id: question.text, question: question);
+    await feedback.update(id: question.text, question: question);
   }
 
   @override

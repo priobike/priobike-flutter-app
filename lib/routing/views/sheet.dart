@@ -211,18 +211,18 @@ class DraggingWaypointItem extends RouteWaypointItem {
 
 class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  late Routing s;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
+    s = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
     // Tell the tutorial that the user has changed the order of the waypoints.
-    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
     if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;

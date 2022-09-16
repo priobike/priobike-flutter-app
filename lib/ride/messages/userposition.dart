@@ -26,14 +26,12 @@ class UserPosition {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['lat'] = lat;
-    data['lon'] = lon;
-    data['speed'] = speed;
-    data['accuracy'] = accuracy;
-    data['heading'] = heading;
-    data['timestamp'] = timestamp?.toIso8601String();
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'lat': lat,
+    'lon': lon,
+    'speed': speed,
+    'accuracy': accuracy,
+    'heading': heading,
+    'timestamp': timestamp?.toIso8601String(),
+  };
 }

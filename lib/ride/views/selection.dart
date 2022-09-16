@@ -15,8 +15,8 @@ class RideSelectionView extends StatelessWidget {
 
   /// A callback that is fired when a ride preference is selected.
   Future<void> onRideSelected(BuildContext context, RidePreference preference) async {
-    final settingsService = Provider.of<SettingsService>(context, listen: false);
-    await settingsService.selectRidePreference(preference);
+    final settings = Provider.of<Settings>(context, listen: false);
+    await settings.selectRidePreference(preference);
 
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
       // Avoid navigation back, only allow stop button to be pressed.

@@ -14,7 +14,5 @@ class Category {
   }
 
   /// Returns a json representation of the category object calling this method.
-  Map<String, Object> toJson() {
-    return {'id': id, 'title': title};
-  }
+  Map<String, Object> toJson() => {'id': id, 'title': title};
 }

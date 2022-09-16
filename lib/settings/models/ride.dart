@@ -5,7 +5,6 @@ enum RidePreference {
   defaultCyclingView,
   minimalRecommendationCyclingView,
   minimalCountdownCyclingView,
-  minimalNavigationCyclingView,
 }
 
 extension RidePreferenceDescription on RidePreference {
@@ -15,7 +14,6 @@ extension RidePreferenceDescription on RidePreference {
       case RidePreference.defaultCyclingView: return "Empfehlungs-Ansicht mit Navigation";
       case RidePreference.minimalRecommendationCyclingView: return "Nur Langsamer/Schneller";
       case RidePreference.minimalCountdownCyclingView: return "Nur Countdown";
-      case RidePreference.minimalNavigationCyclingView: return "Nur Navigation von Oben";
     }
   }
 }
@@ -44,18 +42,6 @@ extension RidePreferenceIcon on RidePreference {
                     color: Colors.grey),
               ),
             ]);
-      case RidePreference.minimalNavigationCyclingView:
-        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          Icon(Icons.roundabout_left, size: 32),
-          /// Can't use Theme here cause it's not in a build context
-          Text(
-            "...",
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w300,
-                color: Colors.grey),
-          ),
-        ]);
     }
   }
 }

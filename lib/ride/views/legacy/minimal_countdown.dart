@@ -14,11 +14,11 @@ class MinimalCountdownCyclingView extends StatefulWidget {
 
 class _MinimalCountdownCyclingViewState
     extends State<MinimalCountdownCyclingView> {
-  late RideService app;
+  late Ride app;
 
   @override
   Widget build(BuildContext context) {
-    app = Provider.of<RideService>(context);
+    app = Provider.of<Ride>(context);
     if (app.currentRecommendation == null) return Container();
 
     final recommendation = app.currentRecommendation!;
@@ -77,7 +77,7 @@ class _MinimalCountdownCyclingViewState
             const Spacer(),
             const SizedBox(
               width: double.infinity,
-              child: CancelButton(),
+              child: CancelButton(text: "Fahrt beenden"),
             ),
           ],
         ),

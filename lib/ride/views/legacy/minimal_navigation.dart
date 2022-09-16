@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/arrow.dart';
@@ -18,9 +18,9 @@ class MinimalNavigationCyclingView extends StatefulWidget {
 
 class _MinimalNavigationCyclingViewState
     extends State<MinimalNavigationCyclingView> {
-  late RoutingService routingService;
-  late RideService rideService;
-  late PositionService positionService;
+  late Routing routing;
+  late Ride ride;
+  late Positioning positioning;
 
   var points = <LatLng>[];
   var trafficLights = <Marker>[];
@@ -28,16 +28,16 @@ class _MinimalNavigationCyclingViewState
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    rideService = Provider.of<RideService>(context);
-    positionService = Provider.of<PositionService>(context);
+    routing = Provider.of<Routing>(context);
+    ride = Provider.of<Ride>(context);
+    positioning = Provider.of<Positioning>(context);
 
-    if (routingService.selectedRoute != null && !routeDrawn) {
-      for (var point in routingService.selectedRoute!.route) {
+    if (routing.selectedRoute != null && !routeDrawn) {
+      for (var point in routing.selectedRoute!.route) {
         points.add(LatLng(point.lat, point.lon));
       }
 
-      for (var sg in routingService.selectedRoute!.signalGroups.values) {
+      for (var sg in routing.selectedRoute!.signalGroups.values) {
         trafficLights.add(
           Marker(
             point: LatLng(sg.position.lat, sg.position.lon),
@@ -58,8 +58,8 @@ class _MinimalNavigationCyclingViewState
 
   @override
   Widget build(BuildContext context) {
-    if (rideService.currentRecommendation == null) return Container();
-    final recommendation = rideService.currentRecommendation!;
+    if (ride.currentRecommendation == null) return Container();
+    final recommendation = ride.currentRecommendation!;
 
     return Scaffold(
       body: Padding(
@@ -130,10 +130,10 @@ class _MinimalNavigationCyclingViewState
                   MarkerLayerOptions(
                     markers: [
                       ...trafficLights,
-                      positionService.lastPosition != null
+                      positioning.lastPosition != null
                           ? Marker(
-                              point: LatLng(positionService.lastPosition!.latitude,
-                                  positionService.lastPosition!.longitude),
+                              point: LatLng(positioning.lastPosition!.latitude,
+                                  positioning.lastPosition!.longitude),
                               builder: (ctx) => Icon(
                                 Icons.location_pin,
                                 color: Colors.blue[900],
@@ -153,8 +153,8 @@ class _MinimalNavigationCyclingViewState
                       ),
                       Marker(
                         point: LatLng(
-                          rideService.currentRecommendation!.snapPos.lat,
-                          rideService.currentRecommendation!.snapPos.lon,
+                          ride.currentRecommendation!.snapPos.lat,
+                          ride.currentRecommendation!.snapPos.lon,
                         ),
                         builder: (ctx) => Icon(
                           Icons.my_location,
@@ -170,7 +170,7 @@ class _MinimalNavigationCyclingViewState
             const Spacer(),
             const SizedBox(
               width: double.infinity,
-              child: CancelButton(),
+              child: CancelButton(text: "Fahrt beenden"),
             ),
           ],
         ),

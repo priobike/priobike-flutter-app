@@ -30,29 +30,25 @@ class PostAnswerRequest {
     this.value,
   });
 
-  factory PostAnswerRequest.fromJson(Map<String, dynamic> json) {
-    return PostAnswerRequest(
-      deviceId: json['deviceId'], 
-      deviceType: json['deviceType'], 
-      appVersion: json['appVersion'], 
-      questionText: json['questionText'],
-      questionImage: json['questionImage'],
-      sessionId: json['sessionId'],
-      value: json['value'],
-    );
-  }
+  factory PostAnswerRequest.fromJson(Map<String, dynamic> json) => PostAnswerRequest(
+    deviceId: json['deviceId'], 
+    deviceType: json['deviceType'], 
+    appVersion: json['appVersion'], 
+    questionText: json['questionText'],
+    questionImage: json['questionImage'],
+    sessionId: json['sessionId'],
+    value: json['value'],
+  );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['deviceId'] = deviceId;
-    data['deviceType'] = deviceType;
-    data['appVersion'] = appVersion;
-    data['questionText'] = questionText;
-    if (questionImage != null) data['questionImage'] = questionImage;
-    if (sessionId != null) data['sessionId'] = sessionId;
-    if (value != null) data['value'] = value;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'deviceId': deviceId,
+    'deviceType': deviceType,
+    'appVersion': appVersion,
+    'questionText': questionText,
+    if (questionImage != null) 'questionImage': questionImage,
+    if (sessionId != null) 'sessionId': sessionId,
+    if (value != null) 'value': value,
+  };
 }
 
 class PostAnswerResponse {
@@ -64,9 +60,7 @@ class PostAnswerResponse {
     return PostAnswerResponse(success: json['success']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['success'] = success;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'success': success,
+  };
 }

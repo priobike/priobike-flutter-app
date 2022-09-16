@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:latlong2/latlong.dart' as latlng;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 
 class Route {
   /// The GraphHopper route response path.
@@ -32,11 +34,45 @@ class Route {
     'signalGroups': { for (var e in signalGroups.entries) e.key: e.value.toJson() },
   };
 
-  factory Route.fromJson(dynamic json) {
+  factory Route.fromJson(dynamic json) => Route(
+    path: GHRouteResponsePath.fromJson(json['path']),
+    route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+    signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
+  );
+
+  /// The route, connected to the start and end point.
+  Route connected(Waypoint startpoint, Waypoint endpoint) {
+    const vincenty = latlng.Distance();
+    final first = route.isNotEmpty ? route.first : null;
+    final distToFirst = first == null ? null : vincenty.distance(
+      latlng.LatLng(startpoint.lat, startpoint.lon), 
+      latlng.LatLng(first.lat, first.lon)
+    );
+    final last = route.isNotEmpty ? route.last : null;
+    final distToLast = last == null ? null : vincenty.distance(
+      latlng.LatLng(last.lat, last.lon), 
+      latlng.LatLng(endpoint.lat, endpoint.lon)
+    );
     return Route(
-      path: GHRouteResponsePath.fromJson(json['path']),
-      route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-      signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
+      path: path,
+      signalGroups: signalGroups,
+      route: [
+        NavigationNode(
+          lon: startpoint.lon, 
+          lat: startpoint.lat, 
+          alt: first?.alt ?? 0,
+          distanceToNextSignal: first == null ? null : (first.distanceToNextSignal! + distToFirst!),
+          signalGroupId: first?.signalGroupId,
+        ),
+        ...route,
+        NavigationNode(
+          lon: endpoint.lon, 
+          lat: endpoint.lat, 
+          alt: last?.alt ?? 0,
+          distanceToNextSignal: last == null ? null : (last.distanceToNextSignal! + distToLast!),
+          signalGroupId: last?.signalGroupId,
+        ),
+      ],
     );
   }
 

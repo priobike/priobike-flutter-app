@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/common/algorithms/sma.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
-import 'package:priobike/ride/services/position/estimator.dart';
+import 'package:priobike/ride/algorithms/sma.dart';
+import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -27,16 +27,16 @@ class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routing;
 
   /// The associated position estimator service, which is injected by the provider.
-  late PositionEstimatorService positionEstimatorService;
+  late PositionEstimator positionEstimator;
 
   /// The associated ride service, which is injected by the provider.
-  late RideService rideService;
+  late Ride ride;
 
   /// The associated settings service, which is injected by the provider.
-  late SettingsService settingsService;
+  late Settings settings;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -56,49 +56,53 @@ class RideMapViewState extends State<RideMapView> {
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
-  /// A simple moving average for the camera heading.
-  final cameraHeadingSMA = SMA(k: PositionEstimatorService.refreshRateHz * 2 /* seconds */);
+  /// A SMA for the zoom.
+  final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
+
+  /// A SMA for the bearing.
+  final cameraHeadingSMA = RotationSMA(k: PositionEstimator.refreshRateHz * 2 /* seconds */);
 
   final vincenty = const l.Distance();
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    settingsService = Provider.of<SettingsService>(context);
-    if (routingService.needsLayout[viewId] != false && mapController != null) {
-      onRoutingServiceUpdate();
-      routingService.needsLayout[viewId] = false;
+    settings = Provider.of<Settings>(context);
+
+    routing = Provider.of<Routing>(context);
+    if (routing.needsLayout[viewId] != false && mapController != null) {
+      onRoutingUpdate();
+      routing.needsLayout[viewId] = false;
     }
 
-    rideService = Provider.of<RideService>(context);
-    if (rideService.needsLayout[viewId] != false && mapController != null) {
-      onRideServiceUpdate();
-      rideService.needsLayout[viewId] = false;
+    ride = Provider.of<Ride>(context);
+    if (ride.needsLayout[viewId] != false && mapController != null) {
+      onRideUpdate();
+      ride.needsLayout[viewId] = false;
     }
 
-    positionEstimatorService = Provider.of<PositionEstimatorService>(context);
-    if (positionEstimatorService.needsLayout[viewId] != false && mapController != null) {
-      onPositionEstimatorServiceUpdate();
-      positionEstimatorService.needsLayout[viewId] = false;
+    positionEstimator = Provider.of<PositionEstimator>(context);
+    if (positionEstimator.needsLayout[viewId] != false && mapController != null) {
+      onPositionEstimatorUpdate();
+      positionEstimator.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
   }
 
   /// Update the view with the current data.
-  Future<void> onRoutingServiceUpdate() async {
+  Future<void> onRoutingUpdate() async {
     await loadRouteLayer();
     await loadTrafficLightMarkers();
     await loadWaypointMarkers();
   }
 
   /// Update the view with the current data.
-  Future<void> onPositionEstimatorServiceUpdate() async {
+  Future<void> onPositionEstimatorUpdate() async {
     await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
-  Future<void> onRideServiceUpdate() async {
+  Future<void> onRideUpdate() async {
     await loadNextTrafficLightLayer();
   }
 
@@ -109,21 +113,21 @@ class RideMapViewState extends State<RideMapView> {
     // Remove the existing route layer.
     if (route != null) await mapController!.removeLine(route!);
     if (routeBackground != null) await mapController!.removeLine(routeBackground!);
-    if (routingService.selectedRoute == null) return;
+    if (routing.selectedRoute == null) return;
     // Add the new route layer.
     routeBackground = await mapController!.addLine(
       RouteBackgroundLayer(
-        points: routingService.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
         lineWidth: 20,
       ),
-      routingService.selectedRoute!.toJson(),
+      routing.selectedRoute!.toJson(),
     );
     route = await mapController!.addLine(
       RouteLayer(
-        points: routingService.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
         lineWidth: 14
       ),
-      routingService.selectedRoute!.toJson(),
+      routing.selectedRoute!.toJson(),
     );
   }
 
@@ -138,7 +142,7 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.removeSymbols(trafficLights ?? []);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in routingService.selectedRoute?.signalGroups.values ?? []) {
+    for (Sg sg in routing.selectedRoute?.signalGroups.values ?? []) {
       trafficLights!.add(await mapController!.addSymbol(
         TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: iconSize),
       ));
@@ -153,13 +157,13 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.removeSymbols(waypoints ?? []);
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in routingService.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
         ));
-      } else if (entry.key == routingService.selectedWaypoints!.length - 1) {
+      } else if (entry.key == routing.selectedWaypoints!.length - 1) {
         waypoints!.add(await mapController!.addSymbol(
           DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
           entry.value.toJSON(),
@@ -176,22 +180,22 @@ class RideMapViewState extends State<RideMapView> {
   /// Adapt the map controller to a changed position.
   Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
-    if (routingService.selectedRoute == null) return;
+    if (routing.selectedRoute == null) return;
 
     // Get the snapping service which provides additional information about the current position.
-    final snappingService = Provider.of<SnappingService>(context, listen: false);
+    final snapping = Provider.of<Snapping>(context, listen: false);
 
     // Get some data that we will need for adaptive camera control.
-    final sgPos = rideService.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
+    final sgPos = ride.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
     final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
-    final userSnapPos = snappingService.snappedPosition;
+    final userSnapPos = snapping.snappedPosition;
     final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
-    final estPos = positionEstimatorService.estimatedPosition;
+    final estPos = positionEstimator.estimatedPosition;
     final estPosLatLng = estPos == null ? null : l.LatLng(estPos.latitude, estPos.longitude);
 
     if (estPos == null || estPosLatLng == null) {
       await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
-        routingService.selectedRoute!.paddedBounds
+        routing.selectedRoute!.paddedBounds
       ));
       return;
     }
@@ -207,7 +211,7 @@ class RideMapViewState extends State<RideMapView> {
     // Adapt the focus dynamically to the next interesting feature.
     double cameraZoom = 19;
     final distanceOfInterest = min(
-      snappingService.distanceToNextTurn ?? double.infinity, 
+      snapping.distanceToNextTurn ?? double.infinity, 
       sgDistance ?? double.infinity,
     );
     if (distanceOfInterest > 25) cameraZoom = 18.5;
@@ -261,7 +265,7 @@ class RideMapViewState extends State<RideMapView> {
     final currentTrafficLight = upcomingTrafficLight;
 
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
-    final r = rideService.currentRecommendation;
+    final r = ride.currentRecommendation;
     if (r != null && !r.error && r.sgPos != null) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
@@ -322,9 +326,9 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextAllowOverlap(true);
     await mapController!.setSymbolTextIgnorePlacement(true);
 
-    onRoutingServiceUpdate();
-    onPositionEstimatorServiceUpdate();
-    onRideServiceUpdate();
+    onRoutingUpdate();
+    onPositionEstimatorUpdate();
+    onRideUpdate();
   }
 
   @override

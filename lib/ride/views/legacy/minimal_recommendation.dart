@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +12,11 @@ class MinimalRecommendationCyclingView extends StatefulWidget {
 }
 
 class _MinimalRecommendationCyclingViewState extends State<MinimalRecommendationCyclingView> {
-  late RideService app;
+  late Ride app;
 
   @override
   Widget build(BuildContext context) {
-    app = Provider.of<RideService>(context);
+    app = Provider.of<Ride>(context);
     if (app.currentRecommendation == null) return Container();
 
     final recommendation = app.currentRecommendation!;
@@ -51,33 +52,24 @@ class _MinimalRecommendationCyclingViewState extends State<MinimalRecommendation
                 style: const TextStyle(fontSize: 60),
               ),
             if (recommendation.speedDiff > 0)
-              const Text(
-                "schneller fahren",
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white54,
-                ),
+              Header(
+                text: "schneller fahren",
+                context: context,
               ),
             if (recommendation.speedDiff < 0)
-              const Text(
-                "langsamer fahren",
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white54,
-                ),
+              Header(
+                text: "langsamer fahren",
+                context: context,
               ),
             if (recommendation.speedDiff == 0)
-              const Text(
-                "Geschwindigkeit halten.",
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white,
-                ),
+              Header(
+                text: "Geschwindigkeit halten.",
+                context: context,
               ),
             const Spacer(),
             const SizedBox(
               width: double.infinity,
-              child: CancelButton(),
+              child: CancelButton(text: "Fahrt beenden"),
             ),
           ],
         ),

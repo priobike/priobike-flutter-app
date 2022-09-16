@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/ride/services/position/estimator.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/estimator.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/default_debug.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
@@ -33,30 +33,30 @@ class RideViewState extends State<RideView> {
   static double rerouteDistance = 50;
 
   /// The associated position service, which is injected by the provider.
-  PositionService? positionService;
+  Positioning? positioning;
 
   /// The associated position estimation service, which is injected by the provider.
-  PositionEstimatorService? positionEstimatorService;
+  PositionEstimator? positionEstimator;
 
   /// The associated recommendation service, which is injected by the provider.
-  RideService? rideService;
+  Ride? ride;
 
   /// The associated session service, which is injected by the provider.
-  SessionService? sessionService;
+  Session? session;
 
   /// The associated snapping service, which is injected by the provider.
-  SnappingService? snappingService;
+  Snapping? snapping;
 
   /// The associated routing service, which is injected by the provider.
-  RoutingService? routingService;
+  Routing? routing;
 
   /// The associated settings service, which is injected by the provider.
-  SettingsService? settingsService;
+  Settings? settings;
 
   /// Get the initial page index.
   /// Note: Make sure that the indices match the order of the pages.
   int get initialPage {
-    switch (settingsService?.ridePreference) {
+    switch (settings?.ridePreference) {
       case RidePreference.speedometerView:
         return 0;
       case RidePreference.defaultCyclingView:
@@ -65,8 +65,6 @@ class RideViewState extends State<RideView> {
         return 2;
       case RidePreference.minimalCountdownCyclingView:
         return 3;
-      case RidePreference.minimalNavigationCyclingView:
-        return 4;
       default:
         return 0;
     }
@@ -77,31 +75,31 @@ class RideViewState extends State<RideView> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      if (routingService?.selectedRoute == null) return;
+      if (routing?.selectedRoute == null) return;
       // Authenticate a new session.
-      await sessionService?.openSession(context);
+      await session?.openSession(context);
       // Select the ride.
-      await rideService?.selectRide(context, routingService!.selectedRoute!);
+      await ride?.selectRide(context, routing!.selectedRoute!);
       // Start navigating.
-      await rideService?.startNavigation(context);
+      await ride?.startNavigation(context);
       // Start the position estimation.
-      await positionEstimatorService?.startEstimating(context);
-      // Start geolocating.
-      await positionService?.startGeolocation(context: context, onNewPosition: (pos) async {
+      await positionEstimator?.startEstimating(context);
+      // Start geolocating. This must only be executed once.
+      await positioning?.startGeolocation(context: context, onNewPosition: (pos) async {
         // Pass new positions to the ride service.
-        await rideService?.updatePosition(context);
+        await ride?.updatePosition(context);
         // Notify the snapping service.
-        await snappingService?.updatePosition(context);
+        await snapping?.updatePosition(context);
         // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
         if (
-          settingsService?.rerouting == Rerouting.enabled && 
-          (snappingService?.distance ?? 0) > rerouteDistance && 
-          (snappingService?.remainingWaypoints?.isNotEmpty ?? false)
+          settings?.rerouting == Rerouting.enabled && 
+          (snapping?.distance ?? 0) > rerouteDistance && 
+          (snapping?.remainingWaypoints?.isNotEmpty ?? false)
         ) {
-          await routingService?.selectWaypoints(snappingService!.remainingWaypoints);
-          final response = await routingService?.loadRoutes(context);
+          await routing?.selectWaypoints(snapping!.remainingWaypoints);
+          final response = await routing?.loadRoutes(context);
           if (response != null || response!.routes.isNotEmpty) {
-            await rideService?.selectRide(context, response.routes.first);
+            await ride?.selectRide(context, response.routes.first);
           }
         }
       });
@@ -110,13 +108,13 @@ class RideViewState extends State<RideView> {
 
   @override
   void didChangeDependencies() {
-    positionService = Provider.of<PositionService>(context);
-    positionEstimatorService = Provider.of<PositionEstimatorService>(context);
-    rideService = Provider.of<RideService>(context);
-    sessionService = Provider.of<SessionService>(context);
-    snappingService = Provider.of<SnappingService>(context);
-    routingService = Provider.of<RoutingService>(context);
-    settingsService = Provider.of<SettingsService>(context);
+    positioning = Provider.of<Positioning>(context);
+    positionEstimator = Provider.of<PositionEstimator>(context);
+    ride = Provider.of<Ride>(context);
+    session = Provider.of<Session>(context);
+    snapping = Provider.of<Snapping>(context);
+    routing = Provider.of<Routing>(context);
+    settings = Provider.of<Settings>(context);
     super.didChangeDependencies();
   }
 
@@ -147,10 +145,8 @@ class RideViewState extends State<RideView> {
         // RidePreference.minimalCountdownCyclingView
         const SafeArea(child: MinimalCountdownCyclingView()),
 
-        // RidePreference.minimalNavigationCyclingView
-        const SafeArea(child: MinimalNavigationCyclingView()),
-
         // Other debug views.
+        if (kDebugMode) const SafeArea(child: MinimalNavigationCyclingView()),
         if (kDebugMode) const SafeArea(child: DefaultDebugCyclingView()),
         if (kDebugMode) const SafeArea(child: MinimalDebugCyclingView()),
       ],

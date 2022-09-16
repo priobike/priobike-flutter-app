@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -6,10 +6,13 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/status/services/status.dart';
+import 'package:priobike/status/views/map.dart';
+import 'package:priobike/status/views/status.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -147,48 +150,53 @@ class SettingsView extends StatefulWidget {
 
 class SettingsViewState extends State<SettingsView> {
   /// The associated feature service, which is injected by the provider.
-  late FeatureService featureService;
+  late Feature feature;
 
   /// The associated settings service, which is injected by the provider.
-  late SettingsService settingsService;
+  late Settings settings;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService shortcutsService;
+  late Shortcuts shortcuts;
+
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatus predictionStatus;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late PositionService positionService;
+  late Positioning position;
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routing;
 
   /// The associated session service, which is injected by the provider.
-  late SessionService sessionService;
+  late Session session;
 
   /// The associated news service, which is injected by the provider.
-  late NewsService newsService;
+  late News news;
 
   @override
   void didChangeDependencies() {
-    featureService = Provider.of<FeatureService>(context);
-    settingsService = Provider.of<SettingsService>(context);
-    shortcutsService = Provider.of<ShortcutsService>(context);
-    positionService = Provider.of<PositionService>(context);
-    routingService = Provider.of<RoutingService>(context);
-    sessionService = Provider.of<SessionService>(context);
-    newsService = Provider.of<NewsService>(context);
+    feature = Provider.of<Feature>(context);
+    settings = Provider.of<Settings>(context);
+    predictionStatus = Provider.of<PredictionStatus>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
+    position = Provider.of<Positioning>(context);
+    routing = Provider.of<Routing>(context);
+    session = Provider.of<Session>(context);
+    news = Provider.of<News>(context);
     super.didChangeDependencies();
   }
 
   /// A callback that is executed when a backend is selected.
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
-    await settingsService.selectBackend(backend);
+    await settings.selectBackend(backend);
 
     // Reset the associated services.
-    await shortcutsService.reset();
-    await routingService.reset();
-    await sessionService.reset();
-    await newsService.reset();
+    await predictionStatus.reset();
+    await shortcuts.reset();
+    await routing.reset();
+    await session.reset();
+    await news.reset();
 
     Navigator.pop(context);
   }
@@ -196,17 +204,17 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a sg labels mode is selected.
   Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
     // Tell the settings service that we selected the new sg labels mode.
-    await settingsService.selectSGLabelsMode(mode);
+    await settings.selectSGLabelsMode(mode);
 
     Navigator.pop(context);
   }
 
   /// A callback that is executed when a positioning is selected.
-  Future<void> onSelectPositioning(Positioning positioning) async {
+  Future<void> onSelectPositioningMode(PositioningMode positioningMode) async {
     // Tell the settings service that we selected the new backend.
-    await settingsService.selectPositioning(positioning);
+    await settings.selectPositioningMode(positioningMode);
     // Reset the position service since it depends on the positioning.
-    await positionService.reset();
+    await position.reset();
 
     Navigator.pop(context);
   }
@@ -214,7 +222,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a rerouting is selected.
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
-    await settingsService.selectRerouting(rerouting);
+    await settings.selectRerouting(rerouting);
 
     Navigator.pop(context);
   }
@@ -222,7 +230,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a ride views preference is selected.
   Future<void> onSelectRidePreference(RidePreference ridePreference) async {
     // Tell the settings service that we selected the new ridePreference.
-    await settingsService.selectRidePreference(ridePreference);
+    await settings.selectRidePreference(ridePreference);
 
     Navigator.pop(context);
   }
@@ -230,7 +238,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when darkMode is changed
   Future<void> onChangeColorMode(ColorMode colorMode) async {
     // Tell the settings service that we selected the new colorModePreference.
-    await settingsService.selectColorMode(colorMode);
+    await settings.selectColorMode(colorMode);
 
     Navigator.pop(context);
   }
@@ -250,110 +258,123 @@ class SettingsViewState extends State<SettingsView> {
             children: [
               const SizedBox(height: 128),
               Row(children: [
-                AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                AppBackButton(onPressed: () => Navigator.pop(context)),
                 const HSpace(),
                 SubHeader(text: "Einstellungen", context: context),
               ]),
               const SmallVSpace(),
 
-              if (featureService.canEnableInternalFeatures) 
+              if (feature.canEnableInternalFeatures) 
                 const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-              if (featureService.canEnableInternalFeatures) 
+              if (feature.canEnableInternalFeatures) 
                 Padding(
                   padding: const EdgeInsets.only(left: 32, top: 8), 
                   child: Content(text: "Interne Testfeatures", context: context),
                 ),
 
-              if (featureService.canEnableInternalFeatures)
+              if (feature.canEnableInternalFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Interne Features", 
-                  icon: settingsService.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
-                  callback: () => settingsService.setEnableInternalFeatures(!settingsService.enableInternalFeatures),
+                  icon: settings.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
+                  callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
                 )),
 
-              if (settingsService.enableInternalFeatures) 
+              if (settings.enableInternalFeatures)
+                const Padding(padding: EdgeInsets.only(top: 8), child: StatusView()),
+
+              if (settings.enableInternalFeatures)
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "Status Signalgruppen", 
+                  subtitle: "Es fallen ca. 3MB Daten an", 
+                  icon: Icons.traffic,
+                  callback: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView()));
+                  },
+                )),
+
+              if (settings.enableInternalFeatures) 
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Testort", 
-                  subtitle: settingsService.backend.region, 
+                  subtitle: settings.backend.region, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                     return SettingsSelection(
                       elements: Backend.values, 
-                      selected: settingsService.backend,
+                      selected: settings.backend,
                       title: (Backend e) => e.region, 
                       callback: onSelectBackend
                     );
                   }),
                 )),
                 
-              if (settingsService.enableInternalFeatures) 
+              if (settings.enableInternalFeatures) 
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Ortung", 
-                  subtitle: settingsService.positioning.description, 
+                  subtitle: settings.positioningMode.description, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                     return SettingsSelection(
-                      elements: Positioning.values, 
-                      selected: settingsService.positioning, 
-                      title: (Positioning e) => e.description,
-                      callback: onSelectPositioning,
+                      elements: PositioningMode.values, 
+                      selected: settings.positioningMode, 
+                      title: (PositioningMode e) => e.description,
+                      callback: onSelectPositioningMode,
                     );
                   }),
                 )),
 
-              if (settingsService.enableInternalFeatures) 
+              if (settings.enableInternalFeatures) 
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "SG-Info", 
-                  subtitle: settingsService.sgLabelsMode.description, 
+                  subtitle: settings.sgLabelsMode.description, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                     return SettingsSelection(
                       elements: SGLabelsMode.values, 
-                      selected: settingsService.sgLabelsMode,
+                      selected: settings.sgLabelsMode,
                       title: (SGLabelsMode e) => e.description, 
                       callback: onSelectSGLabelsMode,
                     );
                   }),
                 )),
 
-              if (settingsService.enableInternalFeatures)
+              if (settings.enableInternalFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Tutorials zurücksetzen", 
                   icon: Icons.recycling, 
-                  callback: () => Provider.of<TutorialService>(context, listen: false).deleteCompleted(),
+                  callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
                 )),
 
-              if (featureService.canEnableBetaFeatures) 
+              if (feature.canEnableBetaFeatures) 
                 const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-              if (featureService.canEnableBetaFeatures) 
+              if (feature.canEnableBetaFeatures) 
                 Padding(
                   padding: const EdgeInsets.only(left: 32, top: 8), 
                   child: Content(text: "Beta Testfeatures", context: context),
                 ),
 
-              if (featureService.canEnableBetaFeatures)
+              if (feature.canEnableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Beta Features", 
-                  icon: settingsService.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
-                  callback: () => settingsService.setEnableBetaFeatures(!settingsService.enableBetaFeatures),
+                  icon: settings.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank, 
+                  callback: () => settings.setEnableBetaFeatures(!settings.enableBetaFeatures),
                 )),
 
-              if (settingsService.enableBetaFeatures)
+              if (settings.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Routing", 
-                  subtitle: settingsService.rerouting.description, 
+                  subtitle: settings.rerouting.description, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                     return SettingsSelection(
                       elements: Rerouting.values, 
-                      selected: settingsService.rerouting,
+                      selected: settings.rerouting,
                       title: (Rerouting e) => e.description, 
                       callback: onSelectRerouting
                     );
                   }),
                 )),
 
-              if (settingsService.enableBetaFeatures)
+              if (settings.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Logs", 
                   icon: Icons.list, 
@@ -370,12 +391,12 @@ class SettingsViewState extends State<SettingsView> {
               const SmallVSpace(),
               Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                 title: "Farbmodus",
-                subtitle: settingsService.colorMode.description,
+                subtitle: settings.colorMode.description,
                 icon: Icons.expand_more,
                 callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                   return SettingsSelection(
                       elements: ColorMode.values,
-                      selected: settingsService.colorMode,
+                      selected: settings.colorMode,
                       title: (ColorMode e) => e.description,
                       callback: onChangeColorMode
                   );
@@ -385,12 +406,12 @@ class SettingsViewState extends State<SettingsView> {
               const SmallVSpace(),
               SettingsElement(
                 title: "Fahrtansicht", 
-                subtitle: settingsService.ridePreference?.description, 
+                subtitle: settings.ridePreference?.description, 
                 icon: Icons.expand_more, 
                 callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                   return SettingsSelection(
                     elements: RidePreference.values, 
-                    selected: settingsService.ridePreference,
+                    selected: settings.ridePreference,
                     title: (RidePreference e) => e.description, 
                     callback: onSelectRidePreference
                   );
@@ -432,7 +453,7 @@ class SettingsViewState extends State<SettingsView> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32), 
                 child: Small(
-                  text: "PrioBike v${featureService.appVersion} ${featureService.gitHead}", 
+                  text: "PrioBike v${feature.appVersion} ${feature.gitHead}", 
                   color: Colors.grey,
                   context: context
                 ),

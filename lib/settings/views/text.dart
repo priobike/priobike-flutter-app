@@ -39,7 +39,7 @@ class AssetTextView extends StatelessWidget {
               Column(children: [
                 const SizedBox(height: 64),
                 Row(children: [
-                  AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+                  AppBackButton(onPressed: () => Navigator.pop(context)),
                 ]),
               ]),
             ],

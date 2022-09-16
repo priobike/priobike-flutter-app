@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/ride/services/position/estimator.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/estimator.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
-import 'package:priobike/ride/services/snapping.dart';
+import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
@@ -14,46 +15,56 @@ class CancelButton extends StatelessWidget {
   /// The border radius of the button.
   final double borderRadius;
 
+  /// The text of the button.
+  final String text;
+
   /// Create a new cancel button.
-  const CancelButton({this.borderRadius = 32, Key? key}) : super(key: key);
+  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
+    // Calculate a summary of the ride.
+    final statistics = Provider.of<Statistics>(context, listen: false);
+    statistics.calculateSummary(context);
+    
     // End the recommendations.
-    final recommendationService = Provider.of<RideService>(context, listen: false);
-    await recommendationService.stopNavigation();
+    final recommendation = Provider.of<Ride>(context, listen: false);
+    await recommendation.stopNavigation();
 
     // Stop the geolocation.
-    final positionService = Provider.of<PositionService>(context, listen: false);
-    await positionService.stopGeolocation();
+    final position = Provider.of<Positioning>(context, listen: false);
+    await position.stopGeolocation();
 
     // Stop the position estimation.
-    final positionEstimatorService = Provider.of<PositionEstimatorService>(context, listen: false);
-    positionEstimatorService.stopEstimating();
+    final positionEstimator = Provider.of<PositionEstimator>(context, listen: false);
+    positionEstimator.stopEstimating();
 
     // Show the feedback dialog.
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => FeedbackView(
       onSubmitted: (context) async {
+        // Reset the statistics.
+        statistics.reset();
+
         // Reset the snapping service.
-        final snappingService = Provider.of<SnappingService>(context, listen: false);
-        await snappingService.reset();
+        final snapping = Provider.of<Snapping>(context, listen: false);
+        await snapping.reset();
 
         // Reset the recommendation service.
-        await recommendationService.reset();
+        await recommendation.reset();
 
         // Reset the position estimation service.
-        await positionEstimatorService.reset();
+        await positionEstimator.reset();
 
         // Reset the position service.
-        await positionService.reset();
+        await position.reset();
 
         // Reset the route service.
-        final routingService = Provider.of<RoutingService>(context, listen: false);
-        await routingService.reset();
+        final routing = Provider.of<Routing>(context, listen: false);
+        await routing.reset();
 
         // Stop the session and reset the session service.
-        final sessionService = Provider.of<SessionService>(context, listen: false);
-        await sessionService.reset();
+        final session = Provider.of<Session>(context, listen: false);
+        await session.reset();
 
         // Leave the feedback view.
         Navigator.of(context).popUntil((route) => route.isFirst);
@@ -69,7 +80,7 @@ class CancelButton extends StatelessWidget {
         width: 96,
         child: ElevatedButton.icon(
           icon: const Icon(Icons.done),
-          label: BoldSmall(text: "Fertig", context: context, color: Colors.white),
+          label: BoldSmall(text: text, context: context, color: Colors.white),
           onPressed: () => onTap(context),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// An alert icon.
 class AlertIcon extends Image {
   const AlertIcon({double width = 24, double height = 24, Key? key}) : super(
     key: key,
@@ -12,6 +13,7 @@ class AlertIcon extends Image {
   );
 }
 
+/// A start icon.
 class StartIcon extends Image {
   const StartIcon({double width = 24, double height = 24, Key? key}) : super(
     key: key,
@@ -24,6 +26,7 @@ class StartIcon extends Image {
   );
 }
 
+/// A destination icon.
 class DestinationIcon extends Image {
   const DestinationIcon({double width = 24, double height = 24, Key? key}) : super(
     key: key,
@@ -36,6 +39,7 @@ class DestinationIcon extends Image {
   );
 }
 
+/// A waypoint icon.
 class WaypointIcon extends Image {
   const WaypointIcon({double width = 24, double height = 24, Key? key}) : super(
     key: key,

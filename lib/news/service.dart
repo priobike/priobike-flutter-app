@@ -13,11 +13,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NewsService with ChangeNotifier {
+class News with ChangeNotifier {
   var hasLoaded = false;
 
   /// The logger for this service.
-  Logger log = Logger("NewsService");
+  final log = Logger("News");
 
   /// List with all articles
   List<Article> articles = [];
@@ -55,7 +55,7 @@ class NewsService with ChangeNotifier {
       newLastSyncDate = localSavedArticles[0].pubDate;
     }
 
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final newsArticlesUrl = newLastSyncDate == null
         ? "https://$baseUrl/news-service/news/articles"
@@ -111,7 +111,7 @@ class NewsService with ChangeNotifier {
     }
 
     // If the category doesn't exist already in the shared preferences get it from backend server.
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
@@ -142,7 +142,7 @@ class NewsService with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -157,7 +157,7 @@ class NewsService with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     final String jsonStr = jsonEncode(category.toJson());
     if (backend == Backend.production) {
@@ -171,7 +171,7 @@ class NewsService with ChangeNotifier {
   Future<List<Article>> _getStoredArticles(BuildContext context) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     String? storedArticlesStr;
 
@@ -197,7 +197,7 @@ class NewsService with ChangeNotifier {
   Future<Category?> _getStoredCategory(BuildContext context, int categoryId) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     String? storedCategoryStr;
 
@@ -232,7 +232,7 @@ class NewsService with ChangeNotifier {
   Future<Set<Article>> _getStoredReadArticles(BuildContext context) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     String? storedReadArticlesStr;
 

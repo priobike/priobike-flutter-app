@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/spacing.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -102,44 +101,24 @@ class ShortcutsView extends StatefulWidget {
 
 class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService ss;
+  late Shortcuts ss;
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService rs;
+  late Routing rs;
 
   @override
   void didChangeDependencies() {
-    ss = Provider.of<ShortcutsService>(context);
-    rs = Provider.of<RoutingService>(context);
+    ss = Provider.of<Shortcuts>(context);
+    rs = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (ss.shortcuts == null) return renderLoadingIndicator();
-    return renderShortcuts(context, ss.shortcuts!);
-  }
-
-  /// Render a loading indicator.
-  Widget renderLoadingIndicator() {
-    return HPad(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Tile(
-        content: Center(child: SizedBox(
-          height: 86, 
-          width: 86, 
-          child: Column(children: const [
-            CircularProgressIndicator(),
-          ])
-        ))
-      )
-    ]));
-  }
-
-  Widget renderShortcuts(BuildContext context, List<Shortcut> shortcuts) {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
-    var shortcutViews = shortcuts.map((shortcut) => ShortcutView(
+    var shortcutViews = ss.shortcuts?.map((shortcut) => ShortcutView(
       onPressed: () {
         // Allow only one shortcut to be fetched at a time.
         if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
@@ -150,7 +129,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
       width: shortcutWidth, 
       rightPad: shortcutRightPad,
       context: context,
-    )).toList(); 
+    )).toList() ?? []; 
 
     shortcutViews = [ShortcutView(
       onPressed: () {

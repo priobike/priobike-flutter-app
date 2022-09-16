@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -29,38 +30,52 @@ class RoutingView extends StatefulWidget {
 
 class RoutingViewState extends State<RoutingView> {
   /// The associated geocoding service, which is injected by the provider.
-  GeocodingService? geocodingService;
+  Geocoding? geocoding;
 
   /// The associated routing service, which is injected by the provider.
-  RoutingService? routingService;
+  Routing? routing;
+
+  /// The associated position service, which is injected by the provider.
+  Positioning? positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  ShortcutsService? shortcutsService;
+  Shortcuts? shortcuts;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
+
+  /// The threshold for the location accuracy in meter
+  final int locationAccuracyThreshold = 20;
 
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routingService?.loadRoutes(context);
+      await routing?.loadRoutes(context);
+
+      /// Calling requestSingleLocation function to fill lastPosition of PositionService
+      await positioning?.requestSingleLocation(context);
+      /// Checking threshold for location accuracy
+      if (positioning?.lastPosition?.accuracy != null && positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
+        _showAlertGPSQualityDialog();
+      }
     });
   }
 
   @override
   void didChangeDependencies() {
-    geocodingService = Provider.of<GeocodingService>(context);
-    routingService = Provider.of<RoutingService>(context);
-    shortcutsService = Provider.of<ShortcutsService>(context);
+    geocoding = Provider.of<Geocoding>(context);
+    routing = Provider.of<Routing>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
+    positioning = Provider.of<Positioning>(context);
     super.didChangeDependencies();
   }
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
-    final settingsService = Provider.of<SettingsService>(context, listen: false);
-    final nextView = settingsService.ridePreference == null 
+    final settings = Provider.of<Settings>(context, listen: false);
+    final nextView = settings.ridePreference == null 
       ? const RideSelectionView() // Need to select a ride preference.
       : const RideView();
 
@@ -124,7 +139,7 @@ class RoutingViewState extends State<RoutingView> {
               onPressed: () async {
                 final name = nameController.text;
                 if (name.isEmpty) ToastMessage.showError("Name darf nicht leer sein.");
-                await shortcutsService?.saveNewShortcut(name, context);
+                await shortcuts?.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
@@ -170,7 +185,7 @@ class RoutingViewState extends State<RoutingView> {
                     BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
                     const VSpace(),
                     BigButton(label: "Erneut Laden", onPressed: () async {
-                      await routingService?.loadRoutes(context);
+                      await routing?.loadRoutes(context);
                     }),
                   ])
                 ))
@@ -182,9 +197,32 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
+  /// Alert dialog for location accuracy
+  void _showAlertGPSQualityDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: BoldSubHeader(text: 'Achtung!', context: context),
+          content: Content( text:
+              'Die Qualität der Positionsbestimmung ist nicht optimal. Prüfen sie gegebenenfalls die Einstellungen des GPS für die App.', context: context),
+          actions: <Widget>[
+            TextButton(
+              child: Content(text: 'Okay', context: context, color: Theme.of(context).colorScheme.primary),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
+    if (routing!.hadErrorDuringFetch) return renderTryAgainButton();
 
     final frame = MediaQuery.of(context);
   
@@ -201,8 +239,8 @@ class RoutingViewState extends State<RoutingView> {
         child: Stack(children: [
           RoutingMapView(sheetMovement: sheetMovement.stream),
 
-          if (routingService!.isFetchingRoute) renderLoadingIndicator(),
-          if (geocodingService!.isFetchingAddress) renderLoadingIndicator(),
+          if (routing!.isFetchingRoute) renderLoadingIndicator(),
+          if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
           
           // Top Bar
           SafeArea(

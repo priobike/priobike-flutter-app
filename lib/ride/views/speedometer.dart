@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
-import 'package:priobike/ride/services/position/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:provider/provider.dart';
 
@@ -18,10 +18,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   static const viewId = "ride.views.speedometer";
 
   /// The associated ride service, which is injected by the provider.
-  late RideService rs;
+  late Ride rs;
 
   /// The associated positioning service, which is injected by the provider.
-  late PositionService ps;
+  late Positioning ps;
 
   /// The minimum displayed speed.
   static const minSpeed = 0.0;
@@ -40,8 +40,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   void didChangeDependencies() {
-    rs = Provider.of<RideService>(context);
-    ps = Provider.of<PositionService>(context);
+    rs = Provider.of<Ride>(context);
+    ps = Provider.of<Positioning>(context);
     if (rs.needsLayout[viewId] != false) {
       rs.needsLayout[viewId] = false;
       loadGauge(rs, ps);
@@ -50,7 +50,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   }
 
   /// Load the gauge colors and steps.
-  Future<void> loadGauge(RideService rs, PositionService ps) async {
+  Future<void> loadGauge(Ride rs, Positioning ps) async {
     // Check if we have the necessary position data
     var posTime = ps.lastPosition?.timestamp;
     var posSpeed = ps.lastPosition?.speed;
@@ -61,10 +61,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var phases = rs.currentRecommendation?.predictionValue;
     var dist = rs.currentRecommendation?.distance;
     var sgId = rs.currentRecommendation?.sgId;
+    var error = rs.currentRecommendation?.error;
 
     // Check if we have all necessary data to display the speedometer
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
-        timeStr == null || tGreen == null || phases == null || dist == null || sgId == null) {
+        timeStr == null || tGreen == null || phases == null || dist == null || 
+        sgId == null || error == true) {
       gaugeColors = defaultGaugeColors;
       gaugeStops = [];
       return;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -16,42 +16,42 @@ class ShortcutsEditView extends StatefulWidget {
 
 class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService shortcutsService;
+  late Shortcuts shortcuts;
 
   @override
   void didChangeDependencies() {
-    shortcutsService = Provider.of<ShortcutsService>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
     super.didChangeDependencies();
   }
 
   /// A callback that is executed when the order of the shortcuts change.
   Future<void> onChangeShortcutOrder(int oldIndex, int newIndex) async {
-    if (shortcutsService.shortcuts == null || shortcutsService.shortcuts!.isEmpty) return;
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
 
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
     
-    final reorderedShortcuts = shortcutsService.shortcuts!.toList();
+    final reorderedShortcuts = shortcuts.shortcuts!.toList();
     final shortcut = reorderedShortcuts.removeAt(oldIndex);
     reorderedShortcuts.insert(newIndex, shortcut);
 
-    shortcutsService.updateShortcuts(reorderedShortcuts, context);
+    shortcuts.updateShortcuts(reorderedShortcuts, context);
   }
 
   /// A callback that is executed when a shortcut should be deleted.
   Future<void> onDeleteShortcut(int idx) async {
-    if (shortcutsService.shortcuts == null || shortcutsService.shortcuts!.isEmpty) return;
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
 
-    final newShortcuts = shortcutsService.shortcuts!.toList();
+    final newShortcuts = shortcuts.shortcuts!.toList();
     newShortcuts.removeAt(idx);
     
-    shortcutsService.updateShortcuts(newShortcuts, context);
+    shortcuts.updateShortcuts(newShortcuts, context);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (shortcutsService.shortcuts == null) return Container();
+    if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(body: 
@@ -59,7 +59,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
           child: Column(children: [
             const SizedBox(height: 128),
             Row(children: [
-              AppBackButton(icon: Icons.chevron_left, onPressed: () => Navigator.pop(context)),
+              AppBackButton(onPressed: () => Navigator.pop(context)),
               const HSpace(),
               SubHeader(text: "Shortcuts", context: context),
             ]),
@@ -69,7 +69,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               proxyDecorator: (proxyWidget, idx, anim) {
                 return proxyWidget;
               },
-              children: shortcutsService.shortcuts!.asMap().entries.map<Widget>((entry) {
+              children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
                 return Container(
                   key: Key("$entry.key"),
                   child: Padding(

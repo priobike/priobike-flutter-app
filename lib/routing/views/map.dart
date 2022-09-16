@@ -31,13 +31,13 @@ class RoutingMapViewState extends State<RoutingMapView> {
   static const viewId = "routing.views.map";
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService rs;
+  late Routing rs;
 
   /// The associated discomfort service, which is injected by the provider.
-  late DiscomfortService ds;
+  late Discomforts ds;
 
   /// The associated settings service, which is injected by the provider.
-  late SettingsService ss;
+  late Settings ss;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -80,9 +80,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void didChangeDependencies() {
-    rs = Provider.of<RoutingService>(context);
-    ds = Provider.of<DiscomfortService>(context);
-    ss = Provider.of<SettingsService>(context);
+    rs = Provider.of<Routing>(context);
+    ds = Provider.of<Discomforts>(context);
+    ss = Provider.of<Settings>(context);
     adaptMap();
     super.didChangeDependencies();
   }
@@ -152,7 +152,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     discomfortLocations = [];
     discomfortSections = [];
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, Discomfort> e in ds.foundDiscomforts?.asMap().entries ?? []) {
+    for (MapEntry<int, DiscomfortSegment> e in ds.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
@@ -250,7 +250,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // If the line corresponds to a discomfort line, we select the discomfort.
     for (Line discomfortLine in discomfortSections ?? []) {
       if (line.id == discomfortLine.id) {
-        final discomfort = Discomfort.fromJson(line.data);
+        final discomfort = DiscomfortSegment.fromJson(line.data);
         ds.selectDiscomfort(discomfort);
         return;
       }
@@ -270,7 +270,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {
-        final discomfort = Discomfort.fromJson(symbol.data);
+        final discomfort = DiscomfortSegment.fromJson(symbol.data);
         ds.selectDiscomfort(discomfort);
       }
     }
@@ -312,7 +312,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is executed when the map was longclicked.
   Future<void> onMapLongClick(BuildContext context, LatLng coord) async {
-    final geocoding = Provider.of<GeocodingService>(context, listen: false);
+    final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(rs.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
     await rs.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));

@@ -5,60 +5,17 @@ import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:priobike/ride/services/position/mock.dart';
+import 'package:priobike/positioning/sources/interface.dart';
+import 'package:priobike/positioning/sources/gnss.dart';
+import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-abstract class PositionSource {
-  /// Check if location services are enabled.
-  Future<bool> isLocationServiceEnabled();
-
-  /// Check the location permissions.
-  Future<LocationPermission> checkPermission();
-
-  /// Request the location permissions.
-  Future<LocationPermission> requestPermission();
-
-  /// Get the position stream of the device.
-  Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings });
-
-  /// Stop the geolocation.
-  Future<void> stopPositioning();
-
-  /// Open the location settings.
-  Future<bool> openLocationSettings();
-}
-
-class GNSSPositionSource extends PositionSource {
-  /// Check if location services are enabled.
-  @override Future<bool> isLocationServiceEnabled() async
-    => Geolocator.isLocationServiceEnabled();
-
-  /// Check the location permissions.
-  @override Future<LocationPermission> checkPermission() async 
-    => Geolocator.checkPermission();
-
-  /// Request the location permissions.
-  @override Future<LocationPermission> requestPermission() async 
-    => Geolocator.requestPermission();
-
-  /// Get the position stream of the device.
-  @override Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings }) async 
-    => Geolocator.getPositionStream(locationSettings: locationSettings);
-
-  /// Stop the geolocation.
-  @override Future<void> stopPositioning() async 
-    => { /* Not supported by flutter geolocator? */ };
-
-  /// Open the location settings.
-  @override Future<bool> openLocationSettings() async
-    => Geolocator.openLocationSettings();
-}
-
-class PositionService with ChangeNotifier {
-  Logger log = Logger("PositionService");
+class Positioning with ChangeNotifier {
+  final log = Logger("Positioning");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -70,13 +27,16 @@ class PositionService with ChangeNotifier {
   /// A subscription to the real position.
   StreamSubscription<Position>? positionSubscription;
 
+  /// The recorded positions of the user.
+  final positions = List<Position>.empty(growable: true);
+
   /// The current measured position (1 Hz).
   Position? lastPosition;
 
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
-  PositionService({this.positionSource});
+  Positioning({this.positionSource});
 
   /// Reset the position service.
   Future<void> reset() async {
@@ -84,6 +44,7 @@ class PositionService with ChangeNotifier {
     needsLayout = {};
     positionSource = null;
     positionSubscription = null;
+    positions.clear();
     lastPosition = null;
   }
 
@@ -108,7 +69,7 @@ class PositionService with ChangeNotifier {
     LocationPermission permission;
 
     // Test if location services are enabled.
-    serviceEnabled = await positionSource!.isLocationServiceEnabled();
+    serviceEnabled = await positionSource!.isLocationServicesEnabled();
     if (!serviceEnabled) {
       // Location services are not enabled - don't continue
       // accessing the position and request users of the
@@ -139,6 +100,62 @@ class PositionService with ChangeNotifier {
     return true;
   }
 
+  /// Ensure that the position source is initialized.
+  Future<void> initializePositionSource(BuildContext context) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    if (settings.positioningMode == PositioningMode.gnss) {
+      positionSource = GNSSPositionSource();
+      log.i("Using gnss positioning source.");
+    } else if (settings.positioningMode == PositioningMode.follow18kmh) {
+      final routing = Provider.of<Routing>(context, listen: false);
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+        .map((e) => mapbox.LatLng(e.lat, e.lon)).toList() ?? [settings.backend.center];
+      positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
+      log.i("Using mocked path positioning source (18 km/h).");
+    } else if (settings.positioningMode == PositioningMode.follow40kmh) {
+      final routing = Provider.of<Routing>(context, listen: false);
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+        .map((e) => mapbox.LatLng(e.lat, e.lon)).toList() ?? [settings.backend.center];
+      positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
+      log.i("Using mocked path positioning source (40 km/h).");
+    } else if (settings.positioningMode == PositioningMode.recordedDresden) {
+      positionSource = RecordedMockPositionSource.mockDresden;
+      log.i("Using mocked positioning source for Dresden.");
+    } else if (settings.positioningMode == PositioningMode.recordedHamburg) {
+      positionSource = RecordedMockPositionSource.mockHamburg;
+      log.i("Using mocked positioning source for Hamburg.");
+    } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
+      positionSource = StaticMockPositionSource(
+        position: const mapbox.LatLng(51.030077, 13.729404), heading: 270
+      );
+      log.i("Using mocked position source for traffic light 1 in Dresden.");
+    } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
+      positionSource = StaticMockPositionSource(
+        position: const mapbox.LatLng(51.030241, 13.728205), heading: 1
+      );
+      log.i("Using mocked position source for traffic light 2 in Dresden.");
+    } else {
+      throw Exception("Unknown position source.");
+    }
+  }
+
+  /// Request a single location update. This will not be recorded.
+  Future<void> requestSingleLocation(BuildContext context) async {
+    await initializePositionSource(context);
+
+    final hasPermission = await requestGeolocatorPermission();
+    if (!hasPermission) {
+      Navigator.of(context).pop();
+      showLocationAccessDeniedDialog(context);
+      log.w('Permission to Geolocator denied');
+      isGeolocating = false;
+      return;
+    }
+
+    lastPosition = await positionSource!.getPosition(desiredAccuracy: LocationAccuracy.high);
+    notifyListeners();
+  }
+
   Future<void> startGeolocation({
     required BuildContext context, 
     required void Function(Position pos) onNewPosition,
@@ -146,37 +163,7 @@ class PositionService with ChangeNotifier {
     if (isGeolocating) return;
     isGeolocating = true;
 
-    if (positionSource == null) {
-      final settings = Provider.of<SettingsService>(context, listen: false);
-      if (settings.positioning == Positioning.gnss) {
-        positionSource = GNSSPositionSource();
-        log.i("Using gnss positioning source.");
-      } else if (settings.positioning == Positioning.follow) {
-        final routing = Provider.of<RoutingService>(context, listen: false);
-        positionSource = PathMockPositionSource(
-          positions: routing.selectedRoute!.route.map((e) => mapbox.LatLng(e.lat, e.lon)).toList()
-        );
-        log.i("Using mocked path positioning source.");
-      } else if (settings.positioning == Positioning.recordedDresden) {
-        positionSource = RecordedMockPositionSource.mockDresden;
-        log.i("Using mocked positioning source for Dresden.");
-      } else if (settings.positioning == Positioning.recordedHamburg) {
-        positionSource = RecordedMockPositionSource.mockHamburg;
-        log.i("Using mocked positioning source for Hamburg.");
-      } else if (settings.positioning == Positioning.dresdenStatic1) {
-        positionSource = StaticMockPositionSource(
-          position: const mapbox.LatLng(51.030077, 13.729404), heading: 270
-        );
-        log.i("Using mocked position source for traffic light 1 in Dresden.");
-      } else if (settings.positioning == Positioning.dresdenStatic2) {
-        positionSource = StaticMockPositionSource(
-          position: const mapbox.LatLng(51.030241, 13.728205), heading: 1
-        );
-        log.i("Using mocked position source for traffic light 2 in Dresden.");
-      } else {
-        throw Exception("Unknown position source.");
-      }
-    }
+    await initializePositionSource(context);
 
     final hasPermission = await requestGeolocatorPermission();
     if (!hasPermission) {
@@ -203,6 +190,7 @@ class PositionService with ChangeNotifier {
     positionSubscription = positionStream.listen((Position position) {
       if (!isGeolocating) return;
       lastPosition = position;
+      positions.add(position);
       onNewPosition(position);
       notifyListeners();
     });
@@ -213,6 +201,7 @@ class PositionService with ChangeNotifier {
   Future<void> stopGeolocation() async {
     await positionSource?.stopPositioning();
     await positionSubscription?.cancel();
+    positionSource = null;
     log.i('Geolocator stopped!');
     isGeolocating = false;
   }

@@ -7,7 +7,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsService with ChangeNotifier {
+class Settings with ChangeNotifier {
   var hasLoaded = false;
 
   /// Whether internal test features should be enabled.
@@ -19,8 +19,8 @@ class SettingsService with ChangeNotifier {
   /// The selected backend.
   Backend backend;
 
-  /// The selected positioning.
-  Positioning positioning;
+  /// The selected positioning mode.
+  PositioningMode positioningMode;
 
   /// The rerouting strategy.
   Rerouting rerouting;
@@ -49,8 +49,8 @@ class SettingsService with ChangeNotifier {
     await store();
   }
 
-  Future<void> selectPositioning(Positioning positioning) async {
-    this.positioning = positioning;
+  Future<void> selectPositioningMode(PositioningMode positioningMode) async {
+    this.positioningMode = positioningMode;
     await store();
   }
 
@@ -74,16 +74,26 @@ class SettingsService with ChangeNotifier {
     await store();
   }
 
-  SettingsService({
+  Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
     this.backend = Backend.production, 
-    this.positioning = Positioning.gnss,
+    this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
     required this.colorMode
   });
+
+  /// Load the color mode from the shared 
+  /// preferences, for the initial view build.
+  static Future<ColorMode> loadColorModeFromSharedPreferences() async {
+    final storage = await SharedPreferences.getInstance();
+    var colorMode = ColorMode.system;
+    final colorModeStr = storage.getString("priobike.settings.colorMode");
+    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
+    return colorMode;
+  }
 
   /// Load the stored settings.
   Future<void> loadSettings() async {
@@ -94,14 +104,14 @@ class SettingsService with ChangeNotifier {
     enableInternalFeatures = storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
 
     final backendStr = storage.getString("priobike.settings.backend");
-    final positioningStr = storage.getString("priobike.settings.positioning");
+    final positioningModeStr = storage.getString("priobike.settings.positioningMode");
     final reroutingStr = storage.getString("priobike.settings.rerouting");
     final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
 
     if (backendStr != null) backend = Backend.values.byName(backendStr);
-    if (positioningStr != null) positioning = Positioning.values.byName(positioningStr);
+    if (positioningModeStr != null) positioningMode = PositioningMode.values.byName(positioningModeStr);
     if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
     if (sgLabelsModeStr != null) sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
     if (ridePreferenceStr != null) {
@@ -122,7 +132,7 @@ class SettingsService with ChangeNotifier {
     await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setString("priobike.settings.backend", backend.name);
-    await storage.setString("priobike.settings.positioning", positioning.name);
+    await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
     await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);

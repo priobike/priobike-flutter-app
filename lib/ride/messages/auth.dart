@@ -1,32 +1,28 @@
 class AuthRequest {
-  String? clientId;
+  final String? clientId;
 
-  AuthRequest({this.clientId});
+  const AuthRequest({this.clientId});
 
-  AuthRequest.fromJson(Map<String, dynamic> json) {
-    clientId = json['clientId'];
-  }
+  factory AuthRequest.fromJson(Map<String, dynamic> json) => AuthRequest(
+    clientId: json['clientId'],
+  );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['clientId'] = clientId;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'clientId': clientId,
+  };
 }
 
 class AuthResponse {
-  String? sessionId;
+  final String? sessionId;
 
-  AuthResponse({this.sessionId});
+  const AuthResponse({this.sessionId});
 
-  AuthResponse.fromJson(Map<String, dynamic> json) {
-    sessionId = json['sessionId'];
-  }
+  factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
+    sessionId: json['sessionId'],
+  );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['sessionId'] = sessionId;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'sessionId': sessionId,
+  };
 }
 
