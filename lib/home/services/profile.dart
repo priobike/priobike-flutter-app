@@ -14,13 +14,26 @@ class ProfileService with ChangeNotifier {
   /// The type of activity.
   ActivityType? activityType;
 
+  /// The visibility of traffic lights
   bool? showTrafficLights;
 
+  /// The preference of avoiding traffic lights
   bool? avoidTrafficLights;
 
+  /// The preference of avoiding ascents
   bool? avoidAscents;
 
+  /// The preference of avoiding traffic
   bool? avoidTraffic;
+
+  /// The visibility of general point of interests
+  bool? showGeneralPOIs;
+
+  /// The preference of setting location as start
+  bool? setLocationAsStart;
+
+  /// The preference of saving search history
+  bool? saveSearchHistory;
 
   ProfileService(
       {this.bikeType,
@@ -29,7 +42,10 @@ class ProfileService with ChangeNotifier {
       this.showTrafficLights,
       this.avoidTrafficLights,
       this.avoidAscents,
-      this.avoidTraffic});
+      this.avoidTraffic,
+      this.showGeneralPOIs,
+      this.setLocationAsStart,
+      this.saveSearchHistory});
 
   /// Load the stored profile.
   Future<void> loadProfile() async {
@@ -48,6 +64,12 @@ class ProfileService with ChangeNotifier {
         storage.getBool("priobike.home.profile.avoidAscents") ?? false;
     avoidTraffic =
         storage.getBool("priobike.home.profile.avoidTraffic") ?? false;
+    showGeneralPOIs =
+        storage.getBool("priobike.home.profile.showGeneralPOIs") ?? false;
+    setLocationAsStart =
+        storage.getBool("priobike.home.profile.setLocationAsStart") ?? false;
+    saveSearchHistory =
+        storage.getBool("priobike.home.profile.saveSearchHistory") ?? false;
 
     if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
     if (preferenceTypeStr != null)
@@ -83,6 +105,15 @@ class ProfileService with ChangeNotifier {
     if (avoidTraffic != null)
       await storage.setBool(
           "priobike.home.profile.avoidTraffic", avoidTraffic!);
+    if (showGeneralPOIs != null)
+      await storage.setBool(
+          "priobike.home.profile.showGeneralPOIs", showGeneralPOIs!);
+    if (setLocationAsStart != null)
+      await storage.setBool(
+          "priobike.home.profile.setLocationAsStart", setLocationAsStart!);
+    if (saveSearchHistory != null)
+      await storage.setBool(
+          "priobike.home.profile.avoidTraffic", saveSearchHistory!);
 
     notifyListeners();
   }

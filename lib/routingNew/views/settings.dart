@@ -1,30 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/logging/toast.dart';
-import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/ride/views/selection.dart';
-import 'package:priobike/routingNew/services/geocoding.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/views/map.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/views/widgets/compassButton.dart';
-import 'package:priobike/routingNew/views/widgets/filterButton.dart';
-import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
-import 'package:priobike/routingNew/views/widgets/search_bar.dart';
-import 'package:priobike/routingNew/views/widgets/shortcuts.dart';
-import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/routingNew/views/locations.dart';
+import 'package:priobike/routingNew/views/routes.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'widgets/ZoomInAndOutButton.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({Key? key}) : super(key: key);
@@ -107,7 +88,14 @@ class SettingsViewState extends State<SettingsView> {
                             BoldContent(
                                 text: "Allgemeine POIs anzeigen",
                                 context: context),
-                            Switch(value: true, onChanged: (value) {}),
+                            Switch(
+                                value: profileService?.showGeneralPOIs ?? false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    profileService?.showGeneralPOIs = value;
+                                    profileService?.store();
+                                  });
+                                }),
                           ],
                         ),
                       ),
@@ -120,7 +108,15 @@ class SettingsViewState extends State<SettingsView> {
                             BoldContent(
                                 text: "Standort als Start setzen",
                                 context: context),
-                            Switch(value: true, onChanged: (value) {}),
+                            Switch(
+                                value:
+                                    profileService?.setLocationAsStart ?? false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    profileService?.setLocationAsStart = value;
+                                    profileService?.store();
+                                  });
+                                }),
                           ],
                         ),
                       ),
@@ -133,7 +129,15 @@ class SettingsViewState extends State<SettingsView> {
                             BoldContent(
                                 text: "Suchanfragen speichern",
                                 context: context),
-                            Switch(value: true, onChanged: (value) {}),
+                            Switch(
+                                value:
+                                    profileService?.saveSearchHistory ?? false,
+                                onChanged: (value) {
+                                  setState(() {
+                                    profileService?.saveSearchHistory = value;
+                                    profileService?.store();
+                                  });
+                                }),
                           ],
                         ),
                       ),
@@ -145,7 +149,11 @@ class SettingsViewState extends State<SettingsView> {
                               BoldContent(text: "Meine Orte", context: context),
                         ),
                         onTap: () {
-                          print("tapped on container");
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LocationsView(),
+                            ),
+                          );
                         },
                       ),
                       InkWell(
@@ -156,7 +164,11 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Meine Routen", context: context),
                         ),
                         onTap: () {
-                          print("tapped on container");
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const RoutesView(),
+                            ),
+                          );
                         },
                       ),
                       InkWell(

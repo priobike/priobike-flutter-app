@@ -3,15 +3,15 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 
-showFilterDialog(BuildContext context, ProfileService? profileService) {
+showDeleteDialog(BuildContext context, ProfileService? profileService) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, StateSetter setState) {
-          return Dialog(
+          return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0)),
-            child: SizedBox(
+            content: SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: Padding(
                 padding: const EdgeInsets.all(10),
