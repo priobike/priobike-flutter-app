@@ -23,7 +23,6 @@ class MapControllerService with ChangeNotifier {
 
   void unsetController() {
     controller = null;
-    notifyListeners();
   }
 
   void zoomIn() {

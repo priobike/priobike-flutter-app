@@ -1,25 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routingNew/views/widgets/filterDialog.dart';
 
 /// A view that displays alerts in the routing context.
-class FilterButton extends StatefulWidget {
-  const FilterButton({Key? key}) : super(key: key);
+class FilterButton extends StatelessWidget {
+  final ProfileService? profileService;
 
-  @override
-  State<StatefulWidget> createState() => FilterButtonState();
-}
-
-class FilterButtonState extends State<FilterButton> {
-  /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
-
-  @override
-  void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    super.didChangeDependencies();
-  }
+  const FilterButton({Key? key, this.profileService}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +22,7 @@ class FilterButtonState extends State<FilterButton> {
           child: SmallIconButton(
             icon: Icons.filter_alt_rounded,
             onPressed: () {
-              print("filter");
+              showFilterDialog(context, profileService);
             },
           ),
         ),
