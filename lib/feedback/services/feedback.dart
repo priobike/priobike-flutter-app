@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -15,8 +13,8 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class FeedbackService with ChangeNotifier {
-  final log = Logger("FeedbackService");
+class Feedback with ChangeNotifier {
+  final log = Logger("Feedback");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -64,11 +62,11 @@ class FeedbackService with ChangeNotifier {
       deviceId = info.androidId ?? "n/a";
     }
 
-    final appVersion = Provider.of<FeatureService>(context, listen: false).appVersion;
-    final sessionId = Provider.of<SessionService>(context, listen: false).sessionId;
+    final appVersion = Provider.of<Feature>(context, listen: false).appVersion;
+    final sessionId = Provider.of<Session>(context, listen: false).sessionId;
 
     // Send all of the answered questions to the backend.
-    final settings = Provider.of<SettingsService>(context, listen: false);
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/feedback-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {

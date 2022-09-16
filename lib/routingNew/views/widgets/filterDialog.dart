@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 
-showFilterDialog(BuildContext context, ProfileService? profileService) {
+showFilterDialog(BuildContext context, Profile? profileService) {
   showDialog(
       context: context,
       builder: (BuildContext context) {

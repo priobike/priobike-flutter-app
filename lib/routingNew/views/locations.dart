@@ -14,7 +14,7 @@ class LocationsView extends StatefulWidget {
 
 class LocationsViewState extends State<LocationsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  ProfileService? profileService;
+  Profile? profileService;
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class LocationsViewState extends State<LocationsView> {
 
   @override
   void didChangeDependencies() {
-    profileService = Provider.of<ProfileService>(context);
+    profileService = Provider.of<Profile>(context);
 
     super.didChangeDependencies();
   }

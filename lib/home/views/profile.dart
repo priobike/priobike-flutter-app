@@ -69,7 +69,7 @@ class ProfileView extends StatefulWidget {
 
 class ProfileViewState extends State<ProfileView> {
   /// The associated profile service, which is injected by the provider.
-  late ProfileService s;
+  late Profile s;
 
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
@@ -77,13 +77,13 @@ class ProfileViewState extends State<ProfileView> {
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<ProfileService>(context);
+    s = Provider.of<Profile>(context);
     super.didChangeDependencies();
   }
 
   void toggleBikeSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = !bikeSelectionActive;
@@ -94,7 +94,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void togglePreferenceSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = false;
@@ -105,7 +105,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void toggleActivitySelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = false;

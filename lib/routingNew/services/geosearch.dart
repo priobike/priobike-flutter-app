@@ -10,9 +10,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class GeosearchService with ChangeNotifier {
+class Geosearch with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("GeosearchService");
+  final log = Logger("Geosearch");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -26,8 +26,8 @@ class GeosearchService with ChangeNotifier {
   /// The list of results.
   List<Waypoint>? results;
 
-  GeosearchService() {
-    log.i("GeosearchService started.");
+  Geosearch() {
+    log.i("Geosearch started.");
   }
 
   /// Fetch addresses to a given query.
@@ -41,7 +41,7 @@ class GeosearchService with ChangeNotifier {
     hadErrorDuringFetch = false;
  
     try {
-      final settings = Provider.of<SettingsService>(context, listen: false);
+      final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/search";
       url += "?accept-language=de";

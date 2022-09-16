@@ -16,7 +16,7 @@ class SettingsView extends StatefulWidget {
 
 class SettingsViewState extends State<SettingsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  ProfileService? profileService;
+  Profile? profileService;
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   void didChangeDependencies() {
-    profileService = Provider.of<ProfileService>(context);
+    profileService = Provider.of<Profile>(context);
 
     super.didChangeDependencies();
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
 
-class Discomfort {
+class DiscomfortSegment {
   /// A random unique id for this route.
   late String id;
 
@@ -17,7 +17,7 @@ class Discomfort {
   /// Otherwise, this will be interpreted as a point.
   final List<LatLng> coordinates;
 
-  Discomfort({String? id, required this.segment, required this.description, required this.coordinates}) {
+  DiscomfortSegment({String? id, required this.segment, required this.description, required this.coordinates}) {
     if (id == null) {
       this.id = UniqueKey().toString();
     } else {
@@ -29,7 +29,7 @@ class Discomfort {
   int get hashCode => id.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Discomfort && other.id == id;
+  bool operator ==(Object other) => other is DiscomfortSegment && other.id == id;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -38,12 +38,10 @@ class Discomfort {
     'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
   };
 
-  factory Discomfort.fromJson(dynamic json) {
-    return Discomfort(
-      id: json['id'],
-      segment: GHSegment.fromJson(json['segment']),
-      description: json['description'],
-      coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
-    );
-  }
+  factory DiscomfortSegment.fromJson(dynamic json) => DiscomfortSegment(
+    id: json['id'],
+    segment: GHSegment.fromJson(json['segment']),
+    description: json['description'],
+    coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
+  );
 }

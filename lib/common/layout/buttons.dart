@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 
-/// Convert the smalliconbutton to a stateless widget
+/// A small icon button.
 class SmallIconButton extends StatelessWidget {
+  /// The icon to be displayed.
   final IconData icon;
+
+  /// The callback that is executed when the button is pressed.
   final void Function() onPressed;
+
+  /// The optional icon color of the button.
   final Color? color;
+
+  /// The optional fill color of the button.
   final Color? fill;
+
+  /// The optional splash color of the button.
   final Color? splash;
 
   const SmallIconButton({
-    Key? key,
     required this.icon,
     required this.onPressed,
     this.color,
     this.fill,
     this.splash,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -23,7 +32,7 @@ class SmallIconButton extends StatelessWidget {
       width: 48,
       height: 48,
       child: RawMaterialButton(
-        elevation: 0,
+        elevation: 0, // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
         child: Padding(
@@ -40,13 +49,22 @@ class SmallIconButton extends StatelessWidget {
   }
 }
 
-/// Convert the appbackbutton to a stateless widget
+/// A custom stylized button that is used to navigate back.
 class AppBackButton extends StatelessWidget {
-  const AppBackButton({Key? key, required this.icon, required this.onPressed, this.elevation}) : super(key: key);
 
+  /// The icon of the button.
   final IconData icon;
+
+  /// The callback that is executed when the button is pressed.
   final void Function() onPressed;
   final double? elevation;
+
+  const AppBackButton({
+    this.icon = Icons.chevron_left, 
+    required this.onPressed,
+    this.elevation,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +94,29 @@ class AppBackButton extends StatelessWidget {
   }
 }
 
+/// A custom stylized button to display important actions.
 class BigButton extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function() onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
   const BigButton({
     Key? key, 
     this.icon, 
@@ -84,17 +124,9 @@ class BigButton extends StatelessWidget {
     required this.onPressed,
     this.fillColor,
     this.splashColor,
+    this.iconColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
-    this.iconColor
   }) : super(key: key);
-
-  final IconData? icon;
-  final String label;
-  final void Function() onPressed;
-  final Color? fillColor;
-  final Color? splashColor;
-  final BoxConstraints boxConstraints;
-  final Color? iconColor;
 
   @override 
   Widget build(BuildContext context) {
@@ -102,6 +134,7 @@ class BigButton extends StatelessWidget {
       fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
       splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
       constraints: boxConstraints,
+      // Hide ugly material shadows.
       elevation: 0,
       focusElevation: 0,
       hoverElevation: 0,

@@ -21,7 +21,7 @@ class HeightData {
 
 class RouteHeightChartState extends State<RouteHeightChart> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService s;
+  late Routing s;
 
   /// The processed route data, which is injected by the provider.
   charts.Series<HeightData, double>? series;
@@ -34,7 +34,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<RoutingService>(context);
+    s = Provider.of<Routing>(context);
     processRouteData();
     super.didChangeDependencies();
   }

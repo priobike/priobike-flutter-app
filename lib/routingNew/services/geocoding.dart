@@ -10,9 +10,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class GeocodingService with ChangeNotifier {
+class Geocoding with ChangeNotifier {
   /// The logger for this service.
-  final Logger log = Logger("GeocodingService");
+  final log = Logger("Geocoding");
 
   /// The HTTP client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -23,8 +23,8 @@ class GeocodingService with ChangeNotifier {
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
 
-  GeocodingService() {
-    log.i("GeocodingService started.");
+  Geocoding() {
+    log.i("Geocoding started.");
   }
 
   /// Fetch the address to a given coordinate.
@@ -44,7 +44,7 @@ class GeocodingService with ChangeNotifier {
     hadErrorDuringFetch = false;
  
     try {
-      final settings = Provider.of<SettingsService>(context, listen: false);
+      final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/reverse";
       url += "?accept-language=de";

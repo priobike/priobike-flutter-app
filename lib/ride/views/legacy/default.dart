@@ -20,17 +20,17 @@ class DefaultCyclingView extends StatefulWidget {
 }
 
 class _DefaultCyclingViewState extends State<DefaultCyclingView> {
-  late RideService rideService;
+  late Ride ride;
 
   final int sliderThumbWidth = 20;
   final double maxSpeedDiff = 10.0;
 
   @override
   Widget build(BuildContext context) {
-    rideService = Provider.of<RideService>(context);
+    ride = Provider.of<Ride>(context);
 
-    if (rideService.currentRecommendation == null) return Container();
-    final recommendation = rideService.currentRecommendation!;
+    if (ride.currentRecommendation == null) return Container();
+    final recommendation = ride.currentRecommendation!;
 
     num percent = DefaultCyclingView.interpolate(
       -maxSpeedDiff,
@@ -75,7 +75,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
             ),
           ]),
           const Spacer(),
-          Padding(padding: EdgeInsets.symmetric(horizontal: 18), child: Row(
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Stack(children: [

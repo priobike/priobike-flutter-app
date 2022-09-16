@@ -13,11 +13,11 @@ class MinimalDebugCyclingView extends StatefulWidget {
 }
 
 class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {
-  late RideService app;
+  late Ride app;
 
   @override
   Widget build(BuildContext context) {
-    app = Provider.of<RideService>(context);
+    app = Provider.of<Ride>(context);
     if (app.currentRecommendation == null) return Container();
 
     return Scaffold(

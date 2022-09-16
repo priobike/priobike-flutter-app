@@ -13,11 +13,11 @@ class ShortCuts extends StatefulWidget {
 
 class ShortCutsState extends State<ShortCuts> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routingService;
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
+    routingService = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileService with ChangeNotifier {
+class Profile with ChangeNotifier {
   var hasLoaded = false;
 
   /// The selected type of bike.
@@ -35,7 +35,7 @@ class ProfileService with ChangeNotifier {
   /// The preference of saving search history
   bool? saveSearchHistory;
 
-  ProfileService(
+  Profile(
       {this.bikeType,
       this.preferenceType,
       this.activityType,

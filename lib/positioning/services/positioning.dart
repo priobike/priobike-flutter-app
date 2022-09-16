@@ -14,8 +14,8 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class PositionService with ChangeNotifier {
-  Logger log = Logger("PositionService");
+class Positioning with ChangeNotifier {
+  final log = Logger("Positioning");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -36,7 +36,7 @@ class PositionService with ChangeNotifier {
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
-  PositionService({this.positionSource});
+  Positioning({this.positionSource});
 
   /// Reset the position service.
   Future<void> reset() async {
@@ -69,7 +69,7 @@ class PositionService with ChangeNotifier {
     LocationPermission permission;
 
     // Test if location services are enabled.
-    serviceEnabled = await positionSource!.isLocationServiceEnabled();
+    serviceEnabled = await positionSource!.isLocationServicesEnabled();
     if (!serviceEnabled) {
       // Location services are not enabled - don't continue
       // accessing the position and request users of the
@@ -102,34 +102,34 @@ class PositionService with ChangeNotifier {
 
   /// Ensure that the position source is initialized.
   Future<void> initializePositionSource(BuildContext context) async {
-    final settings = Provider.of<SettingsService>(context, listen: false);
-    if (settings.positioning == Positioning.gnss) {
+    final settings = Provider.of<Settings>(context, listen: false);
+    if (settings.positioningMode == PositioningMode.gnss) {
       positionSource = GNSSPositionSource();
       log.i("Using gnss positioning source.");
-    } else if (settings.positioning == Positioning.follow18kmh) {
-      final routing = Provider.of<RoutingService>(context, listen: false);
+    } else if (settings.positioningMode == PositioningMode.follow18kmh) {
+      final routing = Provider.of<Routing>(context, listen: false);
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
         .map((e) => mapbox.LatLng(e.lat, e.lon)).toList() ?? [settings.backend.center];
       positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
-    } else if (settings.positioning == Positioning.follow40kmh) {
-      final routing = Provider.of<RoutingService>(context, listen: false);
+    } else if (settings.positioningMode == PositioningMode.follow40kmh) {
+      final routing = Provider.of<Routing>(context, listen: false);
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
         .map((e) => mapbox.LatLng(e.lat, e.lon)).toList() ?? [settings.backend.center];
       positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
-    } else if (settings.positioning == Positioning.recordedDresden) {
+    } else if (settings.positioningMode == PositioningMode.recordedDresden) {
       positionSource = RecordedMockPositionSource.mockDresden;
       log.i("Using mocked positioning source for Dresden.");
-    } else if (settings.positioning == Positioning.recordedHamburg) {
+    } else if (settings.positioningMode == PositioningMode.recordedHamburg) {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
-    } else if (settings.positioning == Positioning.dresdenStatic1) {
+    } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
       positionSource = StaticMockPositionSource(
         position: const mapbox.LatLng(51.030077, 13.729404), heading: 270
       );
       log.i("Using mocked position source for traffic light 1 in Dresden.");
-    } else if (settings.positioning == Positioning.dresdenStatic2) {
+    } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
       positionSource = StaticMockPositionSource(
         position: const mapbox.LatLng(51.030241, 13.728205), heading: 1
       );

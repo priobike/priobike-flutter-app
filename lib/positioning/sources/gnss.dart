@@ -3,7 +3,7 @@ import 'package:priobike/positioning/sources/interface.dart';
 
 class GNSSPositionSource extends PositionSource {
   /// Check if location services are enabled.
-  @override Future<bool> isLocationServiceEnabled() async
+  @override Future<bool> isLocationServicesEnabled() async
     => Geolocator.isLocationServiceEnabled();
 
   /// Check the location permissions.

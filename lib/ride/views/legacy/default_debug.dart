@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:priobike/positioning/services/position.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -16,9 +16,9 @@ class DefaultDebugCyclingView extends StatefulWidget {
 }
 
 class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
-  late RoutingService routingService;
-  late RideService rideService;
-  late PositionService positionService;
+  late Routing routing;
+  late Ride ride;
+  late Positioning positioning;
 
   var points = <LatLng>[];
   var trafficLights = <Marker>[];
@@ -26,16 +26,16 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
-    rideService = Provider.of<RideService>(context);
-    positionService = Provider.of<PositionService>(context);
+    routing = Provider.of<Routing>(context);
+    ride = Provider.of<Ride>(context);
+    positioning = Provider.of<Positioning>(context);
 
-    if (routingService.selectedRoute != null && !routeDrawn) {
-      for (var point in routingService.selectedRoute!.route) {
+    if (routing.selectedRoute != null && !routeDrawn) {
+      for (var point in routing.selectedRoute!.route) {
         points.add(LatLng(point.lat, point.lon));
       }
 
-      for (var sg in routingService.selectedRoute!.signalGroups.values) {
+      for (var sg in routing.selectedRoute!.signalGroups.values) {
         trafficLights.add(
           Marker(
             point: LatLng(sg.position.lat, sg.position.lon),
@@ -56,10 +56,10 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (rideService.currentRecommendation == null) return Container();
-    if (positionService.lastPosition == null) return Container();
+    if (ride.currentRecommendation == null) return Container();
+    if (positioning.lastPosition == null) return Container();
     return Scaffold(
-      backgroundColor: rideService.currentRecommendation!.isGreen
+      backgroundColor: ride.currentRecommendation!.isGreen
           ? const Color(0xff4caf50)
           : const Color(0xfff44235),
       body: Padding(
@@ -68,7 +68,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              rideService.currentRecommendation!.label,
+              ride.currentRecommendation!.label,
               style: const TextStyle(fontSize: 30),
             ),
             const SizedBox(height: 10),
@@ -81,11 +81,11 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                 child: Row(
                   children: [
                     const SizedBox(width: 10),
-                    Text("${rideService.currentRecommendation!.countdown}s ",
+                    Text("${ride.currentRecommendation!.countdown}s ",
                         style: const TextStyle(fontSize: 40)),
                     const Spacer(),
                     Text(
-                        "${rideService.currentRecommendation!.distance.toStringAsFixed(0)}m",
+                        "${ride.currentRecommendation!.distance.toStringAsFixed(0)}m",
                         style: const TextStyle(fontSize: 40)),
                     const SizedBox(width: 10),
                   ],
@@ -126,10 +126,10 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                   MarkerLayerOptions(
                     markers: [
                       ...trafficLights,
-                      positionService.lastPosition != null
+                      positioning.lastPosition != null
                           ? Marker(
-                              point: LatLng(positionService.lastPosition!.latitude,
-                                  positionService.lastPosition!.longitude),
+                              point: LatLng(positioning.lastPosition!.latitude,
+                                  positioning.lastPosition!.longitude),
                               builder: (ctx) => Icon(
                                 Icons.location_pin,
                                 color: Colors.blue[900],
@@ -149,8 +149,8 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                       ),
                       Marker(
                         point: LatLng(
-                          rideService.currentRecommendation!.snapPos.lat,
-                          rideService.currentRecommendation!.snapPos.lon,
+                          ride.currentRecommendation!.snapPos.lat,
+                          ride.currentRecommendation!.snapPos.lon,
                         ),
                         builder: (ctx) => Icon(
                           Icons.my_location,
@@ -165,29 +165,29 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
             ),
             const SizedBox(height: 15),
             Text(
-              "Aktuell: ${(positionService.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
+              "Aktuell: ${(positioning.lastPosition!.speed * 3.6).toStringAsFixed(1)}km/h",
               style: const TextStyle(fontSize: 25),
             ),
             Text(
-              "Empfohlen: ${(rideService.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
+              "Empfohlen: ${(ride.currentRecommendation!.speedRec * 3.6).toStringAsFixed(1)}km/h",
               style: const TextStyle(fontSize: 25),
             ),
             const Spacer(),
             Text(
-              "${(rideService.currentRecommendation!.speedDiff * 3.6).toStringAsFixed(1)}km/h",
+              "${(ride.currentRecommendation!.speedDiff * 3.6).toStringAsFixed(1)}km/h",
               style: const TextStyle(fontSize: 35),
             ),
-            if (rideService.currentRecommendation!.speedDiff > 0)
+            if (ride.currentRecommendation!.speedDiff > 0)
               const Text("Schneller!", style: TextStyle(fontSize: 25)),
-            if (rideService.currentRecommendation!.speedDiff < 0)
+            if (ride.currentRecommendation!.speedDiff < 0)
               const Text("Langsamer!", style: TextStyle(fontSize: 25)),
-            if (rideService.currentRecommendation!.speedDiff == 0)
+            if (ride.currentRecommendation!.speedDiff == 0)
               const Text("Geschwindigkeit halten.",
                   style: TextStyle(fontSize: 25)),
             const Spacer(),
             Text(
-              rideService.currentRecommendation!.error
-                  ? "Fehler: ${rideService.currentRecommendation!.errorMessage}"
+              ride.currentRecommendation!.error
+                  ? "Fehler: ${ride.currentRecommendation!.errorMessage}"
                   : '',
               style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.primary),
             ),

@@ -15,11 +15,11 @@ class SearchBar extends StatefulWidget {
 
 class SearchBarState extends State<SearchBar> {
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routingService;
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<RoutingService>(context);
+    routingService = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 

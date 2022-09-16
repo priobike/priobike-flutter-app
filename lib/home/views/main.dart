@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -7,7 +7,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
-import 'package:priobike/home/views/status.dart';
+import 'package:priobike/status/views/status.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
@@ -33,39 +33,39 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> {
   /// The associated news service, which is injected by the provider.
-  late NewsService newsService;
+  late News news;
 
   /// The associated profile service, which is injected by the provider.
-  late ProfileService profileService;
+  late Profile profile;
 
   /// The associated settings service, which is injected by the provider.
-  late SettingsService settingsService;
+  late Settings settings;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late ShortcutsService shortcutsService;
+  late Shortcuts shortcuts;
 
   /// The associated routing service, which is injected by the provider.
-  late RoutingService routingService;
+  late Routing routing;
 
   /// The associated discomfort service, which is injected by the provider.
-  late DiscomfortService discomfortService;
+  late Discomforts discomforts;
 
   @override
   void didChangeDependencies() {
-    newsService = Provider.of<NewsService>(context);
-    profileService = Provider.of<ProfileService>(context);
-    settingsService = Provider.of<SettingsService>(context);
-    shortcutsService = Provider.of<ShortcutsService>(context);
+    news = Provider.of<News>(context);
+    profile = Provider.of<Profile>(context);
+    settings = Provider.of<Settings>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
 
-    routingService = Provider.of<RoutingService>(context, listen: false);
-    discomfortService = Provider.of<DiscomfortService>(context, listen: false);
+    routing = Provider.of<Routing>(context, listen: false);
+    discomforts = Provider.of<Discomforts>(context, listen: false);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await newsService.getArticles(context);
-      await settingsService.loadSettings();
-      await profileService.loadProfile();
-      await shortcutsService.loadShortcuts(context);
+      await news.getArticles(context);
+      await settings.loadSettings();
+      await profile.loadProfile();
+      await shortcuts.loadShortcuts(context);
     });
 
     super.didChangeDependencies();
@@ -77,7 +77,7 @@ class HomeViewState extends State<HomeView> {
       .push(MaterialPageRoute(builder: (_) => const NewsView()))
       .then((_) {
         // Mark all notifications as read.
-        newsService.markAllArticlesAsRead();
+        news.markAllArticlesAsRead();
       });
   }
 
@@ -89,16 +89,16 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
     // Tell the tutorial service that the shortcut was selected.
-    Provider.of<TutorialService>(context, listen: false).complete("priobike.tutorial.select-shortcut");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
 
-    routingService.selectWaypoints(shortcut.waypoints);
-    routingService.loadRoutes(context);
+    routing.selectWaypoints(shortcut.waypoints);
+    routing.loadRoutes(context);
 
     Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
       .then((_) {
-        routingService.reset();
-        discomfortService.reset();
+        routing.reset();
+        discomforts.reset();
       });
   }
 
@@ -107,8 +107,8 @@ class HomeViewState extends State<HomeView> {
     Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
       .then((_) {
-        routingService.reset();
-        discomfortService.reset();
+        routing.reset();
+        discomforts.reset();
       });
   }
 
@@ -120,8 +120,8 @@ class HomeViewState extends State<HomeView> {
 
   Widget renderDebugHint() {
     String? description;
-    if (settingsService.backend != Backend.production) description = "Testort ist gewählt.";
-    if (settingsService.positioning != Positioning.gnss) description = "Testortung ist aktiv.";
+    if (settings.backend != Backend.production) description = "Testort ist gewählt.";
+    if (settings.positioningMode != PositioningMode.gnss) description = "Testortung ist aktiv.";
     if (description == null) return Container();
 
     return Padding(

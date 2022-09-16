@@ -5,7 +5,7 @@ import 'package:priobike/routingNew/views/widgets/filterDialog.dart';
 
 /// A view that displays alerts in the routing context.
 class FilterButton extends StatelessWidget {
-  final ProfileService? profileService;
+  final Profile? profileService;
 
   const FilterButton({Key? key, this.profileService}) : super(key: key);
 

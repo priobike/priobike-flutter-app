@@ -2,7 +2,7 @@ import 'package:geolocator/geolocator.dart';
 
 abstract class PositionSource {
   /// Check if location services are enabled.
-  Future<bool> isLocationServiceEnabled();
+  Future<bool> isLocationServicesEnabled();
 
   /// Check the location permissions.
   Future<LocationPermission> checkPermission();

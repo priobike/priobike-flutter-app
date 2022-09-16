@@ -8,11 +8,11 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ShortcutsService with ChangeNotifier {
+class Shortcuts with ChangeNotifier {
   /// All available shortcuts.
   List<Shortcut>? shortcuts;
 
-  ShortcutsService();
+  Shortcuts();
 
   /// Reset the shortcuts service.
   Future<void> reset() async {
@@ -21,7 +21,7 @@ class ShortcutsService with ChangeNotifier {
 
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
-    final routing = Provider.of<RoutingService>(context, listen: false);
+    final routing = Provider.of<Routing>(context, listen: false);
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
     if (shortcuts == null) await loadShortcuts(context);
@@ -43,7 +43,7 @@ class ShortcutsService with ChangeNotifier {
     if (shortcuts == null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -58,7 +58,7 @@ class ShortcutsService with ChangeNotifier {
     if (shortcuts != null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<SettingsService>(context, listen: false).backend;
+    final backend = Provider.of<Settings>(context, listen: false).backend;
     String? jsonStr;
     if (backend == Backend.production) {
       jsonStr = storage.getString("priobike.home.shortcuts.production");

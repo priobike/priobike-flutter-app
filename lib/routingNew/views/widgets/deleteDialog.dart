@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 
-showDeleteDialog(BuildContext context, ProfileService? profileService) {
+showDeleteDialog(BuildContext context, Profile? profileService) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
