@@ -75,7 +75,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
     final settingsService =
-    Provider.of<SettingsService>(context, listen: false);
+        Provider.of<SettingsService>(context, listen: false);
     final nextView = settingsService.ridePreference == null
         ? const RideSelectionView() // Need to select a ride preference.
         : const RideView();
@@ -99,34 +99,30 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     } else {
       showDialog(
         context: context,
-        builder: (_) =>
-            AlertDialog(
-              alignment: AlignmentDirectional.center,
-              actionsAlignment: MainAxisAlignment.center,
-              title: BoldContent(
-                  text:
+        builder: (_) => AlertDialog(
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
+          title: BoldContent(
+              text:
                   'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
+          content: Container(height: 0),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                preferences.setBool("priobike.routing.warning", true);
+                startRide();
+              },
+              child: BoldContent(
+                  text: 'OK',
+                  color: Theme.of(context).colorScheme.primary,
                   context: context),
-              content: Container(height: 0),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(24)),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    preferences.setBool("priobike.routing.warning", true);
-                    startRide();
-                  },
-                  child: BoldContent(
-                      text: 'OK',
-                      color: Theme
-                          .of(context)
-                          .colorScheme
-                          .primary,
-                      context: context),
-                ),
-              ],
             ),
+          ],
+        ),
       );
     }
   }
@@ -140,7 +136,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         return AlertDialog(
           title: BoldContent(
               text:
-              'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.',
+                  'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.',
               context: context),
           content: SizedBox(
             height: 48,
@@ -169,10 +165,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               },
               child: BoldContent(
                   text: 'Speichern',
-                  color: Theme
-                      .of(context)
-                      .colorScheme
-                      .primary,
+                  color: Theme.of(context).colorScheme.primary,
                   context: context),
             ),
           ],
@@ -186,10 +179,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Expanded(
         child: Tile(
-          fill: Theme
-              .of(context)
-              .colorScheme
-              .background,
+          fill: Theme.of(context).colorScheme.background,
           content: Center(
             child: SizedBox(
               height: 86,
@@ -216,10 +206,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             children: [
               Expanded(
                 child: Tile(
-                  fill: Theme
-                      .of(context)
-                      .colorScheme
-                      .background,
+                  fill: Theme.of(context).colorScheme.background,
                   content: Center(
                     child: SizedBox(
                       height: 128,
@@ -275,9 +262,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme
-          .of(context)
-          .brightness == Brightness.light
+      value: Theme.of(context).brightness == Brightness.light
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -303,10 +288,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppBackButton(
-                              icon: Icons.chevron_left_rounded,
-                              onPressed: () => Navigator.pop(context),
-                              elevation: 5),
+                          Hero(
+                            tag: 'appBackButton',
+                            child: AppBackButton(
+                                icon: Icons.chevron_left_rounded,
+                                onPressed: () => Navigator.pop(context),
+                                elevation: 5),
+                          ),
                           const SizedBox(width: 16),
                           SizedBox(
                             // Avoid expansion of alerts view.
@@ -316,7 +304,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                         ]),
                     const ShortCuts(),
                     Padding(
-
                       /// Align with FAB
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 20),
@@ -340,7 +327,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           children: [
             GPSButton(
                 myLocationTrackingMode:
-                mapControllerService?.myLocationTrackingMode,
+                    mapControllerService?.myLocationTrackingMode,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
@@ -355,10 +342,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 borderRadius: BorderRadius.circular(15.0),
               ),
               heroTag: "fab2",
-              backgroundColor: Theme
-                  .of(context)
-                  .colorScheme
-                  .primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),

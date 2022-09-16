@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routingNew/views/settings.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
@@ -60,11 +61,11 @@ class SearchBarState extends State<SearchBar> {
                 ),
               ),
               SmallIconButton(
-                icon: Icons.settings,
-                onPressed: () {
-                  print("navigate to SearchView");
-                },
-              ),
+                  icon: Icons.settings,
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const SettingsView()));
+                  }),
             ],
           ),
         ),

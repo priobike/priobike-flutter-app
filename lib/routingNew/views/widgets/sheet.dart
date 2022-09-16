@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/charts/height.dart';
-import 'package:priobike/routingNew/views/search.dart';
+import 'package:priobike/routingNew/views/widgets/search.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
