@@ -20,7 +20,7 @@ import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/filterButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
-import 'package:priobike/routingNew/views/widgets/search_bar.dart';
+import 'package:priobike/routingNew/views/widgets/searchBar.dart';
 import 'package:priobike/routingNew/views/widgets/shortcuts.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -339,7 +339,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                           SizedBox(
                             // Avoid expansion of alerts view.
                             width: frame.size.width - 80,
-                            child: const SearchBar(),
+                            child: const SearchBar(fromClicked: false),
                           )
                         ]),
                     const ShortCuts(),
