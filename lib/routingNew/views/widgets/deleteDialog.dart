@@ -2,32 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 
-showDeleteDialog(BuildContext context, Profile? profileService, String deleteName) {
+showDeleteDialog(
+    BuildContext context, Profile? profileService, String deleteName) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          title: BoldSubHeader(
-              text:
-                  "Sind sie sich sicher, dass sie alle ihre " + deleteName + " löschen möchten?",
+          title: BoldContent(
+              text: "Sind sie sich sicher, dass sie alle ihre " +
+                  deleteName +
+                  " löschen möchten?",
               context: context),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: <Widget>[
             TextButton(
-              child: Content(
-                  text: 'Abbrechen',
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary),
+              style: TextButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.surface),
+              child: Content(text: 'Abbrechen', context: context),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
+              style: TextButton.styleFrom(backgroundColor: Colors.red),
               child: Content(
-                  text: 'Löschen',
-                  context: context,
-                  color: Theme.of(context).colorScheme.primary),
+                  text: 'Löschen', context: context, color: Colors.white),
               onPressed: () {
                 Navigator.of(context).pop();
               },
