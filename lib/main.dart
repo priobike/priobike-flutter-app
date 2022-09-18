@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/status/services/status.dart';
 import 'package:priobike/logging/logger.dart';
@@ -45,6 +46,9 @@ class OldAndroidHttpOverrides extends HttpOverrides {
 
 Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
+
+  // Load offline map tiles.
+  await AppMap.loadOfflineTiles();
 
   // Ensure that the widgets binding is initialized before 
   // loading something from the shared preferences.

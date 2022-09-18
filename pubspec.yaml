@@ -86,6 +86,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Sideloaded offline maps
+    - assets/offline/hamburg-light.db
+    - assets/offline/hamburg-dark.db
+
     # Files needed to get git info within the app, e.g. current branch or tag.
     # Please make sure that the repository is cloned by the branch name, and 
     # not by the commit hash (as is the default for Jenkins CI pipelines).

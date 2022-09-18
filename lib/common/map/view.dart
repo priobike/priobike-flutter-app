@@ -2,11 +2,22 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class AppMap extends StatefulWidget {
+  /// Sideload prefetched mapbox tiles.
+  static Future<void> loadOfflineTiles() async {
+    try {
+      await installOfflineMapTiles("assets/offline/hamburg-light.db");
+      await installOfflineMapTiles("assets/offline/hamburg-dark.db");
+    } catch (err) {
+      Logger("AppMap").e("Failed to load offline tiles: $err");
+    }
+  }
+
   /// If dragging is enabled.
   final bool dragEnabled;
 
