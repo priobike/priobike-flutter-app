@@ -83,4 +83,10 @@ class Geosearch with ChangeNotifier {
       log.e(err); ToastMessage.showError(err); throw Exception(err);
     }
   }
+
+
+  void clearGeosearch()  {
+    results = [];
+    notifyListeners();
+  }
 }

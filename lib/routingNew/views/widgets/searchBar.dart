@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/search.dart';
 import 'package:priobike/routingNew/views/settings.dart';
@@ -11,20 +14,52 @@ class SearchBar extends StatefulWidget {
   final bool fromClicked;
   final TextEditingController? locationSearchController;
 
-  const SearchBar({Key? key, required this.fromClicked, this.locationSearchController}) : super(key: key);
+  const SearchBar(
+      {Key? key, required this.fromClicked, this.locationSearchController})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchBarState();
 }
 
+class Debouncer {
+  /// The preferred interval.
+  final int milliseconds;
+
+  /// The currently running timer.
+  Timer? timer;
+
+  Debouncer({required this.milliseconds});
+
+  run(VoidCallback action) {
+    timer?.cancel();
+    timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+}
+
 class SearchBarState extends State<SearchBar> {
+  /// The geosearch service that is injected by the provider.
+  late Geosearch geosearch;
+
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
+  /// The debouncer for the search.
+  final debouncer = Debouncer(milliseconds: 100);
+
   @override
   void didChangeDependencies() {
+    geosearch = Provider.of<Geosearch>(context);
     routingService = Provider.of<Routing>(context);
     super.didChangeDependencies();
+  }
+
+  /// A callback that is fired when the search is updated.
+  Future<void> onSearchUpdated(String? query) async {
+    if (query == null) return;
+    debouncer.run(() {
+      geosearch.geosearch(context, query);
+    });
   }
 
   @override
@@ -39,11 +74,13 @@ class SearchBarState extends State<SearchBar> {
         padding: const EdgeInsets.only(right: 0),
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const SearchView(),
-              ),
-            );
+            if (!widget.fromClicked) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SearchView(),
+                ),
+              );
+            }
           },
           child: Stack(
             children: [
@@ -80,9 +117,24 @@ class SearchBarState extends State<SearchBar> {
                         child: widget.fromClicked
                             ? TextField(
                                 controller: widget.locationSearchController,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                ),
+                                onChanged: onSearchUpdated,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    suffixIcon:
+                                        widget.locationSearchController?.text !=
+                                                ""
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    geosearch.clearGeosearch();
+                                                    widget
+                                                        .locationSearchController
+                                                        ?.text = "";
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                    Icons.cancel_outlined))
+                                            : null),
                                 autofocus: widget.fromClicked,
                               )
                             : SubHeader(
