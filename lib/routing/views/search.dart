@@ -60,7 +60,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     if (widget.waypoint == null) return;
     final lastPos = LatLng(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude);
     final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
-    const vincenty = Distance();
+    const vincenty = Distance(roundResult: false);
     distance = vincenty.distance(lastPos, waypointPos);
   }
 

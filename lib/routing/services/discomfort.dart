@@ -1,7 +1,11 @@
 
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
+
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -68,12 +72,47 @@ class Discomforts with ChangeNotifier {
         ) {
           return DiscomfortSegment(
             segment: segment, coordinates: cs, 
-            description: "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.name}) ungeeignet sein könnte."
+            description: "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.description()}) ungeeignet sein könnte."
           );
         }
       }).where((e) => e != null).map((e) => e!).toList();
 
-    /// Use the speed limit values to determine uncomfortable sections.
+    // Traverse the points and calculate the elevation in degrees.
+    final criticalElevationSegments = List<GHSegment>.empty(growable: true);
+    GHSegment<double>? currentSegment;
+    const vincenty = l.Distance(roundResult: false);
+    for (int i = 0; i < path.points.coordinates.length - 1; i++) {
+      final c1 = path.points.coordinates[i];
+      final c2 = path.points.coordinates[i + 1];
+      if (c1.elevation == null || c2.elevation == null) continue;
+      final dist = vincenty.distance(l.LatLng(c1.lat, c1.lon), l.LatLng(c2.lat, c2.lon));
+      if (dist < 50) continue; // Avoid short segments due to floating point inaccuracies.
+      final eleDiff = c2.elevation! - c1.elevation!;
+      final eleDiffPct = eleDiff / dist * 100;
+      if (eleDiffPct < 10 && eleDiffPct > -10) {
+        // Finish the current segment.
+        if (currentSegment != null) {
+          criticalElevationSegments.add(currentSegment);
+          currentSegment = null;
+        }
+        continue;
+      }
+      if (currentSegment == null) {
+        currentSegment = GHSegment(from: i, to: i + 1, value: eleDiffPct);
+      } else {
+        currentSegment = GHSegment(from: currentSegment.from, to: i + 1, value: max(eleDiffPct, currentSegment.value!));
+      }
+    }
+    final criticalElevation = criticalElevationSegments.map((segment) {
+      final cs = getCoordinates(segment, path);
+      if (segment.value! > 0) {
+        return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
+      } else {
+        return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
+      }
+    }).toList();
+
+    // Use the speed limit values to determine uncomfortable sections.
     // See: https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
     final unwantedSpeed = path.details.maxSpeed
       .map((segment) {
@@ -86,7 +125,7 @@ class Discomforts with ChangeNotifier {
         }
       }).where((e) => e != null).map((e) => e!).toList();
     
-    foundDiscomforts = [...unsmooth, ...unwantedSpeed];
+    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));
     notifyListeners();
   }

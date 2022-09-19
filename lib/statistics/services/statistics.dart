@@ -82,7 +82,7 @@ class Statistics with ChangeNotifier {
 
     // Calculate the summary.
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
-    const vincenty = Distance();
+    const vincenty = Distance(roundResult: false);
     // Aggregate the distance.
     var totalDistance = 0.0;
     for (var i = 0; i < coordinates.length - 1; i++) {

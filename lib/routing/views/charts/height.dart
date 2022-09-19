@@ -44,7 +44,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     if (s.selectedRoute == null) return;
 
     // Aggregate the distance along the route.
-    const vincenty = Distance();
+    const vincenty = Distance(roundResult: false);
     final latlngCoords = s.selectedRoute!.path.points.coordinates;
     final data = List<HeightData>.empty(growable: true);
     var prevDist = 0.0;
