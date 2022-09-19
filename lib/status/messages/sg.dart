@@ -30,8 +30,11 @@ class SGStatusData {
     if (Duration(seconds: statusUpdateTime - predictionTime!).inMinutes > 5) {
       return SGPredictionState.offline;
     }
-    if (predictionQuality! < 0.75) {
+    if (predictionQuality! < 0.9) {
       return SGPredictionState.bad;
+    }
+    if (predictionQuality! < 0.5) {
+      return SGPredictionState.offline;
     }
     return SGPredictionState.ok;
   }
