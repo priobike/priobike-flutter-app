@@ -31,11 +31,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   /// The associated positioning service, which is injected by the provider.
   late Positioning ps;
 
-  /// The default gauge colors for the speedometer.
-  static const defaultGaugeColors = [Color.fromARGB(255, 109, 109, 109)];
+  /// The default gauge color for the speedometer.
+  static const defaultGaugeColor = Color.fromARGB(255, 47, 47, 47);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = defaultGaugeColors;
+  List<Color> gaugeColors = [defaultGaugeColor];
 
   /// The current gauge stops, if we have the necessary data.
   List<double> gaugeStops = [];
@@ -72,7 +72,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
         timeStr == null || tGreen == null || phases == null || dist == null || 
         sgId == null || error == true) {
-      gaugeColors = defaultGaugeColors;
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -84,7 +84,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (timeStr.endsWith('[UTC]')) timeStr = timeStr.substring(0, timeStr.length - 5);
     var time = DateTime.tryParse(timeStr);
     if (time == null) {
-      gaugeColors = defaultGaugeColors;
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -104,7 +104,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       minValue = phasesFromNow.reduce(min);
     }
     if (maxValue == minValue) {
-      gaugeColors = defaultGaugeColors;
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -114,11 +114,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(const Color.fromARGB(255, 243, 255, 18), const Color.fromARGB(255, 0, 255, 106), factor)!;
+        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), const Color.fromARGB(255, 243, 255, 18), factor)!;
+        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
       }
     }).toList();
 
@@ -139,8 +139,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       stops.add(0.0);
     }
     if (colors.isNotEmpty) {
-      colors.add(const Color.fromARGB(255, 189, 195, 199));
-      colors.add(const Color.fromARGB(255, 189, 195, 199));
+      colors.add(defaultGaugeColor);
+      colors.add(defaultGaugeColor);
     }
 
     // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
