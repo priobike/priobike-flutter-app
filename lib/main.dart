@@ -47,12 +47,11 @@ class OldAndroidHttpOverrides extends HttpOverrides {
 Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
+  // Ensure that the widgets binding is initialized before 
+  // loading something from the shared preferences + mapbox tiles.
+  WidgetsFlutterBinding.ensureInitialized();
   // Load offline map tiles.
   await AppMap.loadOfflineTiles();
-
-  // Ensure that the widgets binding is initialized before 
-  // loading something from the shared preferences.
-  WidgetsFlutterBinding.ensureInitialized();
   // Load the color mode before the first view build.
   final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
