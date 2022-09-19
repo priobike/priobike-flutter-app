@@ -75,10 +75,7 @@ class SettingsViewState extends State<SettingsView> {
                 const SizedBox(height: 20),
 
                 /// height = height - 20 - 88 - 20 - view.inset.top (padding, backButton, offset)
-                SizedBox(
-                  width: frame.size.width,
-                  height: frame.size.height - 128,
-                  child: ListView(
+                Expanded(child: ListView(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
