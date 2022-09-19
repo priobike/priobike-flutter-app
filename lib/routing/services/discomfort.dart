@@ -62,8 +62,14 @@ class Discomforts with ChangeNotifier {
           return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
         } else if (segment.value == "bad") {
           return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
-        } else if (segment.value == "intermediate" && profile.bikeType == BikeType.racingbike) {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt, der für dein gewähltes Fahrrad (Rennrad) ungeeignet sein könnte.");
+        } else if (
+          segment.value == "intermediate" && 
+          (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike)
+        ) {
+          return DiscomfortSegment(
+            segment: segment, coordinates: cs, 
+            description: "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.name}) ungeeignet sein könnte."
+          );
         }
       }).where((e) => e != null).map((e) => e!).toList();
 
