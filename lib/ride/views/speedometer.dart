@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -17,17 +19,17 @@ class RideSpeedometerView extends StatefulWidget {
 class RideSpeedometerViewState extends State<RideSpeedometerView> {
   static const viewId = "ride.views.speedometer";
 
+  /// The minimum speed in km/h.
+  final minSpeed = 0.0;
+
+  /// The maximum speed in km/h.
+  late double maxSpeed;
+
   /// The associated ride service, which is injected by the provider.
   late Ride rs;
 
   /// The associated positioning service, which is injected by the provider.
   late Positioning ps;
-
-  /// The minimum displayed speed.
-  static const minSpeed = 0.0;
-
-  /// The maximum displayed speed.
-  static const maxSpeed = 40.0;
 
   /// The default gauge colors for the speedometer.
   static const defaultGaugeColors = [Color.fromARGB(255, 109, 109, 109)];
@@ -40,6 +42,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   void didChangeDependencies() {
+    // Fetch the maximum speed from the settings service.
+    maxSpeed = Provider.of<Settings>(context, listen: false).speedMode.maxSpeed;
+
     rs = Provider.of<Ride>(context);
     ps = Provider.of<Positioning>(context);
     if (rs.needsLayout[viewId] != false) {

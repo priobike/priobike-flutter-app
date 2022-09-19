@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:priobike/status/views/status.dart';
@@ -243,6 +244,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a speed mode is selected.
+  Future<void> onSelectSpeedMode(SpeedMode speedMode) async {
+    // Tell the settings service that we selected the new speed mode.
+    await settings.selectSpeedMode(speedMode);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -414,6 +423,20 @@ class SettingsViewState extends State<SettingsView> {
                     selected: settings.ridePreference,
                     title: (RidePreference e) => e.description, 
                     callback: onSelectRidePreference
+                  );
+                }),
+              ),
+              const SmallVSpace(),
+              SettingsElement(
+                title: "Tacho-Spanne", 
+                subtitle: settings.speedMode.description, 
+                icon: Icons.expand_more, 
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                    elements: SpeedMode.values, 
+                    selected: settings.speedMode,
+                    title: (SpeedMode e) => e.description, 
+                    callback: onSelectSpeedMode
                   );
                 }),
               ),
