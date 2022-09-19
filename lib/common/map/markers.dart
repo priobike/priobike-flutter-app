@@ -61,13 +61,14 @@ class TrafficLightOffMarker extends SymbolOptions {
   TrafficLightOffMarker({
     required LatLng geo,
     double iconSize = 1,
+    int zIndex = 2,
     String iconImage = "trafficlightoff",
     String? label,
   }): super(
     geometry: geo,
     iconImage: iconImage,
     iconSize: iconSize,
-    zIndex: 2,
+    zIndex: zIndex,
     textField: label,
     textSize: 16,
     textOffset: const Offset(0, -3.5),
@@ -88,6 +89,7 @@ class TrafficLightOffOnlineMarker extends TrafficLightOffMarker {
     geo: geo,
     iconSize: iconSize,
     iconImage: "trafficlightoffonline",
+    zIndex: 3,
     label: label,
   );
 }
@@ -101,6 +103,7 @@ class TrafficLightOffOfflineMarker extends TrafficLightOffMarker {
     geo: geo,
     iconSize: iconSize,
     iconImage: "trafficlightoffoffline",
+    zIndex: 3,
     label: label,
   );
 }
@@ -114,6 +117,7 @@ class TrafficLightOffBadSignalMarker extends TrafficLightOffMarker {
     geo: geo,
     iconSize: iconSize,
     iconImage: "trafficlightoffbadsignal",
+    zIndex: 3,
     label: label,
   );
 }
@@ -128,7 +132,7 @@ class TrafficLightGreenMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
-    zIndex: 3,
+    zIndex: 4,
   );
 }
 
@@ -142,7 +146,7 @@ class TrafficLightRedMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "trafficlightred",
     iconSize: iconSize,
-    zIndex: 3,
+    zIndex: 4,
   );
 }
 
@@ -154,7 +158,7 @@ class CurrentPositionMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "direction",
-    iconSize: 2,
+    iconSize: 4,
   );
 }
 
@@ -191,6 +195,6 @@ class WaypointMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "waypoint",
     iconSize: 0.75,
-    zIndex: 4,
+    zIndex: 5,
   );
 }

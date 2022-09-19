@@ -15,6 +15,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -201,14 +202,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
             label: willShowLabels ? sg.label : null,
           ),
         ));
-      } else if (status.predictionQuality == null) {
+      } else if (status.predictionState == SGPredictionState.offline) {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffOfflineMarker(
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
         ));
-      } else if (status.predictionQuality! < 0.75) {
+      } else if (status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffBadSignalMarker(
             geo: LatLng(sg.position.lat, sg.position.lon),

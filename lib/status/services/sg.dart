@@ -23,6 +23,15 @@ class PredictionSGStatus with ChangeNotifier {
   /// The cached sg status, by the sg name.
   Map<String, SGStatusData> cache = {};
 
+  /// The number of sgs that are ok.
+  int ok = 0;
+
+  /// The number of sgs that are offline.
+  int offline = 0;
+
+  /// The number of sgs that have a bad quality.
+  int bad = 0;
+
   PredictionSGStatus() {
     log.i("PredictionSGStatus started.");
   }
@@ -62,6 +71,22 @@ class PredictionSGStatus with ChangeNotifier {
         cache[sg.id] = data;
       } catch (e) {
         log.w("Error while fetching prediction status: $e");
+      }
+    }
+
+    ok = 0; 
+    offline = 0; 
+    bad = 0;
+    for (final sg in sgs) {
+      if (!cache.containsKey(sg.id)) {
+        offline++;
+        continue;
+      }
+      final status = cache[sg.id]!;
+      switch (status.predictionState) {
+        case SGPredictionState.ok: ok++; break;
+        case SGPredictionState.offline: offline++; break;
+        case SGPredictionState.bad: bad++; break;
       }
     }
 

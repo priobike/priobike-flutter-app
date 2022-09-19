@@ -1,3 +1,14 @@
+enum SGPredictionState {
+  /// The prediction is fine.
+  ok,
+
+  /// The traffic light is offline.
+  offline,
+
+  /// The prediction has a bad quality.
+  bad,
+}
+
 class SGStatusData {
   /// The time of the status update in unix seconds.
   final int statusUpdateTime;
@@ -10,6 +21,20 @@ class SGStatusData {
 
   /// The unix time of the last predictio in seconds, if there is a prediction.
   final int? predictionTime;
+
+  /// The current prediction state.
+  SGPredictionState get predictionState {
+    if (predictionQuality == null || predictionTime == null) {
+      return SGPredictionState.offline;
+    }
+    if (Duration(seconds: statusUpdateTime - predictionTime!).inMinutes > 5) {
+      return SGPredictionState.offline;
+    }
+    if (predictionQuality! < 0.75) {
+      return SGPredictionState.bad;
+    }
+    return SGPredictionState.ok;
+  }
 
   const SGStatusData({
     required this.statusUpdateTime,
