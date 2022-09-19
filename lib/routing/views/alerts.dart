@@ -116,7 +116,7 @@ class AlertsViewState extends State<AlertsView> {
 
   /// Render signal alerts.
   List<Widget> renderSignalAlerts(BuildContext context, BoxConstraints constraints) {
-    if (routing.isFetchingRoute) return [];
+    if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
     if (
       predictionStatus.bad == 0 && 
       predictionStatus.offline == 0
@@ -175,7 +175,7 @@ class AlertsViewState extends State<AlertsView> {
 
   /// Render comfort alerts
   List<Widget> renderComfortAlerts(BuildContext context, BoxConstraints constraints) {
-    if (routing.isFetchingRoute) return [];
+    if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
     if (discomforts.foundDiscomforts == null) return [];
     return discomforts.foundDiscomforts!.asMap().entries.map((e) => Padding(
       padding: const EdgeInsets.only(left: 16, top: 2, bottom: 10), 
