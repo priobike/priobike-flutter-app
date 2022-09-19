@@ -6,7 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/status/services/status.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/logging/views.dart';
@@ -159,7 +159,7 @@ class SettingsViewState extends State<SettingsView> {
   late Shortcuts shortcuts;
 
   /// The associated prediction status service, which is injected by the provider.
-  late PredictionStatus predictionStatus;
+  late PredictionStatusSummary predictionStatusSummary;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Positioning position;
@@ -177,7 +177,7 @@ class SettingsViewState extends State<SettingsView> {
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
     settings = Provider.of<Settings>(context);
-    predictionStatus = Provider.of<PredictionStatus>(context);
+    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
@@ -192,7 +192,7 @@ class SettingsViewState extends State<SettingsView> {
     await settings.selectBackend(backend);
 
     // Reset the associated services.
-    await predictionStatus.reset();
+    await predictionStatusSummary.reset();
     await shortcuts.reset();
     await routing.reset();
     await session.reset();

@@ -1,4 +1,4 @@
-class PredictionMonitorStatusResponse {
+class StatusSummaryData {
   /// The unix time of the last status update.
   final int statusUpdateTime;
 
@@ -20,7 +20,7 @@ class PredictionMonitorStatusResponse {
   /// The average prediction quality.
   final double? averagePredictionQuality;
 
-  const PredictionMonitorStatusResponse({
+  const StatusSummaryData({
     required this.statusUpdateTime,
     required this.numThings,
     required this.numPredictions,
@@ -30,8 +30,8 @@ class PredictionMonitorStatusResponse {
     this.averagePredictionQuality,
   });
 
-  factory PredictionMonitorStatusResponse.fromJson(Map<String, dynamic> json) {
-    return PredictionMonitorStatusResponse(
+  factory StatusSummaryData.fromJson(Map<String, dynamic> json) {
+    return StatusSummaryData(
       statusUpdateTime: json['status_update_time'],
       numThings: json['num_things'],
       numPredictions: json['num_predictions'],
