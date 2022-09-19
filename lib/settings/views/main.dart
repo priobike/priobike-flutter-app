@@ -253,10 +253,10 @@ class SettingsViewState extends State<SettingsView> {
       child: Scaffold(body: Stack(children: [
         Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
-          child: Column(
+          child: SafeArea(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 128),
+              const SizedBox(height: 8),
               Row(children: [
                 AppBackButton(onPressed: () => Navigator.pop(context)),
                 const HSpace(),
@@ -461,7 +461,7 @@ class SettingsViewState extends State<SettingsView> {
 
               const SizedBox(height: 128),
             ],
-          ),
+          )),
         ),
       ]),
     ));

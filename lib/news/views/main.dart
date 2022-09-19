@@ -41,9 +41,9 @@ class NewsViewState extends State<NewsView> {
           color: Theme.of(context).colorScheme.background,
           child: Fade(
             child: SingleChildScrollView(
-              child: Column(
+              child: SafeArea(child: Column(
                 children: [
-                  const SizedBox(height: 128),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Row(children: [
@@ -83,7 +83,7 @@ class NewsViewState extends State<NewsView> {
                   ),
                   const SizedBox(height: 128),
                 ],
-              ),
+              )),
             ),
           )
         ),

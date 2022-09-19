@@ -77,10 +77,10 @@ class FeedbackViewState extends State<FeedbackView> {
           color: Theme.of(context).colorScheme.surface,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
-            child: Column(
+            child: SafeArea(child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 128),
+                const SizedBox(height: 8),
                 if (widget.showBackButton) Row(children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
                   const HSpace(),
@@ -109,7 +109,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 ),
                 const SizedBox(height: 128),
               ],
-            ),
+            )),
           ),
         ),
       ])),
