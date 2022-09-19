@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -48,8 +49,10 @@ Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
   // Ensure that the widgets binding is initialized before 
-  // loading something from the shared preferences.
+  // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
+  // Load offline map tiles.
+  await AppMap.loadOfflineTiles();
   // Load the color mode before the first view build.
   final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
