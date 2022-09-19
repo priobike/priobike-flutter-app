@@ -100,12 +100,18 @@ flutter:
     - assets/tracks/dresden/philipp.json
 
     # Map symbols
+    - assets/images/online.drawio.png
+    - assets/images/bad-signal.drawio.png
+    - assets/images/offline.drawio.png
     - assets/images/alert.drawio.png
     - assets/images/start.drawio.png
     - assets/images/destination.drawio.png
     - assets/images/trafficlight.drawio.png
     - assets/images/trafficlight-green-countdown.drawio.png
     - assets/images/trafficlight-off.drawio.png
+    - assets/images/trafficlight-off-online.drawio.png
+    - assets/images/trafficlight-off-offline.drawio.png
+    - assets/images/trafficlight-off-bad-signal.drawio.png
     - assets/images/trafficlight-red-countdown.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png

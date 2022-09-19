@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -96,6 +97,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Tutorial()),
         ChangeNotifierProvider(create: (context) => Settings(colorMode: initialColorMode)),
         ChangeNotifierProvider(create: (context) => PredictionStatusSummary()),
+        ChangeNotifierProvider(create: (context) => PredictionSGStatus()),
         ChangeNotifierProvider(create: (context) => Profile()),
         ChangeNotifierProvider(create: (context) => News()),
         ChangeNotifierProvider(create: (context) => Shortcuts()),

@@ -11,6 +11,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class Routing with ChangeNotifier {
@@ -121,6 +122,9 @@ class Routing with ChangeNotifier {
       final discomforts = Provider.of<Discomforts>(context, listen: false);
       await discomforts.findDiscomforts(context, routeResponse.routes.first.path);
 
+      final status = Provider.of<PredictionSGStatus>(context, listen: false);
+      await status.fetch(context, routeResponse.routes.first.signalGroups.values.toList());
+
       notifyListeners();
       return routeResponse;
     } catch (error, stacktrace) { 
@@ -140,6 +144,9 @@ class Routing with ChangeNotifier {
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
     await discomforts.findDiscomforts(context, route.path);
+
+    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    await status.fetch(context, route.signalGroups.values.toList());
 
     notifyListeners();
   }

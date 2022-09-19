@@ -30,17 +30,15 @@ class StatusSummaryData {
     this.averagePredictionQuality,
   });
 
-  factory StatusSummaryData.fromJson(Map<String, dynamic> json) {
-    return StatusSummaryData(
-      statusUpdateTime: json['status_update_time'],
-      numThings: json['num_things'],
-      numPredictions: json['num_predictions'],
-      numBadPredictions: json['num_bad_predictions'],
-      mostRecentPredictionTime: json['most_recent_prediction_time'],
-      oldestPredictionTime: json['oldest_prediction_time'],
-      averagePredictionQuality: json['average_prediction_quality'] is int
-          ? json['average_prediction_quality'].toDouble()
-          : json['average_prediction_quality'],
-    );
-  }
+  factory StatusSummaryData.fromJson(Map<String, dynamic> json) => StatusSummaryData(
+    statusUpdateTime: json['status_update_time'],
+    numThings: json['num_things'],
+    numPredictions: json['num_predictions'],
+    numBadPredictions: json['num_bad_predictions'],
+    mostRecentPredictionTime: json['most_recent_prediction_time'],
+    oldestPredictionTime: json['oldest_prediction_time'],
+    averagePredictionQuality: json['average_prediction_quality'] is int
+        ? json['average_prediction_quality'].toDouble()
+        : json['average_prediction_quality'],
+  );
 }

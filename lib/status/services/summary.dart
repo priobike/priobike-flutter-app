@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 
 class PredictionStatusSummary with ChangeNotifier {
   /// The logger for this service.
-  final log = Logger("PredictionStatus");
+  final log = Logger("PredictionStatusSummary");
 
   /// The http client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -26,7 +26,7 @@ class PredictionStatusSummary with ChangeNotifier {
   StatusSummaryData? current;
 
   PredictionStatusSummary() {
-    log.i("PredictionStatus started.");
+    log.i("PredictionStatusSummary started.");
   }
 
   /// Fetch the status of the prediction.
@@ -42,9 +42,8 @@ class PredictionStatusSummary with ChangeNotifier {
     }
 
     isLoading = true;
-    notifyListeners();
-
     hadError = false;
+    notifyListeners();
 
     try {
       final settings = Provider.of<Settings>(context, listen: false);

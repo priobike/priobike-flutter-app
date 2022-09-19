@@ -15,6 +15,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -189,13 +190,39 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
-      trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(
-          geo: LatLng(sg.position.lat, sg.position.lon),
-          label: willShowLabels ? sg.label : null,
-        ),
-      ));
+      final status = statusProvider.cache[sg.id];
+      if (status == null) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffMarker(
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionQuality == null) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffOfflineMarker(
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionQuality! < 0.75) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffBadSignalMarker(
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffOnlineMarker(
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      }
     }
   }
 

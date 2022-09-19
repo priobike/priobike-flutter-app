@@ -13,10 +13,16 @@ class SymbolLoader {
   /// Load all symbols into the map controller.
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
+    await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
+    await addImageFromAsset("offline", "assets/images/offline.drawio.png");
+    await addImageFromAsset("online", "assets/images/online.drawio.png");
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
     await addImageFromAsset("destination", "assets/images/destination.drawio.png");
     await addImageFromAsset("trafficlightoff", "assets/images/trafficlight-off.drawio.png");
+    await addImageFromAsset("trafficlightoffoffline", "assets/images/trafficlight-off-offline.drawio.png");
+    await addImageFromAsset("trafficlightoffbadsignal", "assets/images/trafficlight-off-bad-signal.drawio.png");
+    await addImageFromAsset("trafficlightoffonline", "assets/images/trafficlight-off-online.drawio.png");
     await addImageFromAsset("trafficlightred", "assets/images/trafficlight-red-countdown.drawio.png");
     await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
@@ -55,10 +61,11 @@ class TrafficLightOffMarker extends SymbolOptions {
   TrafficLightOffMarker({
     required LatLng geo,
     double iconSize = 1,
+    String iconImage = "trafficlightoff",
     String? label,
   }): super(
     geometry: geo,
-    iconImage: "trafficlightoff",
+    iconImage: iconImage,
     iconSize: iconSize,
     zIndex: 2,
     textField: label,
@@ -69,6 +76,45 @@ class TrafficLightOffMarker extends SymbolOptions {
     textHaloColor: "#ffffff",
     textHaloWidth: 1,
     textHaloBlur: 1,
+  );
+}
+
+class TrafficLightOffOnlineMarker extends TrafficLightOffMarker {
+  TrafficLightOffOnlineMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffonline",
+    label: label,
+  );
+}
+
+class TrafficLightOffOfflineMarker extends TrafficLightOffMarker {
+  TrafficLightOffOfflineMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffoffline",
+    label: label,
+  );
+}
+
+class TrafficLightOffBadSignalMarker extends TrafficLightOffMarker {
+  TrafficLightOffBadSignalMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffbadsignal",
+    label: label,
   );
 }
 

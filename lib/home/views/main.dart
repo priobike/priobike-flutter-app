@@ -7,6 +7,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/news/views/main.dart';
@@ -50,6 +51,9 @@ class HomeViewState extends State<HomeView> {
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
 
+  /// The associated sg status service, which is injected by the provider.
+  late PredictionSGStatus predictionSGStatus;
+
   @override
   void didChangeDependencies() {
     news = Provider.of<News>(context);
@@ -59,6 +63,7 @@ class HomeViewState extends State<HomeView> {
 
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
+    predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
@@ -99,6 +104,7 @@ class HomeViewState extends State<HomeView> {
       .then((_) {
         routing.reset();
         discomforts.reset();
+        predictionSGStatus.reset();
       });
   }
 
@@ -109,6 +115,7 @@ class HomeViewState extends State<HomeView> {
       .then((_) {
         routing.reset();
         discomforts.reset();
+        predictionSGStatus.reset();
       });
   }
 
