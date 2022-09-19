@@ -163,8 +163,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.electric_bike, 
                       title: "Radtyp", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: toggleBikeSelection
                     )
                   : ProfileElementButton(
@@ -188,8 +188,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.thumbs_up_down, 
                       title: "Präferenz", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: togglePreferenceSelection,
                     )
                   : ProfileElementButton(
@@ -213,8 +213,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.home_work, 
                       title: "Aktivität", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: toggleActivitySelection,
                     )
                   : ProfileElementButton(

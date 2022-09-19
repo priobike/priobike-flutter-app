@@ -9,18 +9,22 @@ import 'package:provider/provider.dart';
 class StatisticsElementView extends StatelessWidget {
   final IconData icon;
   final String title;
+  final void Function()? onPressed;
 
   const StatisticsElementView({
     Key? key, 
     required this.icon, 
     required this.title, 
+    this.onPressed,
     required BuildContext context
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Tile(
+      padding: const EdgeInsets.all(8),
       fill: Theme.of(context).colorScheme.background,
+      onPressed: onPressed,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -100,28 +104,52 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           padding: const EdgeInsets.all(24),
           children: [
             StatisticsElementView(
+              icon: Icons.co2,
+              title: "ca. ${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg\neingespart",
+              context: context,
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
+                        const Divider(),
+                        Content(
+                          text: "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.", 
+                          context: context,
+                        ),
+                      ],
+                    ),
+                  )
+                );
+              },
+            ),
+            StatisticsElementView(
               icon: Icons.directions_bike,
-              title: "Distanz: ${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
+              title: "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.timer,
-              title: "Zeit: ${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first}",
+              title: "${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first} Std.",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.speed,
-              title: "Im Schnitt: ${(statistics.averageSpeedKmH ?? 0).round()} km/h",
+              title: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.arrow_upward,
-              title: "Aufwärts: ${(statistics.totalElevationGain ?? 0)} m",
+              title: "${(statistics.totalElevationGain?.toInt() ?? 0)} m",
               context: context,
             ),
             StatisticsElementView(
               icon: Icons.arrow_downward,
-              title: "Abwärts: ${(statistics.totalElevationLoss ?? 0)} m",
+              title: "${(statistics.totalElevationLoss?.toInt() ?? 0)} m",
               context: context,
             ),
           ],
