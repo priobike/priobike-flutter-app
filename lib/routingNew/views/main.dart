@@ -36,22 +36,22 @@ class RoutingViewNew extends StatefulWidget {
 
 class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated geocoding service, which is injected by the provider.
-  Geocoding? geocodingService;
+  late Geocoding geocodingService;
 
   /// The associated routing service, which is injected by the provider.
-  Routing? routingService;
+  late Routing routingService;
 
   /// The associated shortcuts service, which is injected by the provider.
-  Shortcuts? shortcutsService;
+  late Shortcuts shortcutsService;
 
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  MapController? mapControllerService;
+  late MapController mapControllerService;
 
   /// The associated shortcuts service, which is injected by the provider.
-  Profile? profileService;
+  late Profile profileService;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -59,18 +59,19 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The threshold for the location accuracy in meter
   final int locationAccuracyThreshold = 20;
 
-
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routingService?.loadRoutes(context);
+      await routingService.loadRoutes(context);
 
       /// Calling requestSingleLocation function to fill lastPosition of PositionService
-      await positioning?.requestSingleLocation(context);
+      await positioning.requestSingleLocation(context);
+
       /// Checking threshold for location accuracy
-      if (positioning?.lastPosition?.accuracy != null && positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
+      if (positioning.lastPosition?.accuracy != null &&
+          positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
         _showAlertGPSQualityDialog();
       }
     });
@@ -90,8 +91,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
-    final settingsService =
-        Provider.of<Settings>(context, listen: false);
+    final settingsService = Provider.of<Settings>(context, listen: false);
     final nextView = settingsService.ridePreference == null
         ? const RideSelectionView() // Need to select a ride preference.
         : const RideView();
@@ -175,7 +175,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 final name = nameController.text;
                 if (name.isEmpty)
                   ToastMessage.showError("Name darf nicht leer sein.");
-                await shortcutsService?.saveNewShortcut(name, context);
+                await shortcutsService.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
@@ -236,7 +236,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                         BigButton(
                             label: "Erneut Laden",
                             onPressed: () async {
-                              await routingService?.loadRoutes(context);
+                              await routingService.loadRoutes(context);
                             }),
                       ]),
                     ),
@@ -258,11 +258,16 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
           title: BoldSubHeader(text: 'Achtung!', context: context),
-          content: Content( text:
-          'Die Qualität der Positionsbestimmung ist nicht optimal. Prüfen sie gegebenenfalls die Einstellungen des GPS für die App.', context: context),
+          content: Content(
+              text:
+                  'Die Qualität der Positionsbestimmung ist nicht optimal. Prüfen sie gegebenenfalls die Einstellungen des GPS für die App.',
+              context: context),
           actions: <Widget>[
             TextButton(
-              child: Content(text: 'Okay', context: context, color: Theme.of(context).colorScheme.primary),
+              child: Content(
+                  text: 'Okay',
+                  context: context,
+                  color: Theme.of(context).colorScheme.primary),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -273,32 +278,34 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
   }
 
-
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapControllerService?.zoomIn();
+    mapControllerService.zoomIn();
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapControllerService?.zoomOut();
+    mapControllerService.zoomOut();
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapControllerService?.setMyLocationTrackingModeTracking();
+    mapControllerService.setMyLocationTrackingModeTracking();
   }
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapControllerService?.centerNorth();
+    mapControllerService.centerNorth();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (routingService!.hadErrorDuringFetch) return renderTryAgainButton();
+    if (routingService.hadErrorDuringFetch) return renderTryAgainButton();
 
     final frame = MediaQuery.of(context);
+
+    bool waypointsSelected = routingService.selectedWaypoints != null &&
+        routingService.selectedWaypoints!.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -314,35 +321,62 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           child: Stack(children: [
             RoutingMapView(sheetMovement: sheetMovement.stream),
 
-            if (routingService!.isFetchingRoute) renderLoadingIndicator(),
-            if (geocodingService!.isFetchingAddress) renderLoadingIndicator(),
+            if (routingService.isFetchingRoute) renderLoadingIndicator(),
+            if (geocodingService.isFetchingAddress) renderLoadingIndicator(),
 
             // Top Bar
             SafeArea(
-              top: true,
+              top: !(waypointsSelected),
               child: Padding(
-                padding: const EdgeInsets.only(top: 20),
+                padding: EdgeInsets.only(top: waypointsSelected ? 0 : 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Hero(
-                            tag: 'appBackButton',
-                            child: AppBackButton(
-                                icon: Icons.chevron_left_rounded,
-                                onPressed: () => Navigator.pop(context),
-                                elevation: 5),
-                          ),
-                          const SizedBox(width: 16),
-                          SizedBox(
-                            // Avoid expansion of alerts view.
-                            width: frame.size.width - 80,
-                            child: const SearchBar(fromClicked: false),
+                    waypointsSelected
+                        ? Material(
+                            elevation: 5,
+                            child: Container(
+                              color: Theme.of(context).colorScheme.surface,
+                              width: frame.size.width,
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: SafeArea(
+                                top: true,
+                                child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Hero(
+                                        tag: 'appBackButton',
+                                        child: AppBackButton(
+                                            icon: Icons.chevron_left_rounded,
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            elevation: 5),
+                                      ),
+                                      const SizedBox(width: 16),
+
+                                    ]),
+                              ),
+                            ),
                           )
-                        ]),
-                    const ShortCuts(),
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                                Hero(
+                                  tag: 'appBackButton',
+                                  child: AppBackButton(
+                                      icon: Icons.chevron_left_rounded,
+                                      onPressed: () => Navigator.pop(context),
+                                      elevation: 5),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  // Avoid expansion of alerts view.
+                                  width: frame.size.width - 80,
+                                  child: const SearchBar(fromClicked: false),
+                                ),
+                              ]),
+                    !waypointsSelected ? const ShortCuts() : Container(),
                     Padding(
                       /// Align with FAB
                       padding: const EdgeInsets.symmetric(
@@ -367,7 +401,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           children: [
             GPSButton(
                 myLocationTrackingMode:
-                    mapControllerService?.myLocationTrackingMode,
+                    mapControllerService.myLocationTrackingMode,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
