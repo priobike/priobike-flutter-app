@@ -7,6 +7,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/news/service.dart';
@@ -54,6 +55,9 @@ class HomeViewState extends State<HomeView> {
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
+  /// The associated statistics service, which is injected by the provider.
+  late Statistics statistics;
+
   @override
   void didChangeDependencies() {
     news = Provider.of<News>(context);
@@ -64,6 +68,7 @@ class HomeViewState extends State<HomeView> {
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+    statistics = Provider.of<Statistics>(context, listen: false);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
@@ -71,6 +76,7 @@ class HomeViewState extends State<HomeView> {
       await settings.loadSettings();
       await profile.loadProfile();
       await shortcuts.loadShortcuts(context);
+      await statistics.loadStatistics();
     });
 
     super.didChangeDependencies();
