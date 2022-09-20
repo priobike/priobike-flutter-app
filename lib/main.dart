@@ -51,8 +51,11 @@ Future<void> main() async {
   // Ensure that the widgets binding is initialized before 
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
+
   // Load offline map tiles.
-  await AppMap.loadOfflineTiles();
+  // FIXME: This will show black maps for some Android devices.
+  // await AppMap.loadOfflineTiles();
+
   // Load the color mode before the first view build.
   final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
