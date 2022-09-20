@@ -193,11 +193,13 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
       final status = statusProvider.cache[sg.id];
       if (status == null) {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffMarker(
+            iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
@@ -205,6 +207,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       } else if (status.predictionState == SGPredictionState.offline) {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffOfflineMarker(
+            iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
@@ -212,6 +215,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       } else if (status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffBadSignalMarker(
+            iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
@@ -219,6 +223,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       } else {
         trafficLights!.add(await mapController!.addSymbol(
           TrafficLightOffOnlineMarker(
+            iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
