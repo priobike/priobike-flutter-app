@@ -20,6 +20,7 @@ import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/filterButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
+import 'package:priobike/routingNew/views/widgets/routingBar.dart';
 import 'package:priobike/routingNew/views/widgets/searchBar.dart';
 import 'package:priobike/routingNew/views/widgets/shortcuts.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -333,32 +334,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     waypointsSelected
-                        ? Material(
-                            elevation: 5,
-                            child: Container(
-                              color: Theme.of(context).colorScheme.surface,
-                              width: frame.size.width,
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              child: SafeArea(
-                                top: true,
-                                child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Hero(
-                                        tag: 'appBackButton',
-                                        child: AppBackButton(
-                                            icon: Icons.chevron_left_rounded,
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            elevation: 5),
-                                      ),
-                                      const SizedBox(width: 16),
-
-                                    ]),
-                              ),
-                            ),
-                          )
+                        ? RoutingBar()
                         : Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
