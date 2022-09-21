@@ -28,6 +28,11 @@ class SymbolLoader {
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
     await addImageFromAsset("direction", "assets/images/direction.png");
+    await addImageFromAsset("airstation", "assets/images/airstation.png");
+    await addImageFromAsset("bike", "assets/images/bike.png");
+    await addImageFromAsset("construction", "assets/images/construction.png");
+    await addImageFromAsset("repair", "assets/images/repair.png");
+    await addImageFromAsset("money", "assets/images/money.png");
   }
 
   /// Adds an asset image to the currently displayed style

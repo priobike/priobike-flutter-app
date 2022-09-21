@@ -87,8 +87,20 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     # Geo data
-    - assets/geo/accident-hotspots-hamburg.geojson
-    - assets/geo/accident-hotspots-dresden.geojson
+    - assets/geo/accident_black_spots_dresden.geojson
+    - assets/geo/accident_black_spots.geojson
+    - assets/geo/bicycle_parking_polygon.geojson
+    - assets/geo/bicycle_parking.geojson
+    - assets/geo/bicycle_rental_polygon.geojson
+    - assets/geo/bicycle_rental.geojson
+    - assets/geo/bicycle_shop_polygon.geojson
+    - assets/geo/bicycle_shop.geojson
+    - assets/geo/bike_air_station.geojson
+    - assets/geo/bike_and_ride.geojson
+    - assets/geo/bike_count.geojson
+    - assets/geo/construction_sides.geojson
+    - assets/geo/dresden_boundary.geojson
+    - assets/geo/hamburg_boundary.geojson
 
     # Sideloaded offline maps
     - assets/offline/hamburg-light.db
@@ -123,6 +135,11 @@ flutter:
     - assets/images/trafficlight-red-countdown.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
+    - assets/images/bike.png
+    - assets/images/airstation.png
+    - assets/images/construction.png
+    - assets/images/repair.png
+    - assets/images/money.png
 
     # Navigation icons
     - assets/images/dark_continue.png

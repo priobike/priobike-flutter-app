@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/common/map/view.dart';
@@ -15,7 +14,6 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
@@ -275,77 +273,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     }
   }
 
-  /// Load the accident hotspots.
-  Future<void> loadAccidentHotspots() async {
-    if (mapController == null) return;
-    final settings = Provider.of<Settings>(context, listen: false);
-    String geojson;
-    if (settings.backend == Backend.production) {
-      geojson = await rootBundle.loadString("assets/geo/accident-hotspots-hamburg.geojson");
-    } else if (settings.backend == Backend.staging) {
-      geojson = await rootBundle.loadString("assets/geo/accident-hotspots-dresden.geojson");
-    } else {
-      return;
-    }
-    // Add the accident hotspots to the map.
-    await mapController!.removeSource("accident-hotspots");
-    await mapController!.addSource("accident-hotspots", GeojsonSourceProperties(
-      data: jsonDecode(geojson),
-    ));
-    // Add a fill to the polygons.
-    await mapController!.addLayer(
-      "accident-hotspots", 
-      "accident-hotspots-fill", 
-      const FillLayerProperties(
-        fillOpacity: 0.25,
-        fillColor: "#ff0000"
-      )
-    );
-    // Add a line to the polygons.
-    await mapController!.addLayer(
-      "accident-hotspots", 
-      "accident-hotspots-line", 
-      const LineLayerProperties(
-        lineColor: "#ff0000",
-        lineWidth: 2,
-        // Hide after zoom level 14.
-        lineOpacity: [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0, 0,
-          13, 0,
-          14, 0.75,
-        ]
-      )
-    );
-    // Add a label to the polygons.
-    await mapController!.addLayer(
-      "accident-hotspots", 
-      "accident-hotspots-label", 
-      const SymbolLayerProperties(
-        textField: "Erhöhte Unfallgefahr für Radfahrer",
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 14,
-        textOffset: [
-          Expressions.literal,
-          [0, 5]
-        ],
-        textAnchor: "bottom",
-        textColor: "#ff0000",
-        // Hide after zoom level 15.
-        textOpacity: [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0, 0,
-          14, 0,
-          15, 0.75,
-        ],
-      )
-    );
-  }
-
   /// A callback that is called when the user taps a fill.
   Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
 
@@ -404,6 +331,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
+    // Load the map features.
+    await GeoFeatureLoader(mapController!).loadFeatures();
+
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);
 
@@ -415,9 +345,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Force adapt the map.
     await adaptMap();
-
-    // Show accident hotspots.
-    await loadAccidentHotspots();
   }
 
   /// A callback that is executed when the map was longclicked.
