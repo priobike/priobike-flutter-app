@@ -332,7 +332,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await SymbolLoader(mapController!).loadSymbols();
 
     // Load the map features.
-    await GeoFeatureLoader(mapController!).loadFeatures();
+    await GeoFeatureLoader(mapController!, context).loadFeatures();
 
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);

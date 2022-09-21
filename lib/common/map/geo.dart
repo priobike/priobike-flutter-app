@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -8,8 +9,11 @@ class GeoFeatureLoader {
   /// The associated map controller.
   MapboxMapController mapController;
 
+  /// The build context.
+  BuildContext context;
+
   /// Create a new geo feature loader.
-  GeoFeatureLoader(this.mapController);
+  GeoFeatureLoader(this.mapController, this.context);
 
   /// Fade a layer out before a specific zoom level.
   static dynamic showAfter({required int zoom, double opacity = 1.0}) => [
@@ -198,7 +202,9 @@ class GeoFeatureLoader {
         iconImage: "money",
         iconSize: 0.5,
         iconOpacity: showAfter(zoom: 15),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,
@@ -254,7 +260,9 @@ class GeoFeatureLoader {
         iconImage: "money",
         iconSize: 0.5,
         iconOpacity: showAfter(zoom: 15),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,
@@ -316,7 +324,9 @@ class GeoFeatureLoader {
         iconImage: "repair",
         iconSize: 0.4,
         iconOpacity: showAfter(zoom: 15),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,
@@ -373,7 +383,9 @@ class GeoFeatureLoader {
         iconImage: "repair",
         iconSize: 0.5,
         iconOpacity: showAfter(zoom: 15),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,
@@ -430,7 +442,9 @@ class GeoFeatureLoader {
         iconImage: "airstation",
         iconSize: 0.5,
         iconOpacity: showAfter(zoom: 15),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,
@@ -450,7 +464,9 @@ class GeoFeatureLoader {
         textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
         textSize: 12,
         textAnchor: "center",
-        textColor: "#34495e",
+        textColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#34495e"
+          : "#ecf0f1",
         textOpacity: showAfter(zoom: 17),
       )
     );
@@ -470,7 +486,9 @@ class GeoFeatureLoader {
       "$layerPrefix-construction-sites", 
       "$layerPrefix-construction-sites-circle", 
       CircleLayerProperties(
-        circleColor: "#f39c12",
+        circleColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#f39c12"
+          : "#000000",
         circleRadius: 16,
         circleStrokeColor: "#e67e22",
         circleStrokeOpacity: showAfter(zoom: 14, opacity: 1),
@@ -486,7 +504,9 @@ class GeoFeatureLoader {
         iconImage: "construction",
         iconSize: 0.5,
         iconOpacity: showAfter(zoom: 14),
-        textHaloColor: "#ecf0f1",
+        textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? "#ffffff"
+          : "#000000",
         textHaloWidth: 1,
         textOffset: [
           Expressions.literal,

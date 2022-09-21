@@ -124,10 +124,10 @@ class AlertsViewState extends State<AlertsView> {
     final sum = predictionStatus.bad + predictionStatus.offline;
     return [
       Padding(
-        padding: const EdgeInsets.only(left: 16, top: 2, bottom: 10), 
+        padding: const EdgeInsets.only(left: 16, top: 2, bottom: 2, right: 16), 
         child: Row(children: [
           SizedBox(
-            width: constraints.maxWidth - 16,
+            width: constraints.maxWidth - 32,
             height: constraints.maxHeight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, 
@@ -154,7 +154,7 @@ class AlertsViewState extends State<AlertsView> {
                           height: 14, width: 14,
                         )),
                         TextSpan(
-                          text: " ${predictionStatus.offline} nicht",
+                          text: " ${predictionStatus.offline} aktuell nicht",
                           style: Theme.of(context).textTheme.headline4!
                             .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                         ),
