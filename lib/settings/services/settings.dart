@@ -158,4 +158,17 @@ class Settings with ChangeNotifier {
 
     notifyListeners();
   }
+
+  /// Convert the settings to a json object.
+  Map<String, dynamic> toJson() => {
+    "enableBetaFeatures": enableBetaFeatures,
+    "enableInternalFeatures": enableInternalFeatures,
+    "backend": backend.name,
+    "positioningMode": positioningMode.name,
+    "rerouting": rerouting.name,
+    "sgLabelsMode": sgLabelsMode.name,
+    "ridePreference": ridePreference?.name,
+    "colorMode": colorMode.name,
+    "speedMode": speedMode.name,
+  };
 }

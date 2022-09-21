@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/common/models/point.dart';
 
@@ -116,26 +114,24 @@ class Recommendation {
     return Recommendation.fromJson(map);
   }
 
-  String toJson() {
-    return const JsonEncoder().convert({
-      'label': label,
-      'countdown': countdown,
-      'distance': distance,
-      'speedRec': speedRec,
-      'speedDiff': speedDiff,
-      'green': isGreen,
-      'error': error,
-      'errorMessage': errorMessage,
-      'snapPos': snapPos.toJson(),
-      'navText': navText,
-      'navSign': navSign,
-      'navDist': navDist,
-      'quality': quality,
-      'predictionGreentimeThreshold': predictionGreentimeThreshold,
-      'predictionStartTime': predictionStartTime,
-      'predictionValue': predictionValue,
-      'sgId': sgId,
-      'sgPos': sgPos,
-    });
-  }
+  Map<String, dynamic> toJson() => {
+    'label': label,
+    'countdown': countdown,
+    'distance': distance,
+    'speedRec': speedRec,
+    'speedDiff': speedDiff,
+    'green': isGreen,
+    'error': error,
+    'errorMessage': errorMessage,
+    'snapPos': snapPos.toJson(),
+    'navText': navText,
+    'navSign': navSign,
+    'navDist': navDist,
+    'quality': quality,
+    'predictionGreentimeThreshold': predictionGreentimeThreshold,
+    'predictionStartTime': predictionStartTime,
+    'predictionValue': predictionValue,
+    'sgId': sgId,
+    'sgPos': sgPos,
+  };
 }

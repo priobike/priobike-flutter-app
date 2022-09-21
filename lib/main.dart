@@ -27,6 +27,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/features.dart';
 import 'package:priobike/statistics/services/statistics.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
@@ -115,6 +116,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => PositionEstimator()),
         ChangeNotifierProvider(create: (context) => Ride()),
+        ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),

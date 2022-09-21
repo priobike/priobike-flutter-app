@@ -6,6 +6,8 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
 
 class FeedbackView extends StatefulWidget {
@@ -26,6 +28,9 @@ class FeedbackView extends StatefulWidget {
 }
 
 class FeedbackViewState extends State<FeedbackView> {
+  /// The associated tracking service, which is injected by the provider.
+  late Tracking tracking;
+
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
 
@@ -34,9 +39,18 @@ class FeedbackViewState extends State<FeedbackView> {
     // Send the feedback and reset the feedback service.
     if (feedback.willSendFeedback) {
       await feedback.send(context);
-      ToastMessage.showSuccess("Danke für Dein Feedback!");
     }
     await feedback.reset();
+
+    // Send the tracking data and reset the tracking service.
+    if (tracking.willSendTrack) {
+      await tracking.send(context);
+    }
+    await tracking.reset();
+
+    if (feedback.willSendFeedback || tracking.willSendTrack) {
+      ToastMessage.showSuccess("Danke für's Testen!");
+    }
 
     // Call the callback.
     await widget.onSubmitted(context);
@@ -44,6 +58,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   void didChangeDependencies() {
+    tracking = Provider.of<Tracking>(context);
     feedback = Provider.of<Feedback>(context);
     super.didChangeDependencies();
   }
@@ -68,7 +83,10 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override 
   Widget build(BuildContext context) {
-    if (feedback.isSendingFeedback) return renderLoadingIndicator();
+    if (
+      feedback.isSendingFeedback ||
+      tracking.isSendingTrack
+    ) return renderLoadingIndicator();
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -101,10 +119,19 @@ class FeedbackViewState extends State<FeedbackView> {
                 const VSpace(),
                 const Divider(),
                 const VSpace(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32),
+                  child: SendTrackingView(),
+                ),
+                const VSpace(),
+                const Divider(),
+                const VSpace(),
                 BigButton(
                   iconColor: Colors.white,
-                  icon: feedback.willSendFeedback ? Icons.send : Icons.check,
-                  label: feedback.willSendFeedback ? "Senden" : "Fertig",
+                  icon: feedback.willSendFeedback || tracking.willSendTrack
+                   ? Icons.send : Icons.check,
+                  label: feedback.willSendFeedback || tracking.willSendTrack
+                    ? "Senden" : "Fertig",
                   onPressed: () => submit(context),
                 ),
                 const SizedBox(height: 128),

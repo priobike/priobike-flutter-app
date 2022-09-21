@@ -41,4 +41,14 @@ class StatusSummaryData {
         ? json['average_prediction_quality'].toDouble()
         : json['average_prediction_quality'],
   );
+
+  Map<String, dynamic> toJsonCamelCase() => {
+    'statusUpdateTime': statusUpdateTime,
+    'numThings': numThings,
+    'numPredictions': numPredictions,
+    'numBadPredictions': numBadPredictions,
+    'mostRecentPredictionTime': mostRecentPredictionTime,
+    'oldestPredictionTime': oldestPredictionTime,
+    'averagePredictionQuality': averagePredictionQuality,
+  };
 }

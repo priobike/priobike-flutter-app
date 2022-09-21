@@ -35,6 +35,9 @@ class Ride with ChangeNotifier {
   /// The current recommendation from the server.
   Recommendation? currentRecommendation;
 
+  /// The recorded recommendations of the ride.
+  final recommendations = List<Recommendation>.empty(growable: true);
+
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
@@ -46,6 +49,7 @@ class Ride with ChangeNotifier {
     socket = null;
     jsonRPCPeer = null;
     currentRecommendation = null;
+    recommendations.clear();
     needsLayout = {};
     notifyListeners();
   }
@@ -62,8 +66,13 @@ class Ride with ChangeNotifier {
 
   /// A callback that is executed when a new recommendation arrives.
   Future<void> onNewRecommendation(Parameters params) async {
+    if (!navigationIsActive) {
+      log.w("Received recommendation while navigation is not active.");
+      return;
+    }
     try {
       currentRecommendation = Recommendation.fromJsonRPC(params);
+      recommendations.add(currentRecommendation!);
       if (currentRecommendation!.error) {
         log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
