@@ -17,9 +17,6 @@ class RoutingBar extends StatefulWidget {
 }
 
 class RoutingBarState extends State<RoutingBar> {
-  final ScrollController _scrollController1 = ScrollController();
-  final ScrollController _scrollController2 = ScrollController();
-
   /// The geosearch service that is injected by the provider.
   late Geosearch geosearch;
 
@@ -229,7 +226,6 @@ class RoutingBarState extends State<RoutingBar> {
                     ),
                     child: ReorderableListView(
                       padding: EdgeInsets.zero,
-                      scrollController: _scrollController2,
                       proxyDecorator: _proxyDecorator,
                       // With a newer Version of Flutter onReorderStart can be used to hide symbols during drag
                       onReorder: (int oldIndex, int newIndex) {},
