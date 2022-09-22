@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/common/models/point.dart';
-import 'package:priobike/routing/messages/routing.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -77,9 +76,76 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Load a SG-Selector response.
+  Future<SGSelectorResponse?> loadSGSelectorResponse(BuildContext context, GHRouteResponsePath path) async {
+    try {
+      final settings = Provider.of<Settings>(context, listen: false);
+
+      final baseUrl = settings.backend.path;
+      final sgSelectorUrl = "https://$baseUrl/sg-selector-backend/routing/select";
+      final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
+      log.i("Loading SG-Selector response from $sgSelectorUrl");
+
+      final req = SGSelectorRequest(route: path.points.coordinates.map((e) => SGSelectorPosition(
+        lat: e.lat, lon: e.lon, alt: e.elevation ?? 0.0,
+      )).toList());
+      final response = await httpClient.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+      if (response.statusCode == 200) {
+        return SGSelectorResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      log.e("Failed to load SG-Selector response: $e");
+      return null;
+    }
+  }
+
+  /// Load a GraphHopper response.
+  Future<GHRouteResponse?> loadGHRouteResponse(BuildContext context, List<Waypoint> waypoints) async {
+    try {
+      final settings = Provider.of<Settings>(context, listen: false);
+
+      final baseUrl = settings.backend.path;
+      var ghUrl = "https://$baseUrl/graphhopper/route";
+      ghUrl += "?type=json";
+      ghUrl += "&locale=de";
+      ghUrl += "&weighting=fastest";
+      ghUrl += "&elevation=true";
+      ghUrl += "&points_encoded=false";
+      ghUrl += "&vehicle=bike2";
+      // Add the supported details. This must be specified in the GraphHopper config.
+      ghUrl += "&details=surface";
+      ghUrl += "&details=max_speed";
+      ghUrl += "&details=smoothness";
+      ghUrl += "&details=lanes";
+      if (waypoints.length == 2) {
+        ghUrl += "&algorithm=alternative_route";
+        ghUrl += "&ch.disable=true";
+      }
+      for (final waypoint in waypoints) {
+        ghUrl += "&point=${waypoint.lat},${waypoint.lon}";
+      }
+      final ghEndpoint = Uri.parse(ghUrl);
+      log.i("Loading GraphHopper response from $ghUrl");
+
+      final response = await httpClient.get(ghEndpoint);
+      if (response.statusCode == 200) {
+        return GHRouteResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e, stacktrace) {
+      log.e("Failed to load GraphHopper response: $e $stacktrace");
+      return null;
+    }
+  } 
+
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
-  Future<RoutesResponse?> loadRoutes(BuildContext context) async {
+  Future<List<r.Route>?> loadRoutes(BuildContext context) async {
     if (isFetchingRoute) return null;
 
     // Do nothing if the waypoints were already fetched (or both are null).
@@ -88,52 +154,56 @@ class Routing with ChangeNotifier {
     if (selectedWaypoints!.length < 2) return null;
 
     isFetchingRoute = true;
+    hadErrorDuringFetch = false;
     notifyListeners();
 
-    hadErrorDuringFetch = false;
-
-    try {
-      final settings = Provider.of<Settings>(context, listen: false);
-
-      final baseUrl = settings.backend.path;
-      final routeUrl = "https://$baseUrl/backend-service/routes";
-      final routeEndpoint = Uri.parse(routeUrl);
-      final routeRequest = RouteRequest(
-        waypoints: selectedWaypoints!.map((e) => Point(lat: e.lat, lon: e.lon)).toList(),
-      );
-      final response = await httpClient.post(routeEndpoint, body: json.encode(routeRequest.toJson()));
-      if (response.statusCode != 200) {
-        isFetchingRoute = false;
-        notifyListeners();
-        final err = "Route could not be fetched from endpoint $routeEndpoint: ${response.body}";
-        log.e(err); ToastMessage.showError(err); throw Exception(err);
-      }
-      
-      final decoded = json.decode(response.body);
-      final routeResponse = RoutesResponse
-        .fromJson(decoded)
-        .connected(selectedWaypoints!.first, selectedWaypoints!.last);
-      if (routeResponse.routes.isEmpty) return null;
-      selectedRoute = routeResponse.routes.first;
-      allRoutes = routeResponse.routes;
-      fetchedWaypoints = selectedWaypoints;
-      isFetchingRoute = false;
-
-      final discomforts = Provider.of<Discomforts>(context, listen: false);
-      await discomforts.findDiscomforts(context, routeResponse.routes.first.path);
-
-      final status = Provider.of<PredictionSGStatus>(context, listen: false);
-      await status.fetch(context, routeResponse.routes.first.signalGroups.values.toList());
-
-      notifyListeners();
-      return routeResponse;
-    } catch (error, stacktrace) { 
-      log.e("Error during load routes: $error $stacktrace");
-      isFetchingRoute = false;
+    // Load the GraphHopper response.
+    final ghResponse = await loadGHRouteResponse(context, selectedWaypoints!);
+    if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
+      isFetchingRoute = false;
       notifyListeners();
       return null;
     }
+
+    // Load the SG-Selector responses for each path.
+    final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
+    if (sgSelectorResponses.contains(null)) {
+      hadErrorDuringFetch = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    if (ghResponse.paths.length != sgSelectorResponses.length) {
+      hadErrorDuringFetch = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
+
+    // Create the routes.
+    final routes = ghResponse.paths.asMap().map((i, path) {
+      final sgSelectorResponse = sgSelectorResponses[i]!;
+      var route = r.Route(path: path, route: sgSelectorResponse.route, signalGroups: sgSelectorResponse.signalGroups);
+      // Connect the route to the start and end points.
+      route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+      return MapEntry(i, route);
+    }).values.toList();
+
+    selectedRoute = routes.first;
+    allRoutes = routes;
+    fetchedWaypoints = selectedWaypoints;
+    isFetchingRoute = false;
+
+    final discomforts = Provider.of<Discomforts>(context, listen: false);
+    await discomforts.findDiscomforts(context, routes.first.path);
+
+    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    await status.fetch(context, routes.first.signalGroups.values.toList());
+
+    notifyListeners();
+    return routes;
   }
 
   /// Select a route.

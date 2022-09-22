@@ -103,9 +103,9 @@ class RideViewState extends State<RideView> {
           (snapping?.remainingWaypoints?.isNotEmpty ?? false)
         ) {
           await routing?.selectWaypoints(snapping!.remainingWaypoints);
-          final response = await routing?.loadRoutes(context);
-          if (response != null || response!.routes.isNotEmpty) {
-            await ride?.selectRide(context, response.routes.first);
+          final routes = await routing?.loadRoutes(context);
+          if (routes != null && routes.isNotEmpty) {
+            await ride?.selectRide(context, routes.first);
           }
         }
       });

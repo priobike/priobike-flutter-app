@@ -23,13 +23,13 @@ class GHResponseInfo {
   final List<String> copyrights;
 
   /// The time in milliseconds it took to perform the request.
-  final double took;
+  final int took;
 
   const GHResponseInfo({required this.copyrights, required this.took});
 
   factory GHResponseInfo.fromJson(Map<String, dynamic> json) {
     return GHResponseInfo(
-      copyrights: json['paths'],
+      copyrights: json['copyrights'].cast<String>(),
       took: json['took'],
     );
   }
