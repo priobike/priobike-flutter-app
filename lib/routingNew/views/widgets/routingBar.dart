@@ -23,60 +23,6 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
-  /// The divider for Elements in the RoutingBar
-  _routingBarColumnDivider() {
-    return SizedBox(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 1,
-            width: 30,
-            child: Stack(clipBehavior: Clip.none, children: const [
-              Positioned(
-                left: 0,
-                top: -11,
-                child: Icon(Icons.more_vert),
-              ),
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  _leadingRoutingBarIcons(int max) {
-    List<Widget> icons = [
-      Icon(Icons.gps_fixed_outlined),
-      Icon(Icons.more_vert),
-      Icon(Icons.location_on)
-    ];
-
-    for (int i = 2; i <= max + 1; i++) {
-      icons.insert(
-        icons.length - 1,
-        Container(
-          width: 24,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle, border: Border.all(color: Colors.white)),
-          child: Center(
-            child: Content(text: (i - 1).toString(), context: context),
-          ),
-        ),
-      );
-      icons.insert(
-        icons.length - 1,
-        Icon(Icons.more_vert),
-      );
-      print(icons);
-    }
-
-    return Column(
-      children: icons,
-    );
-  }
-
   _routingBarRow(int index, int max) {
     IconData? leadingIcon;
     if (index == 0) leadingIcon = Icons.gps_fixed_outlined;
@@ -106,14 +52,16 @@ class RoutingBarState extends State<RoutingBar> {
                             Content(text: index.toString(), context: context),
                       ),
                     ),
-              index < max - 1 ? Positioned(
-                left: 3,
-                top: index == 0 ? 23 : 20,
-                child: const Icon(
-                  Icons.more_vert,
-                  size: 18,
-                ),
-              ) : Container(),
+              index < max - 1
+                  ? Positioned(
+                      left: 3,
+                      top: index == 0 ? 23 : 20,
+                      child: const Icon(
+                        Icons.more_vert,
+                        size: 18,
+                      ),
+                    )
+                  : Container(),
             ],
           ),
         ),
@@ -215,33 +163,22 @@ class RoutingBarState extends State<RoutingBar> {
             const SizedBox(width: 16),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight: frame.size.height * 0.25,
                   ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: frame.size.height * 0.25,
-                    ),
-                    child: ReorderableListView(
-                      padding: EdgeInsets.zero,
-                      proxyDecorator: _proxyDecorator,
-                      // With a newer Version of Flutter onReorderStart can be used to hide symbols during drag
-                      onReorder: (int oldIndex, int newIndex) {},
-                      children: [
-                        _routingBarRow(0, 2),
-                        //_routingBarColumnDivider(),
-                        _routingBarRow(1, 3),
-                        //_routingBarColumnDivider(),
-                        _routingBarRow(2, 4),
-                        //_routingBarColumnDivider(),
-                        _routingBarRow(3, 5),
-                        //_routingBarColumnDivider(),
-                        _routingBarRow(4, 6),
-                        _routingBarRow(5, 6),
-                      ],
-                    ),
+                  child: ReorderableListView(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    proxyDecorator: _proxyDecorator,
+                    // With a newer Version of Flutter onReorderStart can be used to hide symbols during drag
+                    onReorder: (int oldIndex, int newIndex) {},
+                    children: [
+                      _routingBarRow(0, 3),
+                      _routingBarRow(1, 3),
+                      _routingBarRow(2, 3),
+                    ],
                   ),
                 ),
               ),

@@ -27,7 +27,7 @@ import 'package:provider/provider.dart';
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
-  @override 
+  @override
   HomeViewState createState() => HomeViewState();
 }
 
@@ -141,7 +141,7 @@ class HomeViewState extends State<HomeView> {
     );
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
     body: CustomScrollView(
@@ -164,7 +164,7 @@ class HomeViewState extends State<HomeView> {
               ]),
               Expanded(child: Container()),
               SmallIconButton(
-                icon: Icons.edit, 
+                icon: Icons.edit,
                 fill: Theme.of(context).colorScheme.background,
                 splash: Colors.white,
                 onPressed: onOpenShortcutEditView,
@@ -173,7 +173,7 @@ class HomeViewState extends State<HomeView> {
             ]),
             const VSpace(),
             const TutorialView(
-              id: "priobike.tutorial.select-shortcut", 
+              id: "priobike.tutorial.select-shortcut",
               text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
               padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
             ),
