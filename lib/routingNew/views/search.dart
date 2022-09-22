@@ -69,6 +69,7 @@ class SearchViewState extends State<SearchView> {
 
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
+    geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
   }
 
@@ -144,7 +145,7 @@ class SearchViewState extends State<SearchView> {
                       ),
                     ),
                     _locationSearchController.text == ""
-                        ? const LastSearchRequests()
+                        ? LastSearchRequests(onCompleteSearch: onCompleteSearch, onWaypointTapped: onWaypointTapped)
                         : Container(),
                     Column(children: [
                       const SmallVSpace(),

@@ -8,7 +8,14 @@ import 'package:provider/provider.dart';
 
 /// Widget for last search results
 class LastSearchRequests extends StatefulWidget {
-  const LastSearchRequests({Key? key}) : super(key: key);
+  final Function onWaypointTapped;
+  final Function onCompleteSearch;
+
+  const LastSearchRequests(
+      {Key? key,
+      required this.onWaypointTapped,
+      required this.onCompleteSearch})
+      : super(key: key);
 
   @override
   LastSearchRequestsState createState() => LastSearchRequestsState();
@@ -31,22 +38,23 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-        Align(
+    return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Align(
           alignment: Alignment.centerLeft,
           child: BoldContent(text: "Letzte Suchen", context: context),
         ),
-        if (profile.searchHistory?.isNotEmpty == true) ...[
-          for (final waypoint in profile.searchHistory!) ...[
-            WaypointListItemView(
-                waypoint: waypoint,
-                onTap: (waypoint) {},
-                onCompleteSearch: (waypoint) {})
-          ]
+      ),
+      if (profile.searchHistory?.isNotEmpty == true) ...[
+        for (final waypoint in profile.searchHistory!) ...[
+          WaypointListItemView(
+              waypoint: waypoint,
+              onTap: (waypoint) => widget.onWaypointTapped(waypoint),
+              onCompleteSearch: (waypoint) =>
+                  widget.onCompleteSearch(waypoint)),
         ]
-      ]),
-    );
+      ]
+    ]);
   }
 }
