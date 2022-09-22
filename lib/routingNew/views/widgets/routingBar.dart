@@ -8,6 +8,29 @@ import 'package:priobike/routingNew/views/search.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
+/// A callback that is executed when the search page is opened.
+Future<void> onSearch(BuildContext context, Routing routing, int? index) async {
+  final result = await Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => const SearchView(),
+    ),
+  );
+  if (result == null) return;
+
+  final waypoint = result as Waypoint;
+  final waypoints = routing.selectedWaypoints ?? [];
+  // exchange with new waypoint
+  List<Waypoint> newWaypoints = waypoints.toList();
+  if (index != null) {
+    newWaypoints[index] = waypoint;
+  } else {
+    newWaypoints = [...waypoints, waypoint];
+  }
+
+  routing.selectWaypoints(newWaypoints);
+  routing.loadRoutes(context);
+}
+
 /// A view that displays alerts in the routing context.
 class RoutingBar extends StatefulWidget {
   final TextEditingController? locationSearchController;
@@ -25,28 +48,7 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
-  /// A callback that is executed when the search page is opened.
-  Future<void> onSearch(int? index) async {
-    final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SearchView(),
-      ),
-    );
-    if (result == null) return;
 
-    final waypoint = result as Waypoint;
-    final waypoints = routingService.selectedWaypoints ?? [];
-    // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
-    if (index != null) {
-      newWaypoints[index] = waypoint;
-    } else {
-      newWaypoints = [...waypoints, waypoint];
-    }
-
-    routingService.selectWaypoints(newWaypoints);
-    routingService.loadRoutes(context);
-  }
 
   _routingBarRow(int index, int max, Waypoint waypoint) {
     IconData? leadingIcon;
@@ -97,7 +99,7 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  onSearch(index);
+                  onSearch(context, routingService, index);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -130,8 +132,7 @@ class RoutingBarState extends State<RoutingBar> {
               if (index < max - 1) {
                 onRemoveWaypoint(context, index, max);
               } else {
-                print("CALLED");
-                onSearch(null);
+                onSearch(context, routingService, null);
               }
             },
             splashRadius: 20,

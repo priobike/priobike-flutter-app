@@ -8,6 +8,7 @@ import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/search.dart';
 import 'package:priobike/routingNew/views/settings.dart';
+import 'package:priobike/routingNew/views/widgets/routingBar.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
@@ -63,23 +64,6 @@ class SearchBarState extends State<SearchBar> {
     });
   }
 
-  /// A callback that is executed when the search page is opened.
-  Future<void> onSearch() async {
-    final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SearchView(),
-      ),
-    );
-    if (result == null) return;
-
-    final waypoint = result as Waypoint;
-    final waypoints = routingService.selectedWaypoints ?? [];
-    final newWaypoints = [...waypoints, waypoint];
-
-    routingService.selectWaypoints(newWaypoints);
-    routingService.loadRoutes(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -93,7 +77,7 @@ class SearchBarState extends State<SearchBar> {
         child: GestureDetector(
           onTap: () {
             if (!widget.fromClicked) {
-              onSearch();
+              onSearch(context, routingService, null);
             }
           },
           child: Stack(
