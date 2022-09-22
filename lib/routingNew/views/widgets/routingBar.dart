@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/search.dart';
@@ -23,7 +24,7 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
-  _routingBarRow(int index, int max) {
+  _routingBarRow(int index, int max, Waypoint waypoint) {
     IconData? leadingIcon;
     if (index == 0) leadingIcon = Icons.gps_fixed_outlined;
     if (index == max - 1) leadingIcon = Icons.location_on;
@@ -90,8 +91,7 @@ class RoutingBarState extends State<RoutingBar> {
                   ),
                   child: Center(
                     child: Content(
-                        text: routingService.selectedWaypoints![0].address
-                            .toString(),
+                        text: waypoint.address.toString(),
                         context: context,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -106,14 +106,27 @@ class RoutingBarState extends State<RoutingBar> {
             constraints: const BoxConstraints(maxHeight: 40),
             iconSize: 20,
             icon: Icon(trailingIcon),
-            onPressed: () {
-              print("test");
-            },
+            onPressed: () => onRemoveWaypoint(context, index, max),
             splashRadius: 20,
           ),
         )
       ],
     );
+  }
+
+  /// A callback which is executed when the map was created.
+  Future<void> onRemoveWaypoint(
+      BuildContext context, int index, int max) async {
+    if (index < max - 1 && routingService.selectedWaypoints != null) {
+      if (routingService.selectedWaypoints == null ||
+          routingService.selectedWaypoints!.isEmpty) return;
+
+      final removedWaypoints = routingService.selectedWaypoints!.toList();
+      removedWaypoints.removeAt(index);
+
+      routingService.selectWaypoints(removedWaypoints);
+      routingService.loadRoutes(context);
+    }
   }
 
   @override
@@ -140,6 +153,16 @@ class RoutingBarState extends State<RoutingBar> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+    List<Widget> routingBarItems = [];
+    if (routingService.selectedWaypoints != null) {
+      for (int i = 0; i < routingService.selectedWaypoints!.length; i++) {
+        routingBarItems.add(_routingBarRow(
+            i,
+            routingService.selectedWaypoints!.length,
+            routingService.selectedWaypoints![i]));
+      }
+    }
+
     return Material(
       elevation: 5,
       child: Container(
@@ -173,12 +196,27 @@ class RoutingBarState extends State<RoutingBar> {
                     padding: EdgeInsets.zero,
                     proxyDecorator: _proxyDecorator,
                     // With a newer Version of Flutter onReorderStart can be used to hide symbols during drag
-                    onReorder: (int oldIndex, int newIndex) {},
-                    children: [
-                      _routingBarRow(0, 3),
-                      _routingBarRow(1, 3),
-                      _routingBarRow(2, 3),
-                    ],
+                    onReorder: (int oldIndex, int newIndex) {
+                      if (routingService.selectedWaypoints != null) {
+                        // Catch out of range. ReorderableList sets newIndex to list.length() + 1 if its way below
+                        if (newIndex >=
+                            routingService.selectedWaypoints!.length) {
+                          newIndex =
+                              routingService.selectedWaypoints!.length - 1;
+                        }
+                        Waypoint oldPos =
+                            routingService.selectedWaypoints![oldIndex];
+                        final newWaypointsList =
+                            routingService.selectedWaypoints!.toList();
+
+                        newWaypointsList[oldIndex] = newWaypointsList[newIndex];
+                        newWaypointsList[newIndex] = oldPos;
+
+                        routingService.selectWaypoints(newWaypointsList);
+                        routingService.loadRoutes(context);
+                      }
+                    },
+                    children: routingBarItems,
                   ),
                 ),
               ),

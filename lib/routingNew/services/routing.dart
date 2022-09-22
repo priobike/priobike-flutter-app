@@ -46,7 +46,9 @@ class Routing with ChangeNotifier {
     this.selectedWaypoints,
     this.selectedRoute,
     this.allRoutes,
-  }) { log.i("Routing started."); }
+  }) {
+    log.i("Routing started.");
+  }
 
   /// Add a new waypoint.
   Future<void> addWaypoint(Waypoint waypoint) async {
@@ -107,7 +109,7 @@ class Routing with ChangeNotifier {
         final err = "Route could not be fetched from endpoint $routeEndpoint: ${response.body}";
         log.e(err); ToastMessage.showError(err); throw Exception(err);
       }
-      
+
       final decoded = json.decode(response.body);
       final routeResponse = RoutesResponse
         .fromJson(decoded)
@@ -123,7 +125,7 @@ class Routing with ChangeNotifier {
 
       notifyListeners();
       return routeResponse;
-    } catch (error, stacktrace) { 
+    } catch (error, stacktrace) {
       log.e("Error during load routes: $error $stacktrace");
       isFetchingRoute = false;
       hadErrorDuringFetch = true;
@@ -134,7 +136,7 @@ class Routing with ChangeNotifier {
 
   /// Select a route.
   Future<void> switchToRoute(BuildContext context, r.Route route) async {
-    // Can only select an alternative route if there are some, 
+    // Can only select an alternative route if there are some,
     // and if there is a currently selected route.
     selectedRoute = route;
 
@@ -144,7 +146,7 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
