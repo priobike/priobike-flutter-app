@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
+import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
@@ -21,6 +23,9 @@ import 'package:provider/provider.dart';
 /// A track of a bicycle ride.
 class Tracking with ChangeNotifier {
   final log = Logger("Tracking");
+
+  /// The HTTP client used to make requests to the backend.
+  http.Client httpClient = http.Client();
 
   /// If the track was recorded in the debug mode.
   bool debug = kDebugMode;
@@ -61,10 +66,6 @@ class Tracking with ChangeNotifier {
   /// The final json string of this track, after it was ended
   String? json;
 
-  /// The final gzipped and base64 encoded json string
-  /// of this track, after it was ended
-  String? jsonEncoded;
-
   /// If the user will send the track.
   bool willSendTrack = true;
 
@@ -72,7 +73,7 @@ class Tracking with ChangeNotifier {
   bool isSendingTrack = false;
 
   /// If the track can be sent.
-  bool get canSendTrack => jsonEncoded != null;
+  bool get canSendTrack => json != null;
 
   Tracking();
 
@@ -114,9 +115,6 @@ class Tracking with ChangeNotifier {
     // Get the current logs.
     logs = Logger.db;
     json = jsonEncode(toJson());
-    // Compress the json with gzip.
-    final encoded = gzip.encode(utf8.encode(json!));
-    jsonEncoded = base64.encode(encoded);
     notifyListeners();
   }
 
@@ -128,11 +126,32 @@ class Tracking with ChangeNotifier {
 
   /// Send the track to the server.
   Future<bool> send(BuildContext context) async {
+    if (json == null) {
+      log.w("Cannot send track, because it is not ready.");
+      return false;
+    }
+    if (isSendingTrack) {
+      log.w("Cannot send track, because it is already being sent.");
+      return false;
+    }
+    if (!willSendTrack) {
+      log.w("Cannot send track, because the user does not want to send it.");
+      return false;
+    }
+    log.i("Sending track to the server.");
+
     isSendingTrack = true;
     notifyListeners();
 
-    log.i("Sending the track to the server.");
-    log.i(json); // TODO: Actually send the track to the server.
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
+    final response = await httpClient.post(endpoint, body: json!);
+    if (response.statusCode != 200) {
+      log.e("Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
+    } else {
+      log.i("Successfully sent track to $endpoint");
+    }
 
     isSendingTrack = false;
     notifyListeners();

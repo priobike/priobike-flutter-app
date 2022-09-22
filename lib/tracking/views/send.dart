@@ -25,9 +25,9 @@ class SendTrackingViewState extends State<SendTrackingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (tracking.jsonEncoded == null) return Container();
+    if (tracking.json == null) return Container();
 
-    final jsonSizeKB = tracking.jsonEncoded!.length / 1000;
+    final jsonSizeKB = tracking.json!.length / 1000;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
