@@ -9,10 +9,14 @@ import 'package:provider/provider.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
+  /// NOTE: This feature is currently disabled. 
   static Future<void> loadOfflineTiles() async {
     try {
-      await installOfflineMapTiles("assets/offline/hamburg-light.db");
-      await installOfflineMapTiles("assets/offline/hamburg-dark.db");
+      // At the moment, this will result in black maps being displayed.
+      // Therefore we disable this feature for now.
+
+      // await installOfflineMapTiles("assets/offline/hamburg-light.db");
+      // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
     } catch (err) {
       Logger("AppMap").e("Failed to load offline tiles: $err");
     }
