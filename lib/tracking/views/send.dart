@@ -25,7 +25,9 @@ class SendTrackingViewState extends State<SendTrackingView> {
 
   @override
   Widget build(BuildContext context) {
-    final jsonSizeKB = (tracking.jsonEncoded?.length ?? 0) / 1000;
+    if (tracking.jsonEncoded == null) return Container();
+
+    final jsonSizeKB = tracking.jsonEncoded!.length / 1000;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -38,6 +40,7 @@ class SendTrackingViewState extends State<SendTrackingView> {
         Checkbox(
           value: tracking.willSendTrack,
           onChanged: (value) => tracking.setWillSendTrack(value ?? false),
+          activeColor: Theme.of(context).colorScheme.primary,
         ),
       ],
     );

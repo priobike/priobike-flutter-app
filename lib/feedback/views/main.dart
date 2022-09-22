@@ -36,19 +36,21 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
+    var didSendSomething = false;
+
     // Send the feedback and reset the feedback service.
     if (feedback.willSendFeedback) {
-      await feedback.send(context);
+      didSendSomething = didSendSomething || await feedback.send(context);
     }
     await feedback.reset();
 
     // Send the tracking data and reset the tracking service.
-    if (tracking.willSendTrack) {
-      await tracking.send(context);
+    if (tracking.willSendTrack && tracking.canSendTrack) {
+      didSendSomething = didSendSomething || await tracking.send(context);
     }
     await tracking.reset();
 
-    if (feedback.willSendFeedback || tracking.willSendTrack) {
+    if (didSendSomething) {
       ToastMessage.showSuccess("Danke für's Testen!");
     }
 
@@ -128,9 +130,9 @@ class FeedbackViewState extends State<FeedbackView> {
                 const VSpace(),
                 BigButton(
                   iconColor: Colors.white,
-                  icon: feedback.willSendFeedback || tracking.willSendTrack
+                  icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
                    ? Icons.send : Icons.check,
-                  label: feedback.willSendFeedback || tracking.willSendTrack
+                  label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
                     ? "Senden" : "Fertig",
                   onPressed: () => submit(context),
                 ),

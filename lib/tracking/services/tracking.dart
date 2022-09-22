@@ -71,6 +71,9 @@ class Tracking with ChangeNotifier {
   /// If the track is currently being sent.
   bool isSendingTrack = false;
 
+  /// If the track can be sent.
+  bool get canSendTrack => jsonEncoded != null;
+
   Tracking();
 
   /// Start a new track.
@@ -124,7 +127,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Send the track to the server.
-  Future<void> send(BuildContext context) async {
+  Future<bool> send(BuildContext context) async {
     isSendingTrack = true;
     notifyListeners();
 
@@ -133,6 +136,8 @@ class Tracking with ChangeNotifier {
 
     isSendingTrack = false;
     notifyListeners();
+
+    return true;
   }
 
   /// Reset the current track.
