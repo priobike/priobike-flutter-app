@@ -55,9 +55,6 @@ class RideMapViewState extends State<RideMapView> {
   /// A SMA for the zoom.
   final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
 
-  /// A SMA for the bearing.
-  final cameraHeadingSMA = RotationSMA(k: PositionEstimator.refreshRateHz * 2 /* seconds */);
-
   @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
@@ -191,7 +188,6 @@ class RideMapViewState extends State<RideMapView> {
 
       // Calculate the bearing.
       double bearing = positionEstimator.estimatedPosition!.heading;
-      bearing = cameraHeadingSMA.next(bearing);
 
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         bearing: bearing,
