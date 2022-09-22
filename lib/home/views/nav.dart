@@ -59,7 +59,7 @@ class NavBarView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Flexible(child: Content(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
+                Flexible(child: BoldContent(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
                 BoldContent(text: greeting, color: Colors.white, context: context),
               ]),
               const SmallVSpace(),
