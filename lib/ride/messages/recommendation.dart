@@ -2,6 +2,9 @@ import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/common/models/point.dart';
 
 class Recommendation {
+  /// The time in unix millis.
+  final int timeUnixMillis;
+
   /// The label of the next point of interest.
   final String label;
 
@@ -63,6 +66,7 @@ class Recommendation {
   final Point? sgPos;
 
   const Recommendation({
+    required this.timeUnixMillis,
     required this.label,
     required this.countdown,
     required this.distance,
@@ -85,6 +89,8 @@ class Recommendation {
 
   factory Recommendation.fromJson(Map<String, dynamic> json) {
     return Recommendation(
+      // Time is optional and will be created by the client if not provided.
+      timeUnixMillis: json['timeUnixMillis'] ?? DateTime.now().millisecondsSinceEpoch,
       label: json['label'],
       countdown: json['countdown'],
       distance: json['distance'],
@@ -115,6 +121,7 @@ class Recommendation {
   }
 
   Map<String, dynamic> toJson() => {
+    'timeUnixMillis': timeUnixMillis,
     'label': label,
     'countdown': countdown,
     'distance': distance,
