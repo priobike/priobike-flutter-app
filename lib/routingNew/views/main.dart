@@ -334,7 +334,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     waypointsSelected
-                        ? RoutingBar()
+                        ? const RoutingBar()
                         : Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

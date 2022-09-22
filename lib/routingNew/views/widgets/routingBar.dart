@@ -5,6 +5,7 @@ import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/search.dart';
+import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
@@ -23,6 +24,29 @@ class RoutingBarState extends State<RoutingBar> {
 
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
+
+  /// A callback that is executed when the search page is opened.
+  Future<void> onSearch(int? index) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SearchView(),
+      ),
+    );
+    if (result == null) return;
+
+    final waypoint = result as Waypoint;
+    final waypoints = routingService.selectedWaypoints ?? [];
+    // exchange with new waypoint
+    List<Waypoint> newWaypoints = waypoints.toList();
+    if (index != null) {
+      newWaypoints[index] = waypoint;
+    } else {
+      newWaypoints = [...waypoints, waypoint];
+    }
+
+    routingService.selectWaypoints(newWaypoints);
+    routingService.loadRoutes(context);
+  }
 
   _routingBarRow(int index, int max, Waypoint waypoint) {
     IconData? leadingIcon;
@@ -73,11 +97,7 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const SearchView(),
-                    ),
-                  );
+                  onSearch(index);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -101,12 +121,19 @@ class RoutingBarState extends State<RoutingBar> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 10),
+          padding: const EdgeInsets.only(left: 10, right: 5),
           child: IconButton(
             constraints: const BoxConstraints(maxHeight: 40),
             iconSize: 20,
             icon: Icon(trailingIcon),
-            onPressed: () => onRemoveWaypoint(context, index, max),
+            onPressed: () {
+              if (index < max - 1) {
+                onRemoveWaypoint(context, index, max);
+              } else {
+                print("CALLED");
+                onSearch(null);
+              }
+            },
             splashRadius: 20,
           ),
         )
@@ -204,15 +231,20 @@ class RoutingBarState extends State<RoutingBar> {
                           newIndex =
                               routingService.selectedWaypoints!.length - 1;
                         }
-                        Waypoint oldPos =
-                            routingService.selectedWaypoints![oldIndex];
-                        final newWaypointsList =
+                        // Tell the tutorial that the user has changed the order of the waypoints.
+                        Provider.of<Tutorial>(context, listen: false)
+                            .complete("priobike.tutorial.draw-waypoints");
+
+                        if (oldIndex == newIndex) return;
+                        if (routingService.selectedWaypoints == null ||
+                            routingService.selectedWaypoints!.isEmpty) return;
+
+                        final reorderedWaypoints =
                             routingService.selectedWaypoints!.toList();
+                        final waypoint = reorderedWaypoints.removeAt(oldIndex);
+                        reorderedWaypoints.insert(newIndex, waypoint);
 
-                        newWaypointsList[oldIndex] = newWaypointsList[newIndex];
-                        newWaypointsList[newIndex] = oldPos;
-
-                        routingService.selectWaypoints(newWaypointsList);
+                        routingService.selectWaypoints(reorderedWaypoints);
                         routingService.loadRoutes(context);
                       }
                     },
