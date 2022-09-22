@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
+import 'package:priobike/routingNew/views/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';
 
 /// Widget for last search results
@@ -16,13 +18,13 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
   /// The geosearch service that is injected by the provider.
   late Geosearch geosearch;
 
-  /// The positioning service that is injected by the provider.
-  late Positioning positioning;
+  /// The profile service that is injected by the provider.
+  late Profile profile;
 
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
+    profile = Provider.of<Profile>(context);
     super.didChangeDependencies();
   }
 
@@ -36,6 +38,14 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
           alignment: Alignment.centerLeft,
           child: BoldContent(text: "Letzte Suchen", context: context),
         ),
+        if (profile.searchHistory?.isNotEmpty == true) ...[
+          for (final waypoint in profile.searchHistory!) ...[
+            WaypointListItemView(
+                waypoint: waypoint,
+                onTap: (waypoint) {},
+                onCompleteSearch: (waypoint) {})
+          ]
+        ]
       ]),
     );
   }

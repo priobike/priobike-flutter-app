@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -9,7 +10,7 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 /// A callback that is executed when the search page is opened.
-Future<void> onSearch(BuildContext context, Routing routing, int? index) async {
+Future<void> onSearch(BuildContext context, Routing routing, Profile profile, int? index) async {
   final result = await Navigator.of(context).push(
     MaterialPageRoute(
       builder: (_) => const SearchView(),
@@ -26,6 +27,8 @@ Future<void> onSearch(BuildContext context, Routing routing, int? index) async {
   } else {
     newWaypoints = [...waypoints, waypoint];
   }
+
+  profile.saveNewSearch(waypoint);
 
   routing.selectWaypoints(newWaypoints);
   routing.loadRoutes(context);
@@ -48,7 +51,8 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
-
+  /// The associated profile service, which is injected by the provider.
+  late Profile profile;
 
   _routingBarRow(int index, int max, Waypoint waypoint) {
     IconData? leadingIcon;
@@ -99,7 +103,7 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  onSearch(context, routingService, index);
+                  onSearch(context, routingService, profile, index);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -132,7 +136,7 @@ class RoutingBarState extends State<RoutingBar> {
               if (index < max - 1) {
                 onRemoveWaypoint(context, index, max);
               } else {
-                onSearch(context, routingService, null);
+                onSearch(context, routingService, profile, null);
               }
             },
             splashRadius: 20,
@@ -161,6 +165,7 @@ class RoutingBarState extends State<RoutingBar> {
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
     routingService = Provider.of<Routing>(context);
+    profile = Provider.of<Profile>(context);
     super.didChangeDependencies();
   }
 

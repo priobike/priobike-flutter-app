@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
+import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile with ChangeNotifier {
@@ -35,6 +38,8 @@ class Profile with ChangeNotifier {
   /// The preference of saving search history
   bool? saveSearchHistory;
 
+  List<Waypoint>? searchHistory;
+
   Profile(
       {this.bikeType,
       this.preferenceType,
@@ -45,7 +50,8 @@ class Profile with ChangeNotifier {
       this.avoidTraffic,
       this.showGeneralPOIs,
       this.setLocationAsStart,
-      this.saveSearchHistory});
+      this.saveSearchHistory,
+      this.searchHistory});
 
   /// Load the stored profile.
   Future<void> loadProfile() async {
@@ -70,12 +76,16 @@ class Profile with ChangeNotifier {
         storage.getBool("priobike.home.profile.setLocationAsStart") ?? false;
     saveSearchHistory =
         storage.getBool("priobike.home.profile.saveSearchHistory") ?? false;
+    final searchHistoryStr = storage.getString("priobike.home.profile.searchHistory");
 
     if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
     if (preferenceTypeStr != null)
       preferenceType = PreferenceType.values.byName(preferenceTypeStr);
     if (activityTypeStr != null)
       activityType = ActivityType.values.byName(activityTypeStr);
+    if (searchHistoryStr != null)
+      searchHistory = (jsonDecode(searchHistoryStr) as List).map((e) => Waypoint.fromJson(e)).toList();
+
 
     hasLoaded = true;
     notifyListeners();
@@ -114,7 +124,19 @@ class Profile with ChangeNotifier {
     if (saveSearchHistory != null)
       await storage.setBool(
           "priobike.home.profile.avoidTraffic", saveSearchHistory!);
+    if (searchHistory != null) {
+      final jsonStr = jsonEncode(searchHistory!.map((e) => e.toJSON()).toList());
+      storage.setString("priobike.home.profile.searchHistory", jsonStr);
+    }
 
     notifyListeners();
   }
+
+  /// Save a new search
+  Future<void> saveNewSearch(Waypoint waypoint) async {
+    searchHistory = searchHistory != null ? [waypoint, ...searchHistory!] : [waypoint];
+    await store();
+    notifyListeners();
+  }
+
 }

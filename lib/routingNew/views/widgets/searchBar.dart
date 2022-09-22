@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routingNew/models/waypoint.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -46,6 +47,9 @@ class SearchBarState extends State<SearchBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
+  /// The associated profile service, which is injected by the provider.
+  late Profile profile;
+
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
@@ -53,6 +57,7 @@ class SearchBarState extends State<SearchBar> {
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
     routingService = Provider.of<Routing>(context);
+    profile = Provider.of<Profile>(context);
     super.didChangeDependencies();
   }
 
@@ -77,7 +82,7 @@ class SearchBarState extends State<SearchBar> {
         child: GestureDetector(
           onTap: () {
             if (!widget.fromClicked) {
-              onSearch(context, routingService, null);
+              onSearch(context, routingService, profile, null);
             }
           },
           child: Stack(
