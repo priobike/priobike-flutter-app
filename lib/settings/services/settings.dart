@@ -4,6 +4,7 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,9 @@ class Settings with ChangeNotifier {
 
   /// The rerouting strategy.
   Rerouting rerouting;
+
+  /// The routing endpoint.
+  RoutingEndpoint routingEndpoint;
 
   /// The signal group labels mode.
   SGLabelsMode sgLabelsMode;
@@ -63,6 +67,11 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectRoutingEndpoint(RoutingEndpoint routingEndpoint) async {
+    this.routingEndpoint = routingEndpoint;
+    await store();
+  }
+
   Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode) async {
     this.sgLabelsMode = sgLabelsMode;
     await store();
@@ -89,6 +98,7 @@ class Settings with ChangeNotifier {
     this.backend = Backend.production, 
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
+    this.routingEndpoint = RoutingEndpoint.graphhopper,
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
@@ -116,6 +126,7 @@ class Settings with ChangeNotifier {
     final backendStr = storage.getString("priobike.settings.backend");
     final positioningModeStr = storage.getString("priobike.settings.positioningMode");
     final reroutingStr = storage.getString("priobike.settings.rerouting");
+    final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
     final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
@@ -124,6 +135,7 @@ class Settings with ChangeNotifier {
     if (backendStr != null) backend = Backend.values.byName(backendStr);
     if (positioningModeStr != null) positioningMode = PositioningMode.values.byName(positioningModeStr);
     if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
+    if (routingEndpointStr != null) routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
     if (sgLabelsModeStr != null) sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
@@ -146,6 +158,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
+    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
     await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
@@ -166,6 +179,7 @@ class Settings with ChangeNotifier {
     "backend": backend.name,
     "positioningMode": positioningMode.name,
     "rerouting": rerouting.name,
+    "routingEndpoint": routingEndpoint.name,
     "sgLabelsMode": sgLabelsMode.name,
     "ridePreference": ridePreference?.name,
     "colorMode": colorMode.name,

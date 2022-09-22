@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
@@ -220,6 +221,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a routing endpoint is selected.
+  Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
+    // Tell the settings service that we selected the new backend.
+    await settings.selectRoutingEndpoint(routingEndpoint);
+
+    Navigator.pop(context);
+  }
+
   /// A callback that is executed when a rerouting is selected.
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
@@ -371,6 +380,21 @@ class SettingsViewState extends State<SettingsView> {
               if (settings.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Routing", 
+                  subtitle: settings.routingEndpoint.description, 
+                  icon: Icons.expand_more, 
+                  callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                    return SettingsSelection(
+                      elements: RoutingEndpoint.values, 
+                      selected: settings.routingEndpoint,
+                      title: (RoutingEndpoint e) => e.description, 
+                      callback: onSelectRoutingMode,
+                    );
+                  }),
+                )),
+
+              if (settings.enableBetaFeatures)
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "Routenneuberechnung", 
                   subtitle: settings.rerouting.description, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {

@@ -9,6 +9,7 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
@@ -108,7 +109,8 @@ class Routing with ChangeNotifier {
       final settings = Provider.of<Settings>(context, listen: false);
 
       final baseUrl = settings.backend.path;
-      var ghUrl = "https://$baseUrl/graphhopper/route";
+      final servicePath = settings.routingEndpoint.servicePath;
+      var ghUrl = "https://$baseUrl/$servicePath/route";
       ghUrl += "?type=json";
       ghUrl += "&locale=de";
       ghUrl += "&weighting=fastest";
