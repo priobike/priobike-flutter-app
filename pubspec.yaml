@@ -136,11 +136,18 @@ flutter:
     - assets/images/trafficlight-red-countdown.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
-    - assets/images/bike.png
-    - assets/images/airstation.png
-    - assets/images/construction.png
-    - assets/images/repair.png
-    - assets/images/money.png
+    - assets/images/air-dark.png
+    - assets/images/air-light.png
+    - assets/images/construction-dark.png
+    - assets/images/construction-light.png
+    - assets/images/park-dark.png
+    - assets/images/park-light.png
+    - assets/images/position-dark.png
+    - assets/images/position-light.png
+    - assets/images/rent-dark.png
+    - assets/images/rent-light.png
+    - assets/images/repair-dark.png
+    - assets/images/repair-light.png
 
     # Navigation icons
     - assets/images/dark_continue.png

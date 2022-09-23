@@ -27,12 +27,18 @@ class SymbolLoader {
     await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
-    await addImageFromAsset("direction", "assets/images/direction.png");
-    await addImageFromAsset("airstation", "assets/images/airstation.png");
-    await addImageFromAsset("bike", "assets/images/bike.png");
-    await addImageFromAsset("construction", "assets/images/construction.png");
-    await addImageFromAsset("repair", "assets/images/repair.png");
-    await addImageFromAsset("money", "assets/images/money.png");
+    await addImageFromAsset("airdark", "assets/images/air-dark.png");
+    await addImageFromAsset("airlight", "assets/images/air-light.png");
+    await addImageFromAsset("constructiondark", "assets/images/construction-dark.png");
+    await addImageFromAsset("constructionlight", "assets/images/construction-light.png");
+    await addImageFromAsset("parkdark", "assets/images/park-dark.png");
+    await addImageFromAsset("parklight", "assets/images/park-light.png");
+    await addImageFromAsset("positiondark", "assets/images/position-dark.png");
+    await addImageFromAsset("positionlight", "assets/images/position-light.png");
+    await addImageFromAsset("rentdark", "assets/images/rent-dark.png");
+    await addImageFromAsset("rentlight", "assets/images/rent-light.png");
+    await addImageFromAsset("repairdark", "assets/images/repair-dark.png");
+    await addImageFromAsset("repairlight", "assets/images/repair-light.png");
   }
 
   /// Adds an asset image to the currently displayed style

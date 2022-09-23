@@ -113,6 +113,7 @@ class Routing with ChangeNotifier {
       var ghUrl = "https://$baseUrl/$servicePath/route";
       ghUrl += "?type=json";
       ghUrl += "&locale=de";
+      // TODO: Implement ride preference here.
       ghUrl += "&weighting=fastest";
       ghUrl += "&elevation=true";
       ghUrl += "&points_encoded=false";

@@ -300,7 +300,9 @@ class RideMapViewState extends State<RideMapView> {
           onMapCreated: onMapCreated, 
           onStyleLoaded: () => onStyleLoaded(context),
         ),
-        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon()),
+        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon(
+          brightness: Theme.of(context).brightness,
+        )),
       ]
     );
   }
