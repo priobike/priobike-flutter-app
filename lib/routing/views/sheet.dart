@@ -333,9 +333,16 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     // Calculate the time when the user will reach the destination.
     final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
     return Column(children: [
-      BoldContent(text: "Normalerweise ${hours == 0 ? '' : '$hours Std. '}$minutes Min.", color: Colors.green, context: context),
+      BoldSmall(
+        text: s.selectedProfile?.explanation ?? "", 
+        color: Colors.green, 
+        context: context,
+      ),
       const SizedBox(height: 2),
-      Content(text: "Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo", context: context),
+      Content(
+        text: "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo", 
+        context: context
+      ),
     ]);
   }
 
