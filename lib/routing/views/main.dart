@@ -189,8 +189,9 @@ class RoutingViewState extends State<RoutingView> {
                   height: 128, 
                   width: 256, 
                   child: Column(children: [
-                    BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
-                    BoldContent(text: "Prüfe deine Verbindung.", maxLines: 1, context: context),
+                    BoldSmall(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
+                    const SmallVSpace(),
+                    Small(text: "Prüfe deine Verbindung.", maxLines: 1, context: context),
                     const VSpace(),
                     BigButton(label: "Erneut Laden", onPressed: () async {
                       await routing?.loadRoutes(context);
