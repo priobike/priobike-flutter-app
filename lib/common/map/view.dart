@@ -71,6 +71,7 @@ class AppMapState extends State<AppMap> {
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
+      trackCameraPosition: true,
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,

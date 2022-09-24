@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routingNew/views/widgets/selectOnMap.dart';
 
 /// Widget for last search results
 class PickOnMap extends StatelessWidget {
@@ -22,17 +23,22 @@ class PickOnMap extends StatelessWidget {
           const Icon(Icons.map),
           Content(text: "Auf Karte auswählen", context: context),
           TextButton(
-              style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                      color: Colors.grey, width: 1, style: BorderStyle.solid),
-                  borderRadius: BorderRadius.circular(50),
-                ),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                    color: Colors.grey, width: 1, style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(50),
               ),
-              onPressed: () {
-                print("Hier karte einfügen");
-              },
-              child: Content(text: "Karte", context: context))
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SelectOnMapView(),
+                ),
+              );
+            },
+            child: Content(text: "Karte", context: context),
+          ),
         ]),
       ),
     ]);

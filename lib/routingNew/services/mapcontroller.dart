@@ -41,4 +41,8 @@ class MapController with ChangeNotifier {
     myLocationTrackingMode = MyLocationTrackingMode.None;
     notifyListeners();
   }
+
+  LatLng? getCameraPosition() {
+    return controller?.cameraPosition?.target;
+  }
 }

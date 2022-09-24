@@ -77,6 +77,7 @@ class SearchViewState extends State<SearchView> {
   void onCompleteSearch(Waypoint waypoint) {
     setState(() {
       _locationSearchController.text = waypoint.address;
+      geosearch.geosearch(context, _locationSearchController.text);
     });
   }
 
