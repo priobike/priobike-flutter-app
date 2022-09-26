@@ -8,7 +8,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:provider/provider.dart';
 
@@ -140,14 +139,14 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   @override
   void didChangeDependencies() {
     positioning = Provider.of<Positioning>(context);
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await updateWaypoint();
+    SchedulerBinding.instance?.addPostFrameCallback((_) {
+      updateWaypoint();
     });
     super.didChangeDependencies();
   }
 
   /// Update the waypoint.
-  Future<void> updateWaypoint() async {
+  updateWaypoint() {
     if (positioning?.lastPosition == null) {
       waypoint = null;
       return;
@@ -157,11 +156,8 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       waypoint!.lat == positioning!.lastPosition!.latitude && 
       waypoint!.lon == positioning!.lastPosition!.longitude
     ) return;
-    final geocoding = Provider.of<Geocoding>(context, listen: false);
     final pos = positioning!.lastPosition!;
-    final address = await geocoding.reverseGeocodeLatLng(context, pos.latitude, pos.longitude);
-    if (address == null) return;
-    waypoint = Waypoint(pos.latitude, pos.longitude, address: address);
+    waypoint = Waypoint(pos.latitude, pos.longitude, address: "Standort");
   }
 
   @override

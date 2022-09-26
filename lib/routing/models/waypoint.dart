@@ -6,7 +6,7 @@ class Waypoint {
   final double lon;
 
   /// The address of this location.
-  final String address;
+  String address;
 
   @override
   bool operator ==(other) => other is Waypoint && other.lat == lat && other.lon == lon;
@@ -14,7 +14,7 @@ class Waypoint {
   @override
   int get hashCode => Object.hash(lat, lon);
 
-  const Waypoint(this.lat, this.lon, {required this.address});  
+  Waypoint(this.lat, this.lon, {required this.address});
 
   factory Waypoint.fromJson(Map<String, dynamic> json) => Waypoint(
     json['lat'], json['lon'], address: json['address']
