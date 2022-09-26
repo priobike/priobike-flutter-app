@@ -69,13 +69,25 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
-        title: widget.waypoint == null ? null : BoldSmall(
-          text: widget.waypoint!.address, 
-          context: context,
-          color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
-        ),
-        subtitle: widget.isCurrentPosition 
-          ? Small(text: "Aktuelle Position", context: context, color: Theme.of(context).colorScheme.onPrimary)
+        title: widget.waypoint == null
+            ? widget.isCurrentPosition
+                ? BoldContent(
+                    text: "Standort",
+                    context: context,
+                    color: widget.isCurrentPosition
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  )
+                : null
+            : BoldSmall(
+                text: widget.waypoint!.address,
+                context: context,
+                color: widget.isCurrentPosition
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : null,
+              ),
+        subtitle: widget.isCurrentPosition
+          ? Container()
           : (
             distance == null ? null : (
               distance! > 1000 ? (
