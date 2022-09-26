@@ -7,13 +7,13 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/map.dart';
 import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
-import 'package:priobike/routingNew/views/widgets/searchBar.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
@@ -29,6 +29,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// The associated shortcuts service, which is injected by the provider.
   late MapController mapControllerService;
+
+  /// The associated geosearch service, which is injected by the provider.
+  late Geosearch geosearch;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -46,6 +49,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   void didChangeDependencies() {
     routingService = Provider.of<Routing>(context);
     mapControllerService = Provider.of<MapController>(context);
+    geosearch = Provider.of<Geosearch>(context);
 
     super.didChangeDependencies();
   }

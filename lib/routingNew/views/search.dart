@@ -6,7 +6,6 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routingNew/models/waypoint.dart';
-import 'package:priobike/routingNew/services/geocoding.dart';
 import 'package:priobike/routingNew/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/services/mapcontroller.dart';
@@ -25,9 +24,6 @@ class SearchView extends StatefulWidget {
 }
 
 class SearchViewState extends State<SearchView> {
-  /// The associated geocoding service, which is injected by the provider.
-  late Geocoding geocodingService;
-
   /// The associated geosearch service, which is injected by the provider.
   late Geosearch geosearch;
 
@@ -56,7 +52,6 @@ class SearchViewState extends State<SearchView> {
 
   @override
   void didChangeDependencies() {
-    geocodingService = Provider.of<Geocoding>(context);
     routingService = Provider.of<Routing>(context);
     shortcutsService = Provider.of<Shortcuts>(context);
     mapControllerService = Provider.of<MapController>(context);
