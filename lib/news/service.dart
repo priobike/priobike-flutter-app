@@ -215,9 +215,11 @@ class News with ChangeNotifier {
   }
 
   /// Store all read articles in shared preferences.
-  Future<void> storeReadArticles(Backend backend) async {
+  Future<void> _storeReadArticles(BuildContext context) async {
     if (readArticles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
+
+    final backend = Provider.of<Settings>(context, listen: false).backend;
 
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
@@ -255,8 +257,15 @@ class News with ChangeNotifier {
   }
 
   /// Mark all articles as read.
-  void markAllArticlesAsRead() {
-    readArticles.addAll(articles);
-    notifyListeners();
+  void markAllArticlesAsRead(BuildContext context) {
+    // Check whether there are new articles that are not already marked as read and
+    // stored in the shared preferences (not necessary for the readArticles set, but to
+    // reduce unnecessary storing of the articles)
+    final bool newUnreadArticles = !readArticles.containsAll(articles);
+    if (newUnreadArticles){
+      readArticles.addAll(articles);
+      _storeReadArticles(context);
+      notifyListeners();
+    }
   }
 }

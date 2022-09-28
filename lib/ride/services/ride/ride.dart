@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routingNew/models/route.dart' as r;
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/ride.dart';
 import 'package:priobike/ride/messages/userposition.dart';
@@ -35,6 +35,9 @@ class Ride with ChangeNotifier {
   /// The current recommendation from the server.
   Recommendation? currentRecommendation;
 
+  /// The recorded recommendations of the ride.
+  final recommendations = List<Recommendation>.empty(growable: true);
+
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
@@ -46,6 +49,7 @@ class Ride with ChangeNotifier {
     socket = null;
     jsonRPCPeer = null;
     currentRecommendation = null;
+    recommendations.clear();
     needsLayout = {};
     notifyListeners();
   }
@@ -62,8 +66,13 @@ class Ride with ChangeNotifier {
 
   /// A callback that is executed when a new recommendation arrives.
   Future<void> onNewRecommendation(Parameters params) async {
+    if (!navigationIsActive) {
+      log.w("Received recommendation while navigation is not active.");
+      return;
+    }
     try {
       currentRecommendation = Recommendation.fromJsonRPC(params);
+      recommendations.add(currentRecommendation!);
       if (currentRecommendation!.error) {
         log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {

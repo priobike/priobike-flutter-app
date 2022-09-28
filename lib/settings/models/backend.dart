@@ -1,6 +1,6 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/routingNew/models/waypoint.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 
 enum Backend {
   production,
@@ -35,7 +35,7 @@ extension BackendRegion on Backend {
 extension BackendShortcuts on Backend {
   List<Shortcut> get defaultShortcuts {
     switch (this) {
-      case Backend.production: return const [
+      case Backend.production: return [
         Shortcut(
           name: "Teststrecke 1 (Edmund-S.-Allee) Ost ➔ West",
           waypoints: [
@@ -83,7 +83,7 @@ extension BackendShortcuts on Backend {
           ]
         ),
       ];
-      case Backend.staging: return const [
+      case Backend.staging: return [
         Shortcut(
           name: "Teststrecke POT",
           waypoints: [

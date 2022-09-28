@@ -13,6 +13,30 @@ class AlertIcon extends Image {
   );
 }
 
+class BadSignalIcon extends Image {
+  const BadSignalIcon({double width = 24, double height = 24, Key? key}) : super(
+    key: key,
+    image: const AssetImage("assets/images/bad-signal.drawio.png"),
+    width: width,
+    height: height,
+    color: null,
+    fit: BoxFit.scaleDown,
+    alignment: Alignment.center,
+  );
+}
+
+class OfflineIcon extends Image {
+  const OfflineIcon({double width = 24, double height = 24, Key? key}) : super(
+    key: key,
+    image: const AssetImage("assets/images/offline.drawio.png"),
+    width: width,
+    height: height,
+    color: null,
+    fit: BoxFit.scaleDown,
+    alignment: Alignment.center,
+  );
+}
+
 /// A start icon.
 class StartIcon extends Image {
   const StartIcon({double width = 24, double height = 24, Key? key}) : super(

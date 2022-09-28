@@ -48,10 +48,11 @@ dependencies:
   flutter_native_splash: ^2.1.6 # Generated splash screen, see below
   wakelock: ^0.6.2 # Keep display active in certain conditions
   http: ^0.13.5 # HTTP client framework
-  device_info_plus: ^4.0.0 # Fetch info about the device
+  device_info_plus: ^3.2.4 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
   package_info_plus: ^1.4.2 # Fetch info about the package
   battery_plus: ^2.1.4+1 # Fetch info about the battery state
   charts_flutter: ^0.12.0 # Display minimalistic charts 
+  share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons
@@ -86,6 +87,26 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # Geo data
+    - assets/geo/accident_black_spots_dresden.geojson
+    - assets/geo/accident_black_spots.geojson
+    - assets/geo/bicycle_parking_polygon.geojson
+    - assets/geo/bicycle_parking.geojson
+    - assets/geo/bicycle_rental_polygon.geojson
+    - assets/geo/bicycle_rental.geojson
+    - assets/geo/bicycle_shop_polygon.geojson
+    - assets/geo/bicycle_shop.geojson
+    - assets/geo/bike_air_station.geojson
+    - assets/geo/bike_and_ride.geojson
+    - assets/geo/bike_count.geojson
+    - assets/geo/construction_sides.geojson
+    - assets/geo/dresden_boundary.geojson
+    - assets/geo/hamburg_boundary.geojson
+
+    # Sideloaded offline maps
+    - assets/offline/hamburg-light.db
+    - assets/offline/hamburg-dark.db
+
     # Files needed to get git info within the app, e.g. current branch or tag.
     # Please make sure that the repository is cloned by the branch name, and 
     # not by the commit hash (as is the default for Jenkins CI pipelines).
@@ -100,15 +121,33 @@ flutter:
     - assets/tracks/dresden/philipp.json
 
     # Map symbols
+    - assets/images/online.drawio.png
+    - assets/images/bad-signal.drawio.png
+    - assets/images/offline.drawio.png
     - assets/images/alert.drawio.png
     - assets/images/start.drawio.png
     - assets/images/destination.drawio.png
     - assets/images/trafficlight.drawio.png
     - assets/images/trafficlight-green-countdown.drawio.png
     - assets/images/trafficlight-off.drawio.png
+    - assets/images/trafficlight-off-online.drawio.png
+    - assets/images/trafficlight-off-offline.drawio.png
+    - assets/images/trafficlight-off-bad-signal.drawio.png
     - assets/images/trafficlight-red-countdown.drawio.png
     - assets/images/waypoint.drawio.png
     - assets/images/direction.png
+    - assets/images/air-dark.png
+    - assets/images/air-light.png
+    - assets/images/construction-dark.png
+    - assets/images/construction-light.png
+    - assets/images/park-dark.png
+    - assets/images/park-light.png
+    - assets/images/position-dark.png
+    - assets/images/position-light.png
+    - assets/images/rent-dark.png
+    - assets/images/rent-light.png
+    - assets/images/repair-dark.png
+    - assets/images/repair-light.png
 
     # Navigation icons
     - assets/images/dark_continue.png

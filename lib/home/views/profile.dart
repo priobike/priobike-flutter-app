@@ -34,6 +34,7 @@ class ProfileElementButton extends StatelessWidget {
       return Tile(
         fill: backgroundColor ?? theme.colorScheme.background,
         splash: touchColor ?? theme.colorScheme.primary,
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
         padding: const EdgeInsets.all(8),
         content: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -143,6 +144,7 @@ class ProfileViewState extends State<ProfileView> {
         padding: EdgeInsets.fromLTRB(0, 0, 0, 24),
       ),
       Tile(
+        fill: Theme.of(context).colorScheme.background,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         content: Column(children: [
           const SizedBox(height: 16),
@@ -163,8 +165,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.electric_bike, 
                       title: "Radtyp", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       onPressed: toggleBikeSelection
                     )
                   : ProfileElementButton(
@@ -188,8 +190,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.thumbs_up_down, 
                       title: "Präferenz", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       onPressed: togglePreferenceSelection,
                     )
                   : ProfileElementButton(
@@ -213,8 +215,8 @@ class ProfileViewState extends State<ProfileView> {
                       key: const ValueKey<String>("None"),
                       icon: Icons.home_work, 
                       title: "Aktivität", 
-                      color: Colors.black,
-                      backgroundColor: Colors.white,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       onPressed: toggleActivitySelection,
                     )
                   : ProfileElementButton(
@@ -291,7 +293,7 @@ class ProfileViewState extends State<ProfileView> {
             icon: Icons.delete, 
             title: "Löschen",
             color: Theme.of(context).colorScheme.onBackground,
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             touchColor: Theme.of(context).colorScheme.onBackground,
             onPressed: () {
               s.bikeType = null;
@@ -343,7 +345,7 @@ class ProfileViewState extends State<ProfileView> {
             icon: Icons.delete, 
             title: "Löschen",
             color: Theme.of(context).colorScheme.onBackground,
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             touchColor: Theme.of(context).colorScheme.onBackground,
             onPressed: () {
               s.preferenceType = null;
@@ -395,7 +397,7 @@ class ProfileViewState extends State<ProfileView> {
             icon: Icons.delete, 
             title: "Löschen",
             color: Theme.of(context).colorScheme.onBackground,
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             touchColor: Theme.of(context).colorScheme.onBackground,
             onPressed: () {
               s.activityType= null;

@@ -10,9 +10,9 @@ import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/position.dart';
-import 'package:priobike/routingNew/models/sg.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/models/waypoint.dart';
+import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -25,7 +25,10 @@ class RideMapView extends StatefulWidget {
 class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
-  /// The associated routing service, which is injected by the provider.
+  /// The threshold used for showing traffic light colors and speedometer colors
+  static const qualityThreshold = 0.75;
+
+  /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
 
   /// The associated position estimator service, which is injected by the provider.
@@ -54,9 +57,6 @@ class RideMapViewState extends State<RideMapView> {
 
   /// A SMA for the zoom.
   final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
-
-  /// A SMA for the bearing.
-  final cameraHeadingSMA = RotationSMA(k: PositionEstimator.refreshRateHz * 2 /* seconds */);
 
   @override
   void didChangeDependencies() {
@@ -191,7 +191,6 @@ class RideMapViewState extends State<RideMapView> {
 
       // Calculate the bearing.
       double bearing = positionEstimator.estimatedPosition!.heading;
-      bearing = cameraHeadingSMA.next(bearing);
 
       await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         bearing: bearing,
@@ -214,7 +213,8 @@ class RideMapViewState extends State<RideMapView> {
 
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     final r = ride.currentRecommendation;
-    if (r != null && !r.error && r.sgPos != null) {
+
+    if (r != null && !r.error && r.sgPos != null && r.quality! >= qualityThreshold) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
@@ -304,7 +304,9 @@ class RideMapViewState extends State<RideMapView> {
           onMapCreated: onMapCreated, 
           onStyleLoaded: () => onStyleLoaded(context),
         ),
-        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon()),
+        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon(
+          brightness: Theme.of(context).brightness,
+        )),
       ]
     );
   }

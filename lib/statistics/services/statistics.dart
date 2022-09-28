@@ -23,9 +23,20 @@ class Statistics with ChangeNotifier {
   /// The total duration of all rides.
   double? totalDurationSeconds;
 
+  /// The total amount of saved co2 in kg.
+  double? get totalSavedCO2Kg {
+    if (totalDistanceMeters == null || totalDurationSeconds == null) {
+      return null;
+    }
+    const co2PerKm = 0.1187; // Data according to statista.com
+    return (totalDistanceMeters! / 1000) * (totalDurationSeconds! / 3600) * co2PerKm;
+  }
+
   /// Get the average speed of all rides in km/h.
   double? get averageSpeedKmH {
-    if (totalDistanceMeters == null || totalDurationSeconds == null) {
+    if (totalDistanceMeters == null ||
+        totalDurationSeconds == null ||
+        totalDurationSeconds == 0) {
       return null;
     }
     return totalDistanceMeters! / totalDurationSeconds! * 3.6;
@@ -82,7 +93,7 @@ class Statistics with ChangeNotifier {
 
     // Calculate the summary.
     final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
-    const vincenty = Distance();
+    const vincenty = Distance(roundResult: false);
     // Aggregate the distance.
     var totalDistance = 0.0;
     for (var i = 0; i < coordinates.length - 1; i++) {

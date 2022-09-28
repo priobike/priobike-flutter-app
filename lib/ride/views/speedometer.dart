@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -17,29 +20,32 @@ class RideSpeedometerView extends StatefulWidget {
 class RideSpeedometerViewState extends State<RideSpeedometerView> {
   static const viewId = "ride.views.speedometer";
 
+  /// The minimum speed in km/h.
+  final minSpeed = 0.0;
+
+  /// The maximum speed in km/h.
+  late double maxSpeed;
+
   /// The associated ride service, which is injected by the provider.
   late Ride rs;
 
   /// The associated positioning service, which is injected by the provider.
   late Positioning ps;
 
-  /// The minimum displayed speed.
-  static const minSpeed = 0.0;
-
-  /// The maximum displayed speed.
-  static const maxSpeed = 40.0;
-
-  /// The default gauge colors for the speedometer.
-  static const defaultGaugeColors = [Color.fromARGB(255, 109, 109, 109)];
+  /// The default gauge color for the speedometer.
+  static const defaultGaugeColor = Color.fromARGB(255, 47, 47, 47);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = defaultGaugeColors;
+  List<Color> gaugeColors = [defaultGaugeColor];
 
   /// The current gauge stops, if we have the necessary data.
   List<double> gaugeStops = [];
 
   @override
   void didChangeDependencies() {
+    // Fetch the maximum speed from the settings service.
+    maxSpeed = Provider.of<Settings>(context, listen: false).speedMode.maxSpeed;
+
     rs = Provider.of<Ride>(context);
     ps = Provider.of<Positioning>(context);
     if (rs.needsLayout[viewId] != false) {
@@ -62,12 +68,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var dist = rs.currentRecommendation?.distance;
     var sgId = rs.currentRecommendation?.sgId;
     var error = rs.currentRecommendation?.error;
+    var currentQuality = rs.currentRecommendation?.quality;
 
     // Check if we have all necessary data to display the speedometer
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
         timeStr == null || tGreen == null || phases == null || dist == null || 
-        sgId == null || error == true) {
-      gaugeColors = defaultGaugeColors;
+        sgId == null || error == true || currentQuality == null) {
+      gaugeColors = [defaultGaugeColor];
+      gaugeStops = [];
+      return;
+    }
+
+    if (currentQuality < RideMapViewState.qualityThreshold) {
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -79,7 +92,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (timeStr.endsWith('[UTC]')) timeStr = timeStr.substring(0, timeStr.length - 5);
     var time = DateTime.tryParse(timeStr);
     if (time == null) {
-      gaugeColors = defaultGaugeColors;
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -99,7 +112,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       minValue = phasesFromNow.reduce(min);
     }
     if (maxValue == minValue) {
-      gaugeColors = defaultGaugeColors;
+      gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
@@ -109,11 +122,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(const Color.fromARGB(255, 243, 255, 18), const Color.fromARGB(255, 0, 255, 106), factor)!;
+        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), const Color.fromARGB(255, 243, 255, 18), factor)!;
+        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
       }
     }).toList();
 
@@ -134,8 +147,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       stops.add(0.0);
     }
     if (colors.isNotEmpty) {
-      colors.add(const Color.fromARGB(255, 189, 195, 199));
-      colors.add(const Color.fromARGB(255, 189, 195, 199));
+      colors.add(defaultGaugeColor);
+      colors.add(defaultGaugeColor);
     }
 
     // Duplicate each color and stop to create "hard edges" instead of a gradient between steps

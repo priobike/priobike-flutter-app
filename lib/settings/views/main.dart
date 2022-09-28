@@ -6,13 +6,15 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/status/services/status.dart';
+import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -159,12 +161,12 @@ class SettingsViewState extends State<SettingsView> {
   late Shortcuts shortcuts;
 
   /// The associated prediction status service, which is injected by the provider.
-  late PredictionStatus predictionStatus;
+  late PredictionStatusSummary predictionStatusSummary;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Positioning position;
 
-  /// The associated routing service, which is injected by the provider.
+  /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
 
   /// The associated session service, which is injected by the provider.
@@ -177,7 +179,7 @@ class SettingsViewState extends State<SettingsView> {
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
     settings = Provider.of<Settings>(context);
-    predictionStatus = Provider.of<PredictionStatus>(context);
+    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
@@ -192,7 +194,7 @@ class SettingsViewState extends State<SettingsView> {
     await settings.selectBackend(backend);
 
     // Reset the associated services.
-    await predictionStatus.reset();
+    await predictionStatusSummary.reset();
     await shortcuts.reset();
     await routing.reset();
     await session.reset();
@@ -215,6 +217,14 @@ class SettingsViewState extends State<SettingsView> {
     await settings.selectPositioningMode(positioningMode);
     // Reset the position service since it depends on the positioning.
     await position.reset();
+
+    Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a routingOLD endpoint is selected.
+  Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
+    // Tell the settings service that we selected the new backend.
+    await settings.selectRoutingEndpoint(routingEndpoint);
 
     Navigator.pop(context);
   }
@@ -243,6 +253,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a speed mode is selected.
+  Future<void> onSelectSpeedMode(SpeedMode speedMode) async {
+    // Tell the settings service that we selected the new speed mode.
+    await settings.selectSpeedMode(speedMode);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -253,10 +271,10 @@ class SettingsViewState extends State<SettingsView> {
       child: Scaffold(body: Stack(children: [
         Container(color: Theme.of(context).colorScheme.surface),
         SingleChildScrollView(
-          child: Column(
+          child: SafeArea(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 128),
+              const SizedBox(height: 8),
               Row(children: [
                 AppBackButton(onPressed: () => Navigator.pop(context), icon: Icons.chevron_left,),
                 const HSpace(),
@@ -362,6 +380,21 @@ class SettingsViewState extends State<SettingsView> {
               if (settings.enableBetaFeatures)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Routing", 
+                  subtitle: settings.routingEndpoint.description, 
+                  icon: Icons.expand_more, 
+                  callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                    return SettingsSelection(
+                      elements: RoutingEndpoint.values, 
+                      selected: settings.routingEndpoint,
+                      title: (RoutingEndpoint e) => e.description, 
+                      callback: onSelectRoutingMode,
+                    );
+                  }),
+                )),
+
+              if (settings.enableBetaFeatures)
+                Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
+                  title: "Routenneuberechnung", 
                   subtitle: settings.rerouting.description, 
                   icon: Icons.expand_more, 
                   callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
@@ -418,6 +451,20 @@ class SettingsViewState extends State<SettingsView> {
                 }),
               ),
               const SmallVSpace(),
+              SettingsElement(
+                title: "Tacho-Spanne", 
+                subtitle: settings.speedMode.description, 
+                icon: Icons.expand_more, 
+                callback: () => showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                  return SettingsSelection(
+                    elements: SpeedMode.values, 
+                    selected: settings.speedMode,
+                    title: (SpeedMode e) => e.description, 
+                    callback: onSelectSpeedMode
+                  );
+                }),
+              ),
+              const SmallVSpace(),
               SettingsElement(title: "Feedback geben", icon: Icons.email, callback: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => FeedbackView(
                   onSubmitted: (context) async { Navigator.pop(context); },
@@ -461,7 +508,7 @@ class SettingsViewState extends State<SettingsView> {
 
               const SizedBox(height: 128),
             ],
-          ),
+          )),
         ),
       ]),
     ));

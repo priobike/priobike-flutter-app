@@ -1,6 +1,6 @@
-import 'package:priobike/routingNew/messages/graphhopper.dart';
-import 'package:priobike/routingNew/models/navigation.dart';
-import 'package:priobike/routingNew/models/sg.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/sg.dart';
 
 class SelectRideRequest {
   /// The session id.

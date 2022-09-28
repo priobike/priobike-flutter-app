@@ -33,7 +33,7 @@ class NavBarView extends StatelessWidget {
       floating: false,
       shadowColor: const Color.fromARGB(26, 0, 37, 100),
       expandedHeight: 128,
-      collapsedHeight: 64,
+      collapsedHeight: 73,
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: const [StretchMode.blurBackground],
         collapseMode: CollapseMode.parallax,
@@ -59,7 +59,7 @@ class NavBarView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Flexible(child: Content(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
+                Flexible(child: BoldContent(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
                 BoldContent(text: greeting, color: Colors.white, context: context),
               ]),
               const SmallVSpace(),

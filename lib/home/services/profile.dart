@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
-import 'package:priobike/routingNew/models/waypoint.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile with ChangeNotifier {

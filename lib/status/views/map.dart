@@ -244,7 +244,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
         onStyleLoaded: () => onStyleLoaded(context),
       ),
       SafeArea(
-        minimum: const EdgeInsets.only(top: 64),
+        minimum: const EdgeInsets.only(top: 8),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
         ]),

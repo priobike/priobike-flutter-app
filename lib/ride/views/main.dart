@@ -14,10 +14,11 @@ import 'package:priobike/ride/views/legacy/minimal_navigation.dart';
 import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -31,6 +32,9 @@ class RideView extends StatefulWidget {
 class RideViewState extends State<RideView> {
   /// The distance in meters at which a new route is requested.
   static double rerouteDistance = 50;
+
+  /// The associated tracking service, which is injected by the provider.
+  Tracking? tracking;
 
   /// The associated position service, which is injected by the provider.
   Positioning? positioning;
@@ -47,7 +51,7 @@ class RideViewState extends State<RideView> {
   /// The associated snapping service, which is injected by the provider.
   Snapping? snapping;
 
-  /// The associated routing service, which is injected by the provider.
+  /// The associated routingOLD service, which is injected by the provider.
   Routing? routing;
 
   /// The associated settings service, which is injected by the provider.
@@ -76,6 +80,8 @@ class RideViewState extends State<RideView> {
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       if (routing?.selectedRoute == null) return;
+      // Start tracking.
+      await tracking?.start(context);
       // Authenticate a new session.
       await session?.openSession(context);
       // Select the ride.
@@ -97,9 +103,9 @@ class RideViewState extends State<RideView> {
           (snapping?.remainingWaypoints?.isNotEmpty ?? false)
         ) {
           await routing?.selectWaypoints(snapping!.remainingWaypoints);
-          final response = await routing?.loadRoutes(context);
-          if (response != null || response!.routes.isNotEmpty) {
-            await ride?.selectRide(context, response.routes.first);
+          final routes = await routing?.loadRoutes(context);
+          if (routes != null && routes.isNotEmpty) {
+            await ride?.selectRide(context, routes.first);
           }
         }
       });
@@ -108,6 +114,7 @@ class RideViewState extends State<RideView> {
 
   @override
   void didChangeDependencies() {
+    tracking = Provider.of<Tracking>(context);
     positioning = Provider.of<Positioning>(context);
     positionEstimator = Provider.of<PositionEstimator>(context);
     ride = Provider.of<Ride>(context);

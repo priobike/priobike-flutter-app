@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:priobike/ride/messages/ride.dart';
-import 'package:priobike/routingNew/messages/routing.dart';
+import 'package:priobike/routing/messages/routing.dart';
 
 void main() {
   test('Load an example route response', () async {

@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
@@ -74,7 +74,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ]),
         ),
-        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );
@@ -85,7 +85,7 @@ class ShortcutsView extends StatefulWidget {
   /// A callback that will be executed when the shortcut was selected.
   final void Function(Shortcut shortcut) onSelectShortcut;
 
-  /// A callback that will be executed when free routing is started.
+  /// A callback that will be executed when free routingOLD is started.
   final void Function() onStartFreeRouting;
 
   const ShortcutsView({
@@ -103,7 +103,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts ss;
 
-  /// The associated routing service, which is injected by the provider.
+  /// The associated routingOLD service, which is injected by the provider.
   late Routing rs;
 
   @override

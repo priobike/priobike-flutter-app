@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/routingNew/models/waypoint.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,7 @@ class Snapping with ChangeNotifier {
   Map<String, bool> needsLayout = {};
 
   /// The distance model.
-  final vincenty = const Distance();
+  final vincenty = const Distance(roundResult: false);
 
   /// The current distance to the route.
   double? distance;

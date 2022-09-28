@@ -13,15 +13,32 @@ class SymbolLoader {
   /// Load all symbols into the map controller.
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
+    await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
+    await addImageFromAsset("offline", "assets/images/offline.drawio.png");
+    await addImageFromAsset("online", "assets/images/online.drawio.png");
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
     await addImageFromAsset("destination", "assets/images/destination.drawio.png");
     await addImageFromAsset("trafficlightoff", "assets/images/trafficlight-off.drawio.png");
+    await addImageFromAsset("trafficlightoffoffline", "assets/images/trafficlight-off-offline.drawio.png");
+    await addImageFromAsset("trafficlightoffbadsignal", "assets/images/trafficlight-off-bad-signal.drawio.png");
+    await addImageFromAsset("trafficlightoffonline", "assets/images/trafficlight-off-online.drawio.png");
     await addImageFromAsset("trafficlightred", "assets/images/trafficlight-red-countdown.drawio.png");
     await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
-    await addImageFromAsset("direction", "assets/images/direction.png");
+    await addImageFromAsset("airdark", "assets/images/air-dark.png");
+    await addImageFromAsset("airlight", "assets/images/air-light.png");
+    await addImageFromAsset("constructiondark", "assets/images/construction-dark.png");
+    await addImageFromAsset("constructionlight", "assets/images/construction-light.png");
+    await addImageFromAsset("parkdark", "assets/images/park-dark.png");
+    await addImageFromAsset("parklight", "assets/images/park-light.png");
+    await addImageFromAsset("positiondark", "assets/images/position-dark.png");
+    await addImageFromAsset("positionlight", "assets/images/position-light.png");
+    await addImageFromAsset("rentdark", "assets/images/rent-dark.png");
+    await addImageFromAsset("rentlight", "assets/images/rent-light.png");
+    await addImageFromAsset("repairdark", "assets/images/repair-dark.png");
+    await addImageFromAsset("repairlight", "assets/images/repair-light.png");
   }
 
   /// Adds an asset image to the currently displayed style
@@ -55,12 +72,14 @@ class TrafficLightOffMarker extends SymbolOptions {
   TrafficLightOffMarker({
     required LatLng geo,
     double iconSize = 1,
+    int zIndex = 2,
+    String iconImage = "trafficlightoff",
     String? label,
   }): super(
     geometry: geo,
-    iconImage: "trafficlightoff",
+    iconImage: iconImage,
     iconSize: iconSize,
-    zIndex: 2,
+    zIndex: zIndex,
     textField: label,
     textSize: 16,
     textOffset: const Offset(0, -3.5),
@@ -72,17 +91,61 @@ class TrafficLightOffMarker extends SymbolOptions {
   );
 }
 
+class TrafficLightOffOnlineMarker extends TrafficLightOffMarker {
+  TrafficLightOffOnlineMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffonline",
+    zIndex: 3,
+    label: label,
+  );
+}
+
+class TrafficLightOffOfflineMarker extends TrafficLightOffMarker {
+  TrafficLightOffOfflineMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffoffline",
+    zIndex: 3,
+    label: label,
+  );
+}
+
+class TrafficLightOffBadSignalMarker extends TrafficLightOffMarker {
+  TrafficLightOffBadSignalMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "trafficlightoffbadsignal",
+    zIndex: 3,
+    label: label,
+  );
+}
+
 /// A map layer which marks a traffic light on the map.
 class TrafficLightGreenMarker extends SymbolOptions {
   /// Create a new traffic light marker.
   TrafficLightGreenMarker({
     required LatLng geo,
     double iconSize = 1,
+    double iconOpacity = 1
   }): super(
     geometry: geo,
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
-    zIndex: 3,
+    iconOpacity: iconOpacity,
+    zIndex: 4,
   );
 }
 
@@ -92,11 +155,13 @@ class TrafficLightRedMarker extends SymbolOptions {
   TrafficLightRedMarker({
     required LatLng geo,
     double iconSize = 1,
+    double iconOpacity = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightred",
     iconSize: iconSize,
-    zIndex: 3,
+    iconOpacity: iconOpacity,
+    zIndex: 4,
   );
 }
 
@@ -108,7 +173,7 @@ class CurrentPositionMarker extends SymbolOptions {
   }): super(
     geometry: geo,
     iconImage: "direction",
-    iconSize: 2,
+    iconSize: 4,
   );
 }
 
@@ -145,6 +210,6 @@ class WaypointMarker extends SymbolOptions {
     geometry: geo,
     iconImage: "waypoint",
     iconSize: 0.75,
-    zIndex: 4,
+    zIndex: 5,
   );
 }

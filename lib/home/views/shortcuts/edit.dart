@@ -56,8 +56,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(body: 
         SingleChildScrollView(
-          child: Column(children: [
-            const SizedBox(height: 128),
+          child: SafeArea(child: Column(children: [
+            const SizedBox(height: 8),
             Row(children: [
               AppBackButton(onPressed: () => Navigator.pop(context), icon: Icons.chevron_left),
               const HSpace(),
@@ -100,7 +100,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               onReorder: onChangeShortcutOrder,
             ),
             const SizedBox(height: 128),
-          ]),
+          ])),
         ),
       ),
     );
