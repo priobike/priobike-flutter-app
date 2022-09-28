@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -22,8 +24,20 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+      return;
+    // Check if waypoint contains "Standort" as address and change it to geolocation
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
+      if (waypoint.address == null) {
+        final geocoding = Provider.of<Geocoding>(context, listen: false);
+        final String? address = await geocoding.reverseGeocodeLatLng(
+            context, waypoint.lat, waypoint.lon);
+        if (address == null) return;
+        waypoint.address = address;
+      }
+    }
+    final newShortcut =
+        Shortcut(name: name, waypoints: routing.selectedWaypoints!);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;

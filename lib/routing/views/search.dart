@@ -8,7 +8,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:provider/provider.dart';
 
@@ -35,10 +34,10 @@ class WaypointListItemView extends StatefulWidget {
 
 class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The associated geosearch service, which is injected by the provider.
-  Geosearch? geosearch;
+  late Geosearch geosearch;
 
   /// The distance to the waypoint in meters.
   double? distance;
@@ -56,9 +55,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   /// Update the distance to the waypoint.
   void updateDistance() {
-    if (positioning?.lastPosition == null) return;
+    if (positioning.lastPosition == null) return;
     if (widget.waypoint == null) return;
-    final lastPos = LatLng(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude);
+    final lastPos = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
     const vincenty = Distance(roundResult: false);
     distance = vincenty.distance(lastPos, waypointPos);
@@ -69,13 +68,22 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
-        title: widget.waypoint == null ? null : BoldSmall(
-          text: widget.waypoint!.address, 
-          context: context,
-          color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
-        ),
-        subtitle: widget.isCurrentPosition 
-          ? Small(text: "Aktuelle Position", context: context, color: Theme.of(context).colorScheme.onPrimary)
+        title: widget.waypoint == null
+            ? null
+            : widget.isCurrentPosition
+                ? BoldSubHeader(
+                    text: "Aktueller Standort",
+                    context: context,
+                    color: Colors.white)
+                : BoldSmall(
+                    text: widget.waypoint!.address!,
+                    context: context,
+                    color: widget.isCurrentPosition
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
+        subtitle: widget.isCurrentPosition
+          ? null
           : (
             distance == null ? null : (
               distance! > 1000 ? (
@@ -90,9 +98,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
         ) : Icon(
           widget.isCurrentPosition ?
             Icons.location_on :
-            Icons.arrow_forward, 
-          color: widget.isCurrentPosition 
-           ? Theme.of(context).colorScheme.onPrimary
+            Icons.arrow_forward,
+          color: widget.isCurrentPosition
+           ? Colors.white
            : Theme.of(context).colorScheme.primary,
         ),
         shape: const RoundedRectangleBorder(
@@ -120,7 +128,7 @@ class CurrentPositionWaypointListItemView extends StatefulWidget {
 
 class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The currently fetched address.
   Waypoint? waypoint;
@@ -128,28 +136,22 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   @override
   void didChangeDependencies() {
     positioning = Provider.of<Positioning>(context);
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await updateWaypoint();
-    });
+    updateWaypoint();
     super.didChangeDependencies();
   }
 
   /// Update the waypoint.
-  Future<void> updateWaypoint() async {
-    if (positioning?.lastPosition == null) {
+  updateWaypoint() {
+    if (positioning.lastPosition == null) {
       waypoint = null;
       return;
     }
     if (
       waypoint != null && 
-      waypoint!.lat == positioning!.lastPosition!.latitude && 
-      waypoint!.lon == positioning!.lastPosition!.longitude
+      waypoint!.lat == positioning.lastPosition!.latitude &&
+      waypoint!.lon == positioning.lastPosition!.longitude
     ) return;
-    final geocoding = Provider.of<Geocoding>(context, listen: false);
-    final pos = positioning!.lastPosition!;
-    final address = await geocoding.reverseGeocodeLatLng(context, pos.latitude, pos.longitude);
-    if (address == null) return;
-    waypoint = Waypoint(pos.latitude, pos.longitude, address: address);
+    waypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
   @override

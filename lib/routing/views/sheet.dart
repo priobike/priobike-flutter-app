@@ -147,7 +147,7 @@ class RouteWaypointItem extends StatelessWidget {
             const SmallHSpace(),
             Flexible(
               child: BoldContent(
-                text: waypoint.address, 
+                text: waypoint.address != null ? waypoint.address! : "Aktueller Standort",
                 maxLines: 1, 
                 overflow: TextOverflow.ellipsis,
                 context: context,
