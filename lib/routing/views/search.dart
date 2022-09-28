@@ -34,10 +34,10 @@ class WaypointListItemView extends StatefulWidget {
 
 class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The associated geosearch service, which is injected by the provider.
-  Geosearch? geosearch;
+  late Geosearch geosearch;
 
   /// The distance to the waypoint in meters.
   double? distance;
@@ -55,9 +55,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   /// Update the distance to the waypoint.
   void updateDistance() {
-    if (positioning?.lastPosition == null) return;
+    if (positioning.lastPosition == null) return;
     if (widget.waypoint == null) return;
-    final lastPos = LatLng(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude);
+    final lastPos = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
     const vincenty = Distance(roundResult: false);
     distance = vincenty.distance(lastPos, waypointPos);
@@ -128,7 +128,7 @@ class CurrentPositionWaypointListItemView extends StatefulWidget {
 
 class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWaypointListItemView> {
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  late Positioning positioning;
 
   /// The currently fetched address.
   Waypoint? waypoint;
@@ -142,16 +142,16 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
 
   /// Update the waypoint.
   updateWaypoint() {
-    if (positioning?.lastPosition == null) {
+    if (positioning.lastPosition == null) {
       waypoint = null;
       return;
     }
     if (
       waypoint != null && 
-      waypoint!.lat == positioning!.lastPosition!.latitude && 
-      waypoint!.lon == positioning!.lastPosition!.longitude
+      waypoint!.lat == positioning.lastPosition!.latitude &&
+      waypoint!.lon == positioning.lastPosition!.longitude
     ) return;
-    waypoint = Waypoint(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude, address: "Standort");
+    waypoint = Waypoint(positioning.lastPosition!.latitude, positioning!.lastPosition!.longitude, address: "Standort");
   }
 
   @override
