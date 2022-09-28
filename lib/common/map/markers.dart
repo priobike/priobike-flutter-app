@@ -139,10 +139,12 @@ class TrafficLightGreenMarker extends SymbolOptions {
   TrafficLightGreenMarker({
     required LatLng geo,
     double iconSize = 1,
+    double iconOpacity = 1
   }): super(
     geometry: geo,
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
+    iconOpacity: iconOpacity,
     zIndex: 4,
   );
 }
@@ -153,10 +155,12 @@ class TrafficLightRedMarker extends SymbolOptions {
   TrafficLightRedMarker({
     required LatLng geo,
     double iconSize = 1,
+    double iconOpacity = 1,
   }): super(
     geometry: geo,
     iconImage: "trafficlightred",
     iconSize: iconSize,
+    iconOpacity: iconOpacity,
     zIndex: 4,
   );
 }
