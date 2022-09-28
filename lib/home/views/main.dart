@@ -88,7 +88,7 @@ class HomeViewState extends State<HomeView> {
       .push(MaterialPageRoute(builder: (_) => const NewsView()))
       .then((_) {
         // Mark all notifications as read.
-        news.markAllArticlesAsRead();
+        news.markAllArticlesAsRead(context);
       });
   }
 
