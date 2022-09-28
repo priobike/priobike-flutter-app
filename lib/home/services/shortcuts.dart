@@ -28,7 +28,7 @@ class Shortcuts with ChangeNotifier {
       return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
-      if (waypoint.address == "Standort") {
+      if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
         final String? address = await geocoding.reverseGeocodeLatLng(
             context, waypoint.lat, waypoint.lon);
