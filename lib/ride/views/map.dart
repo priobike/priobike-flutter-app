@@ -25,6 +25,9 @@ class RideMapView extends StatefulWidget {
 class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
+  /// The threshold used for showing traffic light colors and speedometer colors
+  static const qualityThreshold = 0.75;
+
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -210,7 +213,8 @@ class RideMapViewState extends State<RideMapView> {
 
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     final r = ride.currentRecommendation;
-    if (r != null && !r.error && r.sgPos != null) {
+
+    if (r != null && !r.error && r.sgPos != null && r.quality! >= qualityThreshold) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(

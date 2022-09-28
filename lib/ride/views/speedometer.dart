@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -67,11 +68,18 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var dist = rs.currentRecommendation?.distance;
     var sgId = rs.currentRecommendation?.sgId;
     var error = rs.currentRecommendation?.error;
+    var currentQuality = rs.currentRecommendation?.quality;
 
     // Check if we have all necessary data to display the speedometer
     if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
         timeStr == null || tGreen == null || phases == null || dist == null || 
-        sgId == null || error == true) {
+        sgId == null || error == true || currentQuality == null) {
+      gaugeColors = [defaultGaugeColor];
+      gaugeStops = [];
+      return;
+    }
+
+    if (currentQuality < RideMapViewState.qualityThreshold) {
       gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
