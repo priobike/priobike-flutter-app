@@ -74,7 +74,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 ? BoldSubHeader(
                     text: "Standort",
                     context: context,
-                    color: Theme.of(context).colorScheme.onPrimary)
+                    color: Colors.white)
                 : BoldSmall(
                     text: widget.waypoint!.address,
                     context: context,
@@ -83,7 +83,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                         : null,
                   ),
         subtitle: widget.isCurrentPosition
-          ? Container()
+          ? null
           : (
             distance == null ? null : (
               distance! > 1000 ? (
@@ -98,9 +98,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
         ) : Icon(
           widget.isCurrentPosition ?
             Icons.location_on :
-            Icons.arrow_forward, 
-          color: widget.isCurrentPosition 
-           ? Theme.of(context).colorScheme.onPrimary
+            Icons.arrow_forward,
+          color: widget.isCurrentPosition
+           ? Colors.white
            : Theme.of(context).colorScheme.primary,
         ),
         shape: const RoundedRectangleBorder(
@@ -136,9 +136,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   @override
   void didChangeDependencies() {
     positioning = Provider.of<Positioning>(context);
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      updateWaypoint();
-    });
+    updateWaypoint();
     super.didChangeDependencies();
   }
 
@@ -153,8 +151,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       waypoint!.lat == positioning!.lastPosition!.latitude && 
       waypoint!.lon == positioning!.lastPosition!.longitude
     ) return;
-    final pos = positioning!.lastPosition!;
-    waypoint = Waypoint(pos.latitude, pos.longitude, address: "Standort");
+    waypoint = Waypoint(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude, address: "Standort");
   }
 
   @override
