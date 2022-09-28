@@ -392,7 +392,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      resolved-ref: "8e30ea261858e1d520d75eaa4e10696e7abc0055"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"
