@@ -34,7 +34,9 @@ class Statistics with ChangeNotifier {
 
   /// Get the average speed of all rides in km/h.
   double? get averageSpeedKmH {
-    if (totalDistanceMeters == null || totalDurationSeconds == null) {
+    if (totalDistanceMeters == null ||
+        totalDurationSeconds == null ||
+        totalDurationSeconds == 0) {
       return null;
     }
     return totalDistanceMeters! / totalDurationSeconds! * 3.6;
