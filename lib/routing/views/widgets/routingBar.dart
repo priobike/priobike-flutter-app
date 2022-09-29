@@ -16,6 +16,7 @@ Future<void> onSearch(BuildContext context, Routing routing, Profile profile, in
       builder: (_) => const SearchView(),
     ),
   );
+
   if (result == null) return;
 
   final waypoint = result as Waypoint;

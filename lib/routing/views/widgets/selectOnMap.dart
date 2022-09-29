@@ -7,7 +7,9 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/routing/services/geosearch.dart';
+import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
@@ -17,7 +19,9 @@ import 'package:priobike/routing/views/widgets/gpsButton.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
-  const SelectOnMapView({Key? key}) : super(key: key);
+  final int? index;
+
+  const SelectOnMapView({Key? key, this.index}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SelectOnMapViewState();
@@ -25,13 +29,16 @@ class SelectOnMapView extends StatefulWidget {
 
 class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The associated routingOLD service, which is injected by the provider.
-  late Routing routingService;
+  late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapController mapControllerService;
+  late MapController mapController;
 
   /// The associated geosearch service, which is injected by the provider.
-  late Geosearch geosearch;
+  late Geocoding geocoding;
+
+  /// The associated geosearch service, which is injected by the provider.
+  late Profile profile;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -41,15 +48,16 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routingService.loadRoutes(context);
+      await routing.loadRoutes(context);
     });
   }
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<Routing>(context);
-    mapControllerService = Provider.of<MapController>(context);
-    geosearch = Provider.of<Geosearch>(context);
+    routing = Provider.of<Routing>(context);
+    mapController = Provider.of<MapController>(context);
+    geocoding = Provider.of<Geocoding>(context);
+    profile = Provider.of<Profile>(context);
 
     super.didChangeDependencies();
   }
@@ -78,22 +86,34 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapControllerService.zoomIn();
+    mapController.zoomIn(ControllerType.selectOnMap);
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapControllerService.zoomOut();
+    mapController.zoomOut(ControllerType.selectOnMap);
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapControllerService.setMyLocationTrackingModeTracking();
+    mapController.setMyLocationTrackingModeTracking(ControllerType.selectOnMap);
   }
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapControllerService.centerNorth();
+    mapController.centerNorth(ControllerType.selectOnMap);
+  }
+
+  /// A function that is executed when the complete button is pressed
+  Future<void> onComplete(BuildContext context, double lat, double lon) async {
+    String? address = await geocoding.reverseGeocodeLatLng(context, lat, lon);
+
+    if (address == null) return;
+
+    final waypoint = Waypoint(lat, lon, address: address);
+
+    // pop till routingScreen
+    Navigator.of(context).pop(waypoint);
   }
 
   @override
@@ -134,17 +154,33 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
                           primary: Theme.of(context).colorScheme.secondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
                         onPressed: () {
-                          print("close select view and overgive location");
-                          print(mapControllerService.getCameraPosition());
+                          if (mapController.getCameraPosition(
+                                  ControllerType.selectOnMap) !=
+                              null) {
+                            onComplete(
+                                context,
+                                mapController
+                                    .getCameraPosition(
+                                        ControllerType.selectOnMap)!
+                                    .latitude,
+                                mapController
+                                    .getCameraPosition(
+                                        ControllerType.selectOnMap)!
+                                    .longitude);
+                          }
                         },
-                        child: Content(text: "Fertig", context: context, color: Colors.white),
+                        child: Content(
+                            text: "Fertig",
+                            context: context,
+                            color: Colors.white),
                       ),
                       const SizedBox(width: 10),
                     ]),
@@ -154,8 +190,10 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
           Expanded(
             child: Stack(
               children: [
-                RoutingMapView(sheetMovement: sheetMovement.stream),
-                if (routingService.isFetchingRoute) renderLoadingIndicator(),
+                RoutingMapView(
+                    sheetMovement: sheetMovement.stream,
+                    controllerType: ControllerType.selectOnMap),
+                if (routing.isFetchingRoute) renderLoadingIndicator(),
                 Padding(
                   /// Align with FAB
                   padding:
@@ -168,7 +206,11 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                       ]),
                 ),
                 Center(
-                  child: Icon(Icons.location_on, size: 34, color: Theme.of(context).colorScheme.primary,),
+                  child: Icon(
+                    Icons.location_on,
+                    size: 34,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -178,8 +220,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GPSButton(
-                myLocationTrackingMode:
-                    mapControllerService.myLocationTrackingMode,
+                myLocationTrackingMode: mapController.myLocationTrackingMode,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,

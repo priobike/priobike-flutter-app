@@ -106,7 +106,7 @@ class HomeViewState extends State<HomeView> {
     routing.loadRoutes(context);
 
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
+      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew(), settings: const RouteSettings(name: "RouteScreen")))
       .then((_) {
         routing.reset();
         discomforts.reset();
@@ -117,7 +117,7 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when free routingOLD was selected.
   void onStartFreeRouting() {
     Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew()))
+      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew(), settings: const RouteSettings(name: "RouteScreen")))
       .then((_) {
         routing.reset();
         discomforts.reset();

@@ -25,7 +25,12 @@ class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
 
-  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
+  /// The selected ControllerType
+  final ControllerType controllerType;
+
+  const RoutingMapView(
+      {required this.sheetMovement, required this.controllerType, Key? key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -71,18 +76,22 @@ class RoutingMapViewState extends State<RoutingMapView> {
   List<Symbol>? labels;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
-  StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
+  StreamSubscription<DraggableScrollableNotification>?
+      sheetMovementSubscription;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
-    top: 108, bottom: 80,
-    left: 8, right: 8,
+    top: 108,
+    bottom: 80,
+    left: 8,
+    right: 8,
   );
 
-  @override 
+  @override
   void initState() {
     super.initState();
-    sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
+    sheetMovementSubscription =
+        widget.sheetMovement?.listen(onScrollBottomSheet);
   }
 
   @override
@@ -91,7 +100,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     ds = Provider.of<Discomforts>(context);
     ss = Provider.of<Settings>(context);
     mc = Provider.of<MapController>(context);
-    adaptMap();
+
+    // selectOnMapView should not display RouteLayers since it causes problems on dispose
+    if (widget.controllerType == ControllerType.main) adaptMap();
     super.didChangeDependencies();
   }
 
@@ -100,9 +111,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final frame = MediaQuery.of(context);
     final maxBottomInset = frame.size.height - frame.padding.top - 300;
     final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
-    mapController?.updateContentInsets(EdgeInsets.fromLTRB(
-      defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset
-    ), false);
+    mapController?.updateContentInsets(
+        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top,
+            defaultMapInsets.left, newBottomInset),
+        false);
   }
 
   Future<void> adaptMap() async {
@@ -124,12 +136,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
     allRoutes = [];
     for (r.Route altRoute in rs.allRoutes ?? []) {
       allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundLayer(
+            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
       // Make it easier to click the alt route layer.
       allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundClickLayer(
+            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
     }
@@ -144,7 +158,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (rs.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: rs.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+      RouteLayer(
+          points: rs.selectedRoute!.route
+              .map((e) => LatLng(e.lat, e.lon))
+              .toList()),
       rs.selectedRoute!.toJson(),
     );
   }
@@ -154,25 +171,32 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
     // Remove all existing layers.
-    if (discomfortLocations != null) mapController!.removeSymbols(discomfortLocations!);
-    if (discomfortSections != null) mapController!.removeLines(discomfortSections!);
+    if (discomfortLocations != null)
+      mapController!.removeSymbols(discomfortLocations!);
+    if (discomfortSections != null)
+      mapController!.removeLines(discomfortSections!);
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, DiscomfortSegment> e in ds.foundDiscomforts?.asMap().entries ?? []) {
+    for (MapEntry<int, DiscomfortSegment> e
+        in ds.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
         final location = e.value.coordinates.first;
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location, number: e.key + 1, iconSize: iconSize),
+          DiscomfortLocationMarker(
+              geo: location, number: e.key + 1, iconSize: iconSize),
           e.value.toJson(),
         ));
       } else {
         // A section of the route.
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1, iconSize: iconSize),
+          DiscomfortLocationMarker(
+              geo: e.value.coordinates.first,
+              number: e.key + 1,
+              iconSize: iconSize),
           e.value.toJson(),
         ));
         discomfortSections!.add(await mapController!.addLine(
@@ -198,7 +222,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     trafficLights = [];
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final statusProvider =
+        Provider.of<PredictionSGStatus>(context, listen: false);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
       final status = statusProvider.cache[sg.id];
@@ -246,7 +271,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (waypoints != null) await mapController!.removeSymbols(waypoints!);
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in rs.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry
+        in rs.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
@@ -273,16 +299,19 @@ class RoutingMapViewState extends State<RoutingMapView> {
       // The delay is necessary, otherwise sometimes the camera won't move.
       await Future.delayed(const Duration(milliseconds: 500));
       await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds)
-      );
+          CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds));
     }
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
+  Future<void> onFillTapped(Fill fill) async {
+    /* Do nothing */
+  }
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
+  Future<void> onCircleTapped(Circle circle) async {
+    /* Do nothing */
+  }
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
@@ -305,7 +334,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async { 
+  Future<void> onSymbolTapped(Symbol symbol) async {
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {
@@ -317,9 +346,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
-    mapController = controller;
+    switch (widget.controllerType) {
+      case ControllerType.main:
+        mc.controller = controller;
+        break;
+      case ControllerType.selectOnMap:
+        mc.controllerSelectOnMap = controller;
+        break;
+    }
 
-    mc.controller = controller;
+    mapController = controller;
 
     // Bind the interaction callbacks.
     controller.onFillTapped.add(onFillTapped);
@@ -359,14 +395,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(rs.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
-    await rs.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
+    await rs.addWaypoint(
+        Waypoint(coord.latitude, coord.longitude, address: address));
     await rs.loadRoutes(context);
   }
 
   void onCameraTrackingDismissed() {
-    mc.setMyLocationTrackingModeNone();
+    mc.setMyLocationTrackingModeNone(widget.controllerType);
   }
-
 
   @override
   void dispose() {
@@ -378,6 +414,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     mapController?.onCircleTapped.remove(onCircleTapped);
     mapController?.onLineTapped.remove(onLineTapped);
     mapController?.onSymbolTapped.remove(onSymbolTapped);
+
+    mc.unsetController(widget.controllerType);
 
     super.dispose();
   }

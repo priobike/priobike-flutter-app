@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing/views/widgets/selectOnMap.dart';
 
 /// Widget for last search results
-class PickOnMap extends StatelessWidget {
-  const PickOnMap({Key? key}) : super(key: key);
+class SelectOnMapButton extends StatelessWidget {
+  final Function onPressed;
+  const SelectOnMapButton({Key? key, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +30,7 @@ class PickOnMap extends StatelessWidget {
                 borderRadius: BorderRadius.circular(50),
               ),
             ),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SelectOnMapView(),
-                ),
-              );
-            },
+            onPressed: () => onPressed(),
             child: Content(text: "Karte", context: context),
           ),
         ]),

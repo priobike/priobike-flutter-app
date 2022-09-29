@@ -154,15 +154,15 @@ class GHCoordinate {
 
   factory GHCoordinate.fromJson(List<dynamic> json) {
     return GHCoordinate(
-      lon: json[0], 
-      lat: json[1], 
-      elevation: json.length > 2 ? json[2] : null
+        lon: json[0],
+        lat: json[1],
+        elevation: json.length > 2 ? json[2] : null
     );
   }
 
   List<double> toJson() => [
     lon,
-    lat, 
+    lat,
     if (elevation != null) elevation!,
   ];
 }
@@ -181,8 +181,8 @@ class GHBoundingBox {
   });
 
   factory GHBoundingBox.fromJson(List<dynamic> json) => GHBoundingBox(
-    minLon: json[0], 
-    minLat: json[1], 
+    minLon: json[0],
+    minLat: json[1],
     maxLon: json[2],
     maxLat: json[3],
   );
@@ -307,15 +307,15 @@ class GHSegment<T> {
 
   factory GHSegment.fromJson(List<dynamic> json) {
     return GHSegment(
-      from: json[0], 
-      to: json[1], 
+      from: json[0],
+      to: json[1],
       value: json.length > 2 ? json[2] : null,
     );
   }
 
   List<dynamic> toJson() => [
     from,
-    to, 
+    to,
     if (value != null) value!,
   ];
 }

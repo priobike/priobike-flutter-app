@@ -10,7 +10,8 @@ import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/routing/views/widgets/lastSearchRequests.dart';
-import 'package:priobike/routing/views/widgets/pickOnMap.dart';
+import 'package:priobike/routing/views/widgets/selectOnMap.dart';
+import 'package:priobike/routing/views/widgets/selectOnMapButton.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
 import 'package:priobike/routing/views/widgets/waypointListItemView.dart';
@@ -74,6 +75,15 @@ class SearchViewState extends State<SearchView> {
       if (waypoint.address != null) _locationSearchController.text = waypoint.address!;
       geosearch.geosearch(context, _locationSearchController.text);
     });
+  }
+
+  _selectOnMapOnPressed () async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SelectOnMapView(),
+      ),
+    );
+    Navigator.of(context).pop(result);
   }
 
   @override
@@ -154,7 +164,7 @@ class SearchViewState extends State<SearchView> {
                         ]
                       ]
                     ]),
-                    const PickOnMap(),
+                    SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                   ],
                 ),
               ),

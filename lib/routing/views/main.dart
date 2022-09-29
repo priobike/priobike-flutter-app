@@ -281,22 +281,22 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapControllerService.zoomIn();
+    mapControllerService.zoomIn(ControllerType.main);
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapControllerService.zoomOut();
+    mapControllerService.zoomOut(ControllerType.main);
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapControllerService.setMyLocationTrackingModeTracking();
+    mapControllerService.setMyLocationTrackingModeTracking(ControllerType.main);
   }
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapControllerService.centerNorth();
+    mapControllerService.centerNorth(ControllerType.main);
   }
 
   @override
@@ -320,7 +320,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             return false;
           },
           child: Stack(children: [
-            RoutingMapView(sheetMovement: sheetMovement.stream),
+            RoutingMapView(sheetMovement: sheetMovement.stream, controllerType: ControllerType.main),
 
             if (routingService.isFetchingRoute) renderLoadingIndicator(),
             if (geocodingService.isFetchingAddress) renderLoadingIndicator(),
