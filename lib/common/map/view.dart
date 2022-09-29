@@ -43,6 +43,9 @@ class AppMap extends StatefulWidget {
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
 
+  /// The myLocationTrackingMode
+  final MyLocationTrackingMode? myLocationTrackingMode;
+
   const AppMap(
       {this.dragEnabled = true,
       this.onMapCreated,
@@ -51,6 +54,7 @@ class AppMap extends StatefulWidget {
       this.onMapLongClick,
       this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
       this.onCameraTrackingDismissed,
+      this.myLocationTrackingMode,
       Key? key})
       : super(key: key);
 
@@ -62,12 +66,9 @@ class AppMapState extends State<AppMap> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  late MapController mapControllerService;
-
   @override
   void didChangeDependencies() {
 
-    mapControllerService = Provider.of<MapController>(context);
     settings = Provider.of<Settings>(context);
 
     super.didChangeDependencies();
@@ -97,7 +98,7 @@ class AppMapState extends State<AppMap> {
       initialCameraPosition: CameraPosition(
           target: settings.backend.center, tilt: 0, zoom: 11, bearing: 0),
       myLocationEnabled: true,
-      myLocationTrackingMode: mapControllerService.myLocationTrackingMode,
+      myLocationTrackingMode: widget.myLocationTrackingMode ?? MyLocationTrackingMode.None,
       myLocationRenderMode: MyLocationRenderMode.GPS,
     );
   }

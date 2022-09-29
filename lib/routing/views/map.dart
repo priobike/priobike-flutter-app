@@ -423,10 +423,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      onMapCreated: onMapCreated,
-      onCameraTrackingDismissed: onCameraTrackingDismissed,
-      onStyleLoaded: () => onStyleLoaded(context),
-      onMapLongClick: (_, coord) => onMapLongClick(context, coord),
-    );
+        onMapCreated: onMapCreated,
+        onCameraTrackingDismissed: onCameraTrackingDismissed,
+        onStyleLoaded: () => onStyleLoaded(context),
+        onMapLongClick: (_, coord) => onMapLongClick(context, coord),
+        myLocationTrackingMode: ControllerType.main == widget.controllerType
+            ? mc.myLocationTrackingMode
+            : mc.myLocationTrackingModeSelectOnMapView);
   }
 }

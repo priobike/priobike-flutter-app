@@ -220,7 +220,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GPSButton(
-                myLocationTrackingMode: mapController.myLocationTrackingMode,
+                myLocationTrackingMode: mapController.myLocationTrackingModeSelectOnMapView,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
