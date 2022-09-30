@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -11,7 +12,7 @@ import 'package:provider/provider.dart';
 
 /// A callback that is executed when the search page is opened.
 Future<void> onSearch(BuildContext context, Routing routing, Profile profile,
-    int? index, bool isFirstElement) async {
+    Waypoint? currentLocationWaypoint, int? index, bool isFirstElement) async {
   final result = await Navigator.of(context).push(
     MaterialPageRoute(
       builder: (_) => SearchView(
@@ -28,15 +29,24 @@ Future<void> onSearch(BuildContext context, Routing routing, Profile profile,
   if (index != null) {
     newWaypoints[index] = waypoint;
   } else {
-    newWaypoints = [...waypoints, waypoint];
+    // Insert current location as first waypoint if option is set
+    if (profile.setLocationAsStart != null &&
+        profile.setLocationAsStart! &&
+        currentLocationWaypoint != null &&
+        waypoints.isEmpty &&
+        waypoint.address != null) {
+      newWaypoints = [currentLocationWaypoint, waypoint];
+    } else {
+      newWaypoints = [...waypoints, waypoint];
+    }
   }
 
   if (waypoint.address != null) {
     profile.saveNewSearch(waypoint);
   }
 
-  routing.selectWaypoints(newWaypoints);
-  routing.loadRoutes(context);
+  await routing.selectWaypoints(newWaypoints);
+  await routing.loadRoutes(context);
 }
 
 /// A view that displays alerts in the routingOLD context.
@@ -58,6 +68,36 @@ class RoutingBarState extends State<RoutingBar> {
 
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
+
+  /// The associated position service, which is injected by the provider.
+  late Positioning positioning;
+
+  /// The currently fetched address.
+  Waypoint? currentLocationWaypoint;
+
+  @override
+  void didChangeDependencies() {
+    geosearch = Provider.of<Geosearch>(context);
+    routingService = Provider.of<Routing>(context);
+    profile = Provider.of<Profile>(context);
+    positioning = Provider.of<Positioning>(context);
+    updateWaypoint();
+    super.didChangeDependencies();
+  }
+
+  /// Update the waypoint.
+  updateWaypoint() {
+    if (positioning.lastPosition == null) {
+      currentLocationWaypoint = null;
+      return;
+    }
+    if (currentLocationWaypoint != null &&
+        currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+      return;
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
+        positioning.lastPosition!.longitude);
+  }
 
   _routingBarRow(int index, int max, Waypoint waypoint) {
     IconData? leadingIcon;
@@ -108,7 +148,8 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  onSearch(context, routingService, profile, index, false);
+                  onSearch(context, routingService, profile,
+                      currentLocationWaypoint, index, false);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -144,7 +185,8 @@ class RoutingBarState extends State<RoutingBar> {
               if (index < max - 1) {
                 onRemoveWaypoint(context, index, max);
               } else {
-                onSearch(context, routingService, profile, null, false);
+                onSearch(context, routingService, profile,
+                    currentLocationWaypoint, null, false);
               }
             },
             splashRadius: 20,
@@ -167,14 +209,6 @@ class RoutingBarState extends State<RoutingBar> {
       routingService.selectWaypoints(removedWaypoints);
       routingService.loadRoutes(context);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    routingService = Provider.of<Routing>(context);
-    profile = Provider.of<Profile>(context);
-    super.didChangeDependencies();
   }
 
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {

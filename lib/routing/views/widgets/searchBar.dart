@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/settings.dart';
@@ -48,6 +50,12 @@ class SearchBarState extends State<SearchBar> {
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
+  /// The associated position service, which is injected by the provider.
+  late Positioning positioning;
+
+  /// The currently fetched address.
+  Waypoint? currentLocationWaypoint;
+
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
@@ -56,7 +64,23 @@ class SearchBarState extends State<SearchBar> {
     geosearch = Provider.of<Geosearch>(context);
     routingService = Provider.of<Routing>(context);
     profile = Provider.of<Profile>(context);
+    positioning = Provider.of<Positioning>(context);
+    updateWaypoint();
     super.didChangeDependencies();
+  }
+
+  /// Update the waypoint.
+  updateWaypoint() {
+    if (positioning.lastPosition == null) {
+      currentLocationWaypoint = null;
+      return;
+    }
+    if (currentLocationWaypoint != null &&
+        currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+      return;
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
+        positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when the search is updated.
@@ -80,7 +104,8 @@ class SearchBarState extends State<SearchBar> {
         child: GestureDetector(
           onTap: () {
             if (!widget.fromClicked) {
-              onSearch(context, routingService, profile, null, true);
+              onSearch(context, routingService, profile,
+                  currentLocationWaypoint, null, true);
             }
           },
           child: Stack(
