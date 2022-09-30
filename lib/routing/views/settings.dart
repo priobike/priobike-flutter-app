@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views/locations.dart';
 import 'package:priobike/routing/views/routes.dart';
 import 'package:priobike/routing/views/widgets/deleteDialog.dart';
@@ -17,7 +18,7 @@ class SettingsView extends StatefulWidget {
 
 class SettingsViewState extends State<SettingsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  Profile? profileService;
+  late Profile profile;
 
   @override
   void initState() {
@@ -26,9 +27,15 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   void didChangeDependencies() {
-    profileService = Provider.of<Profile>(context);
+    profile = Provider.of<Profile>(context);
 
     super.didChangeDependencies();
+  }
+
+  _deleteSearchHistory() {
+    profile.searchHistory = [];
+    profile.store();
+    ToastMessage.showSuccess("Suchhistorie gelöscht!");
   }
 
   @override
@@ -75,7 +82,8 @@ class SettingsViewState extends State<SettingsView> {
                 const SizedBox(height: 20),
 
                 /// height = height - 20 - 88 - 20 - view.inset.top (padding, backButton, offset)
-                Expanded(child: ListView(
+                Expanded(
+                  child: ListView(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -87,11 +95,11 @@ class SettingsViewState extends State<SettingsView> {
                                 text: "Allgemeine POIs anzeigen",
                                 context: context),
                             Switch(
-                                value: profileService?.showGeneralPOIs ?? false,
+                                value: profile.showGeneralPOIs ?? false,
                                 onChanged: (value) {
                                   setState(() {
-                                    profileService?.showGeneralPOIs = value;
-                                    profileService?.store();
+                                    profile.showGeneralPOIs = value;
+                                    profile.store();
                                   });
                                 }),
                           ],
@@ -108,11 +116,11 @@ class SettingsViewState extends State<SettingsView> {
                                 context: context),
                             Switch(
                                 value:
-                                    profileService?.setLocationAsStart ?? false,
+                                    profile.setLocationAsStart ?? false,
                                 onChanged: (value) {
                                   setState(() {
-                                    profileService?.setLocationAsStart = value;
-                                    profileService?.store();
+                                    profile.setLocationAsStart = value;
+                                    profile.store();
                                   });
                                 }),
                           ],
@@ -129,11 +137,11 @@ class SettingsViewState extends State<SettingsView> {
                                 context: context),
                             Switch(
                                 value:
-                                    profileService?.saveSearchHistory ?? false,
+                                    profile.saveSearchHistory ?? false,
                                 onChanged: (value) {
                                   setState(() {
-                                    profileService?.saveSearchHistory = value;
-                                    profileService?.store();
+                                    profile.saveSearchHistory = value;
+                                    profile.store();
                                   });
                                 }),
                           ],
@@ -177,7 +185,8 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Suchhistorie löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(context, profileService, "Suchanfragen");
+                          showDeleteDialog(
+                              context, "Suchanfragen", _deleteSearchHistory);
                         },
                       ),
                       InkWell(
@@ -188,7 +197,7 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Meine Orte löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(context, profileService, "Orte");
+                          showDeleteDialog(context, "Orte", () {});
                         },
                       ),
                       InkWell(
@@ -199,7 +208,7 @@ class SettingsViewState extends State<SettingsView> {
                               text: "Routen löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(context, profileService, "Routen");
+                          showDeleteDialog(context, "Routen", () {});
                         },
                       ),
                     ],

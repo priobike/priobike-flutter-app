@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/services/profile.dart';
 
 showDeleteDialog(
-    BuildContext context, Profile? profileService, String deleteName) {
+    BuildContext context, String deleteName, onPressed) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -30,6 +29,7 @@ showDeleteDialog(
               child: Content(
                   text: 'Löschen', context: context, color: Colors.white),
               onPressed: () {
+                onPressed();
                 Navigator.of(context).pop();
               },
             ),
