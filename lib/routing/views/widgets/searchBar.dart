@@ -80,7 +80,7 @@ class SearchBarState extends State<SearchBar> {
         child: GestureDetector(
           onTap: () {
             if (!widget.fromClicked) {
-              onSearch(context, routingService, profile, null);
+              onSearch(context, routingService, profile, null, true);
             }
           },
           child: Stack(

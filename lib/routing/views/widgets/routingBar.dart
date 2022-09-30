@@ -10,10 +10,12 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 /// A callback that is executed when the search page is opened.
-Future<void> onSearch(BuildContext context, Routing routing, Profile profile, int? index) async {
+Future<void> onSearch(BuildContext context, Routing routing, Profile profile,
+    int? index, bool isFirstElement) async {
   final result = await Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (_) => const SearchView(),
+      builder: (_) => SearchView(
+          isFirstElement: isFirstElement || (index != null && index == 0)),
     ),
   );
 
@@ -29,7 +31,9 @@ Future<void> onSearch(BuildContext context, Routing routing, Profile profile, in
     newWaypoints = [...waypoints, waypoint];
   }
 
-  profile.saveNewSearch(waypoint);
+  if (waypoint.address != null) {
+    profile.saveNewSearch(waypoint);
+  }
 
   routing.selectWaypoints(newWaypoints);
   routing.loadRoutes(context);
@@ -104,7 +108,7 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  onSearch(context, routingService, profile, index);
+                  onSearch(context, routingService, profile, index, false);
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -116,9 +120,12 @@ class RoutingBarState extends State<RoutingBar> {
                     ),
                     border: Border.all(color: Colors.grey),
                   ),
-                  child: Center(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
                     child: Content(
-                        text: waypoint.address.toString(),
+                        text: waypoint.address != null
+                            ? waypoint.address!.toString()
+                            : "Aktueller Standort",
                         context: context,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -137,7 +144,7 @@ class RoutingBarState extends State<RoutingBar> {
               if (index < max - 1) {
                 onRemoveWaypoint(context, index, max);
               } else {
-                onSearch(context, routingService, profile, null);
+                onSearch(context, routingService, profile, null, false);
               }
             },
             splashRadius: 20,

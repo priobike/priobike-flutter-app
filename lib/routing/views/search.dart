@@ -17,8 +17,12 @@ import 'package:priobike/routing/views/widgets/shortcuts.dart';
 import 'package:priobike/routing/views/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';
 
+import 'widgets/currentLocationButton.dart';
+
 class SearchView extends StatefulWidget {
-  const SearchView({Key? key}) : super(key: key);
+  final bool isFirstElement;
+
+  const SearchView({Key? key, required this.isFirstElement}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchViewState();
@@ -43,8 +47,12 @@ class SearchViewState extends State<SearchView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Profile profileService;
 
+  /// The Location Search Text Editing Controller
   final TextEditingController _locationSearchController =
       TextEditingController();
+
+  /// The currentLocationWaypoint
+  Waypoint? currentLocationWaypoint;
 
   @override
   void initState() {
@@ -59,8 +67,24 @@ class SearchViewState extends State<SearchView> {
     profileService = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     geosearch = Provider.of<Geosearch>(context);
+    // to update the position of the current Location Waypoint
+    updateWaypoint();
 
     super.didChangeDependencies();
+  }
+
+  /// Update the waypoint.
+  updateWaypoint() {
+    if (positioning.lastPosition == null) {
+      currentLocationWaypoint = null;
+      return;
+    }
+    if (currentLocationWaypoint != null &&
+        currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+      return;
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
+        positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -72,18 +96,26 @@ class SearchViewState extends State<SearchView> {
   /// A callback that is fired when a waypoint is tapped.
   void onCompleteSearch(Waypoint waypoint) {
     setState(() {
-      if (waypoint.address != null) _locationSearchController.text = waypoint.address!;
+      if (waypoint.address != null) {
+        _locationSearchController.text = waypoint.address!;
+      }
       geosearch.geosearch(context, _locationSearchController.text);
     });
   }
 
-  _selectOnMapOnPressed () async {
+  _selectOnMapOnPressed() async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => const SelectOnMapView(),
       ),
     );
     Navigator.of(context).pop(result);
+  }
+
+  _currentLocationPressed() async {
+    if (currentLocationWaypoint != null) {
+      Navigator.of(context).pop(currentLocationWaypoint);
+    }
   }
 
   @override
@@ -142,16 +174,20 @@ class SearchViewState extends State<SearchView> {
                 child: ListView(
                   padding: const EdgeInsets.all(0),
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        width: frame.size.width,
-                        height: 10,
-                        color: Theme.of(context).colorScheme.surface,
-                      ),
+                    Container(
+                      width: frame.size.width,
+                      height: 10,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
+                    widget.isFirstElement
+                        ? CurrentLocationButton(
+                            onPressed: _currentLocationPressed)
+                        : Container(),
+                    SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                     _locationSearchController.text == ""
-                        ? LastSearchRequests(onCompleteSearch: onCompleteSearch, onWaypointTapped: onWaypointTapped)
+                        ? LastSearchRequests(
+                            onCompleteSearch: onCompleteSearch,
+                            onWaypointTapped: onWaypointTapped)
                         : Container(),
                     Column(children: [
                       const SmallVSpace(),
@@ -164,7 +200,6 @@ class SearchViewState extends State<SearchView> {
                         ]
                       ]
                     ]),
-                    SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                   ],
                 ),
               ),
