@@ -80,7 +80,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       sheetMovementSubscription;
 
   /// The default map insets.
-  final defaultMapInsets = const EdgeInsets.only(
+  static const defaultMapInsets = EdgeInsets.only(
     top: 108,
     bottom: 80,
     left: 8,

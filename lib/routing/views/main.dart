@@ -87,7 +87,18 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     profileService = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
 
+    _checkRoutingBarShown();
+
     super.didChangeDependencies();
+  }
+
+  _checkRoutingBarShown() {
+  // This seems not to work somehow
+    if(routingService.selectedWaypoints != null && routingService.selectedWaypoints!.isNotEmpty && mapControllerService.controller != null) {
+      mapControllerService.controller!.updateContentInsets(
+          EdgeInsets.only(top: 150),
+          true);
+    }
   }
 
   /// A callback that is fired when the ride is started.
