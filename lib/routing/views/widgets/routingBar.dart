@@ -94,6 +94,9 @@ class RoutingBarState extends State<RoutingBar> {
   /// The list of waypoints for SearchRoutingView
   List<Waypoint?> routingItems = [];
 
+  /// The index which routingBarItem gets filled next
+  int nextItem = -1;
+
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
@@ -114,7 +117,8 @@ class RoutingBarState extends State<RoutingBar> {
         routingBarItems.add(_routingBarRow(
             i,
             routingService.selectedWaypoints!.length,
-            routingService.selectedWaypoints![i]));
+            routingService.selectedWaypoints![i],
+            nextItem));
       }
     } else {
       if (widget.fromRoutingSearch && routingItems.isEmpty) {
@@ -122,8 +126,10 @@ class RoutingBarState extends State<RoutingBar> {
             profile.setLocationAsStart! &&
             currentLocationWaypoint != null) {
           routingItems = [currentLocationWaypoint, null];
+          nextItem = 1;
         } else {
           routingItems = [null, null];
+          nextItem = 0;
         }
       }
     }
@@ -144,7 +150,7 @@ class RoutingBarState extends State<RoutingBar> {
         positioning.lastPosition!.longitude);
   }
 
-  _routingBarRow(int index, int max, Waypoint? waypoint) {
+  _routingBarRow(int index, int max, Waypoint? waypoint, int nextItem) {
     IconData? leadingIcon;
     if (index == 0) leadingIcon = Icons.gps_fixed_outlined;
     if (index == max - 1) leadingIcon = Icons.location_on;
@@ -194,7 +200,7 @@ class RoutingBarState extends State<RoutingBar> {
               child: GestureDetector(
                 onTap: () {
                   if (widget.fromRoutingSearch) {
-                    _onSearchRoutingBar(context, index);
+                    _onSearchRoutingBar(context, index, false);
                   } else {
                     onSearch(context, routingService, profile,
                         currentLocationWaypoint, index, false);
@@ -208,7 +214,10 @@ class RoutingBarState extends State<RoutingBar> {
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
                     ),
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(
+                        color: nextItem == index
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey),
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -239,7 +248,7 @@ class RoutingBarState extends State<RoutingBar> {
                 onRemoveWaypoint(context, index, max);
               } else {
                 if (widget.fromRoutingSearch) {
-                  _onSearchRoutingBar(context, index);
+                  _onSearchRoutingBar(context, index, true);
                 } else {
                   onSearch(context, routingService, profile,
                       currentLocationWaypoint, null, false);
@@ -253,18 +262,32 @@ class RoutingBarState extends State<RoutingBar> {
     );
   }
 
+  /// A Function which finds the next missing item or reroutes to previous screen
+  _checkNextItem() {
+    int nextItemIndex = -1;
+    for (int i = 0; i < routingItems.length; i++) {
+      if (routingItems[i] == null && nextItemIndex == -1) {
+        setState(() {
+          nextItem = i;
+        });
+      }
+    }
+  }
+
   /// A callback which is executed when the map was created.
   Future<void> onRemoveWaypoint(
       BuildContext context, int index, int max) async {
     if (widget.fromRoutingSearch) {
-      if (index > 2) {
+      if (index != 0 && routingItems.length > 2) {
         setState(() {
           routingItems.removeAt(index);
         });
+        _checkNextItem();
       } else {
         setState(() {
           routingItems[index] = null;
         });
+        _checkNextItem();
       }
     } else {
       if (index < max - 1 && routingService.selectedWaypoints != null) {
@@ -295,7 +318,7 @@ class RoutingBarState extends State<RoutingBar> {
   }
 
   /// A callback that is executed when the search page is opened in SearchRoutingView
-  _onSearchRoutingBar(BuildContext context, int index) async {
+  _onSearchRoutingBar(BuildContext context, int index, bool append) async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(isFirstElement: index == 0),
@@ -305,7 +328,12 @@ class RoutingBarState extends State<RoutingBar> {
     if (result == null) return;
 
     setState(() {
-      routingItems[index] = result as Waypoint;
+      if (append) {
+        routingItems.add(result);
+      } else {
+        routingItems[index] = result as Waypoint;
+      }
+      _checkNextItem();
     });
   }
 
@@ -316,8 +344,8 @@ class RoutingBarState extends State<RoutingBar> {
     final List<Widget> searchRoutingBarItems = [];
     if (widget.fromRoutingSearch) {
       for (int i = 0; i < routingItems.length; i++) {
-        searchRoutingBarItems
-            .add(_routingBarRow(i, routingItems.length, routingItems[i]));
+        searchRoutingBarItems.add(
+            _routingBarRow(i, routingItems.length, routingItems[i], nextItem));
       }
     }
 
@@ -392,6 +420,7 @@ class RoutingBarState extends State<RoutingBar> {
                           final waypoint = routingItems.removeAt(oldIndex);
                           routingItems.insert(newIndex, waypoint);
                         });
+                        _checkNextItem();
                       }
                     },
                     children: widget.fromRoutingSearch
