@@ -116,6 +116,12 @@ class Routing with ChangeNotifier {
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
 
+  /// The list of waypoints for SearchRoutingView
+  List<Waypoint?> routingItems = [];
+
+  /// The index which routingBarItem gets filled next
+  int nextItem = -1;
+
   /// The currently selected route, if one wetched.
   r.Route? selectedRoute;
 

@@ -32,7 +32,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
   late Geosearch geosearch;
 
   /// The associated routingOLD service, which is injected by the provider.
-  late Routing routingService;
+  late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcutsService;
@@ -60,7 +60,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<Routing>(context);
+    routing = Provider.of<Routing>(context);
     shortcutsService = Provider.of<Shortcuts>(context);
     mapControllerService = Provider.of<MapController>(context);
     profileService = Provider.of<Profile>(context);
@@ -80,16 +80,20 @@ class RouteSearchViewState extends State<RouteSearchView> {
     }
     if (currentLocationWaypoint != null &&
         currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
-        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) {
       return;
+    }
     currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
         positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
-    geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
+    if (routing.nextItem > 0) {
+      routing.routingItems[routing.nextItem] = waypoint;
+      routing.notifyListeners();
+      checkNextItem();
+    }
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -108,13 +112,40 @@ class RouteSearchViewState extends State<RouteSearchView> {
         builder: (_) => const SelectOnMapView(),
       ),
     );
-    Navigator.of(context).pop(result);
+    if (routing.nextItem > 0 && result != null) {
+      routing.routingItems[routing.nextItem] = result;
+      routing.notifyListeners();
+      checkNextItem();
+    }
   }
 
   _currentLocationPressed() async {
-    if (currentLocationWaypoint != null) {
-      Navigator.of(context).pop(currentLocationWaypoint);
+    if (routing.nextItem > 0 && currentLocationWaypoint != null) {
+      routing.routingItems[routing.nextItem] = currentLocationWaypoint;
+      routing.notifyListeners();
+      checkNextItem();
     }
+  }
+
+  /// A Function which finds the next missing item or reroutes to previous screen
+  checkNextItem() async {
+    int nextItemIndex = -1;
+    for (int i = 0; i < routing.routingItems.length; i++) {
+      if (routing.routingItems[i] == null && nextItemIndex == -1) {
+        nextItemIndex = i;
+      }
+    }
+    if (nextItemIndex == -1) {
+      // return to map view
+      // cast checked in loop
+      await routing.selectWaypoints(routing.routingItems.map((e) => e!).toList());
+      routing.routingItems = [];
+      routing.nextItem = -1;
+      Navigator.of(context).pop();
+    }
+    setState(() {
+      routing.nextItem = nextItemIndex;
+    });
   }
 
   @override
@@ -130,7 +161,8 @@ class RouteSearchViewState extends State<RouteSearchView> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const RoutingBar(fromRoutingSearch: true),
+            RoutingBar(
+                fromRoutingSearch: true, checkNextItem: checkNextItem),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(0),
@@ -140,28 +172,13 @@ class RouteSearchViewState extends State<RouteSearchView> {
                     height: 10,
                     color: Theme.of(context).colorScheme.surface,
                   ),
-                  profileService.setLocationAsStart != null &&
-                          profileService.setLocationAsStart!
-                      ? Container()
-                      : CurrentLocationButton(
-                          onPressed: _currentLocationPressed),
+                  CurrentLocationButton(onPressed: _currentLocationPressed),
                   SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                   _locationSearchController.text == ""
                       ? LastSearchRequests(
                           onCompleteSearch: onCompleteSearch,
                           onWaypointTapped: onWaypointTapped)
                       : Container(),
-                  Column(children: [
-                    const SmallVSpace(),
-                    if (geosearch.results?.isNotEmpty == true) ...[
-                      for (final waypoint in geosearch.results!) ...[
-                        WaypointListItemView(
-                            waypoint: waypoint,
-                            onTap: onWaypointTapped,
-                            onCompleteSearch: onCompleteSearch)
-                      ]
-                    ]
-                  ]),
                 ],
               ),
             ),

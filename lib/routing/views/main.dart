@@ -308,12 +308,15 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// Private Function which is executed when FAB is pressed
-  void _startRoutingSearch() {
-    Navigator.of(context).push(
+  Future<void> _startRoutingSearch() async {
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => const RouteSearchView(),
       ),
     );
+    if (routingService.selectedWaypoints != null && routingService.selectedWaypoints!.isNotEmpty) {
+      await routingService.loadRoutes(context);
+    }
   }
 
   /// Private Center North Function which calls mapControllerService
