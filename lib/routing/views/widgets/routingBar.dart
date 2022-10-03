@@ -52,8 +52,13 @@ Future<void> onSearch(BuildContext context, Routing routing, Profile profile,
 /// A view that displays alerts in the routingOLD context.
 class RoutingBar extends StatefulWidget {
   final TextEditingController? locationSearchController;
+  final bool fromRoutingSearch;
 
-  const RoutingBar({Key? key, this.locationSearchController}) : super(key: key);
+  const RoutingBar(
+      {Key? key,
+      this.locationSearchController,
+      required this.fromRoutingSearch})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingBarState();
@@ -75,6 +80,12 @@ class RoutingBarState extends State<RoutingBar> {
   /// The currently fetched address.
   Waypoint? currentLocationWaypoint;
 
+  /// The list for the routingBarItems
+  List<Widget> routingBarItems = [];
+
+  /// The list of waypoints for SearchRoutingView
+  List<Waypoint?> routingItems = [];
+
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
@@ -82,7 +93,32 @@ class RoutingBarState extends State<RoutingBar> {
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     updateWaypoint();
+    updateRoutingBarItems();
+
     super.didChangeDependencies();
+  }
+
+  /// update the routingBarItems
+  updateRoutingBarItems() {
+    if (routingService.selectedWaypoints != null) {
+      routingBarItems = [];
+      for (int i = 0; i < routingService.selectedWaypoints!.length; i++) {
+        routingBarItems.add(_routingBarRow(
+            i,
+            routingService.selectedWaypoints!.length,
+            routingService.selectedWaypoints![i]));
+      }
+    } else {
+      if (widget.fromRoutingSearch) {
+        if (profile.setLocationAsStart != null &&
+            profile.setLocationAsStart! &&
+            currentLocationWaypoint != null) {
+          routingItems = [currentLocationWaypoint, null];
+        } else {
+          routingItems = [null, null];
+        }
+      }
+    }
   }
 
   /// Update the waypoint.
@@ -93,13 +129,14 @@ class RoutingBarState extends State<RoutingBar> {
     }
     if (currentLocationWaypoint != null &&
         currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
-        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) {
       return;
+    }
     currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
         positioning.lastPosition!.longitude);
   }
 
-  _routingBarRow(int index, int max, Waypoint waypoint) {
+  _routingBarRow(int index, int max, Waypoint? waypoint) {
     IconData? leadingIcon;
     if (index == 0) leadingIcon = Icons.gps_fixed_outlined;
     if (index == max - 1) leadingIcon = Icons.location_on;
@@ -164,9 +201,13 @@ class RoutingBarState extends State<RoutingBar> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Content(
-                        text: waypoint.address != null
-                            ? waypoint.address!.toString()
-                            : "Aktueller Standort",
+                        text: waypoint != null
+                            ? waypoint.address != null
+                                ? waypoint.address!.toString()
+                                : "Aktueller Standort"
+                            : index > 0
+                                ? "Ziel auswählen"
+                                : "Start auswählen",
                         context: context,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -228,13 +269,12 @@ class RoutingBarState extends State<RoutingBar> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    List<Widget> routingBarItems = [];
-    if (routingService.selectedWaypoints != null) {
-      for (int i = 0; i < routingService.selectedWaypoints!.length; i++) {
-        routingBarItems.add(_routingBarRow(
-            i,
-            routingService.selectedWaypoints!.length,
-            routingService.selectedWaypoints![i]));
+
+    final List<Widget> searchRoutingBarItems = [];
+    if (widget.fromRoutingSearch) {
+      for (int i = 0; i < routingItems.length; i++) {
+        searchRoutingBarItems
+            .add(_routingBarRow(i, routingItems.length, routingItems[i]));
       }
     }
 
@@ -254,6 +294,10 @@ class RoutingBarState extends State<RoutingBar> {
                     icon: Icons.chevron_left_rounded,
                     onPressed: () {
                       routingService.reset();
+                      // only in SearchRoutingView
+                      if (widget.fromRoutingSearch) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     elevation: 5),
               ),
@@ -279,11 +323,11 @@ class RoutingBarState extends State<RoutingBar> {
                           newIndex =
                               routingService.selectedWaypoints!.length - 1;
                         }
+                        if (oldIndex == newIndex) return;
                         // Tell the tutorial that the user has changed the order of the waypoints.
                         Provider.of<Tutorial>(context, listen: false)
                             .complete("priobike.tutorial.draw-waypoints");
 
-                        if (oldIndex == newIndex) return;
                         if (routingService.selectedWaypoints == null ||
                             routingService.selectedWaypoints!.isEmpty) return;
 
@@ -294,9 +338,22 @@ class RoutingBarState extends State<RoutingBar> {
 
                         routingService.selectWaypoints(reorderedWaypoints);
                         routingService.loadRoutes(context);
+                      } else {
+                        // on reorder when in SearchRoutingView
+                        // Catch out of range. ReorderableList sets newIndex to list.length() + 1 if its way below
+                        if (newIndex >= routingItems.length) {
+                          newIndex = routingItems.length - 1;
+                        }
+                        if (oldIndex == newIndex) return;
+                        setState(() {
+                          final waypoint = routingItems.removeAt(oldIndex);
+                          routingItems.insert(newIndex, waypoint);
+                        });
                       }
                     },
-                    children: routingBarItems,
+                    children: widget.fromRoutingSearch
+                        ? searchRoutingBarItems
+                        : routingBarItems,
                   ),
                 ),
               ),

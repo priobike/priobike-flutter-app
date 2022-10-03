@@ -17,6 +17,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/views/routeSearch.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
@@ -93,11 +94,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   _checkRoutingBarShown() {
-  // This seems not to work somehow
-    if(routingService.selectedWaypoints != null && routingService.selectedWaypoints!.isNotEmpty && mapControllerService.controller != null) {
-      mapControllerService.controller!.updateContentInsets(
-          EdgeInsets.only(top: 150),
-          true);
+    // This seems not to work somehow
+    if (routingService.selectedWaypoints != null &&
+        routingService.selectedWaypoints!.isNotEmpty &&
+        mapControllerService.controller != null) {
+      mapControllerService.controller!
+          .updateContentInsets(const EdgeInsets.only(top: 150), true);
     }
   }
 
@@ -305,6 +307,15 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapControllerService.setMyLocationTrackingModeTracking(ControllerType.main);
   }
 
+  /// Private Function which is executed when FAB is pressed
+  void _startRoutingSearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const RouteSearchView(),
+      ),
+    );
+  }
+
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
     mapControllerService.centerNorth(ControllerType.main);
@@ -331,7 +342,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             return false;
           },
           child: Stack(children: [
-            RoutingMapView(sheetMovement: sheetMovement.stream, controllerType: ControllerType.main),
+            RoutingMapView(
+                sheetMovement: sheetMovement.stream,
+                controllerType: ControllerType.main),
 
             if (routingService.isFetchingRoute) renderLoadingIndicator(),
             if (geocodingService.isFetchingAddress) renderLoadingIndicator(),
@@ -345,7 +358,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     waypointsSelected
-                        ? const RoutingBar()
+                        ? const RoutingBar(fromRoutingSearch: false)
                         : Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -394,7 +407,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               height: 15,
             ),
             FloatingActionButton(
-              onPressed: () => {},
+              onPressed: () => _startRoutingSearch(),
               child: const Icon(
                 Icons.directions,
                 color: Colors.white,
