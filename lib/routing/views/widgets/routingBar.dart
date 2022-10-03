@@ -45,8 +45,16 @@ Future<void> onSearch(BuildContext context, Routing routing, Profile profile,
     profile.saveNewSearch(waypoint);
   }
 
-  await routing.selectWaypoints(newWaypoints);
-  await routing.loadRoutes(context);
+  for (Waypoint waypoint in newWaypoints) {
+    print("-------------------------");
+    print(waypoint.lat);
+    print(waypoint.lon);
+    print(waypoint.address);
+    print("-------------------------");
+  }
+
+  routing.selectWaypoints(newWaypoints);
+  routing.loadRoutes(context);
 }
 
 /// A view that displays alerts in the routingOLD context.
@@ -109,7 +117,7 @@ class RoutingBarState extends State<RoutingBar> {
             routingService.selectedWaypoints![i]));
       }
     } else {
-      if (widget.fromRoutingSearch) {
+      if (widget.fromRoutingSearch && routingItems.isEmpty) {
         if (profile.setLocationAsStart != null &&
             profile.setLocationAsStart! &&
             currentLocationWaypoint != null) {
@@ -185,8 +193,12 @@ class RoutingBarState extends State<RoutingBar> {
               padding: const EdgeInsets.symmetric(vertical: 2.5),
               child: GestureDetector(
                 onTap: () {
-                  onSearch(context, routingService, profile,
-                      currentLocationWaypoint, index, false);
+                  if (widget.fromRoutingSearch) {
+                    _onSearchRoutingBar(context, index);
+                  } else {
+                    onSearch(context, routingService, profile,
+                        currentLocationWaypoint, index, false);
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
@@ -226,8 +238,12 @@ class RoutingBarState extends State<RoutingBar> {
               if (index < max - 1) {
                 onRemoveWaypoint(context, index, max);
               } else {
-                onSearch(context, routingService, profile,
-                    currentLocationWaypoint, null, false);
+                if (widget.fromRoutingSearch) {
+                  _onSearchRoutingBar(context, index);
+                } else {
+                  onSearch(context, routingService, profile,
+                      currentLocationWaypoint, null, false);
+                }
               }
             },
             splashRadius: 20,
@@ -240,15 +256,27 @@ class RoutingBarState extends State<RoutingBar> {
   /// A callback which is executed when the map was created.
   Future<void> onRemoveWaypoint(
       BuildContext context, int index, int max) async {
-    if (index < max - 1 && routingService.selectedWaypoints != null) {
-      if (routingService.selectedWaypoints == null ||
-          routingService.selectedWaypoints!.isEmpty) return;
+    if (widget.fromRoutingSearch) {
+      if (index > 2) {
+        setState(() {
+          routingItems.removeAt(index);
+        });
+      } else {
+        setState(() {
+          routingItems[index] = null;
+        });
+      }
+    } else {
+      if (index < max - 1 && routingService.selectedWaypoints != null) {
+        if (routingService.selectedWaypoints == null ||
+            routingService.selectedWaypoints!.isEmpty) return;
 
-      final removedWaypoints = routingService.selectedWaypoints!.toList();
-      removedWaypoints.removeAt(index);
+        final removedWaypoints = routingService.selectedWaypoints!.toList();
+        removedWaypoints.removeAt(index);
 
-      routingService.selectWaypoints(removedWaypoints);
-      routingService.loadRoutes(context);
+        routingService.selectWaypoints(removedWaypoints);
+        routingService.loadRoutes(context);
+      }
     }
   }
 
@@ -264,6 +292,21 @@ class RoutingBarState extends State<RoutingBar> {
       },
       child: child,
     );
+  }
+
+  /// A callback that is executed when the search page is opened in SearchRoutingView
+  _onSearchRoutingBar(BuildContext context, int index) async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SearchView(isFirstElement: index == 0),
+      ),
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      routingItems[index] = result as Waypoint;
+    });
   }
 
   @override
