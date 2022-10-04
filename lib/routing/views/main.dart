@@ -15,6 +15,7 @@ import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/bottomSheet.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/routing/views/routeSearch.dart';
@@ -398,39 +399,39 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 ),
               ),
             ),
+            routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty ? BottomSheetDetail() :  Container(),
           ]),
         ),
         floatingActionButton: SizedBox(
-            width: 60,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GPSButton(
-                    myLocationTrackingMode:
-                        mapController.myLocationTrackingMode,
-                    gpsCentralization: _gpsCentralization),
-                const SizedBox(
-                  height: 15,
-                ),
-                routing.selectedWaypoints == null ||
-                        routing.selectedWaypoints!.isEmpty
-                    ? FloatingActionButton(
-                        onPressed: () => _startRoutingSearch(),
-                        child: const Icon(
-                          Icons.directions,
-                          color: Colors.white,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        heroTag: "fab2",
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                      )
-                    : Container(
+          width: 60,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GPSButton(
+                  myLocationTrackingMode: mapController.myLocationTrackingMode,
+                  gpsCentralization: _gpsCentralization),
+              const SizedBox(
+                height: 15,
+              ),
+              routing.selectedWaypoints == null ||
+                      routing.selectedWaypoints!.isEmpty
+                  ? FloatingActionButton(
+                      onPressed: () => _startRoutingSearch(),
+                      child: const Icon(
+                        Icons.directions,
                         color: Colors.white,
                       ),
-              ],
-            ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      heroTag: "fab2",
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                    )
+                  : Container(
+                      color: Colors.white,
+                    ),
+            ],
+          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
