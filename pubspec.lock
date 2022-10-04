@@ -391,8 +391,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "feature/custom-location-marker-image"
-      resolved-ref: "763d56435a3fe6c12b3a577fec1d8b0891b6b792"
+      ref: master
+      resolved-ref: "3f7d84c25a860444e46c3d58395ae00a5777c3e3"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"

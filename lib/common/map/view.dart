@@ -23,7 +23,7 @@ class AppMap extends StatefulWidget {
   }
 
   /// A custom location puck image.
-  final String? locationPuckImage;
+  final String? puckImage;
 
   /// If dragging is enabled.
   final bool dragEnabled;
@@ -44,7 +44,7 @@ class AppMap extends StatefulWidget {
   final AttributionButtonPosition attributionButtonPosition;
 
   const AppMap({
-    this.locationPuckImage,
+    this.puckImage,
     this.dragEnabled = true,
     this.onMapCreated,
     this.onStyleLoaded,
@@ -89,12 +89,8 @@ class AppMapState extends State<AppMap> {
       myLocationRenderMode: MyLocationRenderMode.COMPASS,
       myLocationTrackingMode: MyLocationTrackingMode.None,
       // Use a custom foreground image for the location puck.
-      foregroundImage: widget.locationPuckImage,
-      foregroundImageStale: widget.locationPuckImage,
-      backgroundImage: widget.locationPuckImage,
-      backgroundImageStale: widget.locationPuckImage,
-      gpsImage: widget.locationPuckImage,
-      bearingImage: widget.locationPuckImage,
+      puckImage: widget.puckImage,
+      puckSize: 128,
       attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
       initialCameraPosition: CameraPosition(

@@ -341,7 +341,7 @@ class RideMapViewState extends State<RideMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      locationPuckImage: Theme.of(context).brightness == Brightness.dark 
+      puckImage: Theme.of(context).brightness == Brightness.dark 
         ? 'assets/images/position-dark.png' 
         : 'assets/images/position-light.png',
       dragEnabled: false,
