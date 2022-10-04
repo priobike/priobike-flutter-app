@@ -206,18 +206,14 @@ class RideMapViewState extends State<RideMapView> {
       ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
 
     // Adapt the focus dynamically to the next interesting feature.
-    double cameraZoom = 19;
     final distanceOfInterest = min(
       snapping.distanceToNextTurn ?? double.infinity, 
       sgDistance ?? double.infinity,
     );
-    if (distanceOfInterest > 25) cameraZoom = 18.5;
-    if (distanceOfInterest > 50) cameraZoom = 18.25;
-    if (distanceOfInterest > 100) cameraZoom = 18.0;
-    if (distanceOfInterest > 200) cameraZoom = 17.75;
-    if (distanceOfInterest > 300) cameraZoom = 17.5;
-    if (distanceOfInterest > 400) cameraZoom = 17.25;
-    if (distanceOfInterest > 500) cameraZoom = 17.0;
+    // Scale the zoom level with the distance of interest.
+    // Between 0 meters: zoom 18 and 500 meters: zoom 18.
+    double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
+    zoom = zoomSMA.next(zoom);
 
     // Within those thresholds the bearing to the next SG is used.
     // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
@@ -239,7 +235,7 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       bearing: cameraHeading,
       target: cameraTarget,
-      zoom: cameraZoom,
+      zoom: zoom,
       tilt: 60,
     )));
 
