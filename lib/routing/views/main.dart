@@ -38,22 +38,22 @@ class RoutingViewNew extends StatefulWidget {
 
 class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated geocoding service, which is injected by the provider.
-  late Geocoding geocodingService;
+  late Geocoding geocoding;
 
   /// The associated routingOLD service, which is injected by the provider.
-  late Routing routingService;
+  late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts shortcutsService;
+  late Shortcuts shortcuts;
 
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapController mapControllerService;
+  late MapController mapController;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Profile profileService;
+  late Profile profile;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -66,7 +66,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routingService.loadRoutes(context);
+      await routing.loadRoutes(context);
 
       /// Calling requestSingleLocation function to fill lastPosition of PositionService
       await positioning.requestSingleLocation(context);
@@ -81,11 +81,11 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   @override
   void didChangeDependencies() {
-    geocodingService = Provider.of<Geocoding>(context);
-    routingService = Provider.of<Routing>(context);
-    shortcutsService = Provider.of<Shortcuts>(context);
-    mapControllerService = Provider.of<MapController>(context);
-    profileService = Provider.of<Profile>(context);
+    geocoding = Provider.of<Geocoding>(context);
+    routing = Provider.of<Routing>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
+    mapController = Provider.of<MapController>(context);
+    profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
 
     _checkRoutingBarShown();
@@ -95,10 +95,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   _checkRoutingBarShown() {
     // This seems not to work somehow
-    if (routingService.selectedWaypoints != null &&
-        routingService.selectedWaypoints!.isNotEmpty &&
-        mapControllerService.controller != null) {
-      mapControllerService.controller!
+    if (routing.selectedWaypoints != null &&
+        routing.selectedWaypoints!.isNotEmpty &&
+        mapController.controller != null) {
+      mapController.controller!
           .updateContentInsets(const EdgeInsets.only(top: 150), true);
     }
   }
@@ -189,7 +189,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 final name = nameController.text;
                 if (name.isEmpty)
                   ToastMessage.showError("Name darf nicht leer sein.");
-                await shortcutsService.saveNewShortcut(name, context);
+                await shortcuts.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
@@ -250,7 +250,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                         BigButton(
                             label: "Erneut Laden",
                             onPressed: () async {
-                              await routingService.loadRoutes(context);
+                              await routing.loadRoutes(context);
                             }),
                       ]),
                     ),
@@ -294,17 +294,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapControllerService.zoomIn(ControllerType.main);
+    mapController.zoomIn(ControllerType.main);
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapControllerService.zoomOut(ControllerType.main);
+    mapController.zoomOut(ControllerType.main);
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapControllerService.setMyLocationTrackingModeTracking(ControllerType.main);
+    mapController.setMyLocationTrackingModeTracking(ControllerType.main);
   }
 
   /// Private Function which is executed when FAB is pressed
@@ -314,24 +314,25 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         builder: (_) => const RouteSearchView(),
       ),
     );
-    if (routingService.selectedWaypoints != null && routingService.selectedWaypoints!.isNotEmpty) {
-      await routingService.loadRoutes(context);
+    if (routing.selectedWaypoints != null &&
+        routing.selectedWaypoints!.isNotEmpty) {
+      await routing.loadRoutes(context);
     }
   }
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapControllerService.centerNorth(ControllerType.main);
+    mapController.centerNorth(ControllerType.main);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (routingService.hadErrorDuringFetch) return renderTryAgainButton();
+    if (routing.hadErrorDuringFetch) return renderTryAgainButton();
 
     final frame = MediaQuery.of(context);
 
-    bool waypointsSelected = routingService.selectedWaypoints != null &&
-        routingService.selectedWaypoints!.isNotEmpty;
+    bool waypointsSelected = routing.selectedWaypoints != null &&
+        routing.selectedWaypoints!.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -349,8 +350,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 sheetMovement: sheetMovement.stream,
                 controllerType: ControllerType.main),
 
-            if (routingService.isFetchingRoute) renderLoadingIndicator(),
-            if (geocodingService.isFetchingAddress) renderLoadingIndicator(),
+            if (routing.isFetchingRoute) renderLoadingIndicator(),
+            if (geocoding.isFetchingAddress) renderLoadingIndicator(),
 
             // Top Bar
             SafeArea(
@@ -390,7 +391,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                             CompassButton(centerNorth: _centerNorth),
                             ZoomInAndOutButton(
                                 zoomIn: _zoomIn, zoomOut: _zoomOut),
-                            FilterButton(profileService: profileService),
+                            FilterButton(profileService: profile),
                           ]),
                     ),
                   ],
@@ -399,29 +400,37 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             ),
           ]),
         ),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            GPSButton(
-                myLocationTrackingMode:
-                    mapControllerService.myLocationTrackingMode,
-                gpsCentralization: _gpsCentralization),
-            const SizedBox(
-              height: 15,
+        floatingActionButton: SizedBox(
+            width: 60,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GPSButton(
+                    myLocationTrackingMode:
+                        mapController.myLocationTrackingMode,
+                    gpsCentralization: _gpsCentralization),
+                const SizedBox(
+                  height: 15,
+                ),
+                routing.selectedWaypoints == null ||
+                        routing.selectedWaypoints!.isEmpty
+                    ? FloatingActionButton(
+                        onPressed: () => _startRoutingSearch(),
+                        child: const Icon(
+                          Icons.directions,
+                          color: Colors.white,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        heroTag: "fab2",
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      )
+                    : Container(
+                        color: Colors.white,
+                      ),
+              ],
             ),
-            FloatingActionButton(
-              onPressed: () => _startRoutingSearch(),
-              child: const Icon(
-                Icons.directions,
-                color: Colors.white,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              heroTag: "fab2",
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
