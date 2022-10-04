@@ -16,7 +16,7 @@ class Snapping with ChangeNotifier {
   Map<String, bool> needsLayout = {};
 
   /// The distance model.
-  final vincenty = const Distance();
+  final vincenty = const Distance(roundResult: false);
 
   /// The current distance to the route.
   double? distance;

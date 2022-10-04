@@ -45,7 +45,11 @@ class RoutingViewState extends State<RoutingView> {
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
   /// The threshold for the location accuracy in meter
-  final int locationAccuracyThreshold = 20;
+  /// NOTE: The accuracy will increase if we move and gain more GPS signal data.
+  /// Hence, we don't want to set this threshold too low. The threshold should
+  /// only detect exceptionally poor GPS quality (such as >1000m radius) that
+  /// may be caused by energy saving options or disallowed precise geolocation.
+  final int locationAccuracyThreshold = 100;
 
   @override
   void initState() {
@@ -54,11 +58,14 @@ class RoutingViewState extends State<RoutingView> {
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       await routing?.loadRoutes(context);
 
-      /// Calling requestSingleLocation function to fill lastPosition of PositionService
+      // Calling requestSingleLocation function to fill lastPosition of PositionService
       await positioning?.requestSingleLocation(context);
-      /// Checking threshold for location accuracy
-      if (positioning?.lastPosition?.accuracy != null && positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
-        _showAlertGPSQualityDialog();
+      // Checking threshold for location accuracy
+      if (
+        positioning?.lastPosition?.accuracy != null && 
+        positioning!.lastPosition!.accuracy >= locationAccuracyThreshold
+      ) {
+        showAlertGPSQualityDialog();
       }
     });
   }
@@ -155,7 +162,7 @@ class RoutingViewState extends State<RoutingView> {
   Widget renderLoadingIndicator() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Expanded(child: Tile(
-        fill: Theme.of(context).colorScheme.background,
+        fill: Theme.of(context).colorScheme.surface,
         content: Center(child: SizedBox(
           height: 86, 
           width: 256, 
@@ -182,7 +189,9 @@ class RoutingViewState extends State<RoutingView> {
                   height: 128, 
                   width: 256, 
                   child: Column(children: [
-                    BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
+                    BoldSmall(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
+                    const SmallVSpace(),
+                    Small(text: "Prüfe deine Verbindung.", maxLines: 1, context: context),
                     const VSpace(),
                     BigButton(label: "Erneut Laden", onPressed: () async {
                       await routing?.loadRoutes(context);
@@ -198,21 +207,25 @@ class RoutingViewState extends State<RoutingView> {
   }
 
   /// Alert dialog for location accuracy
-  void _showAlertGPSQualityDialog() {
+  void showAlertGPSQualityDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          title: BoldSubHeader(text: 'Achtung!', context: context),
-          content: Content( text:
-              'Die Qualität der Positionsbestimmung ist nicht optimal. Prüfen sie gegebenenfalls die Einstellungen des GPS für die App.', context: context),
+          title: BoldSubHeader(text: 'Hinweis', context: context),
+          content: Content(
+            text: 'Deine GPS-Position scheint ungenau zu sein. Solltest du während der Fahrt Probleme mit der Ortung feststellen, prüfe deine Energiespareinstellungen oder erlaube die genaue Positionsbestimmung.',
+            context: context,
+          ),
           actions: <Widget>[
             TextButton(
-              child: Content(text: 'Okay', context: context, color: Theme.of(context).colorScheme.primary),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              child: Content(
+                text: 'Okay', 
+                context: context, 
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -244,15 +257,17 @@ class RoutingViewState extends State<RoutingView> {
           
           // Top Bar
           SafeArea(
-            minimum: const EdgeInsets.only(top: 64),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-              const SizedBox(width: 16),
-              SizedBox( // Avoid expansion of alerts view.
-                width: frame.size.width - 80, 
-                child: const AlertsView(),
-              )
-            ]),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                const SizedBox(width: 16),
+                SizedBox( // Avoid expansion of alerts view.
+                  width: frame.size.width - 80, 
+                  child: const AlertsView(),
+                )
+              ]),
+            )
           ),
 
           RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),

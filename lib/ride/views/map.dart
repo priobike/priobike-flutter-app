@@ -59,11 +59,6 @@ class RideMapViewState extends State<RideMapView> {
   /// A SMA for the zoom.
   final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
 
-  /// A SMA for the bearing.
-  final cameraHeadingSMA = RotationSMA(k: PositionEstimator.refreshRateHz * 2 /* seconds */);
-
-  final vincenty = const l.Distance();
-
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
@@ -200,6 +195,8 @@ class RideMapViewState extends State<RideMapView> {
       return;
     }
 
+    const vincenty = l.Distance(roundResult: false);
+
     // Calculate the distance to the next traffic light.
     double? sgDistance = (userSnapPosLatLng == null || sgPosLatLng == null) 
       ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
@@ -235,7 +232,6 @@ class RideMapViewState extends State<RideMapView> {
     if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 90) {
       cameraHeading = estPos.heading; // Look into the direction of the user.
     }
-    cameraHeading = cameraHeadingSMA.next(cameraHeading);
 
     // The camera target is the estimated user position.
     final cameraTarget = LatLng(estPosLatLng.latitude, estPosLatLng.longitude);
@@ -348,15 +344,10 @@ class RideMapViewState extends State<RideMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        AppMap(
-          dragEnabled: false,
-          onMapCreated: onMapCreated, 
-          onStyleLoaded: () => onStyleLoaded(context),
-        ),
-      ]
+    return AppMap(
+      dragEnabled: false,
+      onMapCreated: onMapCreated, 
+      onStyleLoaded: () => onStyleLoaded(context),
     );
   }
 }

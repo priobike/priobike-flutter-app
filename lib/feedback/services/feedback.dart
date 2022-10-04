@@ -42,8 +42,8 @@ class Feedback with ChangeNotifier {
   }
 
   /// Send an answered question.
-  Future<void> send(BuildContext context) async {
-    if (!willSendFeedback) return;
+  Future<bool> send(BuildContext context) async {
+    if (!willSendFeedback) return false;
 
     isSendingFeedback = true; 
     notifyListeners();
@@ -91,5 +91,7 @@ class Feedback with ChangeNotifier {
     pending = {};
     isSendingFeedback = false; 
     notifyListeners();
+
+    return true;
   }
 }

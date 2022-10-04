@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/status/messages/status.dart';
+import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:priobike/logging/toast.dart';
@@ -9,9 +9,9 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-class PredictionStatus with ChangeNotifier {
+class PredictionStatusSummary with ChangeNotifier {
   /// The logger for this service.
-  final log = Logger("PredictionStatus");
+  final log = Logger("PredictionStatusSummary");
 
   /// The http client used to make requests to the backend.
   http.Client httpClient = http.Client();
@@ -22,21 +22,28 @@ class PredictionStatus with ChangeNotifier {
   /// If the service had an error during the last request.
   bool hadError = false;
 
-  /// The current status of the prediction.
-  PredictionMonitorStatusResponse? status;
+  /// The current status of the predictions.
+  StatusSummaryData? current;
 
-  PredictionStatus() {
-    log.i("PredictionStatus started.");
+  PredictionStatusSummary() {
+    log.i("PredictionStatusSummary started.");
   }
 
   /// Fetch the status of the prediction.
-  Future<void> fetchStatus(BuildContext context) async {
-    if (isLoading || status != null || hadError) return;
+  Future<void> fetch(BuildContext context) async {
+    if (isLoading || hadError) return;
+
+    // If the last fetched status is not older than 5 minutes,
+    // we do not need to fetch it again.
+    if (current != null) {
+      final now = DateTime.now().millisecondsSinceEpoch / 1000;
+      final lastFetched = current!.statusUpdateTime;
+      if (now - lastFetched < 5 * 60) return;
+    }
 
     isLoading = true;
-    notifyListeners();
-
     hadError = false;
+    notifyListeners();
 
     try {
       final settings = Provider.of<Settings>(context, listen: false);
@@ -53,7 +60,7 @@ class PredictionStatus with ChangeNotifier {
       }
 
       final json = jsonDecode(response.body);
-      status = PredictionMonitorStatusResponse.fromJson(json);
+      current = StatusSummaryData.fromJson(json);
 
       isLoading = false;
       hadError = false;
@@ -69,7 +76,7 @@ class PredictionStatus with ChangeNotifier {
 
   /// Reset the status.
   Future<void> reset() async {
-    status = null;
+    current = null;
     isLoading = false;
     hadError = false;
     notifyListeners();

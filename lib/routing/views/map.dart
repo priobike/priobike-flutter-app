@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/common/map/view.dart';
@@ -15,6 +16,8 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -189,13 +192,44 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
     for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
-      trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(
-          geo: LatLng(sg.position.lat, sg.position.lon),
-          label: willShowLabels ? sg.label : null,
-        ),
-      ));
+      final status = statusProvider.cache[sg.id];
+      if (status == null) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.offline) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffOfflineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.bad) {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffBadSignalMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else {
+        trafficLights!.add(await mapController!.addSymbol(
+          TrafficLightOffOnlineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      }
     }
   }
 
@@ -296,6 +330,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+
+    // Load the map features.
+    await GeoFeatureLoader(mapController!, context).loadFeatures();
 
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);

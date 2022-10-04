@@ -74,7 +74,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ]),
         ),
-        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );

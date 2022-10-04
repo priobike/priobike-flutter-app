@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/status/services/status.dart';
+import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -25,6 +27,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/features.dart';
 import 'package:priobike/statistics/services/statistics.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
@@ -47,8 +50,12 @@ Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
   // Ensure that the widgets binding is initialized before 
-  // loading something from the shared preferences.
+  // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load offline map tiles.
+  await AppMap.loadOfflineTiles();
+
   // Load the color mode before the first view build.
   final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
@@ -91,25 +98,27 @@ class App extends StatelessWidget {
       // ensured that the changenotifiers are properly recycled.
       // For this, changenotifiers may provider a `reset` method.
       providers: [
-        ChangeNotifierProvider<Feature>(create: (context) => Feature()),
-        ChangeNotifierProvider<PrivacyPolicy>(create: (context) => PrivacyPolicy()),
-        ChangeNotifierProvider<Tutorial>(create: (context) => Tutorial()),
-        ChangeNotifierProvider<Settings>(create: (context) => Settings(colorMode: initialColorMode)),
-        ChangeNotifierProvider<PredictionStatus>(create: (context) => PredictionStatus()),
-        ChangeNotifierProvider<Profile>(create: (context) => Profile()),
-        ChangeNotifierProvider<News>(create: (context) => News()),
-        ChangeNotifierProvider<Shortcuts>(create: (context) => Shortcuts()),
-        ChangeNotifierProvider<Discomforts>(create: (context) => Discomforts()),
-        ChangeNotifierProvider<Geocoding>(create: (context) => Geocoding()),
-        ChangeNotifierProvider<Geosearch>(create: (context) => Geosearch()),
-        ChangeNotifierProvider<Routing>(create: (context) => Routing()),
-        ChangeNotifierProvider<Session>(create: (context) => Session()),
-        ChangeNotifierProvider<Positioning>(create: (context) => Positioning()),
-        ChangeNotifierProvider<PositionEstimator>(create: (context) => PositionEstimator()),
-        ChangeNotifierProvider<Ride>(create: (context) => Ride()),
-        ChangeNotifierProvider<Statistics>(create: (context) => Statistics()),
-        ChangeNotifierProvider<Snapping>(create: (context) => Snapping()),
-        ChangeNotifierProvider<Feedback>(create: (context) => Feedback()),
+        ChangeNotifierProvider(create: (context) => Feature()),
+        ChangeNotifierProvider(create: (context) => PrivacyPolicy()),
+        ChangeNotifierProvider(create: (context) => Tutorial()),
+        ChangeNotifierProvider(create: (context) => Settings(colorMode: initialColorMode)),
+        ChangeNotifierProvider(create: (context) => PredictionStatusSummary()),
+        ChangeNotifierProvider(create: (context) => PredictionSGStatus()),
+        ChangeNotifierProvider(create: (context) => Profile()),
+        ChangeNotifierProvider(create: (context) => News()),
+        ChangeNotifierProvider(create: (context) => Shortcuts()),
+        ChangeNotifierProvider(create: (context) => Discomforts()),
+        ChangeNotifierProvider(create: (context) => Geocoding()),
+        ChangeNotifierProvider(create: (context) => Geosearch()),
+        ChangeNotifierProvider(create: (context) => Routing()),
+        ChangeNotifierProvider(create: (context) => Session()),
+        ChangeNotifierProvider(create: (context) => Positioning()),
+        ChangeNotifierProvider(create: (context) => PositionEstimator()),
+        ChangeNotifierProvider(create: (context) => Ride()),
+        ChangeNotifierProvider(create: (context) => Tracking()),
+        ChangeNotifierProvider(create: (context) => Statistics()),
+        ChangeNotifierProvider(create: (context) => Snapping()),
+        ChangeNotifierProvider(create: (context) => Feedback()),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {

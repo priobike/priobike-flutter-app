@@ -77,7 +77,7 @@ class PositionEstimator with ChangeNotifier {
 
     // Offset the position by the traveled distance and bearing
     if (lastPosition.heading < 0 || lastPosition.heading > 360) return lastPosition;
-    final newLatLng = const Distance().offset(
+    final newLatLng = const Distance(roundResult: false).offset(
       LatLng(lastPosition.latitude, lastPosition.longitude), 
       lastPosition.speed * (elapsed / 1000), 
       lastPosition.heading

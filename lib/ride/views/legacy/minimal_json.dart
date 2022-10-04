@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -26,7 +28,7 @@ class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Small(text: app.currentRecommendation!.toJson(), context: context),
+            Small(text: jsonEncode(app.currentRecommendation!.toJson()), context: context),
             const Spacer(),
             const SizedBox(
               width: double.infinity,

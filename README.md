@@ -8,14 +8,6 @@ For getting started with development you need to set up your development environ
 
 Make sure to `cp .netrc ~/.netrc` to use MapBox.
 
-## Build APK file for Android
-
-Make sure to include the git commit hash as an build variable. Otherwise it will not show up on the startscreen.
-
-```
-flutter build apk --dart-define=COMMIT_ID=$(git rev-parse --short HEAD~)
-```
-
 ## Generating App Icons and Splash Screen
 
 This project uses [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) to generate app icons. To generate them, replace `assets/icon.png` and then run: `flutter pub run flutter_launcher_icons:main`.

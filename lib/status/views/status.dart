@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/status/services/status.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:provider/provider.dart';
 
 class StatusView extends StatefulWidget {
@@ -16,23 +16,23 @@ class StatusView extends StatefulWidget {
 
 class StatusViewState extends State<StatusView> {
   /// The associated prediction status service, which is injected by the provider.
-  late PredictionStatus predictionStatus;
+  late PredictionStatusSummary predictionStatusSummary;
 
   @override
   void didChangeDependencies() {
-    predictionStatus = Provider.of<PredictionStatus>(context);
+    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await predictionStatus.fetchStatus(context);
+      await predictionStatusSummary.fetch(context);
     });
 
     super.didChangeDependencies();
   }
 
   Widget renderStatus() {
-    if (predictionStatus.status == null) return Container();
-    final status = predictionStatus.status!;
+    if (predictionStatusSummary.current == null) return Container();
+    final status = predictionStatusSummary.current!;
 
     String? problem;
     if (
@@ -94,7 +94,7 @@ class StatusViewState extends State<StatusView> {
       duration: const Duration(milliseconds: 300),
       firstChild: Container(),
       secondChild: renderStatus(),
-      crossFadeState: predictionStatus.status == null 
+      crossFadeState: predictionStatusSummary.current == null 
         ? CrossFadeState.showFirst 
         : CrossFadeState.showSecond,
     );

@@ -123,12 +123,12 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                 ),
               ),
             ),
-            if (widget.child == null) Column(children: [
-              const SizedBox(height: 64),
+            if (widget.child == null) SafeArea(child: Column(children: [
+              const SizedBox(height: 8),
               Row(children: [
                 AppBackButton(onPressed: () => Navigator.pop(context)),
               ]),
-            ]),
+            ])),
             if (widget.child != null) Pad(
               child: BigButton(
                 icon: Icons.check,
