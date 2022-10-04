@@ -385,54 +385,65 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     Padding(
                       /// Align with FAB
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 20),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          vertical: 10, horizontal: 20),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            CompassButton(centerNorth: _centerNorth),
-                            ZoomInAndOutButton(
-                                zoomIn: _zoomIn, zoomOut: _zoomOut),
-                            FilterButton(profileService: profile),
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  CompassButton(centerNorth: _centerNorth),
+                                  const SizedBox(height: 10),
+                                  ZoomInAndOutButton(
+                                      zoomIn: _zoomIn, zoomOut: _zoomOut),
+                                  const SizedBox(height: 10),
+                                  FilterButton(profileService: profile),
+                                  SizedBox(height: frame.size.height - (frame.size.height * 0.675) ,),
+                                  routing.selectedWaypoints != null &&
+                                          routing.selectedWaypoints!.isNotEmpty
+                                      ? GPSButton(
+                                          gpsCentralization: _gpsCentralization)
+                                      : Container()
+                                ]),
                           ]),
                     ),
                   ],
                 ),
               ),
             ),
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty ? BottomSheetDetail() :  Container(),
+            routing.selectedWaypoints != null &&
+                    routing.selectedWaypoints!.isNotEmpty
+                ? const BottomSheetDetail()
+                : Container(),
           ]),
         ),
-        floatingActionButton: SizedBox(
-          width: 60,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              GPSButton(
-                  myLocationTrackingMode: mapController.myLocationTrackingMode,
-                  gpsCentralization: _gpsCentralization),
-              const SizedBox(
-                height: 15,
-              ),
-              routing.selectedWaypoints == null ||
-                      routing.selectedWaypoints!.isEmpty
-                  ? FloatingActionButton(
-                      onPressed: () => _startRoutingSearch(),
-                      child: const Icon(
-                        Icons.directions,
-                        color: Colors.white,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      heroTag: "fab2",
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    )
-                  : Container(
+        floatingActionButton: routing.selectedWaypoints == null ||
+                routing.selectedWaypoints!.isEmpty
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GPSButton(
+                      myLocationTrackingMode:
+                          mapController.myLocationTrackingMode,
+                      gpsCentralization: _gpsCentralization),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  FloatingActionButton(
+                    onPressed: () => _startRoutingSearch(),
+                    child: const Icon(
+                      Icons.directions,
                       color: Colors.white,
                     ),
-            ],
-          ),
-        ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    heroTag: "fab2",
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              )
+            : Container(),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );

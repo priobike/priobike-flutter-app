@@ -32,7 +32,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           minChildSize: 0.15,
           maxChildSize: 1,
           snap: true,
-          snapSizes: [0.5, 1],
+          snapSizes: const [0.5, 1],
           controller: scrollController,
           builder:
               (BuildContext buildContext, ScrollController scrollController) {
