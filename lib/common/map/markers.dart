@@ -170,8 +170,10 @@ class CurrentPositionMarker extends SymbolOptions {
   /// Create a new current position marker.
   CurrentPositionMarker({
     required LatLng geo,
+    required double orientation,
   }): super(
     geometry: geo,
+    iconRotate: orientation,
     iconImage: "direction",
     iconSize: 4,
   );

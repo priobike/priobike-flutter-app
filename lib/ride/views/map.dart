@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
@@ -9,10 +10,10 @@ import 'package:priobike/ride/algorithms/sma.dart';
 import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
-import 'package:priobike/ride/views/position.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -37,6 +38,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// A map controller for the map.
   MapboxMapController? mapController;
 
@@ -60,6 +64,8 @@ class RideMapViewState extends State<RideMapView> {
 
   @override
   void didChangeDependencies() {
+    settings = Provider.of<Settings>(context);
+
     routing = Provider.of<Routing>(context);
     if (routing.needsLayout[viewId] != false && mapController != null) {
       onRoutingUpdate();
@@ -90,7 +96,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onPositionEstimatorUpdate() async {
-    await adaptMapController();
+    await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
@@ -169,39 +175,81 @@ class RideMapViewState extends State<RideMapView> {
     }
   }
 
-  /// Adapt the map controller.
-  Future<void> adaptMapController() async {
+  /// Adapt the map controller to a changed position.
+  Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
     if (routing.selectedRoute == null) return;
-    if (positionEstimator.estimatedPosition == null) {
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds)
-      );
-    } else {
-      // Adapt the focus dynamically to the next interesting feature.
-      final snapping = Provider.of<Snapping>(context, listen: false);
-      final distanceOfInterest = min(
-        snapping.distanceToNextTurn ?? double.infinity, 
-        snapping.distanceToNextSG ?? double.infinity,
-      );
-      // Scale the zoom level with the distance of interest.
-      // Between 0 meters: zoom 18 and 500 meters: zoom 16.
-      double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
-      zoom = zoomSMA.next(zoom);
 
-      // Calculate the bearing.
-      double bearing = positionEstimator.estimatedPosition!.heading;
+    // Get the snapping service which provides additional information about the current position.
+    final snapping = Provider.of<Snapping>(context, listen: false);
 
-      await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: bearing,
-        target: LatLng(
-          positionEstimator.estimatedPosition!.latitude, 
-          positionEstimator.estimatedPosition!.longitude
-        ),
-        zoom: zoom,
-        tilt: 60,
-      )));
+    // Get some data that we will need for adaptive camera control.
+    final sgPos = ride.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
+    final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
+    final userSnapPos = snapping.snappedPosition;
+    final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
+    final estPos = positionEstimator.estimatedPosition;
+    final estPosLatLng = estPos == null ? null : l.LatLng(estPos.latitude, estPos.longitude);
+
+    if (estPos == null || estPosLatLng == null || userSnapPos == null || userSnapPosLatLng == null) {
+      await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
+        routing.selectedRoute!.paddedBounds
+      ));
+      return;
     }
+
+    const vincenty = l.Distance(roundResult: false);
+
+    // Calculate the distance to the next traffic light.
+    double? sgDistance = sgPosLatLng == null
+      ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
+
+    // Calculate the bearing to the next traffic light.
+    double? sgBearing = sgPosLatLng == null
+      ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
+
+    // Adapt the focus dynamically to the next interesting feature.
+    final distanceOfInterest = min(
+      snapping.distanceToNextTurn ?? double.infinity, 
+      sgDistance ?? double.infinity,
+    );
+    // Scale the zoom level with the distance of interest.
+    // Between 0 meters: zoom 18 and 500 meters: zoom 18.
+    double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
+    zoom = zoomSMA.next(zoom);
+
+    // Within those thresholds the bearing to the next SG is used.
+    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
+    // min-threshold: Often the SGs are slightly on the left or right side of the route and
+    //                without this threshold the camera would orient away from the route
+    //                when it's close to the SG.
+    double? cameraHeading;
+    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 10) {
+      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
+    }
+    // Avoid looking too far away from the route.
+    if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 45) {
+      cameraHeading = estPos.heading; // Look into the direction of the user.
+    }
+
+    // The camera target is the estimated user position.
+    final cameraTarget = LatLng(estPosLatLng.latitude, estPosLatLng.longitude);
+
+    await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      bearing: cameraHeading,
+      target: cameraTarget,
+      zoom: zoom,
+      tilt: 60,
+    )));
+
+    await mapController!.updateUserLocation(
+      lat: estPos.latitude, 
+      lon: estPos.longitude,
+      alt: estPos.altitude,
+      acc: estPos.accuracy,
+      heading: estPos.heading,
+      speed: estPos.speed,
+    );
   }
 
   /// Load the upcoming traffic light layer.
@@ -296,18 +344,13 @@ class RideMapViewState extends State<RideMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        AppMap(
-          dragEnabled: false,
-          onMapCreated: onMapCreated, 
-          onStyleLoaded: () => onStyleLoaded(context),
-        ),
-        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon(
-          brightness: Theme.of(context).brightness,
-        )),
-      ]
+    return AppMap(
+      puckImage: Theme.of(context).brightness == Brightness.dark 
+        ? 'assets/images/position-dark.png' 
+        : 'assets/images/position-light.png',
+      dragEnabled: false,
+      onMapCreated: onMapCreated, 
+      onStyleLoaded: () => onStyleLoaded(context),
     );
   }
 }
