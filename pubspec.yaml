@@ -44,7 +44,8 @@ dependencies:
   mapbox_gl: # Customized mapbox map framework
     git:
       url: https://github.com/PrioBike-App/maps
-      ref: master
+      # TODO: Change to master ref after merge
+      ref: feature/custom-location-marker-image
   flutter_map: ^2.2.0 # Map framework (outdated)
   shared_preferences: ^2.0.15 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.8.1 # Distance calculations and more

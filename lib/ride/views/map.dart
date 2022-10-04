@@ -188,7 +188,7 @@ class RideMapViewState extends State<RideMapView> {
     final estPos = positionEstimator.estimatedPosition;
     final estPosLatLng = estPos == null ? null : l.LatLng(estPos.latitude, estPos.longitude);
 
-    if (estPos == null || estPosLatLng == null) {
+    if (estPos == null || estPosLatLng == null || userSnapPos == null || userSnapPosLatLng == null) {
       await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
         routing.selectedRoute!.paddedBounds
       ));
@@ -198,11 +198,11 @@ class RideMapViewState extends State<RideMapView> {
     const vincenty = l.Distance(roundResult: false);
 
     // Calculate the distance to the next traffic light.
-    double? sgDistance = (userSnapPosLatLng == null || sgPosLatLng == null) 
+    double? sgDistance = sgPosLatLng == null
       ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
 
     // Calculate the bearing to the next traffic light.
-    double? sgBearing = (userSnapPosLatLng == null || sgPosLatLng == null) 
+    double? sgBearing = sgPosLatLng == null
       ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
 
     // Adapt the focus dynamically to the next interesting feature.
@@ -225,11 +225,11 @@ class RideMapViewState extends State<RideMapView> {
     //                without this threshold the camera would orient away from the route
     //                when it's close to the SG.
     double? cameraHeading;
-    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 100) {
+    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 10) {
       cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
     }
-    // Avoid looking to far away from the route.
-    if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 90) {
+    // Avoid looking too far away from the route.
+    if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 45) {
       cameraHeading = estPos.heading; // Look into the direction of the user.
     }
 
@@ -345,6 +345,9 @@ class RideMapViewState extends State<RideMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
+      locationPuckImage: Theme.of(context).brightness == Brightness.dark 
+        ? 'assets/images/position-dark.png' 
+        : 'assets/images/position-light.png',
       dragEnabled: false,
       onMapCreated: onMapCreated, 
       onStyleLoaded: () => onStyleLoaded(context),
