@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -118,7 +119,8 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),
-        ChangeNotifierProvider<MapController>(create: (context) => MapController()),
+        ChangeNotifierProvider(create: (context) => MapController()),
+        ChangeNotifierProvider(create: (context) => BottomSheetState()),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {

@@ -13,6 +13,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
+import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/bottomSheet.dart';
@@ -56,6 +57,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated shortcuts service, which is injected by the provider.
   late Profile profile;
 
+  /// The associated BottomSheetState, which is injected by the provider.
+  late BottomSheetState bottomSheetState;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -88,6 +92,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapController = Provider.of<MapController>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
+    bottomSheetState = Provider.of<BottomSheetState>(context);
 
     _checkRoutingBarShown();
 
@@ -188,8 +193,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             TextButton(
               onPressed: () async {
                 final name = nameController.text;
-                if (name.isEmpty)
+                if (name.isEmpty) {
                   ToastMessage.showError("Name darf nicht leer sein.");
+                }
                 await shortcuts.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
