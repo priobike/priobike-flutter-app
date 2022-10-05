@@ -124,6 +124,7 @@ flutter:
     - assets/tracks/dresden/philipp.json
 
     # Map symbols
+    - assets/images/disconnected.drawio.png
     - assets/images/online.drawio.png
     - assets/images/bad-signal.drawio.png
     - assets/images/offline.drawio.png

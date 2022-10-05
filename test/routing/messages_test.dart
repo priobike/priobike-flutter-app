@@ -14,7 +14,7 @@ void main() {
       sessionId: "abc", 
       route: route.route, 
       navigationPath: route.path, 
-      signalGroups: route.signalGroups
+      signalGroups: { for (final signalGroup in route.signalGroups) signalGroup.id: signalGroup }
     ).toJson();
     jsonEncode(request);
   });

@@ -119,9 +119,10 @@ class AlertsViewState extends State<AlertsView> {
     if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
     if (
       predictionStatus.bad == 0 && 
-      predictionStatus.offline == 0
+      predictionStatus.offline == 0 && 
+      predictionStatus.disconnected == 0
     ) return [];
-    final sum = predictionStatus.bad + predictionStatus.offline;
+    final sum = predictionStatus.bad + predictionStatus.offline + predictionStatus.disconnected;
     return [
       Padding(
         padding: const EdgeInsets.only(left: 16, top: 2, bottom: 2, right: 16), 
@@ -148,7 +149,7 @@ class AlertsViewState extends State<AlertsView> {
                             .merge(const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
                         ),
                       ],
-                      if (predictionStatus.bad > 0 && predictionStatus.offline > 0) const TextSpan(text: " und "),
+                      if (predictionStatus.bad > 0 && predictionStatus.offline > 0) const TextSpan(text: ", "),
                       if (predictionStatus.offline > 0) ...[
                         const WidgetSpan(alignment: PlaceholderAlignment.middle, child: OfflineIcon(
                           height: 14, width: 14,
@@ -157,6 +158,17 @@ class AlertsViewState extends State<AlertsView> {
                           text: " ${predictionStatus.offline} aktuell nicht",
                           style: Theme.of(context).textTheme.headline4!
                             .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                      if (predictionStatus.offline > 0 && predictionStatus.disconnected > 0) const TextSpan(text: ", "),
+                      if (predictionStatus.disconnected > 0) ...[
+                        const WidgetSpan(alignment: PlaceholderAlignment.middle, child: DisconnectedIcon(
+                          height: 14, width: 14,
+                        )),
+                        TextSpan(
+                          text: " ${predictionStatus.disconnected} gar nicht",
+                          style: Theme.of(context).textTheme.headline4!
+                            .merge(const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
                       const TextSpan(text: " vorhersagbare "),

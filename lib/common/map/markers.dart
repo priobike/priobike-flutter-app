@@ -13,6 +13,7 @@ class SymbolLoader {
   /// Load all symbols into the map controller.
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
+    await addImageFromAsset("disconnected", "assets/images/disconnected.drawio.png");
     await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
     await addImageFromAsset("offline", "assets/images/offline.drawio.png");
     await addImageFromAsset("online", "assets/images/online.drawio.png");
@@ -91,43 +92,57 @@ class TrafficLightOffMarker extends SymbolOptions {
   );
 }
 
-class TrafficLightOffOnlineMarker extends TrafficLightOffMarker {
-  TrafficLightOffOnlineMarker({
+class OnlineMarker extends TrafficLightOffMarker {
+  OnlineMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "trafficlightoffonline",
+    iconImage: "online",
     zIndex: 3,
     label: label,
   );
 }
 
-class TrafficLightOffOfflineMarker extends TrafficLightOffMarker {
-  TrafficLightOffOfflineMarker({
+class DisconnectedMarker extends TrafficLightOffMarker {
+  DisconnectedMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "trafficlightoffoffline",
+    iconImage: "disconnected",
     zIndex: 3,
     label: label,
   );
 }
 
-class TrafficLightOffBadSignalMarker extends TrafficLightOffMarker {
-  TrafficLightOffBadSignalMarker({
+class OfflineMarker extends TrafficLightOffMarker {
+  OfflineMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "trafficlightoffbadsignal",
+    iconImage: "offline",
+    zIndex: 3,
+    label: label,
+  );
+}
+
+class BadSignalMarker extends TrafficLightOffMarker {
+  BadSignalMarker({
+    required LatLng geo,
+    double iconSize = 1,
+    String? label,
+  }): super(
+    geo: geo,
+    iconSize: iconSize,
+    iconImage: "badsignal",
     zIndex: 3,
     label: label,
   );
@@ -145,7 +160,7 @@ class TrafficLightGreenMarker extends SymbolOptions {
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
     iconOpacity: iconOpacity,
-    zIndex: 4,
+    zIndex: 2,
   );
 }
 
@@ -161,7 +176,7 @@ class TrafficLightRedMarker extends SymbolOptions {
     iconImage: "trafficlightred",
     iconSize: iconSize,
     iconOpacity: iconOpacity,
-    zIndex: 4,
+    zIndex: 2,
   );
 }
 

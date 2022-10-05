@@ -10,10 +10,14 @@ import 'package:priobike/ride/algorithms/sma.dart';
 import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -53,6 +57,9 @@ class RideMapViewState extends State<RideMapView> {
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
 
+  /// The offline crossings that are displayed, if there are offline crossings on the route.
+  List<Symbol>? offlineCrossings;
+
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
@@ -91,6 +98,7 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onRoutingUpdate() async {
     await loadRouteLayer();
     await loadTrafficLightMarkers();
+    await loadOfflineCrossingMarkers();
     await loadWaypointMarkers();
   }
 
@@ -133,16 +141,71 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
-
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
-
     // Remove all existing layers.
-    await mapController!.removeSymbols(trafficLights ?? []);
+    if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in routing.selectedRoute?.signalGroups.values ?? []) {
-      trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: iconSize),
+    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
+      final status = statusProvider.cache[sg.id];
+      if (status == null) {
+        trafficLights!.add(await mapController!.addSymbol(
+          OfflineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.offline) {
+        trafficLights!.add(await mapController!.addSymbol(
+          OfflineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.bad) {
+        trafficLights!.add(await mapController!.addSymbol(
+          BadSignalMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else {
+        trafficLights!.add(await mapController!.addSymbol(
+          OnlineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      }
+    }
+  }
+
+  /// Load the current crossings.
+  Future<void> loadOfflineCrossingMarkers() async {
+    // If we have no map controller, we cannot load the crossings.
+    if (mapController == null) return;
+    // Remove all existing layers.
+    if (offlineCrossings != null) mapController!.removeSymbols(offlineCrossings!);
+    // Create a new crossing marker for each crossing.
+    offlineCrossings = [];
+    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
+      if (crossing.connected) continue;
+      offlineCrossings!.add(await mapController!.addSymbol(
+        DisconnectedMarker(
+          iconSize: iconSize,
+          geo: LatLng(crossing.position.lat, crossing.position.lon),
+          label: willShowLabels ? crossing.name : null,
+        ),
       ));
     }
   }

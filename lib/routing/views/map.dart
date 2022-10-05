@@ -7,6 +7,7 @@ import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -60,6 +61,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
 
+  /// The offline crossings that are displayed, if there are offline crossings on the route.
+  List<Symbol>? offlineCrossings;
+
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
@@ -105,6 +109,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await loadSelectedRouteLayer();
     await loadDiscomforts();
     await loadTrafficLightMarkers();
+    await loadOfflineCrossingMarkers();
     await loadWaypointMarkers();
     await moveMap();
   }
@@ -195,11 +200,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
-    for (Sg sg in rs.selectedRoute?.signalGroups.values ?? []) {
+    for (Sg sg in rs.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
       if (status == null) {
         trafficLights!.add(await mapController!.addSymbol(
-          TrafficLightOffMarker(
+          OfflineMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
@@ -207,7 +212,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       } else if (status.predictionState == SGPredictionState.offline) {
         trafficLights!.add(await mapController!.addSymbol(
-          TrafficLightOffOfflineMarker(
+          OfflineMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
@@ -215,7 +220,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       } else if (status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapController!.addSymbol(
-          TrafficLightOffBadSignalMarker(
+          BadSignalMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
@@ -223,13 +228,36 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       } else {
         trafficLights!.add(await mapController!.addSymbol(
-          TrafficLightOffOnlineMarker(
+          OnlineMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
           ),
         ));
       }
+    }
+  }
+
+  /// Load the current crossings.
+  Future<void> loadOfflineCrossingMarkers() async {
+    // If we have no map controller, we cannot load the crossings.
+    if (mapController == null) return;
+    // Remove all existing layers.
+    if (offlineCrossings != null) mapController!.removeSymbols(offlineCrossings!);
+    // Create a new crossing marker for each crossing.
+    offlineCrossings = [];
+    final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
+    for (Crossing crossing in rs.selectedRoute?.crossings ?? []) {
+      if (crossing.connected) continue;
+      offlineCrossings!.add(await mapController!.addSymbol(
+        DisconnectedMarker(
+          iconSize: iconSize,
+          geo: LatLng(crossing.position.lat, crossing.position.lon),
+          label: willShowLabels ? crossing.name : null,
+        ),
+      ));
     }
   }
 

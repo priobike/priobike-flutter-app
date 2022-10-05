@@ -113,7 +113,7 @@ class Ride with ChangeNotifier {
       sessionId: session.sessionId!, 
       route: selectedRoute.route, 
       navigationPath: selectedRoute.path, 
-      signalGroups: selectedRoute.signalGroups
+      signalGroups: { for (final signalGroup in selectedRoute.signalGroups) signalGroup.id: signalGroup }
     );
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
