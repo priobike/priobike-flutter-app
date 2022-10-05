@@ -20,9 +20,9 @@ import 'package:provider/provider.dart';
 import 'widgets/currentLocationButton.dart';
 
 class SearchView extends StatefulWidget {
-  final bool isFirstElement;
+  final int? index;
 
-  const SearchView({Key? key, required this.isFirstElement}) : super(key: key);
+  const SearchView({Key? key, this.index}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchViewState();
@@ -33,19 +33,19 @@ class SearchViewState extends State<SearchView> {
   late Geosearch geosearch;
 
   /// The associated routingOLD service, which is injected by the provider.
-  late Routing routingService;
+  late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts shortcutsService;
+  late Shortcuts shortcuts;
 
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapController mapControllerService;
+  late MapController mapController;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Profile profileService;
+  late Profile profile;
 
   /// The Location Search Text Editing Controller
   final TextEditingController _locationSearchController =
@@ -61,10 +61,10 @@ class SearchViewState extends State<SearchView> {
 
   @override
   void didChangeDependencies() {
-    routingService = Provider.of<Routing>(context);
-    shortcutsService = Provider.of<Shortcuts>(context);
-    mapControllerService = Provider.of<MapController>(context);
-    profileService = Provider.of<Profile>(context);
+    routing = Provider.of<Routing>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
+    mapController = Provider.of<MapController>(context);
+    profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     geosearch = Provider.of<Geosearch>(context);
     // to update the position of the current Location Waypoint
@@ -90,7 +90,39 @@ class SearchViewState extends State<SearchView> {
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
     geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
+
+    final waypoints = routing.selectedWaypoints ?? [];
+    // exchange with new waypoint
+    List<Waypoint> newWaypoints = waypoints.toList();
+    if (widget.index != null) {
+      newWaypoints[widget.index!] = waypoint;
+    } else {
+      // Insert current location as first waypoint if option is set
+      if (profile.setLocationAsStart != null &&
+          profile.setLocationAsStart! &&
+          currentLocationWaypoint != null &&
+          waypoints.isEmpty &&
+          waypoint.address != null) {
+        newWaypoints = [currentLocationWaypoint!, waypoint];
+      } else {
+        newWaypoints = [...waypoints, waypoint];
+      }
+    }
+
+    if (waypoint.address != null) {
+      profile.saveNewSearch(waypoint);
+    }
+
+    for (Waypoint waypoint in newWaypoints) {
+      print("-------------------------");
+      print(waypoint.lat);
+      print(waypoint.lon);
+      print(waypoint.address);
+      print("-------------------------");
+    }
+
+    await routing.selectWaypoints(newWaypoints);
+    Navigator.of(context).pop();
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -104,12 +136,13 @@ class SearchViewState extends State<SearchView> {
   }
 
   _selectOnMapOnPressed() async {
-    final result = await Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const SelectOnMapView(),
+        builder: (_) => SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint),
       ),
     );
-    Navigator.of(context).pop(result);
+
+    Navigator.of(context).pop();
   }
 
   _currentLocationPressed() async {
@@ -179,7 +212,7 @@ class SearchViewState extends State<SearchView> {
                       height: 10,
                       color: Theme.of(context).colorScheme.surface,
                     ),
-                    widget.isFirstElement
+                    widget.index == null || widget.index! == 0
                         ? CurrentLocationButton(
                             onPressed: _currentLocationPressed)
                         : Container(),

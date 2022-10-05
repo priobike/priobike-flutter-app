@@ -20,8 +20,10 @@ import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
   final int? index;
+  final Waypoint? currentLocationWaypoint;
 
-  const SelectOnMapView({Key? key, this.index}) : super(key: key);
+  const SelectOnMapView({Key? key, this.index, this.currentLocationWaypoint})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SelectOnMapViewState();
@@ -112,8 +114,40 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
     final waypoint = Waypoint(lat, lon, address: address);
 
+    final waypoints = routing.selectedWaypoints ?? [];
+    // exchange with new waypoint
+    List<Waypoint> newWaypoints = waypoints.toList();
+    if (widget.index != null) {
+      newWaypoints[widget.index!] = waypoint;
+    } else {
+      // Insert current location as first waypoint if option is set
+      if (profile.setLocationAsStart != null &&
+          profile.setLocationAsStart! &&
+          widget.currentLocationWaypoint != null &&
+          waypoints.isEmpty &&
+          waypoint.address != null) {
+        newWaypoints = [widget.currentLocationWaypoint!, waypoint];
+      } else {
+        newWaypoints = [...waypoints, waypoint];
+      }
+    }
+
+    if (waypoint.address != null) {
+      profile.saveNewSearch(waypoint);
+    }
+
+    for (Waypoint waypoint in newWaypoints) {
+      print("-------------------------");
+      print(waypoint.lat);
+      print(waypoint.lon);
+      print(waypoint.address);
+      print("-------------------------");
+    }
+
+    await routing.selectWaypoints(newWaypoints);
+
     // pop till routingScreen
-    Navigator.of(context).pop(waypoint);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -198,12 +232,18 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                   /// Align with FAB
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CompassButton(centerNorth: _centerNorth),
-                        ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
-                      ]),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          CompassButton(centerNorth: _centerNorth),
+                          const SizedBox(height: 10),
+                          ZoomInAndOutButton(
+                              zoomIn: _zoomIn, zoomOut: _zoomOut),
+                        ]),
+                  ),
                 ),
                 Center(
                   child: Icon(
@@ -220,7 +260,8 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GPSButton(
-                myLocationTrackingMode: mapController.myLocationTrackingModeSelectOnMapView,
+                myLocationTrackingMode:
+                    mapController.myLocationTrackingModeSelectOnMapView,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,

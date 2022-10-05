@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -13,9 +11,6 @@ import 'package:priobike/routing/views/widgets/lastSearchRequests.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/selectOnMap.dart';
 import 'package:priobike/routing/views/widgets/selectOnMapButton.dart';
-import 'package:priobike/routing/views/widgets/searchBar.dart';
-import 'package:priobike/routing/views/widgets/shortcuts.dart';
-import 'package:priobike/routing/views/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/currentLocationButton.dart';
