@@ -66,6 +66,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The threshold for the location accuracy in meter
   final int locationAccuracyThreshold = 20;
 
+  bool showRoutingBar = true;
+
   @override
   void initState() {
     super.initState();
@@ -332,6 +334,25 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapController.centerNorth(ControllerType.main);
   }
 
+  _calculateRoutingBarHeight(MediaQueryData frame) {
+    // case Items between 2 and 5
+    if (routing.selectedWaypoints!.length >= 2 &&
+        routing.selectedWaypoints!.length <= 5) {
+      // routingBar items * 40 + Padding + SystemBar
+      return routing.selectedWaypoints!.length * 40 +
+          20 +
+          frame.viewPadding.top;
+    }
+    // case 1 item
+    if (routing.selectedWaypoints!.length == 1) {
+      // 2 routingBar items (40 + 40) + Padding + SystemBar
+      return 80 + 20 + frame.viewPadding.top;
+    }
+    // case more then 5 items
+    // Max RoutingBarHeight + Padding + SystemBar
+    return frame.size.height * 0.25 + 20 + frame.viewPadding.top;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routing.hadErrorDuringFetch) return renderTryAgainButton();
@@ -340,6 +361,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
     bool waypointsSelected = routing.selectedWaypoints != null &&
         routing.selectedWaypoints!.isNotEmpty;
+
+    print(showRoutingBar);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -350,6 +373,15 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
             sheetMovement.add(notification);
+            if (notification.extent <= 0.2) {
+              setState(() {
+                showRoutingBar = true;
+              });
+            } else {
+              setState(() {
+                showRoutingBar = false;
+              });
+            }
             return false;
           },
           child: Stack(children: [
@@ -369,7 +401,23 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     waypointsSelected
-                        ? const RoutingBar(fromRoutingSearch: false)
+                        ? SizedBox(
+                            // number of Elements * 40 + Padding (2*10) + System navigation bar
+                            height: _calculateRoutingBarHeight(frame),
+                            child: Stack(clipBehavior: Clip.none, children: [
+                              Container(),
+                              AnimatedPositioned(
+                                  // top calculates from maxHeight Routingbar + padding + systembar
+                                  top: showRoutingBar
+                                      ? 0
+                                      : -(frame.size.height * 0.25 +
+                                          20 +
+                                          frame.viewPadding.top),
+                                  duration: const Duration(milliseconds: 250),
+                                  child: const RoutingBar(
+                                      fromRoutingSearch: false)),
+                            ]),
+                          )
                         : Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -388,31 +436,40 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 ),
                               ]),
                     !waypointsSelected ? const ShortCuts() : Container(),
-                    Padding(
-                      /// Align with FAB
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                    showRoutingBar
+                        ? Padding(
+                            /// Align with FAB
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  CompassButton(centerNorth: _centerNorth),
-                                  const SizedBox(height: 10),
-                                  ZoomInAndOutButton(
-                                      zoomIn: _zoomIn, zoomOut: _zoomOut),
-                                  const SizedBox(height: 10),
-                                  FilterButton(profileService: profile),
-                                  SizedBox(height: frame.size.height - (frame.size.height * 0.675) ,),
-                                  routing.selectedWaypoints != null &&
-                                          routing.selectedWaypoints!.isNotEmpty
-                                      ? GPSButton(
-                                          gpsCentralization: _gpsCentralization)
-                                      : Container()
+                                  Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        CompassButton(
+                                            centerNorth: _centerNorth),
+                                        const SizedBox(height: 10),
+                                        ZoomInAndOutButton(
+                                            zoomIn: _zoomIn, zoomOut: _zoomOut),
+                                        const SizedBox(height: 10),
+                                        FilterButton(profileService: profile),
+                                        SizedBox(
+                                          height: frame.size.height -
+                                              (frame.size.height * 0.675),
+                                        ),
+                                        routing.selectedWaypoints != null &&
+                                                routing.selectedWaypoints!
+                                                    .isNotEmpty
+                                            ? GPSButton(
+                                                gpsCentralization:
+                                                    _gpsCentralization)
+                                            : Container()
+                                      ]),
                                 ]),
-                          ]),
-                    ),
+                          )
+                        : Container(),
                   ],
                 ),
               ),
