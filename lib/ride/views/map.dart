@@ -6,8 +6,6 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
-import 'package:priobike/ride/algorithms/sma.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/models/crossing.dart';
@@ -36,8 +34,8 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated position estimator service, which is injected by the provider.
-  late PositionEstimator positionEstimator;
+  /// The associated snapping service, which is injected by the provider.
+  late Snapping snapping;
 
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
@@ -66,9 +64,6 @@ class RideMapViewState extends State<RideMapView> {
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
-  /// A SMA for the zoom.
-  final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
-
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
@@ -85,10 +80,10 @@ class RideMapViewState extends State<RideMapView> {
       ride.needsLayout[viewId] = false;
     }
 
-    positionEstimator = Provider.of<PositionEstimator>(context);
-    if (positionEstimator.needsLayout[viewId] != false && mapController != null) {
-      onPositionEstimatorUpdate();
-      positionEstimator.needsLayout[viewId] = false;
+    snapping = Provider.of<Snapping>(context);
+    if (snapping.needsLayout[viewId] != false && mapController != null) {
+      onSnappingUpdate();
+      snapping.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -103,7 +98,7 @@ class RideMapViewState extends State<RideMapView> {
   }
 
   /// Update the view with the current data.
-  Future<void> onPositionEstimatorUpdate() async {
+  Future<void> onSnappingUpdate() async {
     await adaptToChangedPosition();
   }
 
@@ -116,9 +111,9 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> loadRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
-    // Remove the existing route layer.
-    if (route != null) await mapController!.removeLine(route!);
-    if (routeBackground != null) await mapController!.removeLine(routeBackground!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldRoute = route;
+    final oldRouteBackground = routeBackground;
     if (routing.selectedRoute == null) return;
     // Add the new route layer.
     routeBackground = await mapController!.addLine(
@@ -135,14 +130,17 @@ class RideMapViewState extends State<RideMapView> {
       ),
       routing.selectedRoute!.toJson(),
     );
+    // Remove the old route layer.
+    if (oldRoute != null) await mapController!.removeLine(oldRoute);
+    if (oldRouteBackground != null) await mapController!.removeLine(oldRouteBackground);
   }
 
   /// Load the current traffic lights.
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldTrafficLights = trafficLights;
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
@@ -185,14 +183,16 @@ class RideMapViewState extends State<RideMapView> {
         ));
       }
     }
+    // Remove the old traffic lights.
+    await mapController!.removeSymbols(oldTrafficLights ?? []);
   }
 
   /// Load the current crossings.
   Future<void> loadOfflineCrossingMarkers() async {
     // If we have no map controller, we cannot load the crossings.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (offlineCrossings != null) mapController!.removeSymbols(offlineCrossings!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldOfflineCrossings = offlineCrossings;
     // Create a new crossing marker for each crossing.
     offlineCrossings = [];
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
@@ -208,14 +208,16 @@ class RideMapViewState extends State<RideMapView> {
         ),
       ));
     }
+    // Remove the old crossings.
+    await mapController!.removeSymbols(oldOfflineCrossings ?? []);
   }
 
   /// Load the current waypoint markers.
   Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
     if (mapController == null) return;
-    // Remove the existing waypoint markers.
-    await mapController!.removeSymbols(waypoints ?? []);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
     for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
@@ -236,6 +238,8 @@ class RideMapViewState extends State<RideMapView> {
         ));
       }
     }
+    // Remove the old waypoint markers.
+    await mapController!.removeSymbols(oldWaypoints ?? []);
   }
 
   /// Adapt the map controller to a changed position.
@@ -243,18 +247,14 @@ class RideMapViewState extends State<RideMapView> {
     if (mapController == null) return;
     if (routing.selectedRoute == null) return;
 
-    // Get the snapping service which provides additional information about the current position.
-    final snapping = Provider.of<Snapping>(context, listen: false);
-
     // Get some data that we will need for adaptive camera control.
     final sgPos = ride.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
     final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
     final userSnapPos = snapping.snappedPosition;
+    final userSnapHeading = snapping.snappedHeading;
     final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
-    final estPos = positionEstimator.estimatedPosition;
-    final estPosLatLng = estPos == null ? null : l.LatLng(estPos.latitude, estPos.longitude);
 
-    if (estPos == null || estPosLatLng == null || userSnapPos == null || userSnapPosLatLng == null) {
+    if (userSnapPos == null || userSnapPosLatLng == null || userSnapHeading == null) {
       await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
         routing.selectedRoute!.paddedBounds
       ));
@@ -279,7 +279,6 @@ class RideMapViewState extends State<RideMapView> {
     // Scale the zoom level with the distance of interest.
     // Between 0 meters: zoom 18 and 500 meters: zoom 18.
     double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
-    zoom = zoomSMA.next(zoom);
 
     // Within those thresholds the bearing to the next SG is used.
     // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
@@ -291,27 +290,27 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
     }
     // Avoid looking too far away from the route.
-    if (cameraHeading == null || (cameraHeading - estPos.heading).abs() > 45) {
-      cameraHeading = estPos.heading; // Look into the direction of the user.
+    if (cameraHeading == null || (cameraHeading - userSnapHeading).abs() > 45) {
+      cameraHeading = userSnapHeading; // Look into the direction of the user.
     }
 
     // The camera target is the estimated user position.
-    final cameraTarget = LatLng(estPosLatLng.latitude, estPosLatLng.longitude);
+    final cameraTarget = LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
 
     await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       bearing: cameraHeading,
       target: cameraTarget,
       zoom: zoom,
       tilt: 60,
-    )));
+    )), duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */));
 
     await mapController!.updateUserLocation(
-      lat: estPos.latitude, 
-      lon: estPos.longitude,
-      alt: estPos.altitude,
-      acc: estPos.accuracy,
-      heading: estPos.heading,
-      speed: estPos.speed,
+      lat: userSnapPos.latitude, 
+      lon: userSnapPos.longitude,
+      alt: userSnapPos.altitude,
+      acc: userSnapPos.accuracy,
+      heading: userSnapPos.heading,
+      speed: userSnapPos.speed,
     );
   }
 
@@ -386,22 +385,27 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextIgnorePlacement(true);
 
     onRoutingUpdate();
-    onPositionEstimatorUpdate();
+    onSnappingUpdate();
     onRideUpdate();
   }
 
   @override
   void dispose() {
-    // Remove all layers from the map.
-    route = null;
-    routeBackground = null;
-    trafficLights = null;
-    waypoints = null;
-    // Unbind the interaction callbacks.
-    mapController?.onFillTapped.remove(onFillTapped);
-    mapController?.onCircleTapped.remove(onCircleTapped);
-    mapController?.onLineTapped.remove(onLineTapped);
-    mapController?.onSymbolTapped.remove(onSymbolTapped);
+    () async {
+      // Remove all layers from the map.
+      await mapController?.clearFills();
+      await mapController?.clearCircles();
+      await mapController?.clearLines();
+      await mapController?.clearSymbols();
+
+      // Unbind the interaction callbacks.
+      mapController?.onFillTapped.remove(onFillTapped);
+      mapController?.onCircleTapped.remove(onCircleTapped);
+      mapController?.onLineTapped.remove(onLineTapped);
+      mapController?.onSymbolTapped.remove(onSymbolTapped);
+      mapController?.dispose();
+    }();
+
     super.dispose();
   }
 

@@ -9,11 +9,8 @@ class GeoFeatureLoader {
   /// The associated map controller.
   MapboxMapController mapController;
 
-  /// The build context.
-  BuildContext context;
-
   /// Create a new geo feature loader.
-  GeoFeatureLoader(this.mapController, this.context);
+  GeoFeatureLoader(this.mapController);
 
   /// Fade a layer out before a specific zoom level.
   static dynamic showAfter({required int zoom, double opacity = 1.0}) => [
@@ -26,25 +23,32 @@ class GeoFeatureLoader {
   ];
 
   /// Load geo features into the map controller.
-  Future<void> loadFeatures() async {
-    await addAccidentHotspots("dresden", "assets/geo/accident_black_spots_dresden.geojson");
-    await addAccidentHotspots("hamburg", "assets/geo/accident_black_spots.geojson");
-    await addBikeParkingPoints("hamburg", "assets/geo/bicycle_parking.geojson");
-    await addBikeRentalPoints("hamburg", "assets/geo/bicycle_rental.geojson");
-    await addBikeShopPoints("hamburg", "assets/geo/bicycle_shop.geojson");
-    await addBikeAirStations("hamburg", "assets/geo/bike_air_station.geojson");
-    await addConstructionSites("hamburg", "assets/geo/construction_sides.geojson");
+  Future<void> loadFeatures(BuildContext context) async {
+    await addAccidentHotspots(context, "dresden", "assets/geo/accident_black_spots_dresden.geojson");
+    await addAccidentHotspots(context, "hamburg", "assets/geo/accident_black_spots.geojson");
+    await addBikeParkingPoints(context, "hamburg", "assets/geo/bicycle_parking.geojson");
+    await addBikeRentalPoints(context, "hamburg", "assets/geo/bicycle_rental.geojson");
+    await addBikeShopPoints(context, "hamburg", "assets/geo/bicycle_shop.geojson");
+    await addBikeAirStations(context, "hamburg", "assets/geo/bike_air_station.geojson");
+    await addConstructionSites(context, "hamburg", "assets/geo/construction_sides.geojson");
+  }
+
+  /// Remove all geo features from the map controller.
+  Future<void> removeFeatures() async {
+    await removeAccidentHotspots("dresden");
+    await removeAccidentHotspots("hamburg");
+    await removeBikeParkingPoints("hamburg");
+    await removeBikeRentalPoints("hamburg");
+    await removeBikeShopPoints("hamburg");
+    await removeBikeAirStations("hamburg");
+    await removeConstructionSites("hamburg");
   }
 
   /// Add layers for accident hotspots.
-  Future<void> addAccidentHotspots(String layerPrefix, String file) async {
+  Future<void> addAccidentHotspots(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the accident hotspots to the map.
-    await mapController.removeSource("$layerPrefix-accident-hotspots");
-    await mapController.addSource(
-      "$layerPrefix-accident-hotspots", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-accident-hotspots", d);
     // Add a fill to the polygons.
     await mapController.addLayer(
       "$layerPrefix-accident-hotspots", 
@@ -52,7 +56,8 @@ class GeoFeatureLoader {
       const FillLayerProperties(
         fillOpacity: 0.25,
         fillColor: "#ff0000"
-      )
+      ),
+      enableInteraction: false,
     );
     // Add a line to the polygons.
     await mapController.addLayer(
@@ -62,7 +67,8 @@ class GeoFeatureLoader {
         lineColor: "#ff0000",
         lineWidth: 2,
         lineOpacity: showAfter(zoom: 14),
-      )
+      ),
+      enableInteraction: false,
     );
     // Add a label to the polygons.
     await mapController.addLayer(
@@ -79,24 +85,25 @@ class GeoFeatureLoader {
         textAnchor: "bottom",
         textColor: "#ff0000",
         textOpacity: showAfter(zoom: 15),
-      )
+      ),
+      enableInteraction: false,
     );
   }
 
+  /// Remove layers for accident hotspots.
+  Future<void> removeAccidentHotspots(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-fill");
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-line");
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-label");
+    await mapController.removeSource("$layerPrefix-accident-hotspots");
+  }
+
   /// Add points for bike parking.
-  Future<void> addBikeParkingPoints(String layerPrefix, String file) async {
+  Future<void> addBikeParkingPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
 
-    await mapController.removeSource("$layerPrefix-bike-parking-points");
-    await mapController.addSource(
-      "$layerPrefix-bike-parking-points", 
-      GeojsonSourceProperties(data: d)
-    );
-    await mapController.removeSource("$layerPrefix-bike-parking-polygons");
-    await mapController.addSource(
-      "$layerPrefix-bike-parking-polygons", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-bike-parking-points", d);
+    await mapController.setGeoJsonSource("$layerPrefix-bike-parking-polygons", d);
     for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
       await mapController.addLayer(layer, "$layer-$layerPrefix-bike-parking-points-label", 
         SymbolLayerProperties(
@@ -110,19 +117,20 @@ class GeoFeatureLoader {
     }
   }
 
+  /// Remove points for bike parking.
+  Future<void> removeBikeParkingPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-parking-points-label");
+    }
+    await mapController.removeSource("$layerPrefix-bike-parking-points");
+    await mapController.removeSource("$layerPrefix-bike-parking-polygons");
+  }
+
   /// Add points for bike rental.
-  Future<void> addBikeRentalPoints(String layerPrefix, String file) async {
+  Future<void> addBikeRentalPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    await mapController.removeSource("$layerPrefix-bike-rental-points");
-    await mapController.addSource(
-      "$layerPrefix-bike-rental-points", 
-      GeojsonSourceProperties(data: d)
-    );
-    await mapController.removeSource("$layerPrefix-bike-rental-polygons");
-    await mapController.addSource(
-      "$layerPrefix-bike-rental-polygons", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-bike-rental-points", d);
+    await mapController.setGeoJsonSource("$layerPrefix-bike-rental-polygons", d);
     for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
       await mapController.addLayer(layer, "$layer-$layerPrefix-bike-rental-points-label", 
         SymbolLayerProperties(
@@ -161,20 +169,21 @@ class GeoFeatureLoader {
     }
   }
 
+  /// Remove points for bike rental.
+  Future<void> removeBikeRentalPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-rental-points-label");
+    }
+    await mapController.removeSource("$layerPrefix-bike-rental-points");
+    await mapController.removeSource("$layerPrefix-bike-rental-polygons");
+  }
+
   /// Add points for bike shops.
-  Future<void> addBikeShopPoints(String layerPrefix, String file) async {
+  Future<void> addBikeShopPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike shop to the map.
-    await mapController.removeSource("$layerPrefix-bike-shop-points");
-    await mapController.addSource(
-      "$layerPrefix-bike-shop-points", 
-      GeojsonSourceProperties(data: d)
-    );
-    await mapController.removeSource("$layerPrefix-bike-shop-polygons");
-    await mapController.addSource(
-      "$layerPrefix-bike-shop-polygons", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-bike-shop-points", d);
+    await mapController.setGeoJsonSource("$layerPrefix-bike-shop-polygons", d);
     for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
       await mapController.addLayer(layer, "$layer-$layerPrefix-bike-shop-points-label", 
         SymbolLayerProperties(
@@ -214,15 +223,20 @@ class GeoFeatureLoader {
     }
   }
 
+  /// Remove points for bike shops.
+  Future<void> removeBikeShopPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-shop-points-label");
+    }
+    await mapController.removeSource("$layerPrefix-bike-shop-points");
+    await mapController.removeSource("$layerPrefix-bike-shop-polygons");
+  }
+
   /// Add layers for bike air stations.
-  Future<void> addBikeAirStations(String layerPrefix, String file) async {
+  Future<void> addBikeAirStations(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike air station to the map.
-    await mapController.removeSource("$layerPrefix-bike-air-stations");
-    await mapController.addSource(
-      "$layerPrefix-bike-air-stations", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-bike-air-stations", d);
     await mapController.addLayer(
       "$layerPrefix-bike-air-stations", 
       "$layerPrefix-bike-air-stations-label", 
@@ -261,15 +275,17 @@ class GeoFeatureLoader {
     );
   }
 
+  /// Remove layers for bike air stations.
+  Future<void> removeBikeAirStations(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-bike-air-stations-label");
+    await mapController.removeSource("$layerPrefix-bike-air-stations");
+  }
+
   /// Add layers for construction sites.
-  Future<void> addConstructionSites(String layerPrefix, String file) async {
+  Future<void> addConstructionSites(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the construction sites to the map.
-    await mapController.removeSource("$layerPrefix-construction-sites");
-    await mapController.addSource(
-      "$layerPrefix-construction-sites", 
-      GeojsonSourceProperties(data: d)
-    );
+    await mapController.setGeoJsonSource("$layerPrefix-construction-sites", d);
     // Add a label and a symbol to the polygons.
     await mapController.addLayer(
       "$layerPrefix-construction-sites", 
@@ -297,5 +313,11 @@ class GeoFeatureLoader {
         textOpacity: showAfter(zoom: 15),
       )
     );
+  }
+
+  /// Remove layers for construction sites.
+  Future<void> removeConstructionSites(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-construction-sites-label");
+    await mapController.removeSource("$layerPrefix-construction-sites");
   }
 }

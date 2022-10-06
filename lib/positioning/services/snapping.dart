@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -22,7 +23,7 @@ class Snapping with ChangeNotifier {
   double? distance;
 
   /// The current snapped position.
-  LatLng? snappedPosition;
+  Position? snappedPosition;
 
   /// The current snapped heading.
   double? snappedHeading;
@@ -68,9 +69,18 @@ class Snapping with ChangeNotifier {
     }
 
     distance = shortestDistance;
-    snappedPosition = shortestDistancePSnapped;
     final bearing = vincenty.bearing(shortestDistanceP1, shortestDistanceP2); // [-180°, 180°]
     snappedHeading = bearing > 0 ? bearing : 360 + bearing; // [0°, 360°]
+    snappedPosition = Position(
+      latitude: shortestDistancePSnapped.latitude,
+      longitude: shortestDistancePSnapped.longitude,
+      accuracy: positioning.lastPosition!.accuracy,
+      altitude: positioning.lastPosition!.altitude,
+      heading: snappedHeading!,
+      speed: positioning.lastPosition!.speed,
+      speedAccuracy: positioning.lastPosition!.speedAccuracy,
+      timestamp: positioning.lastPosition!.timestamp,
+    );
 
     // Traverse the segments and find the next turn, i.e. where the bearing changes > <x>°.
     const bearingThreshold = 15;

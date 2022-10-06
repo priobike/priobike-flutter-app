@@ -46,6 +46,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A map controller for the map.
   MapboxMapController? mapController;
 
+  /// The geo feature loader for the map.
+  GeoFeatureLoader? geoFeatureLoader;
+
   /// All routes that are displayed, if they were fetched.
   List<Line>? allRoutes;
 
@@ -66,9 +69,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
-
-  /// Labels for the route and alt routes.
-  List<Symbol>? labels;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
@@ -118,8 +118,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> loadAllRouteLayers() async {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (allRoutes != null) mapController!.removeLines(allRoutes!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldRoutes = allRoutes;
     // Add the new layers, if they exist.
     allRoutes = [];
     for (r.Route altRoute in rs.allRoutes ?? []) {
@@ -133,29 +133,32 @@ class RoutingMapViewState extends State<RoutingMapView> {
         altRoute.toJson(),
       ));
     }
+    // Remove the old layers.
+    await mapController?.removeLines(oldRoutes ?? []);
   }
 
   /// Load the current route layer.
   Future<void> loadSelectedRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
-    // Remove the existing route layer.
-    if (route != null) await mapController!.removeLine(route!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldRoute = route;
     if (rs.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
       RouteLayer(points: rs.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
       rs.selectedRoute!.toJson(),
     );
+    if (oldRoute != null) await mapController?.removeLine(oldRoute);
   }
 
   /// Load the discomforts.
   Future<void> loadDiscomforts() async {
     // If we have no map controller, we cannot load the layers.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (discomfortLocations != null) mapController!.removeSymbols(discomfortLocations!);
-    if (discomfortSections != null) mapController!.removeLines(discomfortSections!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldDiscomfortLocations = discomfortLocations;
+    final oldDiscomfortSections = discomfortSections;
     // Add the new layers.
     discomfortLocations = [];
     discomfortSections = [];
@@ -186,14 +189,17 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       }
     }
+    // Remove the old layers.
+    await mapController?.removeSymbols(oldDiscomfortLocations ?? []);
+    await mapController?.removeLines(oldDiscomfortSections ?? []);
   }
 
   /// Load the current traffic lights.
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (trafficLights != null) mapController!.removeSymbols(trafficLights!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldTrafficLights = trafficLights;
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
@@ -236,14 +242,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       }
     }
+    // Remove the old traffic lights.
+    await mapController?.removeSymbols(oldTrafficLights ?? []);
   }
 
   /// Load the current crossings.
   Future<void> loadOfflineCrossingMarkers() async {
     // If we have no map controller, we cannot load the crossings.
     if (mapController == null) return;
-    // Remove all existing layers.
-    if (offlineCrossings != null) mapController!.removeSymbols(offlineCrossings!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldCrossings = offlineCrossings;
     // Create a new crossing marker for each crossing.
     offlineCrossings = [];
     final willShowLabels = ss.sgLabelsMode == SGLabelsMode.enabled;
@@ -259,14 +267,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ),
       ));
     }
+    // Remove the old crossings.
+    await mapController?.removeSymbols(oldCrossings ?? []);
   }
 
   /// Load the current waypoint markers.
   Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
     if (mapController == null) return;
-    // Remove the existing waypoint markers.
-    if (waypoints != null) await mapController!.removeSymbols(waypoints!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
     for (MapEntry<int, Waypoint> entry in rs.selectedWaypoints?.asMap().entries ?? []) {
@@ -287,6 +297,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
         ));
       }
     }
+    // Remove the old waypoints.
+    await mapController?.removeSymbols(oldWaypoints ?? []);
   }
 
   /// Adapt the map controller.
@@ -296,7 +308,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
       // The delay is necessary, otherwise sometimes the camera won't move.
       await Future.delayed(const Duration(milliseconds: 500));
       await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds)
+        CameraUpdate.newLatLngBounds(rs.selectedRoute!.paddedBounds),
+        duration: const Duration(milliseconds: 1000),
       );
     }
   }
@@ -360,7 +373,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await SymbolLoader(mapController!).loadSymbols();
 
     // Load the map features.
-    await GeoFeatureLoader(mapController!, context).loadFeatures();
+    geoFeatureLoader = GeoFeatureLoader(mapController!);
+    await geoFeatureLoader!.loadFeatures(context);
 
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);
@@ -386,14 +400,26 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void dispose() {
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
+    () async {
+      // Remove geo features from the map.
+      await geoFeatureLoader?.removeFeatures();
 
-    // Unbind the interaction callbacks.
-    mapController?.onFillTapped.remove(onFillTapped);
-    mapController?.onCircleTapped.remove(onCircleTapped);
-    mapController?.onLineTapped.remove(onLineTapped);
-    mapController?.onSymbolTapped.remove(onSymbolTapped);
+      // Remove all layers from the map.
+      await mapController?.clearFills();
+      await mapController?.clearCircles();
+      await mapController?.clearLines();
+      await mapController?.clearSymbols();
+
+      // Unbind the sheet movement listener.
+      await sheetMovementSubscription?.cancel();
+
+      // Unbind the interaction callbacks.
+      mapController?.onFillTapped.remove(onFillTapped);
+      mapController?.onCircleTapped.remove(onCircleTapped);
+      mapController?.onLineTapped.remove(onLineTapped);
+      mapController?.onSymbolTapped.remove(onSymbolTapped);
+      mapController?.dispose();
+    }();
 
     super.dispose();
   }
