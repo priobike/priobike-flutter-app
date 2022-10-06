@@ -20,6 +20,7 @@ import 'package:priobike/routing/views/bottomSheet.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/routing/views/routeSearch.dart';
+import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
@@ -329,6 +330,20 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
+  /// Private Function which is executed when search is executed
+  Future<void> _startSearch() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SearchView(index: null),
+      ),
+    );
+
+    if (routing.selectedWaypoints != null &&
+        routing.selectedWaypoints!.isNotEmpty) {
+      await routing.loadRoutes(context);
+    }
+  }
+
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
     mapController.centerNorth(ControllerType.main);
@@ -362,14 +377,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     bool waypointsSelected = routing.selectedWaypoints != null &&
         routing.selectedWaypoints!.isNotEmpty;
 
-    print(showRoutingBar);
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
             sheetMovement.add(notification);
@@ -432,7 +446,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 SizedBox(
                                   // Avoid expansion of alerts view.
                                   width: frame.size.width - 80,
-                                  child: const SearchBar(fromClicked: false),
+                                  child: SearchBar(
+                                      fromClicked: false,
+                                      startSearch: _startSearch),
                                 ),
                               ]),
                     !waypointsSelected ? const ShortCuts() : Container(),

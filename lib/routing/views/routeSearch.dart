@@ -26,7 +26,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
   /// The associated geosearch service, which is injected by the provider.
   late Geosearch geosearch;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.

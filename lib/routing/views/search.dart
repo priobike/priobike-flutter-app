@@ -81,8 +81,9 @@ class SearchViewState extends State<SearchView> {
     }
     if (currentLocationWaypoint != null &&
         currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
-        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) {
       return;
+    }
     currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
         positioning.lastPosition!.longitude);
   }
@@ -111,14 +112,6 @@ class SearchViewState extends State<SearchView> {
 
     if (waypoint.address != null) {
       profile.saveNewSearch(waypoint);
-    }
-
-    for (Waypoint waypoint in newWaypoints) {
-      print("-------------------------");
-      print(waypoint.lat);
-      print(waypoint.lon);
-      print(waypoint.address);
-      print("-------------------------");
     }
 
     await routing.selectWaypoints(newWaypoints);
@@ -193,6 +186,7 @@ class SearchViewState extends State<SearchView> {
                                 width: frame.size.width - 80,
                                 child: SearchBar(
                                     fromClicked: true,
+                                    startSearch: () {},
                                     locationSearchController:
                                         _locationSearchController),
                               ),

@@ -7,18 +7,20 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/settings.dart';
-import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routingOLD context.
 class SearchBar extends StatefulWidget {
   final bool fromClicked;
+  final Function startSearch;
   final TextEditingController? locationSearchController;
 
   const SearchBar(
-      {Key? key, required this.fromClicked, this.locationSearchController})
+      {Key? key,
+      required this.fromClicked,
+      required this.startSearch,
+      this.locationSearchController})
       : super(key: key);
 
   @override
@@ -44,9 +46,6 @@ class SearchBarState extends State<SearchBar> {
   /// The geosearch service that is injected by the provider.
   late Geosearch geosearch;
 
-  /// The associated routingOLD service, which is injected by the provider.
-  late Routing routingService;
-
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
@@ -62,7 +61,6 @@ class SearchBarState extends State<SearchBar> {
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
-    routingService = Provider.of<Routing>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     updateWaypoint();
@@ -104,7 +102,7 @@ class SearchBarState extends State<SearchBar> {
         child: GestureDetector(
           onTap: () {
             if (!widget.fromClicked) {
-              onSearch(context, routingService, null);
+              widget.startSearch();
             }
           },
           child: Stack(
