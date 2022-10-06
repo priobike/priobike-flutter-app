@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -51,6 +52,9 @@ Future<void> main() async {
   // Ensure that the widgets binding is initialized before 
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
+
+  FirebaseApp app = await Firebase.initializeApp();
+  print('Initialized default app $app');
 
   // Load offline map tiles.
   await AppMap.loadOfflineTiles();

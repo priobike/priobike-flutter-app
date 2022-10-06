@@ -56,6 +56,8 @@ dependencies:
   battery_plus: ^2.1.4+1 # Fetch info about the battery state
   charts_flutter: ^0.12.0 # Display minimalistic charts 
   share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
+  firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
+  firebase_messaging: ^13.0.4 #Used for push notifications of news
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons
