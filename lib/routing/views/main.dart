@@ -15,6 +15,7 @@ import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
+import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -120,6 +121,18 @@ class RoutingViewState extends State<RoutingView> {
         ],
       ));
     }
+  }
+
+  /// A callback that is fired when the user wants to select the displayed layers.
+  void onLayerSelection() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+      builder: (_) => const LayerSelectionView(),
+    );
   }
 
   /// A callback that is fired when the shortcut should be saved but a name is required.
@@ -268,6 +281,27 @@ class RoutingViewState extends State<RoutingView> {
                 )
               ]),
             )
+          ),
+
+          // Side Bar
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 80, left: 8),
+              child: Column(children: [
+                SizedBox(
+                  width: 58,
+                  height: 58,
+                  child: Tile(
+                    fill: Theme.of(context).colorScheme.background,
+                    onPressed: onLayerSelection,
+                    content: Icon(
+                      Icons.layers, 
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                )
+              ]),
+            ),
           ),
 
           RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),

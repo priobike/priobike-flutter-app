@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
@@ -14,6 +15,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
@@ -43,6 +45,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The associated location service, which is injected by the provider.
   late Positioning positioning;
+
+  /// The associated layers service, which is injected by the provider.
+  late Layers layers;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -84,6 +89,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   void initState() {
     super.initState();
     sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
+
+    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+      await layers.loadPreferences();
+    });
   }
 
   /// A callback that gets fired when the bottom sheet of the parent view is dragged.
@@ -116,6 +125,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
       positioning.needsLayout[viewId] = false;
     }
 
+    layers = Provider.of<Layers>(context);
+    if (layers.needsLayout[viewId] != false) {
+      onLayersUpdate();
+      layers.needsLayout[viewId] = false;
+    }
+
     super.didChangeDependencies();
   }
 
@@ -134,6 +149,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   Future<void> onPositioningUpdate() async {
     await showUserLocation();
+  }
+
+  Future<void> onLayersUpdate() async {
+    await loadLayers();
   }
 
   /// Load the route layerouting.
@@ -353,6 +372,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
     );
   }
 
+  /// Load the map layers.
+  Future<void> loadLayers() async {
+    // Load the map features.
+    geoFeatureLoader = GeoFeatureLoader(mapController!);
+    await geoFeatureLoader!.removeFeatures();
+    await geoFeatureLoader!.loadFeatures(context);
+  }
+
   /// A callback that is called when the user taps a fill.
   Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
 
@@ -411,10 +438,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    // Load the map features.
-    geoFeatureLoader = GeoFeatureLoader(mapController!);
-    await geoFeatureLoader!.loadFeatures(context);
-
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);
 
@@ -428,6 +451,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await onRoutingUpdate();
     await onDiscomfortsUpdate();
     await onPositioningUpdate();
+    await onLayersUpdate();
   }
 
   /// A callback that is executed when the map was longclicked.

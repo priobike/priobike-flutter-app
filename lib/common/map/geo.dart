@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/routing/services/layers.dart';
+import 'package:provider/provider.dart';
 
 /// A loader for map features.
 class GeoFeatureLoader {
@@ -26,11 +28,23 @@ class GeoFeatureLoader {
   Future<void> loadFeatures(BuildContext context) async {
     await addAccidentHotspots(context, "dresden", "assets/geo/accident_black_spots_dresden.geojson");
     await addAccidentHotspots(context, "hamburg", "assets/geo/accident_black_spots.geojson");
-    await addBikeParkingPoints(context, "hamburg", "assets/geo/bicycle_parking.geojson");
-    await addBikeRentalPoints(context, "hamburg", "assets/geo/bicycle_rental.geojson");
-    await addBikeShopPoints(context, "hamburg", "assets/geo/bicycle_shop.geojson");
-    await addBikeAirStations(context, "hamburg", "assets/geo/bike_air_station.geojson");
-    await addConstructionSites(context, "hamburg", "assets/geo/construction_sides.geojson");
+
+    final layers = Provider.of<Layers>(context, listen: false);
+    if (layers.showParkingStations) {
+      await addBikeParkingPoints(context, "hamburg", "assets/geo/bicycle_parking.geojson");
+    }
+    if (layers.showRentalStations) {
+      await addBikeRentalPoints(context, "hamburg", "assets/geo/bicycle_rental.geojson");
+    }
+    if (layers.showRepairStations) {
+      await addBikeShopPoints(context, "hamburg", "assets/geo/bicycle_shop.geojson");
+    }
+    if (layers.showAirStations) {
+      await addBikeAirStations(context, "hamburg", "assets/geo/bike_air_station.geojson");
+    }
+    if (layers.showConstructionSites) {
+      await addConstructionSites(context, "hamburg", "assets/geo/construction_sides.geojson");
+    }
   }
 
   /// Remove all geo features from the map controller.

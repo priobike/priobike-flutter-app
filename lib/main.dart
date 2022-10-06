@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -110,6 +111,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Geocoding()),
         ChangeNotifierProvider(create: (context) => Geosearch()),
         ChangeNotifierProvider(create: (context) => Routing()),
+        ChangeNotifierProvider(create: (context) => Layers()),
         ChangeNotifierProvider(create: (context) => Session()),
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => Ride()),
