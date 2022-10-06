@@ -10,6 +10,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
   /// The logger for this service.
@@ -73,8 +74,10 @@ class PredictionSGStatus with ChangeNotifier {
 
         final data = SGStatusData.fromJson(jsonDecode(response.body));
         cache[sg.id] = data;
-      } catch (e) {
-        log.w("Error while fetching prediction status: $e");
+      } catch (e, stack) {
+        final hint = "Error while fetching prediction status: $e";
+        log.w(hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
 

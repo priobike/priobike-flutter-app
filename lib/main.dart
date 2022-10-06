@@ -29,6 +29,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -45,6 +46,8 @@ class OldAndroidHttpOverrides extends HttpOverrides {
   }
 }
 
+final log = Logger("main.dart");
+
 Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
@@ -52,29 +55,26 @@ Future<void> main() async {
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load offline map tiles.
-  await AppMap.loadOfflineTiles();
+  runZonedGuarded(() async {
+    // Initialize Sentry.
+    await SentryFlutter.init((options) {
+      // Our Sentry uses an on-premise installation.
+      options.dsn = "https://d2ab503d9cb6409aba03cac4cfa4a01c@priobike.vkw.tu-dresden.de/2";
+    });
 
-  // Load the color mode before the first view build.
-  final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
+    // Load offline map tiles.
+    await AppMap.loadOfflineTiles();
 
-  final log = Logger("main.dart");
+    // Load the color mode before the first view build.
+    final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
-  // Display Flutter errors and log them to the logger.
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    log.e(details.stack);
-  };
-
-  // Run the app, catch errors and dispatch them to the logger.
-  runZonedGuarded(
-    () => runApp(App(initialColorMode: initialColorMode)), 
-    (error, stack) {
-      // Log the error to the console.
-      log.e(error);
-      log.e(stack);
-    }
-  );
+    runApp(App(initialColorMode: initialColorMode));
+  }, (error, stack) async {
+    // Log the error to the console.
+    log.e(error.toString());
+    log.e(stack.toString());
+    await Sentry.captureException(error, stackTrace: stack);
+  });
 }
 
 /// The main app widget.
