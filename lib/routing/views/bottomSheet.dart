@@ -49,31 +49,39 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   top: Radius.circular(20),
                 ),
               ),
-              child: ListView(
-                padding: const EdgeInsets.all(0),
-                controller: scrollController,
-                children: [
-                  SizedBox(
-                    height: 30,
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(20),
+              child: Stack(children: [
+                ListView(
+                  padding: const EdgeInsets.all(0),
+                  controller: scrollController,
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: Center(
+                        child: Container(
+                          width: 40,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 800,
-                    width: 300,
-                  )
-                ],
-              ),
+                    const SizedBox(
+                      height: 800,
+                      width: 300,
+                    )
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: Container(
+                      color: Colors.white, width: frame.size.width, height: 50),
+                ),
+              ]),
             );
           }),
     );
