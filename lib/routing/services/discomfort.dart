@@ -13,6 +13,9 @@ import 'package:priobike/routing/models/discomfort.dart';
 import 'package:provider/provider.dart';
 
 class Discomforts with ChangeNotifier {
+  /// An indicator if the data of this notifier changed.
+  Map<String, bool> needsLayout = {};
+
   /// The found discomforts.
   List<DiscomfortSegment>? foundDiscomforts;
 
@@ -26,6 +29,7 @@ class Discomforts with ChangeNotifier {
 
   // Reset the discomfort service.
   Future<void> reset() async {
+    needsLayout = {};
     foundDiscomforts = null;
     selectedDiscomfort = null;
     notifyListeners();
@@ -128,5 +132,11 @@ class Discomforts with ChangeNotifier {
     foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));
     notifyListeners();
+  }
+
+  @override 
+  void notifyListeners() {
+    needsLayout.updateAll((key, value) => true);
+    super.notifyListeners();
   }
 }
