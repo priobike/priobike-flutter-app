@@ -471,17 +471,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                             zoomIn: _zoomIn, zoomOut: _zoomOut),
                                         const SizedBox(height: 10),
                                         FilterButton(profileService: profile),
-                                        SizedBox(
-                                          height: frame.size.height -
-                                              (frame.size.height * 0.675),
-                                        ),
-                                        routing.selectedWaypoints != null &&
-                                                routing.selectedWaypoints!
-                                                    .isNotEmpty
-                                            ? GPSButton(
-                                                gpsCentralization:
-                                                    _gpsCentralization)
-                                            : Container()
                                       ]),
                                 ]),
                           )
@@ -490,6 +479,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 ),
               ),
             ),
+            routing.selectedWaypoints != null &&
+                    routing.selectedWaypoints!.isNotEmpty
+                ? Positioned(
+                    bottom: frame.size.height * 0.15 + 10,
+                    right: 20,
+                    child: GPSButton(gpsCentralization: _gpsCentralization),
+                  )
+                : Container(),
             routing.selectedWaypoints != null &&
                     routing.selectedWaypoints!.isNotEmpty
                 ? const BottomSheetDetail()
