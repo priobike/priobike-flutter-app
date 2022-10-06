@@ -148,6 +148,8 @@ flutter:
     - assets/images/park-light.png
     - assets/images/position-dark.png
     - assets/images/position-light.png
+    - assets/images/position-static-dark.png
+    - assets/images/position-static-light.png
     - assets/images/rent-dark.png
     - assets/images/rent-light.png
     - assets/images/repair-dark.png
