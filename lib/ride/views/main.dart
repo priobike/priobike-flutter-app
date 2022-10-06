@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -74,6 +75,9 @@ class RideViewState extends State<RideView> {
     }
   }
 
+  /// The lock for the rerouting.
+  final lock = Lock(milliseconds: 10000);
+
   @override
   void initState() {
     super.initState();
@@ -98,15 +102,18 @@ class RideViewState extends State<RideView> {
         await snapping?.updatePosition(context);
         // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
         if (
-          settings?.rerouting == Rerouting.enabled && 
-          (snapping?.distance ?? 0) > rerouteDistance && 
+          settings?.rerouting == Rerouting.enabled &&
+          (snapping?.distance ?? 0) > rerouteDistance &&
           (snapping?.remainingWaypoints?.isNotEmpty ?? false)
         ) {
-          await routing?.selectWaypoints(snapping!.remainingWaypoints);
-          final routes = await routing?.loadRoutes(context);
-          if (routes != null && routes.isNotEmpty) {
-            await ride?.selectRide(context, routes.first);
-          }
+          // Use a timed lock to avoid rapid refreshing of routes.
+          lock.run(() async {
+            await routing?.selectWaypoints(snapping!.remainingWaypoints);
+            final routes = await routing?.loadRoutes(context);
+            if (routes != null && routes.isNotEmpty) {
+              await ride?.selectRide(context, routes.first);
+            }
+          });
         }
       });
     });

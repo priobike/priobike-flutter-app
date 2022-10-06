@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -161,21 +162,6 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       waypoint: waypoint, 
       onTap: widget.onTap
     );
-  }
-}
-
-class Debouncer {
-  /// The preferred interval.
-  final int milliseconds;
-
-  /// The currently running timer.
-  Timer? timer;
-
-  Debouncer({required this.milliseconds});
-
-  run(VoidCallback action) {
-    timer?.cancel();
-    timer = Timer(Duration(milliseconds: milliseconds), action);
   }
 }
 
