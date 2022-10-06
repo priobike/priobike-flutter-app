@@ -6,6 +6,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -17,8 +18,10 @@ class AppMap extends StatefulWidget {
 
       // await installOfflineMapTiles("assets/offline/hamburg-light.db");
       // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
-    } catch (err) {
-      Logger("AppMap").e("Failed to load offline tiles: $err");
+    } catch (err, stacktrace) {
+      final hint = "Failed to load offline tiles: $err";
+      Logger("AppMap").e(hint);
+      await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
     }
   }
 
