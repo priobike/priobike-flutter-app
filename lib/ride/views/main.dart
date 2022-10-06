@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/lock.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
@@ -39,9 +38,6 @@ class RideViewState extends State<RideView> {
 
   /// The associated position service, which is injected by the provider.
   Positioning? positioning;
-
-  /// The associated position estimation service, which is injected by the provider.
-  PositionEstimator? positionEstimator;
 
   /// The associated recommendation service, which is injected by the provider.
   Ride? ride;
@@ -92,8 +88,6 @@ class RideViewState extends State<RideView> {
       await ride?.selectRide(context, routing!.selectedRoute!);
       // Start navigating.
       await ride?.startNavigation(context);
-      // Start the position estimation.
-      await positionEstimator?.startEstimating(context);
       // Start geolocating. This must only be executed once.
       await positioning?.startGeolocation(context: context, onNewPosition: (pos) async {
         // Pass new positions to the ride service.
@@ -123,7 +117,6 @@ class RideViewState extends State<RideView> {
   void didChangeDependencies() {
     tracking = Provider.of<Tracking>(context);
     positioning = Provider.of<Positioning>(context);
-    positionEstimator = Provider.of<PositionEstimator>(context);
     ride = Provider.of<Ride>(context);
     session = Provider.of<Session>(context);
     snapping = Provider.of<Snapping>(context);

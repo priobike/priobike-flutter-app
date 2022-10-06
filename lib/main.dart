@@ -13,7 +13,6 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
@@ -113,7 +112,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Routing()),
         ChangeNotifierProvider(create: (context) => Session()),
         ChangeNotifierProvider(create: (context) => Positioning()),
-        ChangeNotifierProvider(create: (context) => PositionEstimator()),
         ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),

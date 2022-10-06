@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
@@ -41,10 +40,6 @@ class CancelButton extends StatelessWidget {
     final position = Provider.of<Positioning>(context, listen: false);
     await position.stopGeolocation();
 
-    // Stop the position estimation.
-    final positionEstimator = Provider.of<PositionEstimator>(context, listen: false);
-    positionEstimator.stopEstimating();
-
     // Show the feedback dialog.
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => FeedbackView(
       onSubmitted: (context) async {
@@ -60,9 +55,6 @@ class CancelButton extends StatelessWidget {
 
         // Reset the recommendation service.
         await recommendation.reset();
-
-        // Reset the position estimation service.
-        await positionEstimator.reset();
 
         // Reset the position service.
         await position.reset();
