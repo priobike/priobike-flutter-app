@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/status/views/map.dart';
 import 'package:provider/provider.dart';
 
 class StatusView extends StatefulWidget {
@@ -64,11 +65,12 @@ class StatusViewState extends State<StatusView> {
 
     bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0), 
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 12), 
       child: Tile(
         fill: isDark 
-        ? const Color.fromARGB(255, 134, 79, 79) 
-        : const Color.fromARGB(255, 255, 228, 228),
+          ? const Color.fromARGB(255, 134, 79, 79) 
+          : const Color.fromARGB(255, 255, 228, 228),
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Row(children: [
           Flexible(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +82,7 @@ class StatusViewState extends State<StatusView> {
           ),
           const SmallHSpace(),
           Icon(
-            Icons.report_problem, 
+            Icons.chevron_right, 
             color: isDark ? Colors.white : Colors.black,
           ),
         ]),
