@@ -25,6 +25,30 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     super.didChangeDependencies();
   }
 
+  _changeDetailView() {
+    if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
+        bottomSheetState.draggableScrollableController.size <= 0.65) {
+      bottomSheetState.draggableScrollableController.animateTo(0.66,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic);
+      return;
+    }
+    if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
+        bottomSheetState.draggableScrollableController.size <= 0.99) {
+      bottomSheetState.draggableScrollableController.animateTo(1,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic);
+      return;
+    }
+    if (bottomSheetState.draggableScrollableController.size <= 1 &&
+        bottomSheetState.draggableScrollableController.size >= 0.99) {
+      bottomSheetState.draggableScrollableController.animateTo(0.15,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -77,6 +101,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   bottom: 0,
                   left: 0,
                   child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
@@ -89,9 +115,44 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconTextButton(onPressed: () {  }, label: 'Starten',),
-                        IconTextButton(onPressed: () {  }, label: 'Speichern',),
-                        IconTextButton(onPressed: () {  }, label: 'Details',)
+                        IconTextButton(
+                            onPressed: () {},
+                            label: 'Starten',
+                            icon: Icons.navigation),
+                        IconTextButton(
+                            onPressed: () {},
+                            label: 'Speichern',
+                            icon: Icons.save,
+                            textColor: Theme.of(context).colorScheme.primary,
+                            iconColor: Theme.of(context).colorScheme.primary,
+                            borderColor: Theme.of(context).colorScheme.primary,
+                            fillColor:
+                                Theme.of(context).colorScheme.background),
+                        IconTextButton(
+                            onPressed: _changeDetailView,
+                            label: bottomSheetState
+                                            .draggableScrollableController
+                                            .size <=
+                                        1 &&
+                                    bottomSheetState
+                                            .draggableScrollableController
+                                            .size >=
+                                        0.99
+                                ? 'Karte'
+                                : 'Details',
+                            icon: bottomSheetState.draggableScrollableController
+                                            .size <=
+                                        1 &&
+                                    bottomSheetState
+                                            .draggableScrollableController
+                                            .size >=
+                                        0.99
+                                ? Icons.map
+                                : Icons.list,
+                            borderColor: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.primary,
+                            iconColor: Theme.of(context).colorScheme.primary,
+                            fillColor: Theme.of(context).colorScheme.background)
                       ],
                     ),
                   ),

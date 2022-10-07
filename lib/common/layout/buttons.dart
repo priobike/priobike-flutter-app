@@ -32,7 +32,8 @@ class SmallIconButton extends StatelessWidget {
       width: 48,
       height: 48,
       child: RawMaterialButton(
-        elevation: 0, // Hide ugly material shadows.
+        elevation: 0,
+        // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
         child: Padding(
@@ -51,7 +52,6 @@ class SmallIconButton extends StatelessWidget {
 
 /// A custom stylized button that is used to navigate back.
 class AppBackButton extends StatelessWidget {
-
   /// The icon of the button.
   final IconData icon;
 
@@ -60,7 +60,7 @@ class AppBackButton extends StatelessWidget {
   final double? elevation;
 
   const AppBackButton({
-    this.icon = Icons.chevron_left, 
+    this.icon = Icons.chevron_left,
     required this.onPressed,
     this.elevation,
     Key? key,
@@ -85,9 +85,7 @@ class AppBackButton extends StatelessWidget {
         onPressed: onPressed,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topRight: Radius.circular(24), 
-            bottomRight: Radius.circular(24)
-          ),
+              topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
     );
@@ -118,9 +116,9 @@ class BigButton extends StatelessWidget {
   final BoxConstraints boxConstraints;
 
   const BigButton({
-    Key? key, 
-    this.icon, 
-    required this.label, 
+    Key? key,
+    this.icon,
+    required this.label,
     required this.onPressed,
     this.fillColor,
     this.splashColor,
@@ -128,7 +126,7 @@ class BigButton extends StatelessWidget {
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
   }) : super(key: key);
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
       fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
@@ -146,16 +144,21 @@ class BigButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(width: 32),
-            if (icon != null) Icon(
-              icon,
-              color: iconColor,
-            ),
+            if (icon != null)
+              Icon(
+                icon,
+                color: iconColor,
+              ),
             const SizedBox(width: 12),
-            Flexible(child: Text(
+            Flexible(
+                child: Text(
               label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             )),
             const SizedBox(width: 32),
           ],
@@ -192,6 +195,12 @@ class IconTextButton extends StatelessWidget {
   /// The constraints to define a specific size for the button.
   final BoxConstraints boxConstraints;
 
+  /// The optional border color of the button.
+  final Color? borderColor;
+
+  /// The optional border color of the button.
+  final Color? textColor;
+
   const IconTextButton({
     Key? key,
     this.icon,
@@ -200,7 +209,9 @@ class IconTextButton extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 40.0, minHeight: 20.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
+    this.borderColor,
+    this.textColor,
   }) : super(key: key);
 
   @override
@@ -221,24 +232,30 @@ class IconTextButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(width: 5),
-            if (icon != null) Icon(
-              icon,
-              color: iconColor,
+            if (icon != null)
+              Icon(
+                icon,
+                color: iconColor,
+              ),
+            SizedBox(width: icon != null ? 5 : 0),
+            Flexible(
+              child: Center(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                ),
+              ),
             ),
-            const SizedBox(width: 5),
-            Flexible(child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            )),
             const SizedBox(width: 5),
           ],
         ),
       ),
       onPressed: onPressed,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
     );
   }
