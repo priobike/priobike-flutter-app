@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:provider/provider.dart';
 
 import '../services/bottomSheetState.dart';
@@ -11,10 +12,7 @@ class BottomSheetDetail extends StatefulWidget {
 }
 
 class BottomSheetDetailState extends State<BottomSheetDetail> {
-  late BottomSheetState bottomSheet;
-
-  DraggableScrollableController scrollController =
-      DraggableScrollableController();
+  late BottomSheetState bottomSheetState;
 
   @override
   void initState() {
@@ -23,7 +21,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   @override
   void didChangeDependencies() {
-    bottomSheet = Provider.of<BottomSheetState>(context);
+    bottomSheetState = Provider.of<BottomSheetState>(context);
     super.didChangeDependencies();
   }
 
@@ -38,8 +36,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           minChildSize: 0.15,
           maxChildSize: 1,
           snap: true,
-          snapSizes: const [0.5, 1],
-          controller: scrollController,
+          snapSizes: const [0.66, 1],
+          controller: bottomSheetState.draggableScrollableController,
           builder:
               (BuildContext buildContext, ScrollController scrollController) {
             return Container(
@@ -79,7 +77,24 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   bottom: 0,
                   left: 0,
                   child: Container(
-                      color: Colors.white, width: frame.size.width, height: 50),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                            width: 1,
+                            color: Theme.of(context).colorScheme.surface),
+                      ),
+                    ),
+                    width: frame.size.width,
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconTextButton(onPressed: () {  }, label: 'Starten',),
+                        IconTextButton(onPressed: () {  }, label: 'Speichern',),
+                        IconTextButton(onPressed: () {  }, label: 'Details',)
+                      ],
+                    ),
+                  ),
                 ),
               ]),
             );

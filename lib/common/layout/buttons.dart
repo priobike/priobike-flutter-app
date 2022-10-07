@@ -168,3 +168,78 @@ class BigButton extends StatelessWidget {
     );
   }
 }
+
+/// A custom stylized button to display important actions.
+class IconTextButton extends StatelessWidget {
+  /// The icon of the button.
+  final IconData? icon;
+
+  /// The label of the button.
+  final String label;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function() onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  const IconTextButton({
+    Key? key,
+    this.icon,
+    required this.label,
+    required this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 40.0, minHeight: 20.0),
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(width: 5),
+            if (icon != null) Icon(
+              icon,
+              color: iconColor,
+            ),
+            const SizedBox(width: 5),
+            Flexible(child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            )),
+            const SizedBox(width: 5),
+          ],
+        ),
+      ),
+      onPressed: onPressed,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+    );
+  }
+}

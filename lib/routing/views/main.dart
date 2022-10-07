@@ -368,6 +368,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     return frame.size.height * 0.25 + 20 + frame.viewPadding.top;
   }
 
+  /// ShowLessDetails moves the draggableScrollView back to the initial height
+  _showLessDetails() {
+    bottomSheetState.draggableScrollableController.animateTo(0.15,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routing.hadErrorDuringFetch) return renderTryAgainButton();
@@ -430,6 +437,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                   duration: const Duration(milliseconds: 250),
                                   child: const RoutingBar(
                                       fromRoutingSearch: false)),
+                              AnimatedPositioned(
+                                // top calculates from padding + systembar
+                                top: 20 + frame.padding.top,
+                                left: showRoutingBar ? -64 : 0,
+                                duration: const Duration(milliseconds: 250),
+                                child:
+                                    AppBackButton(onPressed: _showLessDetails),
+                              ),
                             ]),
                           )
                         : Row(
