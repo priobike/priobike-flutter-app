@@ -437,6 +437,34 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                   duration: const Duration(milliseconds: 250),
                                   child: const RoutingBar(
                                       fromRoutingSearch: false)),
+                              !showRoutingBar
+                                  ? AnimatedPositioned(
+                                      top: bottomSheetState
+                                                      .draggableScrollableController
+                                                      .size <=
+                                                  1 &&
+                                              bottomSheetState
+                                                      .draggableScrollableController
+                                                      .size >=
+                                                  0.7
+                                          ? 0
+                                          : -(40 + 64 + frame.padding.top),
+                                      left: 0,
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      child: Container(
+                                        alignment: Alignment.centerLeft,
+                                        padding: EdgeInsets.only(
+                                            top: 20 + frame.padding.top,
+                                            bottom: 5),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        width: frame.size.width,
+                                        height: frame.padding.top + 25 + 64,
+                                      ),
+                                    )
+                                  : Container(),
                               AnimatedPositioned(
                                 // top calculates from padding + systembar
                                 top: 20 + frame.padding.top,
