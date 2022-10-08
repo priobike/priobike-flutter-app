@@ -30,13 +30,13 @@ class Profile with ChangeNotifier {
   bool? avoidTraffic;
 
   /// The visibility of general point of interests
-  bool? showGeneralPOIs;
+  bool showGeneralPOIs = true;
 
   /// The preference of setting location as start
-  bool? setLocationAsStart;
+  bool setLocationAsStart = true;
 
   /// The preference of saving search history
-  bool? saveSearchHistory;
+  bool saveSearchHistory = true;
 
   List<Waypoint>? searchHistory;
 

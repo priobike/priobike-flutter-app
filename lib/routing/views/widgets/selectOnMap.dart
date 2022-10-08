@@ -132,16 +132,8 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
       }
     }
 
-    if (waypoint.address != null) {
+    if (waypoint.address != null && profile.saveSearchHistory) {
       profile.saveNewSearch(waypoint);
-    }
-
-    for (Waypoint waypoint in newWaypoints) {
-      print("-------------------------");
-      print(waypoint.lat);
-      print(waypoint.lon);
-      print(waypoint.address);
-      print("-------------------------");
     }
 
     await routing.selectWaypoints(newWaypoints);

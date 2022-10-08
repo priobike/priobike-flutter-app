@@ -118,7 +118,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       border: Border(
                         top: BorderSide(
                             width: 1,
-                            color: Theme.of(context).colorScheme.surface),
+                            color: Theme.of(context).colorScheme.background),
                       ),
                     ),
                     width: frame.size.width,

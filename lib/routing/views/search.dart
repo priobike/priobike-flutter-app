@@ -110,7 +110,7 @@ class SearchViewState extends State<SearchView> {
       }
     }
 
-    if (waypoint.address != null) {
+    if (waypoint.address != null && profile.saveSearchHistory) {
       profile.saveNewSearch(waypoint);
     }
 
