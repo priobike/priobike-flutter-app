@@ -83,8 +83,7 @@ class RoutingBarState extends State<RoutingBar> {
       }
     } else {
       if (widget.fromRoutingSearch && routing.routingItems.isEmpty) {
-        if (profile.setLocationAsStart != null &&
-            profile.setLocationAsStart! &&
+        if (profile.setLocationAsStart &&
             currentLocationWaypoint != null) {
           routing.routingItems = [currentLocationWaypoint, null];
           routing.nextItem = 1;

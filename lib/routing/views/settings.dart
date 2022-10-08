@@ -40,8 +40,6 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light
@@ -95,7 +93,7 @@ class SettingsViewState extends State<SettingsView> {
                                 text: "Allgemeine POIs anzeigen",
                                 context: context),
                             Switch(
-                                value: profile.showGeneralPOIs ?? false,
+                                value: profile.showGeneralPOIs,
                                 onChanged: (value) {
                                   setState(() {
                                     profile.showGeneralPOIs = value;
@@ -116,7 +114,7 @@ class SettingsViewState extends State<SettingsView> {
                                 context: context),
                             Switch(
                                 value:
-                                    profile.setLocationAsStart ?? false,
+                                    profile.setLocationAsStart,
                                 onChanged: (value) {
                                   setState(() {
                                     profile.setLocationAsStart = value;
@@ -137,7 +135,7 @@ class SettingsViewState extends State<SettingsView> {
                                 context: context),
                             Switch(
                                 value:
-                                    profile.saveSearchHistory ?? false,
+                                    profile.saveSearchHistory,
                                 onChanged: (value) {
                                   setState(() {
                                     profile.saveSearchHistory = value;

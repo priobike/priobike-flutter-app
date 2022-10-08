@@ -99,8 +99,7 @@ class SearchViewState extends State<SearchView> {
       newWaypoints[widget.index!] = waypoint;
     } else {
       // Insert current location as first waypoint if option is set
-      if (profile.setLocationAsStart != null &&
-          profile.setLocationAsStart! &&
+      if (profile.setLocationAsStart &&
           currentLocationWaypoint != null &&
           waypoints.isEmpty &&
           waypoint.address != null) {
@@ -131,7 +130,8 @@ class SearchViewState extends State<SearchView> {
   _selectOnMapOnPressed() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint),
+        builder: (_) =>
+            SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint),
       ),
     );
 

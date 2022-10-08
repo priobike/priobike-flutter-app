@@ -121,8 +121,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
       newWaypoints[widget.index!] = waypoint;
     } else {
       // Insert current location as first waypoint if option is set
-      if (profile.setLocationAsStart != null &&
-          profile.setLocationAsStart! &&
+      if (profile.setLocationAsStart &&
           widget.currentLocationWaypoint != null &&
           waypoints.isEmpty &&
           waypoint.address != null) {

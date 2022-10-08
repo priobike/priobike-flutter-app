@@ -30,13 +30,13 @@ class Profile with ChangeNotifier {
   bool? avoidTraffic;
 
   /// The visibility of general point of interests
-  bool showGeneralPOIs = true;
+  bool showGeneralPOIs;
 
   /// The preference of setting location as start
-  bool setLocationAsStart = true;
+  bool setLocationAsStart;
 
   /// The preference of saving search history
-  bool saveSearchHistory = true;
+  bool saveSearchHistory;
 
   List<Waypoint>? searchHistory;
 
@@ -48,9 +48,9 @@ class Profile with ChangeNotifier {
       this.avoidTrafficLights,
       this.avoidAscents,
       this.avoidTraffic,
-      this.showGeneralPOIs,
-      this.setLocationAsStart,
-      this.saveSearchHistory,
+      this.showGeneralPOIs = true,
+      this.setLocationAsStart = true,
+      this.saveSearchHistory = true,
       this.searchHistory});
 
   /// Load the stored profile.
@@ -119,13 +119,13 @@ class Profile with ChangeNotifier {
           "priobike.home.profile.avoidTraffic", avoidTraffic!);
     if (showGeneralPOIs != null)
       await storage.setBool(
-          "priobike.home.profile.showGeneralPOIs", showGeneralPOIs!);
+          "priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
     if (setLocationAsStart != null)
       await storage.setBool(
-          "priobike.home.profile.setLocationAsStart", setLocationAsStart!);
+          "priobike.home.profile.setLocationAsStart", setLocationAsStart);
     if (saveSearchHistory != null)
       await storage.setBool(
-          "priobike.home.profile.avoidTraffic", saveSearchHistory!);
+          "priobike.home.profile.avoidTraffic", saveSearchHistory);
     if (searchHistory != null) {
       final jsonStr =
           jsonEncode(searchHistory!.map((e) => e.toJSON()).toList());
