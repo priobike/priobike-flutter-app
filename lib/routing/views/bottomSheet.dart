@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
 import '../services/bottomSheetState.dart';
@@ -12,7 +14,11 @@ class BottomSheetDetail extends StatefulWidget {
 }
 
 class BottomSheetDetailState extends State<BottomSheetDetail> {
+  /// The associated BottomSheetState, which is injected by the provider.
   late BottomSheetState bottomSheetState;
+
+  /// The associated routingOLD service, which is injected by the provider.
+  late Routing routing;
 
   @override
   void initState() {
@@ -22,6 +28,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   @override
   void didChangeDependencies() {
     bottomSheetState = Provider.of<BottomSheetState>(context);
+    routing = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 
@@ -34,7 +41,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       return;
     }
     if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
-        bottomSheetState.draggableScrollableController.size <= topSnapRatio - 0.05) {
+        bottomSheetState.draggableScrollableController.size <=
+            topSnapRatio - 0.05) {
       bottomSheetState.draggableScrollableController.animateTo(topSnapRatio,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic);
@@ -43,6 +51,79 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     bottomSheetState.draggableScrollableController.animateTo(0.15,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic);
+  }
+
+  _details(BuildContext context) {
+    return [
+      Padding(
+        padding: const EdgeInsets.only(left: 20, top: 0, right: 20, bottom: 50),
+        child: Column(
+          children: [
+            // Destination.
+            routing.selectedWaypoints != null &&
+                    routing.selectedWaypoints!.last.address != null
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: BoldSubHeader(
+                      text: routing.selectedWaypoints!.last.address!,
+                      context: context,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                : Container(),
+            const SizedBox(height: 5),
+            // Important details.
+            routing.selectedRoute != null
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Content(
+                          text: ((routing.selectedRoute!.path.time * 0.001) *
+                                      0.016)
+                                  .round()
+                                  .toString() +
+                              " min",
+                          context: context,
+                          color: Colors.grey),
+                      const SizedBox(width: 10),
+                      Container(
+                        height: 3,
+                        width: 3,
+                        decoration: const BoxDecoration(
+                            color: Colors.grey, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 10),
+                      Content(
+                          text: (routing.selectedRoute!.path.distance * 0.001)
+                                  .toStringAsFixed(2) +
+                              " km",
+                          context: context,
+                          color: Colors.grey)
+                    ],
+                  )
+                : Container(),
+            const SizedBox(height: 10),
+            // Route Environment
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              SubHeader(text: "Wegtypen", context: context), SubHeader(text: "Details", context: context),
+            ]),
+            // Route height profile
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              SubHeader(text: "Höhenprofil", context: context), SubHeader(text: "Details", context: context),
+            ]),
+            // Route surface
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              SubHeader(text: "Oberflächentypen", context: context), SubHeader(text: "Details", context: context),
+            ]),
+            // Route instructions
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              SubHeader(text: "Anweisungen", context: context), SubHeader(text: "Details", context: context),
+            ]),
+          ],
+        ),
+      ),
+    ];
   }
 
   @override
@@ -88,10 +169,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           width: 40,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: bottomSheetState.draggableScrollableController.size <=
-                                topSnapRatio + 0.05 &&
-                                bottomSheetState.draggableScrollableController.size >=
-                                    topSnapRatio - 0.05
+                            color: bottomSheetState
+                                            .draggableScrollableController
+                                            .size <=
+                                        topSnapRatio + 0.05 &&
+                                    bottomSheetState
+                                            .draggableScrollableController
+                                            .size >=
+                                        topSnapRatio - 0.05
                                 ? Theme.of(context).colorScheme.surface
                                 : Theme.of(context).colorScheme.background,
                             borderRadius: const BorderRadius.all(
@@ -102,6 +187,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         ),
                       ),
                     ),
+                    ...routing.selectedRoute != null ? _details(context) : [],
                     const SizedBox(
                       height: 800,
                       width: 300,
@@ -115,6 +201,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     padding:
                         const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
                       border: Border(
                         top: BorderSide(
                             width: 1,
