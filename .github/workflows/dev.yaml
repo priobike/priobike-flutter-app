@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
+    container: ubuntu:latest
     steps:
       - uses: actions/checkout@v2
       - name: Build necessary docker images
