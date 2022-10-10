@@ -103,6 +103,7 @@ class Small extends Text {
     TextOverflow? overflow,
     int? maxLines, 
     Color? color,
+    TextAlign? textAlign,
     required BuildContext context
   }) : super(
     text, 
@@ -111,6 +112,7 @@ class Small extends Text {
     maxLines: maxLines,
     style: Theme.of(context).textTheme.headline3!
       .merge(TextStyle(color: color)),
+    textAlign: textAlign,
   );
 }
 

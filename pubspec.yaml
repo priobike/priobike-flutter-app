@@ -167,3 +167,13 @@ flutter:
     - assets/images/dark_turn_sharp_right.png
     - assets/images/dark_turn_slight_left.png
     - assets/images/dark_turn_slight_right.png
+
+    # Screenshots
+    - assets/images/screenshots/speedometer-light.png
+    - assets/images/screenshots/speedometer-dark.png
+    - assets/images/screenshots/default-cycling-light.png
+    - assets/images/screenshots/default-cycling-dark.png
+    - assets/images/screenshots/minimal-recommendation-light.png
+    - assets/images/screenshots/minimal-recommendation-dark.png
+    - assets/images/screenshots/minimal-countdown-light.png
+    - assets/images/screenshots/minimal-countdown-dark.png
