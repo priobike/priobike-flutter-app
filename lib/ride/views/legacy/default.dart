@@ -33,8 +33,8 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
     final recommendation = ride.currentRecommendation!;
 
     num percent = DefaultCyclingView.interpolate(
-      -maxSpeedDiff,
       maxSpeedDiff,
+      -maxSpeedDiff,
       recommendation.speedDiff.clamp(-maxSpeedDiff, maxSpeedDiff),
     );
 
