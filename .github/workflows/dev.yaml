@@ -1,5 +1,7 @@
 name: Distribute App to Google Play - Internal Track
 
+runs-on: self-hosted
+
 on:
   push:
     branches:
