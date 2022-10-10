@@ -1,17 +1,18 @@
-name: Run Unit Tests
+name: Run unit tests
 
 on:
   pull_request:
     branches:
-      - dev
       - beta
+      - dev
 
 jobs:
-  build:
+  test:
     runs-on: self-hosted
+    container: cirrusci/flutter:2.10.5
     steps:
       - uses: actions/checkout@v2
-      - name: Build necessary docker images
-        run: docker build -t fastlane -f ${PWD}/Dockerfile.fastlane .
       - name: Run unit tests
-        run: docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter test"
+        run: |
+          flutter pub get
+          flutter test

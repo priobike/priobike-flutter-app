@@ -3,23 +3,50 @@ name: Distribute App to Google Play - Closed Track
 on:
   push:
     branches:
-      - beta
+      - dev
 
 jobs:
-  build:
+  test:
     runs-on: self-hosted
+    container: cirrusci/flutter:2.10.5
     steps:
       - uses: actions/checkout@v2
-      - name: Build necessary docker images
-        run: docker build -t fastlane -f ${PWD}/Dockerfile.fastlane .
       - name: Run unit tests
-        run: docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter test"
+        run: |
+          flutter pub get
+          flutter test
+
+  build:
+    runs-on: self-hosted
+    needs: test
+    container: cirrusci/flutter:2.10.5
+    steps:
+      - uses: actions/checkout@v2
       - name: Build the Android app bundle
-        run: docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter build appbundle"
-      - name: Distribute via Fastlane
-        run: docker run --rm -v ${PWD}:/app -w /app/android fastlane fastlane closed
-      - name: Upload the Android app bundle to GitHub
+        run: |
+          flutter pub get
+          flutter build appbundle
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
           name: app-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: build/app/outputs/bundle/release
+
+  distribute:
+    runs-on: self-hosted
+    needs: build
+    container: ruby
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: app-bundle
+          path: build/app/outputs/bundle/release
+      - name: Install Fastlane
+        run: |
+          gem install fastlane
+      - name: Distribute via Fastlane
+        run: |
+          cd android
+          fastlane closed
