@@ -262,7 +262,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&details=max_speed";
       ghUrl += "&details=smoothness";
       ghUrl += "&details=lanes";
-      ghUrl += "&details=road_environment";
+      ghUrl += "&details=road_class";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";
         ghUrl += "&ch.disable=true";
@@ -275,9 +275,6 @@ class Routing with ChangeNotifier {
 
       final response = await httpClient.get(ghEndpoint);
       if (response.statusCode == 200) {
-        print("response.body");
-        print(response.body);
-        print("response.body");
         return GHRouteResponse.fromJson(json.decode(response.body));
       } else {
         log.e(

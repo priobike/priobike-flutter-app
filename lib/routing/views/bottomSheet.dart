@@ -1,11 +1,58 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
 import 'package:provider/provider.dart';
 
 import '../services/bottomSheetState.dart';
+
+final roadClassTranslation = {
+  "motorway": "Autobahn",
+  "trunk": "Fernstraße",
+  "primary": "Hauptstraße",
+  "secondary": "Landstraße",
+  "tertiary": "???",
+  "residential": "Wohnstraße",
+  "unclassified": "Nicht klassifiziert",
+  "service": "Zufahrtsstraße",
+  "road": "Straße",
+  "track": "Rennstrecke???",
+  "bridleway": "Reitweg",
+  "steps": "Treppen???",
+  "cycleway": "Fahrradweg",
+  "path": "Weg",
+  "living_street": "Spielstraße",
+  "footway": "Fußweg",
+  "pedestrian": "Fußgängerzone",
+  "platform": "Bahnsteig???",
+  "corridor": "Korridor??",
+  "other": "Sonstiges"
+};
+
+final roadClassColor = {
+  "Autobahn": const Color(0xFF5B81FF),
+  "Fernstraße": const Color(0xFF90A9FF),
+  "Hauptstraße": const Color(0xFF3758FF),
+  "Landstraße": const Color(0xFFACC7FF),
+  "???": const Color(0xFFB74093),
+  "Wohnstraße": const Color(0xFFFFE4F8),
+  "Nicht klassifiziert": const Color(0xFFB74093),
+  "Zufahrtsstraße": const Color(0xFFB74093),
+  "Straße": const Color(0xFFB74093),
+  "Rennstrecke???": const Color(0xFFB74093),
+  "Reitweg": const Color(0xFFB74093),
+  "Treppen???": const Color(0xFFB74093),
+  "Fahrradweg": const Color(0xFF0073FF),
+  "Weg": const Color(0xFFB74093),
+  "Spielstraße": const Color(0xFFB74093),
+  "Fußweg": const Color(0xFFB74093),
+  "Fußgängerzone": const Color(0xFFB74093),
+  "Bahnsteig???": const Color(0xFFB74093),
+  "Korridor??": const Color(0xFFB74093),
+  "Sonstiges": const Color(0xFFB74093)
+};
 
 class BottomSheetDetail extends StatefulWidget {
   const BottomSheetDetail({Key? key}) : super(key: key);
@@ -57,7 +104,71 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         curve: Curves.easeOutCubic);
   }
 
-  _details(BuildContext context) {
+  _barWithDetails(Map<String, int> map, int max, MediaQueryData frame) {
+    // Width - Padding.
+    final double width = frame.size.width - 40;
+    int mapIndex = 0;
+    List<Widget> containerList = map.entries.map((entry) {
+      Decoration decoration = BoxDecoration(
+        border: Border.all(color: Colors.black),
+        color: roadClassColor[entry.key],
+      );
+      if (mapIndex == 0) {
+        decoration = BoxDecoration(
+          border: Border.all(color: Colors.black),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+          color: roadClassColor[entry.key],
+        );
+      }
+      if (mapIndex == map.length - 1) {
+        decoration = BoxDecoration(
+          border: Border.all(color: Colors.black),
+          borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
+          color: roadClassColor[entry.key],
+        );
+      }
+      mapIndex++;
+      return Container(
+        height: 40,
+        width: width * (entry.value / max),
+        decoration: decoration,
+        );
+    }).toList();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          children: containerList,
+        )
+      ],
+    );
+  }
+
+  _details(BuildContext context, MediaQueryData frame) {
+    Map<String, int> roadClassMap = {};
+    int roadClassMax = 0;
+    if (routing.selectedRoute != null) {
+      for (GHSegment<String> element
+          in routing.selectedRoute!.path.details.roadClass) {
+        if (element.value != null &&
+            roadClassTranslation[element.value!] != null) {
+          if (roadClassMap[roadClassTranslation[element.value!]!] != null) {
+            roadClassMap[roadClassTranslation[element.value!]!] =
+                roadClassMap[roadClassTranslation[element.value!]!]! +
+                    element.to -
+                    element.from;
+            roadClassMax += element.to - element.from;
+          } else {
+            roadClassMap[roadClassTranslation[element.value!]!] =
+                element.to - element.from;
+            roadClassMax += element.to - element.from;
+          }
+        }
+      }
+    }
     return [
       Padding(
         padding: const EdgeInsets.only(left: 20, top: 0, right: 20, bottom: 50),
@@ -113,6 +224,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               SubHeader(text: "Wegtypen", context: context),
               SubHeader(text: "Details", context: context),
             ]),
+            const SizedBox(height: 5),
+            _barWithDetails(roadClassMap, roadClassMax, frame),
+            const SizedBox(height: 5),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Höhenprofil", context: context),
@@ -190,7 +304,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         ),
                       ),
                     ),
-                    ...routing.selectedRoute != null ? _details(context) : [],
+                    ...routing.selectedRoute != null
+                        ? _details(context, frame)
+                        : [],
                     const SizedBox(
                       height: 800,
                       width: 300,
