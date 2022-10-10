@@ -1,7 +1,5 @@
 name: Distribute App to Google Play - Internal Track
 
-runs-on: self-hosted
-
 on:
   push:
     branches:
@@ -9,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - name: Build necessary docker images
