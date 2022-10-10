@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -32,6 +33,8 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -49,8 +52,14 @@ class OldAndroidHttpOverrides extends HttpOverrides {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Get backend.
+  Backend backend = Backend.production;
+  final storage = await SharedPreferences.getInstance();
+  final String? backendStr = storage.getString("priobike.settings.backend");
+  if (backendStr != null) backend = Backend.values.byName(backendStr);
+
   await setupFlutterNotifications();
-  showFlutterNotification(message);
+  showFlutterNotification(message, backend);
 
   print('Handling a background message ${message.messageId}');
 }
@@ -93,9 +102,22 @@ Future<void> setupFlutterNotifications() async {
   isFlutterLocalNotificationsInitialized = true;
 }
 
-void showFlutterNotification(RemoteMessage message) {
+void showFlutterNotification(RemoteMessage message, Backend backend) {
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
+
+  // Check environment.
+  if (message.data['environment'] == 'dev' && !kDebugMode) {
+    return;
+  }
+  if (message.data['environment'] == 'staging' &&
+      backend == Backend.production) {
+    return;
+  }
+  if (message.data['environment'] == 'production' &&
+      backend == Backend.staging) {
+    return;
+  }
 
   if (notification != null && android != null) {
     flutterLocalNotificationsPlugin.show(
@@ -109,7 +131,7 @@ void showFlutterNotification(RemoteMessage message) {
           channelDescription: channel.description,
           // TODO add a proper drawable resource to android, for now using
           //      one that already exists in example app.
-          icon: 'launch_background',
+          icon: 'icon',
         ),
       ),
     );
@@ -126,15 +148,22 @@ Future<void> main() async {
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Get backend.
+  Backend backend = Backend.production;
+  final storage = await SharedPreferences.getInstance();
+  final String? backendStr = storage.getString("priobike.settings.backend");
+  if (backendStr != null) backend = Backend.values.byName(backendStr);
+
   // Initialize Firebase here to not duplicate this action in _firebaseMessagingBackgroundHandler.
   await Firebase.initializeApp().then((value) async {
     await FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
     // Handle background messages when app is terminated or in background.
     await setupFlutterNotifications();
+    // Can not set backend in function caused by firebase format of function.
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     // Handle foreground messages when app is actively used.
     FirebaseMessaging.onMessage.listen((message) async {
-      showFlutterNotification(message);
+      showFlutterNotification(message, backend);
       print('Handling a foreground message ${message.messageId}');
     });
   });
