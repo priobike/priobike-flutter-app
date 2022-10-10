@@ -374,6 +374,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// Load the map layers.
   Future<void> loadLayers() async {
+    if (mapController == null) return;
+
     // Load the map features.
     geoFeatureLoader = GeoFeatureLoader(mapController!);
     await geoFeatureLoader!.removeFeatures();
