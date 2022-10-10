@@ -43,6 +43,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

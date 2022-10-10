@@ -49,7 +49,6 @@ class OldAndroidHttpOverrides extends HttpOverrides {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
   await setupFlutterNotifications();
   showFlutterNotification(message);
 
@@ -127,7 +126,18 @@ Future<void> main() async {
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Initialize Firebase here to not duplicate this action in _firebaseMessagingBackgroundHandler.
+  await Firebase.initializeApp().then((value) async {
+    await FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
+    // Handle background messages when app is terminated or in background.
+    await setupFlutterNotifications();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // Handle foreground messages when app is actively used.
+    FirebaseMessaging.onMessage.listen((message) async {
+      showFlutterNotification(message);
+      print('Handling a foreground message ${message.messageId}');
+    });
+  });
 
   // Load offline map tiles.
   await AppMap.loadOfflineTiles();
