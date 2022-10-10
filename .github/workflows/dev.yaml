@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build necessary docker images
-        run: docker build -t fastlane -f ${PWD}/Dockerfile.fastlane /home/jenkins/
+        run: docker build -t fastlane -f ${PWD}/Dockerfile.fastlane .
       - name: Run unit tests
         run: docker run --rm -v ${PWD}/.netrc:${HOME}/.netrc -v ${PWD}:/app -w /app cirrusci/flutter:2.10.5 /bin/bash -c "flutter pub get && flutter test"
       - name: Build the Android app bundle
