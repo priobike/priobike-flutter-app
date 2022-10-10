@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: app-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: build/app/outputs/bundle/release
 
   distribute:
     runs-on: self-hosted
@@ -42,7 +42,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: app-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: build/app/outputs/bundle/release
       - name: Install Fastlane
         run: |
           gem install fastlane
