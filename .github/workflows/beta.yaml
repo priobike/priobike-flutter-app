@@ -3,7 +3,7 @@ name: Distribute App to Google Play - Closed Track
 on:
   push:
     branches:
-      - dev
+      - beta
 
 jobs:
   test:
