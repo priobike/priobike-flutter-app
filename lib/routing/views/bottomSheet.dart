@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/charts/height.dart';
 import 'package:provider/provider.dart';
 
 import '../services/bottomSheetState.dart';
@@ -19,6 +20,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
+
+  // The minimum bottom height of the bottomSheet
+  static double bottomSnapRatio = 0.175;
 
   @override
   void initState() {
@@ -106,19 +110,23 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             const SizedBox(height: 10),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Wegtypen", context: context), SubHeader(text: "Details", context: context),
+              SubHeader(text: "Wegtypen", context: context),
+              SubHeader(text: "Details", context: context),
             ]),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Höhenprofil", context: context), SubHeader(text: "Details", context: context),
+              SubHeader(text: "Höhenprofil", context: context),
             ]),
+            const RouteHeightChart(),
             // Route surface
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Oberflächentypen", context: context), SubHeader(text: "Details", context: context),
+              SubHeader(text: "Oberflächentypen", context: context),
+              SubHeader(text: "Details", context: context),
             ]),
             // Route instructions
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Anweisungen", context: context), SubHeader(text: "Details", context: context),
+              SubHeader(text: "Anweisungen", context: context),
+              SubHeader(text: "Details", context: context),
             ]),
           ],
         ),
@@ -136,22 +144,24 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     return SizedBox(
       height: frame.size.height,
       child: DraggableScrollableSheet(
-          initialChildSize: 0.15,
-          minChildSize: 0.15,
+          initialChildSize: bottomSnapRatio,
+          minChildSize: bottomSnapRatio,
           maxChildSize: topSnapRatio,
           snap: true,
           snapSizes: const [0.66],
           controller: bottomSheetState.draggableScrollableController,
           builder:
               (BuildContext buildContext, ScrollController scrollController) {
+            final bool isTop =
+                bottomSheetState.draggableScrollableController.size <=
+                        topSnapRatio + 0.05 &&
+                    bottomSheetState.draggableScrollableController.size >=
+                        topSnapRatio - 0.05;
             return AnimatedContainer(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.vertical(
-                  top: bottomSheetState.draggableScrollableController.size <=
-                              topSnapRatio + 0.05 &&
-                          bottomSheetState.draggableScrollableController.size >=
-                              topSnapRatio - 0.05
+                  top: isTop
                       ? const Radius.circular(0)
                       : const Radius.circular(20),
                 ),
@@ -169,14 +179,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           width: 40,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: bottomSheetState
-                                            .draggableScrollableController
-                                            .size <=
-                                        topSnapRatio + 0.05 &&
-                                    bottomSheetState
-                                            .draggableScrollableController
-                                            .size >=
-                                        topSnapRatio - 0.05
+                            color: isTop
                                 ? Theme.of(context).colorScheme.surface
                                 : Theme.of(context).colorScheme.background,
                             borderRadius: const BorderRadius.all(
@@ -227,25 +230,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                             fillColor: Theme.of(context).colorScheme.surface),
                         IconTextButton(
                             onPressed: () => _changeDetailView(topSnapRatio),
-                            label: bottomSheetState
-                                            .draggableScrollableController
-                                            .size <=
-                                        topSnapRatio + 0.05 &&
-                                    bottomSheetState
-                                            .draggableScrollableController
-                                            .size >=
-                                        topSnapRatio - 0.05
-                                ? 'Karte'
-                                : 'Details',
-                            icon: bottomSheetState.draggableScrollableController
-                                            .size <=
-                                        topSnapRatio + 0.05 &&
-                                    bottomSheetState
-                                            .draggableScrollableController
-                                            .size >=
-                                        topSnapRatio - 0.05
-                                ? Icons.map
-                                : Icons.list,
+                            label: isTop ? 'Karte' : 'Details',
+                            icon: isTop ? Icons.map : Icons.list,
                             borderColor: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.primary,
                             iconColor: Theme.of(context).colorScheme.primary,

@@ -81,14 +81,14 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     final frame = MediaQuery.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), 
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BoldContent(text: "Höhenprofil dieser Route", context: context,),
+          // BoldContent(text: "Höhenprofil dieser Route", context: context,),
           SizedBox(
             height: 128,
-            width: frame.size.width - 16,
+            width: frame.size.width,
             child: charts.LineChart(
               [series!],
               animate: true,

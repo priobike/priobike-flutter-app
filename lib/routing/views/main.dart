@@ -525,13 +525,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             routing.selectedWaypoints != null &&
                     routing.selectedWaypoints!.isNotEmpty
                 ? Positioned(
-                    bottom: frame.size.height * 0.15 + 10,
+                    bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
                     right: 20,
                     child: GPSButton(gpsCentralization: _gpsCentralization),
                   )
                 : Container(),
             routing.selectedWaypoints != null &&
-                    routing.selectedWaypoints!.isNotEmpty
+                    routing.selectedWaypoints!.length > 1
                 ? const BottomSheetDetail()
                 : Container(),
           ]),
