@@ -6,6 +6,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -17,13 +18,18 @@ class AppMap extends StatefulWidget {
 
       // await installOfflineMapTiles("assets/offline/hamburg-light.db");
       // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
-    } catch (err) {
-      Logger("AppMap").e("Failed to load offline tiles: $err");
+    } catch (err, stacktrace) {
+      final hint = "Failed to load offline tiles: $err";
+      Logger("AppMap").e(hint);
+      await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
     }
   }
 
   /// A custom location puck image.
   final String? puckImage;
+
+  /// A custom location puck image size.
+  final double puckSize;
 
   /// If dragging is enabled.
   final bool dragEnabled;
@@ -45,6 +51,7 @@ class AppMap extends StatefulWidget {
 
   const AppMap({
     this.puckImage,
+    this.puckSize = 128,
     this.dragEnabled = true,
     this.onMapCreated,
     this.onStyleLoaded,
@@ -90,7 +97,7 @@ class AppMapState extends State<AppMap> {
       myLocationTrackingMode: MyLocationTrackingMode.None,
       // Use a custom foreground image for the location puck.
       puckImage: widget.puckImage,
-      puckSize: 128,
+      puckSize: widget.puckSize,
       attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
       initialCameraPosition: CameraPosition(

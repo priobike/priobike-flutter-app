@@ -12,6 +12,7 @@ import 'package:priobike/ride/messages/navigation.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:provider/provider.dart';
@@ -79,8 +80,10 @@ class Ride with ChangeNotifier {
         log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
       }
       notifyListeners();
-    } catch (error, stacktrace) { 
-      log.e("Recommendation could not be decoded: $error $stacktrace"); 
+    } catch (error, stacktrace) {
+      final hint = "Recommendation could not be decoded: $error";
+      log.e(hint); 
+      await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
     }
   }
 
@@ -135,9 +138,10 @@ class Ride with ChangeNotifier {
       final selectRideResponse = SelectRideResponse.fromJson(json.decode(response.body));
       if (!selectRideResponse.success) throw Exception("Returned with success=false.");
       log.i("Successfully selected ride with endpoint $selectRideEndpoint: ${response.body}");
-    } catch (error) {
-      final err = "Error during select ride: $error";
-      log.e(err); ToastMessage.showError(err); throw Exception(err);
+    } catch (error, stack) {
+      final hint = "Error during select ride: $error";
+      await Sentry.captureException(error, stackTrace: stack, hint: hint);
+      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
     }
   }
 

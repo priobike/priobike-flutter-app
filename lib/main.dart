@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -35,6 +36,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -141,6 +143,8 @@ void showFlutterNotification(RemoteMessage message, Backend backend) {
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
+final log = Logger("main.dart");
+
 Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
@@ -171,26 +175,26 @@ Future<void> main() async {
   // Load offline map tiles.
   await AppMap.loadOfflineTiles();
 
-  // Load the color mode before the first view build.
-  final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
+  runZonedGuarded(() async {
+    // Initialize Sentry.
+    await SentryFlutter.init((options) {
+      // Our Sentry uses an on-premise installation.
+      options.dsn = "https://d2ab503d9cb6409aba03cac4cfa4a01c@priobike.vkw.tu-dresden.de/2";
+    });
 
-  final log = Logger("main.dart");
+    // Load offline map tiles.
+    await AppMap.loadOfflineTiles();
 
-  // Display Flutter errors and log them to the logger.
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    log.e(details.stack);
-  };
+    // Load the color mode before the first view build.
+    final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
-  // Run the app, catch errors and dispatch them to the logger.
-  runZonedGuarded(
-    () => runApp(App(initialColorMode: initialColorMode)), 
-    (error, stack) {
-      // Log the error to the console.
-      log.e(error);
-      log.e(stack);
-    }
-  );
+    runApp(App(initialColorMode: initialColorMode));
+  }, (error, stack) async {
+    // Log the error to the console.
+    log.e(error.toString());
+    log.e(stack.toString());
+    await Sentry.captureException(error, stackTrace: stack);
+  });
 }
 
 /// The main app widget.
@@ -226,6 +230,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Geocoding()),
         ChangeNotifierProvider(create: (context) => Geosearch()),
         ChangeNotifierProvider(create: (context) => Routing()),
+        ChangeNotifierProvider(create: (context) => Layers()),
         ChangeNotifierProvider(create: (context) => Session()),
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => Ride()),

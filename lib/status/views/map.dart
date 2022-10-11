@@ -247,6 +247,12 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
         minimum: const EdgeInsets.only(top: 8),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+          const SizedBox(width: 16),
+          Tile(
+            fill: Theme.of(context).colorScheme.background, 
+            padding: const EdgeInsets.all(20),
+            content: SubHeader(text: "Störungskarte", context: context),
+          ),
         ]),
       ),
       SafeArea(child: Align(

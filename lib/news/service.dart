@@ -11,6 +11,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class News with ChangeNotifier {
@@ -79,8 +80,10 @@ class News with ChangeNotifier {
         final Article article = Article.fromJson(element);
         articlesFromServer.add(article);
       });
-    } on SocketException catch (_) {
-      log.i("Not connected to the internet");
+    } on SocketException catch (e, stack) {
+      final hint = "Failed to load articles: $e";
+      log.w(hint);
+      await Sentry.captureException(e, stackTrace: stack, hint: hint);
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];
@@ -132,8 +135,10 @@ class News with ChangeNotifier {
       if (!categories.containsKey(categoryId)) categories[categoryId] = category;
 
       await _storeCategory(context, category);
-    } on SocketException catch (_) {
-      log.i("Not connected to the internet");
+    } on SocketException catch (e, stack) {
+      final hint = "Failed to load category: $e";
+      log.i(hint);
+      await Sentry.captureException(e, stackTrace: stack, hint: hint);
     }
   }
 

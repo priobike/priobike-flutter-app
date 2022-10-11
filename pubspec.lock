@@ -477,7 +477,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "32ccf42ec127c23df338d7560ca46b733c23c021"
-      url: "https://github.com/PrioBike-App/maps"
+      url: "https://github.com/priobike/priobike-flutter-mapbox"
     source: git
     version: "0.16.0"
   mapbox_gl_dart:
