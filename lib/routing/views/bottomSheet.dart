@@ -36,20 +36,20 @@ final roadClassColor = {
   "Fernstraße": const Color(0xFF90A9FF),
   "Hauptstraße": const Color(0xFF3758FF),
   "Landstraße": const Color(0xFFACC7FF),
-  "???": const Color(0xFFB74093),
+  "???": const Color(0xFFFFFFFF),
   "Wohnstraße": const Color(0xFFFFE4F8),
-  "Nicht klassifiziert": const Color(0xFFB74093),
-  "Zufahrtsstraße": const Color(0xFFB74093),
-  "Straße": const Color(0xFFB74093),
+  "Nicht klassifiziert": const Color(0xFF686868),
+  "Zufahrtsstraße": const Color(0xFF282828),
+  "Straße": const Color(0xFF282828),
   "Rennstrecke???": const Color(0xFFB74093),
-  "Reitweg": const Color(0xFFB74093),
+  "Reitweg": const Color(0xFF572B28),
   "Treppen???": const Color(0xFFB74093),
-  "Fahrradweg": const Color(0xFF0073FF),
-  "Weg": const Color(0xFFB74093),
-  "Spielstraße": const Color(0xFFB74093),
-  "Fußweg": const Color(0xFFB74093),
-  "Fußgängerzone": const Color(0xFFB74093),
-  "Bahnsteig???": const Color(0xFFB74093),
+  "Fahrradweg": const Color(0xFF993D4C),
+  "Weg": const Color(0xFF362626),
+  "Spielstraße": const Color(0xFF1A4BFF),
+  "Fußweg": const Color(0xFF8E8E8E),
+  "Fußgängerzone": const Color(0xFF192765),
+  "Bahnsteig???": const Color(0xFF2A0029),
   "Korridor??": const Color(0xFFB74093),
   "Sonstiges": const Color(0xFFB74093)
 };
@@ -68,8 +68,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
 
-  // The minimum bottom height of the bottomSheet
+  /// The minimum bottom height of the bottomSheet
   static double bottomSnapRatio = 0.175;
+
+  /// The details state of road class.
+  bool showRoadClassDetails = false;
 
   @override
   void initState() {
@@ -104,13 +107,46 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         curve: Curves.easeOutCubic);
   }
 
-  _barWithDetails(Map<String, int> map, int max, MediaQueryData frame) {
+  _detailRow(BuildContext context, String key, double value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.5),
+      child: Row(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            decoration: BoxDecoration(
+                color: roadClassColor[key],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black)),
+          ),
+          const SizedBox(width: 10),
+          Content(text: key, context: context),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Content(
+                  text: value.toStringAsFixed(2) + "%", context: context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _barWithDetails(BuildContext context, Map<String, int> map, int max,
+      MediaQueryData frame, bool expanded) {
     // Width - Padding.
     final double width = frame.size.width - 40;
     int mapIndex = 0;
-    List<Widget> containerList = map.entries.map((entry) {
+    List<Widget> detailsList = [];
+    List<Widget> containerList = [];
+    for (var entry in map.entries) {
       Decoration decoration = BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: const Border(
+            top: BorderSide(color: Colors.black),
+            bottom: BorderSide(color: Colors.black),
+            right: BorderSide(color: Colors.black)),
         color: roadClassColor[entry.key],
       );
       if (mapIndex == 0) {
@@ -129,20 +165,42 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           color: roadClassColor[entry.key],
         );
       }
+      if (mapIndex == map.length - 2) {
+        decoration = BoxDecoration(
+          border: const Border(
+            top: BorderSide(color: Colors.black),
+            bottom: BorderSide(color: Colors.black),
+          ),
+          color: roadClassColor[entry.key],
+        );
+      }
       mapIndex++;
-      return Container(
+      containerList.add(Container(
         height: 40,
         width: width * (entry.value / max),
         decoration: decoration,
-        );
-    }).toList();
+      ));
+      detailsList
+          .add(_detailRow(context, entry.key, (entry.value / max) * 100));
+    }
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
           children: containerList,
-        )
+        ),
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 300),
+          firstChild: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            child: Column(
+              children: detailsList,
+            ),
+          ),
+          secondChild: Container(),
+          crossFadeState: expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+        ),
       ],
     );
   }
@@ -222,11 +280,25 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
-              SubHeader(text: "Details", context: context),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showRoadClassDetails = !showRoadClassDetails;
+                  });
+                },
+                child: Row(children: [
+                  Content(text: "Details", context: context),
+                  const SizedBox(width: 5),
+                  showRoadClassDetails
+                      ? const Icon(Icons.keyboard_arrow_down_sharp)
+                      : const Icon(Icons.keyboard_arrow_up_sharp)
+                ]),
+              ),
             ]),
             const SizedBox(height: 5),
-            _barWithDetails(roadClassMap, roadClassMax, frame),
-            const SizedBox(height: 5),
+            _barWithDetails(context, roadClassMap, roadClassMax, frame,
+                showRoadClassDetails),
+            const SizedBox(height: 10),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Höhenprofil", context: context),
