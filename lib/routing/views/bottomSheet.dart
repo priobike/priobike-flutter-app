@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
+import 'package:priobike/routing/views/instructions.dart';
 import 'package:provider/provider.dart';
 
 import '../services/bottomSheetState.dart';
@@ -136,6 +137,10 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic);
       return;
+    }
+
+    if (bottomSheetState.listController != null) {
+      bottomSheetState.listController!.jumpTo(0);
     }
     bottomSheetState.draggableScrollableController.animateTo(0.15,
         duration: const Duration(milliseconds: 250),
@@ -348,17 +353,28 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   });
                 },
                 child: Row(children: [
-                  Content(text: "Details", context: context),
+                  Content(
+                    text: "Details",
+                    context: context,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(width: 5),
                   showRoadClassDetails
-                      ? const Icon(Icons.keyboard_arrow_down_sharp)
-                      : const Icon(Icons.keyboard_arrow_up_sharp)
+                      ? Icon(Icons.keyboard_arrow_down_sharp,
+                          color: Theme.of(context).colorScheme.primary)
+                      : Icon(Icons.keyboard_arrow_up_sharp,
+                          color: Theme.of(context).colorScheme.primary)
                 ]),
               ),
             ]),
             const SizedBox(height: 5),
             _barWithDetails(context, roadClassMap, roadClassMax, frame,
                 showRoadClassDetails, roadClassColor),
+            const SizedBox(height: 10),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              SubHeader(text: "Safety Score", context: context),
+              SubHeader(text: "Info", context: context),
+            ]),
             const SizedBox(height: 10),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -375,11 +391,21 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   });
                 },
                 child: Row(children: [
-                  Content(text: "Details", context: context),
+                  Content(
+                    text: "Details",
+                    context: context,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(width: 5),
                   showSurfaceDetails
-                      ? const Icon(Icons.keyboard_arrow_down_sharp)
-                      : const Icon(Icons.keyboard_arrow_up_sharp)
+                      ? Icon(
+                          Icons.keyboard_arrow_down_sharp,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : Icon(
+                          Icons.keyboard_arrow_up_sharp,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
                 ]),
               ),
             ]),
@@ -388,10 +414,22 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 showSurfaceDetails, surfaceColor),
             const SizedBox(height: 10),
             // Route instructions
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Anweisungen", context: context),
-              SubHeader(text: "Details", context: context),
-            ]),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                // Opens instruction page.
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const InstructionsView(),
+                  ),
+                );
+              },
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: SubHeader(text: "Anweisungen", context: context),
+              ),
+            ),
           ],
         ),
       ),
