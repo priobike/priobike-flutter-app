@@ -57,8 +57,8 @@ dependencies:
   charts_flutter: ^0.12.0 # Display minimalistic charts 
   share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
-  firebase_messaging: ^13.0.4 #Used for push notifications of news
-  flutter_local_notifications: ^12.0.0 #Used to show the push notifications
+  firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
+  flutter_local_notifications: ^12.0.0 # Used to show the push notifications
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons
