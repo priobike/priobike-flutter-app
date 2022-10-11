@@ -199,7 +199,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             ),
           ),
           secondChild: Container(),
-          crossFadeState: expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          crossFadeState:
+              expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
         ),
       ],
     );
@@ -343,6 +344,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         topSnapRatio + 0.05 &&
                     bottomSheetState.draggableScrollableController.size >=
                         topSnapRatio - 0.05;
+            // Set the listController once
+            bottomSheetState.listController ??= scrollController;
             return AnimatedContainer(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
@@ -405,9 +408,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconTextButton(
-                            onPressed: () {},
-                            label: 'Starten',
-                            icon: Icons.navigation),
+                          onPressed: () {},
+                          label: 'Starten',
+                          icon: Icons.navigation,
+                          iconColor: Colors.white,
+                        ),
                         IconTextButton(
                             onPressed: () {},
                             label: 'Speichern',

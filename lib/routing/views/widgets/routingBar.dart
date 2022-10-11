@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/search.dart';
@@ -55,6 +56,9 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
+  /// The associated bottomSheetState service, which is injected by the provider.
+  late BottomSheetState bottomSheetState;
+
   /// The currently fetched address.
   Waypoint? currentLocationWaypoint;
 
@@ -67,6 +71,7 @@ class RoutingBarState extends State<RoutingBar> {
     routing = Provider.of<Routing>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
+    bottomSheetState = Provider.of<BottomSheetState>(context);
     updateWaypoint();
     updateRoutingBarItems();
 
@@ -319,8 +324,12 @@ class RoutingBarState extends State<RoutingBar> {
                 child: AppBackButton(
                     icon: Icons.chevron_left_rounded,
                     onPressed: () {
+                      // Reset everything.
                       routing.reset();
-                      // only in SearchRoutingView
+                      bottomSheetState.listController = null;
+                      bottomSheetState.draggableScrollableController.reset();
+
+                      // Only in SearchRoutingView.
                       if (widget.fromRoutingSearch) {
                         Navigator.of(context).pop();
                       }

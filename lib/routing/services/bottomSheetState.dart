@@ -8,6 +8,9 @@ class BottomSheetState with ChangeNotifier {
   DraggableScrollableController draggableScrollableController =
       DraggableScrollableController();
 
+  /// The draggableScrollableController used for DraggableScrollView and ListView in BottomSheet
+  ScrollController? listController;
+
   BottomSheetState();
 
   void setShowRoutingBar() {

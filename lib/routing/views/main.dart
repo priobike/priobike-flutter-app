@@ -373,6 +373,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     bottomSheetState.draggableScrollableController.animateTo(0.15,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic);
+    if (bottomSheetState.listController  != null) {
+      bottomSheetState.listController!.jumpTo(0);
+    }
   }
 
   @override
