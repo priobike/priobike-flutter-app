@@ -31,6 +31,22 @@ final roadClassTranslation = {
   "other": "Sonstiges"
 };
 
+final surfaceTranslation = {
+  "asphalt": "Asphalt",
+  "cobblestone": "Kopfsteinpflaster",
+  "compacted": "Fester Boden",
+  "concrete": "Beton",
+  "dirt": "Erde",
+  "fine_gravel": "Feiner Kies",
+  "grass": "Graß",
+  "gravel": "Kies",
+  "ground": "Boden",
+  "other": "Sonstiges",
+  "paving_stones": "Pflastersteine",
+  "sand": "Sand",
+  "unpaved": "Unbefestigter Boden",
+};
+
 final roadClassColor = {
   "Autobahn": const Color(0xFF5B81FF),
   "Fernstraße": const Color(0xFF90A9FF),
@@ -54,6 +70,22 @@ final roadClassColor = {
   "Sonstiges": const Color(0xFFB74093)
 };
 
+final surfaceColor = {
+  "Asphalt": const Color(0xFF5B81FF),
+  "Kopfsteinpflaster": const Color(0xFF688DFF),
+  "Fester Boden": const Color(0xFF6E8EFA),
+  "Beton": const Color(0xFF7394FF),
+  "Erde": const Color(0xFF7F9EFF),
+  "Feiner Kies": const Color(0xFFA1B7F8),
+  "Graß": const Color(0xFFAFC3FF),
+  "Kies": const Color(0xFFB6C5FA),
+  "Boden": const Color(0xFFDEE5FD),
+  "Sonstiges": const Color(0xFFF0F4FF),
+  "Pflastersteine": const Color(0xFFFFFFFF),
+  "Sand": const Color(0xFFC2C2C2),
+  "Unbefestigter Boden": const Color(0xFFA0A0A0),
+};
+
 class BottomSheetDetail extends StatefulWidget {
   const BottomSheetDetail({Key? key}) : super(key: key);
 
@@ -73,6 +105,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// The details state of road class.
   bool showRoadClassDetails = false;
+
+  /// The details state of road class.
+  bool showSurfaceDetails = false;
 
   @override
   void initState() {
@@ -107,7 +142,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         curve: Curves.easeOutCubic);
   }
 
-  _detailRow(BuildContext context, String key, double value) {
+  _detailRow(BuildContext context, String key, double value,
+      Map<String, Color> colorTranslation) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.5),
       child: Row(
@@ -116,7 +152,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             height: 20,
             width: 20,
             decoration: BoxDecoration(
-                color: roadClassColor[key],
+                color: colorTranslation[key],
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.black)),
           ),
@@ -134,8 +170,13 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _barWithDetails(BuildContext context, Map<String, int> map, int max,
-      MediaQueryData frame, bool expanded) {
+  _barWithDetails(
+      BuildContext context,
+      Map<String, int> map,
+      int max,
+      MediaQueryData frame,
+      bool expanded,
+      Map<String, Color> colorTranslation) {
     // Width - Padding.
     final double width = frame.size.width - 40;
     int mapIndex = 0;
@@ -147,14 +188,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             top: BorderSide(color: Colors.black),
             bottom: BorderSide(color: Colors.black),
             right: BorderSide(color: Colors.black)),
-        color: roadClassColor[entry.key],
+        color: colorTranslation[entry.key],
       );
       if (mapIndex == 0) {
         decoration = BoxDecoration(
           border: Border.all(color: Colors.black),
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-          color: roadClassColor[entry.key],
+          color: colorTranslation[entry.key],
         );
       }
       if (mapIndex == map.length - 1) {
@@ -162,7 +203,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           border: Border.all(color: Colors.black),
           borderRadius: const BorderRadius.only(
               topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
-          color: roadClassColor[entry.key],
+          color: colorTranslation[entry.key],
         );
       }
       if (mapIndex == map.length - 2) {
@@ -171,7 +212,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             top: BorderSide(color: Colors.black),
             bottom: BorderSide(color: Colors.black),
           ),
-          color: roadClassColor[entry.key],
+          color: colorTranslation[entry.key],
         );
       }
       mapIndex++;
@@ -180,8 +221,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         width: width * (entry.value / max),
         decoration: decoration,
       ));
-      detailsList
-          .add(_detailRow(context, entry.key, (entry.value / max) * 100));
+      detailsList.add(_detailRow(
+          context, entry.key, (entry.value / max) * 100, colorTranslation));
     }
 
     return Column(
@@ -208,7 +249,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   _details(BuildContext context, MediaQueryData frame) {
     Map<String, int> roadClassMap = {};
+    Map<String, int> surfaceMap = {};
     int roadClassMax = 0;
+    int surfaceMax = 0;
     if (routing.selectedRoute != null) {
       for (GHSegment<String> element
           in routing.selectedRoute!.path.details.roadClass) {
@@ -224,6 +267,23 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             roadClassMap[roadClassTranslation[element.value!]!] =
                 element.to - element.from;
             roadClassMax += element.to - element.from;
+          }
+        }
+      }
+      for (GHSegment<String> element
+          in routing.selectedRoute!.path.details.surface) {
+        if (element.value != null &&
+            surfaceTranslation[element.value!] != null) {
+          if (surfaceMap[surfaceTranslation[element.value!]!] != null) {
+            surfaceMap[surfaceTranslation[element.value!]!] =
+                surfaceMap[surfaceTranslation[element.value!]!]! +
+                    element.to -
+                    element.from;
+            surfaceMax += element.to - element.from;
+          } else {
+            surfaceMap[surfaceTranslation[element.value!]!] =
+                element.to - element.from;
+            surfaceMax += element.to - element.from;
           }
         }
       }
@@ -298,7 +358,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             ]),
             const SizedBox(height: 5),
             _barWithDetails(context, roadClassMap, roadClassMax, frame,
-                showRoadClassDetails),
+                showRoadClassDetails, roadClassColor),
             const SizedBox(height: 10),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -308,8 +368,25 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             // Route surface
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Oberflächentypen", context: context),
-              SubHeader(text: "Details", context: context),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showSurfaceDetails = !showSurfaceDetails;
+                  });
+                },
+                child: Row(children: [
+                  Content(text: "Details", context: context),
+                  const SizedBox(width: 5),
+                  showSurfaceDetails
+                      ? const Icon(Icons.keyboard_arrow_down_sharp)
+                      : const Icon(Icons.keyboard_arrow_up_sharp)
+                ]),
+              ),
             ]),
+            const SizedBox(height: 5),
+            _barWithDetails(context, surfaceMap, surfaceMax, frame,
+                showSurfaceDetails, surfaceColor),
+            const SizedBox(height: 10),
             // Route instructions
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Anweisungen", context: context),
