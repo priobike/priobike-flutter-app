@@ -107,8 +107,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of road class.
   bool showRoadClassDetails = false;
 
-  /// The details state of road class.
+  /// The details state of surface.
   bool showSurfaceDetails = false;
+
+  /// The details state of safety.
+  bool showSafetyDetails = false;
 
   @override
   void initState() {
@@ -252,6 +255,57 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  _dotRow() {
+    return Row(
+      children: [
+        Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          height: 10,
+          width: 10,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ],
+    );
+  }
+
   _details(BuildContext context, MediaQueryData frame) {
     Map<String, int> roadClassMap = {};
     Map<String, int> surfaceMap = {};
@@ -372,9 +426,110 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 showRoadClassDetails, roadClassColor),
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Safety Score", context: context),
-              SubHeader(text: "Info", context: context),
+              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Icon(Icons.security,
+                    color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 5),
+                Content(text: "2,5", context: context),
+                const SizedBox(width: 10),
+                const Icon(Icons.traffic),
+                Content(text: "4", context: context),
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showSafetyDetails = !showSafetyDetails;
+                      });
+                    },
+                    child: Row(children: [
+                      Content(
+                        text: "Details",
+                        context: context,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 5),
+                      showSafetyDetails
+                          ? Icon(
+                              Icons.keyboard_arrow_down_sharp,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : Icon(
+                              Icons.keyboard_arrow_up_sharp,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                    ]),
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    onPressed: () {
+                      print("open info dialog");
+                    },
+                  )
+                ],
+              )
             ]),
+            const SizedBox(height: 5),
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              firstChild: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.brightness ==
+                                Brightness.dark
+                            ? Colors.white
+                            : Colors.black),
+                  ),
+                  width: frame.size.width,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            BoldContent(text: "Verkehr", context: context),
+                            _dotRow(),
+                          ],
+                        ),
+                      ),Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            BoldContent(text: "Steigung", context: context),
+                            _dotRow(),
+                          ],
+                        ),
+                      ),Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            BoldContent(text: "Gefahrenstellen", context: context),
+                            _dotRow(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              secondChild: Container(),
+              crossFadeState: showSafetyDetails
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond,
+            ),
             const SizedBox(height: 10),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -497,10 +652,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     ...routing.selectedRoute != null
                         ? _details(context, frame)
                         : [],
-                    const SizedBox(
-                      height: 800,
-                      width: 300,
-                    )
                   ],
                 ),
                 Positioned(
