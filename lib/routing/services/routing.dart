@@ -8,6 +8,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -15,6 +16,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 enum RoutingProfile {
   bikeDefault, // Bike doesn't consider elevation data.
@@ -194,8 +196,10 @@ class Routing with ChangeNotifier {
             "Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
         return null;
       }
-    } catch (e) {
-      log.e("Failed to load SG-Selector response: $e");
+    } catch (e, stack) {
+      final hint = "Failed to load SG-Selector response: $e";
+      log.e(hint);
+      await Sentry.captureException(e, stackTrace: stack, hint: hint);
       return null;
     }
   }
@@ -282,7 +286,9 @@ class Routing with ChangeNotifier {
         return null;
       }
     } catch (e, stacktrace) {
-      log.e("Failed to load GraphHopper response: $e $stacktrace");
+      final hint = "Failed to load GraphHopper response: $e";
+      log.e(hint);
+      await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
       return null;
     }
   }
@@ -333,7 +339,20 @@ class Routing with ChangeNotifier {
     // Create the routes.
     final routes = ghResponse.paths.asMap().map((i, path) {
       final sgSelectorResponse = sgSelectorResponses[i]!;
-      var route = r.Route(path: path, route: sgSelectorResponse.route, signalGroups: sgSelectorResponse.signalGroups);
+      final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+      for (final waypoint in sgSelectorResponse.route) {
+        if (waypoint.signalGroupId == null) continue;
+        final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+        if (sg == null) continue;
+        if (sgsInOrderOfRoute.contains(sg)) continue;
+        sgsInOrderOfRoute.add(sg);
+      }
+      var route = r.Route(
+        path: path, 
+        route: sgSelectorResponse.route, 
+        signalGroups: sgsInOrderOfRoute,
+        crossings: sgSelectorResponse.crossings,
+      );
       // Connect the route to the start and end points.
       route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
       return MapEntry(i, route);
@@ -348,7 +367,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, routes.first.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, routes.first.signalGroups.values.toList());
+    await status.fetch(context, routes.first.signalGroups, routes.first.crossings);
 
     notifyListeners();
     return routes;
@@ -364,7 +383,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, route.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, route.signalGroups.values.toList());
+    await status.fetch(context, route.signalGroups, route.crossings);
 
     notifyListeners();
   }

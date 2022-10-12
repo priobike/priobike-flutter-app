@@ -24,8 +24,7 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
-      return;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {

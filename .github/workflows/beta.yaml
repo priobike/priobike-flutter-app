@@ -1,0 +1,52 @@
+name: Distribute App to Google Play - Closed Track
+
+on:
+  push:
+    branches:
+      - beta
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container: cirrusci/flutter:2.10.5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests
+        run: |
+          flutter pub get
+          flutter test
+
+  build:
+    runs-on: self-hosted
+    needs: test
+    container: cirrusci/flutter:2.10.5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Android app bundle
+        run: |
+          flutter pub get
+          flutter build appbundle
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-bundle
+          path: build/app/outputs/bundle/release
+
+  distribute:
+    runs-on: self-hosted
+    needs: build
+    container: ruby
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: app-bundle
+          path: build/app/outputs/bundle/release
+      - name: Install Fastlane
+        run: |
+          gem install fastlane
+      - name: Distribute via Fastlane
+        run: |
+          cd android
+          fastlane closed

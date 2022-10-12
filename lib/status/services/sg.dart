@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
@@ -9,6 +10,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
   /// The logger for this service.
@@ -32,13 +34,16 @@ class PredictionSGStatus with ChangeNotifier {
   /// The number of sgs that have a bad quality.
   int bad = 0;
 
+  /// The number of disconnected sgs.
+  int disconnected = 0;
+
   PredictionSGStatus() {
     log.i("PredictionSGStatus started.");
   }
 
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route. 
-  Future<void> fetch(BuildContext context, List<Sg> sgs) async {
+  Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
     if (isLoading) return;
 
     final settings = Provider.of<Settings>(context, listen: false);
@@ -48,7 +53,7 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
 
     for (final sg in sgs) {
-      if (cache.containsKey(sg.label)) {
+      if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
         final lastFetched = cache[sg.id]!.statusUpdateTime;
         if (now - lastFetched < 5 * 60) continue;
@@ -69,8 +74,10 @@ class PredictionSGStatus with ChangeNotifier {
 
         final data = SGStatusData.fromJson(jsonDecode(response.body));
         cache[sg.id] = data;
-      } catch (e) {
-        log.w("Error while fetching prediction status: $e");
+      } catch (e, stack) {
+        final hint = "Error while fetching prediction status: $e";
+        log.w(hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
 
@@ -89,6 +96,8 @@ class PredictionSGStatus with ChangeNotifier {
         case SGPredictionState.bad: bad++; break;
       }
     }
+
+    disconnected = crossings.where((c) => !c.connected).length;
 
     isLoading = false;
     notifyListeners();

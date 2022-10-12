@@ -7,6 +7,7 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -18,10 +19,18 @@ class AppMap extends StatefulWidget {
 
       // await installOfflineMapTiles("assets/offline/hamburg-light.db");
       // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
-    } catch (err) {
-      Logger("AppMap").e("Failed to load offline tiles: $err");
+    } catch (err, stacktrace) {
+      final hint = "Failed to load offline tiles: $err";
+      Logger("AppMap").e(hint);
+      await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
     }
   }
+
+  /// A custom location puck image.
+  final String? puckImage;
+
+  /// A custom location puck image size.
+  final double puckSize;
 
   /// If dragging is enabled.
   final bool dragEnabled;
@@ -46,17 +55,19 @@ class AppMap extends StatefulWidget {
   /// The myLocationTrackingMode
   final MyLocationTrackingMode? myLocationTrackingMode;
 
-  const AppMap(
-      {this.dragEnabled = true,
-      this.onMapCreated,
-      this.onStyleLoaded,
-      this.onCameraIdle,
-      this.onMapLongClick,
-      this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
-      this.onCameraTrackingDismissed,
-      this.myLocationTrackingMode,
-      Key? key})
-      : super(key: key);
+  const AppMap({
+    this.puckImage,
+    this.puckSize = 128,
+    this.dragEnabled = true,
+    this.onMapCreated,
+    this.onStyleLoaded,
+    this.onCameraIdle,
+    this.onMapLongClick,
+    this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
+    this.onCameraTrackingDismissed,
+    this.myLocationTrackingMode,
+    Key? key
+  }) : super(key: key);
 
   @override
   AppMapState createState() => AppMapState();
@@ -94,12 +105,18 @@ class AppMapState extends State<AppMap> {
       onMapLongClick: widget.onMapLongClick,
       onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       attributionButtonPosition: widget.attributionButtonPosition,
-      // Point on the test location center, which is Dresden or Hamburg.
-      initialCameraPosition: CameraPosition(
-          target: settings.backend.center, tilt: 0, zoom: 11, bearing: 0),
       myLocationEnabled: true,
       myLocationTrackingMode: widget.myLocationTrackingMode ?? MyLocationTrackingMode.None,
       myLocationRenderMode: MyLocationRenderMode.GPS,
+      // Use a custom foreground image for the location puck.
+      puckImage: widget.puckImage,
+      puckSize: widget.puckSize,
+      // Point on the test location center, which is Dresden or Hamburg.
+      initialCameraPosition: CameraPosition(
+        target: settings.backend.center,
+        tilt: 0,
+        zoom: 12
+      ),
     );
   }
 }

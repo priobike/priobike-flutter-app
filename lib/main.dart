@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -14,7 +15,6 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/news/service.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
@@ -32,6 +32,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a
 /// HTTP error due to an expired certificate. This certificate lies within
@@ -48,6 +49,8 @@ class OldAndroidHttpOverrides extends HttpOverrides {
   }
 }
 
+final log = Logger("main.dart");
+
 Future<void> main() async {
   HttpOverrides.global = OldAndroidHttpOverrides();
 
@@ -55,26 +58,25 @@ Future<void> main() async {
   // loading something from the shared preferences + mapbox tiles.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load offline map tiles.
-  await AppMap.loadOfflineTiles();
+  runZonedGuarded(() async {
+    // Initialize Sentry.
+    await SentryFlutter.init((options) {
+      // Our Sentry uses an on-premise installation.
+      options.dsn = "https://d2ab503d9cb6409aba03cac4cfa4a01c@priobike.vkw.tu-dresden.de/2";
+    });
 
-  // Load the color mode before the first view build.
-  final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
+    // Load offline map tiles.
+    await AppMap.loadOfflineTiles();
 
-  final log = Logger("main.dart");
+    // Load the color mode before the first view build.
+    final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
-  // Display Flutter errors and log them to the logger.
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    log.e(details.stack);
-  };
-
-  // Run the app, catch errors and dispatch them to the logger.
-  runZonedGuarded(() => runApp(App(initialColorMode: initialColorMode)),
-      (error, stack) {
+    runApp(App(initialColorMode: initialColorMode));
+  }, (error, stack) async {
     // Log the error to the console.
-    log.e(error);
-    log.e(stack);
+    log.e(error.toString());
+    log.e(stack.toString());
+    await Sentry.captureException(error, stackTrace: stack);
   });
 }
 
@@ -111,9 +113,9 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Geocoding()),
         ChangeNotifierProvider(create: (context) => Geosearch()),
         ChangeNotifierProvider(create: (context) => Routing()),
+        ChangeNotifierProvider(create: (context) => Layers()),
         ChangeNotifierProvider(create: (context) => Session()),
         ChangeNotifierProvider(create: (context) => Positioning()),
-        ChangeNotifierProvider(create: (context) => PositionEstimator()),
         ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),

@@ -11,7 +11,6 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -21,16 +20,16 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/routing/views/routeSearch.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/routing/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
-import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/routing/views/layers.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'widgets/ZoomInAndOutButton.dart';
 
 class RoutingViewNew extends StatefulWidget {
   const RoutingViewNew({Key? key}) : super(key: key);
@@ -114,11 +113,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
-    final settingsService = Provider.of<Settings>(context, listen: false);
-    final nextView = settingsService.ridePreference == null
-        ? const RideSelectionView() // Need to select a ride preference.
-        : const RideView();
-
     void startRide() =>
         Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           // Avoid navigation back, only allow stop button to be pressed.
@@ -126,7 +120,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           // the result handler of the RouteView's host.
           return WillPopScope(
             onWillPop: () async => false,
-            child: nextView,
+            child: const RideSelectionView(),
           );
         }));
 
@@ -164,6 +158,19 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         ),
       );
     }
+  }
+
+  /// A callback that is fired when the user wants to select the displayed layers.
+  void onLayerSelection() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor:
+          Theme.of(context).colorScheme.background.withOpacity(0.95),
+      builder: (_) => const LayerSelectionView(),
+    );
   }
 
   /// A callback that is fired when the shortcut should be saved but a name is required.
@@ -518,6 +525,22 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                             zoomIn: _zoomIn, zoomOut: _zoomOut),
                                         const SizedBox(height: 10),
                                         FilterButton(profileService: profile),
+                                        // SizedBox(
+                                        //   width: 58,
+                                        //   height: 58,
+                                        //   child: Tile(
+                                        //     fill: Theme.of(context)
+                                        //         .colorScheme
+                                        //         .background,
+                                        //     onPressed: onLayerSelection,
+                                        //     content: Icon(
+                                        //       Icons.layers,
+                                        //       color: Theme.of(context)
+                                        //           .colorScheme
+                                        //           .onBackground,
+                                        //     ),
+                                        //   ),
+                                        // )
                                       ]),
                                 ]),
                           )
@@ -529,7 +552,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             routing.selectedWaypoints != null &&
                     routing.selectedWaypoints!.isNotEmpty
                 ? Positioned(
-                    bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
+                    bottom: frame.size.height *
+                            BottomSheetDetailState.bottomSnapRatio +
+                        10,
                     right: 20,
                     child: GPSButton(gpsCentralization: _gpsCentralization),
                   )

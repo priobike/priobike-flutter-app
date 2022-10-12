@@ -9,6 +9,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Geosearch with ChangeNotifier {
   /// The logger for this service.
@@ -74,13 +75,14 @@ class Geosearch with ChangeNotifier {
         e.lat, e.lon, address: e.displayName
       )).toList();
       notifyListeners();
-    } catch (e) {
+    } catch (e, stack) {
       isFetchingAddress = false;
       notifyListeners();
       hadErrorDuringFetch = true;
       notifyListeners();
-      final err = "Addresses could not be fetched: $e";
-      log.e(err); ToastMessage.showError(err); throw Exception(err);
+      final hint = "Addresses could not be fetched: $e";
+      await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
     }
   }
 

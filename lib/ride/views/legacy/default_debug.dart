@@ -35,7 +35,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
         points.add(LatLng(point.lat, point.lon));
       }
 
-      for (var sg in routing.selectedRoute!.signalGroups.values) {
+      for (var sg in routing.selectedRoute!.signalGroups) {
         trafficLights.add(
           Marker(
             point: LatLng(sg.position.lat, sg.position.lon),

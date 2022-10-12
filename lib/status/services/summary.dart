@@ -8,6 +8,7 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionStatusSummary with ChangeNotifier {
   /// The logger for this service.
@@ -65,12 +66,13 @@ class PredictionStatusSummary with ChangeNotifier {
       isLoading = false;
       hadError = false;
       notifyListeners();
-    } catch (e) {
+    } catch (e, stack) {
       isLoading = false;
       hadError = true;
       notifyListeners();
-      final err = "Error while fetching prediction status: $e";
-      log.e(err); ToastMessage.showError(err); throw Exception(err);
+      final hint = "Error while fetching prediction status: $e";
+      Sentry.captureException(e, stackTrace: stack, hint: hint);
+      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
     }
   }
 

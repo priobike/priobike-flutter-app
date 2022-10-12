@@ -1,0 +1,18 @@
+name: Run unit tests
+
+on:
+  pull_request:
+    branches:
+      - beta
+      - dev
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container: cirrusci/flutter:2.10.5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests
+        run: |
+          flutter pub get
+          flutter test

@@ -76,7 +76,7 @@ class AppBackButton extends StatelessWidget {
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
           child: Icon(
             icon,
             size: 32,

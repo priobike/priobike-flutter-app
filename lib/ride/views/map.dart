@@ -1,18 +1,21 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
-import 'package:priobike/ride/algorithms/sma.dart';
-import 'package:priobike/positioning/services/estimator.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
-import 'package:priobike/ride/views/position.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -31,11 +34,14 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated position estimator service, which is injected by the provider.
-  late PositionEstimator positionEstimator;
+  /// The associated snapping service, which is injected by the provider.
+  late Snapping snapping;
 
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
+
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -49,17 +55,19 @@ class RideMapViewState extends State<RideMapView> {
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
 
+  /// The offline crossings that are displayed, if there are offline crossings on the route.
+  List<Symbol>? offlineCrossings;
+
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
 
-  /// A SMA for the zoom.
-  final zoomSMA = SMA(k: PositionEstimator.refreshRateHz * 5 /* seconds */);
-
   @override
   void didChangeDependencies() {
+    settings = Provider.of<Settings>(context);
+
     routing = Provider.of<Routing>(context);
     if (routing.needsLayout[viewId] != false && mapController != null) {
       onRoutingUpdate();
@@ -72,10 +80,10 @@ class RideMapViewState extends State<RideMapView> {
       ride.needsLayout[viewId] = false;
     }
 
-    positionEstimator = Provider.of<PositionEstimator>(context);
-    if (positionEstimator.needsLayout[viewId] != false && mapController != null) {
-      onPositionEstimatorUpdate();
-      positionEstimator.needsLayout[viewId] = false;
+    snapping = Provider.of<Snapping>(context);
+    if (snapping.needsLayout[viewId] != false && mapController != null) {
+      onSnappingUpdate();
+      snapping.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -85,12 +93,13 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onRoutingUpdate() async {
     await loadRouteLayer();
     await loadTrafficLightMarkers();
+    await loadOfflineCrossingMarkers();
     await loadWaypointMarkers();
   }
 
   /// Update the view with the current data.
-  Future<void> onPositionEstimatorUpdate() async {
-    await adaptMapController();
+  Future<void> onSnappingUpdate() async {
+    await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
@@ -102,9 +111,9 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> loadRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
     if (mapController == null) return;
-    // Remove the existing route layer.
-    if (route != null) await mapController!.removeLine(route!);
-    if (routeBackground != null) await mapController!.removeLine(routeBackground!);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldRoute = route;
+    final oldRouteBackground = routeBackground;
     if (routing.selectedRoute == null) return;
     // Add the new route layer.
     routeBackground = await mapController!.addLine(
@@ -121,32 +130,94 @@ class RideMapViewState extends State<RideMapView> {
       ),
       routing.selectedRoute!.toJson(),
     );
+    // Remove the old route layer.
+    if (oldRoute != null) await mapController!.removeLine(oldRoute);
+    if (oldRouteBackground != null) await mapController!.removeLine(oldRouteBackground);
   }
 
   /// Load the current traffic lights.
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
-
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
-
-    // Remove all existing layers.
-    await mapController!.removeSymbols(trafficLights ?? []);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldTrafficLights = trafficLights;
     // Create a new traffic light marker for each traffic light.
     trafficLights = [];
-    for (Sg sg in routing.selectedRoute?.signalGroups.values ?? []) {
-      trafficLights!.add(await mapController!.addSymbol(
-        TrafficLightOffMarker(geo: LatLng(sg.position.lat, sg.position.lon), iconSize: iconSize),
+    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
+      final status = statusProvider.cache[sg.id];
+      if (status == null) {
+        trafficLights!.add(await mapController!.addSymbol(
+          OfflineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.offline) {
+        trafficLights!.add(await mapController!.addSymbol(
+          OfflineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else if (status.predictionState == SGPredictionState.bad) {
+        trafficLights!.add(await mapController!.addSymbol(
+          BadSignalMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      } else {
+        trafficLights!.add(await mapController!.addSymbol(
+          OnlineMarker(
+            iconSize: iconSize,
+            geo: LatLng(sg.position.lat, sg.position.lon),
+            label: willShowLabels ? sg.label : null,
+          ),
+        ));
+      }
+    }
+    // Remove the old traffic lights.
+    await mapController!.removeSymbols(oldTrafficLights ?? []);
+  }
+
+  /// Load the current crossings.
+  Future<void> loadOfflineCrossingMarkers() async {
+    // If we have no map controller, we cannot load the crossings.
+    if (mapController == null) return;
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldOfflineCrossings = offlineCrossings;
+    // Create a new crossing marker for each crossing.
+    offlineCrossings = [];
+    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
+    // Check the prediction status of the traffic light.
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
+      if (crossing.connected) continue;
+      offlineCrossings!.add(await mapController!.addSymbol(
+        DisconnectedMarker(
+          iconSize: iconSize,
+          geo: LatLng(crossing.position.lat, crossing.position.lon),
+          label: willShowLabels ? crossing.name : null,
+        ),
       ));
     }
+    // Remove the old crossings.
+    await mapController!.removeSymbols(oldOfflineCrossings ?? []);
   }
 
   /// Load the current waypoint markers.
   Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
     if (mapController == null) return;
-    // Remove the existing waypoint markers.
-    await mapController!.removeSymbols(waypoints ?? []);
+    // Cache the old annotations to remove them later. This avoids flickering.
+    final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
     for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
@@ -167,41 +238,80 @@ class RideMapViewState extends State<RideMapView> {
         ));
       }
     }
+    // Remove the old waypoint markers.
+    await mapController!.removeSymbols(oldWaypoints ?? []);
   }
 
-  /// Adapt the map controller.
-  Future<void> adaptMapController() async {
+  /// Adapt the map controller to a changed position.
+  Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
     if (routing.selectedRoute == null) return;
-    if (positionEstimator.estimatedPosition == null) {
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds)
-      );
-    } else {
-      // Adapt the focus dynamically to the next interesting feature.
-      final snapping = Provider.of<Snapping>(context, listen: false);
-      final distanceOfInterest = min(
-        snapping.distanceToNextTurn ?? double.infinity, 
-        snapping.distanceToNextSG ?? double.infinity,
-      );
-      // Scale the zoom level with the distance of interest.
-      // Between 0 meters: zoom 18 and 500 meters: zoom 16.
-      double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
-      zoom = zoomSMA.next(zoom);
 
-      // Calculate the bearing.
-      double bearing = positionEstimator.estimatedPosition!.heading;
+    // Get some data that we will need for adaptive camera control.
+    final sgPos = ride.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
+    final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
+    final userSnapPos = snapping.snappedPosition;
+    final userSnapHeading = snapping.snappedHeading;
+    final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
 
-      await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        bearing: bearing,
-        target: LatLng(
-          positionEstimator.estimatedPosition!.latitude, 
-          positionEstimator.estimatedPosition!.longitude
-        ),
-        zoom: zoom,
-        tilt: 60,
-      )));
+    if (userSnapPos == null || userSnapPosLatLng == null || userSnapHeading == null) {
+      await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
+        routing.selectedRoute!.paddedBounds
+      ));
+      return;
     }
+
+    const vincenty = l.Distance(roundResult: false);
+
+    // Calculate the distance to the next traffic light.
+    double? sgDistance = sgPosLatLng == null
+      ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
+
+    // Calculate the bearing to the next traffic light.
+    double? sgBearing = sgPosLatLng == null
+      ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
+
+    // Adapt the focus dynamically to the next interesting feature.
+    final distanceOfInterest = min(
+      snapping.distanceToNextTurn ?? double.infinity, 
+      sgDistance ?? double.infinity,
+    );
+    // Scale the zoom level with the distance of interest.
+    // Between 0 meters: zoom 18 and 500 meters: zoom 18.
+    double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
+
+    // Within those thresholds the bearing to the next SG is used.
+    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
+    // min-threshold: Often the SGs are slightly on the left or right side of the route and
+    //                without this threshold the camera would orient away from the route
+    //                when it's close to the SG.
+    double? cameraHeading;
+    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 10) {
+      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
+    }
+    // Avoid looking too far away from the route.
+    if (cameraHeading == null || (cameraHeading - userSnapHeading).abs() > 45) {
+      cameraHeading = userSnapHeading; // Look into the direction of the user.
+    }
+
+    // The camera target is the estimated user position.
+    final cameraTarget = LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
+
+    await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      bearing: cameraHeading,
+      target: cameraTarget,
+      zoom: zoom,
+      tilt: 60,
+    )), duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */));
+
+    await mapController!.updateUserLocation(
+      lat: userSnapPos.latitude, 
+      lon: userSnapPos.longitude,
+      alt: userSnapPos.altitude,
+      acc: userSnapPos.accuracy,
+      heading: userSnapPos.heading,
+      speed: userSnapPos.speed,
+    );
   }
 
   /// Load the upcoming traffic light layer.
@@ -275,39 +385,39 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolTextIgnorePlacement(true);
 
     onRoutingUpdate();
-    onPositionEstimatorUpdate();
+    onSnappingUpdate();
     onRideUpdate();
   }
 
   @override
   void dispose() {
-    // Remove all layers from the map.
-    route = null;
-    routeBackground = null;
-    trafficLights = null;
-    waypoints = null;
-    // Unbind the interaction callbacks.
-    mapController?.onFillTapped.remove(onFillTapped);
-    mapController?.onCircleTapped.remove(onCircleTapped);
-    mapController?.onLineTapped.remove(onLineTapped);
-    mapController?.onSymbolTapped.remove(onSymbolTapped);
+    () async {
+      // Remove all layers from the map.
+      await mapController?.clearFills();
+      await mapController?.clearCircles();
+      await mapController?.clearLines();
+      await mapController?.clearSymbols();
+
+      // Unbind the interaction callbacks.
+      mapController?.onFillTapped.remove(onFillTapped);
+      mapController?.onCircleTapped.remove(onCircleTapped);
+      mapController?.onLineTapped.remove(onLineTapped);
+      mapController?.onSymbolTapped.remove(onSymbolTapped);
+      mapController?.dispose();
+    }();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        AppMap(
-          dragEnabled: false,
-          onMapCreated: onMapCreated, 
-          onStyleLoaded: () => onStyleLoaded(context),
-        ),
-        Padding(padding: const EdgeInsets.only(bottom: 0), child: PositionIcon(
-          brightness: Theme.of(context).brightness,
-        )),
-      ]
+    return AppMap(
+      puckImage: Theme.of(context).brightness == Brightness.dark 
+        ? 'assets/images/position-dark.png' 
+        : 'assets/images/position-light.png',
+      dragEnabled: false,
+      onMapCreated: onMapCreated, 
+      onStyleLoaded: () => onStyleLoaded(context),
     );
   }
 }

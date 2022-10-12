@@ -25,6 +25,18 @@ class BadSignalIcon extends Image {
   );
 }
 
+class DisconnectedIcon extends Image {
+  const DisconnectedIcon({double width = 24, double height = 24, Key? key}) : super(
+    key: key,
+    image: const AssetImage("assets/images/disconnected.drawio.png"),
+    width: width,
+    height: height,
+    color: null,
+    fit: BoxFit.scaleDown,
+    alignment: Alignment.center,
+  );
+}
+
 class OfflineIcon extends Image {
   const OfflineIcon({double width = 24, double height = 24, Key? key}) : super(
     key: key,

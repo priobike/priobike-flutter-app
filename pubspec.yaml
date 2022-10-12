@@ -41,7 +41,10 @@ dependencies:
   geolocator: ^8.1.1 # GPS tracking
   web_socket_channel: ^2.1.0 # WebSocket communication
   json_rpc_2: ^3.0.1 # JSON RPC support for WebSocket communication
-  mapbox_gl: ^0.16.0 # Map framework
+  mapbox_gl: # Customized mapbox map framework
+    git:
+      url: https://github.com/priobike/priobike-flutter-mapbox
+      ref: master
   flutter_map: ^2.2.0 # Map framework (outdated)
   shared_preferences: ^2.0.15 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.8.1 # Distance calculations and more
@@ -121,6 +124,7 @@ flutter:
     - assets/tracks/dresden/philipp.json
 
     # Map symbols
+    - assets/images/disconnected.drawio.png
     - assets/images/online.drawio.png
     - assets/images/bad-signal.drawio.png
     - assets/images/offline.drawio.png
@@ -144,6 +148,8 @@ flutter:
     - assets/images/park-light.png
     - assets/images/position-dark.png
     - assets/images/position-light.png
+    - assets/images/position-static-dark.png
+    - assets/images/position-static-light.png
     - assets/images/rent-dark.png
     - assets/images/rent-light.png
     - assets/images/repair-dark.png
@@ -161,3 +167,13 @@ flutter:
     - assets/images/dark_turn_sharp_right.png
     - assets/images/dark_turn_slight_left.png
     - assets/images/dark_turn_slight_right.png
+
+    # Screenshots
+    - assets/images/screenshots/speedometer-light.png
+    - assets/images/screenshots/speedometer-dark.png
+    - assets/images/screenshots/default-cycling-light.png
+    - assets/images/screenshots/default-cycling-dark.png
+    - assets/images/screenshots/minimal-recommendation-light.png
+    - assets/images/screenshots/minimal-recommendation-dark.png
+    - assets/images/screenshots/minimal-countdown-light.png
+    - assets/images/screenshots/minimal-countdown-dark.png

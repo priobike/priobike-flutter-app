@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -22,16 +23,13 @@ class Snapping with ChangeNotifier {
   double? distance;
 
   /// The current snapped position.
-  LatLng? snappedPosition;
+  Position? snappedPosition;
 
   /// The current snapped heading.
   double? snappedHeading;
 
   /// The distance to the next turn.
   double? distanceToNextTurn;
-
-  /// The distance to the next signal group.
-  double? distanceToNextSG;
 
   /// The remaining waypoints.
   List<Waypoint>? remainingWaypoints;
@@ -71,9 +69,18 @@ class Snapping with ChangeNotifier {
     }
 
     distance = shortestDistance;
-    snappedPosition = shortestDistancePSnapped;
     final bearing = vincenty.bearing(shortestDistanceP1, shortestDistanceP2); // [-180°, 180°]
     snappedHeading = bearing > 0 ? bearing : 360 + bearing; // [0°, 360°]
+    snappedPosition = Position(
+      latitude: shortestDistancePSnapped.latitude,
+      longitude: shortestDistancePSnapped.longitude,
+      accuracy: positioning.lastPosition!.accuracy,
+      altitude: positioning.lastPosition!.altitude,
+      heading: snappedHeading!,
+      speed: positioning.lastPosition!.speed,
+      speedAccuracy: positioning.lastPosition!.speedAccuracy,
+      timestamp: positioning.lastPosition!.timestamp,
+    );
 
     // Traverse the segments and find the next turn, i.e. where the bearing changes > <x>°.
     const bearingThreshold = 15;
@@ -86,14 +93,6 @@ class Snapping with ChangeNotifier {
       if ((b - bearing).abs() > bearingThreshold) break;
     }
     this.distanceToNextTurn = distanceToNextTurn;
-
-    // Calculate the shortest distance to the signal groups.
-    var distanceToNextSG = double.infinity;
-    for (final sg in routing.selectedRoute!.signalGroups.values) {
-      final d = vincenty.distance(p, LatLng(sg.position.lat, sg.position.lon));
-      if (d < distanceToNextSG) distanceToNextSG = d;
-    }
-    this.distanceToNextSG = distanceToNextSG;
 
     // Find the waypoint segment with the shortest distance to our position.
     final waypoints = routing.selectedWaypoints!;
@@ -154,7 +153,6 @@ class Snapping with ChangeNotifier {
     distance = null;
     snappedHeading = null;
     distanceToNextTurn = null;
-    distanceToNextSG = null;
     remainingWaypoints = null;
     needsLayout = {};
     notifyListeners();

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:latlong2/latlong.dart' as latlng;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -17,27 +18,31 @@ class Route {
   /// route that contains the signal groups.
   final List<NavigationNode> route;
 
-  /// A mapping of signal group ids to signal groups.
-  /// 
-  /// All signal groups must occur in the route.
-  final Map<String, Sg> signalGroups;
+  /// A list of signal groups in the order of the route.
+  final List<Sg> signalGroups;
+
+  /// A list of crossings.
+  final List<Crossing> crossings;
 
   const Route({
     required this.path,
     required this.route,
     required this.signalGroups,
+    required this.crossings,
   });
 
   Map<String, dynamic> toJson() => {
     'path': path.toJson(),
     'route': route.map((e) => e.toJson()).toList(),
-    'signalGroups': { for (var e in signalGroups.entries) e.key: e.value.toJson() },
+    'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
+    'crossings': crossings.map((e) => e.toJson()).toList(),
   };
 
   factory Route.fromJson(dynamic json) => Route(
     path: GHRouteResponsePath.fromJson(json['path']),
     route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-    signalGroups: (json['signalGroups'] as Map).map((key, value) => MapEntry<String, Sg>(key, Sg.fromJson(value))),
+    signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
+    crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
   );
 
   /// The route, connected to the start and end point.
@@ -73,6 +78,7 @@ class Route {
           signalGroupId: last?.signalGroupId,
         ),
       ],
+      crossings: crossings,
     );
   }
 
