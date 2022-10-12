@@ -255,14 +255,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _dotRow() {
+  _dotRow(BuildContext context) {
     return Row(
       children: [
         Container(
           height: 10,
           width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
             shape: BoxShape.circle,
           ),
         ),
@@ -270,8 +270,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         Container(
           height: 10,
           width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
             shape: BoxShape.circle,
           ),
         ),
@@ -433,7 +433,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 Content(text: "2,5", context: context),
                 const SizedBox(width: 10),
                 const Icon(Icons.traffic),
-                Content(text: "4", context: context),
+                Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -466,7 +466,20 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   IconButton(
                     icon: const Icon(Icons.info_outline),
                     onPressed: () {
-                      print("open info dialog");
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Safety Score"),
+                          content: const Text(
+                              "Die Werte des Safety Scores werden noch nicht erstellt und dienen nur der Optik."),
+                          actions: [
+                            TextButton(
+                              child: const Text("Okay"),
+                              onPressed: () => Navigator.of(context).pop(),
+                            )
+                          ],
+                        ),
+                      );
                     },
                   )
                 ],
@@ -492,32 +505,35 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 10),
+                            horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             BoldContent(text: "Verkehr", context: context),
-                            _dotRow(),
+                            _dotRow(context),
                           ],
                         ),
-                      ),Padding(
+                      ),
+                      Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 10),
+                            horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             BoldContent(text: "Steigung", context: context),
-                            _dotRow(),
+                            _dotRow(context),
                           ],
                         ),
-                      ),Padding(
+                      ),
+                      Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 10),
+                            horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            BoldContent(text: "Gefahrenstellen", context: context),
-                            _dotRow(),
+                            BoldContent(
+                                text: "Gefahrenstellen", context: context),
+                            _dotRow(context),
                           ],
                         ),
                       ),
@@ -530,7 +546,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   ? CrossFadeState.showFirst
                   : CrossFadeState.showSecond,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             // Route height profile
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Höhenprofil", context: context),
