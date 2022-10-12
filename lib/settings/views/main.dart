@@ -6,11 +6,12 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/news/services/fcm.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/views.dart';
-import 'package:priobike/news/service.dart';
+import 'package:priobike/news/services/news.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -173,6 +174,9 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated news service, which is injected by the provider.
   late News news;
 
+  /// The associated fcm service, which is injected by the provider.
+  late FCM fcm;
+
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
@@ -183,6 +187,7 @@ class SettingsViewState extends State<SettingsView> {
     routing = Provider.of<Routing>(context);
     session = Provider.of<Session>(context);
     news = Provider.of<News>(context);
+    fcm = Provider.of<FCM>(context);
     super.didChangeDependencies();
   }
 
@@ -190,6 +195,9 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
     await settings.selectBackend(backend);
+    
+    // Tell the fcm service that we selected the new backend.
+    await fcm.selectBackend(backend);
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
