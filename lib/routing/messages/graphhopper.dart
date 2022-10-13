@@ -291,6 +291,7 @@ class GHDetails {
     'max_speed': maxSpeed.map((e) => e.toJson()).toList(),
     'smoothness': smoothness.map((e) => e.toJson()).toList(),
     'lanes': lanes.map((e) => e.toJson()).toList(),
+    'road_class': roadClass.map((e) => e.toJson()).toList(),
   };
 }
 
