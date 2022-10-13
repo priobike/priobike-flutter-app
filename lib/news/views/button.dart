@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/news/service.dart';
+import 'package:priobike/news/services/news.dart';
 import 'package:provider/provider.dart';
 
 class NewsButton extends StatefulWidget {

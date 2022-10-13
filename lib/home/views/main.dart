@@ -10,7 +10,7 @@ import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/views/status.dart';
-import 'package:priobike/news/service.dart';
+import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';

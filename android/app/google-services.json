@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "483763399707",
+    "project_id": "priobikefcm",
+    "storage_bucket": "priobikefcm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483763399707:android:5e3baeee06f352cfd81cbe",
+        "android_client_info": {
+          "package_name": "de.tudresden.priobike"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "483763399707-c6c185q80duqkr23i4sgg9rfabc57rgn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEfxDThsLDiiUaNvOfeQGXkLZSlQUaNio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "483763399707-c6c185q80duqkr23i4sgg9rfabc57rgn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
