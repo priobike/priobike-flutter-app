@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
@@ -199,7 +200,7 @@ class Routing with ChangeNotifier {
     } catch (e, stack) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
-      await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
       return null;
     }
   }
@@ -288,7 +289,7 @@ class Routing with ChangeNotifier {
     } catch (e, stacktrace) {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
-      await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
       return null;
     }
   }

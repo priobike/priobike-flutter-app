@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
@@ -63,7 +64,7 @@ class Session with ChangeNotifier {
       return sessionId!;
     } catch (error, stack) {
       final hint = "Error during authentication: $error";
-      await Sentry.captureException(error, stackTrace: stack, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack, hint: hint);
       log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
     }
   }
