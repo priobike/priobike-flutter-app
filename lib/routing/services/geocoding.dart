@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -77,7 +78,7 @@ class Geocoding with ChangeNotifier {
     } catch (error, stacktrace) {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
-      await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
       isFetchingAddress = false;
       hadErrorDuringFetch = true;
       notifyListeners();

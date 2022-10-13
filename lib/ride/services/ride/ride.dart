@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
@@ -83,7 +84,7 @@ class Ride with ChangeNotifier {
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
       log.e(hint); 
-      await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
     }
   }
 
@@ -140,7 +141,7 @@ class Ride with ChangeNotifier {
       log.i("Successfully selected ride with endpoint $selectRideEndpoint: ${response.body}");
     } catch (error, stack) {
       final hint = "Error during select ride: $error";
-      await Sentry.captureException(error, stackTrace: stack, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack, hint: hint);
       log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
     }
   }
