@@ -81,9 +81,12 @@ class FCM with ChangeNotifier {
 
     log.i("Received FCM message: ${msg.data}");
 
-    // Decide by the environment and the backend if we 
-    // should display a notification.
+    // Decide by the environment and the backend if we should display a notification.
+    // Update the possibleEnvs with your individual env e.g. dev1 instead of dev when testing.
+    final possibleEnvs = ["dev", "staging", "production"];
     final env = msg.data['environment'];
+    // Set the env to a custom value in the news service when testing so that not everyone with a debug version receives all notifications.
+    if (!possibleEnvs.contains(env)) return;
     if (env == 'dev' && !kDebugMode) return;
     if (env == 'staging' && backendToWatch != Backend.staging) return;
     if (env == 'production' && backendToWatch != Backend.production) return;
