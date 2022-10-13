@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:priobike/logging/logger.dart';
@@ -83,7 +84,7 @@ class News with ChangeNotifier {
     } on SocketException catch (e, stack) {
       final hint = "Failed to load articles: $e";
       log.w(hint);
-      await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];
@@ -138,7 +139,7 @@ class News with ChangeNotifier {
     } on SocketException catch (e, stack) {
       final hint = "Failed to load category: $e";
       log.i(hint);
-      await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
     }
   }
 

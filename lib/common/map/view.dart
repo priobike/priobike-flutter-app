@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
@@ -21,7 +22,7 @@ class AppMap extends StatefulWidget {
     } catch (err, stacktrace) {
       final hint = "Failed to load offline tiles: $err";
       Logger("AppMap").e(hint);
-      await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
     }
   }
 

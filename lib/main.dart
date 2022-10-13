@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -78,7 +79,7 @@ Future<void> main() async {
     // Log the error to the console.
     log.e(error.toString());
     log.e(stack.toString());
-    await Sentry.captureException(error, stackTrace: stack);
+    if (!kDebugMode) if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack);
   });
 }
 
