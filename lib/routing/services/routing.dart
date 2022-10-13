@@ -261,7 +261,7 @@ class Routing with ChangeNotifier {
 
       final response = await httpClient.get(ghEndpoint);
       if (response.statusCode == 200) {
-        return GHRouteResponse.fromJson(json.decode(response.body));
+        return GHRouteResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         log.e("Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
         return null;
