@@ -1,40 +1,36 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
-class FCM with ChangeNotifier {
+class FCM {
   /// The logger for this service.
-  final log = Logger("FCM");
+  static final log = Logger("FCM");
 
   /// The backend for which to display notifications.
-  Backend? backendToWatch;
+  static Backend? backendToWatch;
 
   /// An android notification channel.
-  AndroidNotificationChannel? channel;
+  static AndroidNotificationChannel? channel;
 
   /// The flutter local notifications plugin.
-  FlutterLocalNotificationsPlugin? plugin;
+  static FlutterLocalNotificationsPlugin? plugin;
 
   /// A boolean indicating if the local notifications plugin is initialized.
-  var isInitialized = false;
+  static bool isInitialized = false;
 
   FCM() { log.i("Initializing FCM service"); }
 
   /// Select a new backend to watch.
-  Future<void> selectBackend(Backend backend) async {
+  static Future<void> selectBackend(Backend backend) async {
     backendToWatch = backend;
-    notifyListeners();
   }
 
   /// Initialize the FCM service.
-  Future<void> load(BuildContext context) async {
-    backendToWatch = Provider.of<Settings>(context, listen: false).backend;
+  static Future<void> load(Backend backend) async {
+    selectBackend(backend);
 
     if (isInitialized) return;
 
@@ -69,11 +65,10 @@ class FCM with ChangeNotifier {
     FirebaseMessaging.onMessage.listen(onFCMMessage);
 
     isInitialized = true;
-    notifyListeners();
   }
 
   /// A handler that is called when an FCM message is received.
-  Future<void> onFCMMessage(RemoteMessage msg) async {
+  static Future<void> onFCMMessage(RemoteMessage msg) async {
     if (!isInitialized) {
       log.w("FCM service not initialized, ignoring message.");
       return;

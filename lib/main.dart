@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/news/services/fcm.dart';
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -33,6 +33,7 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'settings/models/backend.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -74,6 +75,10 @@ Future<void> main() async {
     // Load the color mode before the first view build.
     final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
 
+    Backend backend = await Settings.loadBackendFromSharedPreferences();
+
+    FCM.load(backend);
+
     runApp(App(initialColorMode: initialColorMode));
   }, (error, stack) async {
     // Log the error to the console.
@@ -107,7 +112,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => PrivacyPolicy()),
         ChangeNotifierProvider(create: (context) => Tutorial()),
         ChangeNotifierProvider(create: (context) => Settings(colorMode: initialColorMode)),
-        ChangeNotifierProvider(create: (context) => FCM()),
         ChangeNotifierProvider(create: (context) => PredictionStatusSummary()),
         ChangeNotifierProvider(create: (context) => PredictionSGStatus()),
         ChangeNotifierProvider(create: (context) => Profile()),

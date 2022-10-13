@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/news/services/fcm.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -174,9 +174,6 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated news service, which is injected by the provider.
   late News news;
 
-  /// The associated fcm service, which is injected by the provider.
-  late FCM fcm;
-
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
@@ -187,7 +184,6 @@ class SettingsViewState extends State<SettingsView> {
     routing = Provider.of<Routing>(context);
     session = Provider.of<Session>(context);
     news = Provider.of<News>(context);
-    fcm = Provider.of<FCM>(context);
     super.didChangeDependencies();
   }
 
@@ -197,7 +193,7 @@ class SettingsViewState extends State<SettingsView> {
     await settings.selectBackend(backend);
     
     // Tell the fcm service that we selected the new backend.
-    await fcm.selectBackend(backend);
+    await FCM.selectBackend(backend);
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
