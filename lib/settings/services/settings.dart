@@ -119,7 +119,7 @@ class Settings with ChangeNotifier {
   /// preferences, for the initial view build.
   static Future<Backend> loadBackendFromSharedPreferences() async {
     final storage = await SharedPreferences.getInstance();
-    Backend backend = Backend.staging;
+    var backend = Backend.staging;
     final backendStr = storage.getString("priobike.settings.backend");
     if (backendStr != null) backend = Backend.values.byName(backendStr);
     return backend;

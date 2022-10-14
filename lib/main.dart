@@ -74,10 +74,11 @@ Future<void> main() async {
 
     // Load the color mode before the first view build.
     final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
+    // Load the backend before the first view build.
+    final initialBackend = await Settings.loadBackendFromSharedPreferences();
 
-    Backend backend = await Settings.loadBackendFromSharedPreferences();
-
-    FCM.load(backend);
+    // Setup the push notifications.
+    FCM.load(initialBackend);
 
     runApp(App(initialColorMode: initialColorMode));
   }, (error, stack) async {
