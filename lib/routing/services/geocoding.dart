@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -65,7 +64,7 @@ class Geocoding with ChangeNotifier {
         isFetchingAddress = false;
         notifyListeners();
         final err = "Address could not be fetched from $endpoint: ${response.body}";
-        log.e(err); ToastMessage.showError(err); throw Exception(err);
+        log.e(err); throw Exception(err);
       }
 
       final decoded = json.decode(response.body);
