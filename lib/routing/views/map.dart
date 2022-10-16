@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:latlong2/latlong.dart' as LatLng2;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/sg.dart';
@@ -24,6 +25,34 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
+
+/// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
+/// Taken from +-40 Latitude since it only needs to be approximate.
+final Map<int, double> zoomToGeographicalDistance = {
+  0: 59959.436,
+  1: 29979.718,
+  2: 14989.859,
+  3: 7494.929,
+  4: 3747.465,
+  5: 1873.732,
+  6: 936.866,
+  7: 468.433,
+  8: 234.217,
+  9: 117.108,
+  10: 58.554,
+  11: 29.277,
+  12: 14.639,
+  13: 7.319,
+  14: 3.660,
+  15: 1.830,
+  16: 0.915,
+  17: 0.457,
+  18: 0.229,
+  19: 0.114,
+  20: 0.057,
+  21: 0.029,
+  22: 0.014
+};
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -75,6 +104,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The discomfort locations that are displayed, if they were fetched.
   List<Symbol>? discomfortLocations;
+
+  /// The route label locations that are displayed, if they were fetched.
+  List<Symbol>? routeLabelLocations;
 
   /// The traffic lights that are displayed, if there are traffic lights on the route.
   List<Symbol>? trafficLights;
@@ -156,6 +188,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await loadOfflineCrossingMarkers();
     await loadWaypointMarkers();
     await moveMap();
+    await loadRouteLabels();
   }
 
   Future<void> onDiscomfortsUpdate() async {
@@ -258,6 +291,84 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Remove the old layerouting.
     await mapboxMapController?.removeSymbols(oldDiscomfortLocations ?? []);
     await mapboxMapController?.removeLines(oldDiscomfortSections ?? []);
+  }
+
+  /// Load the discomforts.
+  Future<void> loadRouteLabels() async {
+    // If we have no map controller, we cannot load the layerouting.
+    if (mapboxMapController == null &&
+        mapboxMapController!.cameraPosition != null &&
+        routing.allRoutes != null &&
+        routing.allRoutes!.length > 1) return;
+
+    final oldRouteLabelLocations = routeLabelLocations;
+    routeLabelLocations = [];
+
+    var distance = const LatLng2.Distance();
+
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    double meterPerPixel = zoomToGeographicalDistance[
+            mapboxMapController!.cameraPosition!.zoom.toInt()] ??
+        0;
+    double cameraPosLat = mapboxMapController!.cameraPosition!.target.latitude;
+    double cameraPosLong =
+        mapboxMapController!.cameraPosition!.target.longitude;
+
+    LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
+
+    LatLng2.LatLng north =
+        distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+    LatLng2.LatLng east =
+        distance.offset(cameraPos, width / 2 * meterPerPixel, 0);
+    LatLng2.LatLng south =
+        distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+    LatLng2.LatLng west =
+        distance.offset(cameraPos, width / 2 * meterPerPixel, 0);
+
+    // to  test bounds
+    discomfortLocations!.add(await mapboxMapController!.addSymbol(
+      DiscomfortLocationMarker(geo: north as LatLng, number: 20, iconSize: 40),
+      {},
+    ));
+    discomfortLocations!.add(await mapboxMapController!.addSymbol(
+      DiscomfortLocationMarker(geo: east as LatLng, number: 20, iconSize: 40),
+      {},
+    ));
+    discomfortLocations!.add(await mapboxMapController!.addSymbol(
+      DiscomfortLocationMarker(geo: south as LatLng, number: 20, iconSize: 40),
+      {},
+    ));
+    discomfortLocations!.add(await mapboxMapController!.addSymbol(
+      DiscomfortLocationMarker(geo: west as LatLng, number: 20, iconSize: 40),
+      {},
+    ));
+
+    // Search appropriate Point in Route
+    for (r.Route route in routing.allRoutes!) {
+      // Find closest to camera in bounds
+      double closestDistance = double.infinity;
+      GHCoordinate? chosenCoordinate;
+      for (GHCoordinate coord in route.path.points.coordinates) {
+        // Check bounds, no check for side of earth needed since in Hamburg.
+        if (coord.lat > west.latitude && coord.lat < east.latitude && coord.lon > south.longitude && coord.lon < north.longitude) {
+          if (distance.distance(coord as LatLng2.LatLng, cameraPos) < closestDistance) {
+            chosenCoordinate  = coord;
+            closestDistance = distance.distance(coord as LatLng2.LatLng, cameraPos);
+          }
+        }
+      }
+      // TODO add Symbol with time text and offset to Route
+      if (chosenCoordinate != null) {
+        // Found coordinate and add Label with time.
+        routeLabelLocations!.add(await mapboxMapController!.addSymbol(
+          DiscomfortLocationMarker(geo: west as LatLng, number: 20, iconSize: 40),
+          {},
+        ));
+      }
+    }
+    // Remove the old labels.
+    await mapboxMapController?.removeSymbols(oldRouteLabelLocations ?? []);
   }
 
   /// Load the current traffic lights.
