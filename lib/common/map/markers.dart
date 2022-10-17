@@ -160,7 +160,7 @@ class TrafficLightGreenMarker extends SymbolOptions {
     iconImage: "trafficlightgreen",
     iconSize: iconSize,
     iconOpacity: iconOpacity,
-    zIndex: 2,
+    zIndex: 5,
   );
 }
 
@@ -176,7 +176,7 @@ class TrafficLightRedMarker extends SymbolOptions {
     iconImage: "trafficlightred",
     iconSize: iconSize,
     iconOpacity: iconOpacity,
-    zIndex: 2,
+    zIndex: 5,
   );
 }
 
