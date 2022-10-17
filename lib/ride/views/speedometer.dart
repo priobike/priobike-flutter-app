@@ -170,6 +170,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     gaugeStops = hardEdgeStops.reversed.toList();
   }
 
+  /// A callback that is executed when the user taps on the speedometer.
+  Future<void> onTapSpeedometer(double speed) async {
+    // Set the selected speed in the positioning service.
+    // This is a debug feature and only supported for some types of positioning.
+    ps.setDebugSpeed(speed / 3.6);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
@@ -178,6 +185,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       axes: [
         RadialAxis(
           minimum: minSpeed, maximum: maxSpeed, 
+          onAxisTapped: onTapSpeedometer,
           startAngle: 0, endAngle: 360,
           showTicks: false,
           showLabels: false,
@@ -201,6 +209,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
         ),
         RadialAxis(
           minimum: minSpeed, maximum: maxSpeed, 
+          onAxisTapped: onTapSpeedometer,
           startAngle: 160, endAngle: 20,
           interval: 10, minorTicksPerInterval: 4,
           showAxisLine: true, 

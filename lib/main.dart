@@ -33,7 +33,6 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'settings/models/backend.dart';
 
 /// For older Android devices (Android 5), there will sometimes be a 
 /// HTTP error due to an expired certificate. This certificate lies within 
@@ -107,7 +106,7 @@ class App extends StatelessWidget {
       // calling the navigator. In this way, it is always safe to use 
       // Provider.of(...) in any build context. However, it needs to be 
       // ensured that the changenotifiers are properly recycled.
-      // For this, changenotifiers may provider a `reset` method.
+      // For this, changenotifiers may provide a `reset` method.
       providers: [
         ChangeNotifierProvider(create: (context) => Feature()),
         ChangeNotifierProvider(create: (context) => PrivacyPolicy()),

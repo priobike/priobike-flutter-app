@@ -210,7 +210,7 @@ class PathMockPositionSource extends PositionSource {
   final List<LatLng> positions;
 
   /// The static speed with which the path should be followed.
-  final double speed;
+  double speed;
 
   /// The calculation timer.
   Timer? timer;
