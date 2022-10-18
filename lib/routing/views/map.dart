@@ -352,8 +352,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
         routeLabelLocations!.add(await mapboxMapController!.addSymbol(
           DiscomfortLocationMarker(
               geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon), number: 20, iconSize: 1),
-          {},
+          {"data": "test"},
         ));
+        mapboxMapController!.onSymbolTapped.add((argument) {
+          print(argument.data);
+        });
       }
     }
     // Remove the old labels.
