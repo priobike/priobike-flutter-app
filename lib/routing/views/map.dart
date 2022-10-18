@@ -27,31 +27,32 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 /// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
-/// Taken from +-40 Latitude since it only needs to be approximate.
+/// Taken from +-60 Latitude since it only needs to be approximate and its closer to 53 than +-40.
+/// Its also to small in worst case.
 final Map<int, double> zoomToGeographicalDistance = {
-  0: 59959.436,
-  1: 29979.718,
-  2: 14989.859,
-  3: 7494.929,
-  4: 3747.465,
-  5: 1873.732,
-  6: 936.866,
-  7: 468.433,
-  8: 234.217,
-  9: 117.108,
-  10: 58.554,
-  11: 29.277,
-  12: 14.639,
-  13: 7.319,
-  14: 3.660,
-  15: 1.830,
-  16: 0.915,
-  17: 0.457,
-  18: 0.229,
-  19: 0.114,
-  20: 0.057,
-  21: 0.029,
-  22: 0.014
+  0: 39135.742,
+  1: 19567.871,
+  2: 9783.936,
+  3: 4891.968,
+  4: 2445.984,
+  5: 1222.992,
+  6: 611.496,
+  7: 305.748,
+  8: 152.874,
+  9: 76.437,
+  10: 38.218,
+  11: 19.109,
+  12: 9.555,
+  13: 4.777,
+  14: 2.389,
+  15: 1.194,
+  16: 0.597,
+  17: 0.299,
+  18: 0.149,
+  19: 0.075,
+  20: 0.047,
+  21: 0.019,
+  22: 0.009
 };
 
 class RoutingMapView extends StatefulWidget {
@@ -296,10 +297,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// Load the discomforts.
   Future<void> loadRouteLabels() async {
     // If we have no map controller, we cannot load the layerouting.
-    if (mapboxMapController == null &&
-        mapboxMapController!.cameraPosition != null &&
-        routing.allRoutes != null &&
-        routing.allRoutes!.length > 1) return;
+    if (mapboxMapController == null ||
+        mapboxMapController!.cameraPosition == null ||
+        routing.allRoutes == null ||
+        routing.allRoutes!.length != 2) return;
 
     final oldRouteLabelLocations = routeLabelLocations;
     routeLabelLocations = [];
@@ -320,29 +321,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
     LatLng2.LatLng north =
         distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
     LatLng2.LatLng east =
-        distance.offset(cameraPos, width / 2 * meterPerPixel, 0);
+        distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
     LatLng2.LatLng south =
-        distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+        distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
     LatLng2.LatLng west =
-        distance.offset(cameraPos, width / 2 * meterPerPixel, 0);
-
-    // to  test bounds
-    discomfortLocations!.add(await mapboxMapController!.addSymbol(
-      DiscomfortLocationMarker(geo: north as LatLng, number: 20, iconSize: 40),
-      {},
-    ));
-    discomfortLocations!.add(await mapboxMapController!.addSymbol(
-      DiscomfortLocationMarker(geo: east as LatLng, number: 20, iconSize: 40),
-      {},
-    ));
-    discomfortLocations!.add(await mapboxMapController!.addSymbol(
-      DiscomfortLocationMarker(geo: south as LatLng, number: 20, iconSize: 40),
-      {},
-    ));
-    discomfortLocations!.add(await mapboxMapController!.addSymbol(
-      DiscomfortLocationMarker(geo: west as LatLng, number: 20, iconSize: 40),
-      {},
-    ));
+        distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
     // Search appropriate Point in Route
     for (r.Route route in routing.allRoutes!) {
@@ -351,10 +334,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
       GHCoordinate? chosenCoordinate;
       for (GHCoordinate coord in route.path.points.coordinates) {
         // Check bounds, no check for side of earth needed since in Hamburg.
-        if (coord.lat > west.latitude && coord.lat < east.latitude && coord.lon > south.longitude && coord.lon < north.longitude) {
-          if (distance.distance(coord as LatLng2.LatLng, cameraPos) < closestDistance) {
-            chosenCoordinate  = coord;
-            closestDistance = distance.distance(coord as LatLng2.LatLng, cameraPos);
+        if (coord.lat > south.latitude &&
+            coord.lat < north.latitude &&
+            coord.lon > west.longitude &&
+            coord.lon < east.longitude) {
+          if (distance.distance(LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
+              closestDistance) {
+            chosenCoordinate = coord;
+            closestDistance =
+                distance.distance(LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
           }
         }
       }
@@ -362,7 +350,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
       if (chosenCoordinate != null) {
         // Found coordinate and add Label with time.
         routeLabelLocations!.add(await mapboxMapController!.addSymbol(
-          DiscomfortLocationMarker(geo: west as LatLng, number: 20, iconSize: 40),
+          DiscomfortLocationMarker(
+              geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon), number: 20, iconSize: 1),
           {},
         ));
       }
