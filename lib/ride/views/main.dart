@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/lock.dart';
+import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
@@ -42,6 +44,7 @@ class RideViewState extends State<RideView> {
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       final tracking = Provider.of<Tracking>(context, listen: false);
       final positioning = Provider.of<Positioning>(context, listen: false);
+      final accelerometer = Provider.of<Accelerometer>(context, listen: false);
       final ride = Provider.of<Ride>(context, listen: false);
       final session = Provider.of<Session>(context, listen: false);
       final snapping = Provider.of<Snapping>(context, listen: false);
@@ -56,12 +59,16 @@ class RideViewState extends State<RideView> {
       await ride.selectRide(context, routing.selectedRoute!);
       // Start navigating.
       await ride.startNavigation(context);
+      // Start fetching accelerometer updates.
+      await accelerometer.start();
       // Start geolocating. This must only be executed once.
       await positioning.startGeolocation(context: context, onNewPosition: (pos) async {
         // Pass new positions to the ride service.
         await ride.updatePosition(context);
         // Notify the snapping service.
         await snapping.updatePosition(context);
+        // Notify the accelerometer service.
+        await accelerometer.updatePosition(context);
         // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
         if (
           settings.rerouting == Rerouting.enabled &&
@@ -100,6 +107,7 @@ class RideViewState extends State<RideView> {
           children: const [
             RideMapView(),
             RideSpeedometerView(),
+            DangerButton(),
           ]
         );
         break;
