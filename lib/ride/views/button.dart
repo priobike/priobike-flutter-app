@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
@@ -30,11 +32,15 @@ class CancelButton extends StatelessWidget {
 
     // Calculate a summary of the ride.
     final statistics = Provider.of<Statistics>(context, listen: false);
-    statistics.calculateSummary(context);
+    await statistics.calculateSummary(context);
     
     // End the recommendations.
     final recommendation = Provider.of<Ride>(context, listen: false);
     await recommendation.stopNavigation();
+
+    // End the accelerometer updates.
+    final accelerometer = Provider.of<Accelerometer>(context, listen: false);
+    await accelerometer.stop();
 
     // Stop the geolocation.
     final position = Provider.of<Positioning>(context, listen: false);
@@ -56,6 +62,9 @@ class CancelButton extends StatelessWidget {
         // Reset the recommendation service.
         await recommendation.reset();
 
+        // Reset the accelerometer service.
+        await accelerometer.reset();
+
         // Reset the position service.
         await position.reset();
 
@@ -70,6 +79,10 @@ class CancelButton extends StatelessWidget {
         // Reset the prediction sg status.
         final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
         await predictionSGStatus.reset();
+
+        // Reset the dangers.
+        final dangers = Provider.of<Dangers>(context, listen: false);
+        await dangers.reset();
 
         // Leave the feedback view.
         Navigator.of(context).popUntil((route) => route.isFirst);
