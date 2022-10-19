@@ -5,7 +5,7 @@ import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/news/service.dart';
+import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
 import 'package:provider/provider.dart';
 

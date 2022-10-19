@@ -206,6 +206,17 @@ class Positioning with ChangeNotifier {
     isGeolocating = false;
   }
 
+  /// Set the current speed to a selected value.
+  /// This is a debug feature and only applies to positioning 
+  /// sources that support the setting of the current speed.
+  Future<void> setDebugSpeed(double speed) async {
+    if (speed < 0) return;
+    // Currently, this is only supported by the PathMockPositionSource.
+    if (positionSource is PathMockPositionSource) {
+      (positionSource as PathMockPositionSource).speed = speed;
+    }
+  }
+
   @override 
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);

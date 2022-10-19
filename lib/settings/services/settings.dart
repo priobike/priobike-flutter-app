@@ -115,6 +115,16 @@ class Settings with ChangeNotifier {
     return colorMode;
   }
 
+  /// Load the backend from the shared
+  /// preferences, for the initial view build.
+  static Future<Backend> loadBackendFromSharedPreferences() async {
+    final storage = await SharedPreferences.getInstance();
+    var backend = Backend.staging;
+    final backendStr = storage.getString("priobike.settings.backend");
+    if (backendStr != null) backend = Backend.values.byName(backendStr);
+    return backend;
+  }
+
   /// Load the stored settings.
   Future<void> loadSettings() async {
     if (hasLoaded) return;

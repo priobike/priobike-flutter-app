@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -237,60 +238,63 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Stack(children: [
-      AppMap(
-        dragEnabled: true,
-        onMapCreated: onMapCreated, 
-        onStyleLoaded: () => onStyleLoaded(context),
-      ),
-      SafeArea(
-        minimum: const EdgeInsets.only(top: 8),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-          const SizedBox(width: 16),
-          Tile(
-            fill: Theme.of(context).colorScheme.background, 
-            padding: const EdgeInsets.all(20),
-            content: SubHeader(text: "Störungskarte", context: context),
-          ),
-        ]),
-      ),
-      SafeArea(child: Align(
-        alignment: Alignment.bottomLeft,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Tile(
-            fill: Colors.white,
-            content: SizedBox(height: 80, child: PageView.builder(
-              itemCount: SGStatusMapViewMode.all.length,
-              onPageChanged: (index) {
-                setState(() {
-                  mode = SGStatusMapViewMode.all[index];
-                });
-                updateMapMode(mode);
-              },
-              itemBuilder: (context, index) {
-                final mode = SGStatusMapViewMode.all[index];
-                return Column(children: mode.legend.map((e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(children: [
-                    Container(
-                      height: 16,
-                      width: 16,
-                      decoration: BoxDecoration(
-                        color: e.color,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    const HSpace(),
-                    Small(text: e.title, context: context, color: Colors.black),
-                  ]),
-                )).toList());
-              },
-            )), 
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light 
+        ? SystemUiOverlayStyle.dark 
+        : SystemUiOverlayStyle.light,
+      child: Scaffold(body: Stack(children: [
+        AppMap(
+          dragEnabled: true,
+          onMapCreated: onMapCreated, 
+          onStyleLoaded: () => onStyleLoaded(context),
+        ),
+        SafeArea(
+          minimum: const EdgeInsets.only(top: 8),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+            ]),
           ),
         ),
-      )),     
-    ]));
+        SafeArea(child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Tile(
+              fill: Colors.white,
+              content: SizedBox(height: 80, child: PageView.builder(
+                itemCount: SGStatusMapViewMode.all.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    mode = SGStatusMapViewMode.all[index];
+                  });
+                  updateMapMode(mode);
+                },
+                itemBuilder: (context, index) {
+                  final mode = SGStatusMapViewMode.all[index];
+                  return Column(children: mode.legend.map((e) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(children: [
+                      Container(
+                        height: 16,
+                        width: 16,
+                        decoration: BoxDecoration(
+                          color: e.color,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      const HSpace(),
+                      Small(text: e.title, context: context, color: Colors.black),
+                    ]),
+                  )).toList());
+                },
+              )), 
+            ),
+          ),
+        )),     
+      ])),
+    );
   }
 }

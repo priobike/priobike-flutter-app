@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -10,7 +11,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/views.dart';
-import 'package:priobike/news/service.dart';
+import 'package:priobike/news/services/news.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -190,6 +191,9 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
     await settings.selectBackend(backend);
+    
+    // Tell the fcm service that we selected the new backend.
+    await FCM.selectBackend(backend);
 
     // Reset the associated services.
     await predictionStatusSummary.reset();

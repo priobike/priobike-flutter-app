@@ -43,42 +43,45 @@ class StatusViewState extends State<StatusView> {
       // Render the most recent prediction time as hh:mm.
       final time = DateTime.fromMillisecondsSinceEpoch(status.mostRecentPredictionTime! * 1000);
       final formattedTime = "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}";
-      problem = "Seit $formattedTime Uhr stehen keine Ampeldaten zur Verfügung.";
+      problem = "Seit $formattedTime Uhr senden Ampeln keine oder nur noch wenige Daten. Klicke hier für eine Störungskarte.";
     } else if(
       status.numThings != 0 &&
       status.numPredictions / status.numThings < 0.5
     ) {
-      problem = "Im Moment gibt es nur für ${((status.numPredictions / status.numThings) * 100).round()}% der Ampeln Prognosen.";
+      problem = "${((status.numPredictions / status.numThings) * 100).round()}% der Ampeln senden gerade Daten. Klicke hier für eine Störungskarte.";
     } else if(
       status.numPredictions != 0 && 
       status.numBadPredictions / status.numPredictions > 0.5
     ) {
-      problem = "Im Moment kann die Qualität der Prognosen für ${((status.numBadPredictions / status.numPredictions) * 100).round()}% der Ampeln niedriger als gewohnt sein.";
+      problem = "${((status.numBadPredictions / status.numPredictions) * 100).round()}% der Ampeln senden gerade lückenhafte Daten. Klicke hier für eine Störungskarte.";
     } else if(
       status.averagePredictionQuality != null &&
       status.averagePredictionQuality! < 0.5
     ) {
-      problem = "Im Moment kann die Qualität der Vorhersagen für Ampeln niedriger als gewohnt sein.";
+      problem = "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
     }
-
-    if (problem == null) return Container();
 
     bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 12), 
       child: Tile(
-        fill: isDark 
-          ? const Color.fromARGB(255, 134, 79, 79) 
-          : const Color.fromARGB(255, 255, 228, 228),
+        fill: problem != null
+          ? isDark 
+            ? const Color.fromARGB(255, 134, 79, 79) 
+            : const Color.fromARGB(255, 255, 228, 228)
+          : Theme.of(context).colorScheme.background,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Row(children: [
           Flexible(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BoldContent(text: "Vorübergehende Störung", context: context),
-              const SizedBox(height: 4),
-              Small(text: problem, context: context),
+              problem != null 
+                ? BoldContent(text: "Vorübergehende Störung", context: context)
+                : BoldContent(text: "Aktuelle Datenlage", context: context),
+              if (problem != null) const SizedBox(height: 4),
+              if (problem != null) Small(text: problem, context: context),
             ]),
+            fit: FlexFit.tight,
           ),
           const SmallHSpace(),
           Icon(

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-
+import 'package:priobike/accelerometer/models/acceleration.dart';
+import 'package:priobike/accelerometer/services/accelerometer.dart';
+import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +20,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/dangers/models/danger.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.
@@ -53,6 +56,12 @@ class Tracking with ChangeNotifier {
 
   /// The end time of this track, in milliseconds since the epoch.
   int? endTime;
+
+  /// The list of reported dangers after the ride.
+  List<Danger>? dangers;
+
+  /// The list of accelerometer data points after the ride.
+  List<Acceleration>? accelerations;
 
   /// The positions after the ride.
   List<Position>? positions;
@@ -108,6 +117,10 @@ class Tracking with ChangeNotifier {
     log.i("Ending the current track.");
     // Get the current time.
     endTime = DateTime.now().millisecondsSinceEpoch;
+    // Get the current dangers.
+    dangers = Provider.of<Dangers>(context, listen: false).dangers;
+    // Get the current accelerations.
+    accelerations = Provider.of<Accelerometer>(context, listen: false).accelerations;
     // Get the current positions.
     positions = Provider.of<Positioning>(context, listen: false).positions;
     // Get the current recommendations.
@@ -167,6 +180,8 @@ class Tracking with ChangeNotifier {
     settings = null;
     statusSummary = null;
     endTime = null;
+    dangers = null;
+    accelerations = null;
     positions = null;
     recommendations = null;
     logs = null;
@@ -182,6 +197,8 @@ class Tracking with ChangeNotifier {
     'positions': positions?.map((p) => p.toJson()).toList(),
     'recommendations': recommendations?.map((r) => r.toJson()).toList(),
     'logs': logs,
+    'dangers': dangers?.map((d) => d.toJson()).toList(),
+    'accelerations': accelerations?.map((d) => d.toJson()).toList(),
     'settings': settings?.toJson(),
     'statusSummary': statusSummary?.toJsonCamelCase(),
     'deviceInfo': deviceInfo?.toMap(),
