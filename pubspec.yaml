@@ -129,9 +129,13 @@ flutter:
 
     # Map symbols
     - assets/images/disconnected.drawio.png
+    - assets/images/disconnected-tilted.drawio.png
     - assets/images/online.drawio.png
+    - assets/images/online-tilted.drawio.png
     - assets/images/bad-signal.drawio.png
+    - assets/images/bad-signal-tilted.drawio.png
     - assets/images/offline.drawio.png
+    - assets/images/offline-tilted.drawio.png
     - assets/images/alert.drawio.png
     - assets/images/start.drawio.png
     - assets/images/destination.drawio.png

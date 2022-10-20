@@ -142,7 +142,7 @@ class HomeViewState extends State<HomeView> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(246, 234, 205, 100),
+          color: Color.fromARGB(246, 255, 153, 0),
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
         child: HPad(child: Row(children: [
@@ -167,9 +167,8 @@ class HomeViewState extends State<HomeView> {
           delegate: SliverChildListDelegate([
             const VSpace(),
             const StatusView(),
-            const SmallVSpace(),
             Row(children: [
-              const HSpace(),
+              const SizedBox(width: 40),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 BoldContent(text: "Deine Shortcuts", context: context),
                 const SizedBox(height: 4),
@@ -182,7 +181,7 @@ class HomeViewState extends State<HomeView> {
                 splash: Colors.white,
                 onPressed: onOpenShortcutEditView,
               ),
-              const HSpace(),
+              const SizedBox(width: 40),
             ]),
             const VSpace(),
             const TutorialView(
@@ -191,7 +190,6 @@ class HomeViewState extends State<HomeView> {
               padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
             ),
             ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
-            const VSpace(),
             const ProfileView(),
             const VSpace(),
             const SmallVSpace(),

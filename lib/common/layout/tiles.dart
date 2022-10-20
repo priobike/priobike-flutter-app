@@ -14,6 +14,15 @@ class Tile extends StatelessWidget {
   /// The splash of the tile, if the tile is tappable (a callback is passed).
   final Color splash;
 
+  /// The color of the shadow in light mode.
+  final Color shadow;
+
+  /// The intensity of the shadow.
+  final double shadowIntensity;
+
+  /// If the shadow should be visible.
+  final bool showShadow;
+
   /// The padding of the tile.
   final EdgeInsets padding;
 
@@ -26,50 +35,44 @@ class Tile extends StatelessWidget {
     this.onPressed,
     this.fill,
     this.splash = Colors.grey,
+    this.shadow = Colors.black,
+    this.shadowIntensity = 0.05,
+    this.showShadow = true,
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
   }) : super(key: key);
   
   @override 
   Widget build(BuildContext context) {
-    // If we have no callback, we use a container wrapper.
-    // This is to optimize the UI performance, since
-    // no additional splash layer etc. needs to be generated
-    // and the tile is widely used in the UI.
-    if (onPressed == null) {
-      return Container(
-        padding: padding, 
-        decoration: BoxDecoration(
-          color: fill,
+    return Container(
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: borderRadius,
+        boxShadow: showShadow ? [
+          BoxShadow(
+            color: shadow.withOpacity(shadowIntensity),
+            blurRadius: 12,
+            offset: const Offset(0, 8),
+          ),
+        ] : null,
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.07)
+            : Colors.black.withOpacity(0.07),
+        ),
+      ),
+      child: onPressed == null
+        ? Padding(padding: padding, child: content)
+        : Material(
           borderRadius: borderRadius,
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white.withOpacity(0.1)
-              : Colors.black.withOpacity(0.1),
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: borderRadius,
+            splashColor: splash,
+            onTap: onPressed,
+            child: Padding(padding: padding, child: content),
           ),
         ),
-        child: content,
-      );
-    }
-    // Otherwise, we use a button wrapper with splash color.
-    return RawMaterialButton(
-      // Hide ugly material shadows.
-      elevation: 0,
-      hoverElevation: 0,
-      focusElevation: 0,
-      highlightElevation: 0,
-      fillColor: fill ?? Theme.of(context).colorScheme.background,
-      splashColor: splash,
-      child: Container(
-        padding: padding, 
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          border: Border.all(color: Colors.black.withOpacity(0.1)),
-        ),
-        child: content,
-      ),
-      onPressed: onPressed,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
     );
   }
 }

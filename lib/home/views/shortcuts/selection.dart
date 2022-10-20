@@ -32,47 +32,44 @@ class ShortcutView extends StatelessWidget {
     return Container(
       alignment: Alignment.centerLeft,
       constraints: BoxConstraints(minWidth: width, maxWidth: width),
-      padding: EdgeInsets.only(right: rightPad),
+      padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
+        shadow: isHighlighted 
+          ? const Color.fromARGB(255, 0, 64, 255) 
+          : const Color.fromARGB(255, 0, 0, 0),
+        shadowIntensity: isHighlighted ? 0.3 : 0.08,
+        padding: const EdgeInsets.all(16),
         content: SizedBox(
           height: 128,
-          child: Row(children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: isLoading
-                    ? [
-                        const Expanded(
-                            child: Center(child: CircularProgressIndicator()))
-                      ]
-                    : [
-                        Icon(icon,
-                            size: 64,
-                            color: isHighlighted
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.brightness ==
-                                        Brightness.dark
-                                    ? Colors.grey
-                                    : Colors.black),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Content(
-                            text: title,
-                            color: isHighlighted
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.brightness ==
-                                        Brightness.dark
-                                    ? Colors.grey
-                                    : Colors.black,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            context: context),
-                      ],
-              ),
-            ),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: isLoading
+              ? [ const Expanded(child: Center(child: CircularProgressIndicator())) ]
+              : [
+                  Icon(
+                    icon,
+                    size: 64,
+                    color: isHighlighted
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? Colors.grey
+                        : Colors.black,
+                  ),
+                  Expanded(child: Container()),
+                  Content(
+                    text: title,
+                    color: isHighlighted
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? Colors.grey
+                        : Colors.black,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    context: context,
+                  ),
+                ],
+          ),
         ),
         fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         splash: isHighlighted ? Colors.white : Colors.black,

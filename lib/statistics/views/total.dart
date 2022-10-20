@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -61,7 +60,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          const HSpace(),
+          const SizedBox(width: 40),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             BoldContent(text: "Fahrtstatistiken", context: context),
             const SizedBox(height: 4),
@@ -93,7 +92,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
               );
             },
           ),
-          const HSpace(),
+          const SizedBox(width: 40),
         ]),
         GridView.count(
           primary: false,
@@ -140,16 +139,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             StatisticsElementView(
               icon: Icons.speed,
               title: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
-              context: context,
-            ),
-            StatisticsElementView(
-              icon: Icons.arrow_upward,
-              title: "${(statistics.totalElevationGain?.toInt() ?? 0)} m",
-              context: context,
-            ),
-            StatisticsElementView(
-              icon: Icons.arrow_downward,
-              title: "${(statistics.totalElevationLoss?.toInt() ?? 0)} m",
               context: context,
             ),
           ],

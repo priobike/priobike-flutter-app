@@ -61,32 +61,31 @@ class StatusViewState extends State<StatusView> {
       problem = "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
     }
 
-    bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 12), 
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24), 
       child: Tile(
         fill: problem != null
-          ? isDark 
-            ? const Color.fromARGB(255, 134, 79, 79) 
-            : const Color.fromARGB(255, 255, 228, 228)
+          ? const Color.fromARGB(255, 235, 59, 90)
           : Theme.of(context).colorScheme.background,
+        shadowIntensity: problem != null ? 0.2 : 0.05,
+        shadow: problem != null ? const Color.fromARGB(255, 235, 59, 90) : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Row(children: [
           Flexible(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               problem != null 
-                ? BoldContent(text: "Vorübergehende Störung", context: context)
+                ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
                 : BoldContent(text: "Aktuelle Datenlage", context: context),
               if (problem != null) const SizedBox(height: 4),
-              if (problem != null) Small(text: problem, context: context),
+              if (problem != null) Small(text: problem, context: context, color: Colors.white),
             ]),
             fit: FlexFit.tight,
           ),
           const SmallHSpace(),
           Icon(
             Icons.chevron_right, 
-            color: isDark ? Colors.white : Colors.black,
+            color: problem != null ? Colors.white : Theme.of(context).colorScheme.onBackground,
           ),
         ]),
       )

@@ -96,6 +96,7 @@ class LayerSelectionItem extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         borderRadius: BorderRadius.circular(26),
         splash: Theme.of(context).colorScheme.primary,
+        fill: Theme.of(context).colorScheme.surface,
         onPressed: onTap,
         content: Container(
           width: double.infinity,

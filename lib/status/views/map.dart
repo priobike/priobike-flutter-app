@@ -137,9 +137,9 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
 
     mapController?.updateContentInsets(EdgeInsets.only(
       top: 0,
-      bottom: 142 + MediaQuery.of(context).padding.bottom,
-      left: 0,
-      right: 0,
+      bottom: 128 + MediaQuery.of(context).padding.bottom,
+      left: 18,
+      right: 18,
     ));
   }
 
@@ -263,7 +263,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Tile(
-              fill: Colors.white,
+              fill: Theme.of(context).colorScheme.background,
               content: SizedBox(height: 80, child: PageView.builder(
                 itemCount: SGStatusMapViewMode.all.length,
                 onPageChanged: (index) {
@@ -286,7 +286,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                         ),
                       ),
                       const HSpace(),
-                      Small(text: e.title, context: context, color: Colors.black),
+                      Small(text: e.title, context: context),
                     ]),
                   )).toList());
                 },

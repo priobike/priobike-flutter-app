@@ -51,12 +51,12 @@ class DangerButtonState extends State<DangerButton> {
           constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           child: AnimatedCrossFade(
             duration: const Duration(milliseconds: 300),
-            firstChild: const SizedBox(
+            firstChild: SizedBox(
               width: 64,
               height: 64,
               child: Icon(
                 Icons.warning_rounded,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
             secondChild: SizedBox(
@@ -65,9 +65,9 @@ class DangerButtonState extends State<DangerButton> {
               child: Row(
                 children: [
                   const HSpace(),
-                  const Icon(
+                  Icon(
                     Icons.warning_rounded,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
                   const SmallHSpace(),
                   Flexible(child: BoldContent(text: "Gefahr melden", context: context, maxLines: 1)),

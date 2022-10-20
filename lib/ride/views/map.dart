@@ -146,7 +146,7 @@ class RideMapViewState extends State<RideMapView> {
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.25;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
       if (status == null) {
@@ -155,6 +155,7 @@ class RideMapViewState extends State<RideMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
+            tilted: true,
           ),
         ));
       } else if (status.predictionState == SGPredictionState.offline) {
@@ -163,6 +164,7 @@ class RideMapViewState extends State<RideMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
+            tilted: true,
           ),
         ));
       } else if (status.predictionState == SGPredictionState.bad) {
@@ -171,6 +173,7 @@ class RideMapViewState extends State<RideMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
+            tilted: true,
           ),
         ));
       } else {
@@ -179,6 +182,7 @@ class RideMapViewState extends State<RideMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
+            tilted: true,
           ),
         ));
       }

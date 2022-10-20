@@ -36,6 +36,7 @@ class ProfileElementButton extends StatelessWidget {
         splash: touchColor ?? theme.colorScheme.primary,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         padding: const EdgeInsets.all(8),
+        showShadow: false,
         content: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +167,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: Icons.electric_bike, 
                       title: "Radtyp", 
                       color: Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: toggleBikeSelection
                     )
                   : ProfileElementButton(
@@ -191,7 +192,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: Icons.thumbs_up_down, 
                       title: "Präferenz", 
                       color: Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: togglePreferenceSelection,
                     )
                   : ProfileElementButton(
@@ -216,7 +217,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: Icons.home_work, 
                       title: "Aktivität", 
                       color: Theme.of(context).colorScheme.onBackground,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.background,
                       onPressed: toggleActivitySelection,
                     )
                   : ProfileElementButton(
