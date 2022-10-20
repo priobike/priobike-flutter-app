@@ -9,6 +9,9 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 class Route {
+  /// The route id.
+  final int id;
+
   /// The GraphHopper route response path.
   final GHRouteResponsePath path;
 
@@ -25,6 +28,7 @@ class Route {
   final List<Crossing> crossings;
 
   const Route({
+    required this.id,
     required this.path,
     required this.route,
     required this.signalGroups,
@@ -32,6 +36,7 @@ class Route {
   });
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'path': path.toJson(),
     'route': route.map((e) => e.toJson()).toList(),
     'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
@@ -39,6 +44,7 @@ class Route {
   };
 
   factory Route.fromJson(dynamic json) => Route(
+    id: json["id"],
     path: GHRouteResponsePath.fromJson(json['path']),
     route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
     signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
@@ -59,6 +65,7 @@ class Route {
       latlng.LatLng(endpoint.lat, endpoint.lon)
     );
     return Route(
+      id: id,
       path: path,
       signalGroups: signalGroups,
       route: [

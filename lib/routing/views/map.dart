@@ -300,7 +300,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (mapboxMapController == null ||
         mapboxMapController!.cameraPosition == null ||
         routing.allRoutes == null ||
-        routing.allRoutes!.length != 2) return;
+        routing.allRoutes!.length != 2 ||
+        routing.selectedRoute == null) return;
+
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
 
     final oldRouteLabelLocations = routeLabelLocations;
     routeLabelLocations = [];
@@ -340,8 +343,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
             for (var checkCoord in routeCoords.path.points.coordinates) {
               if (checkCoord == coord) {
                 unique = false;
-              } else {
-              }
+              } else {}
             }
           }
         }
@@ -354,11 +356,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
             coord.lon > west.longitude &&
             coord.lon < east.longitude) {
           // Check if the coordinate is close to the camera.
-          if (distance.distance(LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
+          if (distance.distance(
+                  LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
               closestDistance) {
             chosenCoordinate = coord;
-            closestDistance =
-                distance.distance(LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
+            closestDistance = distance.distance(
+                LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
           }
         }
       }
@@ -366,9 +369,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
       if (chosenCoordinate != null) {
         // Found coordinate and add Label with time.
         routeLabelLocations!.add(await mapboxMapController!.addSymbol(
-          DiscomfortLocationMarker(
-              geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon), number: 20, iconSize: 1),
-          {"data": route.toJson(), "isRouteLabel" : true},
+          RouteLabel(
+              primary: routing.selectedRoute!.id == route.id,
+              geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon),
+              number: ((route.path.time * 0.001) * 0.016).round(),
+              iconSize: iconSize),
+          {"data": route.toJson(), "isRouteLabel": true},
         ));
         mapboxMapController!.onSymbolTapped.add((argument) {
           // Check if symbol is a RouteLabel.

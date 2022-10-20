@@ -40,6 +40,9 @@ class SymbolLoader {
     await addImageFromAsset("rentlight", "assets/images/rent-light.png");
     await addImageFromAsset("repairdark", "assets/images/repair-dark.png");
     await addImageFromAsset("repairlight", "assets/images/repair-light.png");
+
+    await addImageFromAsset("routeLabelSMM", "assets/images/route-label-smm.png");
+    await addImageFromAsset("routeLabelPMM", "assets/images/route-label-pmm.png");
   }
 
   /// Adds an asset image to the currently displayed style
@@ -64,6 +67,27 @@ class DiscomfortLocationMarker extends SymbolOptions {
     textField: "$number",
     textSize: 12,
     zIndex: 1,
+  );
+}
+
+/// A map layer which is a label for the Route with time.
+class RouteLabel extends SymbolOptions {
+  /// Create a new discomfort location marker.
+  RouteLabel({
+    required LatLng geo,
+    required int number,
+    double iconSize = 0.5,
+    required bool primary,
+  }): super(
+    geometry: geo,
+    iconImage: primary ? "routeLabelPMM" : "routeLabelSMM",
+    iconSize: iconSize,
+    iconOffset: const Offset(0, -10),
+    textField: "$number min",
+    textOffset: const Offset(0, -1.25),
+    textSize: 12,
+    textColor: primary ? "#ffffff" : "#000000",
+    zIndex: 6,
   );
 }
 

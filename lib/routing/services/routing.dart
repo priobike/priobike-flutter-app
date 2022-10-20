@@ -349,11 +349,13 @@ class Routing with ChangeNotifier {
         sgsInOrderOfRoute.add(sg);
       }
       var route = r.Route(
+        id: i,
         path: path, 
         route: sgSelectorResponse.route, 
         signalGroups: sgsInOrderOfRoute,
         crossings: sgSelectorResponse.crossings,
       );
+
       // Connect the route to the start and end points.
       route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
       return MapEntry(i, route);
