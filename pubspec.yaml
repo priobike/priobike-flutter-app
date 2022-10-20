@@ -181,3 +181,7 @@ flutter:
     - assets/images/screenshots/minimal-recommendation-dark.png
     - assets/images/screenshots/minimal-countdown-light.png
     - assets/images/screenshots/minimal-countdown-dark.png
+
+    # Route Label
+    - assets/images/route-label-pbl.png
+    - assets/images/route-label-pmm.png
