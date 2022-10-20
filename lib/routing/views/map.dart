@@ -333,11 +333,27 @@ class RoutingMapViewState extends State<RoutingMapView> {
       double closestDistance = double.infinity;
       GHCoordinate? chosenCoordinate;
       for (GHCoordinate coord in route.path.points.coordinates) {
+        // Check if the coordinate is unique and not on the same line.
+        bool unique = true;
+        for (r.Route routeCoords in routing.allRoutes!) {
+          if (!(routeCoords == route)) {
+            for (var checkCoord in routeCoords.path.points.coordinates) {
+              if (checkCoord == coord) {
+                unique = false;
+              } else {
+              }
+            }
+          }
+        }
+
+        if (!unique) return;
+
         // Check bounds, no check for side of earth needed since in Hamburg.
         if (coord.lat > south.latitude &&
             coord.lat < north.latitude &&
             coord.lon > west.longitude &&
             coord.lon < east.longitude) {
+          // Check if the coordinate is close to the camera.
           if (distance.distance(LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
               closestDistance) {
             chosenCoordinate = coord;
@@ -352,10 +368,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
         routeLabelLocations!.add(await mapboxMapController!.addSymbol(
           DiscomfortLocationMarker(
               geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon), number: 20, iconSize: 1),
-          {"data": "test"},
+          {"data": route.toJson(), "isRouteLabel" : true},
         ));
         mapboxMapController!.onSymbolTapped.add((argument) {
-          print(argument.data);
+          // Check if symbol is a RouteLabel.
+          if (argument.data != null && argument.data!["isRouteLabel"]) {
+            r.Route selectedRoute = r.Route.fromJson(argument.data!["data"]);
+            routing.switchToRoute(context, selectedRoute);
+          }
         });
       }
     }
