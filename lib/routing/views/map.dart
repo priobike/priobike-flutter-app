@@ -336,19 +336,25 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Search appropriate Point in Route
     for (r.Route route in routing.allRoutes!) {
       // Find closest to camera in bounds
-      double closestDistance = double.infinity;
       GHCoordinate? chosenCoordinate;
-      for (GHCoordinate coord in route.path.points.coordinates) {
+      List<GHCoordinate> uniqueInBounceCoordinates = [];
+
+      // go through all coordinates.
+      for (GHCoordinate coordinate in route.path.points.coordinates) {
         // Check if the coordinate is unique and not on the same line.
         bool unique = true;
         // Loop through all route coordinates.
         for (r.Route routeToBeChecked in routing.allRoutes!) {
           // Would always be not unique without this check.
           if (routeToBeChecked.id != route.id) {
+            // Compare coordinate to all coordinates in other route.
             for (GHCoordinate coordinateToBeChecked
                 in routeToBeChecked.path.points.coordinates) {
-              if (coordinateToBeChecked.lon == coord.lon &&
-                  coordinateToBeChecked.lat == coord.lat) {
+              if (!unique) {
+                break;
+              }
+              if (coordinateToBeChecked.lon == coordinate.lon &&
+                  coordinateToBeChecked.lat == coordinate.lat) {
                 unique = false;
               }
             }
@@ -357,20 +363,18 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
         if (unique) {
           // Check bounds, no check for side of earth needed since in Hamburg.
-          if (coord.lat > south.latitude &&
-              coord.lat < north.latitude &&
-              coord.lon > west.longitude &&
-              coord.lon < east.longitude) {
-            // Check if the coordinate is closer to the camera then the previous coordinate.
-            if (distance.distance(
-                    LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
-                closestDistance) {
-              chosenCoordinate = coord;
-              closestDistance = distance.distance(
-                  LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
-            }
+          if (coordinate.lat > south.latitude &&
+              coordinate.lat < north.latitude &&
+              coordinate.lon > west.longitude &&
+              coordinate.lon < east.longitude) {
+            uniqueInBounceCoordinates.add(coordinate);
           }
         }
+      }
+
+      // Determine which coordinate to use.
+      if (uniqueInBounceCoordinates.isNotEmpty) {
+        chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length~/2];
       }
 
       if (chosenCoordinate != null) {
