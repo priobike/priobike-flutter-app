@@ -28,16 +28,25 @@ class SmallIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: 48,
       height: 48,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.04)
+            : Colors.black.withOpacity(0.04),
+          width: 1,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+      ),
       child: RawMaterialButton(
         elevation: 0,
         // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(11),
           child: Icon(
             icon,
             color: color ?? Theme.of(context).colorScheme.onBackground,

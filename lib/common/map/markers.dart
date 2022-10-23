@@ -14,9 +14,13 @@ class SymbolLoader {
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
     await addImageFromAsset("disconnected", "assets/images/disconnected.drawio.png");
+    await addImageFromAsset("disconnectedtilted", "assets/images/disconnected-tilted.drawio.png");
     await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
+    await addImageFromAsset("badsignaltilted", "assets/images/bad-signal-tilted.drawio.png");
     await addImageFromAsset("offline", "assets/images/offline.drawio.png");
+    await addImageFromAsset("offlinetilted", "assets/images/offline-tilted.drawio.png");
     await addImageFromAsset("online", "assets/images/online.drawio.png");
+    await addImageFromAsset("onlinetilted", "assets/images/online-tilted.drawio.png");
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
     await addImageFromAsset("destination", "assets/images/destination.drawio.png");
@@ -121,10 +125,11 @@ class OnlineMarker extends TrafficLightOffMarker {
     required LatLng geo,
     double iconSize = 1,
     String? label,
+    bool tilted = false,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "online",
+    iconImage: tilted ? "onlinetilted" : "online",
     zIndex: 3,
     label: label,
   );
@@ -135,10 +140,11 @@ class DisconnectedMarker extends TrafficLightOffMarker {
     required LatLng geo,
     double iconSize = 1,
     String? label,
+    bool tilted = false,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "disconnected",
+    iconImage: tilted ? "disconnectedtilted" : "disconnected",
     zIndex: 3,
     label: label,
   );
@@ -149,10 +155,11 @@ class OfflineMarker extends TrafficLightOffMarker {
     required LatLng geo,
     double iconSize = 1,
     String? label,
+    bool tilted = false,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "offline",
+    iconImage: tilted ? "offlinetilted" : "offline",
     zIndex: 3,
     label: label,
   );
@@ -163,10 +170,11 @@ class BadSignalMarker extends TrafficLightOffMarker {
     required LatLng geo,
     double iconSize = 1,
     String? label,
+    bool tilted = false,
   }): super(
     geo: geo,
     iconSize: iconSize,
-    iconImage: "badsignal",
+    iconImage: tilted ? "badsignaltilted" : "badsignal",
     zIndex: 3,
     label: label,
   );
