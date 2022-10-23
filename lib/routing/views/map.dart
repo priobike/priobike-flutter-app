@@ -294,9 +294,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await mapboxMapController?.removeLines(oldDiscomfortSections ?? []);
   }
 
-  /// Load the discomforts.
+  /// Load the Route labels.
   Future<void> loadRouteLabels() async {
-    // If we have no map controller, we cannot load the layerouting.
+    // If we have no map controller, we cannot load the routing labels.
     if (mapboxMapController == null ||
         mapboxMapController!.cameraPosition == null ||
         routing.allRoutes == null ||
@@ -319,8 +319,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
     double cameraPosLong =
         mapboxMapController!.cameraPosition!.target.longitude;
 
+    // Cast to LatLng2 format.
     LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
 
+    // Getting the bounds north, east, south, west.
+    // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
     LatLng2.LatLng north =
         distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
     LatLng2.LatLng east =
@@ -338,34 +341,38 @@ class RoutingMapViewState extends State<RoutingMapView> {
       for (GHCoordinate coord in route.path.points.coordinates) {
         // Check if the coordinate is unique and not on the same line.
         bool unique = true;
-        for (r.Route routeCoords in routing.allRoutes!) {
-          if (!(routeCoords == route)) {
-            for (var checkCoord in routeCoords.path.points.coordinates) {
-              if (checkCoord == coord) {
+        // Loop through all route coordinates.
+        for (r.Route routeToBeChecked in routing.allRoutes!) {
+          // Would always be not unique without this check.
+          if (routeToBeChecked.id != route.id) {
+            for (GHCoordinate coordinateToBeChecked
+                in routeToBeChecked.path.points.coordinates) {
+              if (coordinateToBeChecked.lon == coord.lon &&
+                  coordinateToBeChecked.lat == coord.lat) {
                 unique = false;
-              } else {}
+              }
             }
           }
         }
 
-        if (!unique) return;
-
-        // Check bounds, no check for side of earth needed since in Hamburg.
-        if (coord.lat > south.latitude &&
-            coord.lat < north.latitude &&
-            coord.lon > west.longitude &&
-            coord.lon < east.longitude) {
-          // Check if the coordinate is close to the camera.
-          if (distance.distance(
-                  LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
-              closestDistance) {
-            chosenCoordinate = coord;
-            closestDistance = distance.distance(
-                LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
+        if (unique) {
+          // Check bounds, no check for side of earth needed since in Hamburg.
+          if (coord.lat > south.latitude &&
+              coord.lat < north.latitude &&
+              coord.lon > west.longitude &&
+              coord.lon < east.longitude) {
+            // Check if the coordinate is closer to the camera then the previous coordinate.
+            if (distance.distance(
+                    LatLng2.LatLng(coord.lat, coord.lon), cameraPos) <
+                closestDistance) {
+              chosenCoordinate = coord;
+              closestDistance = distance.distance(
+                  LatLng2.LatLng(coord.lat, coord.lon), cameraPos);
+            }
           }
         }
       }
-      // TODO add Symbol with time text and offset to Route
+
       if (chosenCoordinate != null) {
         // Found coordinate and add Label with time.
         routeLabelLocations!.add(await mapboxMapController!.addSymbol(
