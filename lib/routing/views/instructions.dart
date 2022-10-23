@@ -113,11 +113,7 @@ class InstructionsViewState extends State<InstructionsView> {
                   const SizedBox(width: 80),
                 ]),
                 const SizedBox(height: 20),
-
-                /// height = height - 20 - 88 - 20 - view.inset.top (padding, backButton, offset)
-                SizedBox(
-                  width: frame.size.width,
-                  height: frame.size.height - 128,
+                Expanded(
                   child: ListView(
                     children: instructionItems,
                   ),
