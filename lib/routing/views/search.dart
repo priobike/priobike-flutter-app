@@ -193,7 +193,7 @@ class SearchViewState extends State<SearchView> {
                                         _locationSearchController),
                               ),
                             ]),
-                        const ShortCuts(),
+                        const ShortCutsRow(),
                       ],
                     ),
                   ),

@@ -505,7 +505,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                       startSearch: _startSearch),
                                 ),
                               ]),
-                    !waypointsSelected ? const ShortCuts() : Container(),
+                    !waypointsSelected ? const ShortCutsRow() : Container(),
                     showRoutingBar
                         ? Padding(
                             /// Align with FAB
