@@ -175,6 +175,7 @@ class Routing with ChangeNotifier {
       )).toList());
       final response = await httpClient.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
       if (response.statusCode == 200) {
+        log.i("Loaded SG-Selector response from $sgSelectorUrl");
         return SGSelectorResponse.fromJson(json.decode(response.body));
       } else {
         log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
@@ -261,6 +262,7 @@ class Routing with ChangeNotifier {
 
       final response = await httpClient.get(ghEndpoint);
       if (response.statusCode == 200) {
+        log.i("Loaded GraphHopper response from $ghUrl");
         return GHRouteResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         log.e("Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
