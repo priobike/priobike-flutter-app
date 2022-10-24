@@ -23,13 +23,19 @@ class ZoomInAndOutButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
             borderRadius: const BorderRadius.all(Radius.circular(25.0)),
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.black.withOpacity(0.04),
+              width: 1,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child:
-                    SmallIconButton(icon: Icons.add, onPressed: () => zoomIn()),
+                    SmallIconButton(icon: Icons.add, onPressed: () => zoomIn(), withBorder: false),
               ),
               Container(
                 width: 40,
@@ -41,7 +47,7 @@ class ZoomInAndOutButton extends StatelessWidget {
               ),
               Expanded(
                 child: SmallIconButton(
-                    icon: Icons.remove, onPressed: () => zoomOut()),
+                    icon: Icons.remove, onPressed: () => zoomOut(), withBorder: false),
               ),
             ],
           ),

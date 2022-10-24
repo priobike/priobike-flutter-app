@@ -17,12 +17,16 @@ class SmallIconButton extends StatelessWidget {
   /// The optional splash color of the button.
   final Color? splash;
 
+  /// The optional splash color of the button.
+  final bool withBorder;
+
   const SmallIconButton({
     required this.icon,
     required this.onPressed,
     this.color,
     this.fill,
     this.splash,
+    this.withBorder = true,
     Key? key,
   }) : super(key: key);
 
@@ -32,12 +36,14 @@ class SmallIconButton extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.white.withOpacity(0.04)
-            : Colors.black.withOpacity(0.04),
-          width: 1,
-        ),
+        border: withBorder
+            ? Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.04)
+                    : Colors.black.withOpacity(0.04),
+                width: 1,
+              )
+            : null,
         borderRadius: const BorderRadius.all(Radius.circular(24)),
       ),
       child: RawMaterialButton(
@@ -85,7 +91,8 @@ class AppBackButton extends StatelessWidget {
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
+          padding:
+              const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
           child: Icon(
             icon,
             size: 32,
@@ -218,7 +225,8 @@ class IconTextButton extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
+    this.boxConstraints =
+        const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
     this.borderColor,
     this.textColor,
   }) : super(key: key);
@@ -253,7 +261,8 @@ class IconTextButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                  style:
+                      TextStyle(color: textColor ?? Colors.white, fontSize: 14),
                 ),
               ),
             ),

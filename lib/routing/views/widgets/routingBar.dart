@@ -15,9 +15,7 @@ import 'package:provider/provider.dart';
 Future<void> onSearch(BuildContext context, Routing routing, int? index) async {
   await Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (_) =>
-          SearchView(
-              index: index),
+      builder: (_) => SearchView(index: index),
     ),
   );
 
@@ -33,10 +31,11 @@ class RoutingBar extends StatefulWidget {
   final bool fromRoutingSearch;
   final Function? checkNextItem;
 
-  const RoutingBar({Key? key,
-    this.locationSearchController,
-    required this.fromRoutingSearch,
-    this.checkNextItem})
+  const RoutingBar(
+      {Key? key,
+      this.locationSearchController,
+      required this.fromRoutingSearch,
+      this.checkNextItem})
       : super(key: key);
 
   @override
@@ -88,8 +87,7 @@ class RoutingBarState extends State<RoutingBar> {
       }
     } else {
       if (widget.fromRoutingSearch && routing.routingItems.isEmpty) {
-        if (profile.setLocationAsStart &&
-            currentLocationWaypoint != null) {
+        if (profile.setLocationAsStart && currentLocationWaypoint != null) {
           routing.routingItems = [currentLocationWaypoint, null];
           routing.nextItem = 1;
         } else {
@@ -122,6 +120,7 @@ class RoutingBarState extends State<RoutingBar> {
 
     IconData? trailingIcon;
     if (index < max - 1) trailingIcon = Icons.remove;
+    if (max == 2 && index == 0) trailingIcon = Icons.swap_vert;
     if (index == max - 1) trailingIcon = Icons.add;
 
     return Row(
@@ -135,24 +134,24 @@ class RoutingBarState extends State<RoutingBar> {
               leadingIcon != null
                   ? Icon(leadingIcon)
                   : Container(
-                width: 24,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white)),
-                child: Center(
-                  child:
-                  Content(text: index.toString(), context: context),
-                ),
-              ),
+                      width: 24,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white)),
+                      child: Center(
+                        child:
+                            Content(text: index.toString(), context: context),
+                      ),
+                    ),
               index < max - 1
                   ? Positioned(
-                left: 3,
-                top: index == 0 ? 23 : 20,
-                child: const Icon(
-                  Icons.more_vert,
-                  size: 18,
-                ),
-              )
+                      left: 3,
+                      top: index == 0 ? 23 : 20,
+                      child: const Icon(
+                        Icons.more_vert,
+                        size: 18,
+                      ),
+                    )
                   : Container(),
             ],
           ),
@@ -173,20 +172,14 @@ class RoutingBarState extends State<RoutingBar> {
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
                   decoration: BoxDecoration(
-                    color: Theme
-                        .of(context)
-                        .colorScheme
-                        .surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
                     ),
                     border: Border.all(
                         color: nextItem == index
-                            ? Theme
-                            .of(context)
-                            .colorScheme
-                            .primary
+                            ? Theme.of(context).colorScheme.primary
                             : Colors.grey),
                   ),
                   child: Align(
@@ -194,11 +187,11 @@ class RoutingBarState extends State<RoutingBar> {
                     child: Content(
                         text: waypoint != null
                             ? waypoint.address != null
-                            ? waypoint.address!.toString()
-                            : "Aktueller Standort"
+                                ? waypoint.address!.toString()
+                                : "Aktueller Standort"
                             : index > 0
-                            ? "Ziel auswählen"
-                            : "Start auswählen",
+                                ? "Ziel auswählen"
+                                : "Start auswählen",
                         context: context,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -215,7 +208,11 @@ class RoutingBarState extends State<RoutingBar> {
             icon: Icon(trailingIcon),
             onPressed: () {
               if (index < max - 1) {
-                onRemoveWaypoint(context, index, max);
+                if (index == 0 && max == 2) {
+                  swapWaypoints(context);
+                } else {
+                  onRemoveWaypoint(context, index, max);
+                }
               } else {
                 if (widget.fromRoutingSearch) {
                   _onSearchRoutingBar(context, index, true);
@@ -231,9 +228,23 @@ class RoutingBarState extends State<RoutingBar> {
     );
   }
 
-  /// A callback which is executed when the map was created.
-  Future<void> onRemoveWaypoint(BuildContext context, int index,
-      int max) async {
+  /// A function which swaps the waypoints if exactly 2 are selected and the swap button is pressed.
+  void swapWaypoints(BuildContext context) {
+    print("HERE");
+    if (routing.selectedWaypoints == null ||
+        routing.selectedWaypoints!.length != 2) return;
+
+    final waypointsSwapped = [
+      routing.selectedWaypoints![1],
+      routing.selectedWaypoints![0]
+    ];
+
+    routing.selectWaypoints(waypointsSwapped);
+    routing.loadRoutes(context);
+  }
+
+  /// A function which removes the selected waypoint.
+  void onRemoveWaypoint(BuildContext context, int index, int max) {
     if (widget.fromRoutingSearch) {
       if (index != 0 && routing.routingItems.length > 2) {
         setState(() {
@@ -309,10 +320,7 @@ class RoutingBarState extends State<RoutingBar> {
     return Material(
       elevation: 5,
       child: Container(
-        color: Theme
-            .of(context)
-            .colorScheme
-            .surface,
+        color: Theme.of(context).colorScheme.surface,
         width: frame.size.width,
         child: SafeArea(
           top: true,
@@ -365,7 +373,7 @@ class RoutingBarState extends State<RoutingBar> {
                             routing.selectedWaypoints!.isEmpty) return;
 
                         final reorderedWaypoints =
-                        routing.selectedWaypoints!.toList();
+                            routing.selectedWaypoints!.toList();
                         final waypoint = reorderedWaypoints.removeAt(oldIndex);
                         reorderedWaypoints.insert(newIndex, waypoint);
 
@@ -380,7 +388,7 @@ class RoutingBarState extends State<RoutingBar> {
                         if (oldIndex == newIndex) return;
                         setState(() {
                           final waypoint =
-                          routing.routingItems.removeAt(oldIndex);
+                              routing.routingItems.removeAt(oldIndex);
                           routing.routingItems.insert(newIndex, waypoint);
                         });
                         widget.checkNextItem!();
