@@ -30,11 +30,21 @@ class RoutesViewState extends State<RoutesView> {
     super.didChangeDependencies();
   }
 
+  /// A callback that is executed when a shortcut should be deleted.
+  Future<void> onDeleteShortcut(Shortcut shortcut) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty) return;
+
+    final newShortcuts = shortcuts.shortcuts!.toList();
+    newShortcuts.remove(shortcut);
+
+    shortcuts.updateShortcuts(newShortcuts, context);
+  }
+
   Widget _waypointItem(Waypoint waypoint) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Content(
           context: context,
           text: waypoint.address ?? "Keine Addresse vorhanden",
@@ -80,7 +90,7 @@ class RoutesViewState extends State<RoutesView> {
               SmallIconButton(
                 icon: Icons.delete,
                 onPressed: () {
-                  print("DEELTE");
+                  onDeleteShortcut(shortcut);
                 },
               ),
             ],
