@@ -12,18 +12,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/place.dart';
 
 class Places with ChangeNotifier {
-  /// All available shortcuts.
+  /// All available places.
   List<Place>? places;
 
   Places();
 
-  /// Reset the shortcuts service.
+  /// Reset the places service.
   Future<void> reset() async {
     places = null;
   }
 
-  /// Save a new shortcut.
-  Future<void> saveNewShortcut(String name, BuildContext context) async {
+  /// Save a new place from selected waypoint.
+  Future<void> saveNewPlaceFromWaypoint(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
@@ -36,11 +36,21 @@ class Places with ChangeNotifier {
         waypoint.address = address;
       }
     }
+    // Save the first waypoint.
     final newPlace =
         Place(name: name, waypoint: routing.selectedWaypoints![0]);
     if (places == null) await loadPlaces(context);
     if (places == null) return;
     places = [newPlace] + places!;
+    await storePlaces(context);
+    notifyListeners();
+  }
+
+  /// Save a new place.
+  Future<void> saveNewPlace(Place place, BuildContext context) async {
+    if (places == null) await loadPlaces(context);
+    if (places == null) return;
+    places = [place] + places!;
     await storePlaces(context);
     notifyListeners();
   }

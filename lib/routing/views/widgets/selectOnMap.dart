@@ -7,7 +7,10 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/models/place.dart';
+import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -46,6 +49,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// The associated geosearch service, which is injected by the provider.
   late Profile profile;
+
+  /// The associated place service, which is injected by the provider.
+  late Places places;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -114,7 +120,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
     mapController.centerNorth(ControllerType.selectOnMap);
   }
 
-  /// A function that is executed when the complete button is pressed
+  /// A function that is executed when the complete button is pressed.
   Future<void> onComplete(BuildContext context, double lat, double lon) async {
     String? address = await geocoding.reverseGeocodeLatLng(context, lat, lon);
 
@@ -122,28 +128,33 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
     final waypoint = Waypoint(lat, lon, address: address);
 
-    final waypoints = routing.selectedWaypoints ?? [];
-    // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
-    if (widget.index != null) {
-      newWaypoints[widget.index!] = waypoint;
+    if (widget.withName) {
+      Place newPlace = Place(waypoint: waypoint, name: nameController.text);
+      places.saveNewPlace(newPlace, context);
     } else {
-      // Insert current location as first waypoint if option is set
-      if (profile.setLocationAsStart &&
-          widget.currentLocationWaypoint != null &&
-          waypoints.isEmpty &&
-          waypoint.address != null) {
-        newWaypoints = [widget.currentLocationWaypoint!, waypoint];
+      final waypoints = routing.selectedWaypoints ?? [];
+      // exchange with new waypoint
+      List<Waypoint> newWaypoints = waypoints.toList();
+      if (widget.index != null) {
+        newWaypoints[widget.index!] = waypoint;
       } else {
-        newWaypoints = [...waypoints, waypoint];
+        // Insert current location as first waypoint if option is set
+        if (profile.setLocationAsStart &&
+            widget.currentLocationWaypoint != null &&
+            waypoints.isEmpty &&
+            waypoint.address != null) {
+          newWaypoints = [widget.currentLocationWaypoint!, waypoint];
+        } else {
+          newWaypoints = [...waypoints, waypoint];
+        }
       }
-    }
 
-    if (waypoint.address != null && profile.saveSearchHistory) {
-      profile.saveNewSearch(waypoint);
-    }
+      if (waypoint.address != null && profile.saveSearchHistory) {
+        profile.saveNewSearch(waypoint);
+      }
 
-    await routing.selectWaypoints(newWaypoints);
+      await routing.selectWaypoints(newWaypoints);
+    }
 
     // pop till routingScreen
     Navigator.of(context).pop();
@@ -216,6 +227,12 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                           ),
                         ),
                         onPressed: () {
+                          if (widget.withName) {
+                            if (nameController.text == "") {
+                              ToastMessage.showError("Name darf nicht leer sein!");
+                              return;
+                            }
+                          }
                           if (mapController.getCameraPosition(
                                   ControllerType.selectOnMap) !=
                               null) {
