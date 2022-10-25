@@ -559,8 +559,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     child: GPSButton(gpsCentralization: _gpsCentralization),
                   )
                 : Container(),
-            routing.selectedWaypoints != null &&
-                    routing.selectedWaypoints!.length > 1
+            routing.selectedWaypoints != null
                 ? const BottomSheetDetail()
                 : Container(),
           ]),

@@ -133,7 +133,7 @@ class SearchViewState extends State<SearchView> {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
-            SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint),
+            SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint, withName: false),
       ),
     );
 

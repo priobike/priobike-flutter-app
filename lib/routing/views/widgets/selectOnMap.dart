@@ -20,9 +20,14 @@ import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
   final int? index;
+  final bool withName;
   final Waypoint? currentLocationWaypoint;
 
-  const SelectOnMapView({Key? key, this.index, this.currentLocationWaypoint})
+  const SelectOnMapView(
+      {Key? key,
+      this.index,
+      this.currentLocationWaypoint,
+      required this.withName})
       : super(key: key);
 
   @override
@@ -44,6 +49,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
+
+  /// The text controller for the name textfield.
+  final TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
@@ -171,11 +179,32 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             elevation: 5),
                       ),
                       const SizedBox(width: 16),
-                      Center(
-                        child: SubHeader(
-                            text: "Standort auf Karte wählen",
-                            context: context),
-                      ),
+                      widget.withName
+                          ? Expanded(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 5),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(25),
+                                    bottomLeft: Radius.circular(25),
+                                  ),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: TextField(
+                                  controller: nameController,
+                                  decoration: const InputDecoration(
+                                      hintText: "Name",
+                                      border: InputBorder.none),
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: SubHeader(
+                                  text: "Standort auf Karte wählen",
+                                  context: context),
+                            ),
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
@@ -203,7 +232,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                           }
                         },
                         child: Content(
-                            text: "Fertig",
+                            text: widget.withName ? "Speichern" : "Fertig",
                             context: context,
                             color: Colors.white),
                       ),

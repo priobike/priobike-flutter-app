@@ -155,7 +155,7 @@ class SettingsViewState extends State<SettingsView> {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const LocationsView(),
+                              builder: (_) => const PlacesView(),
                             ),
                           );
                         },

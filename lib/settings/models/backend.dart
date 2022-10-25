@@ -2,6 +2,8 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
+import '../../home/models/place.dart';
+
 enum Backend {
   production,
   staging,
@@ -105,5 +107,11 @@ extension BackendShortcuts on Backend {
         ),
       ];
     }
+  }
+}
+
+extension BackendPlaces on Backend {
+  List<Place> get defaultPlaces {
+    return [];
   }
 }

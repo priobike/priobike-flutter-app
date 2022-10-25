@@ -3,16 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/routing/views/widgets/selectOnMap.dart';
 import 'package:provider/provider.dart';
 
-class LocationsView extends StatefulWidget {
-  const LocationsView({Key? key}) : super(key: key);
+class PlacesView extends StatefulWidget {
+  const PlacesView({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => LocationsViewState();
+  State<StatefulWidget> createState() => PlacesViewState();
 }
 
-class LocationsViewState extends State<LocationsView> {
+class PlacesViewState extends State<PlacesView> {
   /// The associated shortcuts service, which is injected by the provider.
   Profile? profileService;
 
@@ -70,14 +71,28 @@ class LocationsViewState extends State<LocationsView> {
                   const SizedBox(width: 80),
                 ]),
                 const SizedBox(height: 20),
-
-                /// height = height - 20 - 88 - 20 - view.inset.top (padding, backButton, offset)
-                SizedBox(
-                  width: frame.size.width,
-                  height: frame.size.height - 128,
+                Expanded(
                   child: ListView(
                     children: [],
                   ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Row(children: [
+                    Expanded(
+                      child: BigButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const SelectOnMapView(withName: true)),
+                          );
+                        },
+                        label: 'Ort Hinzufügen',
+                      ),
+                    ),
+                  ]),
                 ),
               ],
             ),

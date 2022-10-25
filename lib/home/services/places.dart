@@ -1,0 +1,91 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/place.dart';
+
+class Places with ChangeNotifier {
+  /// All available shortcuts.
+  List<Place>? places;
+
+  Places();
+
+  /// Reset the shortcuts service.
+  Future<void> reset() async {
+    places = null;
+  }
+
+  /// Save a new shortcut.
+  Future<void> saveNewShortcut(String name, BuildContext context) async {
+    final routing = Provider.of<Routing>(context, listen: false);
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
+    // Check if waypoint contains "Standort" as address and change it to geolocation
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
+      if (waypoint.address == null) {
+        final geocoding = Provider.of<Geocoding>(context, listen: false);
+        final String? address = await geocoding.reverseGeocodeLatLng(
+            context, waypoint.lat, waypoint.lon);
+        if (address == null) return;
+        waypoint.address = address;
+      }
+    }
+    final newPlace =
+        Place(name: name, waypoint: routing.selectedWaypoints![0]);
+    if (places == null) await loadPlaces(context);
+    if (places == null) return;
+    places = [newPlace] + places!;
+    await storePlaces(context);
+    notifyListeners();
+  }
+
+  /// Update the places.
+  Future<void> updatePlaces(List<Place> newPlaces, BuildContext context) async {
+    places = newPlaces;
+    await storePlaces(context);
+    notifyListeners();
+  }
+
+  /// Store all places.
+  Future<void> storePlaces(BuildContext context) async {
+    if (places == null) return;
+    final storage = await SharedPreferences.getInstance();
+
+    final backend = Provider.of<Settings>(context, listen: false).backend;
+
+    final jsonStr = jsonEncode(places!.map((e) => e.toJson()).toList());
+    if (backend == Backend.production) {
+      storage.setString("priobike.home.places.production", jsonStr);
+    } else if (backend == Backend.staging) {
+      storage.setString("priobike.home.places.staging", jsonStr);
+    }
+  }
+
+  /// Load the custom places.
+  Future<void> loadPlaces(BuildContext context) async {
+    if (places != null) return;
+    final storage = await SharedPreferences.getInstance();
+
+    final backend = Provider.of<Settings>(context, listen: false).backend;
+    String? jsonStr;
+    if (backend == Backend.production) {
+      jsonStr = storage.getString("priobike.home.places.production");
+    } else if (backend == Backend.staging) {
+      jsonStr = storage.getString("priobike.home.places.staging");
+    }
+
+    if (jsonStr == null) {
+      places = backend.defaultPlaces;
+    } else {
+      places = (jsonDecode(jsonStr) as List).map((e) => Place.fromJson(e)).toList();
+    }
+
+    notifyListeners();
+  }
+}

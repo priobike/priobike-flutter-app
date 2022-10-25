@@ -104,7 +104,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
   _selectOnMapOnPressed() async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const SelectOnMapView(),
+        builder: (_) => const SelectOnMapView(withName: false),
       ),
     );
     if (routing.nextItem > 0 && result != null) {

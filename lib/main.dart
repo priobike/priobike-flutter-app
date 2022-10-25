@@ -7,6 +7,7 @@ import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/home/services/places.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/news/services/news.dart';
@@ -121,6 +122,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Profile()),
         ChangeNotifierProvider(create: (context) => News()),
         ChangeNotifierProvider(create: (context) => Shortcuts()),
+        ChangeNotifierProvider(create: (context) => Places()),
         ChangeNotifierProvider(create: (context) => Discomforts()),
         ChangeNotifierProvider(create: (context) => Geocoding()),
         ChangeNotifierProvider(create: (context) => Geosearch()),
