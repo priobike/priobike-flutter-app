@@ -6,7 +6,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:http/http.dart' as http;
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -46,12 +45,15 @@ class PredictionSGStatus with ChangeNotifier {
   Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
     if (isLoading) return;
 
+    log.i("Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
     isLoading = true;
     notifyListeners();
 
+    final pending = List<Future>.empty(growable: true);
     for (final sg in sgs) {
       if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
@@ -64,22 +66,26 @@ class PredictionSGStatus with ChangeNotifier {
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
-        final response = await httpClient.get(endpoint);
-        if (response.statusCode != 200) {
-          isLoading = false;
-          notifyListeners();
-          final err = "Error while fetching prediction status: ${response.statusCode}";
-          log.e(err); ToastMessage.showError(err); throw Exception(err);
-        }
-
-        final data = SGStatusData.fromJson(jsonDecode(response.body));
-        cache[sg.id] = data;
+        final future = httpClient.get(endpoint).then((response) {
+          if (response.statusCode == 200) {
+            final data = SGStatusData.fromJson(jsonDecode(response.body));
+            cache[sg.id] = data;
+          } else {
+            log.e("Failed to fetch $url: ${response.statusCode}");
+          }
+        }).catchError((error) {
+          log.e("Failed to fetch $url: $error");
+        });
+        pending.add(future);
       } catch (e, stack) {
         final hint = "Error while fetching prediction status: $e";
         log.w(hint);
         Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
+
+    // Wait for all requests to finish.
+    await Future.wait(pending);
 
     ok = 0; 
     offline = 0; 
@@ -99,6 +105,7 @@ class PredictionSGStatus with ChangeNotifier {
 
     disconnected = crossings.where((c) => !c.connected).length;
 
+    log.i("Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
     isLoading = false;
     notifyListeners();
   }
