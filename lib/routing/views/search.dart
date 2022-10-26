@@ -130,6 +130,10 @@ class SearchViewState extends State<SearchView> {
   }
 
   _selectOnMapOnPressed() async {
+    // Closing the keyboard. Otherwise the inputs for the map are kind of laggy.
+    FocusManager.instance.primaryFocus?.unfocus();
+    // We have to wait a little while since we can't await the void method above.
+    await Future.delayed(const Duration(milliseconds: 100));
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
