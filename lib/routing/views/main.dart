@@ -12,6 +12,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/selection.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -328,7 +329,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> _startRoutingSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const RouteSearchView(),
+        builder: (_) => RouteSearchView(onPressed: _loadShortcutsRoute),
       ),
     );
     if (routing.selectedWaypoints != null &&
@@ -341,7 +342,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> _startSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const SearchView(index: null),
+        builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute),
       ),
     );
 
@@ -384,6 +385,11 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (bottomSheetState.listController != null) {
       bottomSheetState.listController!.jumpTo(0);
     }
+  }
+
+  _loadShortcutsRoute(List<Waypoint> waypoints) async {
+    await routing.selectWaypoints(waypoints);
+    await routing.loadRoutes(context);
   }
 
   @override
@@ -439,15 +445,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                             child: Stack(clipBehavior: Clip.none, children: [
                               Container(),
                               AnimatedPositioned(
-                                  // top calculates from maxHeight Routingbar + padding + systembar
-                                  top: showRoutingBar
-                                      ? 0
-                                      : -(frame.size.height * 0.25 +
-                                          20 +
-                                          frame.viewPadding.top),
-                                  duration: const Duration(milliseconds: 250),
-                                  child: const RoutingBar(
-                                      fromRoutingSearch: false)),
+                                // top calculates from maxHeight Routingbar + padding + systembar
+                                top: showRoutingBar
+                                    ? 0
+                                    : -(frame.size.height * 0.25 +
+                                        20 +
+                                        frame.viewPadding.top),
+                                duration: const Duration(milliseconds: 250),
+                                child: RoutingBar(
+                                    fromRoutingSearch: false,
+                                    onPressed: _loadShortcutsRoute),
+                              ),
                               !showRoutingBar
                                   ? AnimatedPositioned(
                                       top: bottomSheetState
@@ -505,7 +513,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                       startSearch: _startSearch),
                                 ),
                               ]),
-                    !waypointsSelected ? const ShortCutsRow() : Container(),
+                    !waypointsSelected
+                        ? ShortCutsRow(
+                            onPressed: _loadShortcutsRoute, close: false)
+                        : Container(),
                     showRoutingBar
                         ? Padding(
                             /// Align with FAB

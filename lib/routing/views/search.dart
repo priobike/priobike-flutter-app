@@ -23,8 +23,9 @@ import 'widgets/currentLocationButton.dart';
 
 class SearchView extends StatefulWidget {
   final int? index;
+  final Function onPressed;
 
-  const SearchView({Key? key, this.index}) : super(key: key);
+  const SearchView({Key? key, this.index, required this.onPressed}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchViewState();
@@ -197,7 +198,7 @@ class SearchViewState extends State<SearchView> {
                                         _locationSearchController),
                               ),
                             ]),
-                        const ShortCutsRow(),
+                        ShortCutsRow(onPressed: widget.onPressed, close: true),
                       ],
                     ),
                   ),

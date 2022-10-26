@@ -6,7 +6,10 @@ import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routingOLD context.
 class ShortCutsRow extends StatefulWidget {
-  const ShortCutsRow({Key? key}) : super(key: key);
+  final Function onPressed;
+  final bool close;
+
+  const ShortCutsRow({Key? key, required this.onPressed, required this.close}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ShortCutsRowState();
@@ -54,9 +57,9 @@ class ShortCutsRowState extends State<ShortCutsRow> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> shortCutItems = shortcuts.shortcuts!.map((entry) {
-      return _shortcutItem(context, entry.name, () {
-        routing.selectWaypoints(entry.waypoints);
-        routing.loadRoutes(context);
+      return _shortcutItem(context, entry.name, () async {
+        widget.onPressed(entry.waypoints);
+        if (widget.close) Navigator.of(context).pop();
       }, true);
     }).toList();
     return SizedBox(

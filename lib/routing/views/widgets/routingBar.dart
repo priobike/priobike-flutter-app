@@ -12,10 +12,10 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 /// A callback that is executed when the search page is opened.
-Future<void> onSearch(BuildContext context, Routing routing, int? index) async {
+Future<void> onSearch(BuildContext context, Routing routing, int? index, Function onPressed) async {
   await Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (_) => SearchView(index: index),
+      builder: (_) => SearchView(index: index, onPressed: onPressed),
     ),
   );
 
@@ -30,11 +30,13 @@ class RoutingBar extends StatefulWidget {
   final TextEditingController? locationSearchController;
   final bool fromRoutingSearch;
   final Function? checkNextItem;
+  final Function onPressed;
 
   const RoutingBar(
       {Key? key,
       this.locationSearchController,
       required this.fromRoutingSearch,
+      required this.onPressed,
       this.checkNextItem})
       : super(key: key);
 
@@ -166,7 +168,7 @@ class RoutingBarState extends State<RoutingBar> {
                   if (widget.fromRoutingSearch) {
                     _onSearchRoutingBar(context, index, false);
                   } else {
-                    onSearch(context, routing, index);
+                    onSearch(context, routing, index, widget.onPressed);
                   }
                 },
                 child: Container(
@@ -217,7 +219,7 @@ class RoutingBarState extends State<RoutingBar> {
                 if (widget.fromRoutingSearch) {
                   _onSearchRoutingBar(context, index, true);
                 } else {
-                  onSearch(context, routing, null);
+                  onSearch(context, routing, null, widget.onPressed);
                 }
               }
             },
@@ -289,7 +291,7 @@ class RoutingBarState extends State<RoutingBar> {
   _onSearchRoutingBar(BuildContext context, int index, bool append) async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SearchView(index: index),
+        builder: (_) => SearchView(index: index, onPressed: widget.onPressed),
       ),
     );
 
