@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:priobike/feedback/messages/answer.dart';
 import 'package:priobike/feedback/models/question.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -15,9 +15,6 @@ import 'package:provider/provider.dart';
 
 class Feedback with ChangeNotifier {
   final log = Logger("Feedback");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// The pending questions by a unique identifier.
   Map<String, Question> pending = {};
@@ -80,7 +77,7 @@ class Feedback with ChangeNotifier {
         value: entry.value.answer,
       );
 
-      final response = await httpClient.post(endpoint, body: json.encode(request.toJson()));
+      final response = await Http.post(endpoint, body: json.encode(request.toJson()));
       if (response.statusCode != 200) {
         log.e("Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
       } else {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -21,9 +22,6 @@ import 'package:http/http.dart' as http;
 
 class Ride with ChangeNotifier {
   final log = Logger("Ride");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
@@ -98,7 +96,7 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final wsUrl = "wss://$baseUrl/session-wrapper/websocket/sessions/${session.sessionId!}";
-    socket = WebSocketChannel.connect(Uri.parse(wsUrl));
+    socket = Http.connectWebSocket(Uri.parse(wsUrl));
     jsonRPCPeer = Peer(socket!.cast<String>());
     jsonRPCPeer!.listen().then((_) => onCloseWebsocket(context));
     jsonRPCPeer!.registerMethod("RecommendationUpdate", onNewRecommendation);
@@ -122,7 +120,7 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final selectRideEndpoint = Uri.parse('https://$baseUrl/session-wrapper/ride');
-    http.Response response = await httpClient
+    http.Response response = await Http
       .post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson()))
       .onError((error, stackTrace) {
         log.e("Error during select ride: $error");

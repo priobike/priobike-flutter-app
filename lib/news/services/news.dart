@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/news/models/article.dart';
@@ -29,9 +30,6 @@ class News with ChangeNotifier {
 
   /// Map with all categories
   Map<int, Category> categories = {};
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// Reset the service to its initial state.
   Future<void> reset() async {
@@ -68,7 +66,7 @@ class News with ChangeNotifier {
 
     // Catch the error if there is no connection to the internet.
     try {
-      http.Response response = await httpClient.get(newsArticlesEndpoint);
+      http.Response response = await Http.get(newsArticlesEndpoint);
 
       if (response.statusCode != 200) {
         final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
@@ -122,7 +120,7 @@ class News with ChangeNotifier {
 
     // Catch the error if there is no connection to the internet.
     try {
-      http.Response response = await httpClient.get(newsCategoryEndpoint);
+      http.Response response = await Http.get(newsCategoryEndpoint);
 
       if (response.statusCode != 200) {
         final err = "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";

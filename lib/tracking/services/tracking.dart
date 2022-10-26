@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:priobike/accelerometer/models/acceleration.dart';
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -26,9 +26,6 @@ import 'package:provider/provider.dart';
 /// A track of a bicycle ride.
 class Tracking with ChangeNotifier {
   final log = Logger("Tracking");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// If the track was recorded in the debug mode.
   bool debug = kDebugMode;
@@ -159,7 +156,7 @@ class Tracking with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
-    final response = await httpClient.post(endpoint, body: json!);
+    final response = await Http.post(endpoint, body: json!);
     if (response.statusCode != 200) {
       log.e("Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
     } else {

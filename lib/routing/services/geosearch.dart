@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
@@ -15,9 +15,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class Geosearch with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Geosearch");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// A boolean indicating if the service is currently loading addresses.
   bool isFetchingAddress = false;
@@ -57,7 +54,7 @@ class Geosearch with ChangeNotifier {
       url += "&polygon_geojson=1";
       final endpoint = Uri.parse(url);
 
-      final response = await httpClient.get(endpoint);
+      final response = await Http.get(endpoint);
       if (response.statusCode != 200) {
         isFetchingAddress = false;
         notifyListeners();

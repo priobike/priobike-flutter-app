@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:http/http.dart' as http;
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -14,9 +14,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class PredictionSGStatus with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("PredictionSGStatus");
-
-  /// The http client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// If the service is currently loading the status.
   bool isLoading = false;
@@ -66,7 +63,7 @@ class PredictionSGStatus with ChangeNotifier {
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
-        final future = httpClient.get(endpoint).then((response) {
+        final future = Http.get(endpoint).then((response) {
           if (response.statusCode == 200) {
             final data = SGStatusData.fromJson(jsonDecode(response.body));
             cache[sg.id] = data;
