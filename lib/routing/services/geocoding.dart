@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -14,9 +14,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class Geocoding with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Geocoding");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// A boolean indicating if the service is currently loading an address.
   bool isFetchingAddress = false;
@@ -59,7 +56,7 @@ class Geocoding with ChangeNotifier {
       url += "&polygon_geojson=1";
       final endpoint = Uri.parse(url);
 
-      final response = await httpClient.get(endpoint);
+      final response = await Http.get(endpoint);
       if (response.statusCode != 200) {
         isFetchingAddress = false;
         notifyListeners();

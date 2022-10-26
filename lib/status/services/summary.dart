@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:http/http.dart' as http;
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -13,9 +13,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class PredictionStatusSummary with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("PredictionStatusSummary");
-
-  /// The http client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// If the service is currently loading the status.
   bool isLoading = false;
@@ -52,7 +49,7 @@ class PredictionStatusSummary with ChangeNotifier {
       var url = "https://$baseUrl/prediction-monitor-nginx/status.json";
       final endpoint = Uri.parse(url);
 
-      final response = await httpClient.get(endpoint);
+      final response = await Http.get(endpoint);
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();

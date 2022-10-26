@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
@@ -98,9 +98,6 @@ class Routing with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Routing");
 
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
-
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
@@ -173,7 +170,7 @@ class Routing with ChangeNotifier {
       final req = SGSelectorRequest(route: path.points.coordinates.map((e) => SGSelectorPosition(
         lat: e.lat, lon: e.lon, alt: e.elevation ?? 0.0,
       )).toList());
-      final response = await httpClient.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
         return SGSelectorResponse.fromJson(json.decode(response.body));
@@ -260,7 +257,7 @@ class Routing with ChangeNotifier {
       final ghEndpoint = Uri.parse(ghUrl);
       log.i("Loading GraphHopper response from $ghUrl");
 
-      final response = await httpClient.get(ghEndpoint);
+      final response = await Http.get(ghEndpoint);
       if (response.statusCode == 200) {
         log.i("Loaded GraphHopper response from $ghUrl");
         return GHRouteResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
