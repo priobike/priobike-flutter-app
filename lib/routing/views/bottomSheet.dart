@@ -121,6 +121,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of safety.
   bool showSafetyDetails = false;
 
+  final _bottomSheetKey = GlobalKey<ScaffoldState>();
+
   /// The state of saving route or place.
   bool showSaving = false;
 
@@ -323,7 +325,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   // The saveField widget used in details.
-  _saveField(BuildContext context) {
+  _saveField(BuildContext context, TextEditingController nameController) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
@@ -355,7 +357,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _details(BuildContext context, MediaQueryData frame) {
+  _details(BuildContext context, MediaQueryData frame, bool showSaving,
+      TextEditingController nameController) {
     // The roadClassMap, surfaceMap, roadClassMax and surfaceMax needed to display the surface- and roadClass bars.
     Map<String, int> roadClassMap = {};
     Map<String, int> surfaceMap = {};
@@ -453,7 +456,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 10),
             // If in saving mode.
-            showSaving ? _saveField(context) : Container(),
+            showSaving ? _saveField(context, nameController) : Container(),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
@@ -698,7 +701,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     ];
   }
 
-  _bottomButtons(bool isTop, double topSnapRatio) {
+  _bottomButtons(
+      bool isTop, double topSnapRatio, bool showSaving, StateSetter setState) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -711,6 +715,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         IconTextButton(
             onPressed: () {
               setState(() {
+                bottomSheetState.animateController(0.66);
                 showSaving = true;
               });
             },
@@ -732,18 +737,24 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _bottomButtonsSaving() {
+  _bottomButtonsSaving(TextEditingController nameController, bool showSaving,
+      StateSetter setState) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconTextButton(
-          onPressed: () => _saveShortCut(),
+          onPressed: () => _saveShortCut(nameController),
           label: 'Speichern',
           icon: Icons.save,
           iconColor: Colors.white,
         ),
         IconTextButton(
-            onPressed: () => {},
+            onPressed: () {
+              setState(() {
+                showSaving = false;
+                nameController.text = "";
+              });
+            },
             label: 'Abbrechen',
             icon: Icons.cancel,
             borderColor: Theme.of(context).colorScheme.primary,
@@ -754,7 +765,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _saveShortCut() {
+  _saveShortCut(TextEditingController nameController) {
     if (routing.selectedWaypoints != null) {
       // Save shortcut.
       if (routing.selectedWaypoints!.length > 1) {
@@ -765,7 +776,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           places.saveNewPlaceFromWaypoint(nameController.text, context);
         }
       }
-
     }
   }
 
@@ -778,83 +788,92 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
     return SizedBox(
       height: frame.size.height,
-      child: DraggableScrollableSheet(
-          initialChildSize: bottomSnapRatio,
-          minChildSize: bottomSnapRatio,
-          maxChildSize: topSnapRatio,
-          snap: true,
-          snapSizes: const [0.66],
-          controller: bottomSheetState.draggableScrollableController,
-          builder:
-              (BuildContext buildContext, ScrollController scrollController) {
-            final bool isTop =
-                bottomSheetState.draggableScrollableController.size <=
-                        topSnapRatio + 0.05 &&
-                    bottomSheetState.draggableScrollableController.size >=
-                        topSnapRatio - 0.05;
-            // Set the listController once
-            bottomSheetState.listController ??= scrollController;
-            return AnimatedContainer(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: isTop
-                      ? const Radius.circular(0)
-                      : const Radius.circular(20),
+      child: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+        return DraggableScrollableSheet(
+            key: _bottomSheetKey,
+            initialChildSize: bottomSnapRatio,
+            minChildSize: bottomSnapRatio,
+            maxChildSize: topSnapRatio,
+            snap: true,
+            snapSizes: const [0.66],
+            controller: bottomSheetState.draggableScrollableController,
+            builder:
+                (BuildContext buildContext, ScrollController scrollController) {
+              final bool isTop =
+                  bottomSheetState.draggableScrollableController.size <=
+                          topSnapRatio + 0.05 &&
+                      bottomSheetState.draggableScrollableController.size >=
+                          topSnapRatio - 0.05;
+              print(bottomSheetState.draggableScrollableController.size);
+              // Set the listController once
+              bottomSheetState.listController ??= scrollController;
+
+              return AnimatedContainer(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.vertical(
+                    top: isTop
+                        ? const Radius.circular(0)
+                        : const Radius.circular(20),
+                  ),
                 ),
-              ),
-              duration: const Duration(milliseconds: 250),
-              child: Stack(children: [
-                ListView(
-                  padding: const EdgeInsets.all(0),
-                  controller: scrollController,
-                  children: [
-                    SizedBox(
-                      height: 30,
-                      child: Center(
-                        child: AnimatedContainer(
-                          width: 40,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: isTop
-                                ? Theme.of(context).colorScheme.surface
-                                : Theme.of(context).colorScheme.background,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(20),
+                duration: const Duration(milliseconds: 250),
+                child: Stack(children: [
+                  ListView(
+                    padding: const EdgeInsets.all(0),
+                    controller: scrollController,
+                    children: [
+                      SizedBox(
+                        height: 30,
+                        child: Center(
+                          child: AnimatedContainer(
+                            width: 40,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: isTop
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context).colorScheme.background,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(20),
+                              ),
                             ),
+                            duration: const Duration(milliseconds: 250),
                           ),
-                          duration: const Duration(milliseconds: 250),
                         ),
                       ),
-                    ),
-                    ...routing.selectedRoute != null
-                        ? _details(context, frame)
-                        : _lessDetails(context, frame),
-                  ],
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        border: Border(
-                          top: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.background),
+                      ...routing.selectedRoute != null
+                          ? _details(context, frame, showSaving, nameController)
+                          : _lessDetails(context, frame),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border(
+                            top: BorderSide(
+                                width: 1,
+                                color:
+                                    Theme.of(context).colorScheme.background),
+                          ),
                         ),
-                      ),
-                      width: frame.size.width,
-                      height: 50,
-                      child: showSaving
-                          ? _bottomButtonsSaving()
-                          : _bottomButtons(isTop, topSnapRatio)),
-                ),
-              ]),
-            );
-          }),
+                        width: frame.size.width,
+                        height: 50,
+                        child: showSaving
+                            ? _bottomButtonsSaving(
+                                nameController, showSaving, setState)
+                            : _bottomButtons(
+                                isTop, topSnapRatio, showSaving, setState)),
+                  ),
+                ]),
+              );
+            });
+      }),
     );
   }
 
