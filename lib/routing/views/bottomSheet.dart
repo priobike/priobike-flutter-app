@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/places.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
@@ -98,8 +100,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The associated BottomSheetState, which is injected by the provider.
   late BottomSheetState bottomSheetState;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
+
+  /// The associated places service, which is injected by the provider.
+  late Places places;
+
+  /// The associated shortcuts service, which is injected by the provider.
+  late Shortcuts shortcuts;
 
   /// The minimum bottom height of the bottomSheet
   static double bottomSnapRatio = 0.175;
@@ -113,6 +121,12 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of safety.
   bool showSafetyDetails = false;
 
+  /// The state of saving route or place.
+  bool showSaving = false;
+
+  /// The name controller for saving a route or place.
+  TextEditingController nameController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -122,6 +136,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   void didChangeDependencies() {
     bottomSheetState = Provider.of<BottomSheetState>(context);
     routing = Provider.of<Routing>(context);
+    places = Provider.of<Places>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
     super.didChangeDependencies();
   }
 
@@ -306,11 +322,47 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  // The saveField widget used in details.
+  _saveField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: BoldContent(context: context, text: 'Name'),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(left: 20, right: 5),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomLeft: Radius.circular(25),
+                ),
+                border: Border.all(color: Colors.grey),
+              ),
+              child: TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                    hintText: "Name", border: InputBorder.none),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   _details(BuildContext context, MediaQueryData frame) {
+    // The roadClassMap, surfaceMap, roadClassMax and surfaceMax needed to display the surface- and roadClass bars.
     Map<String, int> roadClassMap = {};
     Map<String, int> surfaceMap = {};
     int roadClassMax = 0;
     int surfaceMax = 0;
+
+    // Getting all roadClass elements.
     if (routing.selectedRoute != null) {
       for (GHSegment<String> element
           in routing.selectedRoute!.path.details.roadClass) {
@@ -329,6 +381,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           }
         }
       }
+
+      // Getting all surface elements.
       for (GHSegment<String> element
           in routing.selectedRoute!.path.details.surface) {
         if (element.value != null &&
@@ -347,6 +401,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         }
       }
     }
+
     return [
       Padding(
         padding: const EdgeInsets.only(left: 20, top: 0, right: 20, bottom: 50),
@@ -397,6 +452,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   )
                 : Container(),
             const SizedBox(height: 10),
+            // If in saving mode.
+            showSaving ? _saveField(context) : Container(),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
@@ -433,7 +490,10 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 Content(text: "2,5", context: context),
                 const SizedBox(width: 10),
                 const Icon(Icons.traffic),
-                Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
+                Content(
+                    text: routing.selectedRoute!.signalGroups.length
+                        .toStringAsFixed(0),
+                    context: context),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -607,6 +667,108 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     ];
   }
 
+  _lessDetails(BuildContext context, MediaQueryData frame) {
+    return [
+      Padding(
+        padding: const EdgeInsets.only(left: 20, top: 0, right: 20, bottom: 50),
+        child: Column(
+          children: [
+            // Destination.
+            routing.selectedWaypoints != null &&
+                    routing.selectedWaypoints!.last.address != null
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: BoldSubHeader(
+                      text: routing.selectedWaypoints!.last.address!,
+                      context: context,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                : Container(),
+            const SizedBox(height: 35),
+            Content(
+              context: context,
+              text:
+                  "Hier Könnten noch einzelne Informationen zu einzelnen Wegpunkten angezeigt werden. Ist so im Konzept erstmal noch nicht vorgesehen.",
+            )
+          ],
+        ),
+      ),
+    ];
+  }
+
+  _bottomButtons(bool isTop, double topSnapRatio) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconTextButton(
+          onPressed: () {},
+          label: 'Starten',
+          icon: Icons.navigation,
+          iconColor: Colors.white,
+        ),
+        IconTextButton(
+            onPressed: () {
+              setState(() {
+                showSaving = true;
+              });
+            },
+            label: 'Speichern',
+            icon: Icons.save,
+            textColor: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.primary,
+            borderColor: Theme.of(context).colorScheme.primary,
+            fillColor: Theme.of(context).colorScheme.surface),
+        IconTextButton(
+            onPressed: () => _changeDetailView(topSnapRatio),
+            label: isTop ? 'Karte' : 'Details',
+            icon: isTop ? Icons.map : Icons.list,
+            borderColor: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.primary,
+            fillColor: Theme.of(context).colorScheme.surface)
+      ],
+    );
+  }
+
+  _bottomButtonsSaving() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconTextButton(
+          onPressed: () => _saveShortCut(),
+          label: 'Speichern',
+          icon: Icons.save,
+          iconColor: Colors.white,
+        ),
+        IconTextButton(
+            onPressed: () => {},
+            label: 'Abbrechen',
+            icon: Icons.cancel,
+            borderColor: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.primary,
+            fillColor: Theme.of(context).colorScheme.surface)
+      ],
+    );
+  }
+
+  _saveShortCut() {
+    if (routing.selectedWaypoints != null) {
+      // Save shortcut.
+      if (routing.selectedWaypoints!.length > 1) {
+        shortcuts.saveNewShortcut(nameController.text, context);
+      } else {
+        // Save place.
+        if (routing.selectedWaypoints!.length == 1) {
+          places.saveNewPlaceFromWaypoint(nameController.text, context);
+        }
+      }
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -667,53 +829,28 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     ),
                     ...routing.selectedRoute != null
                         ? _details(context, frame)
-                        : [],
+                        : _lessDetails(context, frame),
                   ],
                 ),
                 Positioned(
                   bottom: 0,
                   left: 0,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      border: Border(
-                        top: BorderSide(
-                            width: 1,
-                            color: Theme.of(context).colorScheme.background),
-                      ),
-                    ),
-                    width: frame.size.width,
-                    height: 50,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconTextButton(
-                          onPressed: () {},
-                          label: 'Starten',
-                          icon: Icons.navigation,
-                          iconColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border(
+                          top: BorderSide(
+                              width: 1,
+                              color: Theme.of(context).colorScheme.background),
                         ),
-                        IconTextButton(
-                            onPressed: () {},
-                            label: 'Speichern',
-                            icon: Icons.save,
-                            textColor: Theme.of(context).colorScheme.primary,
-                            iconColor: Theme.of(context).colorScheme.primary,
-                            borderColor: Theme.of(context).colorScheme.primary,
-                            fillColor: Theme.of(context).colorScheme.surface),
-                        IconTextButton(
-                            onPressed: () => _changeDetailView(topSnapRatio),
-                            label: isTop ? 'Karte' : 'Details',
-                            icon: isTop ? Icons.map : Icons.list,
-                            borderColor: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.primary,
-                            iconColor: Theme.of(context).colorScheme.primary,
-                            fillColor: Theme.of(context).colorScheme.surface)
-                      ],
-                    ),
-                  ),
+                      ),
+                      width: frame.size.width,
+                      height: 50,
+                      child: showSaving
+                          ? _bottomButtonsSaving()
+                          : _bottomButtons(isTop, topSnapRatio)),
                 ),
               ]),
             );

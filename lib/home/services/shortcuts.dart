@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -41,6 +42,8 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;
     await storeShortcuts(context);
+    routing.reset();
+    Provider.of<BottomSheetState>(context, listen: false).draggableScrollableController.reset();
     notifyListeners();
   }
 

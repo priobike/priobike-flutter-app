@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -43,6 +44,8 @@ class Places with ChangeNotifier {
     if (places == null) return;
     places = [newPlace] + places!;
     await storePlaces(context);
+    routing.reset();
+    Provider.of<BottomSheetState>(context, listen: false).draggableScrollableController.reset();
     notifyListeners();
   }
 
