@@ -20,7 +20,7 @@ jobs:
           flutter pub get
           flutter test
 
-  build:
+  distribute:
     runs-on: self-hosted
     needs: test
     container: cirrusci/flutter:2.10.5
@@ -30,23 +30,6 @@ jobs:
         run: |
           flutter pub get
           flutter build appbundle
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-bundle
-          path: build/app/outputs/bundle/release
-
-  distribute:
-    runs-on: self-hosted
-    needs: build
-    container: ruby
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: app-bundle
-          path: build/app/outputs/bundle/release
       - name: Install Fastlane
         run: |
           gem install fastlane
