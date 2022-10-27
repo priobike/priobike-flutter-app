@@ -1,4 +1,4 @@
-name: Distribute App to Google Play - Closed Track
+name: Dist / Android / Closed
 
 on:
   push:
