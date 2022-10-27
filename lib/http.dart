@@ -56,6 +56,7 @@ class Http {
     // Add the cookies to the request.
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
+    // Passing the sticky cookie will allow us to connect to the same backend.
     http.Response response = await _client
       .get(url, headers: headers);
     setCookies(response);
@@ -66,6 +67,7 @@ class Http {
   static Future<http.Response> post(Uri url, {dynamic body}) async {
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
+    // Passing the sticky cookie will allow us to connect to the same backend.
     http.Response response = await _client
       .post(url, body: body, headers: headers);
     setCookies(response);
@@ -76,6 +78,7 @@ class Http {
   static WebSocketChannel connectWebSocket(Uri url) {
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
+    // Passing the sticky cookie will allow us to connect to the same backend.
     return IOWebSocketChannel.connect(url, headers: headers);
   }
 }
