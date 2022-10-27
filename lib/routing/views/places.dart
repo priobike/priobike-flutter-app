@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/models/place.dart';
+import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/views/widgets/selectOnMap.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +17,7 @@ class PlacesView extends StatefulWidget {
 
 class PlacesViewState extends State<PlacesView> {
   /// The associated shortcuts service, which is injected by the provider.
-  Profile? profileService;
+  late Places places;
 
   @override
   void initState() {
@@ -24,14 +26,68 @@ class PlacesViewState extends State<PlacesView> {
 
   @override
   void didChangeDependencies() {
-    profileService = Provider.of<Profile>(context);
+    places = Provider.of<Places>(context);
 
     super.didChangeDependencies();
+  }
+
+  /// A callback that is executed when a place should be deleted.
+  Future<void> onDeletePlace(Place place) async {
+    if (places.places == null || places.places!.isEmpty) return;
+
+    final newPlaces = places.places!.toList();
+    newPlaces.remove(place);
+
+    places.updatePlaces(newPlaces, context);
+  }
+
+  Widget _placeRowItem(Place place) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0, left: 20, bottom: 20, right: 10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: BoldSubHeader(
+                  text: place.name,
+                  context: context,
+                  maxLines: 3,
+                ),
+              ),
+              const SizedBox(width: 5),
+              SmallIconButton(
+                icon: Icons.delete,
+                onPressed: () {
+                  onDeletePlace(place);
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Content(
+              text: place.waypoint.address ?? "",
+              context: context,
+              color: Colors.grey,
+              maxLines: 3,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+
+    List<Widget> placesList = [];
+    if (places.places != null) {
+      placesList = places.places!.map((entry) => _placeRowItem(entry)).toList();
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -73,7 +129,7 @@ class PlacesViewState extends State<PlacesView> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: ListView(
-                    children: [],
+                    children: placesList,
                   ),
                 ),
                 Padding(

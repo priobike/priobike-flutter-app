@@ -74,6 +74,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
     mapController = Provider.of<MapController>(context);
     geocoding = Provider.of<Geocoding>(context);
     profile = Provider.of<Profile>(context);
+    places = Provider.of<Places>(context);
 
     super.didChangeDependencies();
   }

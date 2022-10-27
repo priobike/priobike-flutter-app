@@ -12,12 +12,12 @@ class Place {
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
       name: json['name'],
-      waypoint: (json['waypoint'] as Waypoint),
+      waypoint: (Waypoint.fromJson(json['waypoint'])),
     );
   }
 
   Map<String, dynamic> toJson() => {
     'name': name,
-    'waypoints': waypoint,
+    'waypoint': waypoint.toJSON(),
   };
 }

@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routing/views/locations.dart';
+import 'package:priobike/routing/views/places.dart';
 import 'package:priobike/routing/views/routes.dart';
 import 'package:priobike/routing/views/widgets/deleteDialog.dart';
 import 'package:provider/provider.dart';
