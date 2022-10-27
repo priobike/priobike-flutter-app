@@ -1,4 +1,4 @@
-name: Distribute App to Google Play - Internal Track
+name: Dist / Android / Internal
 
 on:
   push:
