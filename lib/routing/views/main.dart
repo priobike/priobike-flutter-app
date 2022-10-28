@@ -25,6 +25,7 @@ import 'package:priobike/routing/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
+import 'package:priobike/routing/views/widgets/routeTypeButton.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
@@ -68,6 +69,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   final int locationAccuracyThreshold = 20;
 
   bool showRoutingBar = true;
+
+  /// The routeType.
+  String routeType = "Schnell";
 
   @override
   void initState() {
@@ -392,6 +396,23 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     await routing.loadRoutes(context);
   }
 
+  _switchRouteType() {
+    if (routing.allRoutes != null &&
+        routing.selectedRoute != null &&
+        routing.allRoutes!.length == 2) {
+      final switchedRoute = routing.selectedRoute!.id == 0
+          ? routing.allRoutes![1]
+          : routing.allRoutes![0];
+
+      // TODO change here when routes have real types.
+      setState(() {
+        routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
+      });
+
+      routing.switchToRoute(context, switchedRoute);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (routing.hadErrorDuringFetch) return renderTryAgainButton();
@@ -566,8 +587,19 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     bottom: frame.size.height *
                             BottomSheetDetailState.bottomSnapRatio +
                         10,
-                    right: 20,
-                    child: GPSButton(gpsCentralization: _gpsCentralization),
+                    right: 0,
+                    width: frame.size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RouteTypeButton(
+                              routeType: routeType, changeRouteType: _switchRouteType),
+                          GPSButton(gpsCentralization: _gpsCentralization),
+                        ],
+                      ),
+                    ),
                   )
                 : Container(),
             routing.selectedWaypoints != null
