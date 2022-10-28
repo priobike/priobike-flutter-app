@@ -232,7 +232,6 @@ class RoutingBarState extends State<RoutingBar> {
 
   /// A function which swaps the waypoints if exactly 2 are selected and the swap button is pressed.
   void swapWaypoints(BuildContext context) {
-    print("HERE");
     if (routing.selectedWaypoints == null ||
         routing.selectedWaypoints!.length != 2) return;
 
@@ -337,6 +336,7 @@ class RoutingBarState extends State<RoutingBar> {
                       // Reset everything.
                       routing.reset();
                       bottomSheetState.listController = null;
+                      bottomSheetState.resetInitialHeight();
                       bottomSheetState.draggableScrollableController.reset();
 
                       // Only in SearchRoutingView.

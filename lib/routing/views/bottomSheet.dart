@@ -701,8 +701,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     ];
   }
 
-  _bottomButtons(
-      bool isTop, double topSnapRatio, bool showSaving, StateSetter setState) {
+  _bottomButtons(bool isTop, double topSnapRatio) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -737,13 +736,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _bottomButtonsSaving(TextEditingController nameController, bool showSaving,
-      StateSetter setState) {
+  _bottomButtonsSaving(TextEditingController nameController) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconTextButton(
-          onPressed: () => _saveShortCut(nameController),
+          onPressed: () async {
+            await _saveShortCut(nameController);
+          },
           label: 'Speichern',
           icon: Icons.save,
           iconColor: Colors.white,
@@ -753,6 +753,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               setState(() {
                 showSaving = false;
                 nameController.text = "";
+                bottomSheetState.animateController(0.175);
               });
             },
             label: 'Abbrechen',
@@ -765,15 +766,15 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _saveShortCut(TextEditingController nameController) {
+  Future<void> _saveShortCut(TextEditingController nameController) async {
     if (routing.selectedWaypoints != null) {
       // Save shortcut.
       if (routing.selectedWaypoints!.length > 1) {
-        shortcuts.saveNewShortcut(nameController.text, context);
+        await shortcuts.saveNewShortcut(nameController.text, context);
       } else {
         // Save place.
         if (routing.selectedWaypoints!.length == 1) {
-          places.saveNewPlaceFromWaypoint(nameController.text, context);
+          await places.saveNewPlaceFromWaypoint(nameController.text, context);
         }
       }
     }
@@ -788,92 +789,85 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
     return SizedBox(
       height: frame.size.height,
-      child: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-        return DraggableScrollableSheet(
-            key: _bottomSheetKey,
-            initialChildSize: bottomSnapRatio,
-            minChildSize: bottomSnapRatio,
-            maxChildSize: topSnapRatio,
-            snap: true,
-            snapSizes: const [0.66],
-            controller: bottomSheetState.draggableScrollableController,
-            builder:
-                (BuildContext buildContext, ScrollController scrollController) {
-              final bool isTop =
-                  bottomSheetState.draggableScrollableController.size <=
-                          topSnapRatio + 0.05 &&
-                      bottomSheetState.draggableScrollableController.size >=
-                          topSnapRatio - 0.05;
-              print(bottomSheetState.draggableScrollableController.size);
-              // Set the listController once
-              bottomSheetState.listController ??= scrollController;
+      child: DraggableScrollableSheet(
+          key: _bottomSheetKey,
+          initialChildSize: bottomSheetState.initialHeight,
+          minChildSize: bottomSnapRatio,
+          maxChildSize: topSnapRatio,
+          snap: true,
+          snapSizes: const [0.66],
+          controller: bottomSheetState.draggableScrollableController,
+          builder:
+              (BuildContext buildContext, ScrollController scrollController) {
+            final bool isTop =
+                bottomSheetState.draggableScrollableController.size <=
+                        topSnapRatio + 0.05 &&
+                    bottomSheetState.draggableScrollableController.size >=
+                        topSnapRatio - 0.05;
+            // Set the listController once
+            bottomSheetState.listController ??= scrollController;
 
-              return AnimatedContainer(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.vertical(
-                    top: isTop
-                        ? const Radius.circular(0)
-                        : const Radius.circular(20),
-                  ),
+            return AnimatedContainer(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.vertical(
+                  top: isTop
+                      ? const Radius.circular(0)
+                      : const Radius.circular(20),
                 ),
-                duration: const Duration(milliseconds: 250),
-                child: Stack(children: [
-                  ListView(
-                    padding: const EdgeInsets.all(0),
-                    controller: scrollController,
-                    children: [
-                      SizedBox(
-                        height: 30,
-                        child: Center(
-                          child: AnimatedContainer(
-                            width: 40,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: isTop
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Theme.of(context).colorScheme.background,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(20),
-                              ),
+              ),
+              duration: const Duration(milliseconds: 250),
+              child: Stack(children: [
+                ListView(
+                  padding: const EdgeInsets.all(0),
+                  controller: scrollController,
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: Center(
+                        child: AnimatedContainer(
+                          width: 40,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: isTop
+                                ? Theme.of(context).colorScheme.surface
+                                : Theme.of(context).colorScheme.background,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
                             ),
-                            duration: const Duration(milliseconds: 250),
                           ),
+                          duration: const Duration(milliseconds: 250),
                         ),
                       ),
-                      ...routing.selectedRoute != null
-                          ? _details(context, frame, showSaving, nameController)
-                          : _lessDetails(context, frame),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          border: Border(
-                            top: BorderSide(
-                                width: 1,
-                                color:
-                                    Theme.of(context).colorScheme.background),
-                          ),
+                    ),
+                    ...routing.selectedRoute != null
+                        ? _details(context, frame, showSaving, nameController)
+                        : _lessDetails(context, frame),
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border(
+                          top: BorderSide(
+                              width: 1,
+                              color: Theme.of(context).colorScheme.background),
                         ),
-                        width: frame.size.width,
-                        height: 50,
-                        child: showSaving
-                            ? _bottomButtonsSaving(
-                                nameController, showSaving, setState)
-                            : _bottomButtons(
-                                isTop, topSnapRatio, showSaving, setState)),
-                  ),
-                ]),
-              );
-            });
-      }),
+                      ),
+                      width: frame.size.width,
+                      height: 50,
+                      child: showSaving
+                          ? _bottomButtonsSaving(nameController)
+                          : _bottomButtons(isTop, topSnapRatio)),
+                ),
+              ]),
+            );
+          }),
     );
   }
 

@@ -26,6 +26,8 @@ class Places with ChangeNotifier {
   /// Save a new place from selected waypoint.
   Future<void> saveNewPlaceFromWaypoint(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
+    final bottomSheetState =  Provider.of<BottomSheetState>(context, listen: false);
+
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
@@ -44,8 +46,11 @@ class Places with ChangeNotifier {
     if (places == null) return;
     places = [newPlace] + places!;
     await storePlaces(context);
+
+    bottomSheetState.draggableScrollableController.jumpTo(bottomSheetState.initialHeight);
+    bottomSheetState.listController = null;
+    bottomSheetState.resetInitialHeight();
     routing.reset();
-    Provider.of<BottomSheetState>(context, listen: false).draggableScrollableController.reset();
     notifyListeners();
   }
 
