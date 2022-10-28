@@ -690,6 +690,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   )
                 : Container(),
             const SizedBox(height: 35),
+            // If in saving mode.
+            showSaving ? _saveField(context, nameController) : Container(),
+            const SizedBox(height: 35),
             Content(
               context: context,
               text:
@@ -767,7 +770,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   Future<void> _saveShortCut(TextEditingController nameController) async {
-    if (routing.selectedWaypoints != null) {
+    if (routing.selectedWaypoints != null && nameController.text != "") {
       // Save shortcut.
       if (routing.selectedWaypoints!.length > 1) {
         await shortcuts.saveNewShortcut(nameController.text, context);

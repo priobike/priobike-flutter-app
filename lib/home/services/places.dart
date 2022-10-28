@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -47,10 +48,11 @@ class Places with ChangeNotifier {
     places = [newPlace] + places!;
     await storePlaces(context);
 
+    bottomSheetState.resetInitialHeight();
     bottomSheetState.draggableScrollableController.jumpTo(bottomSheetState.initialHeight);
     bottomSheetState.listController = null;
-    bottomSheetState.resetInitialHeight();
     routing.reset();
+    ToastMessage.showSuccess("Ort gespeichert!");
     notifyListeners();
   }
 
