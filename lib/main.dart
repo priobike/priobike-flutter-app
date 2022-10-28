@@ -52,7 +52,7 @@ Future<void> main() async {
     // Initialize Sentry.
     await SentryFlutter.init((options) {
       // Our Sentry uses an on-premise installation.
-      options.dsn = "https://d2ab503d9cb6409aba03cac4cfa4a01c@priobike.vkw.tu-dresden.de/2";
+      options.dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     });
 
     // Load offline map tiles.
