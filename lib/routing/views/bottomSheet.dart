@@ -123,9 +123,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
-  /// The state of saving route or place.
-  bool showSaving = false;
-
   /// The name controller for saving a route or place.
   TextEditingController nameController = TextEditingController();
 
@@ -357,8 +354,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  _details(BuildContext context, MediaQueryData frame, bool showSaving,
-      TextEditingController nameController) {
+  _details(BuildContext context, MediaQueryData frame) {
     // The roadClassMap, surfaceMap, roadClassMax and surfaceMax needed to display the surface- and roadClass bars.
     Map<String, int> roadClassMap = {};
     Map<String, int> surfaceMap = {};
@@ -456,7 +452,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 10),
             // If in saving mode.
-            showSaving ? _saveField(context, nameController) : Container(),
+            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
@@ -691,7 +687,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 35),
             // If in saving mode.
-            showSaving ? _saveField(context, nameController) : Container(),
+            bottomSheetState.showSaving
+                ? _saveField(context, nameController)
+                : Container(),
             const SizedBox(height: 35),
             Content(
               context: context,
@@ -716,10 +714,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         ),
         IconTextButton(
             onPressed: () {
-              setState(() {
-                bottomSheetState.animateController(0.66);
-                showSaving = true;
-              });
+              bottomSheetState.animateController(0.66);
+              bottomSheetState.showSaving = true;
             },
             label: 'Speichern',
             icon: Icons.save,
@@ -753,11 +749,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         ),
         IconTextButton(
             onPressed: () {
-              setState(() {
-                showSaving = false;
-                nameController.text = "";
-                bottomSheetState.animateController(0.175);
-              });
+              bottomSheetState.showSaving = false;
+              nameController.text = "";
+              bottomSheetState.animateController(0.175);
             },
             label: 'Abbrechen',
             icon: Icons.cancel,
@@ -844,7 +838,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       ),
                     ),
                     ...routing.selectedRoute != null
-                        ? _details(context, frame, showSaving, nameController)
+                        ? _details(context, frame)
                         : _lessDetails(context, frame),
                   ],
                 ),
@@ -864,7 +858,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       ),
                       width: frame.size.width,
                       height: 50,
-                      child: showSaving
+                      child: bottomSheetState.showSaving
                           ? _bottomButtonsSaving(nameController)
                           : _bottomButtons(isTop, topSnapRatio)),
                 ),

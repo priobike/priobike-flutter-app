@@ -389,6 +389,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (bottomSheetState.listController != null) {
       bottomSheetState.listController!.jumpTo(0);
     }
+
+    if (bottomSheetState.showSaving) {
+      bottomSheetState.showSaving = false;
+    }
   }
 
   _loadShortcutsRoute(List<Waypoint> waypoints) async {
