@@ -25,6 +25,7 @@ import 'package:priobike/routing/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
+import 'package:priobike/routing/views/widgets/layerButton.dart';
 import 'package:priobike/routing/views/widgets/routeTypeButton.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
@@ -160,19 +161,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         ),
       );
     }
-  }
-
-  /// A callback that is fired when the user wants to select the displayed layers.
-  void onLayerSelection() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      backgroundColor:
-          Theme.of(context).colorScheme.background.withOpacity(0.95),
-      builder: (_) => const LayerSelectionView(),
-    );
   }
 
   /// A callback that is fired when the shortcut should be saved but a name is required.
@@ -556,22 +544,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                             zoomIn: _zoomIn, zoomOut: _zoomOut),
                                         const SizedBox(height: 10),
                                         FilterButton(profileService: profile),
-                                        // SizedBox(
-                                        //   width: 58,
-                                        //   height: 58,
-                                        //   child: Tile(
-                                        //     fill: Theme.of(context)
-                                        //         .colorScheme
-                                        //         .background,
-                                        //     onPressed: onLayerSelection,
-                                        //     content: Icon(
-                                        //       Icons.layers,
-                                        //       color: Theme.of(context)
-                                        //           .colorScheme
-                                        //           .onBackground,
-                                        //     ),
-                                        //   ),
-                                        // )
+                                        const SizedBox(height: 10),
+                                        const LayerButton(),
                                       ]),
                                 ]),
                           )
