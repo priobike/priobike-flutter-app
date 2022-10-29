@@ -567,8 +567,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          RouteTypeButton(
-                              routeType: routing.routeType, changeRouteType: _switchRouteType),
+                          routing.allRoutes != null && routing.allRoutes!.length == 2 ? RouteTypeButton(
+                              routeType: routing.routeType, changeRouteType: _switchRouteType) : Container(),
                           GPSButton(gpsCentralization: _gpsCentralization),
                         ],
                       ),

@@ -575,7 +575,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
     // Check if symbol is a RouteLabel.
-    if (symbol.data != null && symbol.data!["isRouteLabel"]) {
+    if (symbol.data != null && symbol.data!["isRouteLabel"] != null && symbol.data!["isRouteLabel"]) {
       r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
       routing.switchToRoute(context, selectedRoute);
     }
