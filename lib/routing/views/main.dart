@@ -70,9 +70,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   bool showRoutingBar = true;
 
-  /// The routeType.
-  String routeType = "Schnell";
-
   @override
   void initState() {
     super.initState();
@@ -409,9 +406,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           : routing.allRoutes![0];
 
       // TODO change here when routes have real types.
-      setState(() {
-        routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
-      });
+      routing.routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
 
       routing.switchToRoute(context, switchedRoute);
     }
@@ -599,7 +594,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RouteTypeButton(
-                              routeType: routeType, changeRouteType: _switchRouteType),
+                              routeType: routing.routeType, changeRouteType: _switchRouteType),
                           GPSButton(gpsCentralization: _gpsCentralization),
                         ],
                       ),

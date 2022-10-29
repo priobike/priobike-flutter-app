@@ -387,13 +387,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
               iconSize: iconSize),
           {"data": route.toJson(), "isRouteLabel": true},
         ));
-        mapboxMapController!.onSymbolTapped.add((argument) {
-          // Check if symbol is a RouteLabel.
-          if (argument.data != null && argument.data!["isRouteLabel"]) {
-            r.Route selectedRoute = r.Route.fromJson(argument.data!["data"]);
-            routing.switchToRoute(context, selectedRoute);
-          }
-        });
       }
     }
     // Remove the old labels.
@@ -581,6 +574,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
+    // Check if symbol is a RouteLabel.
+    if (symbol.data != null && symbol.data!["isRouteLabel"]) {
+      r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
+      routing.switchToRoute(context, selectedRoute);
+    }
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {

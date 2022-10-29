@@ -128,6 +128,9 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  /// The routeType.
+  String routeType = "Schnell";
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -374,6 +377,8 @@ class Routing with ChangeNotifier {
   Future<void> switchToRoute(BuildContext context, r.Route route) async {
     // Can only select an alternative route if there are some,
     // and if there is a currently selected route.
+    routeType = selectedRoute!.id == 0 ? "Bequem" : "Schnell";
+
     selectedRoute = route;
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
