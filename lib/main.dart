@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
@@ -10,6 +9,7 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -39,25 +39,10 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-/// For older Android devices (Android 5), there will sometimes be a
-/// HTTP error due to an expired certificate. This certificate lies within
-/// the Android operating system and is not part of the app. For our app
-/// to work on older Android devices, we need to ignore the certificate error.
-/// Note that this is a workaround and should be handled with care.
-/// See: https://github.com/flutter/flutter/issues/19588#issuecomment-406779390
-class OldAndroidHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
-}
-
 final log = Logger("main.dart");
 
 Future<void> main() async {
-  HttpOverrides.global = OldAndroidHttpOverrides();
+  Http.initClient();
 
   // Ensure that the widgets binding is initialized before
   // loading something from the shared preferences + mapbox tiles.
@@ -70,7 +55,7 @@ Future<void> main() async {
     // Initialize Sentry.
     await SentryFlutter.init((options) {
       // Our Sentry uses an on-premise installation.
-      options.dsn = "https://d2ab503d9cb6409aba03cac4cfa4a01c@priobike.vkw.tu-dresden.de/2";
+      options.dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     });
 
     // Load offline map tiles.

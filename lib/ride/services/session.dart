@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/messages/auth.dart';
 import 'package:priobike/logging/toast.dart';
@@ -13,9 +13,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Session with ChangeNotifier {
   final log = Logger("Session");
-
-  /// The HTTP client used to make requests to the backend.
-  http.Client httpClient = http.Client();
 
   /// The client id of this session.
   var clientId = "beta-app-" + UniqueKey().toString();
@@ -44,7 +41,7 @@ class Session with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final authEndpoint = Uri.parse('https://$baseUrl/session-wrapper/authentication');
-    http.Response response = await httpClient
+    final response = await Http
       .post(authEndpoint, body: json.encode(authRequest.toJson()))
       .onError((error, stackTrace) {
         log.e("Error during authentication: $error");
