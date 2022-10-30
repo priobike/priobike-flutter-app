@@ -25,7 +25,8 @@ class SearchView extends StatefulWidget {
   final int? index;
   final Function onPressed;
 
-  const SearchView({Key? key, this.index, required this.onPressed}) : super(key: key);
+  const SearchView({Key? key, this.index, required this.onPressed})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchViewState();
@@ -137,8 +138,8 @@ class SearchViewState extends State<SearchView> {
     await Future.delayed(const Duration(milliseconds: 100));
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            SelectOnMapView(currentLocationWaypoint: currentLocationWaypoint, withName: false),
+        builder: (_) => SelectOnMapView(
+            currentLocationWaypoint: currentLocationWaypoint, withName: false),
       ),
     );
 
@@ -161,13 +162,16 @@ class SearchViewState extends State<SearchView> {
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: Stack(children: [
           // Top Bar
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Brightness.light == Theme.of(context).brightness
+                    ? Theme.of(context).colorScheme.background
+                    : Theme.of(context).scaffoldBackgroundColor,
                 child: SafeArea(
                   top: true,
                   child: Padding(

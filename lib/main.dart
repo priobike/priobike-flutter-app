@@ -133,6 +133,7 @@ class App extends StatelessWidget {
           return MaterialApp(
             title: 'PrioBike',
             theme: ThemeData(
+              dialogBackgroundColor: const Color(0xFFFFFFFF),
               colorScheme: const ColorScheme.light(
                 background: Color(0xFFFFFFFF),
                 primary: Color.fromARGB(255, 0, 115, 255),
@@ -178,6 +179,7 @@ class App extends StatelessWidget {
               ),
             ),
             darkTheme: ThemeData(
+              dialogBackgroundColor: const Color(0xFF232323),
               colorScheme: const ColorScheme.dark(
                 background: Color(0xFF232323),
                 primary: Color.fromARGB(255, 0, 115, 255),

@@ -314,7 +314,7 @@ class SettingsViewState extends State<SettingsView> {
                   }),
                 )),
                 
-              if (settings.enableInternalFeatures) 
+              if (true)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Ortung", 
                   subtitle: settings.positioningMode.description, 

@@ -335,7 +335,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             child: Container(
               padding: const EdgeInsets.only(left: 20, right: 5),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.background,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(25),
                   bottomLeft: Radius.circular(25),
@@ -722,7 +722,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
             borderColor: Theme.of(context).colorScheme.primary,
-            fillColor: Theme.of(context).colorScheme.surface),
+            fillColor: Theme.of(context).colorScheme.background),
         IconTextButton(
             onPressed: () => _changeDetailView(topSnapRatio),
             label: isTop ? 'Karte' : 'Details',
@@ -730,7 +730,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             borderColor: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
-            fillColor: Theme.of(context).colorScheme.surface)
+            fillColor: Theme.of(context).colorScheme.background)
       ],
     );
   }
@@ -758,7 +758,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             borderColor: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
-            fillColor: Theme.of(context).colorScheme.surface)
+            fillColor: Theme.of(context).colorScheme.background)
       ],
     );
   }
@@ -806,7 +806,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
             return AnimatedContainer(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.vertical(
                   top: isTop
                       ? const Radius.circular(0)
@@ -827,8 +827,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           height: 5,
                           decoration: BoxDecoration(
                             color: isTop
-                                ? Theme.of(context).colorScheme.surface
-                                : Theme.of(context).colorScheme.background,
+                                ? Theme.of(context).colorScheme.background
+                                : Theme.of(context).colorScheme.surface,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(20),
                             ),
@@ -849,7 +849,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 10),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: Theme.of(context).colorScheme.background,
                         border: Border(
                           top: BorderSide(
                               width: 1,

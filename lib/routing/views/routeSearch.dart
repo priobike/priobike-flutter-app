@@ -155,6 +155,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

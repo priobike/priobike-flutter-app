@@ -174,7 +174,7 @@ class RoutingBarState extends State<RoutingBar> {
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: Theme.of(context).colorScheme.background,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
@@ -321,7 +321,7 @@ class RoutingBarState extends State<RoutingBar> {
     return Material(
       elevation: 5,
       child: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         width: frame.size.width,
         child: SafeArea(
           top: true,
@@ -335,13 +335,14 @@ class RoutingBarState extends State<RoutingBar> {
                     onPressed: () {
                       // Reset everything.
                       routing.reset();
-                      bottomSheetState.listController = null;
-                      bottomSheetState.resetInitialHeight();
-                      bottomSheetState.draggableScrollableController.reset();
 
                       // Only in SearchRoutingView.
                       if (widget.fromRoutingSearch) {
                         Navigator.of(context).pop();
+                      } else {
+                        bottomSheetState.listController = null;
+                        bottomSheetState.resetInitialHeight();
+                        bottomSheetState.draggableScrollableController.reset();
                       }
                     },
                     elevation: 5),

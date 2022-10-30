@@ -102,7 +102,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);
-    discomforts =  Provider.of<Discomforts>(context);
+    discomforts = Provider.of<Discomforts>(context);
 
     _checkRoutingBarShown();
 
@@ -367,9 +367,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
     // case more then 5 items.
     // Max RoutingBarHeight + Padding + SystemBar.
-    return frame.size.height * 0.25 +
-        20 +
-        frame.viewPadding.top;
+    return frame.size.height * 0.25 + 20 + frame.viewPadding.top;
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
@@ -491,7 +489,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                             bottom: 5),
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .surface,
+                                            .background,
                                         width: frame.size.width,
                                         height: frame.padding.top + 25 + 64,
                                       ),
@@ -508,7 +506,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                               AnimatedPositioned(
                                 // top calculates from padding + systembar
                                 top: _calculateRoutingBarHeight(frame) + 10,
-                                left: !showRoutingBar || (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)
+                                left: !showRoutingBar ||
+                                        (discomforts.selectedDiscomfort ==
+                                                null &&
+                                            !discomforts.trafficLightClicked)
                                     ? -frame.size.width * 0.75
                                     : 0,
                                 duration: const Duration(milliseconds: 250),
@@ -517,34 +518,40 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                   width: frame.size.width * 0.75,
                                 ),
                               ),
-                              Positioned(
-                                // top calculates from padding + systembar
-                                top: _calculateRoutingBarHeight(frame),
-                                right: 0,
-                                child: Padding(
-                                  /// Align with FAB
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Column(
+                              showRoutingBar
+                                  ? Positioned(
+                                      // top calculates from padding + systembar
+                                      top: _calculateRoutingBarHeight(frame),
+                                      right: 0,
+                                      child: Padding(
+                                        /// Align with FAB
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10, horizontal: 20),
+                                        child: Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                                MainAxisAlignment.end,
                                             children: [
-                                              CompassButton(
-                                                  centerNorth: _centerNorth),
-                                              const SizedBox(height: 10),
-                                              ZoomInAndOutButton(
-                                                  zoomIn: _zoomIn, zoomOut: _zoomOut),
-                                              const SizedBox(height: 10),
-                                              FilterButton(profileService: profile),
-                                              const SizedBox(height: 10),
-                                              const LayerButton(),
+                                              Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    CompassButton(
+                                                        centerNorth:
+                                                            _centerNorth),
+                                                    const SizedBox(height: 10),
+                                                    ZoomInAndOutButton(
+                                                        zoomIn: _zoomIn,
+                                                        zoomOut: _zoomOut),
+                                                    const SizedBox(height: 10),
+                                                    FilterButton(
+                                                        profileService:
+                                                            profile),
+                                                    const SizedBox(height: 10),
+                                                    const LayerButton(),
+                                                  ]),
                                             ]),
-                                      ]),
-                                )
-                              ),
+                                      ))
+                                  : Container(),
                             ]),
                           )
                         : Row(
