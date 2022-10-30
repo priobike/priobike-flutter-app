@@ -266,7 +266,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
         final location = e.value.coordinates.first;
         discomfortLocations!.add(await mapboxMapController!.addSymbol(
           DiscomfortLocationMarker(
-              geo: location, number: e.key + 1, iconSize: iconSize),
+              geo: location,
+              number: e.key + 1,
+              iconSize: discomforts.selectedDiscomfort == e.value
+                  ? iconSize * 1.33
+                  : iconSize),
           e.value.toJson(),
         ));
       } else {
@@ -275,7 +279,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
           DiscomfortLocationMarker(
               geo: e.value.coordinates.first,
               number: e.key + 1,
-              iconSize: iconSize),
+              iconSize: discomforts.selectedDiscomfort == e.value
+                  ? iconSize * 1.33
+                  : iconSize),
           e.value.toJson(),
         ));
         discomfortSections!.add(await mapboxMapController!.addLine(
@@ -374,7 +380,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
       // Determine which coordinate to use.
       if (uniqueInBounceCoordinates.isNotEmpty) {
-        chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length~/2];
+        chosenCoordinate =
+            uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
       }
 
       if (chosenCoordinate != null) {
@@ -575,7 +582,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
     // Check if symbol is a RouteLabel.
-    if (symbol.data != null && symbol.data!["isRouteLabel"] != null && symbol.data!["isRouteLabel"]) {
+    if (symbol.data != null &&
+        symbol.data!["isRouteLabel"] != null &&
+        symbol.data!["isRouteLabel"]) {
       r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
       routing.switchToRoute(context, selectedRoute);
     }
@@ -645,6 +654,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await routing.loadRoutes(context);
   }
 
+  /// A callback that is executed when the map was clicked.
+  Future<void> onMapClick(BuildContext context, LatLng coord) async {
+    if (discomforts.selectedDiscomfort != null)
+      discomforts.unselectDiscomfort();
+  }
+
   void onCameraTrackingDismissed() {
     mapController.setMyLocationTrackingModeNone(widget.controllerType);
   }
@@ -683,6 +698,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       onMapCreated: onMapCreated,
       onCameraTrackingDismissed: onCameraTrackingDismissed,
       onStyleLoaded: () => onStyleLoaded(context),
+      onMapClick: (_, coord) => onMapClick(context, coord),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
       myLocationTrackingMode: ControllerType.main == widget.controllerType
           ? mapController.myLocationTrackingMode

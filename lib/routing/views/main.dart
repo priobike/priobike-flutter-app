@@ -14,6 +14,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/bottomSheet.dart';
@@ -22,6 +23,7 @@ import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/routing/views/routeSearch.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/routing/views/widgets/ZoomInAndOutButton.dart';
+import 'package:priobike/routing/views/widgets/alerts.dart';
 import 'package:priobike/routing/views/widgets/compassButton.dart';
 import 'package:priobike/routing/views/widgets/filterButton.dart';
 import 'package:priobike/routing/views/widgets/gpsButton.dart';
@@ -30,7 +32,6 @@ import 'package:priobike/routing/views/widgets/routeTypeButton.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
-import 'package:priobike/routing/views/layers.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,6 +63,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// The associated BottomSheetState, which is injected by the provider.
   late BottomSheetState bottomSheetState;
+
+  /// The associated Discomfort, which is injected by the provider.
+  late Discomforts discomforts;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -98,6 +102,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);
+    discomforts =  Provider.of<Discomforts>(context);
 
     _checkRoutingBarShown();
 
@@ -347,22 +352,24 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   _calculateRoutingBarHeight(MediaQueryData frame) {
-    // case Items between 2 and 5
+    // case Items between 2 and 5.
     if (routing.selectedWaypoints!.length >= 2 &&
         routing.selectedWaypoints!.length <= 5) {
-      // routingBar items * 40 + Padding + SystemBar
+      // routingBar items * 40 + Padding + SystemBar.
       return routing.selectedWaypoints!.length * 40 +
           20 +
           frame.viewPadding.top;
     }
     // case 1 item
     if (routing.selectedWaypoints!.length == 1) {
-      // 2 routingBar items (40 + 40) + Padding + SystemBar
+      // 2 routingBar items (40 + 40) + Padding + SystemBar.
       return 80 + 20 + frame.viewPadding.top;
     }
-    // case more then 5 items
-    // Max RoutingBarHeight + Padding + SystemBar
-    return frame.size.height * 0.25 + 20 + frame.viewPadding.top;
+    // case more then 5 items.
+    // Max RoutingBarHeight + Padding + SystemBar.
+    return frame.size.height * 0.25 +
+        20 +
+        frame.viewPadding.top;
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
@@ -393,7 +400,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
           ? routing.allRoutes![1]
           : routing.allRoutes![0];
 
-      // TODO change here when routes have real types.
       routing.routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
 
       routing.switchToRoute(context, switchedRoute);
@@ -449,11 +455,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     waypointsSelected
                         ? SizedBox(
                             // number of Elements * 40 + Padding (2*10) + System navigation bar
-                            height: _calculateRoutingBarHeight(frame),
+                            height: frame.size.height,
                             child: Stack(clipBehavior: Clip.none, children: [
-                              Container(),
                               AnimatedPositioned(
-                                // top calculates from maxHeight Routingbar + padding + systembar
+                                // top calculates from maxHeight RoutingBar + padding + systemBar.
                                 top: showRoutingBar
                                     ? 0
                                     : -(frame.size.height * 0.25 +
@@ -500,6 +505,46 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 child:
                                     AppBackButton(onPressed: _showLessDetails),
                               ),
+                              AnimatedPositioned(
+                                // top calculates from padding + systembar
+                                top: _calculateRoutingBarHeight(frame) + 10,
+                                left: !showRoutingBar || discomforts.selectedDiscomfort == null
+                                    ? -frame.size.width * 0.75
+                                    : 0,
+                                duration: const Duration(milliseconds: 250),
+                                child: SizedBox(
+                                  child: const AlertsView(),
+                                  width: frame.size.width * 0.75,
+                                ),
+                              ),
+                              Positioned(
+                                // top calculates from padding + systembar
+                                top: _calculateRoutingBarHeight(frame),
+                                right: 0,
+                                child: Padding(
+                                  /// Align with FAB
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                            children: [
+                                              CompassButton(
+                                                  centerNorth: _centerNorth),
+                                              const SizedBox(height: 10),
+                                              ZoomInAndOutButton(
+                                                  zoomIn: _zoomIn, zoomOut: _zoomOut),
+                                              const SizedBox(height: 10),
+                                              FilterButton(profileService: profile),
+                                              const SizedBox(height: 10),
+                                              const LayerButton(),
+                                            ]),
+                                      ]),
+                                )
+                              ),
                             ]),
                           )
                         : Row(
@@ -525,7 +570,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                         ? ShortCutsRow(
                             onPressed: _loadShortcutsRoute, close: false)
                         : Container(),
-                    showRoutingBar
+                    !waypointsSelected
                         ? Padding(
                             /// Align with FAB
                             padding: const EdgeInsets.symmetric(
@@ -567,8 +612,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          routing.allRoutes != null && routing.allRoutes!.length == 2 ? RouteTypeButton(
-                              routeType: routing.routeType, changeRouteType: _switchRouteType) : Container(),
+                          routing.allRoutes != null &&
+                                  routing.allRoutes!.length == 2
+                              ? RouteTypeButton(
+                                  routeType: routing.routeType,
+                                  changeRouteType: _switchRouteType)
+                              : Container(),
                           GPSButton(gpsCentralization: _gpsCentralization),
                         ],
                       ),

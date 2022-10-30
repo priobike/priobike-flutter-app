@@ -41,6 +41,12 @@ class Discomforts with ChangeNotifier {
     notifyListeners();
   }
 
+   /// Select a discomfort.
+  unselectDiscomfort() {
+    selectedDiscomfort = null;
+    notifyListeners();
+  }
+
   /// Get the coordinates for a given segment.
   List<LatLng> getCoordinates(GHSegment segment, GHRouteResponsePath path) {
     List<LatLng> coordinates = [];

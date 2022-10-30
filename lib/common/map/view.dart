@@ -50,6 +50,9 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
+  /// A callback that is executed when the map is longclicked.
+  final void Function(Point<double>, LatLng)? onMapClick;
+
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
 
@@ -63,6 +66,7 @@ class AppMap extends StatefulWidget {
     this.onMapCreated,
     this.onStyleLoaded,
     this.onCameraIdle,
+    this.onMapClick,
     this.onMapLongClick,
     this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
     this.onCameraTrackingDismissed,
@@ -103,6 +107,7 @@ class AppMapState extends State<AppMap> {
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,
+      onMapClick: widget.onMapClick,
       onMapLongClick: widget.onMapLongClick,
       onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       attributionButtonPosition: widget.attributionButtonPosition,
