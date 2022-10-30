@@ -22,6 +22,9 @@ class Discomforts with ChangeNotifier {
   /// The currently selected discomfort.
   DiscomfortSegment? selectedDiscomfort;
 
+  /// The signal group clicked.
+  bool trafficLightClicked = false;
+
   Discomforts({
     this.foundDiscomforts,
     this.selectedDiscomfort,
@@ -32,6 +35,7 @@ class Discomforts with ChangeNotifier {
     needsLayout = {};
     foundDiscomforts = null;
     selectedDiscomfort = null;
+    trafficLightClicked = false;
     notifyListeners();
   }
 
@@ -41,9 +45,21 @@ class Discomforts with ChangeNotifier {
     notifyListeners();
   }
 
-   /// Select a discomfort.
+   /// Unselect a discomfort.
   unselectDiscomfort() {
     selectedDiscomfort = null;
+    notifyListeners();
+  }
+
+  /// Select a signalGroup.
+  selectTrafficLight() {
+    trafficLightClicked = true;
+    notifyListeners();
+  }
+
+   /// Unselect a signalGroup.
+  unselectTrafficLight() {
+    trafficLightClicked = false;
     notifyListeners();
   }
 

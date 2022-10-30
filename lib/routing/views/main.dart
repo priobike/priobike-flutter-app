@@ -508,7 +508,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                               AnimatedPositioned(
                                 // top calculates from padding + systembar
                                 top: _calculateRoutingBarHeight(frame) + 10,
-                                left: !showRoutingBar || discomforts.selectedDiscomfort == null
+                                left: !showRoutingBar || (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)
                                     ? -frame.size.width * 0.75
                                     : 0,
                                 duration: const Duration(milliseconds: 250),

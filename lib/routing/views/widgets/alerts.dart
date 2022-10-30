@@ -48,6 +48,12 @@ class AlertsViewState extends State<AlertsView> {
       if (found != null && found.isNotEmpty) {
         for (int i = 0; i < found.length; i++) {
           if (found[i] == discomforts.selectedDiscomfort) {
+            // Add offset if prediction error is displayed.
+            if (predictionStatus.bad != 0 ||
+                predictionStatus.offline != 0 ||
+                predictionStatus.disconnected != 0) {
+              i += 1;
+            }
             controller.jumpToPage(i);
             setState(() {
               currentPage = i;
@@ -55,6 +61,14 @@ class AlertsViewState extends State<AlertsView> {
             break;
           }
         }
+      }
+    } else {
+      // Case trafficLightClicked when alerts open.
+      if (discomforts.trafficLightClicked) {
+        controller.jumpToPage(0);
+        setState(() {
+          currentPage = 0;
+        });
       }
     }
 
@@ -70,6 +84,10 @@ class AlertsViewState extends State<AlertsView> {
         ...renderComfortAlerts(context, constraints),
       ];
       if (alerts.isEmpty) return Container();
+
+      bool withSignalGroupDiscomforts = (predictionStatus.bad != 0 ||
+          predictionStatus.offline != 0 ||
+          predictionStatus.disconnected != 0);
       return Stack(
         alignment: AlignmentDirectional.bottomEnd,
         children: [
@@ -86,17 +104,57 @@ class AlertsViewState extends State<AlertsView> {
                 ),
                 child:
                     Stack(alignment: AlignmentDirectional.topStart, children: [
-                  PageView(
+                  GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      (details.primaryVelocity ?? 0) < 0
+                          ? controller
+                              .nextPage(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut)
+                              .then((value) {
+                              // Check bounds.
+                              if (currentPage <
+                                  discomforts.foundDiscomforts!.length -
+                                      (withSignalGroupDiscomforts ? 0 : 1)) {
+                                discomforts.selectDiscomfort(discomforts
+                                        .foundDiscomforts![
+                                    // Add offset if prediction error is displayed.
+                                    withSignalGroupDiscomforts
+                                        ? currentPage
+                                        : currentPage + 1]);
+                              }
+                            })
+                          : controller
+                              .previousPage(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut)
+                              .then((value) {
+                              // Check bounds.
+                              if (currentPage > 1) {
+                                discomforts.selectDiscomfort(discomforts
+                                        .foundDiscomforts![
+                                    // Add offset if prediction error is displayed.
+                                    (predictionStatus.bad != 0 ||
+                                            predictionStatus.offline != 0 ||
+                                            predictionStatus.disconnected != 0)
+                                        ? currentPage - 2
+                                        : currentPage - 1]);
+                              }
+                              if (currentPage == 1) {
+                                setState(() {
+                                  currentPage = 0;
+                                  discomforts.unselectDiscomfort();
+                                  discomforts.selectTrafficLight();
+                                });
+                              }
+                            });
+                    },
+                    child: PageView(
+                      physics: const NeverScrollableScrollPhysics(),
                       children: alerts,
                       controller: controller,
-                      dragStartBehavior: DragStartBehavior.down,
-                      onPageChanged: (index) {
-                        setState(() {
-                          currentPage = index;
-                          // FIXME this has to be executed after onPageChanged executed.
-                          // discomforts.selectDiscomfort(discomforts.foundDiscomforts![index]);
-                        });
-                      }),
+                    ),
+                  ),
                 ]),
               )),
           // Show dots to indicate the current page.

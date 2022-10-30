@@ -268,6 +268,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
           DiscomfortLocationMarker(
               geo: location,
               number: e.key + 1,
+              zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
               iconSize: discomforts.selectedDiscomfort == e.value
                   ? iconSize * 1.33
                   : iconSize),
@@ -279,6 +280,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
           DiscomfortLocationMarker(
               geo: e.value.coordinates.first,
               number: e.key + 1,
+              zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
               iconSize: discomforts.selectedDiscomfort == e.value
                   ? iconSize * 1.33
                   : iconSize),
@@ -418,36 +420,36 @@ class RoutingMapViewState extends State<RoutingMapView> {
       final status = statusProvider.cache[sg.id];
       if (status == null) {
         trafficLights!.add(await mapboxMapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-          ),
-        ));
+            OfflineMarker(
+              iconSize: iconSize,
+              geo: LatLng(sg.position.lat, sg.position.lon),
+              label: willShowLabels ? sg.label : null,
+            ),
+            {"trafficLightMarker": true}));
       } else if (status.predictionState == SGPredictionState.offline) {
         trafficLights!.add(await mapboxMapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-          ),
-        ));
+            OfflineMarker(
+              iconSize: iconSize,
+              geo: LatLng(sg.position.lat, sg.position.lon),
+              label: willShowLabels ? sg.label : null,
+            ),
+            {"trafficLightMarker": true}));
       } else if (status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapboxMapController!.addSymbol(
-          BadSignalMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-          ),
-        ));
+            BadSignalMarker(
+              iconSize: iconSize,
+              geo: LatLng(sg.position.lat, sg.position.lon),
+              label: willShowLabels ? sg.label : null,
+            ),
+            {"trafficLightMarker": true}));
       } else {
         trafficLights!.add(await mapboxMapController!.addSymbol(
-          OnlineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-          ),
-        ));
+            OnlineMarker(
+              iconSize: iconSize,
+              geo: LatLng(sg.position.lat, sg.position.lon),
+              label: willShowLabels ? sg.label : null,
+            ),
+            {"trafficLightMarker": true}));
       }
     }
     // Remove the old traffic lights.
@@ -469,12 +471,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
     for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
       offlineCrossings!.add(await mapboxMapController!.addSymbol(
-        DisconnectedMarker(
-          iconSize: iconSize,
-          geo: LatLng(crossing.position.lat, crossing.position.lon),
-          label: willShowLabels ? crossing.name : null,
-        ),
-      ));
+          DisconnectedMarker(
+            iconSize: iconSize,
+            geo: LatLng(crossing.position.lat, crossing.position.lon),
+            label: willShowLabels ? crossing.name : null,
+          ),
+          {"trafficLightMarker": true}));
     }
     // Remove the old crossings.
     await mapboxMapController?.removeSymbols(oldCrossings ?? []);
@@ -581,12 +583,22 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
+    print("TEST");
+
     // Check if symbol is a RouteLabel.
     if (symbol.data != null &&
         symbol.data!["isRouteLabel"] != null &&
         symbol.data!["isRouteLabel"]) {
       r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
       routing.switchToRoute(context, selectedRoute);
+    }
+
+    // Check if symbol is a trafficLight.
+    if (symbol.data != null &&
+        symbol.data!["trafficLightMarker"] != null &&
+        symbol.data!["trafficLightMarker"]) {
+      discomforts.selectTrafficLight();
+      discomforts.unselectDiscomfort();
     }
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
@@ -658,6 +670,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onMapClick(BuildContext context, LatLng coord) async {
     if (discomforts.selectedDiscomfort != null)
       discomforts.unselectDiscomfort();
+    if (discomforts.trafficLightClicked) discomforts.unselectTrafficLight();
   }
 
   void onCameraTrackingDismissed() {
