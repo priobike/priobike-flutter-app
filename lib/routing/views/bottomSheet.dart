@@ -3,11 +3,13 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routing/views/instructions.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/bottomSheetState.dart';
 
@@ -90,10 +92,7 @@ final surfaceColor = {
 };
 
 class BottomSheetDetail extends StatefulWidget {
-  final Function onStartRide;
-
-  const BottomSheetDetail({Key? key, required this.onStartRide})
-      : super(key: key);
+  const BottomSheetDetail({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => BottomSheetDetailState();
@@ -141,6 +140,55 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     places = Provider.of<Places>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     super.didChangeDependencies();
+  }
+
+  /// A callback that is fired when the ride is started.
+  Future<void> _onStartRide() async {
+    void startRide() =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+          // Avoid navigation back, only allow stop button to be pressed.
+          // Note: Don't use pushReplacement since this will call
+          // the result handler of the RouteView's host.
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const RideSelectionView(),
+          );
+        }));
+
+    final preferences = await SharedPreferences.getInstance();
+    final didViewWarning =
+        preferences.getBool("priobike.routingOLD.warning") ?? false;
+    if (didViewWarning) {
+      startRide();
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
+          title: BoldContent(
+              text:
+                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
+          content: Container(height: 0),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                preferences.setBool("priobike.routingOLD.warning", true);
+                startRide();
+              },
+              child: BoldContent(
+                  text: 'OK',
+                  color: Theme.of(context).colorScheme.primary,
+                  context: context),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   _changeDetailView(double topSnapRatio) {
@@ -712,9 +760,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconTextButton(
-          onPressed: () {
-            widget.onStartRide();
-          },
+          onPressed: _onStartRide,
           label: 'Starten',
           icon: Icons.navigation,
           iconColor: Colors.white,

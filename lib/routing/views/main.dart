@@ -119,55 +119,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
-  /// A callback that is fired when the ride is started.
-  Future<void> onStartRide() async {
-    void startRide() =>
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          // Avoid navigation back, only allow stop button to be pressed.
-          // Note: Don't use pushReplacement since this will call
-          // the result handler of the RouteView's host.
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: const RideSelectionView(),
-          );
-        }));
-
-    final preferences = await SharedPreferences.getInstance();
-    final didViewWarning =
-        preferences.getBool("priobike.routingOLD.warning") ?? false;
-    if (didViewWarning) {
-      startRide();
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routingOLD.warning", true);
-                startRide();
-              },
-              child: BoldContent(
-                  text: 'OK',
-                  color: Theme.of(context).colorScheme.primary,
-                  context: context),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   /// A callback that is fired when the shortcut should be saved but a name is required.
   void onRequestShortcutName() {
     showDialog(
@@ -632,7 +583,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   )
                 : Container(),
             routing.selectedWaypoints != null
-                ? BottomSheetDetail(onStartRide: onStartRide)
+                ? const BottomSheetDetail()
                 : Container(),
           ]),
         ),
