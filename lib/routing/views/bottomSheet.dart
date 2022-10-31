@@ -90,7 +90,10 @@ final surfaceColor = {
 };
 
 class BottomSheetDetail extends StatefulWidget {
-  const BottomSheetDetail({Key? key}) : super(key: key);
+  final Function onStartRide;
+
+  const BottomSheetDetail({Key? key, required this.onStartRide})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => BottomSheetDetailState();
@@ -452,7 +455,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 10),
             // If in saving mode.
-            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
+            bottomSheetState.showSaving
+                ? _saveField(context, nameController)
+                : Container(),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
@@ -707,7 +712,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconTextButton(
-          onPressed: () {},
+          onPressed: () {
+            widget.onStartRide();
+          },
           label: 'Starten',
           icon: Icons.navigation,
           iconColor: Colors.white,
@@ -850,10 +857,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           vertical: 5, horizontal: 10),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.background,
-                        border: Border(
-                          top: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.background),
+                        border: const Border(
+                          top: BorderSide(width: 1, color: Colors.grey),
                         ),
                       ),
                       width: frame.size.width,

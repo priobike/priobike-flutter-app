@@ -367,23 +367,23 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                             ],
                           ),
                           Container(height: 25),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Content(
-                                  text: "Ampeln anzeigen", context: context),
-                              Switch(
-                                value:
-                                    profileService?.showTrafficLights ?? false,
-                                onChanged: (value) {
-                                  setState(() {
-                                    profileService?.showTrafficLights = value;
-                                    profileService?.store();
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     Content(
+                          //         text: "Ampeln anzeigen", context: context),
+                          //     Switch(
+                          //       value:
+                          //           profileService?.showTrafficLights ?? false,
+                          //       onChanged: (value) {
+                          //         setState(() {
+                          //           profileService?.showTrafficLights = value;
+                          //           profileService?.store();
+                          //         });
+                          //       },
+                          //     ),
+                          //   ],
+                          // ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

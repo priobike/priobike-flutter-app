@@ -15,6 +15,7 @@ class RouteTypeButton extends StatelessWidget {
     return Material(
       elevation: 5,
       borderRadius: const BorderRadius.all(Radius.circular(24.0)),
+      color: Theme.of(context).colorScheme.background,
       child: TextButton(
         style: TextButton.styleFrom(
           textStyle: const TextStyle(fontSize: 20),

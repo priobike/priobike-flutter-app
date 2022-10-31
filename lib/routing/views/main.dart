@@ -632,7 +632,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   )
                 : Container(),
             routing.selectedWaypoints != null
-                ? const BottomSheetDetail()
+                ? BottomSheetDetail(onStartRide: onStartRide)
                 : Container(),
           ]),
         ),
