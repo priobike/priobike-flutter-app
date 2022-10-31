@@ -403,6 +403,7 @@ class Routing with ChangeNotifier {
     routeType = selectedRoute!.id == 0 ? "Bequem" : "Schnell";
 
     selectedRoute = route;
+    notifyListeners();
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
     await discomforts.findDiscomforts(context, route.path);

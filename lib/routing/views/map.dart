@@ -185,11 +185,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onRoutingUpdate() async {
     await loadAllRouteLayers();
     await loadSelectedRouteLayer();
+    await loadRouteLabels();
     await loadTrafficLightMarkers();
     await loadOfflineCrossingMarkers();
     await loadWaypointMarkers();
     await moveMap();
-    await loadRouteLabels();
   }
 
   Future<void> onDiscomfortsUpdate() async {
@@ -204,9 +204,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await loadLayers();
   }
 
-  /// Load the route layerouting.
+  /// Load the route layer routing.
   Future<void> loadAllRouteLayers() async {
-    // If we have no map controller, we cannot load the layerouting.
+    // If we have no map controller, we cannot load the layer routing.
     if (mapboxMapController == null) return;
     // Cache the old annotations to remove them later. This avoids flickering.
     final oldRoutes = allRoutes;
@@ -225,7 +225,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         altRoute.toJson(),
       ));
     }
-    // Remove the old layerouting.
+    // Remove the old layer routing.
     await mapboxMapController?.removeLines(oldRoutes ?? []);
   }
 
@@ -304,6 +304,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// Load the Route labels.
   Future<void> loadRouteLabels() async {
+    print("NOW");
     // If we have no map controller, we cannot load the routing labels.
     if (mapboxMapController == null ||
         mapboxMapController!.cameraPosition == null ||
