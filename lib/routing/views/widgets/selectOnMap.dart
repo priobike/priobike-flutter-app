@@ -24,12 +24,10 @@ import 'package:provider/provider.dart';
 class SelectOnMapView extends StatefulWidget {
   final int? index;
   final bool withName;
-  final Waypoint? currentLocationWaypoint;
 
   const SelectOnMapView(
       {Key? key,
       this.index,
-      this.currentLocationWaypoint,
       required this.withName})
       : super(key: key);
 
@@ -125,40 +123,21 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   Future<void> onComplete(BuildContext context, double lat, double lon) async {
     String? address = await geocoding.reverseGeocodeLatLng(context, lat, lon);
 
-    if (address == null) return;
+    address ??= "Wegpunkt";
 
     final waypoint = Waypoint(lat, lon, address: address);
 
     if (widget.withName) {
       Place newPlace = Place(waypoint: waypoint, name: nameController.text);
       places.saveNewPlace(newPlace, context);
-    } else {
-      final waypoints = routing.selectedWaypoints ?? [];
-      // exchange with new waypoint
-      List<Waypoint> newWaypoints = waypoints.toList();
-      if (widget.index != null) {
-        newWaypoints[widget.index!] = waypoint;
-      } else {
-        // Insert current location as first waypoint if option is set
-        if (profile.setLocationAsStart &&
-            widget.currentLocationWaypoint != null &&
-            waypoints.isEmpty &&
-            waypoint.address != null) {
-          newWaypoints = [widget.currentLocationWaypoint!, waypoint];
-        } else {
-          newWaypoints = [...waypoints, waypoint];
-        }
-      }
+    }
 
-      if (waypoint.address != null && profile.saveSearchHistory) {
-        profile.saveNewSearch(waypoint);
-      }
-
-      await routing.selectWaypoints(newWaypoints);
+    if (waypoint.address != null && profile.saveSearchHistory) {
+      profile.saveNewSearch(waypoint);
     }
 
     // pop till routingScreen
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(waypoint);
   }
 
   @override

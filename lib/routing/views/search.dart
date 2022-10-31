@@ -152,12 +152,31 @@ class SearchViewState extends State<SearchView> {
     FocusManager.instance.primaryFocus?.unfocus();
     // We have to wait a little while since we can't await the void method above.
     await Future.delayed(const Duration(milliseconds: 100));
-    await Navigator.of(context).push(
+    final waypoint = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SelectOnMapView(
-            currentLocationWaypoint: currentLocationWaypoint, withName: false),
+        builder: (_) => const SelectOnMapView(withName: false),
       ),
     );
+
+    final waypoints = routing.selectedWaypoints ?? [];
+    // exchange with new waypoint
+    List<Waypoint> newWaypoints = waypoints.toList();
+
+    if (widget.index != null) {
+      newWaypoints[widget.index!] = waypoint;
+    } else {
+      // Insert current location as first waypoint if option is set
+      if (profile.setLocationAsStart &&
+          currentLocationWaypoint != null &&
+          waypoints.isEmpty &&
+          waypoint.address != null) {
+        newWaypoints = [currentLocationWaypoint!, waypoint];
+      } else {
+        newWaypoints = [...waypoints, waypoint];
+      }
+    }
+
+    await routing.selectWaypoints(newWaypoints);
 
     Navigator.of(context).pop();
   }

@@ -169,7 +169,6 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
-    print("RESETTING");
     routingItems = [];
     selectedRoute = null;
     allRoutes = null;

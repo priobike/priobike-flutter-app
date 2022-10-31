@@ -5,6 +5,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/search.dart';
@@ -50,8 +51,11 @@ class RoutingBarState extends State<RoutingBar> {
   /// The geosearch service that is injected by the provider.
   late Geosearch geosearch;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
+
+  /// The associated routing service, which is injected by the provider.
+  late Discomforts discomforts;
 
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
@@ -75,6 +79,7 @@ class RoutingBarState extends State<RoutingBar> {
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
     routing = Provider.of<Routing>(context);
+    discomforts = Provider.of<Discomforts>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);
@@ -146,8 +151,13 @@ class RoutingBarState extends State<RoutingBar> {
                   : Container(
                       width: 24,
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white)),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black),
+                      ),
                       child: Center(
                         child:
                             Content(text: index.toString(), context: context),
@@ -226,7 +236,9 @@ class RoutingBarState extends State<RoutingBar> {
                 }
               } else {
                 if (widget.fromRoutingSearch) {
-                  _onSearchRoutingBar(context, index, true);
+                  // Adding empty waypoint in routeSearchView.
+                  routing.routingItems.add(null);
+                  routing.notifyListeners();
                 } else {
                   onSearch(context, routing, null, widget.onPressed,
                       widget.fromRoutingSearch);
@@ -348,6 +360,7 @@ class RoutingBarState extends State<RoutingBar> {
                     onPressed: () {
                       // Reset everything.
                       routing.reset();
+                      discomforts.reset();
 
                       // Only in SearchRoutingView.
                       if (widget.fromRoutingSearch) {

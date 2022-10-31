@@ -109,7 +109,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
         builder: (_) => const SelectOnMapView(withName: false),
       ),
     );
-    if (routing.nextItem > 0 && result != null) {
+    if (routing.nextItem >= 0 && result != null) {
       routing.routingItems[routing.nextItem] = result;
       routing.notifyListeners();
     }
