@@ -12,10 +12,12 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
 /// A callback that is executed when the search page is opened.
-Future<void> onSearch(BuildContext context, Routing routing, int? index, Function onPressed) async {
+Future<void> onSearch(BuildContext context, Routing routing, int? index,
+    Function onPressed, bool fromRouteSearch) async {
   await Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (_) => SearchView(index: index, onPressed: onPressed),
+      builder: (_) => SearchView(
+          index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
     ),
   );
 
@@ -66,6 +68,9 @@ class RoutingBarState extends State<RoutingBar> {
   /// The list for the routingBarItems
   List<Widget> routingBarItems = [];
 
+  /// Variable to not duplicate initial code which we can't execute in initState since the service is null.
+  bool initDone = false;
+
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
@@ -88,7 +93,10 @@ class RoutingBarState extends State<RoutingBar> {
             routing.selectedWaypoints![i], routing.nextItem));
       }
     } else {
-      if (widget.fromRoutingSearch && routing.routingItems.isEmpty) {
+      if (widget.fromRoutingSearch && !initDone) {
+        setState(() {
+          initDone = true;
+        });
         if (profile.setLocationAsStart && currentLocationWaypoint != null) {
           routing.routingItems = [currentLocationWaypoint, null];
           routing.nextItem = 1;
@@ -168,7 +176,8 @@ class RoutingBarState extends State<RoutingBar> {
                   if (widget.fromRoutingSearch) {
                     _onSearchRoutingBar(context, index, false);
                   } else {
-                    onSearch(context, routing, index, widget.onPressed);
+                    onSearch(context, routing, index, widget.onPressed,
+                        widget.fromRoutingSearch);
                   }
                 },
                 child: Container(
@@ -219,7 +228,8 @@ class RoutingBarState extends State<RoutingBar> {
                 if (widget.fromRoutingSearch) {
                   _onSearchRoutingBar(context, index, true);
                 } else {
-                  onSearch(context, routing, null, widget.onPressed);
+                  onSearch(context, routing, null, widget.onPressed,
+                      widget.fromRoutingSearch);
                 }
               }
             },
@@ -290,7 +300,10 @@ class RoutingBarState extends State<RoutingBar> {
   _onSearchRoutingBar(BuildContext context, int index, bool append) async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SearchView(index: index, onPressed: widget.onPressed),
+        builder: (_) => SearchView(
+            index: index,
+            onPressed: widget.onPressed,
+            fromRouteSearch: widget.fromRoutingSearch),
       ),
     );
 

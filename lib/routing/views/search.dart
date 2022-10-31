@@ -24,8 +24,13 @@ import 'widgets/currentLocationButton.dart';
 class SearchView extends StatefulWidget {
   final int? index;
   final Function onPressed;
+  final bool fromRouteSearch;
 
-  const SearchView({Key? key, this.index, required this.onPressed})
+  const SearchView(
+      {Key? key,
+      this.index,
+      required this.onPressed,
+      required this.fromRouteSearch})
       : super(key: key);
 
   @override
@@ -99,8 +104,15 @@ class SearchViewState extends State<SearchView> {
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
     List<Waypoint> newWaypoints = waypoints.toList();
+    List<Waypoint?> newRoutingItems = routing.routingItems;
     if (widget.index != null) {
-      newWaypoints[widget.index!] = waypoint;
+      // Check if it has to be put in selectedWaypoints or not.
+      if (widget.fromRouteSearch) {
+        newRoutingItems[widget.index!] = waypoint;
+        await routing.selectRoutingItems(newRoutingItems);
+      } else {
+        newWaypoints[widget.index!] = waypoint;
+      }
     } else {
       // Insert current location as first waypoint if option is set
       if (profile.setLocationAsStart &&
@@ -117,7 +129,11 @@ class SearchViewState extends State<SearchView> {
       profile.saveNewSearch(waypoint);
     }
 
-    await routing.selectWaypoints(newWaypoints);
+    // Only set waypoints when not from routeSearchView.
+    if (!widget.fromRouteSearch) {
+      await routing.selectWaypoints(newWaypoints);
+    }
+
     Navigator.of(context).pop();
   }
 

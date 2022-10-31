@@ -828,7 +828,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           decoration: BoxDecoration(
                             color: isTop
                                 ? Theme.of(context).colorScheme.background
-                                : Theme.of(context).colorScheme.surface,
+                                : Colors.grey,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(20),
                             ),

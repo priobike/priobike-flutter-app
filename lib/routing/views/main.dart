@@ -336,7 +336,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> _startSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute),
+        builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute, fromRouteSearch: false),
       ),
     );
 

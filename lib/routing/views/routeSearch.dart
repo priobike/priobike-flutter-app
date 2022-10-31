@@ -32,16 +32,16 @@ class RouteSearchViewState extends State<RouteSearchView> {
   late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts shortcutsService;
+  late Shortcuts shortcuts;
 
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapController mapControllerService;
+  late MapController mapController;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Profile profileService;
+  late Profile profile;
 
   /// The Location Search Text Editing Controller
   final TextEditingController _locationSearchController =
@@ -58,13 +58,14 @@ class RouteSearchViewState extends State<RouteSearchView> {
   @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
-    shortcutsService = Provider.of<Shortcuts>(context);
-    mapControllerService = Provider.of<MapController>(context);
-    profileService = Provider.of<Profile>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
+    mapController = Provider.of<MapController>(context);
+    profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     geosearch = Provider.of<Geosearch>(context);
     // to update the position of the current Location Waypoint
     updateWaypoint();
+    checkNextItem();
 
     super.didChangeDependencies();
   }
@@ -89,7 +90,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
     if (routing.nextItem > 0) {
       routing.routingItems[routing.nextItem] = waypoint;
       routing.notifyListeners();
-      checkNextItem();
     }
   }
 
@@ -112,7 +112,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
     if (routing.nextItem > 0 && result != null) {
       routing.routingItems[routing.nextItem] = result;
       routing.notifyListeners();
-      checkNextItem();
     }
   }
 
@@ -120,12 +119,13 @@ class RouteSearchViewState extends State<RouteSearchView> {
     if (routing.nextItem > 0 && currentLocationWaypoint != null) {
       routing.routingItems[routing.nextItem] = currentLocationWaypoint;
       routing.notifyListeners();
-      checkNextItem();
     }
   }
 
   /// A Function which finds the next missing item or reroutes to previous screen
   checkNextItem() async {
+    if (routing.routingItems.isEmpty) return;
+
     int nextItemIndex = -1;
     for (int i = 0; i < routing.routingItems.length; i++) {
       if (routing.routingItems[i] == null && nextItemIndex == -1) {

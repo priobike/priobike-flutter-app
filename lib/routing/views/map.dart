@@ -583,7 +583,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
-    print("TEST");
 
     // Check if symbol is a RouteLabel.
     if (symbol.data != null &&

@@ -122,7 +122,7 @@ class Routing with ChangeNotifier {
   /// The index which routingBarItem gets filled next
   int nextItem = -1;
 
-  /// The currently selected route, if one wetched.
+  /// The currently selected route, if one fetched.
   r.Route? selectedRoute;
 
   /// All routes, if they were fetched.
@@ -156,6 +156,12 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Select new waypoints.
+  Future<void> selectRoutingItems(List<Waypoint?> waypoints) async {
+    routingItems = waypoints;
+    notifyListeners();
+  }
+
   // Reset the routing service.
   Future<void> reset() async {
     needsLayout = {};
@@ -163,6 +169,8 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
+    print("RESETTING");
+    routingItems = [];
     selectedRoute = null;
     allRoutes = null;
     notifyListeners();
@@ -180,10 +188,16 @@ class Routing with ChangeNotifier {
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
-      final req = SGSelectorRequest(route: path.points.coordinates.map((e) => SGSelectorPosition(
-        lat: e.lat, lon: e.lon, alt: e.elevation ?? 0.0,
-      )).toList());
-      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+      final req = SGSelectorRequest(
+          route: path.points.coordinates
+              .map((e) => SGSelectorPosition(
+                    lat: e.lat,
+                    lon: e.lon,
+                    alt: e.elevation ?? 0.0,
+                  ))
+              .toList());
+      final response =
+          await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
 
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
@@ -196,7 +210,8 @@ class Routing with ChangeNotifier {
     } catch (e, stack) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode)
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
       return null;
     }
   }
@@ -257,7 +272,8 @@ class Routing with ChangeNotifier {
       ghUrl += "&locale=de";
       ghUrl += "&elevation=true";
       ghUrl += "&points_encoded=false";
-      ghUrl += "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
+      ghUrl +=
+          "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
       // Add the supported details. This must be specified in the GraphHopper config.
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
@@ -277,7 +293,8 @@ class Routing with ChangeNotifier {
       final response = await Http.get(ghEndpoint);
       if (response.statusCode == 200) {
         log.i("Loaded GraphHopper response from $ghUrl");
-        return GHRouteResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+        return GHRouteResponse.fromJson(
+            json.decode(utf8.decode(response.bodyBytes)));
       } else {
         log.e(
             "Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
@@ -286,7 +303,8 @@ class Routing with ChangeNotifier {
     } catch (e, stacktrace) {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode)
+        await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
       return null;
     }
   }
@@ -335,28 +353,33 @@ class Routing with ChangeNotifier {
     }
 
     // Create the routes.
-    final routes = ghResponse.paths.asMap().map((i, path) {
-      final sgSelectorResponse = sgSelectorResponses[i]!;
-      final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-      for (final waypoint in sgSelectorResponse.route) {
-        if (waypoint.signalGroupId == null) continue;
-        final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-        if (sg == null) continue;
-        if (sgsInOrderOfRoute.contains(sg)) continue;
-        sgsInOrderOfRoute.add(sg);
-      }
-      var route = r.Route(
-        id: i,
-        path: path, 
-        route: sgSelectorResponse.route, 
-        signalGroups: sgsInOrderOfRoute,
-        crossings: sgSelectorResponse.crossings,
-      );
+    final routes = ghResponse.paths
+        .asMap()
+        .map((i, path) {
+          final sgSelectorResponse = sgSelectorResponses[i]!;
+          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+          for (final waypoint in sgSelectorResponse.route) {
+            if (waypoint.signalGroupId == null) continue;
+            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+            if (sg == null) continue;
+            if (sgsInOrderOfRoute.contains(sg)) continue;
+            sgsInOrderOfRoute.add(sg);
+          }
+          var route = r.Route(
+            id: i,
+            path: path,
+            route: sgSelectorResponse.route,
+            signalGroups: sgsInOrderOfRoute,
+            crossings: sgSelectorResponse.crossings,
+          );
 
-      // Connect the route to the start and end points.
-      route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-      return MapEntry(i, route);
-    }).values.toList();
+          // Connect the route to the start and end points.
+          route = route.connected(
+              selectedWaypoints!.first, selectedWaypoints!.last);
+          return MapEntry(i, route);
+        })
+        .values
+        .toList();
 
     selectedRoute = routes.first;
     allRoutes = routes;
@@ -367,7 +390,8 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, routes.first.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, routes.first.signalGroups, routes.first.crossings);
+    await status.fetch(
+        context, routes.first.signalGroups, routes.first.crossings);
 
     notifyListeners();
     return routes;
