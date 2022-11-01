@@ -273,7 +273,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         );
       }
       if (mapIndex == map.length - 1) {
-        print(entry.key);
         decoration = BoxDecoration(
           border: Border.all(color: Colors.black),
           borderRadius: const BorderRadius.only(
