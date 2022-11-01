@@ -176,9 +176,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     mapController = Provider.of<MapController>(context);
 
-    // selectOnMapView should not display RouteLayers since it causes problems on dispose
-    // if (widget.controllerType == ControllerType.main) adaptMap();
-
     super.didChangeDependencies();
   }
 
@@ -235,15 +232,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (mapboxMapController == null) return;
     // Cache the old annotations to remove them later. This avoids flickering.
     final oldRoute = route;
-    if (routing.selectedRoute == null) return;
-    // Add the new route layer.
-    route = await mapboxMapController!.addLine(
-      RouteLayer(
-          points: routing.selectedRoute!.route
-              .map((e) => LatLng(e.lat, e.lon))
-              .toList()),
-      routing.selectedRoute!.toJson(),
-    );
+    if (routing.selectedRoute != null) {
+      // Add the new route layer.
+      route = await mapboxMapController!.addLine(
+        RouteLayer(
+            points: routing.selectedRoute!.route
+                .map((e) => LatLng(e.lat, e.lon))
+                .toList()),
+        routing.selectedRoute!.toJson(),
+      );
+    }
     if (oldRoute != null) await mapboxMapController?.removeLine(oldRoute);
   }
 
@@ -305,97 +303,99 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// Load the Route labels.
   Future<void> loadRouteLabels() async {
     // If we have no map controller, we cannot load the routing labels.
-    if (mapboxMapController == null ||
-        mapboxMapController!.cameraPosition == null ||
-        routing.allRoutes == null ||
-        routing.allRoutes!.length != 2 ||
-        routing.selectedRoute == null) return;
-
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
+    if (mapboxMapController == null) return;
 
     final oldRouteLabelLocations = routeLabelLocations;
     routeLabelLocations = [];
 
-    var distance = const LatLng2.Distance();
+    if (mapboxMapController!.cameraPosition != null &&
+        routing.allRoutes != null &&
+        routing.allRoutes!.length == 2 &&
+        routing.selectedRoute != null) {
+      final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
 
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    double meterPerPixel = zoomToGeographicalDistance[
-            mapboxMapController!.cameraPosition!.zoom.toInt()] ??
-        0;
-    double cameraPosLat = mapboxMapController!.cameraPosition!.target.latitude;
-    double cameraPosLong =
-        mapboxMapController!.cameraPosition!.target.longitude;
+      var distance = const LatLng2.Distance();
 
-    // Cast to LatLng2 format.
-    LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
+      double width = MediaQuery.of(context).size.width;
+      double height = MediaQuery.of(context).size.height;
+      double meterPerPixel = zoomToGeographicalDistance[
+              mapboxMapController!.cameraPosition!.zoom.toInt()] ??
+          0;
+      double cameraPosLat =
+          mapboxMapController!.cameraPosition!.target.latitude;
+      double cameraPosLong =
+          mapboxMapController!.cameraPosition!.target.longitude;
 
-    // Getting the bounds north, east, south, west.
-    // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-    LatLng2.LatLng north =
-        distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-    LatLng2.LatLng east =
-        distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-    LatLng2.LatLng south =
-        distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-    LatLng2.LatLng west =
-        distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      // Cast to LatLng2 format.
+      LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
 
-    // Search appropriate Point in Route
-    for (r.Route route in routing.allRoutes!) {
-      // Find closest to camera in bounds
-      GHCoordinate? chosenCoordinate;
-      List<GHCoordinate> uniqueInBounceCoordinates = [];
+      // Getting the bounds north, east, south, west.
+      // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
+      LatLng2.LatLng north =
+          distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+      LatLng2.LatLng east =
+          distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
+      LatLng2.LatLng south =
+          distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
+      LatLng2.LatLng west =
+          distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
-      // go through all coordinates.
-      for (GHCoordinate coordinate in route.path.points.coordinates) {
-        // Check if the coordinate is unique and not on the same line.
-        bool unique = true;
-        // Loop through all route coordinates.
-        for (r.Route routeToBeChecked in routing.allRoutes!) {
-          // Would always be not unique without this check.
-          if (routeToBeChecked.id != route.id) {
-            // Compare coordinate to all coordinates in other route.
-            for (GHCoordinate coordinateToBeChecked
-                in routeToBeChecked.path.points.coordinates) {
-              if (!unique) {
-                break;
+      // Search appropriate Point in Route
+      for (r.Route route in routing.allRoutes!) {
+        // Find closest to camera in bounds
+        GHCoordinate? chosenCoordinate;
+        List<GHCoordinate> uniqueInBounceCoordinates = [];
+
+        // go through all coordinates.
+        for (GHCoordinate coordinate in route.path.points.coordinates) {
+          // Check if the coordinate is unique and not on the same line.
+          bool unique = true;
+          // Loop through all route coordinates.
+          for (r.Route routeToBeChecked in routing.allRoutes!) {
+            // Would always be not unique without this check.
+            if (routeToBeChecked.id != route.id) {
+              // Compare coordinate to all coordinates in other route.
+              for (GHCoordinate coordinateToBeChecked
+                  in routeToBeChecked.path.points.coordinates) {
+                if (!unique) {
+                  break;
+                }
+                if (coordinateToBeChecked.lon == coordinate.lon &&
+                    coordinateToBeChecked.lat == coordinate.lat) {
+                  unique = false;
+                }
               }
-              if (coordinateToBeChecked.lon == coordinate.lon &&
-                  coordinateToBeChecked.lat == coordinate.lat) {
-                unique = false;
-              }
+            }
+          }
+
+          if (unique) {
+            // Check bounds, no check for side of earth needed since in Hamburg.
+            if (coordinate.lat > south.latitude &&
+                coordinate.lat < north.latitude &&
+                coordinate.lon > west.longitude &&
+                coordinate.lon < east.longitude) {
+              uniqueInBounceCoordinates.add(coordinate);
             }
           }
         }
 
-        if (unique) {
-          // Check bounds, no check for side of earth needed since in Hamburg.
-          if (coordinate.lat > south.latitude &&
-              coordinate.lat < north.latitude &&
-              coordinate.lon > west.longitude &&
-              coordinate.lon < east.longitude) {
-            uniqueInBounceCoordinates.add(coordinate);
-          }
+        // Determine which coordinate to use.
+        if (uniqueInBounceCoordinates.isNotEmpty) {
+          chosenCoordinate =
+              uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
         }
-      }
 
-      // Determine which coordinate to use.
-      if (uniqueInBounceCoordinates.isNotEmpty) {
-        chosenCoordinate =
-            uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
-      }
-
-      if (chosenCoordinate != null) {
-        // Found coordinate and add Label with time.
-        routeLabelLocations!.add(await mapboxMapController!.addSymbol(
-          RouteLabel(
-              primary: routing.selectedRoute!.id == route.id,
-              geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon),
-              number: ((route.path.time * 0.001) * 0.016).round(),
-              iconSize: iconSize),
-          {"data": route.toJson(), "isRouteLabel": true},
-        ));
+        if (chosenCoordinate != null) {
+          // Found coordinate and add Label with time.
+          routeLabelLocations!.add(await mapboxMapController!.addSymbol(
+            RouteLabel(
+                primary: routing.selectedRoute!.id == route.id,
+                geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon),
+                number: ((route.path.time * 0.001) * 0.016).round(),
+                iconSize: iconSize),
+            {"data": route.toJson(), "isRouteLabel": true},
+          ));
+        }
       }
     }
     // Remove the old labels.
@@ -583,7 +583,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
-
     // Check if symbol is a RouteLabel.
     if (symbol.data != null &&
         symbol.data!["isRouteLabel"] != null &&
