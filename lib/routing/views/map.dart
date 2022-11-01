@@ -304,7 +304,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// Load the Route labels.
   Future<void> loadRouteLabels() async {
-    print("NOW");
     // If we have no map controller, we cannot load the routing labels.
     if (mapboxMapController == null ||
         mapboxMapController!.cameraPosition == null ||
