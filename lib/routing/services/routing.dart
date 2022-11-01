@@ -127,7 +127,7 @@ class Routing with ChangeNotifier {
     this.selectedWaypoints,
     this.selectedRoute,
     this.allRoutes,
-  }) { log.i("Routing started."); }
+  });
 
   /// Add a new waypoint.
   Future<void> addWaypoint(Waypoint waypoint) async {

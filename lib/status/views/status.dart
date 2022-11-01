@@ -22,16 +22,11 @@ class StatusViewState extends State<StatusView> {
   @override
   void didChangeDependencies() {
     predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-
-    // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await predictionStatusSummary.fetch(context);
-    });
-
     super.didChangeDependencies();
   }
 
-  Widget renderStatus() {
+  @override
+  Widget build(BuildContext context) {
     if (predictionStatusSummary.current == null) return Container();
     final status = predictionStatusSummary.current!;
 
@@ -89,18 +84,6 @@ class StatusViewState extends State<StatusView> {
           ),
         ]),
       )
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 300),
-      firstChild: Container(),
-      secondChild: renderStatus(),
-      crossFadeState: predictionStatusSummary.current == null 
-        ? CrossFadeState.showFirst 
-        : CrossFadeState.showSecond,
     );
   }
 }

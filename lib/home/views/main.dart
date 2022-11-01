@@ -70,15 +70,6 @@ class HomeViewState extends State<HomeView> {
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     statistics = Provider.of<Statistics>(context, listen: false);
 
-    // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await news.getArticles(context);
-      await settings.loadSettings();
-      await profile.loadProfile();
-      await shortcuts.loadShortcuts(context);
-      await statistics.loadStatistics();
-    });
-
     super.didChangeDependencies();
   }
 

@@ -75,14 +75,15 @@ dev_dependencies:
 
 # Configuration of the splash screens.
 flutter_native_splash:
-  color: "#F6F6F6" # Color in light mode
-  color_dark: "#232323" # Color in dark mode
-  image: assets/icon.png # Icon to display in the center
+  color: "#0073ff" # Color in light mode
+  color_dark: "#0073ff" # Color in dark mode
+  image: assets/splash.png # Icon to display in the center
 
 # Configuration of the app icons.
 flutter_icons:
   android: true # Make app icon set for android
   ios: true # Make app icon set for iOS
+  remove_alpha_ios: true # Alpha is not allowed in iOS app icons
   image_path: "assets/icon.png" # Icon to transform into app icon sets
 
 # The following section is specific to Flutter.
@@ -94,6 +95,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    # App icon and splash screen
+    - assets/icon.png
+    - assets/splash.png
+
     # Geo data
     - assets/geo/accident_black_spots_dresden.geojson
     - assets/geo/accident_black_spots.geojson
