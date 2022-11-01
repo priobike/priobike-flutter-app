@@ -11,7 +11,6 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/discomfort.dart';

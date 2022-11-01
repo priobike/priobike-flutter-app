@@ -54,7 +54,9 @@ class AlertsViewState extends State<AlertsView> {
                 predictionStatus.disconnected != 0) {
               i += 1;
             }
-            controller.jumpToPage(i);
+            if(controller.hasClients) {
+              controller.jumpToPage(i);
+            }
             setState(() {
               currentPage = i;
             });
@@ -65,7 +67,9 @@ class AlertsViewState extends State<AlertsView> {
     } else {
       // Case trafficLightClicked when alerts open.
       if (discomforts.trafficLightClicked) {
-        controller.jumpToPage(0);
+        if(controller.hasClients) {
+          controller.jumpToPage(0);
+        }
         setState(() {
           currentPage = 0;
         });

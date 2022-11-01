@@ -308,6 +308,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final oldRouteLabelLocations = routeLabelLocations;
     routeLabelLocations = [];
 
+    // Conditions for having route labels.
     if (mapboxMapController!.cameraPosition != null &&
         routing.allRoutes != null &&
         routing.allRoutes!.length == 2 &&
@@ -576,6 +577,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
       if (line.id == routeLine.id) {
         final route = r.Route.fromJson(line.data);
         routing.switchToRoute(context, route);
+        discomforts.unselectDiscomfort();
+        discomforts.unselectTrafficLight();
         return;
       }
     }
@@ -666,8 +669,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback that is executed when the map was clicked.
   Future<void> onMapClick(BuildContext context, LatLng coord) async {
-    if (discomforts.selectedDiscomfort != null)
+    if (discomforts.selectedDiscomfort != null) {
       discomforts.unselectDiscomfort();
+    }
     if (discomforts.trafficLightClicked) discomforts.unselectTrafficLight();
   }
 

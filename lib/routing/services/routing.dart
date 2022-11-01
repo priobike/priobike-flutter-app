@@ -384,6 +384,7 @@ class Routing with ChangeNotifier {
     allRoutes = routes;
     fetchedWaypoints = selectedWaypoints;
     isFetchingRoute = false;
+    routeType = "Schnell";
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
     await discomforts.findDiscomforts(context, routes.first.path);

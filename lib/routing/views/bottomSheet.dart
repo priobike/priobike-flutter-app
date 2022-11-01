@@ -62,16 +62,16 @@ final roadClassColor = {
   "Nicht klassifiziert": const Color(0xFF686868),
   "Zufahrtsstraße": const Color(0xFF282828),
   "Straße": const Color(0xFF282828),
-  "Rennstrecke???": const Color(0xFFB74093),
+  "Rennstrecke?": const Color(0xFFB74093),
   "Reitweg": const Color(0xFF572B28),
-  "Treppen???": const Color(0xFFB74093),
+  "Treppen?": const Color(0xFFB74093),
   "Fahrradweg": const Color(0xFF993D4C),
   "Weg": const Color(0xFF362626),
   "Spielstraße": const Color(0xFF1A4BFF),
   "Fußweg": const Color(0xFF8E8E8E),
   "Fußgängerzone": const Color(0xFF192765),
-  "Bahnsteig???": const Color(0xFF2A0029),
-  "Korridor??": const Color(0xFFB74093),
+  "Bahnsteig?": const Color(0xFF2A0029),
+  "Korridor?": const Color(0xFFB74093),
   "Sonstiges": const Color(0xFFB74093)
 };
 
@@ -273,6 +273,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         );
       }
       if (mapIndex == map.length - 1) {
+        print(entry.key);
         decoration = BoxDecoration(
           border: Border.all(color: Colors.black),
           borderRadius: const BorderRadius.only(
@@ -280,7 +281,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           color: colorTranslation[entry.key],
         );
       }
-      if (mapIndex == map.length - 2) {
+      if (mapIndex == map.length - 2 && map.length > 2) {
         decoration = BoxDecoration(
           border: const Border(
             top: BorderSide(color: Colors.black),
@@ -501,7 +502,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     ],
                   )
                 : Container(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 25),
             // If in saving mode.
             bottomSheetState.showSaving
                 ? _saveField(context, nameController)
@@ -550,6 +551,26 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Safety Score"),
+                          content: const Text(
+                              "Die Werte des Safety Scores werden noch nicht erstellt und dienen nur der Optik."),
+                          actions: [
+                            TextButton(
+                              child: const Text("Okay"),
+                              onPressed: () => Navigator.of(context).pop(),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 10),
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -574,26 +595,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                             )
                     ]),
                   ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.info_outline),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Safety Score"),
-                          content: const Text(
-                              "Die Werte des Safety Scores werden noch nicht erstellt und dienen nur der Optik."),
-                          actions: [
-                            TextButton(
-                              child: const Text("Okay"),
-                              onPressed: () => Navigator.of(context).pop(),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  )
                 ],
               )
             ]),
@@ -827,6 +828,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           await places.saveNewPlaceFromWaypoint(nameController.text, context);
         }
       }
+      bottomSheetState.showSaving = false;
     }
   }
 

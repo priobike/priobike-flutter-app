@@ -92,7 +92,7 @@ class RouteLabel extends SymbolOptions {
     textOffset: const Offset(0, -1.25),
     textSize: 12,
     textColor: primary ? "#ffffff" : "#000000",
-    zIndex: 6,
+    zIndex: primary ? 7 : 6,
   );
 }
 
