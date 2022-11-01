@@ -32,7 +32,6 @@ import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RoutingViewNew extends StatefulWidget {
   const RoutingViewNew({Key? key}) : super(key: key);

@@ -170,6 +170,7 @@ class Routing with ChangeNotifier {
     fetchedWaypoints = null;
     selectedWaypoints = null;
     routingItems = [];
+    nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
     notifyListeners();

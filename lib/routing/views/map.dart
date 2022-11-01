@@ -341,6 +341,36 @@ class RoutingMapViewState extends State<RoutingMapView> {
       LatLng2.LatLng west =
           distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
+      bool allInBounds = true;
+      // Check if current route labels are in bounds still.
+      if (oldRouteLabelLocations != null && oldRouteLabelLocations.isNotEmpty) {
+
+        for (Symbol symbol in oldRouteLabelLocations) {
+          // Check for data of symbol.
+          if (symbol.data != null &&
+              symbol.data!["lat"] != null &&
+              symbol.data!["lon"] != null) {
+            // Check out of new bounds.
+
+            if (symbol.data!["lat"] < south.latitude ||
+                symbol.data!["lat"] > north.latitude ||
+                symbol.data!["lon"] < west.longitude ||
+                symbol.data!["lon"] > east.longitude) {
+              // Not in new bounds.
+              allInBounds = false;
+            }
+          }
+        }
+      }
+
+      // If all in bounds then we don't have to calculate new positions.
+      if (allInBounds &&
+          oldRouteLabelLocations != null &&
+          oldRouteLabelLocations.isNotEmpty) {
+        routeLabelLocations = oldRouteLabelLocations;
+        return;
+      }
+
       // Search appropriate Point in Route
       for (r.Route route in routing.allRoutes!) {
         // Find closest to camera in bounds
@@ -394,7 +424,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
                 geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon),
                 number: ((route.path.time * 0.001) * 0.016).round(),
                 iconSize: iconSize),
-            {"data": route.toJson(), "isRouteLabel": true},
+            {
+              "data": route.toJson(),
+              "isRouteLabel": true,
+              "lat": chosenCoordinate.lat,
+              "lon": chosenCoordinate.lon
+            },
           ));
         }
       }
@@ -679,6 +714,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
     mapController.setMyLocationTrackingModeNone(widget.controllerType);
   }
 
+  /// A callback that is executed when the camera movement of the user stopped.
+  void onCameraIdle() {
+    // Check if the route labels have to be positionally adjusted.
+    loadRouteLabels();
+  }
+
   @override
   void dispose() {
     () async {
@@ -715,6 +756,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       onStyleLoaded: () => onStyleLoaded(context),
       onMapClick: (_, coord) => onMapClick(context, coord),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
+      onCameraIdle: () => onCameraIdle(),
       myLocationTrackingMode: ControllerType.main == widget.controllerType
           ? mapController.myLocationTrackingMode
           : mapController.myLocationTrackingModeSelectOnMapView,
