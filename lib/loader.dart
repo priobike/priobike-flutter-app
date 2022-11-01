@@ -55,6 +55,8 @@ class LoaderState extends State<Loader> {
     await Provider.of<Statistics>(context, listen: false).loadStatistics();
     await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
 
+    // Remove the splash screen icon.
+    FlutterNativeSplash.remove();
     // Finish loading.
     setState(() => shouldMorph = true);
     // After a short delay, we can show the home view.
@@ -63,8 +65,6 @@ class LoaderState extends State<Loader> {
     // Make this an additional step so that the animation is smooth.
     await Future.delayed(const Duration(milliseconds: 10));
     setState(() => shouldBlendIn = true);
-    // Remove the splash screen icon.
-    FlutterNativeSplash.remove();
   }
 
   @override
@@ -82,7 +82,7 @@ class LoaderState extends State<Loader> {
         color: Theme.of(context).colorScheme.background,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOutCubic,
+          curve: Curves.easeInOutCubicEmphasized,
           width: frame.size.width,
           height: shouldMorph ? 148 + frame.padding.top : frame.size.height,
           alignment: shouldMorph ? Alignment.center : Alignment.topCenter,

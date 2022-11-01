@@ -19,18 +19,24 @@ class StatusViewState extends State<StatusView> {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
+  /// The problem, if any.
+  String? problem;
+
+  /// The animated scale of the status view.
+  double animatedScale = 1.0;
+
   @override
   void didChangeDependencies() {
     predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
+    WidgetsBinding.instance!.addPostFrameCallback((_) => loadProblem());
     super.didChangeDependencies();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (predictionStatusSummary.current == null) return Container();
+  /// Loads the problem, if any.
+  Future<String?> loadProblem() async {
+    if (predictionStatusSummary.current == null) return null;
     final status = predictionStatusSummary.current!;
 
-    String? problem;
     if (
       status.mostRecentPredictionTime != null && 
       (status.mostRecentPredictionTime! - status.statusUpdateTime).abs() > const Duration(minutes: 5).inSeconds
@@ -56,34 +62,54 @@ class StatusViewState extends State<StatusView> {
       problem = "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
     }
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24), 
-      child: Tile(
-        fill: problem != null
-          ? const Color.fromARGB(255, 235, 59, 90)
-          : Theme.of(context).colorScheme.background,
-        shadowIntensity: problem != null ? 0.2 : 0.05,
-        shadow: problem != null ? const Color.fromARGB(255, 235, 59, 90) : Colors.black,
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
-        content: Row(children: [
-          Flexible(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              problem != null 
-                ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
-                : BoldContent(text: "Aktuelle Datenlage", context: context),
-              if (problem != null) const SizedBox(height: 4),
-              if (problem != null) Small(text: problem, context: context, color: Colors.white),
-            ]),
-            fit: FlexFit.tight,
-          ),
-          const SmallHSpace(),
-          Icon(
-            Icons.chevron_right, 
-            color: problem != null ? Colors.white : Theme.of(context).colorScheme.onBackground,
-          ),
-        ]),
-      )
+    triggerAnimations();
+    return problem;
+  }
+
+  /// Trigger the animation of the status view.
+  Future<void> triggerAnimations() async {
+    setState(() => animatedScale = 1.0);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    setState(() => animatedScale = 1.05);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    setState(() => animatedScale = 1.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: animatedScale,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.bounceOut,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24), 
+        child: Tile(
+          fill: problem != null
+            ? const Color.fromARGB(255, 235, 59, 90)
+            : Theme.of(context).colorScheme.background,
+          shadowIntensity: problem != null ? 0.2 : 0.05,
+          shadow: problem != null ? const Color.fromARGB(255, 235, 59, 90) : Colors.black,
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
+          content: Row(children: [
+            Flexible(child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                problem != null 
+                  ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                  : BoldContent(text: "Aktuelle Datenlage", context: context),
+                if (problem != null) const SizedBox(height: 4),
+                if (problem != null) Small(text: problem!, context: context, color: Colors.white),
+              ]),
+              fit: FlexFit.tight,
+            ),
+            const SmallHSpace(),
+            Icon(
+              Icons.chevron_right, 
+              color: problem != null ? Colors.white : Theme.of(context).colorScheme.onBackground,
+            ),
+          ]),
+        ),
+      ),
     );
   }
 }
