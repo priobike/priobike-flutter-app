@@ -21,9 +21,7 @@ class Geocoding with ChangeNotifier {
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
 
-  Geocoding() {
-    log.i("Geocoding started.");
-  }
+  Geocoding();
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/

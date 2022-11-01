@@ -33,9 +33,7 @@ class PredictionSGStatus with ChangeNotifier {
   /// The number of disconnected sgs.
   int disconnected = 0;
 
-  PredictionSGStatus() {
-    log.i("PredictionSGStatus started.");
-  }
+  PredictionSGStatus();
 
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route. 

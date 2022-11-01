@@ -34,7 +34,7 @@ class Snapping with ChangeNotifier {
   /// The remaining waypoints.
   List<Waypoint>? remainingWaypoints;
 
-  Snapping() { log.i("Snapping started."); }
+  Snapping();
 
   /// Snap the current position to the route and calculate the remaining waypoints.
   Future<void> updatePosition(BuildContext context) async {

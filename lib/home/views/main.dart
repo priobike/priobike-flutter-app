@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -69,15 +70,6 @@ class HomeViewState extends State<HomeView> {
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     statistics = Provider.of<Statistics>(context, listen: false);
-
-    // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await news.getArticles(context);
-      await settings.loadSettings();
-      await profile.loadProfile();
-      await shortcuts.loadShortcuts(context);
-      await statistics.loadStatistics();
-    });
 
     super.didChangeDependencies();
   }
@@ -163,40 +155,59 @@ class HomeViewState extends State<HomeView> {
           onTapNotificationButton: onNotificationsButtonTapped,
           onTapSettingsButton: onSettingsButtonTapped,
         ),
-        SliverList(
-          delegate: SliverChildListDelegate([
-            const VSpace(),
-            const StatusView(),
-            Row(children: [
-              const SizedBox(width: 40),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                BoldContent(text: "Deine Shortcuts", context: context),
-                const SizedBox(height: 4),
-                Small(text: "Direkt zum Ziel navigieren", context: context),
-              ]),
-              Expanded(child: Container()),
-              SmallIconButton(
-                icon: Icons.edit, 
-                fill: Theme.of(context).colorScheme.background,
-                splash: Colors.white,
-                onPressed: onOpenShortcutEditView,
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              const VSpace(),
+              const BlendIn(child: StatusView()),
+              BlendIn(
+                delay: const Duration(milliseconds: 500),
+                child: Row(children: [
+                  const SizedBox(width: 40),
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    BoldContent(text: "Deine Shortcuts", context: context),
+                    const SizedBox(height: 4),
+                    Small(text: "Direkt zum Ziel navigieren", context: context),
+                  ]),
+                  Expanded(child: Container()),
+                  SmallIconButton(
+                    icon: Icons.edit, 
+                    fill: Theme.of(context).colorScheme.background,
+                    splash: Colors.white,
+                    onPressed: onOpenShortcutEditView,
+                  ),
+                  const SizedBox(width: 40),
+                ]),
               ),
-              const SizedBox(width: 40),
-            ]),
-            const VSpace(),
-            const TutorialView(
-              id: "priobike.tutorial.select-shortcut", 
-              text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-            ),
-            ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
-            const ProfileView(),
-            const VSpace(),
-            const SmallVSpace(),
-            const TotalStatisticsView(),
-            renderDebugHint(),
-            const SizedBox(height: 128),
-          ]),
+              const VSpace(),
+              BlendIn(
+                delay: const Duration(milliseconds: 1000),
+                child: Column(children: [
+                  const TutorialView(
+                    id: "priobike.tutorial.select-shortcut", 
+                    text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+                    padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                  ),
+                  ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                ]),
+              ),
+              const BlendIn(
+                delay: Duration(milliseconds: 1500),
+                child: ProfileView(),
+              ),
+              const VSpace(),
+              const SmallVSpace(),
+              const BlendIn(
+                delay: Duration(milliseconds: 2000),
+                child: TotalStatisticsView(),
+              ),
+              BlendIn(
+                delay: const Duration(milliseconds: 2500),
+                child: renderDebugHint(),
+              ),
+              const SizedBox(height: 128),
+            ],
+          ),
         ),
       ],
     ));
