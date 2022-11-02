@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -91,36 +89,30 @@ class TutorialViewState extends State<TutorialView> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Flexible(child: BoldSmall(
+                Flexible(
+                  child: BoldSmall(
                       text: widget.text,
                       color: const Color.fromARGB(255, 91, 91, 91),
                       context: context),
                 ),
-                const SmallHSpace(),
-                Column(children: [
-                  AnimatedCrossFade(
-                    duration: const Duration(milliseconds: 300),
-                    firstChild: const Icon(Icons.check, color: Colors.green),
-                    secondChild: Padding(
-                      padding: const EdgeInsets.only(left: 6), 
-                      child: IconButton(
-                        icon: const Icon(Icons.close), 
-                        color: const Color.fromARGB(255, 91, 91, 91), 
-                        onPressed: () {
-                            tutorial.complete(widget.id);
-                        },
-                      ),
-                     
-                    ),
-                    crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    color: const Color.fromARGB(255, 91, 91, 91),
+                    onPressed: () {
+                      tutorial.complete(widget.id);
+                    },
                   ),
-                ]),
+                ),
               ],
             ),
           ],
         ),
       ),
-      crossFadeState: tutorialIsShown? CrossFadeState.showSecond : CrossFadeState.showFirst,
+      crossFadeState: tutorialIsShown
+          ? CrossFadeState.showSecond
+          : CrossFadeState.showFirst,
     );
   }
 }
