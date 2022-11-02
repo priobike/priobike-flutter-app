@@ -81,10 +81,10 @@ class LoaderState extends State<Loader> {
           duration: const Duration(milliseconds: 1000),
           curve: Curves.easeInOutCubicEmphasized,
           width: frame.size.width,
-          height: shouldMorph ? 148 + frame.padding.top : frame.size.height,
+          height: shouldMorph ? 128 + frame.padding.top : frame.size.height,
           alignment: shouldMorph ? Alignment.center : Alignment.topCenter,
           margin: shouldMorph 
-            ? EdgeInsets.only(bottom: frame.size.height - 148)
+            ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
             : const EdgeInsets.only(top: 0),
           decoration: shouldMorph
             ? const BoxDecoration(
