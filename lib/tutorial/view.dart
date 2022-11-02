@@ -101,18 +101,18 @@ class TutorialViewState extends State<TutorialView> {
                   AnimatedCrossFade(
                     duration: const Duration(milliseconds: 300),
                     firstChild: const Icon(Icons.check, color: Colors.green),
-                    secondChild: const Padding(
-                      padding: EdgeInsets.only(left: 6), 
-                      child: Icon(Icons.tips_and_updates, 
-                      color: Color.fromARGB(255, 91, 91, 91))
+                    secondChild: Padding(
+                      padding: const EdgeInsets.only(left: 6), 
+                      child: IconButton(
+                        icon: const Icon(Icons.close), 
+                        color: const Color.fromARGB(255, 91, 91, 91), 
+                        onPressed: () {
+                            tutorial.complete(widget.id);
+                        },
+                      ),
+                     
                     ),
                     crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                  ),
-                  const SmallVSpace(),
-                  Small(
-                    text: "Tutorial",
-                    color: const Color.fromARGB(255, 91, 91, 91),
-                    context: context
                   ),
                 ]),
               ],
