@@ -22,9 +22,9 @@ class LogsViewState extends State<LogsView> {
             IconButton(
               icon: const Icon(Icons.share), 
               onPressed: () {
-              Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
-            },
-            tooltip: 'Teilen',
+                Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
+              },
+              tooltip: 'Teilen',
             ),
           ],
         ),
