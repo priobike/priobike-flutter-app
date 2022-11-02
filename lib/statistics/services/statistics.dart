@@ -57,7 +57,7 @@ class Statistics with ChangeNotifier {
     this.totalElevationGain,
     this.totalElevationLoss,
     this.summaries,
-  }) { log.i("Statistics started."); }
+  });
 
   /// Reset the statistics.
   /// Note: This will only reset volatile data, not the data stored on disk.

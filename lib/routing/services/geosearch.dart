@@ -25,9 +25,7 @@ class Geosearch with ChangeNotifier {
   /// The list of results.
   List<Waypoint>? results;
 
-  Geosearch() {
-    log.i("Geosearch started.");
-  }
+  Geosearch();
 
   /// Fetch addresses to a given query.
   /// See: https://nominatim.org/release-docs/develop/api/Search/

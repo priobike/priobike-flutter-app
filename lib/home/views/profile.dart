@@ -142,7 +142,7 @@ class ProfileViewState extends State<ProfileView> {
       const TutorialView(
         id: "priobike.tutorial.configure-profile", 
         text: 'Unten kannst du dein Profil konfigurieren. Diese Informationen werden für die Berechnung der Route verwendet. Du kannst sie jederzeit ändern.',
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 24),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
       ),
       Tile(
         fill: Theme.of(context).colorScheme.background,

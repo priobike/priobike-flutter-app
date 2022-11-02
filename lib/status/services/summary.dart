@@ -23,9 +23,7 @@ class PredictionStatusSummary with ChangeNotifier {
   /// The current status of the predictions.
   StatusSummaryData? current;
 
-  PredictionStatusSummary() {
-    log.i("PredictionStatusSummary started.");
-  }
+  PredictionStatusSummary();
 
   /// Fetch the status of the prediction.
   Future<void> fetch(BuildContext context) async {

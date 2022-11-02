@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -103,11 +104,43 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated routing service, which is injected by the provider.
   late Routing rs;
 
+  /// The left padding.
+  double leftPad = 24;
+
+  /// If the user has scrolled.
+  bool hasScrolled = false;
+
+  /// The scroll controller.
+  late ScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.offset > 0) {
+        hasScrolled = true;
+      }
+    });
+  }
+
   @override
   void didChangeDependencies() {
     ss = Provider.of<Shortcuts>(context);
     rs = Provider.of<Routing>(context);
+    WidgetsBinding.instance!.addPostFrameCallback((_) => triggerAnimations());
     super.didChangeDependencies();
+  }
+
+  /// Trigger the animation of the status view.
+  Future<void> triggerAnimations() async {
+    // Add some delay before we start the animation.
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!hasScrolled) setState(() => leftPad = 24);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!hasScrolled) setState(() => leftPad = 18);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!hasScrolled) setState(() => leftPad = 24);
   }
 
   @override
@@ -115,7 +148,26 @@ class ShortcutsViewState extends State<ShortcutsView> {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
-    var shortcutViews = ss.shortcuts?.map((shortcut) => ShortcutView(
+    List<Widget> views = [
+      AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+        padding: EdgeInsets.only(left: leftPad),
+      ),
+      ShortcutView(
+        onPressed: () {
+          if (!rs.isFetchingRoute) widget.onStartFreeRouting();
+        },
+        isHighlighted: true,
+        icon: Icons.play_circle,
+        title: "Freies Routing starten", 
+        width: shortcutWidth, 
+        rightPad: shortcutRightPad,
+        context: context,
+      ),
+    ];
+
+    views += ss.shortcuts?.map((shortcut) => ShortcutView(
       onPressed: () {
         // Allow only one shortcut to be fetched at a time.
         if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
@@ -128,22 +180,17 @@ class ShortcutsViewState extends State<ShortcutsView> {
       context: context,
     )).toList() ?? []; 
 
-    shortcutViews = [ShortcutView(
-      onPressed: () {
-        if (!rs.isFetchingRoute) widget.onStartFreeRouting();
-      },
-      isHighlighted: true,
-      icon: Icons.play_circle,
-      title: "Freies Routing starten", 
-      width: shortcutWidth, 
-      rightPad: shortcutRightPad,
-      context: context,
-    )] + shortcutViews;
+    List<Widget> animatedViews = views.asMap().entries.map((e) => BlendIn(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOutCubic,
+      delay: Duration(milliseconds: 500 * e.key),
+      child: e.value,
+    )).toList();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(left: 24),
+      controller: scrollController,
       scrollDirection: Axis.horizontal, 
-      child: Row(children: shortcutViews),
+      child: Row(children: animatedViews),
     );
   }
 }

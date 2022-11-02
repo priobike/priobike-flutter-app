@@ -102,18 +102,8 @@ class Settings with ChangeNotifier {
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
-    required this.colorMode
+    this.colorMode = ColorMode.system,
   });
-
-  /// Load the color mode from the shared 
-  /// preferences, for the initial view build.
-  static Future<ColorMode> loadColorModeFromSharedPreferences() async {
-    final storage = await SharedPreferences.getInstance();
-    var colorMode = ColorMode.system;
-    final colorModeStr = storage.getString("priobike.settings.colorMode");
-    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
-    return colorMode;
-  }
 
   /// Load the backend from the shared
   /// preferences, for the initial view build.

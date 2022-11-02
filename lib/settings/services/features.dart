@@ -32,9 +32,7 @@ class Feature with ChangeNotifier {
   /// if beta features can be enabled.
   late bool canEnableBetaFeatures;
 
-  Feature() {
-    log.i("Feature started.");
-  }
+  Feature();
 
   /// Load the service.
   Future<void> load() async {
