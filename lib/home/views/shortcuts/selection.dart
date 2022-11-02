@@ -183,7 +183,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
     List<Widget> animatedViews = views.asMap().entries.map((e) => BlendIn(
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOutCubic,
-      delay: Duration(milliseconds: 500 * e.key),
+      delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
       child: e.value,
     )).toList();
 

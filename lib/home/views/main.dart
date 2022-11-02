@@ -161,7 +161,7 @@ class HomeViewState extends State<HomeView> {
               const VSpace(),
               const BlendIn(child: StatusView()),
               BlendIn(
-                delay: const Duration(milliseconds: 500),
+                delay: const Duration(milliseconds: 250),
                 child: Row(children: [
                   const SizedBox(width: 40),
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -181,7 +181,7 @@ class HomeViewState extends State<HomeView> {
               ),
               const VSpace(),
               BlendIn(
-                delay: const Duration(milliseconds: 1000),
+                delay: const Duration(milliseconds: 500),
                 child: Column(children: [
                   const TutorialView(
                     id: "priobike.tutorial.select-shortcut", 
@@ -192,17 +192,17 @@ class HomeViewState extends State<HomeView> {
                 ]),
               ),
               const BlendIn(
-                delay: Duration(milliseconds: 1500),
+                delay: Duration(milliseconds: 750),
                 child: ProfileView(),
               ),
               const VSpace(),
               const SmallVSpace(),
               const BlendIn(
-                delay: Duration(milliseconds: 2000),
+                delay: Duration(milliseconds: 1000),
                 child: TotalStatisticsView(),
               ),
               BlendIn(
-                delay: const Duration(milliseconds: 2500),
+                delay: const Duration(milliseconds: 1250),
                 child: renderDebugHint(),
               ),
               const SizedBox(height: 128),
