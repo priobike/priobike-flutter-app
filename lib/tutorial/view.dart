@@ -96,18 +96,15 @@ class TutorialViewState extends State<TutorialView> {
               Padding(
                 padding: const EdgeInsets.only(left: 6),
                 child: IconButton(
-                  icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    child: checkmarkIsShown
-                        ? const Icon(
-                            Icons.check,
-                            color: Color.fromARGB(255, 91, 91, 91),
-                          )
-                        : const Icon(
-                            Icons.close,
-                            color: Color.fromARGB(255, 91, 91, 91),
-                          ),
-                  ),
+                  icon: checkmarkIsShown
+                      ? const Icon(
+                          Icons.check,
+                          color: Color.fromARGB(255, 91, 91, 91),
+                        )
+                      : const Icon(
+                          Icons.close,
+                          color: Color.fromARGB(255, 91, 91, 91),
+                        ),
                   onPressed: () {
                     tutorial.complete(widget.id);
                   },
