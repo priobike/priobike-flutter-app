@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -14,29 +12,33 @@ class AssetTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: FutureBuilder(
+    return Scaffold(
+        body: FutureBuilder(
       future: DefaultAssetBundle.of(context).loadString(asset),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         return Container(
           color: Theme.of(context).colorScheme.surface,
           child: Stack(
-            alignment: Alignment.bottomCenter, 
+            alignment: Alignment.bottomCenter,
             children: [
               HPad(
                 child: Fade(
                   child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, 
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 256),
-                        Content(text: snapshot.data ?? "Lade Text...", context: context),
+                        Content(
+                            text: snapshot.data ?? "Lade Text...",
+                            context: context),
                         const SizedBox(height: 256),
                       ],
                     ),
                   ),
                 ),
               ),
-              SafeArea(child: Column(children: [
+              SafeArea(
+                  child: Column(children: [
                 const SizedBox(height: 8),
                 Row(children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),

@@ -11,11 +11,9 @@ class NavBarView extends StatelessWidget {
   /// A callback that is fired when the notification button was pressed.
   final void Function()? onTapNotificationButton;
 
-  const NavBarView({
-    this.onTapSettingsButton, 
-    this.onTapNotificationButton, 
-    Key? key
-  }) : super(key: key);
+  const NavBarView(
+      {this.onTapSettingsButton, this.onTapNotificationButton, Key? key})
+      : super(key: key);
 
   /// Get a greeting for the current time of day.
   get greeting {
@@ -25,7 +23,7 @@ class NavBarView extends StatelessWidget {
     return "Guten Abend";
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return SliverAppBar(
       pinned: true,
@@ -40,53 +38,67 @@ class NavBarView extends StatelessWidget {
         expandedTitleScale: 1,
         titlePadding: const EdgeInsets.only(top: 24, bottom: 12),
         background: Container(
-          padding: EdgeInsets.only(left: 24, right: 24, bottom: 32, top: MediaQuery.of(context).padding.top + 14), 
+          padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              bottom: 32,
+              top: MediaQuery.of(context).padding.top + 14),
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              stops: [
-                0.1,
-                0.9,
-              ],
-              colors: [
-                Color.fromARGB(255, 0, 198, 255),
-                Color.fromARGB(255, 0, 115, 255)
-              ],
-            )
-          ),
+              gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            stops: [
+              0.1,
+              0.9,
+            ],
+            colors: [
+              Color.fromARGB(255, 0, 198, 255),
+              Color.fromARGB(255, 0, 115, 255)
+            ],
+          )),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                Flexible(child: BoldContent(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
-                BoldContent(text: greeting, color: Colors.white, context: context),
+                Flexible(
+                    child: BoldContent(
+                        text: "PrioBike",
+                        color: Colors.white,
+                        context: context),
+                    fit: FlexFit.tight),
+                BoldContent(
+                    text: greeting, color: Colors.white, context: context),
               ]),
               const SmallVSpace(),
-              const Divider(color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
+              const Divider(
+                  color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
             ],
           ),
         ),
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(children: [
-            const Icon(
-              Icons.cloudy_snowing,
-              size: 32,
-              color: Colors.white
-            ),
+            const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
             const SmallHSpace(),
-            Flexible(child: Small(text: "Wetterinformationen sind aktuell noch nicht verfügbar.", color: Colors.white, context: context)),
+            Flexible(
+                child: Small(
+                    text:
+                        "Wetterinformationen sind aktuell noch nicht verfügbar.",
+                    color: Colors.white,
+                    context: context)),
             const SmallHSpace(),
-            NewsButton(onPressed: () { onTapNotificationButton?.call(); }),
+            NewsButton(onPressed: () {
+              onTapNotificationButton?.call();
+            }),
             const SmallHSpace(),
             SmallIconButton(
-              icon: Icons.settings, 
-              color: Colors.white,
-              splash: Colors.white,
-              fill: const Color.fromARGB(50, 255, 255, 255),
-              onPressed: () { onTapSettingsButton?.call(); }
-            ),
+                icon: Icons.settings,
+                color: Colors.white,
+                splash: Colors.white,
+                fill: const Color.fromARGB(50, 255, 255, 255),
+                onPressed: () {
+                  onTapSettingsButton?.call();
+                }),
           ]),
         ),
       ),

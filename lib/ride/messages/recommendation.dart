@@ -90,7 +90,8 @@ class Recommendation {
   factory Recommendation.fromJson(Map<String, dynamic> json) {
     return Recommendation(
       // Time is optional and will be created by the client if not provided.
-      timeUnixMillis: json['timeUnixMillis'] ?? DateTime.now().millisecondsSinceEpoch,
+      timeUnixMillis:
+          json['timeUnixMillis'] ?? DateTime.now().millisecondsSinceEpoch,
       label: json['label'],
       countdown: json['countdown'],
       distance: json['distance'],
@@ -106,7 +107,8 @@ class Recommendation {
       navDist: json['navDist'],
       predictionGreentimeThreshold: json['predictionGreentimeThreshold'],
       predictionStartTime: json['predictionStartTime'],
-      predictionValue: (json['predictionValue'] as List?)?.map((e) => e as int).toList(),
+      predictionValue:
+          (json['predictionValue'] as List?)?.map((e) => e as int).toList(),
       sgId: json['sgId'],
       sgPos: json['sgPos'] != null ? Point.fromJson(json['sgPos']) : null,
     );
@@ -116,29 +118,29 @@ class Recommendation {
     final map = params.asMap.map((key, value) {
       return MapEntry<String, dynamic>(key, value);
     });
-    
+
     return Recommendation.fromJson(map);
   }
 
   Map<String, dynamic> toJson() => {
-    'timeUnixMillis': timeUnixMillis,
-    'label': label,
-    'countdown': countdown,
-    'distance': distance,
-    'speedRec': speedRec,
-    'speedDiff': speedDiff,
-    'green': isGreen,
-    'error': error,
-    'errorMessage': errorMessage,
-    'snapPos': snapPos.toJson(),
-    'navText': navText,
-    'navSign': navSign,
-    'navDist': navDist,
-    'quality': quality,
-    'predictionGreentimeThreshold': predictionGreentimeThreshold,
-    'predictionStartTime': predictionStartTime,
-    'predictionValue': predictionValue,
-    'sgId': sgId,
-    'sgPos': sgPos,
-  };
+        'timeUnixMillis': timeUnixMillis,
+        'label': label,
+        'countdown': countdown,
+        'distance': distance,
+        'speedRec': speedRec,
+        'speedDiff': speedDiff,
+        'green': isGreen,
+        'error': error,
+        'errorMessage': errorMessage,
+        'snapPos': snapPos.toJson(),
+        'navText': navText,
+        'navSign': navSign,
+        'navDist': navDist,
+        'quality': quality,
+        'predictionGreentimeThreshold': predictionGreentimeThreshold,
+        'predictionStartTime': predictionStartTime,
+        'predictionValue': predictionValue,
+        'sgId': sgId,
+        'sgPos': sgPos,
+      };
 }

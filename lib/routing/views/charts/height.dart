@@ -5,7 +5,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class RouteHeightChart extends StatefulWidget { 
+class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({Key? key}) : super(key: key);
 
   @override
@@ -53,7 +53,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       final p = latlngCoords[i];
       if (i > 0) {
         final pPrev = latlngCoords[i - 1];
-        dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
+        dist = vincenty.distance(
+            LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
       }
       prevDist += dist;
       data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
@@ -77,42 +78,43 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     if (s.selectedRoute == null || series == null) return Container();
 
     processRouteData();
-    
+
     final frame = MediaQuery.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), 
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BoldContent(text: "Höhenprofil dieser Route", context: context,),
+          BoldContent(
+            text: "Höhenprofil dieser Route",
+            context: context,
+          ),
           SizedBox(
             height: 128,
             width: frame.size.width - 16,
-            child: charts.LineChart(
-              [series!],
-              animate: true,
-              defaultRenderer: charts.LineRendererConfig(
-                includeArea: true,
-                strokeWidthPx: 4,             
-              ),
-              domainAxis: charts.NumericAxisSpec(
-                viewport: charts.NumericExtents(
-                  minDistance ?? 0,
-                  maxDistance ?? 0,
+            child: charts.LineChart([series!],
+                animate: true,
+                defaultRenderer: charts.LineRendererConfig(
+                  includeArea: true,
+                  strokeWidthPx: 4,
                 ),
-                tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                  desiredTickCount: 5,
-                  desiredMinTickCount: 3,
+                domainAxis: charts.NumericAxisSpec(
+                  viewport: charts.NumericExtents(
+                    minDistance ?? 0,
+                    maxDistance ?? 0,
+                  ),
+                  tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+                    desiredTickCount: 5,
+                    desiredMinTickCount: 3,
+                  ),
                 ),
-              ),
-              primaryMeasureAxis: const charts.NumericAxisSpec(
-                showAxisLine: false,
-                tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                  zeroBound: true,
-                ),
-              )
-            ),
+                primaryMeasureAxis: const charts.NumericAxisSpec(
+                  showAxisLine: false,
+                  tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                    zeroBound: true,
+                  ),
+                )),
           ),
           Small(text: "Distanz der Route in Kilometer", context: context),
         ],

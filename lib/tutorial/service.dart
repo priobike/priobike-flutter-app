@@ -28,7 +28,8 @@ class Tutorial with ChangeNotifier {
   Future<void> storeCompleted() async {
     if (completed == null) return;
     final storage = await SharedPreferences.getInstance();
-    await storage.setString("priobike.tutorial.completed", jsonEncode(completed));
+    await storage.setString(
+        "priobike.tutorial.completed", jsonEncode(completed));
   }
 
   /// Delete the completed tutorials from the shared preferences.

@@ -11,10 +11,11 @@ abstract class PositionSource {
   Future<LocationPermission> requestPermission();
 
   /// Get the position stream of the device.
-  Future<Stream<Position>> startPositioning({ required LocationSettings? locationSettings });
+  Future<Stream<Position>> startPositioning(
+      {required LocationSettings? locationSettings});
 
   /// Get one position of the device.
-  Future<Position> getPosition({ required LocationAccuracy desiredAccuracy });
+  Future<Position> getPosition({required LocationAccuracy desiredAccuracy});
 
   /// Stop the geolocation.
   Future<void> stopPositioning();

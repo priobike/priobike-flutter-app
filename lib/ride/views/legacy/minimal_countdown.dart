@@ -3,7 +3,6 @@ import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:provider/provider.dart';
 
-
 class MinimalCountdownCyclingView extends StatefulWidget {
   const MinimalCountdownCyclingView({Key? key}) : super(key: key);
 

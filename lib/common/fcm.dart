@@ -21,7 +21,9 @@ class FCM {
   /// A boolean indicating if the local notifications plugin is initialized.
   static bool isInitialized = false;
 
-  FCM() { log.i("Initializing FCM service"); }
+  FCM() {
+    log.i("Initializing FCM service");
+  }
 
   /// Select a new backend to watch.
   static Future<void> selectBackend(Backend backend) async {
@@ -52,13 +54,17 @@ class FCM {
     /// We use this channel in the `AndroidManifest.xml` file to override the
     /// default FCM channel to enable heads up notifications.
     await plugin
-        ?.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel!);
 
     /// Update the iOS foreground notification presentation options to allow
     /// heads up notifications.
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true, badge: true, sound: true,
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
     );
 
     FirebaseMessaging.onBackgroundMessage(onFCMMessage);
@@ -97,13 +103,13 @@ class FCM {
     }
 
     plugin!.show(
-      msg.notification!.hashCode, 
-      msg.notification!.title, 
-      msg.notification!.body, 
+      msg.notification!.hashCode,
+      msg.notification!.title,
+      msg.notification!.body,
       NotificationDetails(
         android: AndroidNotificationDetails(
-          channel!.id, 
-          channel!.name, 
+          channel!.id,
+          channel!.name,
           channelDescription: channel!.description,
           importance: channel!.importance,
           icon: 'icon',

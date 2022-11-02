@@ -58,7 +58,8 @@ class TextFeedbackViewState extends State<TextFeedbackView> {
           maxLength: 1000,
           onChanged: onTextChanged,
           decoration: const InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(24))),
             hintText: "Dein persönliches Feedback",
           ),
         ),

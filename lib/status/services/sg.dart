@@ -36,11 +36,13 @@ class PredictionSGStatus with ChangeNotifier {
   PredictionSGStatus();
 
   /// Populate the sg status cache with the current route and
-  /// Recalculate the status for this route. 
-  Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
+  /// Recalculate the status for this route.
+  Future<void> fetch(
+      BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
     if (isLoading) return;
 
-    log.i("Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    log.i(
+        "Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
@@ -57,7 +59,8 @@ class PredictionSGStatus with ChangeNotifier {
       }
 
       try {
-        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
+        var url =
+            "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
@@ -82,8 +85,8 @@ class PredictionSGStatus with ChangeNotifier {
     // Wait for all requests to finish.
     await Future.wait(pending);
 
-    ok = 0; 
-    offline = 0; 
+    ok = 0;
+    offline = 0;
     bad = 0;
     for (final sg in sgs) {
       if (!cache.containsKey(sg.id)) {
@@ -92,15 +95,22 @@ class PredictionSGStatus with ChangeNotifier {
       }
       final status = cache[sg.id]!;
       switch (status.predictionState) {
-        case SGPredictionState.ok: ok++; break;
-        case SGPredictionState.offline: offline++; break;
-        case SGPredictionState.bad: bad++; break;
+        case SGPredictionState.ok:
+          ok++;
+          break;
+        case SGPredictionState.offline:
+          offline++;
+          break;
+        case SGPredictionState.bad:
+          bad++;
+          break;
       }
     }
 
     disconnected = crossings.where((c) => !c.connected).length;
 
-    log.i("Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    log.i(
+        "Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
     isLoading = false;
     notifyListeners();
   }

@@ -25,20 +25,22 @@ class Geocoding with ChangeNotifier {
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
-  Future<String?> reverseGeocodeLatLng(BuildContext context, double lat, double lng) async {
+  Future<String?> reverseGeocodeLatLng(
+      BuildContext context, double lat, double lng) async {
     return await reverseGeocode(context, LatLng(lat, lng));
   }
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
-  Future<String?> reverseGeocode(BuildContext context, LatLng coordinate) async {
+  Future<String?> reverseGeocode(
+      BuildContext context, LatLng coordinate) async {
     if (isFetchingAddress) return null;
 
     isFetchingAddress = true;
     notifyListeners();
 
     hadErrorDuringFetch = false;
- 
+
     try {
       final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
@@ -58,8 +60,10 @@ class Geocoding with ChangeNotifier {
       if (response.statusCode != 200) {
         isFetchingAddress = false;
         notifyListeners();
-        final err = "Address could not be fetched from $endpoint: ${response.body}";
-        log.e(err); throw Exception(err);
+        final err =
+            "Address could not be fetched from $endpoint: ${response.body}";
+        log.e(err);
+        throw Exception(err);
       }
 
       final decoded = json.decode(response.body);
@@ -72,7 +76,9 @@ class Geocoding with ChangeNotifier {
     } catch (error, stacktrace) {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode)
+        await Sentry.captureException(error,
+            stackTrace: stacktrace, hint: hint);
       isFetchingAddress = false;
       hadErrorDuringFetch = true;
       notifyListeners();

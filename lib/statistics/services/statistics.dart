@@ -29,7 +29,9 @@ class Statistics with ChangeNotifier {
       return null;
     }
     const co2PerKm = 0.1187; // Data according to statista.com
-    return (totalDistanceMeters! / 1000) * (totalDurationSeconds! / 3600) * co2PerKm;
+    return (totalDistanceMeters! / 1000) *
+        (totalDurationSeconds! / 3600) *
+        co2PerKm;
   }
 
   /// Get the average speed of all rides in km/h.
@@ -71,12 +73,17 @@ class Statistics with ChangeNotifier {
     if (hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
 
-    totalDistanceMeters = storage.getDouble("priobike.statistics.totalDistanceMeters") ?? 0.0;
-    totalDurationSeconds = storage.getDouble("priobike.statistics.totalDurationSeconds") ?? 0.0;
-    totalElevationGain = storage.getDouble("priobike.statistics.totalElevationGain") ?? 0.0;
-    totalElevationLoss = storage.getDouble("priobike.statistics.totalElevationLoss") ?? 0.0;
+    totalDistanceMeters =
+        storage.getDouble("priobike.statistics.totalDistanceMeters") ?? 0.0;
+    totalDurationSeconds =
+        storage.getDouble("priobike.statistics.totalDurationSeconds") ?? 0.0;
+    totalElevationGain =
+        storage.getDouble("priobike.statistics.totalElevationGain") ?? 0.0;
+    totalElevationLoss =
+        storage.getDouble("priobike.statistics.totalElevationLoss") ?? 0.0;
     summaries = (storage.getStringList("priobike.statistics.summaries") ?? [])
-      .map((e) => Summary.fromJson(jsonDecode(e))).toList();
+        .map((e) => Summary.fromJson(jsonDecode(e)))
+        .toList();
 
     hasLoaded = true;
     notifyListeners();
@@ -92,7 +99,8 @@ class Statistics with ChangeNotifier {
     if (positions.isEmpty) return;
 
     // Calculate the summary.
-    final coordinates = positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    final coordinates =
+        positions.map((e) => LatLng(e.latitude, e.longitude)).toList();
     const vincenty = Distance(roundResult: false);
     // Aggregate the distance.
     var totalDistance = 0.0;
@@ -153,11 +161,19 @@ class Statistics with ChangeNotifier {
   Future<void> recalculateStatistics() async {
     await loadStatistics();
     if (summaries == null) return;
-    
-    totalDistanceMeters = summaries!.map((e) => e.distanceMeters).reduce((value, element) => value + element);
-    totalDurationSeconds = summaries!.map((e) => e.durationSeconds).reduce((value, element) => value + element);
-    totalElevationGain = summaries!.map((e) => e.elevationGain).reduce((value, element) => value + element);
-    totalElevationLoss = summaries!.map((e) => e.elevationLoss).reduce((value, element) => value + element);
+
+    totalDistanceMeters = summaries!
+        .map((e) => e.distanceMeters)
+        .reduce((value, element) => value + element);
+    totalDurationSeconds = summaries!
+        .map((e) => e.durationSeconds)
+        .reduce((value, element) => value + element);
+    totalElevationGain = summaries!
+        .map((e) => e.elevationGain)
+        .reduce((value, element) => value + element);
+    totalElevationLoss = summaries!
+        .map((e) => e.elevationLoss)
+        .reduce((value, element) => value + element);
   }
 
   /// Store the statistics in the local storage.
@@ -166,19 +182,24 @@ class Statistics with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     if (totalDistanceMeters != null) {
-      storage.setDouble("priobike.statistics.totalDistanceMeters", totalDistanceMeters!);
+      storage.setDouble(
+          "priobike.statistics.totalDistanceMeters", totalDistanceMeters!);
     }
     if (totalDurationSeconds != null) {
-      storage.setDouble("priobike.statistics.totalDurationSeconds", totalDurationSeconds!);
+      storage.setDouble(
+          "priobike.statistics.totalDurationSeconds", totalDurationSeconds!);
     }
     if (totalElevationGain != null) {
-      storage.setDouble("priobike.statistics.totalElevationGain", totalElevationGain!);
+      storage.setDouble(
+          "priobike.statistics.totalElevationGain", totalElevationGain!);
     }
     if (totalElevationLoss != null) {
-      storage.setDouble("priobike.statistics.totalElevationLoss", totalElevationLoss!);
+      storage.setDouble(
+          "priobike.statistics.totalElevationLoss", totalElevationLoss!);
     }
     if (summaries != null) {
-      storage.setStringList("priobike.statistics.summaries", summaries!.map((e) => jsonEncode(e.toJson())).toList());
+      storage.setStringList("priobike.statistics.summaries",
+          summaries!.map((e) => jsonEncode(e.toJson())).toList());
     }
   }
 }

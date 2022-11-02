@@ -39,9 +39,10 @@ class LoaderState extends State<Loader> {
     await AppMap.loadOfflineTiles();
 
     // Initialize Sentry.
-    const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
+    const dsn =
+        "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     await SentryFlutter.init((options) => options.dsn = dsn);
-    
+
     // Load the settings.
     final settings = Provider.of<Settings>(context, listen: false);
     await settings.loadSettings();
@@ -52,7 +53,8 @@ class LoaderState extends State<Loader> {
     await Provider.of<Profile>(context, listen: false).loadProfile();
     await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
     await Provider.of<Statistics>(context, listen: false).loadStatistics();
-    await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+    await Provider.of<PredictionStatusSummary>(context, listen: false)
+        .fetch(context);
 
     // Finish loading.
     setState(() => shouldMorph = true);
@@ -76,55 +78,52 @@ class LoaderState extends State<Loader> {
     final frame = MediaQuery.of(context);
     return Stack(children: [
       Container(
-        color: Theme.of(context).colorScheme.background,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOutCubicEmphasized,
-          width: frame.size.width,
-          height: shouldMorph ? 128 + frame.padding.top : frame.size.height,
-          alignment: shouldMorph ? Alignment.center : Alignment.topCenter,
-          margin: shouldMorph 
-            ? EdgeInsets.only(bottom: frame.size.height - frame.padding.top - 128)
-            : const EdgeInsets.only(top: 0),
-          decoration: shouldMorph
-            ? const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                stops: [
-                  0.1,
-                  0.9,
-                ],
-                colors: [
-                  Color.fromARGB(255, 0, 198, 255),
-                  Color.fromARGB(255, 0, 115, 255)
-                ],
-              )
-            )
-            : const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                stops: [
-                  0.1,
-                  0.9,
-                ],
-                colors: [
-                  Color.fromARGB(255, 0, 115, 255),
-                  Color.fromARGB(255, 0, 115, 255)
-                ],
-              )
-            ),
+          color: Theme.of(context).colorScheme.background,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeInOutCubicEmphasized,
+            width: frame.size.width,
+            height: shouldMorph ? 128 + frame.padding.top : frame.size.height,
+            alignment: shouldMorph ? Alignment.center : Alignment.topCenter,
+            margin: shouldMorph
+                ? EdgeInsets.only(
+                    bottom: frame.size.height - frame.padding.top - 128)
+                : const EdgeInsets.only(top: 0),
+            decoration: shouldMorph
+                ? const BoxDecoration(
+                    gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    stops: [
+                      0.1,
+                      0.9,
+                    ],
+                    colors: [
+                      Color.fromARGB(255, 0, 198, 255),
+                      Color.fromARGB(255, 0, 115, 255)
+                    ],
+                  ))
+                : const BoxDecoration(
+                    gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    stops: [
+                      0.1,
+                      0.9,
+                    ],
+                    colors: [
+                      Color.fromARGB(255, 0, 115, 255),
+                      Color.fromARGB(255, 0, 115, 255)
+                    ],
+                  )),
+          )),
+      if (!isLoading)
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          switchInCurve: Curves.easeInOutCubic,
+          switchOutCurve: Curves.easeInOutCubic,
+          child: shouldBlendIn ? const HomeView() : Container(),
         )
-      ),
-      if (!isLoading) AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        switchInCurve: Curves.easeInOutCubic,
-        switchOutCurve: Curves.easeInOutCubic,
-        child: shouldBlendIn 
-          ? const HomeView()
-          : Container(),
-      )
     ]);
   }
 }

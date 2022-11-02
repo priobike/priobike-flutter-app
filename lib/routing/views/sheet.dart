@@ -20,11 +20,11 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet({
-    required this.onSelectStartButton, 
-    required this.onSelectSaveButton,
-    Key? key
-  }) : super(key: key);
+  const RouteDetailsBottomSheet(
+      {required this.onSelectStartButton,
+      required this.onSelectSaveButton,
+      Key? key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RouteDetailsBottomSheetState();
@@ -34,24 +34,20 @@ class SearchWaypointItem extends StatelessWidget {
   /// A callback that is executed when the waypoint is selected.
   final void Function()? onSelect;
 
-  const SearchWaypointItem({
-    this.onSelect,
-    Key? key
-  }) : super(key: key);
+  const SearchWaypointItem({this.onSelect, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
     return Padding(
-      padding: const EdgeInsets.all(4), 
+      padding: const EdgeInsets.all(4),
       child: Row(children: [
         const WaypointIcon(width: 32, height: 32),
-
         const SmallHSpace(),
-
         SizedBox(
-          height: 42, width: frame.size.width - 114,
+          height: 42,
+          width: frame.size.width - 114,
           child: Tile(
             fill: Theme.of(context).colorScheme.surface,
             onPressed: onSelect,
@@ -61,8 +57,8 @@ class SearchWaypointItem extends StatelessWidget {
               Flexible(
                 child: BoldContent(
                   color: Colors.grey,
-                  text: "Adresse suchen", 
-                  maxLines: 1, 
+                  text: "Adresse suchen",
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   context: context,
                 ),
@@ -70,9 +66,7 @@ class SearchWaypointItem extends StatelessWidget {
             ]),
           ),
         ),
-
         const SmallHSpace(),
-
         SizedBox(
           width: 42,
           height: 42,
@@ -115,29 +109,33 @@ class RouteWaypointItem extends StatelessWidget {
   /// If the waypoint is the last waypoint.
   bool get isLast => idx == count - 1;
 
-  const RouteWaypointItem({
-    this.onDelete,
-    required this.waypoint,
-    required this.idx,
-    required this.count,
-    Key? key
-  }) : super(key: key);
+  const RouteWaypointItem(
+      {this.onDelete,
+      required this.waypoint,
+      required this.idx,
+      required this.count,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
     return Padding(
-      padding: const EdgeInsets.all(4), 
+      padding: const EdgeInsets.all(4),
       child: Row(children: [
-        if (isFirst) const StartIcon(width: 32, height: 32)
-        else if (isLast) const DestinationIcon(width: 32, height: 32) 
-        else const WaypointIcon(width: 32, height: 32),
+        if (isFirst)
+          const StartIcon(width: 32, height: 32)
+        else if (isLast)
+          const DestinationIcon(width: 32, height: 32)
+        else
+          const WaypointIcon(width: 32, height: 32),
 
         const SmallHSpace(),
 
         Container(
-          height: 42, width: frame.size.width - 114,
+          height: 42,
+          width: frame.size.width - 114,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.all(Radius.circular(24)),
@@ -147,8 +145,10 @@ class RouteWaypointItem extends StatelessWidget {
             const SmallHSpace(),
             Flexible(
               child: BoldContent(
-                text: waypoint.address != null ? waypoint.address! : "Aktueller Standort",
-                maxLines: 1, 
+                text: waypoint.address != null
+                    ? waypoint.address!
+                    : "Aktueller Standort",
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 context: context,
               ),
@@ -159,24 +159,25 @@ class RouteWaypointItem extends StatelessWidget {
         const SmallHSpace(),
 
         // A button to remove the waypoint.
-        if (onDelete != null) SizedBox(
-          width: 42,
-          height: 42,
-          child: RawMaterialButton(
-            elevation: 0,
-            fillColor: Theme.of(context).colorScheme.surface,
-            splashColor: Colors.black,
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(
-                Icons.close,
-                color: Colors.grey,
+        if (onDelete != null)
+          SizedBox(
+            width: 42,
+            height: 42,
+            child: RawMaterialButton(
+              elevation: 0,
+              fillColor: Theme.of(context).colorScheme.surface,
+              splashColor: Colors.black,
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.grey,
+                ),
               ),
+              onPressed: onDelete,
+              shape: const CircleBorder(),
             ),
-            onPressed: onDelete,
-            shape: const CircleBorder(),
           ),
-        ),
       ]),
     );
   }
@@ -222,7 +223,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
     // Tell the tutorial that the user has changed the order of the waypoints.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
+    Provider.of<Tutorial>(context, listen: false)
+        .complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
     if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
@@ -241,7 +243,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
-    final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RouteSearch()));
+    final result = await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const RouteSearch()));
     if (result == null) return;
 
     final waypoint = result as Waypoint;
@@ -266,8 +269,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderDragIndicator(BuildContext context) {
     return Column(children: [
       Container(
-        alignment: AlignmentDirectional.center, 
-        width: 32, height: 6,
+        alignment: AlignmentDirectional.center,
+        width: 32,
+        height: 6,
         decoration: const BoxDecoration(
           color: Colors.grey,
           borderRadius: BorderRadius.all(Radius.circular(4.0)),
@@ -276,25 +280,24 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     ]);
   }
 
-  Widget renderBottomSheetWaypoints(BuildContext context) {    
+  Widget renderBottomSheetWaypoints(BuildContext context) {
     return Stack(children: [
       Row(children: [
         const SizedBox(width: 12),
-        if (s.fetchedWaypoints != null) Column(children: [
-          const SizedBox(height: 36),
-          Stack(alignment: AlignmentDirectional.center, children: [
-            Container(
-              color: Theme.of(context).colorScheme.surface,
-              width: 16, 
-              height: s.selectedWaypoints!.length * 42
-            ),
-            Container(
-              color: Theme.of(context).colorScheme.primary,
-              width: 8, 
-              height: s.selectedWaypoints!.length * 42
-            ),
+        if (s.fetchedWaypoints != null)
+          Column(children: [
+            const SizedBox(height: 36),
+            Stack(alignment: AlignmentDirectional.center, children: [
+              Container(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 16,
+                  height: s.selectedWaypoints!.length * 42),
+              Container(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 8,
+                  height: s.selectedWaypoints!.length * 42),
+            ]),
           ]),
-        ]),
       ]),
       Column(children: [
         LayoutBuilder(builder: ((context, constraints) {
@@ -305,14 +308,15 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               return proxyWidget;
             },
             children: s.selectedWaypoints?.asMap().entries.map<Widget>((entry) {
-              return RouteWaypointItem(
-                onDelete: () => onRemoveWaypoint(entry.key),
-                key: Key("$entry.key"),
-                count: s.selectedWaypoints?.length ?? 0,
-                idx: entry.key,
-                waypoint: entry.value,
-              );
-            }).toList() ?? [],
+                  return RouteWaypointItem(
+                    onDelete: () => onRemoveWaypoint(entry.key),
+                    key: Key("$entry.key"),
+                    count: s.selectedWaypoints?.length ?? 0,
+                    idx: entry.key,
+                    waypoint: entry.value,
+                  );
+                }).toList() ??
+                [],
             onReorder: onChangeWaypointOrder,
           );
         })),
@@ -324,7 +328,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (s.selectedRoute == null) return Container();
-    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
+    final distInfo =
+        "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
     final seconds = s.selectedRoute!.path.time / 1000;
     // Get the full hours needed to cover the route.
     final hours = seconds ~/ 3600;
@@ -334,15 +339,15 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
     return Column(children: [
       BoldSmall(
-        text: s.selectedProfile?.explanation ?? "", 
-        color: Colors.green, 
+        text: s.selectedProfile?.explanation ?? "",
+        color: Colors.green,
         context: context,
       ),
       const SizedBox(height: 2),
       Content(
-        text: "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo", 
-        context: context
-      ),
+          text:
+              "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+          context: context),
     ]);
   }
 
@@ -352,9 +357,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return BigButton(
       icon: Icons.pedal_bike,
       iconColor: Colors.white,
-      label: "Losfahren", 
+      label: "Losfahren",
       onPressed: widget.onSelectStartButton,
-      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+      boxConstraints:
+          BoxConstraints(minWidth: MediaQuery.of(context).size.width),
     );
   }
 
@@ -364,9 +370,10 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return BigButton(
       icon: Icons.save,
       iconColor: Colors.white,
-      label: "Route speichern", 
+      label: "Route speichern",
       onPressed: widget.onSelectSaveButton,
-      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+      boxConstraints:
+          BoxConstraints(minWidth: MediaQuery.of(context).size.width),
     );
   }
 
@@ -377,9 +384,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height), 
-        maxChildSize: (frame.size.height - 86) / frame.size.height - (frame.padding.top / frame.size.height),
-        minChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height),
+        initialChildSize: 114 / frame.size.height +
+            (frame.padding.bottom / frame.size.height),
+        maxChildSize: (frame.size.height - 86) / frame.size.height -
+            (frame.padding.top / frame.size.height),
+        minChildSize: 114 / frame.size.height +
+            (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: BoxDecoration(
@@ -390,8 +400,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               ),
             ),
             child: SingleChildScrollView(
-              controller: controller, 
-              padding: const EdgeInsets.all(8), 
+              controller: controller,
+              padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
                   renderDragIndicator(context),
@@ -402,8 +412,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   const SmallVSpace(),
                   renderBottomSheetWaypoints(context),
                   const TutorialView(
-                    id: "priobike.tutorial.draw-waypoints", 
-                    text: "Du kannst die Wegpunkte durch Ziehen neu anordnen. Durch langes Drücken auf die Karte kannst du direkt einen Wegpunkt platzieren.",
+                    id: "priobike.tutorial.draw-waypoints",
+                    text:
+                        "Du kannst die Wegpunkte durch Ziehen neu anordnen. Durch langes Drücken auf die Karte kannst du direkt einen Wegpunkt platzieren.",
                     padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
                   ),
                   const SizedBox(height: 2),
@@ -412,8 +423,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   const SizedBox(height: 2),
                   const RouteHeightChart(),
                   const VSpace(),
-                ], 
-              ), 
+                ],
+              ),
             ),
           );
         },

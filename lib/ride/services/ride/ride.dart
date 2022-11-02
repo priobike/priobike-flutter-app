@@ -59,9 +59,11 @@ class Ride with ChangeNotifier {
     // If this is on purpose, we don't do anything.
     if (!navigationIsActive) return;
     // Otherwise, we attempt to reconnect.
-    log.w("Reconnecting websocket after disconnect: ${socket?.closeCode} ${socket?.closeReason}");
+    log.w(
+        "Reconnecting websocket after disconnect: ${socket?.closeCode} ${socket?.closeReason}");
     // Connect to the websocket channel.
-    await Future.delayed(const Duration(milliseconds: 500), () => connectWebsocket(context));
+    await Future.delayed(
+        const Duration(milliseconds: 500), () => connectWebsocket(context));
   }
 
   /// A callback that is executed when a new recommendation arrives.
@@ -74,15 +76,19 @@ class Ride with ChangeNotifier {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       recommendations.add(currentRecommendation!);
       if (currentRecommendation!.error) {
-        log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
+        log.w(
+            "Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
-        log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
+        log.i(
+            "Got recommendation via websocket: ${currentRecommendation!.toJson()}");
       }
       notifyListeners();
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
-      log.e(hint); 
-      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      log.e(hint);
+      if (!kDebugMode)
+        await Sentry.captureException(error,
+            stackTrace: stacktrace, hint: hint);
     }
   }
 
@@ -95,7 +101,8 @@ class Ride with ChangeNotifier {
     log.i("Connecting to session websocket.");
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final wsUrl = "wss://$baseUrl/session-wrapper/websocket/sessions/${session.sessionId!}";
+    final wsUrl =
+        "wss://$baseUrl/session-wrapper/websocket/sessions/${session.sessionId!}";
     socket = Http.connectWebSocket(Uri.parse(wsUrl));
     jsonRPCPeer = Peer(socket!.cast<String>());
     jsonRPCPeer!.listen().then((_) => onCloseWebsocket(context));
@@ -112,35 +119,47 @@ class Ride with ChangeNotifier {
     // Select the ride.
     log.i("Selecting ride at the session service.");
     final selectRideRequest = SelectRideRequest(
-      sessionId: session.sessionId!, 
-      route: selectedRoute.route, 
-      navigationPath: selectedRoute.path, 
-      signalGroups: { for (final signalGroup in selectedRoute.signalGroups) signalGroup.id: signalGroup }
-    );
+        sessionId: session.sessionId!,
+        route: selectedRoute.route,
+        navigationPath: selectedRoute.path,
+        signalGroups: {
+          for (final signalGroup in selectedRoute.signalGroups)
+            signalGroup.id: signalGroup
+        });
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final selectRideEndpoint = Uri.parse('https://$baseUrl/session-wrapper/ride');
-    http.Response response = await Http
-      .post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson()))
-      .onError((error, stackTrace) {
-        log.e("Error during select ride: $error");
-        ToastMessage.showError(error.toString());
-        throw Exception();
-      });
+    final selectRideEndpoint =
+        Uri.parse('https://$baseUrl/session-wrapper/ride');
+    http.Response response = await Http.post(selectRideEndpoint,
+            body: json.encode(selectRideRequest.toJson()))
+        .onError((error, stackTrace) {
+      log.e("Error during select ride: $error");
+      ToastMessage.showError(error.toString());
+      throw Exception();
+    });
 
     if (response.statusCode != 200) {
-      final err = "Error during select ride with endpoint $selectRideEndpoint: ${response.body}";
-      log.e(err); ToastMessage.showError(err); throw Exception(err);
+      final err =
+          "Error during select ride with endpoint $selectRideEndpoint: ${response.body}";
+      log.e(err);
+      ToastMessage.showError(err);
+      throw Exception(err);
     }
 
     try {
-      final selectRideResponse = SelectRideResponse.fromJson(json.decode(response.body));
-      if (!selectRideResponse.success) throw Exception("Returned with success=false.");
-      log.i("Successfully selected ride with endpoint $selectRideEndpoint: ${response.body}");
+      final selectRideResponse =
+          SelectRideResponse.fromJson(json.decode(response.body));
+      if (!selectRideResponse.success)
+        throw Exception("Returned with success=false.");
+      log.i(
+          "Successfully selected ride with endpoint $selectRideEndpoint: ${response.body}");
     } catch (error, stack) {
       final hint = "Error during select ride: $error";
-      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack, hint: hint);
-      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
+      if (!kDebugMode)
+        await Sentry.captureException(error, stackTrace: stack, hint: hint);
+      log.e(hint);
+      ToastMessage.showError(hint);
+      throw Exception(hint);
     }
   }
 
@@ -194,7 +213,7 @@ class Ride with ChangeNotifier {
     await jsonRPCPeer?.close();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();

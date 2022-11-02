@@ -12,12 +12,13 @@ class Shortcut {
   factory Shortcut.fromJson(Map<String, dynamic> json) {
     return Shortcut(
       name: json['name'],
-      waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
+      waypoints:
+          (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'waypoints': waypoints.map((e) => e.toJSON()).toList(),
-  };
+        'name': name,
+        'waypoints': waypoints.map((e) => e.toJSON()).toList(),
+      };
 }

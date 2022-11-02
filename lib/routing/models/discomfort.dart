@@ -17,7 +17,11 @@ class DiscomfortSegment {
   /// Otherwise, this will be interpreted as a point.
   final List<LatLng> coordinates;
 
-  DiscomfortSegment({String? id, required this.segment, required this.description, required this.coordinates}) {
+  DiscomfortSegment(
+      {String? id,
+      required this.segment,
+      required this.description,
+      required this.coordinates}) {
     if (id == null) {
       this.id = UniqueKey().toString();
     } else {
@@ -29,19 +33,23 @@ class DiscomfortSegment {
   int get hashCode => id.hashCode;
 
   @override
-  bool operator ==(Object other) => other is DiscomfortSegment && other.id == id;
+  bool operator ==(Object other) =>
+      other is DiscomfortSegment && other.id == id;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'segment': segment.toJson(),
-    'description': description,
-    'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
-  };
+        'id': id,
+        'segment': segment.toJson(),
+        'description': description,
+        'coordinates':
+            coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
+      };
 
   factory DiscomfortSegment.fromJson(dynamic json) => DiscomfortSegment(
-    id: json['id'],
-    segment: GHSegment.fromJson(json['segment']),
-    description: json['description'],
-    coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
-  );
+        id: json['id'],
+        segment: GHSegment.fromJson(json['segment']),
+        description: json['description'],
+        coordinates: (json['coordinates'] as List)
+            .map((e) => LatLng(e[0], e[1]))
+            .toList(),
+      );
 }

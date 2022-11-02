@@ -6,8 +6,10 @@ enum SGLabelsMode {
 extension SGLabelsModeDescription on SGLabelsMode {
   String get description {
     switch (this) {
-      case SGLabelsMode.enabled: return "Signalgruppen-Labels in Routing-Ansicht anzeigen";
-      case SGLabelsMode.disabled: return "Keine Signalgruppen-Labels anzeigen";
+      case SGLabelsMode.enabled:
+        return "Signalgruppen-Labels in Routing-Ansicht anzeigen";
+      case SGLabelsMode.disabled:
+        return "Keine Signalgruppen-Labels anzeigen";
     }
   }
 }

@@ -32,6 +32,7 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
 final log = Logger("main.dart");
 
 Future<void> main() async {
@@ -65,9 +66,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       // All changenotifiers reside above the MaterialApp, as of now.
-      // This is to make sure that changenotifiers are not disposed when 
-      // calling the navigator. In this way, it is always safe to use 
-      // Provider.of(...) in any build context. However, it needs to be 
+      // This is to make sure that changenotifiers are not disposed when
+      // calling the navigator. In this way, it is always safe to use
+      // Provider.of(...) in any build context. However, it needs to be
       // ensured that the changenotifiers are properly recycled.
       // For this, changenotifiers may provide a `reset` method.
       providers: [
@@ -132,10 +133,9 @@ class App extends StatelessWidget {
                   color: Color(0xFF000000),
                 ),
                 bodyText1: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF000000)
-                ),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                    color: Color(0xFF000000)),
                 subtitle1: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
@@ -195,11 +195,11 @@ class App extends StatelessWidget {
               ),
             ),
             themeMode: colorMode == ColorMode.light
-              ? ThemeMode.light
-              : colorMode == ColorMode.dark
-                ? ThemeMode.dark
-                // Fallback to the system preference.
-                : ThemeMode.system,
+                ? ThemeMode.light
+                : colorMode == ColorMode.dark
+                    ? ThemeMode.dark
+                    // Fallback to the system preference.
+                    : ThemeMode.system,
             // The navigator key is used to access the app's build context.
             navigatorKey: navigatorKey,
             home: const PrivacyPolicyView(child: Loader()),

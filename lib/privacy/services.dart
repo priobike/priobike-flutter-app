@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +19,8 @@ class PrivacyPolicy with ChangeNotifier {
   /// Load the privacy policy.
   Future<void> loadPolicy(BuildContext context) async {
     if (hasLoaded) return;
-    text = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    text = await DefaultAssetBundle.of(context)
+        .loadString("assets/text/privacy.txt");
     final storage = await SharedPreferences.getInstance();
     final accepted = storage.getString(key);
     isConfirmed = accepted == text;

@@ -51,8 +51,11 @@ class PredictionStatusSummary with ChangeNotifier {
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();
-        final err = "Error while fetching prediction status: ${response.statusCode}";
-        log.e(err); ToastMessage.showError(err); throw Exception(err);
+        final err =
+            "Error while fetching prediction status: ${response.statusCode}";
+        log.e(err);
+        ToastMessage.showError(err);
+        throw Exception(err);
       }
 
       final json = jsonDecode(response.body);
@@ -67,7 +70,9 @@ class PredictionStatusSummary with ChangeNotifier {
       notifyListeners();
       final hint = "Error while fetching prediction status: $e";
       Sentry.captureException(e, stackTrace: stack, hint: hint);
-      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
+      log.e(hint);
+      ToastMessage.showError(hint);
+      throw Exception(hint);
     }
   }
 
