@@ -78,52 +78,45 @@ class TutorialViewState extends State<TutorialView> {
     if (!tutorialIsShown) {
       return Container();
     }
-    return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 300),
-      firstChild: Container(),
-      secondChild: Padding(
-        padding: widget.padding ?? const EdgeInsets.all(0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: BoldSmall(
-                      text: widget.text,
-                      color: const Color.fromARGB(255, 91, 91, 91),
-                      context: context),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: IconButton(
-                    icon: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 500),
-                      child: checkmarkIsShown
-                          ? const Icon(
-                              Icons.check,
-                              color: Color.fromARGB(255, 91, 91, 91),
-                            )
-                          : const Icon(
-                              Icons.close,
-                              color: Color.fromARGB(255, 91, 91, 91),
-                            ),
-                    ),
-                    onPressed: () {
-                      tutorial.complete(widget.id);
-                    },
+    return Padding(
+      padding: widget.padding ?? const EdgeInsets.all(0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: BoldSmall(
+                    text: widget.text,
+                    color: const Color.fromARGB(255, 91, 91, 91),
+                    context: context),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: IconButton(
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    child: checkmarkIsShown
+                        ? const Icon(
+                            Icons.check,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          )
+                        : const Icon(
+                            Icons.close,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          ),
                   ),
-                )
-              ],
-            ),
-          ],
-        ),
+                  onPressed: () {
+                    tutorial.complete(widget.id);
+                  },
+                ),
+              )
+            ],
+          ),
+        ],
       ),
-      crossFadeState: tutorialIsShown
-          ? CrossFadeState.showSecond
-          : CrossFadeState.showFirst,
     );
   }
 }
