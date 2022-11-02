@@ -2,6 +2,9 @@
 
 # See: https://docs.flutter.dev/deployment/cd#post-clone-script
 
+# Fail on any error.
+set -e
+
 # The default execution directory of this script is the ci_scripts directory.
 cd $CI_WORKSPACE # change working directory to the root of your cloned repo.
 
@@ -19,8 +22,8 @@ flutter precache --ios
 # Install Flutter dependencies.
 flutter pub get
 
-# Install CocoaPods using gem.
-gem install -n /usr/local/bin cocoapods
+# Install CocoaPods using brew.
+brew install cocoapods
 
 # Install CocoaPods dependencies.
 cd ios && pod install --allow-root # run `pod install` in the `ios` directory.
