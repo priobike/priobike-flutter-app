@@ -202,6 +202,10 @@ class SettingsViewState extends State<SettingsView> {
     await session.reset();
     await news.reset();
 
+    // Load stuff for the new backend.
+    await news.getArticles(context);
+    await shortcuts.loadShortcuts(context);
+
     Navigator.pop(context);
   }
 
