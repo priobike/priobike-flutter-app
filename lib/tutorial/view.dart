@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
@@ -41,9 +40,11 @@ class TutorialViewState extends State<TutorialView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      tutorial.loadCompleted();
-    });
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) async {
+        tutorial.loadCompleted();
+      },
+    );
   }
 
   @override
@@ -98,13 +99,23 @@ class TutorialViewState extends State<TutorialView> {
                 Padding(
                   padding: const EdgeInsets.only(left: 6),
                   child: IconButton(
-                    icon: const Icon(Icons.close),
-                    color: const Color.fromARGB(255, 91, 91, 91),
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      child: checkmarkIsShown
+                          ? const Icon(
+                              Icons.check,
+                              color: Color.fromARGB(255, 91, 91, 91),
+                            )
+                          : const Icon(
+                              Icons.close,
+                              color: Color.fromARGB(255, 91, 91, 91),
+                            ),
+                    ),
                     onPressed: () {
                       tutorial.complete(widget.id);
                     },
                   ),
-                ),
+                )
               ],
             ),
           ],
