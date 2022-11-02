@@ -299,7 +299,7 @@ class SettingsViewState extends State<SettingsView> {
                   callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
                 )),
 
-              if (settings.enableInternalFeatures) 
+              if (true)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Testort", 
                   subtitle: settings.backend.region, 

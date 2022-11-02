@@ -364,10 +364,32 @@ class RoutingMapViewState extends State<RoutingMapView> {
       }
 
       // If all in bounds then we don't have to calculate new positions.
+      // But update route labels in case the selected route changed.
       if (allInBounds &&
           oldRouteLabelLocations != null &&
           oldRouteLabelLocations.isNotEmpty) {
-        routeLabelLocations = oldRouteLabelLocations;
+
+        for(Symbol symbol in oldRouteLabelLocations) {
+          if (symbol.data != null && symbol.data!["data"] != null && symbol.data!["lat"] != null && symbol.data!["lon"] != null) {
+            r.Route symbolRoute = r.Route.fromJson(symbol.data!["data"]);
+
+            // Update Route labels.
+            routeLabelLocations!.add(await mapboxMapController!.addSymbol(
+              RouteLabel(
+                  primary: routing.selectedRoute!.id == symbolRoute.id,
+                  geo: LatLng(symbol.data!["lat"], symbol.data!["lon"]),
+                  number: ((symbolRoute.path.time * 0.001) * 0.016).round(),
+                  iconSize: iconSize),
+              {
+                "data": symbolRoute.toJson(),
+                "isRouteLabel": true,
+                "lat": symbol.data!["lat"],
+                "lon": symbol.data!["lon"]
+              },
+            ));
+          }
+          await mapboxMapController?.removeSymbols(oldRouteLabelLocations);
+        }
         return;
       }
 

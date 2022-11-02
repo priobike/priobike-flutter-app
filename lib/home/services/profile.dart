@@ -73,9 +73,9 @@ class Profile with ChangeNotifier {
     showGeneralPOIs =
         storage.getBool("priobike.home.profile.showGeneralPOIs") ?? false;
     setLocationAsStart =
-        storage.getBool("priobike.home.profile.setLocationAsStart") ?? false;
+        storage.getBool("priobike.home.profile.setLocationAsStart") ?? true;
     saveSearchHistory =
-        storage.getBool("priobike.home.profile.saveSearchHistory") ?? false;
+        storage.getBool("priobike.home.profile.saveSearchHistory") ?? true;
     final searchHistoryStr =
         storage.getString("priobike.home.profile.searchHistory");
 
