@@ -118,21 +118,25 @@ class RideMapViewState extends State<RideMapView> {
     // Add the new route layer.
     routeBackground = await mapController!.addLine(
       RouteBackgroundLayer(
-        points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
+        points: routing.selectedRoute!.route
+            .map((e) => LatLng(e.lat, e.lon))
+            .toList(),
         lineWidth: 20,
       ),
       routing.selectedRoute!.toJson(),
     );
     route = await mapController!.addLine(
       RouteLayer(
-        points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), 
-        lineWidth: 14
-      ),
+          points: routing.selectedRoute!.route
+              .map((e) => LatLng(e.lat, e.lon))
+              .toList(),
+          lineWidth: 14),
       routing.selectedRoute!.toJson(),
     );
     // Remove the old route layer.
     if (oldRoute != null) await mapController!.removeLine(oldRoute);
-    if (oldRouteBackground != null) await mapController!.removeLine(oldRouteBackground);
+    if (oldRouteBackground != null)
+      await mapController!.removeLine(oldRouteBackground);
   }
 
   /// Load the current traffic lights.
@@ -145,7 +149,8 @@ class RideMapViewState extends State<RideMapView> {
     trafficLights = [];
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final statusProvider =
+        Provider.of<PredictionSGStatus>(context, listen: false);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
@@ -224,7 +229,8 @@ class RideMapViewState extends State<RideMapView> {
     final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry
+        in routing.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
@@ -252,16 +258,20 @@ class RideMapViewState extends State<RideMapView> {
     if (routing.selectedRoute == null) return;
 
     // Get some data that we will need for adaptive camera control.
-    final sgPos = ride.currentRecommendation?.sgPos; // TODO: Calculate locally in snapping service.
+    final sgPos = ride.currentRecommendation
+        ?.sgPos; // TODO: Calculate locally in snapping service.
     final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
     final userSnapPos = snapping.snappedPosition;
     final userSnapHeading = snapping.snappedHeading;
-    final userSnapPosLatLng = userSnapPos == null ? null : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
+    final userSnapPosLatLng = userSnapPos == null
+        ? null
+        : l.LatLng(userSnapPos.latitude, userSnapPos.longitude);
 
-    if (userSnapPos == null || userSnapPosLatLng == null || userSnapHeading == null) {
-      await mapController?.animateCamera(CameraUpdate.newLatLngBounds(
-        routing.selectedRoute!.paddedBounds
-      ));
+    if (userSnapPos == null ||
+        userSnapPosLatLng == null ||
+        userSnapHeading == null) {
+      await mapController?.animateCamera(
+          CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds));
       return;
     }
 
@@ -269,15 +279,17 @@ class RideMapViewState extends State<RideMapView> {
 
     // Calculate the distance to the next traffic light.
     double? sgDistance = sgPosLatLng == null
-      ? null : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
+        ? null
+        : vincenty.distance(userSnapPosLatLng, sgPosLatLng);
 
     // Calculate the bearing to the next traffic light.
     double? sgBearing = sgPosLatLng == null
-      ? null : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
+        ? null
+        : vincenty.bearing(userSnapPosLatLng, sgPosLatLng);
 
     // Adapt the focus dynamically to the next interesting feature.
     final distanceOfInterest = min(
-      snapping.distanceToNextTurn ?? double.infinity, 
+      snapping.distanceToNextTurn ?? double.infinity,
       sgDistance ?? double.infinity,
     );
     // Scale the zoom level with the distance of interest.
@@ -290,8 +302,13 @@ class RideMapViewState extends State<RideMapView> {
     //                without this threshold the camera would orient away from the route
     //                when it's close to the SG.
     double? cameraHeading;
-    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 10) {
-      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
+    if (sgDistance != null &&
+        sgBearing != null &&
+        sgDistance < 500 &&
+        sgDistance > 10) {
+      cameraHeading = sgBearing > 0
+          ? sgBearing
+          : 360 + sgBearing; // Look into the direction of the next SG.
     }
     // Avoid looking too far away from the route.
     if (cameraHeading == null || (cameraHeading - userSnapHeading).abs() > 45) {
@@ -299,17 +316,21 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     // The camera target is the estimated user position.
-    final cameraTarget = LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
+    final cameraTarget =
+        LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
 
-    await mapController!.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      bearing: cameraHeading,
-      target: cameraTarget,
-      zoom: zoom,
-      tilt: 60,
-    )), duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */));
+    await mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(CameraPosition(
+          bearing: cameraHeading,
+          target: cameraTarget,
+          zoom: zoom,
+          tilt: 60,
+        )),
+        duration:
+            const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */));
 
     await mapController!.updateUserLocation(
-      lat: userSnapPos.latitude, 
+      lat: userSnapPos.latitude,
       lon: userSnapPos.longitude,
       alt: userSnapPos.altitude,
       acc: userSnapPos.accuracy,
@@ -328,38 +349,42 @@ class RideMapViewState extends State<RideMapView> {
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     final r = ride.currentRecommendation;
 
-    if (r != null && !r.error && r.sgPos != null && r.quality! >= qualityThreshold) {
+    if (r != null &&
+        !r.error &&
+        r.sgPos != null &&
+        r.quality! >= qualityThreshold) {
       if (r.isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
-            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
+            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon),
             iconSize: iconSize,
           ),
         );
       } else {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightRedMarker(
-            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon), 
+            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon),
             iconSize: iconSize,
           ),
         );
       }
     }
 
-    if (currentTrafficLight != null) await mapController!.removeSymbol(currentTrafficLight);
+    if (currentTrafficLight != null)
+      await mapController!.removeSymbol(currentTrafficLight);
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
+  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
+  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a line.
-  Future<void> onLineTapped(Line line) async { /* Do nothing */}
+  Future<void> onLineTapped(Line line) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async { /* Do nothing */ }
+  Future<void> onSymbolTapped(Symbol symbol) async {/* Do nothing */}
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
@@ -416,11 +441,11 @@ class RideMapViewState extends State<RideMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      puckImage: Theme.of(context).brightness == Brightness.dark 
-        ? 'assets/images/position-dark.png' 
-        : 'assets/images/position-light.png',
+      puckImage: Theme.of(context).brightness == Brightness.dark
+          ? 'assets/images/position-dark.png'
+          : 'assets/images/position-light.png',
       dragEnabled: false,
-      onMapCreated: onMapCreated, 
+      onMapCreated: onMapCreated,
       onStyleLoaded: () => onStyleLoaded(context),
     );
   }

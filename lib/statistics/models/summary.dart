@@ -20,16 +20,16 @@ class Summary {
   });
 
   Map<String, dynamic> toJson() => {
-    'distanceMeters': distanceMeters,
-    'durationSeconds': durationSeconds,
-    'elevationGain': elevationGain,
-    'elevationLoss': elevationLoss,
-  };
+        'distanceMeters': distanceMeters,
+        'durationSeconds': durationSeconds,
+        'elevationGain': elevationGain,
+        'elevationLoss': elevationLoss,
+      };
 
   factory Summary.fromJson(Map<String, dynamic> json) => Summary(
-    distanceMeters: json['distanceMeters'] as double,
-    durationSeconds: json['durationSeconds'] as double,
-    elevationGain: json['elevationGain'] as double,
-    elevationLoss: json['elevationLoss'] as double,
-  );
+        distanceMeters: json['distanceMeters'] as double,
+        durationSeconds: json['durationSeconds'] as double,
+        elevationGain: json['elevationGain'] as double,
+        elevationLoss: json['elevationLoss'] as double,
+      );
 }

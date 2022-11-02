@@ -28,7 +28,8 @@ class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
 
-  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
+  const RoutingMapView({required this.sheetMovement, Key? key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -77,18 +78,22 @@ class RoutingMapViewState extends State<RoutingMapView> {
   List<Symbol>? waypoints;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
-  StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
+  StreamSubscription<DraggableScrollableNotification>?
+      sheetMovementSubscription;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
-    top: 108, bottom: 80,
-    left: 8, right: 8,
+    top: 108,
+    bottom: 80,
+    left: 8,
+    right: 8,
   );
 
-  @override 
+  @override
   void initState() {
     super.initState();
-    sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
+    sheetMovementSubscription =
+        widget.sheetMovement?.listen(onScrollBottomSheet);
 
     SchedulerBinding.instance?.addPostFrameCallback((_) async {
       await layers.loadPreferences();
@@ -100,9 +105,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final frame = MediaQuery.of(context);
     final maxBottomInset = frame.size.height - frame.padding.top - 300;
     final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
-    mapController?.updateContentInsets(EdgeInsets.fromLTRB(
-      defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset
-    ), false);
+    mapController?.updateContentInsets(
+        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top,
+            defaultMapInsets.left, newBottomInset),
+        false);
   }
 
   @override
@@ -165,12 +171,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
     allRoutes = [];
     for (r.Route altRoute in routing.allRoutes ?? []) {
       allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundLayer(
+            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
       // Make it easier to click the alt route layer.
       allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundClickLayer(
+            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
     }
@@ -187,7 +195,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (routing.selectedRoute == null) return;
     // Add the new route layer.
     route = await mapController!.addLine(
-      RouteLayer(points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+      RouteLayer(
+          points: routing.selectedRoute!.route
+              .map((e) => LatLng(e.lat, e.lon))
+              .toList()),
       routing.selectedRoute!.toJson(),
     );
     if (oldRoute != null) await mapController?.removeLine(oldRoute);
@@ -204,19 +215,24 @@ class RoutingMapViewState extends State<RoutingMapView> {
     discomfortLocations = [];
     discomfortSections = [];
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, DiscomfortSegment> e in discomforts.foundDiscomforts?.asMap().entries ?? []) {
+    for (MapEntry<int, DiscomfortSegment> e
+        in discomforts.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
         final location = e.value.coordinates.first;
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location, number: e.key + 1, iconSize: iconSize),
+          DiscomfortLocationMarker(
+              geo: location, number: e.key + 1, iconSize: iconSize),
           e.value.toJson(),
         ));
       } else {
         // A section of the route.
         discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1, iconSize: iconSize),
+          DiscomfortLocationMarker(
+              geo: e.value.coordinates.first,
+              number: e.key + 1,
+              iconSize: iconSize),
           e.value.toJson(),
         ));
         discomfortSections!.add(await mapController!.addLine(
@@ -246,7 +262,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final settings = Provider.of<Settings>(context, listen: false);
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
+    final statusProvider =
+        Provider.of<PredictionSGStatus>(context, listen: false);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
@@ -322,7 +339,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry
+        in routing.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
@@ -363,7 +381,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (positioning.lastPosition == null) return;
 
     await mapController?.updateUserLocation(
-      lat: positioning.lastPosition!.latitude, 
+      lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
       acc: positioning.lastPosition!.accuracy,
@@ -383,10 +401,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
+  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
+  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
@@ -409,7 +427,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async { 
+  Future<void> onSymbolTapped(Symbol symbol) async {
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {
@@ -459,9 +477,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is executed when the map was longclicked.
   Future<void> onMapLongClick(BuildContext context, LatLng coord) async {
     final geocoding = Provider.of<Geocoding>(context, listen: false);
-    String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
+    String fallback =
+        "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
-    await routing.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
+    await routing.addWaypoint(
+        Waypoint(coord.latitude, coord.longitude, address: address));
     await routing.loadRoutes(context);
   }
 
@@ -494,11 +514,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      puckImage: Theme.of(context).brightness == Brightness.dark 
-        ? 'assets/images/position-static-dark.png' 
-        : 'assets/images/position-static-light.png',
+      puckImage: Theme.of(context).brightness == Brightness.dark
+          ? 'assets/images/position-static-dark.png'
+          : 'assets/images/position-static-light.png',
       puckSize: 64,
-      onMapCreated: onMapCreated, 
+      onMapCreated: onMapCreated,
       onStyleLoaded: () => onStyleLoaded(context),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
     );

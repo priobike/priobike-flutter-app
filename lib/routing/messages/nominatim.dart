@@ -64,7 +64,9 @@ class NominatimAddress {
       placeId: json['place_id'] as int,
       osmType: json['osm_type'] as String?,
       osmId: json['osm_id'] as int?,
-      boundingBox: (json['boundingbox'] as List<dynamic>).map((e) => e as String).toList(),
+      boundingBox: (json['boundingbox'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
       lat: double.parse(json['lat'] as String),
       lon: double.parse(json['lon'] as String),
       displayName: json['display_name'] as String,

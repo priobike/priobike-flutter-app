@@ -71,9 +71,17 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var currentQuality = rs.currentRecommendation?.quality;
 
     // Check if we have all necessary data to display the speedometer
-    if (posTime == null || posSpeed == null || posLat == null || posLon == null || 
-        timeStr == null || tGreen == null || phases == null || dist == null || 
-        sgId == null || error == true || currentQuality == null) {
+    if (posTime == null ||
+        posSpeed == null ||
+        posLat == null ||
+        posLon == null ||
+        timeStr == null ||
+        tGreen == null ||
+        phases == null ||
+        dist == null ||
+        sgId == null ||
+        error == true ||
+        currentQuality == null) {
       gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
@@ -89,7 +97,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (posSpeed < 0) posSpeed = 0.0;
 
     // Chop off [UTC] from the end of the string
-    if (timeStr.endsWith('[UTC]')) timeStr = timeStr.substring(0, timeStr.length - 5);
+    if (timeStr.endsWith('[UTC]'))
+      timeStr = timeStr.substring(0, timeStr.length - 5);
     var time = DateTime.tryParse(timeStr);
     if (time == null) {
       gaugeColors = [defaultGaugeColor];
@@ -122,11 +131,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
+        return Color.lerp(
+            defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
+        return Color.lerp(
+            const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
       }
     }).toList();
 
@@ -184,23 +195,26 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       enableLoadingAnimation: true,
       axes: [
         RadialAxis(
-          minimum: minSpeed, maximum: maxSpeed, 
+          minimum: minSpeed,
+          maximum: maxSpeed,
           onAxisTapped: onTapSpeedometer,
-          startAngle: 0, endAngle: 360,
+          startAngle: 0,
+          endAngle: 360,
           showTicks: false,
           showLabels: false,
-          showAxisLine: false, 
+          showAxisLine: false,
           radiusFactor: 1,
           labelOffset: 15,
           axisLineStyle: const AxisLineStyle(
-            thicknessUnit: GaugeSizeUnit.factor, 
-            thickness: 0.25, 
-            color: Color.fromARGB(255, 44, 62, 80), 
+            thicknessUnit: GaugeSizeUnit.factor,
+            thickness: 0.25,
+            color: Color.fromARGB(255, 44, 62, 80),
             cornerStyle: CornerStyle.bothFlat,
           ),
           ranges: [
             GaugeRange(
-              startValue: minSpeed, endValue: maxSpeed,
+              startValue: minSpeed,
+              endValue: maxSpeed,
               startWidth: 53,
               endWidth: 53,
               color: const Color.fromARGB(255, 0, 0, 0),
@@ -208,37 +222,46 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ],
         ),
         RadialAxis(
-          minimum: minSpeed, maximum: maxSpeed, 
+          minimum: minSpeed,
+          maximum: maxSpeed,
           onAxisTapped: onTapSpeedometer,
-          startAngle: 160, endAngle: 20,
-          interval: 10, minorTicksPerInterval: 4,
-          showAxisLine: true, 
+          startAngle: 160,
+          endAngle: 20,
+          interval: 10,
+          minorTicksPerInterval: 4,
+          showAxisLine: true,
           radiusFactor: 0.985,
           labelOffset: 14,
           axisLineStyle: AxisLineStyle(
-            thicknessUnit: GaugeSizeUnit.factor, 
-            thickness: 0.25, 
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+            thicknessUnit: GaugeSizeUnit.factor,
+            thickness: 0.25,
+            color: isDark
+                ? const Color.fromARGB(255, 255, 255, 255)
+                : const Color.fromARGB(255, 0, 0, 0),
             cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: MajorTickStyle(
-            length: 20, 
-            thickness: 1.5, 
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)
-          ),
+              length: 20,
+              thickness: 1.5,
+              color: isDark
+                  ? const Color.fromARGB(255, 255, 255, 255)
+                  : const Color.fromARGB(255, 0, 0, 0)),
           minorTickStyle: MinorTickStyle(
-            length: 16, 
-            thickness: 1.5, 
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)
-          ),
+              length: 16,
+              thickness: 1.5,
+              color: isDark
+                  ? const Color.fromARGB(255, 255, 255, 255)
+                  : const Color.fromARGB(255, 0, 0, 0)),
           axisLabelStyle: GaugeTextStyle(
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
-            fontWeight: FontWeight.bold, 
-            fontSize: 18
-          ),
+              color: isDark
+                  ? const Color.fromARGB(255, 255, 255, 255)
+                  : const Color.fromARGB(255, 0, 0, 0),
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
           ranges: [
             GaugeRange(
-              startValue: minSpeed, endValue: maxSpeed,
+              startValue: minSpeed,
+              endValue: maxSpeed,
               startWidth: 48,
               endWidth: 48,
               gradient: SweepGradient(colors: gaugeColors, stops: gaugeStops),
@@ -277,20 +300,25 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Transform.translate(
-        offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom), 
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
+          offset: Offset(
+              0,
+              (MediaQuery.of(context).size.height / 2) -
+                  64 -
+                  8 -
+                  MediaQuery.of(context).padding.bottom),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Stack(alignment: Alignment.center, children: [
               Container(
-                child: gauge, 
+                child: gauge,
                 height: (MediaQuery.of(context).size.width - 16),
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
-                    topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topLeft:
+                        Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topRight:
+                        Radius.circular(MediaQuery.of(context).size.width / 2),
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -302,18 +330,17 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
                 ),
               ),
               Container(
-                child: gauge, 
+                child: gauge,
                 height: (MediaQuery.of(context).size.width - 16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(MediaQuery.of(context).size.width / 2)),
                 ),
               ),
               const RideTrafficLightView(),
-            ]
-          ),
-        )
-      ),
+            ]),
+          )),
     );
   }
 }

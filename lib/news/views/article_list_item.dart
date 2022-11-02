@@ -47,7 +47,8 @@ class ArticleListItem extends StatelessWidget {
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(15.0),
               ),
-              child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.white)),
+              child: const Text("NEU",
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           if (category != null)
             Container(
@@ -57,16 +58,22 @@ class ArticleListItem extends StatelessWidget {
                 color: Colors.orange,
                 borderRadius: BorderRadius.circular(15.0),
               ),
-              child: Text(category!.title, style: const TextStyle(fontSize: 16, color: Colors.white)),
+              child: Text(category!.title,
+                  style: const TextStyle(fontSize: 16, color: Colors.white)),
             ),
         ]),
         const SmallVSpace(),
-        Small(text: '${DateFormat.E('de').format(article.pubDate)}. ${DateFormat.yMMMMd('de').format(article.pubDate)}', context: context),
+        Small(
+            text:
+                '${DateFormat.E('de').format(article.pubDate)}. ${DateFormat.yMMMMd('de').format(article.pubDate)}',
+            context: context),
         const SmallVSpace(),
         BoldSubHeader(text: article.title, context: context),
         const SmallVSpace(),
         Content(text: article.text, context: context),
-        if (divider) const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider())
+        if (divider)
+          const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12), child: Divider())
       ],
     );
   }

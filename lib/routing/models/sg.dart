@@ -8,14 +8,14 @@ class Sg {
   const Sg({required this.id, required this.label, required this.position});
 
   factory Sg.fromJson(Map<String, dynamic> json) => Sg(
-    id: json['id'],
-    label: json['label'],
-    position: Point.fromJson(json['position']),
-  );
+        id: json['id'],
+        label: json['label'],
+        position: Point.fromJson(json['position']),
+      );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'label': label,
-    'position': position.toJson(),
-  };
+        'id': id,
+        'label': label,
+        'position': position.toJson(),
+      };
 }

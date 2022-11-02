@@ -24,7 +24,8 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+      return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
@@ -45,7 +46,8 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Update the shortcuts.
-  Future<void> updateShortcuts(List<Shortcut> newShortcuts, BuildContext context) async {
+  Future<void> updateShortcuts(
+      List<Shortcut> newShortcuts, BuildContext context) async {
     shortcuts = newShortcuts;
     await storeShortcuts(context);
     notifyListeners();
@@ -82,7 +84,9 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List).map((e) => Shortcut.fromJson(e)).toList();
+      shortcuts = (jsonDecode(jsonStr) as List)
+          .map((e) => Shortcut.fromJson(e))
+          .toList();
     }
 
     notifyListeners();

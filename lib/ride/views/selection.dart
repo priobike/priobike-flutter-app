@@ -44,7 +44,8 @@ class RideSelectionViewState extends State<RideSelectionView> {
   }
 
   /// A callback that is fired when a ride preference is selected.
-  Future<void> onRideSelected(BuildContext context, RidePreference preference) async {
+  Future<void> onRideSelected(
+      BuildContext context, RidePreference preference) async {
     final settings = Provider.of<Settings>(context, listen: false);
     await settings.selectRidePreference(preference);
 
@@ -67,13 +68,17 @@ class RideSelectionViewState extends State<RideSelectionView> {
     String? asset;
     switch (p) {
       case RidePreference.speedometerView:
-        asset = 'assets/images/screenshots/speedometer-$type.png'; break;
+        asset = 'assets/images/screenshots/speedometer-$type.png';
+        break;
       case RidePreference.defaultCyclingView:
-        asset = 'assets/images/screenshots/default-cycling-$type.png'; break;
+        asset = 'assets/images/screenshots/default-cycling-$type.png';
+        break;
       case RidePreference.minimalRecommendationCyclingView:
-        asset = 'assets/images/screenshots/minimal-recommendation-$type.png'; break;
+        asset = 'assets/images/screenshots/minimal-recommendation-$type.png';
+        break;
       case RidePreference.minimalCountdownCyclingView:
-        asset = 'assets/images/screenshots/minimal-countdown-$type.png'; break;
+        asset = 'assets/images/screenshots/minimal-countdown-$type.png';
+        break;
     }
     return AspectRatio(
       aspectRatio: 0.65, // Hide debug indicator and status bar.
@@ -83,21 +88,27 @@ class RideSelectionViewState extends State<RideSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    final elements = RidePreference.values.map((e) => Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Tile(
-          fill: Theme.of(context).colorScheme.background,
-          onPressed: () => onRideSelected(context, e),
-          padding: const EdgeInsets.all(4),
-          content: ClipRRect(borderRadius: BorderRadius.circular(20), child: screenshot(e, context)),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8), 
-          child: Small(text: e.description, maxLines: 4, context: context, textAlign: TextAlign.center),
-        ),
-      ]
-    )).toList();
+    final elements = RidePreference.values
+        .map((e) =>
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Tile(
+                fill: Theme.of(context).colorScheme.background,
+                onPressed: () => onRideSelected(context, e),
+                padding: const EdgeInsets.all(4),
+                content: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: screenshot(e, context)),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Small(
+                    text: e.description,
+                    maxLines: 4,
+                    context: context,
+                    textAlign: TextAlign.center),
+              ),
+            ]))
+        .toList();
 
     // Make sure to shuffle the elements to avoid bias.
     if (seed != null) {
@@ -109,28 +120,37 @@ class RideSelectionViewState extends State<RideSelectionView> {
 
     return Scaffold(
       body: SafeArea(
-        child: Fade(child: SingleChildScrollView(
+        child: Fade(
+            child: SingleChildScrollView(
           child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 64),
-            HPad(child: Header(text: "Wähle eine Fahrtansicht.", color: Theme.of(context).colorScheme.primary, context: context)),
-            const SmallVSpace(),
-            HPad(child: Content(text: "Um deine Sicherheit zu erhöhen, kannst du während der Fahrt nicht mehr zwischen den Ansichten wechseln.", context: context)),
-            const SmallVSpace(),
-            GridView.count(
-              primary: false,
-              shrinkWrap: true,
-              childAspectRatio: 0.55,
-              padding: const EdgeInsets.all(20),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              crossAxisCount: 2,
-              children: elements,
-            ),
-            const SizedBox(height: 64),
-          ]),
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 64),
+                HPad(
+                    child: Header(
+                        text: "Wähle eine Fahrtansicht.",
+                        color: Theme.of(context).colorScheme.primary,
+                        context: context)),
+                const SmallVSpace(),
+                HPad(
+                    child: Content(
+                        text:
+                            "Um deine Sicherheit zu erhöhen, kannst du während der Fahrt nicht mehr zwischen den Ansichten wechseln.",
+                        context: context)),
+                const SmallVSpace(),
+                GridView.count(
+                  primary: false,
+                  shrinkWrap: true,
+                  childAspectRatio: 0.55,
+                  padding: const EdgeInsets.all(20),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  crossAxisCount: 2,
+                  children: elements,
+                ),
+                const SizedBox(height: 64),
+              ]),
         )),
       ),
     );

@@ -105,7 +105,8 @@ class Tracking with ChangeNotifier {
     // Get the current settings.
     settings = Provider.of<Settings>(context, listen: false);
     // Get the current status summary.
-    statusSummary = Provider.of<PredictionStatusSummary>(context, listen: false).current;
+    statusSummary =
+        Provider.of<PredictionStatusSummary>(context, listen: false).current;
     notifyListeners();
   }
 
@@ -117,7 +118,8 @@ class Tracking with ChangeNotifier {
     // Get the current dangers.
     dangers = Provider.of<Dangers>(context, listen: false).dangers;
     // Get the current accelerations.
-    accelerations = Provider.of<Accelerometer>(context, listen: false).accelerations;
+    accelerations =
+        Provider.of<Accelerometer>(context, listen: false).accelerations;
     // Get the current positions.
     positions = Provider.of<Positioning>(context, listen: false).positions;
     // Get the current recommendations.
@@ -155,10 +157,12 @@ class Tracking with ChangeNotifier {
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
+    final endpoint =
+        Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
     final response = await Http.post(endpoint, body: json!);
     if (response.statusCode != 200) {
-      log.e("Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
+      log.e(
+          "Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
     } else {
       log.i("Successfully sent track to $endpoint");
     }
@@ -187,23 +191,23 @@ class Tracking with ChangeNotifier {
 
   /// Convert the track to a JSON object.
   Map<String, dynamic> toJson() => {
-    'startTime': startTime,
-    'endTime': endTime,
-    'debug': debug,
-    'route': route?.toJson(),
-    'positions': positions?.map((p) => p.toJson()).toList(),
-    'recommendations': recommendations?.map((r) => r.toJson()).toList(),
-    'logs': logs,
-    'dangers': dangers?.map((d) => d.toJson()).toList(),
-    'accelerations': accelerations?.map((d) => d.toJson()).toList(),
-    'settings': settings?.toJson(),
-    'statusSummary': statusSummary?.toJsonCamelCase(),
-    'deviceInfo': deviceInfo?.toMap(),
-    'packageInfo': {
-      'appName': packageInfo?.appName,
-      'packageName': packageInfo?.packageName,
-      'version': packageInfo?.version,
-      'buildNumber': packageInfo?.buildNumber,
-    }
-  };
+        'startTime': startTime,
+        'endTime': endTime,
+        'debug': debug,
+        'route': route?.toJson(),
+        'positions': positions?.map((p) => p.toJson()).toList(),
+        'recommendations': recommendations?.map((r) => r.toJson()).toList(),
+        'logs': logs,
+        'dangers': dangers?.map((d) => d.toJson()).toList(),
+        'accelerations': accelerations?.map((d) => d.toJson()).toList(),
+        'settings': settings?.toJson(),
+        'statusSummary': statusSummary?.toJsonCamelCase(),
+        'deviceInfo': deviceInfo?.toMap(),
+        'packageInfo': {
+          'appName': packageInfo?.appName,
+          'packageName': packageInfo?.packageName,
+          'version': packageInfo?.version,
+          'buildNumber': packageInfo?.buildNumber,
+        }
+      };
 }

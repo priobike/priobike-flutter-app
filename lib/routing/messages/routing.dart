@@ -7,6 +7,7 @@ class RouteRequest {
   const RouteRequest({required this.waypoints});
 
   Map<String, dynamic> toJson() => {
-    if (waypoints != null) 'waypoints': waypoints?.map((v) => v.toJson()).toList(),
-  };
+        if (waypoints != null)
+          'waypoints': waypoints?.map((v) => v.toJson()).toList(),
+      };
 }

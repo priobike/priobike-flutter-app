@@ -46,29 +46,29 @@ class Acceleration {
 
   /// Create a new acceleration from a json object.
   factory Acceleration.fromJson(Map<String, dynamic> json) => Acceleration(
-    lat: json['lat'] as double,
-    lng: json['lng'] as double,
-    sLat: json['sLat'] as double,
-    sLng: json['sLng'] as double,
-    speed: json['speed'] as double,
-    acc: json['acc'] as double,
-    sTime: json['sTime'] as int,
-    eTime: json['eTime'] as int,
-    n: json['n'] as int,
-    a: json['a'] as double,
-  );
+        lat: json['lat'] as double,
+        lng: json['lng'] as double,
+        sLat: json['sLat'] as double,
+        sLng: json['sLng'] as double,
+        speed: json['speed'] as double,
+        acc: json['acc'] as double,
+        sTime: json['sTime'] as int,
+        eTime: json['eTime'] as int,
+        n: json['n'] as int,
+        a: json['a'] as double,
+      );
 
   /// Convert this acceleration to a json object.
   Map<String, dynamic> toJson() => {
-    'lat': lat,
-    'lng': lng,
-    'sLat': sLat,
-    'sLng': sLng,
-    'speed': speed,
-    'acc': acc,
-    'sTime': sTime,
-    'eTime': eTime,
-    'n': n,
-    'a': a,
-  };
+        'lat': lat,
+        'lng': lng,
+        'sLat': sLat,
+        'sLng': sLng,
+        'speed': speed,
+        'acc': acc,
+        'sTime': sTime,
+        'eTime': eTime,
+        'n': n,
+        'a': a,
+      };
 }

@@ -6,7 +6,6 @@ import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/arrow.dart';
 import 'package:provider/provider.dart';
 
-
 class DefaultCyclingView extends StatefulWidget {
   const DefaultCyclingView({Key? key}) : super(key: key);
 
@@ -39,13 +38,16 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
     );
 
     return Scaffold(
-      body: SafeArea(child: Column(
+      body: SafeArea(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SmallVSpace(),
-          BoldSmall(text: recommendation.error
-                ? "Fehler: ${recommendation.errorMessage}"
-                : '', context: context),
+          BoldSmall(
+              text: recommendation.error
+                  ? "Fehler: ${recommendation.errorMessage}"
+                  : '',
+              context: context),
           Row(children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
@@ -75,42 +77,46 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
             ),
           ]),
           const Spacer(),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 18), child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(children: [
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.width / 3,
-                    width: MediaQuery.of(context).size.width / 3,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 30,
-                      backgroundColor: Colors.black26,
-                      color: recommendation.isGreen
-                          ? const Color.fromARGB(255, 54, 222, 70)
-                          : Colors.red,
-                      value: recommendation.countdown / 60,
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.width / 3,
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 30,
+                          backgroundColor: Colors.black26,
+                          color: recommendation.isGreen
+                              ? const Color.fromARGB(255, 54, 222, 70)
+                              : Colors.red,
+                          value: recommendation.countdown / 60,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "${recommendation.countdown}s ",
-                      style: const TextStyle(fontSize: 50),
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          "${recommendation.countdown}s ",
+                          style: const TextStyle(fontSize: 50),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ]),
-              const SmallHSpace(),
-              Expanded(
-                  child: Header(text:
-                "Ampel in ${recommendation.distance.toStringAsFixed(0)}m", fontSize: 28, context: context
-              ))
-            ],
-          )),
+                  ]),
+                  const SmallHSpace(),
+                  Expanded(
+                      child: Header(
+                          text:
+                              "Ampel in ${recommendation.distance.toStringAsFixed(0)}m",
+                          fontSize: 28,
+                          context: context))
+                ],
+              )),
           const Spacer(),
           Stack(
             children: [
@@ -133,29 +139,29 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
               LayoutBuilder(
                 builder: (context, constraints) {
                   return Transform.translate(
-                    offset: Offset(
-                      percent * constraints.maxWidth - sliderThumbWidth / 2,
-                      0,
-                    ),
-                    child: Container(
-                      height: 100,
-                      width: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 54, 54, 54),
-                          width: 2,
-                        ),
+                      offset: Offset(
+                        percent * constraints.maxWidth - sliderThumbWidth / 2,
+                        0,
                       ),
-                    )
-                  );
+                      child: Container(
+                        height: 100,
+                        width: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 54, 54, 54),
+                            width: 2,
+                          ),
+                        ),
+                      ));
                 },
               ),
             ],
           ),
           const SmallVSpace(),
           Header(
-            text: "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
+            text:
+                "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
             context: context,
           ),
           if (recommendation.speedDiff > 0)
@@ -164,7 +170,6 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
             SubHeader(text: "Langsamer!", context: context),
           if (recommendation.speedDiff == 0)
             SubHeader(text: "Geschwindigkeit halten.", context: context),
-
           const SizedBox(
             width: double.infinity,
             child: CancelButton(text: "Fahrt beenden"),

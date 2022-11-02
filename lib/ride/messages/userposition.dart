@@ -27,11 +27,11 @@ class UserPosition {
   }
 
   Map<String, dynamic> toJson() => {
-    'lat': lat,
-    'lon': lon,
-    'speed': speed,
-    'accuracy': accuracy,
-    'heading': heading,
-    'timestamp': timestamp?.toIso8601String(),
-  };
+        'lat': lat,
+        'lon': lon,
+        'speed': speed,
+        'accuracy': accuracy,
+        'heading': heading,
+        'timestamp': timestamp?.toIso8601String(),
+      };
 }

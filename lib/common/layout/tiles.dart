@@ -30,8 +30,8 @@ class Tile extends StatelessWidget {
   final BorderRadius borderRadius;
 
   const Tile({
-    Key? key, 
-    required this.content, 
+    Key? key,
+    required this.content,
     this.onPressed,
     this.fill,
     this.splash = Colors.grey,
@@ -41,38 +41,40 @@ class Tile extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
   }) : super(key: key);
-  
-  @override 
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: fill,
         borderRadius: borderRadius,
-        boxShadow: showShadow ? [
-          BoxShadow(
-            color: shadow.withOpacity(shadowIntensity),
-            blurRadius: 12,
-            offset: const Offset(0, 8),
-          ),
-        ] : null,
+        boxShadow: showShadow
+            ? [
+                BoxShadow(
+                  color: shadow.withOpacity(shadowIntensity),
+                  blurRadius: 12,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : null,
         border: Border.all(
           color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.white.withOpacity(0.07)
-            : Colors.black.withOpacity(0.07),
+              ? Colors.white.withOpacity(0.07)
+              : Colors.black.withOpacity(0.07),
         ),
       ),
       child: onPressed == null
-        ? Padding(padding: padding, child: content)
-        : Material(
-          borderRadius: borderRadius,
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: borderRadius,
-            splashColor: splash,
-            onTap: onPressed,
-            child: Padding(padding: padding, child: content),
-          ),
-        ),
+          ? Padding(padding: padding, child: content)
+          : Material(
+              borderRadius: borderRadius,
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: borderRadius,
+                splashColor: splash,
+                onTap: onPressed,
+                child: Padding(padding: padding, child: content),
+              ),
+            ),
     );
   }
 }
