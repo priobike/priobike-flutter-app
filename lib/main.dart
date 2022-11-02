@@ -32,17 +32,12 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
-
 final log = Logger("main.dart");
 
 Future<void> main() async {
   // Ensure that the widgets binding is initialized.
   // This is required by some plugins and functions.
-  final wb = WidgetsFlutterBinding.ensureInitialized();
-
-  // Preserve the flutter native splash screen.
-  FlutterNativeSplash.preserve(widgetsBinding: wb);
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.

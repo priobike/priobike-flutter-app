@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -55,8 +54,6 @@ class LoaderState extends State<Loader> {
     await Provider.of<Statistics>(context, listen: false).loadStatistics();
     await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
 
-    // Remove the splash screen icon.
-    FlutterNativeSplash.remove();
     // Finish loading.
     setState(() => shouldMorph = true);
     // After a short delay, we can show the home view.
