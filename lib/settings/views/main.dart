@@ -299,6 +299,7 @@ class SettingsViewState extends State<SettingsView> {
                   callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
                 )),
 
+              // if (feature.canEnableInternalFeatures) only for thinking aloud.
               if (true)
                 Padding(padding: const EdgeInsets.only(top: 8), child: SettingsElement(
                   title: "Testort", 
