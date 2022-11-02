@@ -36,6 +36,7 @@ class Tutorial with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
     await storage.remove("priobike.tutorial.completed");
     completed = {};
+    notifyListeners();
   }
 
   /// Check if a tutorial has been completed.
