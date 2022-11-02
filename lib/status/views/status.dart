@@ -62,7 +62,9 @@ class StatusViewState extends State<StatusView> {
       problem = "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
     }
 
-    triggerAnimations();
+    // Only put emphasis by animating the scale if the problem is not null.
+    if (problem != null) triggerAnimations();
+    
     return problem;
   }
 
