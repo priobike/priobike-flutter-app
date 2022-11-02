@@ -138,7 +138,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
     await Future.delayed(const Duration(milliseconds: 1000));
     if (!hasScrolled) setState(() => leftPad = 24);
     await Future.delayed(const Duration(milliseconds: 1000));
-    if (!hasScrolled) setState(() => leftPad = 18);
+    if (!hasScrolled) setState(() => leftPad = 22);
     await Future.delayed(const Duration(milliseconds: 1000));
     if (!hasScrolled) setState(() => leftPad = 24);
   }
