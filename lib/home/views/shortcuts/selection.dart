@@ -135,7 +135,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// Trigger the animation of the status view.
   Future<void> triggerAnimations() async {
     // Add some delay before we start the animation.
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 5000));
     if (!hasScrolled) setState(() => leftPad = 24);
     await Future.delayed(const Duration(milliseconds: 1000));
     if (!hasScrolled) setState(() => leftPad = 22);
