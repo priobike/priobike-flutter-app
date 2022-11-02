@@ -20,9 +20,11 @@ flutter precache --ios
 flutter pub get
 
 # Install CocoaPods using gem.
-sudo gem install cocoapods
+export GEM_HOME=$HOME/.gem
+export PATH=$GEM_HOME/bin:$PATH
+gem install -n /usr/local/bin cocoapods
 
 # Install CocoaPods dependencies.
-cd ios && pod install # run `pod install` in the `ios` directory.
+cd ios && pod install --allow-root # run `pod install` in the `ios` directory.
 
 exit 0
