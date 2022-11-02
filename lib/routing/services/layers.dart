@@ -60,16 +60,11 @@ class Layers with ChangeNotifier {
     if (hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
 
-    showRentalStations =
-        storage.getBool("priobike.layers.showRentalStations") ?? false;
-    showParkingStations =
-        storage.getBool("priobike.layers.showParkingStations") ?? false;
-    showConstructionSites =
-        storage.getBool("priobike.layers.showConstructionSites") ?? true;
-    showAirStations =
-        storage.getBool("priobike.layers.showAirStations") ?? false;
-    showRepairStations =
-        storage.getBool("priobike.layers.showRepairStations") ?? false;
+    showRentalStations = storage.getBool("priobike.layers.showRentalStations") ?? false;
+    showParkingStations = storage.getBool("priobike.layers.showParkingStations") ?? false;
+    showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
+    showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
+    showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
 
     notifyListeners();
   }
@@ -78,15 +73,11 @@ class Layers with ChangeNotifier {
   Future<void> storePreferences() async {
     final storage = await SharedPreferences.getInstance();
 
-    await storage.setBool(
-        "priobike.layers.showRentalStations", showRentalStations);
-    await storage.setBool(
-        "priobike.layers.showParkingStations", showParkingStations);
-    await storage.setBool(
-        "priobike.layers.showConstructionSites", showConstructionSites);
+    await storage.setBool("priobike.layers.showRentalStations", showRentalStations);
+    await storage.setBool("priobike.layers.showParkingStations", showParkingStations);
+    await storage.setBool("priobike.layers.showConstructionSites", showConstructionSites);
     await storage.setBool("priobike.layers.showAirStations", showAirStations);
-    await storage.setBool(
-        "priobike.layers.showRepairStations", showRepairStations);
+    await storage.setBool("priobike.layers.showRepairStations", showRepairStations);
 
     notifyListeners();
   }

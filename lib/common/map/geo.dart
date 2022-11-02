@@ -29,31 +29,24 @@ class GeoFeatureLoader {
 
   /// Load geo features into the map controller.
   Future<void> loadFeatures(BuildContext context) async {
-    await addAccidentHotspots(
-        context, "dresden", "assets/geo/accident_black_spots_dresden.geojson");
-    await addAccidentHotspots(
-        context, "hamburg", "assets/geo/accident_black_spots.geojson");
+    await addAccidentHotspots(context, "dresden", "assets/geo/accident_black_spots_dresden.geojson");
+    await addAccidentHotspots(context, "hamburg", "assets/geo/accident_black_spots.geojson");
 
     final layers = Provider.of<Layers>(context, listen: false);
     if (layers.showParkingStations) {
-      await addBikeParkingPoints(
-          context, "hamburg", "assets/geo/bicycle_parking.geojson");
+      await addBikeParkingPoints(context, "hamburg", "assets/geo/bicycle_parking.geojson");
     }
     if (layers.showRentalStations) {
-      await addBikeRentalPoints(
-          context, "hamburg", "assets/geo/bicycle_rental.geojson");
+      await addBikeRentalPoints(context, "hamburg", "assets/geo/bicycle_rental.geojson");
     }
     if (layers.showRepairStations) {
-      await addBikeShopPoints(
-          context, "hamburg", "assets/geo/bicycle_shop.geojson");
+      await addBikeShopPoints(context, "hamburg", "assets/geo/bicycle_shop.geojson");
     }
     if (layers.showAirStations) {
-      await addBikeAirStations(
-          context, "hamburg", "assets/geo/bike_air_station.geojson");
+      await addBikeAirStations(context, "hamburg", "assets/geo/bike_air_station.geojson");
     }
     if (layers.showConstructionSites) {
-      await addConstructionSites(
-          context, "hamburg", "assets/geo/construction_sides.geojson");
+      await addConstructionSites(context, "hamburg", "assets/geo/construction_sides.geojson");
     }
   }
 
@@ -69,8 +62,7 @@ class GeoFeatureLoader {
   }
 
   /// Add layers for accident hotspots.
-  Future<void> addAccidentHotspots(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addAccidentHotspots(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the accident hotspots to the map.
     await mapController.setGeoJsonSource("$layerPrefix-accident-hotspots", d);
@@ -121,25 +113,17 @@ class GeoFeatureLoader {
   }
 
   /// Add points for bike parking.
-  Future<void> addBikeParkingPoints(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addBikeParkingPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
 
     await mapController.setGeoJsonSource("$layerPrefix-bike-parking-points", d);
-    await mapController.setGeoJsonSource(
-        "$layerPrefix-bike-parking-polygons", d);
-    for (final layer in [
-      "$layerPrefix-bike-parking-points",
-      "$layerPrefix-bike-parking-polygons"
-    ]) {
+    await mapController.setGeoJsonSource("$layerPrefix-bike-parking-polygons", d);
+    for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
       await mapController.addLayer(
         layer,
         "$layer-$layerPrefix-bike-parking-points-label",
         SymbolLayerProperties(
-          iconImage:
-              Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? "parklight"
-                  : "parkdark",
+          iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "parklight" : "parkdark",
           iconSize: 1.0,
           iconOpacity: showAfter(zoom: 15),
         ),
@@ -149,43 +133,28 @@ class GeoFeatureLoader {
 
   /// Remove points for bike parking.
   Future<void> removeBikeParkingPoints(String layerPrefix) async {
-    for (final layer in [
-      "$layerPrefix-bike-parking-points",
-      "$layerPrefix-bike-parking-polygons"
-    ]) {
-      await mapController
-          .removeLayer("$layer-$layerPrefix-bike-parking-points-label");
+    for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-parking-points-label");
     }
     await mapController.removeSource("$layerPrefix-bike-parking-points");
     await mapController.removeSource("$layerPrefix-bike-parking-polygons");
   }
 
   /// Add points for bike rental.
-  Future<void> addBikeRentalPoints(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addBikeRentalPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     await mapController.setGeoJsonSource("$layerPrefix-bike-rental-points", d);
-    await mapController.setGeoJsonSource(
-        "$layerPrefix-bike-rental-polygons", d);
-    for (final layer in [
-      "$layerPrefix-bike-rental-points",
-      "$layerPrefix-bike-rental-polygons"
-    ]) {
+    await mapController.setGeoJsonSource("$layerPrefix-bike-rental-polygons", d);
+    for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
       await mapController.addLayer(
           layer,
           "$layer-$layerPrefix-bike-rental-points-label",
           SymbolLayerProperties(
-            iconImage:
-                Theme.of(context).colorScheme.brightness == Brightness.light
-                    ? "rentlight"
-                    : "rentdark",
+            iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "rentlight" : "rentdark",
             iconSize: 1.0,
             iconAllowOverlap: true,
             iconOpacity: showAfter(zoom: 15),
-            textHaloColor:
-                Theme.of(context).colorScheme.brightness == Brightness.light
-                    ? "#ffffff"
-                    : "#000000",
+            textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
             textHaloWidth: 1,
             textOffset: [
               Expressions.literal,
@@ -213,43 +182,29 @@ class GeoFeatureLoader {
 
   /// Remove points for bike rental.
   Future<void> removeBikeRentalPoints(String layerPrefix) async {
-    for (final layer in [
-      "$layerPrefix-bike-rental-points",
-      "$layerPrefix-bike-rental-polygons"
-    ]) {
-      await mapController
-          .removeLayer("$layer-$layerPrefix-bike-rental-points-label");
+    for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-rental-points-label");
     }
     await mapController.removeSource("$layerPrefix-bike-rental-points");
     await mapController.removeSource("$layerPrefix-bike-rental-polygons");
   }
 
   /// Add points for bike shops.
-  Future<void> addBikeShopPoints(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addBikeShopPoints(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike shop to the map.
     await mapController.setGeoJsonSource("$layerPrefix-bike-shop-points", d);
     await mapController.setGeoJsonSource("$layerPrefix-bike-shop-polygons", d);
-    for (final layer in [
-      "$layerPrefix-bike-shop-points",
-      "$layerPrefix-bike-shop-polygons"
-    ]) {
+    for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
       await mapController.addLayer(
           layer,
           "$layer-$layerPrefix-bike-shop-points-label",
           SymbolLayerProperties(
-            iconImage:
-                Theme.of(context).colorScheme.brightness == Brightness.light
-                    ? "repairlight"
-                    : "repairdark",
+            iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "repairlight" : "repairdark",
             iconSize: 1.0,
             iconAllowOverlap: true,
             iconOpacity: showAfter(zoom: 15),
-            textHaloColor:
-                Theme.of(context).colorScheme.brightness == Brightness.light
-                    ? "#ffffff"
-                    : "#000000",
+            textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
             textHaloWidth: 1,
             textOffset: [
               Expressions.literal,
@@ -282,20 +237,15 @@ class GeoFeatureLoader {
 
   /// Remove points for bike shops.
   Future<void> removeBikeShopPoints(String layerPrefix) async {
-    for (final layer in [
-      "$layerPrefix-bike-shop-points",
-      "$layerPrefix-bike-shop-polygons"
-    ]) {
-      await mapController
-          .removeLayer("$layer-$layerPrefix-bike-shop-points-label");
+    for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-shop-points-label");
     }
     await mapController.removeSource("$layerPrefix-bike-shop-points");
     await mapController.removeSource("$layerPrefix-bike-shop-polygons");
   }
 
   /// Add layers for bike air stations.
-  Future<void> addBikeAirStations(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addBikeAirStations(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike air station to the map.
     await mapController.setGeoJsonSource("$layerPrefix-bike-air-stations", d);
@@ -303,17 +253,11 @@ class GeoFeatureLoader {
         "$layerPrefix-bike-air-stations",
         "$layerPrefix-bike-air-stations-label",
         SymbolLayerProperties(
-          iconImage:
-              Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? "airlight"
-                  : "airdark",
+          iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "airlight" : "airdark",
           iconSize: 1.0,
           iconAllowOverlap: true,
           iconOpacity: showAfter(zoom: 15),
-          textHaloColor:
-              Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? "#ffffff"
-                  : "#000000",
+          textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
           textHaloWidth: 1,
           textOffset: [
             Expressions.literal,
@@ -345,8 +289,7 @@ class GeoFeatureLoader {
   }
 
   /// Add layers for construction sites.
-  Future<void> addConstructionSites(
-      BuildContext context, String layerPrefix, String file) async {
+  Future<void> addConstructionSites(BuildContext context, String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the construction sites to the map.
     await mapController.setGeoJsonSource("$layerPrefix-construction-sites", d);
@@ -356,16 +299,11 @@ class GeoFeatureLoader {
         "$layerPrefix-construction-sites-label",
         SymbolLayerProperties(
           iconImage:
-              Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? "constructionlight"
-                  : "constructiondark",
+              Theme.of(context).colorScheme.brightness == Brightness.light ? "constructionlight" : "constructiondark",
           iconSize: 1.0,
           iconAllowOverlap: true,
           iconOpacity: showAfter(zoom: 14),
-          textHaloColor:
-              Theme.of(context).colorScheme.brightness == Brightness.light
-                  ? "#ffffff"
-                  : "#000000",
+          textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
           textHaloWidth: 1,
           textOffset: [
             Expressions.literal,

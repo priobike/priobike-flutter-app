@@ -30,27 +30,20 @@ extension RidePreferenceIcon on RidePreference {
       case RidePreference.defaultCyclingView:
         return const Icon(Icons.horizontal_distribute, size: 32);
       case RidePreference.minimalRecommendationCyclingView:
-        return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.arrow_upward, size: 32),
-              Icon(Icons.arrow_downward, size: 32),
-            ]);
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.arrow_upward, size: 32),
+          Icon(Icons.arrow_downward, size: 32),
+        ]);
       case RidePreference.minimalCountdownCyclingView:
-        return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.av_timer, size: 32),
+        return Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          Icon(Icons.av_timer, size: 32),
 
-              /// Can't use Theme here cause it's not in a build context
-              Text(
-                "4s",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.grey),
-              ),
-            ]);
+          /// Can't use Theme here cause it's not in a build context
+          Text(
+            "4s",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: Colors.grey),
+          ),
+        ]);
     }
   }
 }

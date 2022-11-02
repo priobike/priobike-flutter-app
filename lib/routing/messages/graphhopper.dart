@@ -7,11 +7,8 @@ class GHRouteResponse {
 
   const GHRouteResponse({required this.paths, required this.info});
 
-  factory GHRouteResponse.fromJson(Map<String, dynamic> json) =>
-      GHRouteResponse(
-        paths: (json['paths'] as List)
-            .map((e) => GHRouteResponsePath.fromJson(e))
-            .toList(),
+  factory GHRouteResponse.fromJson(Map<String, dynamic> json) => GHRouteResponse(
+        paths: (json['paths'] as List).map((e) => GHRouteResponsePath.fromJson(e)).toList(),
         info: GHResponseInfo.fromJson(json['info']),
       );
 
@@ -99,8 +96,7 @@ class GHRouteResponsePath {
     required this.pointsOrder,
   });
 
-  factory GHRouteResponsePath.fromJson(Map<String, dynamic> json) =>
-      GHRouteResponsePath(
+  factory GHRouteResponsePath.fromJson(Map<String, dynamic> json) => GHRouteResponsePath(
         distance: json['distance'],
         time: json['time'],
         ascend: json['ascend'],
@@ -109,12 +105,9 @@ class GHRouteResponsePath {
         snappedWaypoints: GHLineString.fromJson(json['snapped_waypoints']),
         pointsEncoded: json['points_encoded'],
         bbox: GHBoundingBox.fromJson(json['bbox']),
-        instructions: (json['instructions'] as List)
-            .map((e) => GHInstruction.fromJson(e))
-            .toList(),
+        instructions: (json['instructions'] as List).map((e) => GHInstruction.fromJson(e)).toList(),
         details: GHDetails.fromJson(json['details']),
-        pointsOrder:
-            (json['points_order'] as List?)?.map((e) => e as int).toList(),
+        pointsOrder: (json['points_order'] as List?)?.map((e) => e as int).toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -143,9 +136,7 @@ class GHLineString {
 
   factory GHLineString.fromJson(Map<String, dynamic> json) => GHLineString(
         type: json['type'],
-        coordinates: (json['coordinates'] as List)
-            .map((e) => GHCoordinate.fromJson(e))
-            .toList(),
+        coordinates: (json['coordinates'] as List).map((e) => GHCoordinate.fromJson(e)).toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -162,10 +153,7 @@ class GHCoordinate {
   const GHCoordinate({required this.lon, required this.lat, this.elevation});
 
   factory GHCoordinate.fromJson(List<dynamic> json) {
-    return GHCoordinate(
-        lon: json[0],
-        lat: json[1],
-        elevation: json.length > 2 ? json[2] : null);
+    return GHCoordinate(lon: json[0], lat: json[1], elevation: json.length > 2 ? json[2] : null);
   }
 
   List<double> toJson() => [
@@ -282,18 +270,10 @@ class GHDetails {
 
   factory GHDetails.fromJson(Map<String, dynamic> json) {
     return GHDetails(
-      surface: (json['surface'] as List)
-          .map((e) => GHSegment<String>.fromJson(e))
-          .toList(),
-      maxSpeed: (json['max_speed'] as List)
-          .map((e) => GHSegment<double>.fromJson(e))
-          .toList(),
-      smoothness: (json['smoothness'] as List)
-          .map((e) => GHSegment<String>.fromJson(e))
-          .toList(),
-      lanes: (json['lanes'] as List)
-          .map((e) => GHSegment<int>.fromJson(e))
-          .toList(),
+      surface: (json['surface'] as List).map((e) => GHSegment<String>.fromJson(e)).toList(),
+      maxSpeed: (json['max_speed'] as List).map((e) => GHSegment<double>.fromJson(e)).toList(),
+      smoothness: (json['smoothness'] as List).map((e) => GHSegment<String>.fromJson(e)).toList(),
+      lanes: (json['lanes'] as List).map((e) => GHSegment<int>.fromJson(e)).toList(),
     );
   }
 

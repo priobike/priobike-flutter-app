@@ -42,13 +42,12 @@ class Snapping with ChangeNotifier {
     final routing = Provider.of<Routing>(context, listen: false);
 
     if (positioning.lastPosition == null) return;
-    if (routing.selectedRoute == null || routing.selectedWaypoints == null)
+    if (routing.selectedRoute == null || routing.selectedWaypoints == null) {
       return;
-    if (routing.selectedRoute!.route.length < 2 ||
-        routing.selectedWaypoints!.length < 2) return;
+    }
+    if (routing.selectedRoute!.route.length < 2 || routing.selectedWaypoints!.length < 2) return;
 
-    final p = LatLng(positioning.lastPosition!.latitude,
-        positioning.lastPosition!.longitude);
+    final p = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final nodes = routing.selectedRoute!.route;
 
     // Draw snapping lines to all route segments.
@@ -72,8 +71,7 @@ class Snapping with ChangeNotifier {
     }
 
     distance = shortestDistance;
-    final bearing = vincenty.bearing(
-        shortestDistanceP1, shortestDistanceP2); // [-180°, 180°]
+    final bearing = vincenty.bearing(shortestDistanceP1, shortestDistanceP2); // [-180°, 180°]
     snappedHeading = bearing > 0 ? bearing : 360 + bearing; // [0°, 360°]
     snappedPosition = Position(
       latitude: shortestDistancePSnapped.latitude,
@@ -89,9 +87,7 @@ class Snapping with ChangeNotifier {
     // Traverse the segments and find the next turn, i.e. where the bearing changes > <x>°.
     const bearingThreshold = 15;
     var distanceToNextTurn = 0.0;
-    for (int i = shortestDistanceIndex;
-        i < routing.selectedRoute!.route.length - 1;
-        i++) {
+    for (int i = shortestDistanceIndex; i < routing.selectedRoute!.route.length - 1; i++) {
       final n1 = nodes[i], n2 = nodes[i + 1];
       final p1 = LatLng(n1.lat, n1.lon), p2 = LatLng(n2.lat, n2.lon);
       final b = vincenty.bearing(p1, p2); // [-180°, 180°]
@@ -116,9 +112,7 @@ class Snapping with ChangeNotifier {
       }
     }
 
-    remainingWaypoints = [
-          Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")
-        ] +
+    remainingWaypoints = [Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")] +
         routing.selectedWaypoints!.sublist(shortestWaypointToIdx);
 
     notifyListeners();

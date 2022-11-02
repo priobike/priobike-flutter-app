@@ -8,12 +8,10 @@ class MinimalRecommendationCyclingView extends StatefulWidget {
   const MinimalRecommendationCyclingView({Key? key}) : super(key: key);
 
   @override
-  State<MinimalRecommendationCyclingView> createState() =>
-      _MinimalRecommendationCyclingViewState();
+  State<MinimalRecommendationCyclingView> createState() => _MinimalRecommendationCyclingViewState();
 }
 
-class _MinimalRecommendationCyclingViewState
-    extends State<MinimalRecommendationCyclingView> {
+class _MinimalRecommendationCyclingViewState extends State<MinimalRecommendationCyclingView> {
   late Ride app;
 
   @override

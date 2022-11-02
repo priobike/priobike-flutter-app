@@ -69,8 +69,7 @@ class News with ChangeNotifier {
       http.Response response = await Http.get(newsArticlesEndpoint);
 
       if (response.statusCode != 200) {
-        final err =
-            "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
+        final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
         log.e(err);
         ToastMessage.showError(err);
         throw Exception(err);
@@ -83,8 +82,9 @@ class News with ChangeNotifier {
     } on SocketException catch (e, stack) {
       final hint = "Failed to load articles: $e";
       log.w(hint);
-      if (!kDebugMode)
+      if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];
@@ -102,9 +102,9 @@ class News with ChangeNotifier {
   /// Gets a all categories for the given [articles].
   Future<void> _getCategories(BuildContext context) async {
     for (final article in articles) {
-      if (article.categoryId != null &&
-          !categories.containsKey(article.categoryId))
+      if (article.categoryId != null && !categories.containsKey(article.categoryId)) {
         await _getCategory(context, article.categoryId!);
+      }
     }
   }
 
@@ -112,16 +112,16 @@ class News with ChangeNotifier {
   Future<void> _getCategory(BuildContext context, int categoryId) async {
     Category? category = await _getStoredCategory(context, categoryId);
     if (category != null) {
-      if (!categories.containsKey(categoryId))
+      if (!categories.containsKey(categoryId)) {
         categories[categoryId] = category;
+      }
       return;
     }
 
     // If the category doesn't exist already in the shared preferences get it from backend server.
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final newsCategoryUrl =
-        "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
+    final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
 
     // Catch the error if there is no connection to the internet.
@@ -129,8 +129,7 @@ class News with ChangeNotifier {
       http.Response response = await Http.get(newsCategoryEndpoint);
 
       if (response.statusCode != 200) {
-        final err =
-            "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";
+        final err = "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";
         log.e(err);
         ToastMessage.showError(err);
         throw Exception(err);
@@ -138,15 +137,17 @@ class News with ChangeNotifier {
 
       category = Category.fromJson(json.decode(response.body));
 
-      if (!categories.containsKey(categoryId))
+      if (!categories.containsKey(categoryId)) {
         categories[categoryId] = category;
+      }
 
       await _storeCategory(context, category);
     } on SocketException catch (e, stack) {
       final hint = "Failed to load category: $e";
       log.i(hint);
-      if (!kDebugMode)
+      if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
     }
   }
 
@@ -174,11 +175,9 @@ class News with ChangeNotifier {
 
     final String jsonStr = jsonEncode(category.toJson());
     if (backend == Backend.production) {
-      await storage.setString(
-          "priobike.news.categories.production.${category.id}", jsonStr);
+      await storage.setString("priobike.news.categories.production.${category.id}", jsonStr);
     } else if (backend == Backend.staging) {
-      await storage.setString(
-          "priobike.news.categories.staging.${category.id}", jsonStr);
+      await storage.setString("priobike.news.categories.staging.${category.id}", jsonStr);
     }
   }
 
@@ -191,8 +190,7 @@ class News with ChangeNotifier {
     String? storedArticlesStr;
 
     if (backend == Backend.production) {
-      storedArticlesStr =
-          storage.getString("priobike.news.articles.production");
+      storedArticlesStr = storage.getString("priobike.news.articles.production");
     } else if (backend == Backend.staging) {
       storedArticlesStr = storage.getString("priobike.news.articles.staging");
     }
@@ -210,8 +208,7 @@ class News with ChangeNotifier {
   }
 
   /// Get stored category for given [categoryId]
-  Future<Category?> _getStoredCategory(
-      BuildContext context, int categoryId) async {
+  Future<Category?> _getStoredCategory(BuildContext context, int categoryId) async {
     final storage = await SharedPreferences.getInstance();
 
     final backend = Provider.of<Settings>(context, listen: false).backend;
@@ -219,11 +216,9 @@ class News with ChangeNotifier {
     String? storedCategoryStr;
 
     if (backend == Backend.production) {
-      storedCategoryStr =
-          storage.getString("priobike.news.categories.production.$categoryId");
+      storedCategoryStr = storage.getString("priobike.news.categories.production.$categoryId");
     } else if (backend == Backend.staging) {
-      storedCategoryStr =
-          storage.getString("priobike.news.categories.staging.$categoryId");
+      storedCategoryStr = storage.getString("priobike.news.categories.staging.$categoryId");
     }
 
     if (storedCategoryStr == null) {
@@ -243,8 +238,7 @@ class News with ChangeNotifier {
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
     if (backend == Backend.production) {
-      await storage.setString(
-          "priobike.news.read_articles.production", jsonStr);
+      await storage.setString("priobike.news.read_articles.production", jsonStr);
     } else if (backend == Backend.staging) {
       await storage.setString("priobike.news.read_articles.staging", jsonStr);
     }
@@ -259,11 +253,9 @@ class News with ChangeNotifier {
     String? storedReadArticlesStr;
 
     if (backend == Backend.production) {
-      storedReadArticlesStr =
-          storage.getString("priobike.news.read_articles.production");
+      storedReadArticlesStr = storage.getString("priobike.news.read_articles.production");
     } else if (backend == Backend.staging) {
-      storedReadArticlesStr =
-          storage.getString("priobike.news.read_articles.staging");
+      storedReadArticlesStr = storage.getString("priobike.news.read_articles.staging");
     }
 
     if (storedReadArticlesStr == null) {

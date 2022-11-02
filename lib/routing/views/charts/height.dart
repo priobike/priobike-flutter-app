@@ -53,8 +53,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       final p = latlngCoords[i];
       if (i > 0) {
         final pPrev = latlngCoords[i - 1];
-        dist = vincenty.distance(
-            LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
+        dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
       }
       prevDist += dist;
       data.add(HeightData(p.elevation ?? 0, prevDist / 1000));

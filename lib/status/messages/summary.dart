@@ -30,8 +30,7 @@ class StatusSummaryData {
     this.averagePredictionQuality,
   });
 
-  factory StatusSummaryData.fromJson(Map<String, dynamic> json) =>
-      StatusSummaryData(
+  factory StatusSummaryData.fromJson(Map<String, dynamic> json) => StatusSummaryData(
         statusUpdateTime: json['status_update_time'],
         numThings: json['num_things'],
         numPredictions: json['num_predictions'],

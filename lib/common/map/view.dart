@@ -22,8 +22,9 @@ class AppMap extends StatefulWidget {
     } catch (err, stacktrace) {
       final hint = "Failed to load offline tiles: $err";
       Logger("AppMap").e(hint);
-      if (!kDebugMode)
+      if (!kDebugMode) {
         await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
+      }
     }
   }
 
@@ -87,8 +88,7 @@ class AppMapState extends State<AppMap> {
       // At the moment, we hard code the map box access token. In the future,
       // this token will be provided by an environment variable. However, we need
       // to integrate this in the CI builds and provide a development guide.
-      accessToken:
-          "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+      accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: widget.onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
       compassEnabled: false,
@@ -103,8 +103,7 @@ class AppMapState extends State<AppMap> {
       puckSize: widget.puckSize,
       attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
-      initialCameraPosition:
-          CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
+      initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
     );
   }
 }

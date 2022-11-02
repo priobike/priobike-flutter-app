@@ -41,12 +41,7 @@ class SettingsElement extends StatelessWidget {
   /// The callback when the element was selected.
   final void Function() callback;
 
-  const SettingsElement(
-      {required this.title,
-      this.subtitle,
-      required this.icon,
-      required this.callback,
-      Key? key})
+  const SettingsElement({required this.title, this.subtitle, required this.icon, required this.callback, Key? key})
       : super(key: key);
 
   @override
@@ -55,8 +50,7 @@ class SettingsElement extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16),
       child: Tile(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.background,
         content: Row(children: [
           Flexible(
@@ -66,10 +60,7 @@ class SettingsElement extends StatelessWidget {
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
                   if (subtitle != null)
-                    Content(
-                        text: subtitle!,
-                        color: Theme.of(context).colorScheme.primary,
-                        context: context),
+                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
                 ],
               ),
               fit: FlexFit.tight),
@@ -98,11 +89,7 @@ class SettingsSelection<E> extends StatelessWidget {
   final void Function(E e) callback;
 
   const SettingsSelection(
-      {required this.elements,
-      required this.selected,
-      required this.title,
-      required this.callback,
-      Key? key})
+      {required this.elements, required this.selected, required this.title, required this.callback, Key? key})
       : super(key: key);
 
   @override
@@ -132,9 +119,7 @@ class SettingsSelection<E> extends StatelessWidget {
                             fit: FlexFit.tight),
                         Expanded(child: Container()),
                         SmallIconButton(
-                          icon: elements[index] == selected
-                              ? Icons.check
-                              : Icons.check_box_outline_blank,
+                          icon: elements[index] == selected ? Icons.check : Icons.check_box_outline_blank,
                           onPressed: () => callback(elements[index]),
                         ),
                       ])));
@@ -271,9 +256,8 @@ class SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
         // Show status bar in opposite color of the background.
-        value: Theme.of(context).brightness == Brightness.light
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light,
+        value:
+            Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
         child: Scaffold(
           body: Stack(children: [
             Container(color: Theme.of(context).colorScheme.surface),
@@ -290,24 +274,19 @@ class SettingsViewState extends State<SettingsView> {
                   ]),
                   const SmallVSpace(),
                   if (feature.canEnableInternalFeatures)
-                    const Padding(
-                        padding: EdgeInsets.only(left: 16), child: Divider()),
+                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                   if (feature.canEnableInternalFeatures)
                     Padding(
                       padding: const EdgeInsets.only(left: 32, top: 8),
-                      child: Content(
-                          text: "Interne Testfeatures", context: context),
+                      child: Content(text: "Interne Testfeatures", context: context),
                     ),
                   if (feature.canEnableInternalFeatures)
                     Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Interne Features",
-                          icon: settings.enableInternalFeatures
-                              ? Icons.check_box
-                              : Icons.check_box_outline_blank,
-                          callback: () => settings.setEnableInternalFeatures(
-                              !settings.enableInternalFeatures),
+                          icon: settings.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank,
+                          callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
                         )),
                   if (settings.enableInternalFeatures)
                     Padding(
@@ -368,29 +347,22 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Tutorials zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () =>
-                              Provider.of<Tutorial>(context, listen: false)
-                                  .deleteCompleted(),
+                          callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
                         )),
                   if (feature.canEnableBetaFeatures)
-                    const Padding(
-                        padding: EdgeInsets.only(left: 16), child: Divider()),
+                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                   if (feature.canEnableBetaFeatures)
                     Padding(
                       padding: const EdgeInsets.only(left: 32, top: 8),
-                      child:
-                          Content(text: "Beta Testfeatures", context: context),
+                      child: Content(text: "Beta Testfeatures", context: context),
                     ),
                   if (feature.canEnableBetaFeatures)
                     Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Beta Features",
-                          icon: settings.enableBetaFeatures
-                              ? Icons.check_box
-                              : Icons.check_box_outline_blank,
-                          callback: () => settings.setEnableBetaFeatures(
-                              !settings.enableBetaFeatures),
+                          icon: settings.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank,
+                          callback: () => settings.setEnableBetaFeatures(!settings.enableBetaFeatures),
                         )),
                   if (settings.enableBetaFeatures)
                     Padding(
@@ -433,13 +405,10 @@ class SettingsViewState extends State<SettingsView> {
                       child: SettingsElement(
                           title: "Logs",
                           icon: Icons.list,
-                          callback: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const LogsView()))),
+                          callback: () =>
+                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
                     ),
-                  const Padding(
-                      padding: EdgeInsets.only(left: 16, top: 8),
-                      child: Divider()),
+                  const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
                   const SmallVSpace(),
                   Padding(
                     padding: const EdgeInsets.only(left: 32),
@@ -507,31 +476,26 @@ class SettingsViewState extends State<SettingsView> {
                                 )));
                       }),
                   const SmallVSpace(),
-                  const Padding(
-                      padding: EdgeInsets.only(left: 16), child: Divider()),
+                  const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                   const SmallVSpace(),
                   Padding(
                     padding: const EdgeInsets.only(left: 32),
-                    child: Content(
-                        text: "Weitere Informationen", context: context),
+                    child: Content(text: "Weitere Informationen", context: context),
                   ),
                   const VSpace(),
                   SettingsElement(
                       title: "Datenschutz",
                       icon: Icons.info,
                       callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => const PrivacyPolicyView()));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
                       }),
                   const SmallVSpace(),
                   SettingsElement(
                       title: "Lizenzen",
                       icon: Icons.info,
                       callback: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (_) {
-                          return const AssetTextView(
-                              asset: "assets/text/licenses.txt");
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                          return const AssetTextView(asset: "assets/text/licenses.txt");
                         }));
                       }),
                   const SmallVSpace(),
@@ -539,21 +503,17 @@ class SettingsViewState extends State<SettingsView> {
                       title: "Danksagung",
                       icon: Icons.info,
                       callback: () {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (_) {
-                          return const AssetTextView(
-                              asset: "assets/text/thanks.txt");
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                          return const AssetTextView(asset: "assets/text/thanks.txt");
                         }));
                       }),
                   const SmallVSpace(),
-                  const Padding(
-                      padding: EdgeInsets.only(left: 16), child: Divider()),
+                  const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                   const SmallVSpace(),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Small(
-                        text:
-                            "PrioBike v${feature.appVersion} ${feature.gitHead}",
+                        text: "PrioBike v${feature.appVersion} ${feature.gitHead}",
                         color: Colors.grey,
                         context: context),
                   ),

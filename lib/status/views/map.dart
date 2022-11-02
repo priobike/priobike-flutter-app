@@ -69,10 +69,8 @@ class SGStatusMapViewMode {
       secondLabel: ["get", "prediction_quality"],
       legend: [
         SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement(
-            "Schlechte Prognose", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement(
-            "Mittlere Prognose", const Color(0xffffff00)),
+        SGStatusMapViewLegendElement("Schlechte Prognose", const Color(0xffff0000)),
+        SGStatusMapViewLegendElement("Mittlere Prognose", const Color(0xffffff00)),
         SGStatusMapViewLegendElement("Gute Prognose", const Color(0xff00ff00)),
       ],
     ),
@@ -142,12 +140,9 @@ class SGStatusMapViewMode {
       ],
       legend: [
         SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement(
-            "Letzte Prognose vor >1h", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement(
-            "Letzte Prognose vor 10min", const Color(0xffffff00)),
-        SGStatusMapViewLegendElement(
-            "Letzte Prognose vor 1min", const Color(0xff00ff00)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor >1h", const Color(0xffff0000)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor 10min", const Color(0xffffff00)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor 1min", const Color(0xff00ff00)),
       ],
     ),
   ];
@@ -182,24 +177,12 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A callback that is executed when the mode was changed.
   Future<void> updateMapMode(SGStatusMapViewMode mode) async {
     await mapController?.removeLayer("sg-lines-bg");
-    await mapController?.addLayer(
-        "sg-lanes",
-        "sg-lines-bg",
-        const LineLayerProperties(
-            lineColor: "#000000",
-            lineCap: "round",
-            lineJoin: "round",
-            lineWidth: 4));
+    await mapController?.addLayer("sg-lanes", "sg-lines-bg",
+        const LineLayerProperties(lineColor: "#000000", lineCap: "round", lineJoin: "round", lineWidth: 4));
 
     await mapController?.removeLayer("sg-lines");
-    await mapController?.addLayer(
-        "sg-lanes",
-        "sg-lines",
-        LineLayerProperties(
-            lineColor: mode.color,
-            lineCap: "round",
-            lineJoin: "round",
-            lineWidth: 2));
+    await mapController?.addLayer("sg-lanes", "sg-lines",
+        LineLayerProperties(lineColor: mode.color, lineCap: "round", lineJoin: "round", lineWidth: 2));
 
     await mapController?.removeLayer("sg-circles");
     await mapController?.addLayer(
@@ -224,9 +207,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
             Expressions.literal,
             [0, 1]
           ],
-          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark
-              ? "#ffffff"
-              : "#000000",
+          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
           // Hide after zoom level 15.
           textOpacity: [
             "interpolate",
@@ -254,9 +235,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
             Expressions.literal,
             [0, 2]
           ],
-          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark
-              ? "#ffffff"
-              : "#000000",
+          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
           // Hide after zoom level 15.
           textOpacity: [
             "interpolate",
@@ -280,17 +259,11 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
-    await mapController?.addSource(
-        "sg-locs",
-        GeojsonSourceProperties(
-            data:
-                "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson"));
+    await mapController?.addSource("sg-locs",
+        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson"));
 
-    await mapController?.addSource(
-        "sg-lanes",
-        GeojsonSourceProperties(
-            data:
-                "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson"));
+    await mapController?.addSource("sg-lanes",
+        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson"));
 
     updateMapMode(mode);
   }
@@ -299,9 +272,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
           body: Stack(children: [
         AppMap(
@@ -314,9 +285,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           child: Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              AppBackButton(
-                  icon: Icons.chevron_left_rounded,
-                  onPressed: () => Navigator.pop(context)),
+              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
             ]),
           ),
         ),
@@ -349,8 +318,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                                         width: 16,
                                         decoration: BoxDecoration(
                                           color: e.color,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                       ),
                                       const HSpace(),

@@ -97,8 +97,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     if (posSpeed < 0) posSpeed = 0.0;
 
     // Chop off [UTC] from the end of the string
-    if (timeStr.endsWith('[UTC]'))
+    if (timeStr.endsWith('[UTC]')) {
       timeStr = timeStr.substring(0, timeStr.length - 5);
+    }
     var time = DateTime.tryParse(timeStr);
     if (time == null) {
       gaugeColors = [defaultGaugeColor];
@@ -131,13 +132,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(
-            defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
+        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(
-            const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
+        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
       }
     }).toList();
 
@@ -235,27 +234,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           axisLineStyle: AxisLineStyle(
             thicknessUnit: GaugeSizeUnit.factor,
             thickness: 0.25,
-            color: isDark
-                ? const Color.fromARGB(255, 255, 255, 255)
-                : const Color.fromARGB(255, 0, 0, 0),
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: MajorTickStyle(
               length: 20,
               thickness: 1.5,
-              color: isDark
-                  ? const Color.fromARGB(255, 255, 255, 255)
-                  : const Color.fromARGB(255, 0, 0, 0)),
+              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
           minorTickStyle: MinorTickStyle(
               length: 16,
               thickness: 1.5,
-              color: isDark
-                  ? const Color.fromARGB(255, 255, 255, 255)
-                  : const Color.fromARGB(255, 0, 0, 0)),
+              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
           axisLabelStyle: GaugeTextStyle(
-              color: isDark
-                  ? const Color.fromARGB(255, 255, 255, 255)
-                  : const Color.fromARGB(255, 0, 0, 0),
+              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
               fontWeight: FontWeight.bold,
               fontSize: 18),
           ranges: [
@@ -300,12 +291,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Transform.translate(
-          offset: Offset(
-              0,
-              (MediaQuery.of(context).size.height / 2) -
-                  64 -
-                  8 -
-                  MediaQuery.of(context).padding.bottom),
+          offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom),
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Stack(alignment: Alignment.center, children: [
@@ -315,10 +301,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.only(
-                    topLeft:
-                        Radius.circular(MediaQuery.of(context).size.width / 2),
-                    topRight:
-                        Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
+                    topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -334,8 +318,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
                 height: (MediaQuery.of(context).size.width - 16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(MediaQuery.of(context).size.width / 2)),
+                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
                 ),
               ),
               const RideTrafficLightView(),

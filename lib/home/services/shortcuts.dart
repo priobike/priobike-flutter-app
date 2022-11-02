@@ -24,20 +24,19 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       return;
+    }
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
-        final String? address = await geocoding.reverseGeocodeLatLng(
-            context, waypoint.lat, waypoint.lon);
+        final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
       }
     }
-    final newShortcut =
-        Shortcut(name: name, waypoints: routing.selectedWaypoints!);
+    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;
@@ -46,8 +45,7 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Update the shortcuts.
-  Future<void> updateShortcuts(
-      List<Shortcut> newShortcuts, BuildContext context) async {
+  Future<void> updateShortcuts(List<Shortcut> newShortcuts, BuildContext context) async {
     shortcuts = newShortcuts;
     await storeShortcuts(context);
     notifyListeners();
@@ -84,9 +82,7 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List)
-          .map((e) => Shortcut.fromJson(e))
-          .toList();
+      shortcuts = (jsonDecode(jsonStr) as List).map((e) => Shortcut.fromJson(e)).toList();
     }
 
     notifyListeners();

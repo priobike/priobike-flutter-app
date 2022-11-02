@@ -37,12 +37,10 @@ class PredictionSGStatus with ChangeNotifier {
 
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route.
-  Future<void> fetch(
-      BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
+  Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
     if (isLoading) return;
 
-    log.i(
-        "Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    log.i("Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
@@ -59,8 +57,7 @@ class PredictionSGStatus with ChangeNotifier {
       }
 
       try {
-        var url =
-            "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
+        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
@@ -109,8 +106,7 @@ class PredictionSGStatus with ChangeNotifier {
 
     disconnected = crossings.where((c) => !c.connected).length;
 
-    log.i(
-        "Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    log.i("Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
     isLoading = false;
     notifyListeners();
   }

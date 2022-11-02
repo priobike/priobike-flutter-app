@@ -12,12 +12,10 @@ class MinimalNavigationCyclingView extends StatefulWidget {
   const MinimalNavigationCyclingView({Key? key}) : super(key: key);
 
   @override
-  State<MinimalNavigationCyclingView> createState() =>
-      _MinimalNavigationCyclingViewState();
+  State<MinimalNavigationCyclingView> createState() => _MinimalNavigationCyclingViewState();
 }
 
-class _MinimalNavigationCyclingViewState
-    extends State<MinimalNavigationCyclingView> {
+class _MinimalNavigationCyclingViewState extends State<MinimalNavigationCyclingView> {
   late Routing routing;
   late Ride ride;
   late Positioning positioning;
@@ -101,8 +99,7 @@ class _MinimalNavigationCyclingViewState
               child: FlutterMap(
                 options: MapOptions(
                   bounds: LatLngBounds.fromPoints(points),
-                  boundsOptions:
-                      const FitBoundsOptions(padding: EdgeInsets.all(30)),
+                  boundsOptions: const FitBoundsOptions(padding: EdgeInsets.all(30)),
                   zoom: 13.0,
                   maxZoom: 20.0,
                   minZoom: 7,
@@ -114,8 +111,7 @@ class _MinimalNavigationCyclingViewState
                 ),
                 layers: [
                   TileLayerOptions(
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                   ),
                   PolylineLayerOptions(
@@ -132,17 +128,14 @@ class _MinimalNavigationCyclingViewState
                       ...trafficLights,
                       positioning.lastPosition != null
                           ? Marker(
-                              point: LatLng(positioning.lastPosition!.latitude,
-                                  positioning.lastPosition!.longitude),
+                              point: LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
                               builder: (ctx) => Icon(
                                 Icons.location_pin,
                                 color: Colors.blue[900],
                                 size: 30,
                               ),
                             )
-                          : Marker(
-                              point: LatLng(0, 0),
-                              builder: (ctx) => Container()),
+                          : Marker(point: LatLng(0, 0), builder: (ctx) => Container()),
                       Marker(
                         point: points.last,
                         builder: (ctx) => Icon(

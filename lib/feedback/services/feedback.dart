@@ -65,29 +65,24 @@ class Feedback with ChangeNotifier {
     // Send all of the answered questions to the backend.
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final endpoint =
-        Uri.parse('https://$baseUrl/feedback-service/answers/post/');
+    final endpoint = Uri.parse('https://$baseUrl/feedback-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAnswerRequest(
         deviceId: deviceId,
         deviceType: deviceType,
         appVersion: appVersion,
         questionText: entry.value.text,
-        questionImage: entry.value.imageData != null
-            ? base64Encode(entry.value.imageData!)
-            : null,
+        questionImage: entry.value.imageData != null ? base64Encode(entry.value.imageData!) : null,
         sessionId: sessionId,
         value: entry.value.answer,
       );
 
-      final response =
-          await Http.post(endpoint, body: json.encode(request.toJson()));
+      final response = await Http.post(endpoint, body: json.encode(request.toJson()));
       if (response.statusCode != 200) {
         log.e(
             "Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
       } else {
-        log.i(
-            "Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
+        log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
       }
     }
 

@@ -120,38 +120,44 @@ class Settings with ChangeNotifier {
     if (hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
 
-    enableBetaFeatures =
-        storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
-    enableInternalFeatures =
-        storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
+    enableBetaFeatures = storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
+    enableInternalFeatures = storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
 
     final backendStr = storage.getString("priobike.settings.backend");
-    final positioningModeStr =
-        storage.getString("priobike.settings.positioningMode");
+    final positioningModeStr = storage.getString("priobike.settings.positioningMode");
     final reroutingStr = storage.getString("priobike.settings.rerouting");
-    final routingEndpointStr =
-        storage.getString("priobike.settings.routingEndpoint");
+    final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
     final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
-    final ridePreferenceStr =
-        storage.getString("priobike.settings.ridePreference");
+    final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
 
-    if (backendStr != null) backend = Backend.values.byName(backendStr);
-    if (positioningModeStr != null)
+    if (backendStr != null) {
+      backend = Backend.values.byName(backendStr);
+    }
+    if (positioningModeStr != null) {
       positioningMode = PositioningMode.values.byName(positioningModeStr);
-    if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
-    if (routingEndpointStr != null)
+    }
+    if (reroutingStr != null) {
+      rerouting = Rerouting.values.byName(reroutingStr);
+    }
+    if (routingEndpointStr != null) {
       routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-    if (sgLabelsModeStr != null)
+    }
+    if (sgLabelsModeStr != null) {
       sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+    }
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
     } else {
       ridePreference = null;
     }
-    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
-    if (speedModeStr != null) speedMode = SpeedMode.values.byName(speedModeStr);
+    if (colorModeStr != null) {
+      colorMode = ColorMode.values.byName(colorModeStr);
+    }
+    if (speedModeStr != null) {
+      speedMode = SpeedMode.values.byName(speedModeStr);
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -161,24 +167,18 @@ class Settings with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
-    await storage.setBool(
-        "priobike.settings.enableBetaFeatures", enableBetaFeatures);
-    await storage.setBool(
-        "priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
+    await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setString("priobike.settings.backend", backend.name);
-    await storage.setString(
-        "priobike.settings.positioningMode", positioningMode.name);
+    await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
-    await storage.setString(
-        "priobike.settings.routingEndpoint", routingEndpoint.name);
+    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
     await storage.setString("priobike.settings.colorMode", colorMode.name);
-    await storage.setString(
-        "priobike.settings.sgLabelsMode", sgLabelsMode.name);
+    await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
 
     if (ridePreference != null) {
-      await storage.setString(
-          "priobike.settings.ridePreference", ridePreference!.name);
+      await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
     } else {
       await storage.remove("priobike.settings.ridePreference");
     }

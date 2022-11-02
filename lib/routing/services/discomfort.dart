@@ -49,8 +49,7 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
-  Future<void> findDiscomforts(
-      BuildContext context, GHRouteResponsePath path) async {
+  Future<void> findDiscomforts(BuildContext context, GHRouteResponsePath path) async {
     final profile = Provider.of<Profile>(context, listen: false);
 
     // Use the smoothness values to determine unsmooth sections.
@@ -61,32 +60,21 @@ class Discomforts with ChangeNotifier {
           final cs = getCoordinates(segment, path);
           if (segment.value == "impassable") {
             return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Nicht passierbarer Wegabschnitt.");
+                segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
           } else if (segment.value == "very_horrible") {
             return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Wegabschnitt mit extrem schlechter Oberfläche.");
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
           } else if (segment.value == "horrible") {
             return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
           } else if (segment.value == "very_bad") {
             return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
           } else if (segment.value == "bad") {
             return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Wegabschnitt mit schlechter Oberfläche.");
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
           } else if (segment.value == "intermediate" &&
-              (profile.bikeType == BikeType.racingbike ||
-                  profile.bikeType == BikeType.cargobike)) {
+              (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike)) {
             return DiscomfortSegment(
                 segment: segment,
                 coordinates: cs,
@@ -106,10 +94,10 @@ class Discomforts with ChangeNotifier {
       final c1 = path.points.coordinates[i];
       final c2 = path.points.coordinates[i + 1];
       if (c1.elevation == null || c2.elevation == null) continue;
-      final dist =
-          vincenty.distance(l.LatLng(c1.lat, c1.lon), l.LatLng(c2.lat, c2.lon));
-      if (dist < 50)
+      final dist = vincenty.distance(l.LatLng(c1.lat, c1.lon), l.LatLng(c2.lat, c2.lon));
+      if (dist < 50) {
         continue; // Avoid short segments due to floating point inaccuracies.
+      }
       final eleDiff = c2.elevation! - c1.elevation!;
       final eleDiffPct = eleDiff / dist * 100;
       if (eleDiffPct < 10 && eleDiffPct > -10) {
@@ -123,10 +111,7 @@ class Discomforts with ChangeNotifier {
       if (currentSegment == null) {
         currentSegment = GHSegment(from: i, to: i + 1, value: eleDiffPct);
       } else {
-        currentSegment = GHSegment(
-            from: currentSegment.from,
-            to: i + 1,
-            value: max(eleDiffPct, currentSegment.value!));
+        currentSegment = GHSegment(from: currentSegment.from, to: i + 1, value: max(eleDiffPct, currentSegment.value!));
       }
     }
     final criticalElevation = criticalElevationSegments.map((segment) {
@@ -135,14 +120,12 @@ class Discomforts with ChangeNotifier {
         return DiscomfortSegment(
             segment: segment,
             coordinates: cs,
-            description:
-                "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
+            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
       } else {
         return DiscomfortSegment(
             segment: segment,
             coordinates: cs,
-            description:
-                "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
+            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
       }
     }).toList();
 
@@ -156,14 +139,12 @@ class Discomforts with ChangeNotifier {
             return DiscomfortSegment(
                 segment: segment,
                 coordinates: cs,
-                description:
-                    "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
+                description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
           } else if (segment.value! <= 10) {
             return DiscomfortSegment(
                 segment: segment,
                 coordinates: cs,
-                description:
-                    "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
+                description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
           }
         })
         .where((e) => e != null)

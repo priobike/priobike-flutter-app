@@ -45,14 +45,9 @@ class ProfileElementButton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon,
-                      size: constraints.maxWidth * 0.4,
-                      color: color ?? theme.colorScheme.onBackground),
+                  Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
                   const SmallVSpace(),
-                  Small(
-                      text: title,
-                      color: color ?? theme.colorScheme.onBackground,
-                      context: context),
+                  Small(text: title, color: color ?? theme.colorScheme.onBackground, context: context),
                 ]),
           ],
         ),
@@ -85,8 +80,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void toggleBikeSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false)
-        .complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = !bikeSelectionActive;
@@ -97,8 +91,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void togglePreferenceSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false)
-        .complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = false;
@@ -109,8 +102,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void toggleActivitySelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false)
-        .complete("priobike.tutorial.configure-profile");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
 
     setState(() {
       bikeSelectionActive = false;
@@ -163,8 +155,7 @@ class ProfileViewState extends State<ProfileView> {
             children: [
               AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
+                  transitionBuilder: (Widget child, Animation<double> animation) {
                     return ScaleTransition(scale: animation, child: child);
                   },
                   child: s.bikeType == null
@@ -173,16 +164,14 @@ class ProfileViewState extends State<ProfileView> {
                           icon: Icons.electric_bike,
                           title: "Radtyp",
                           color: Theme.of(context).colorScheme.onBackground,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.background,
+                          backgroundColor: Theme.of(context).colorScheme.background,
                           onPressed: toggleBikeSelection)
                       : ProfileElementButton(
                           key: ValueKey<String>(s.bikeType!.description()),
                           icon: s.bikeType!.icon(),
                           title: s.bikeType!.description(),
                           color: Colors.white,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           touchColor: Colors.white,
                           onPressed: toggleBikeSelection,
                         )),
@@ -197,8 +186,7 @@ class ProfileViewState extends State<ProfileView> {
                         icon: Icons.thumbs_up_down,
                         title: "Präferenz",
                         color: Theme.of(context).colorScheme.onBackground,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.background,
+                        backgroundColor: Theme.of(context).colorScheme.background,
                         onPressed: togglePreferenceSelection,
                       )
                     : ProfileElementButton(
@@ -222,8 +210,7 @@ class ProfileViewState extends State<ProfileView> {
                         icon: Icons.home_work,
                         title: "Aktivität",
                         color: Theme.of(context).colorScheme.onBackground,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.background,
+                        backgroundColor: Theme.of(context).colorScheme.background,
                         onPressed: toggleActivitySelection,
                       )
                     : ProfileElementButton(
@@ -243,25 +230,19 @@ class ProfileViewState extends State<ProfileView> {
             duration: const Duration(milliseconds: 300),
             firstChild: Container(),
             secondChild: renderBikeTypeSelection(),
-            crossFadeState: bikeSelectionActive
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
+            crossFadeState: bikeSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 300),
             firstChild: Container(),
             secondChild: renderPreferenceTypeSelection(),
-            crossFadeState: preferenceSelectionActive
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
+            crossFadeState: preferenceSelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 300),
             firstChild: Container(),
             secondChild: renderActivityTypeSelection(),
-            crossFadeState: activitySelectionActive
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
+            crossFadeState: activitySelectionActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
         ]),
       ),
@@ -278,8 +259,7 @@ class ProfileViewState extends State<ProfileView> {
             Content(text: "Radtyp", context: context),
             const SmallVSpace(),
             Small(
-                text:
-                    "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.",
+                text: "Dein Rad ist so individuell wie du. Wähle den Radtyp, der am besten zu deinem Rad passt.",
                 context: context),
           ],
         )),
@@ -337,10 +317,7 @@ class ProfileViewState extends State<ProfileView> {
           children: [
             Content(text: "Routenpräferenz", context: context),
             const SmallVSpace(),
-            Small(
-                text:
-                    "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.",
-                context: context),
+            Small(text: "Wir werden dir Routen vorschlagen, die deinen Präferenzen entsprechen.", context: context),
           ],
         )),
         const SmallHSpace(),
@@ -399,8 +376,7 @@ class ProfileViewState extends State<ProfileView> {
             Content(text: "Aktivität", context: context),
             const SmallVSpace(),
             Small(
-                text:
-                    "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht.",
+                text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht.",
                 context: context),
           ],
         )),

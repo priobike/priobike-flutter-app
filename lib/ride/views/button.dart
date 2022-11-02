@@ -22,8 +22,7 @@ class CancelButton extends StatelessWidget {
   final String text;
 
   /// Create a new cancel button.
-  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key})
-      : super(key: key);
+  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
@@ -79,8 +78,7 @@ class CancelButton extends StatelessWidget {
                 await session.reset();
 
                 // Reset the prediction sg status.
-                final predictionSGStatus =
-                    Provider.of<PredictionSGStatus>(context, listen: false);
+                final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
                 await predictionSGStatus.reset();
 
                 // Reset the dangers.
@@ -104,15 +102,11 @@ class CancelButton extends StatelessWidget {
             label: BoldSmall(text: text, context: context, color: Colors.white),
             onPressed: () => onTap(context),
             style: ButtonStyle(
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(borderRadius),
-                      side: const BorderSide(
-                          color: Color.fromARGB(255, 236, 240, 241)))),
-              foregroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromARGB(255, 236, 240, 241)),
-              backgroundColor: MaterialStateProperty.all<Color>(
-                  Theme.of(context).colorScheme.primary),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)))),
+              foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
+              backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
             )),
       ),
     );

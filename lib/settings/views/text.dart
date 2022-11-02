@@ -28,9 +28,7 @@ class AssetTextView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 256),
-                        Content(
-                            text: snapshot.data ?? "Lade Text...",
-                            context: context),
+                        Content(text: snapshot.data ?? "Lade Text...", context: context),
                         const SizedBox(height: 256),
                       ],
                     ),

@@ -17,9 +17,7 @@ class FeedbackView extends StatefulWidget {
   /// A boolean indicating if a back button should be shown.
   final bool showBackButton;
 
-  const FeedbackView(
-      {required this.onSubmitted, this.showBackButton = false, Key? key})
-      : super(key: key);
+  const FeedbackView({required this.onSubmitted, this.showBackButton = false, Key? key}) : super(key: key);
 
   @override
   FeedbackViewState createState() => FeedbackViewState();
@@ -69,21 +67,20 @@ class FeedbackViewState extends State<FeedbackView> {
       body: Container(
         color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
-            ]),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
+        ]),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (feedback.isSendingFeedback || tracking.isSendingTrack)
+    if (feedback.isSendingFeedback || tracking.isSendingTrack) {
       return renderLoadingIndicator();
+    }
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -128,12 +125,10 @@ class FeedbackViewState extends State<FeedbackView> {
                 const VSpace(),
                 BigButton(
                   iconColor: Colors.white,
-                  icon: feedback.willSendFeedback ||
-                          (tracking.willSendTrack && tracking.canSendTrack)
+                  icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
                       ? Icons.send
                       : Icons.check,
-                  label: feedback.willSendFeedback ||
-                          (tracking.willSendTrack && tracking.canSendTrack)
+                  label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
                       ? "Senden"
                       : "Fertig",
                   onPressed: () => submit(context),

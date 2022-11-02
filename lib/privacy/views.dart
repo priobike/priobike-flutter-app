@@ -8,11 +8,7 @@ import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
-  IconItem(
-      {Key? key,
-      required IconData icon,
-      required String text,
-      required BuildContext context})
+  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
       : super(key: key, children: [
           SizedBox(
               width: 64,
@@ -61,13 +57,11 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
       body: Container(
         color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text("Lade...", style: TextStyle(fontSize: 16)),
-            ]),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text("Lade...", style: TextStyle(fontSize: 16)),
+        ]),
       ),
     );
   }
@@ -96,24 +90,11 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!s.hasChanged!)
-                        Header(
-                            text: "Diese App funktioniert mit",
-                            context: context),
-                      if (!s.hasChanged!)
-                        Header(
-                            text: "deinen Daten.",
-                            color: Colors.blueAccent,
-                            context: context),
+                      if (!s.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
+                      if (!s.hasChanged!) Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
+                      if (s.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (s.hasChanged!)
-                        Header(
-                            text: "Wir haben die Erklärung zum",
-                            context: context),
-                      if (s.hasChanged!)
-                        Header(
-                            text: "Datenschutz aktualisiert.",
-                            color: Colors.blueAccent,
-                            context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
                       if (!s.hasChanged!)
                         SubHeader(
@@ -121,10 +102,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                                 "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
                       if (s.hasChanged!)
-                        SubHeader(
-                            text:
-                                "Lies dir hierzu kurz unsere Änderungen durch.",
-                            context: context),
+                        SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
                           icon: Icons.route,

@@ -22,15 +22,16 @@ class Profile with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final bikeTypeStr = storage.getString("priobike.home.profile.bike");
-    final preferenceTypeStr =
-        storage.getString("priobike.home.profile.preferences");
+    final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
     final activityTypeStr = storage.getString("priobike.home.profile.activity");
 
     if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
-    if (preferenceTypeStr != null)
+    if (preferenceTypeStr != null) {
       preferenceType = PreferenceType.values.byName(preferenceTypeStr);
-    if (activityTypeStr != null)
+    }
+    if (activityTypeStr != null) {
       activityType = ActivityType.values.byName(activityTypeStr);
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -40,14 +41,15 @@ class Profile with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
-    if (bikeType != null)
+    if (bikeType != null) {
       await storage.setString("priobike.home.profile.bike", bikeType!.name);
-    if (preferenceType != null)
-      await storage.setString(
-          "priobike.home.profile.preferences", preferenceType!.name);
-    if (activityType != null)
-      await storage.setString(
-          "priobike.home.profile.activity", activityType!.name);
+    }
+    if (preferenceType != null) {
+      await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
+    }
+    if (activityType != null) {
+      await storage.setString("priobike.home.profile.activity", activityType!.name);
+    }
 
     notifyListeners();
   }

@@ -38,8 +38,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   : Image.asset("assets/images/rent-dark.png"),
               title: 'Ausleihen',
               selected: layers.showRentalStations,
-              onTap: () =>
-                  layers.setShowRentalStations(!layers.showRentalStations),
+              onTap: () => layers.setShowRentalStations(!layers.showRentalStations),
             ),
             LayerSelectionItem(
               icon: Theme.of(context).colorScheme.brightness == Brightness.light
@@ -47,8 +46,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   : Image.asset("assets/images/park-dark.png"),
               title: 'Parken',
               selected: layers.showParkingStations,
-              onTap: () =>
-                  layers.setShowParkingStations(!layers.showParkingStations),
+              onTap: () => layers.setShowParkingStations(!layers.showParkingStations),
             ),
             LayerSelectionItem(
               icon: Theme.of(context).colorScheme.brightness == Brightness.light
@@ -56,8 +54,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   : Image.asset("assets/images/construction-dark.png"),
               title: 'Baustellen',
               selected: layers.showConstructionSites,
-              onTap: () => layers
-                  .setShowConstructionSites(!layers.showConstructionSites),
+              onTap: () => layers.setShowConstructionSites(!layers.showConstructionSites),
             ),
             LayerSelectionItem(
               icon: Theme.of(context).colorScheme.brightness == Brightness.light
@@ -73,8 +70,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   : Image.asset("assets/images/repair-dark.png"),
               title: 'Reparieren',
               selected: layers.showRepairStations,
-              onTap: () =>
-                  layers.setShowRepairStations(!layers.showRepairStations),
+              onTap: () => layers.setShowRepairStations(!layers.showRepairStations),
             ),
           ],
         ));
@@ -126,10 +122,7 @@ class LayerSelectionItem extends StatelessWidget {
                 )
               : BoxDecoration(
                   border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(24),

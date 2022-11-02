@@ -18,8 +18,7 @@ class SGSelectorPosition {
     required this.alt,
   });
 
-  factory SGSelectorPosition.fromJson(Map<String, dynamic> json) =>
-      SGSelectorPosition(
+  factory SGSelectorPosition.fromJson(Map<String, dynamic> json) => SGSelectorPosition(
         lat: json['lat'].toDouble(),
         lon: json['lon'].toDouble(),
         alt: json['alt'].toDouble(),
@@ -44,9 +43,7 @@ class SGSelectorRequest {
 
   factory SGSelectorRequest.fromJson(Map<String, dynamic> json) {
     return SGSelectorRequest(
-      route: (json['route'] as List)
-          .map((e) => SGSelectorPosition.fromJson(e))
-          .toList(),
+      route: (json['route'] as List).map((e) => SGSelectorPosition.fromJson(e)).toList(),
     );
   }
 }
@@ -61,20 +58,11 @@ class SGSelectorResponse {
   /// The crossings of the route.
   final List<Crossing> crossings;
 
-  SGSelectorResponse(
-      {required this.route,
-      required this.signalGroups,
-      required this.crossings});
+  SGSelectorResponse({required this.route, required this.signalGroups, required this.crossings});
 
-  factory SGSelectorResponse.fromJson(Map<String, dynamic> json) =>
-      SGSelectorResponse(
-        route: (json['route'] as List)
-            .map((e) => NavigationNode.fromJson(e))
-            .toList(),
-        signalGroups: (json['signalGroups'] as Map<String, dynamic>)
-            .map((k, e) => MapEntry(k, Sg.fromJson(e))),
-        crossings: (json['crossings'] as List)
-            .map((e) => Crossing.fromJson(e))
-            .toList(),
+  factory SGSelectorResponse.fromJson(Map<String, dynamic> json) => SGSelectorResponse(
+        route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+        signalGroups: (json['signalGroups'] as Map<String, dynamic>).map((k, e) => MapEntry(k, Sg.fromJson(e))),
+        crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
       );
 }

@@ -14,8 +14,7 @@ class OldAndroidHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
 
@@ -52,8 +51,7 @@ class Http {
   /// Make a GET request.
   static Future<http.Response> get(Uri url) async {
     // Add the cookies to the request.
-    final cookieString =
-        Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
+    final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
     // Passing the sticky cookie will allow us to connect to the same backend.
     http.Response response = await _client.get(url, headers: headers);
@@ -63,20 +61,17 @@ class Http {
 
   /// Make a POST request.
   static Future<http.Response> post(Uri url, {dynamic body}) async {
-    final cookieString =
-        Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
+    final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
     // Passing the sticky cookie will allow us to connect to the same backend.
-    http.Response response =
-        await _client.post(url, body: body, headers: headers);
+    http.Response response = await _client.post(url, body: body, headers: headers);
     setCookies(response);
     return response;
   }
 
   /// Connect a WebSocket.
   static WebSocketChannel connectWebSocket(Uri url) {
-    final cookieString =
-        Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
+    final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
     // Passing the sticky cookie will allow us to connect to the same backend.
     return IOWebSocketChannel.connect(url, headers: headers);

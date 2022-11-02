@@ -24,9 +24,7 @@ class NewsButtonState extends State<NewsButton> {
   @override
   void didChangeDependencies() {
     news = Provider.of<News>(context);
-    final unread = news.articles
-        .where((article) => !news.readArticles.contains(article))
-        .length;
+    final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
     if (unread != this.unread) {
       setState(() {
         this.unread = unread;
@@ -56,8 +54,7 @@ class NewsButtonState extends State<NewsButton> {
               shape: BoxShape.circle,
               color: Colors.red,
             ),
-            child:
-                Small(text: "$unread", color: Colors.white, context: context),
+            child: Small(text: "$unread", color: Colors.white, context: context),
           ),
       ],
     );

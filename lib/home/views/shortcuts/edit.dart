@@ -70,17 +70,15 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               proxyDecorator: (proxyWidget, idx, anim) {
                 return proxyWidget;
               },
-              children:
-                  shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
+              children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
                 return Container(
                     key: Key("$entry.key"),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 16, top: 8),
                       child: Tile(
                         fill: Theme.of(context).colorScheme.background,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            bottomLeft: Radius.circular(24)),
+                        borderRadius:
+                            const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                         content: Row(children: [
                           Flexible(
                               child: BoldContent(

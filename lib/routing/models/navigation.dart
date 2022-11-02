@@ -6,11 +6,7 @@ class NavigationNode {
   final String? signalGroupId;
 
   const NavigationNode(
-      {required this.lon,
-      required this.lat,
-      required this.alt,
-      this.distanceToNextSignal,
-      this.signalGroupId});
+      {required this.lon, required this.lat, required this.alt, this.distanceToNextSignal, this.signalGroupId});
 
   factory NavigationNode.fromJson(Map<String, dynamic> json) => NavigationNode(
         lon: json['lon'].toDouble(),

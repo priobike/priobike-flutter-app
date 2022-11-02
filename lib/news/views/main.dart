@@ -48,8 +48,7 @@ class NewsViewState extends State<NewsView> {
                     Row(
                       children: [
                         Row(children: [
-                          AppBackButton(
-                              onPressed: () => Navigator.pop(context)),
+                          AppBackButton(onPressed: () => Navigator.pop(context)),
                           const HSpace(),
                           SubHeader(text: "Neuigkeiten", context: context),
                         ]),
@@ -72,17 +71,12 @@ class NewsViewState extends State<NewsView> {
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
                                   children: <Widget>[
-                                    for (int i = 0;
-                                        i < news.articles.length;
-                                        i++)
+                                    for (int i = 0; i < news.articles.length; i++)
                                       ArticleListItem(
                                           article: news.articles[i],
-                                          category: news.categories[
-                                              news.articles[i].categoryId],
-                                          wasRead: news.readArticles
-                                              .contains(news.articles[i]),
-                                          totalNumberOfArticles:
-                                              news.articles.length,
+                                          category: news.categories[news.articles[i].categoryId],
+                                          wasRead: news.readArticles.contains(news.articles[i]),
+                                          totalNumberOfArticles: news.articles.length,
                                           articleIndex: i)
                                   ],
                                 ),

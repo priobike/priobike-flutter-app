@@ -36,9 +36,7 @@ class ShortcutView extends StatelessWidget {
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
-        shadow: isHighlighted
-            ? const Color.fromARGB(255, 0, 64, 255)
-            : const Color.fromARGB(255, 0, 0, 0),
+        shadow: isHighlighted ? const Color.fromARGB(255, 0, 64, 255) : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: isHighlighted ? 0.3 : 0.08,
         padding: const EdgeInsets.all(16),
         content: SizedBox(
@@ -46,18 +44,14 @@ class ShortcutView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: isLoading
-                ? [
-                    const Expanded(
-                        child: Center(child: CircularProgressIndicator()))
-                  ]
+                ? [const Expanded(child: Center(child: CircularProgressIndicator()))]
                 : [
                     Icon(
                       icon,
                       size: 64,
                       color: isHighlighted
                           ? Colors.white
-                          : Theme.of(context).colorScheme.brightness ==
-                                  Brightness.dark
+                          : Theme.of(context).colorScheme.brightness == Brightness.dark
                               ? Colors.grey
                               : Colors.black,
                     ),
@@ -66,8 +60,7 @@ class ShortcutView extends StatelessWidget {
                       text: title,
                       color: isHighlighted
                           ? Colors.white
-                          : Theme.of(context).colorScheme.brightness ==
-                                  Brightness.dark
+                          : Theme.of(context).colorScheme.brightness == Brightness.dark
                               ? Colors.grey
                               : Colors.black,
                       maxLines: 3,
@@ -77,9 +70,7 @@ class ShortcutView extends StatelessWidget {
                   ],
           ),
         ),
-        fill: isHighlighted
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.background,
+        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         splash: isHighlighted ? Colors.white : Colors.black,
       ),
     );
@@ -152,8 +143,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   @override
   Widget build(BuildContext context) {
     const double shortcutRightPad = 16;
-    final shortcutWidth =
-        (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
 
     List<Widget> views = [
       AnimatedContainer(
@@ -180,8 +170,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
                     // Allow only one shortcut to be fetched at a time.
                     if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
                   },
-                  isLoading: (rs.selectedWaypoints == shortcut.waypoints) &&
-                      rs.isFetchingRoute,
+                  isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
                   icon: Icons.route,
                   title: shortcut.name,
                   width: shortcutWidth,
@@ -197,9 +186,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
         .map((e) => BlendIn(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOutCubic,
-              delay: Duration(
-                  milliseconds:
-                      250 /* Time until shortcuts are shown */ + 250 * e.key),
+              delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
               child: e.value,
             ))
         .toList();

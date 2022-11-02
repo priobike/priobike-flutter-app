@@ -13,48 +13,33 @@ class SymbolLoader {
   /// Load all symbols into the map controller.
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
-    await addImageFromAsset(
-        "disconnected", "assets/images/disconnected.drawio.png");
-    await addImageFromAsset(
-        "disconnectedtilted", "assets/images/disconnected-tilted.drawio.png");
+    await addImageFromAsset("disconnected", "assets/images/disconnected.drawio.png");
+    await addImageFromAsset("disconnectedtilted", "assets/images/disconnected-tilted.drawio.png");
     await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
-    await addImageFromAsset(
-        "badsignaltilted", "assets/images/bad-signal-tilted.drawio.png");
+    await addImageFromAsset("badsignaltilted", "assets/images/bad-signal-tilted.drawio.png");
     await addImageFromAsset("offline", "assets/images/offline.drawio.png");
-    await addImageFromAsset(
-        "offlinetilted", "assets/images/offline-tilted.drawio.png");
+    await addImageFromAsset("offlinetilted", "assets/images/offline-tilted.drawio.png");
     await addImageFromAsset("online", "assets/images/online.drawio.png");
-    await addImageFromAsset(
-        "onlinetilted", "assets/images/online-tilted.drawio.png");
+    await addImageFromAsset("onlinetilted", "assets/images/online-tilted.drawio.png");
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
-    await addImageFromAsset(
-        "destination", "assets/images/destination.drawio.png");
-    await addImageFromAsset(
-        "trafficlightoff", "assets/images/trafficlight-off.drawio.png");
-    await addImageFromAsset("trafficlightoffoffline",
-        "assets/images/trafficlight-off-offline.drawio.png");
-    await addImageFromAsset("trafficlightoffbadsignal",
-        "assets/images/trafficlight-off-bad-signal.drawio.png");
-    await addImageFromAsset("trafficlightoffonline",
-        "assets/images/trafficlight-off-online.drawio.png");
-    await addImageFromAsset("trafficlightred",
-        "assets/images/trafficlight-red-countdown.drawio.png");
-    await addImageFromAsset("trafficlightgreen",
-        "assets/images/trafficlight-green-countdown.drawio.png");
+    await addImageFromAsset("destination", "assets/images/destination.drawio.png");
+    await addImageFromAsset("trafficlightoff", "assets/images/trafficlight-off.drawio.png");
+    await addImageFromAsset("trafficlightoffoffline", "assets/images/trafficlight-off-offline.drawio.png");
+    await addImageFromAsset("trafficlightoffbadsignal", "assets/images/trafficlight-off-bad-signal.drawio.png");
+    await addImageFromAsset("trafficlightoffonline", "assets/images/trafficlight-off-online.drawio.png");
+    await addImageFromAsset("trafficlightred", "assets/images/trafficlight-red-countdown.drawio.png");
+    await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
     await addImageFromAsset("airdark", "assets/images/air-dark.png");
     await addImageFromAsset("airlight", "assets/images/air-light.png");
-    await addImageFromAsset(
-        "constructiondark", "assets/images/construction-dark.png");
-    await addImageFromAsset(
-        "constructionlight", "assets/images/construction-light.png");
+    await addImageFromAsset("constructiondark", "assets/images/construction-dark.png");
+    await addImageFromAsset("constructionlight", "assets/images/construction-light.png");
     await addImageFromAsset("parkdark", "assets/images/park-dark.png");
     await addImageFromAsset("parklight", "assets/images/park-light.png");
     await addImageFromAsset("positiondark", "assets/images/position-dark.png");
-    await addImageFromAsset(
-        "positionlight", "assets/images/position-light.png");
+    await addImageFromAsset("positionlight", "assets/images/position-light.png");
     await addImageFromAsset("rentdark", "assets/images/rent-dark.png");
     await addImageFromAsset("rentlight", "assets/images/rent-light.png");
     await addImageFromAsset("repairdark", "assets/images/repair-dark.png");
@@ -174,8 +159,7 @@ class BadSignalMarker extends TrafficLightOffMarker {
 /// A map layer which marks a traffic light on the map.
 class TrafficLightGreenMarker extends SymbolOptions {
   /// Create a new traffic light marker.
-  TrafficLightGreenMarker(
-      {required LatLng geo, double iconSize = 1, double iconOpacity = 1})
+  TrafficLightGreenMarker({required LatLng geo, double iconSize = 1, double iconOpacity = 1})
       : super(
           geometry: geo,
           iconImage: "trafficlightgreen",

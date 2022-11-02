@@ -56,8 +56,7 @@ class Positioning with ChangeNotifier {
     );
     AlertDialog alert = AlertDialog(
       title: const Text("Zugriff auf Standort verweigert."),
-      content: const Text(
-          "Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen."),
+      content: const Text("Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen."),
       actions: [okButton],
     );
     showDialog(context: context, builder: (BuildContext context) => alert);
@@ -109,23 +108,19 @@ class Positioning with ChangeNotifier {
       log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
       final routing = Provider.of<Routing>(context, listen: false);
-      final positions =
-          routing.selectedRoute?.route // Fallback to center location of city.
-                  .map((e) => mapbox.LatLng(e.lat, e.lon))
-                  .toList() ??
-              [settings.backend.center];
-      positionSource =
-          PathMockPositionSource(speed: 18 / 3.6, positions: positions);
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+              .map((e) => mapbox.LatLng(e.lat, e.lon))
+              .toList() ??
+          [settings.backend.center];
+      positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
       final routing = Provider.of<Routing>(context, listen: false);
-      final positions =
-          routing.selectedRoute?.route // Fallback to center location of city.
-                  .map((e) => mapbox.LatLng(e.lat, e.lon))
-                  .toList() ??
-              [settings.backend.center];
-      positionSource =
-          PathMockPositionSource(speed: 40 / 3.6, positions: positions);
+      final positions = routing.selectedRoute?.route // Fallback to center location of city.
+              .map((e) => mapbox.LatLng(e.lat, e.lon))
+              .toList() ??
+          [settings.backend.center];
+      positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (40 km/h).");
     } else if (settings.positioningMode == PositioningMode.recordedDresden) {
       positionSource = RecordedMockPositionSource.mockDresden;
@@ -134,12 +129,10 @@ class Positioning with ChangeNotifier {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
-      positionSource = StaticMockPositionSource(
-          position: const mapbox.LatLng(51.030077, 13.729404), heading: 270);
+      positionSource = StaticMockPositionSource(position: const mapbox.LatLng(51.030077, 13.729404), heading: 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
-      positionSource = StaticMockPositionSource(
-          position: const mapbox.LatLng(51.030241, 13.728205), heading: 1);
+      positionSource = StaticMockPositionSource(position: const mapbox.LatLng(51.030241, 13.728205), heading: 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
     } else {
       throw Exception("Unknown position source.");
@@ -159,8 +152,7 @@ class Positioning with ChangeNotifier {
       return;
     }
 
-    lastPosition = await positionSource!
-        .getPosition(desiredAccuracy: LocationAccuracy.high);
+    lastPosition = await positionSource!.getPosition(desiredAccuracy: LocationAccuracy.high);
     notifyListeners();
   }
 
@@ -184,10 +176,8 @@ class Positioning with ChangeNotifier {
 
     // Only use kCLLocationAccuracyBestForNavigation if the device is charging.
     // See: https://developer.apple.com/documentation/corelocation/kcllocationaccuracybestfornavigation
-    final desiredAccuracy = await Battery().batteryState ==
-            BatteryState.charging
-        ? LocationAccuracy
-            .bestForNavigation // Requires additional energy for sensor fusion.
+    final desiredAccuracy = await Battery().batteryState == BatteryState.charging
+        ? LocationAccuracy.bestForNavigation // Requires additional energy for sensor fusion.
         : LocationAccuracy.best;
 
     var positionStream = await positionSource!.startPositioning(

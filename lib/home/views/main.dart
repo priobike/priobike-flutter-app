@@ -68,8 +68,7 @@ class HomeViewState extends State<HomeView> {
 
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
-    predictionSGStatus =
-        Provider.of<PredictionSGStatus>(context, listen: false);
+    predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     statistics = Provider.of<Statistics>(context, listen: false);
 
     super.didChangeDependencies();
@@ -77,9 +76,7 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const NewsView()))
-        .then((_) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then((_) {
       // Mark all notifications as read.
       news.markAllArticlesAsRead(context);
     });
@@ -87,22 +84,18 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const SettingsView()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsView()));
   }
 
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
     // Tell the tutorial service that the shortcut was selected.
-    Provider.of<Tutorial>(context, listen: false)
-        .complete("priobike.tutorial.select-shortcut");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
     routing.loadRoutes(context);
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const RoutingView()))
-        .then((_) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then((_) {
       routing.reset();
       discomforts.reset();
       predictionSGStatus.reset();
@@ -111,9 +104,7 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const RoutingView()))
-        .then((_) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then((_) {
       routing.reset();
       discomforts.reset();
       predictionSGStatus.reset();
@@ -122,16 +113,17 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the shortcuts should be edited.
   void onOpenShortcutEditView() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
   Widget renderDebugHint() {
     String? description;
-    if (settings.backend != Backend.production)
+    if (settings.backend != Backend.production) {
       description = "Testort ist gewählt.";
-    if (settings.positioningMode != PositioningMode.gnss)
+    }
+    if (settings.positioningMode != PositioningMode.gnss) {
       description = "Testortung ist aktiv.";
+    }
     if (description == null) return Container();
 
     return Padding(
@@ -170,15 +162,11 @@ class HomeViewState extends State<HomeView> {
                 delay: const Duration(milliseconds: 250),
                 child: Row(children: [
                   const SizedBox(width: 40),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BoldContent(text: "Deine Shortcuts", context: context),
-                        const SizedBox(height: 4),
-                        Small(
-                            text: "Direkt zum Ziel navigieren",
-                            context: context),
-                      ]),
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    BoldContent(text: "Deine Shortcuts", context: context),
+                    const SizedBox(height: 4),
+                    Small(text: "Direkt zum Ziel navigieren", context: context),
+                  ]),
                   Expanded(child: Container()),
                   SmallIconButton(
                     icon: Icons.edit,
@@ -199,9 +187,7 @@ class HomeViewState extends State<HomeView> {
                         'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
                     padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                   ),
-                  ShortcutsView(
-                      onSelectShortcut: onSelectShortcut,
-                      onStartFreeRouting: onStartFreeRouting)
+                  ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                 ]),
               ),
               const BlendIn(

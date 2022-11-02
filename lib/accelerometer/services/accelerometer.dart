@@ -71,8 +71,7 @@ class Accelerometer with ChangeNotifier {
       return;
     }
     // Compute the magnitude of the acceleration in m/s².
-    final aMag =
-        aXYZ.map((e) => e.x * e.x + e.y * e.y + e.z * e.z).map((e) => sqrt(e));
+    final aMag = aXYZ.map((e) => e.x * e.x + e.y * e.y + e.z * e.z).map((e) => sqrt(e));
     // Compute the average acceleration in m/s².
     final n = aMag.length;
     final aAvg = aMag.reduce((a, b) => a + b) / n;

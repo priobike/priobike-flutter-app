@@ -26,9 +26,7 @@ class SelectRideRequest {
         'sessionId': sessionId,
         'route': route.map((e) => e.toJson()).toList(),
         'navigationPath': navigationPath.toJson(),
-        'signalGroups': {
-          for (var e in signalGroups.entries) e.key: e.value.toJson()
-        },
+        'signalGroups': {for (var e in signalGroups.entries) e.key: e.value.toJson()},
       };
 }
 

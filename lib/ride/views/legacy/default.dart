@@ -43,11 +43,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SmallVSpace(),
-          BoldSmall(
-              text: recommendation.error
-                  ? "Fehler: ${recommendation.errorMessage}"
-                  : '',
-              context: context),
+          BoldSmall(text: recommendation.error ? "Fehler: ${recommendation.errorMessage}" : '', context: context),
           Row(children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
@@ -91,9 +87,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                         child: CircularProgressIndicator(
                           strokeWidth: 30,
                           backgroundColor: Colors.black26,
-                          color: recommendation.isGreen
-                              ? const Color.fromARGB(255, 54, 222, 70)
-                              : Colors.red,
+                          color: recommendation.isGreen ? const Color.fromARGB(255, 54, 222, 70) : Colors.red,
                           value: recommendation.countdown / 60,
                         ),
                       ),
@@ -111,8 +105,7 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                   const SmallHSpace(),
                   Expanded(
                       child: Header(
-                          text:
-                              "Ampel in ${recommendation.distance.toStringAsFixed(0)}m",
+                          text: "Ampel in ${recommendation.distance.toStringAsFixed(0)}m",
                           fontSize: 28,
                           context: context))
                 ],
@@ -164,12 +157,9 @@ class _DefaultCyclingViewState extends State<DefaultCyclingView> {
                 "${recommendation.speedDiff > 0 ? "+" : ""}${(recommendation.speedDiff * 3.6).toStringAsFixed(0)} km/h",
             context: context,
           ),
-          if (recommendation.speedDiff > 0)
-            SubHeader(text: "Schneller!", context: context),
-          if (recommendation.speedDiff < 0)
-            SubHeader(text: "Langsamer!", context: context),
-          if (recommendation.speedDiff == 0)
-            SubHeader(text: "Geschwindigkeit halten.", context: context),
+          if (recommendation.speedDiff > 0) SubHeader(text: "Schneller!", context: context),
+          if (recommendation.speedDiff < 0) SubHeader(text: "Langsamer!", context: context),
+          if (recommendation.speedDiff == 0) SubHeader(text: "Geschwindigkeit halten.", context: context),
           const SizedBox(
             width: double.infinity,
             child: CancelButton(text: "Fahrt beenden"),

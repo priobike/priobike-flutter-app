@@ -19,5 +19,6 @@ jobs:
       - name: Run unit tests and check for styling errors
         run: |
           flutter pub get
-          flutter format --set-exit-if-changed .
+          flutter format --line-length 120 --set-exit-if-changed .
+          flutter analyze .
           flutter test

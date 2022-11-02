@@ -20,10 +20,7 @@ class RouteDetailsBottomSheet extends StatefulWidget {
   /// A callback that is executed when a shortcut should be saved.
   final void Function() onSelectSaveButton;
 
-  const RouteDetailsBottomSheet(
-      {required this.onSelectStartButton,
-      required this.onSelectSaveButton,
-      Key? key})
+  const RouteDetailsBottomSheet({required this.onSelectStartButton, required this.onSelectSaveButton, Key? key})
       : super(key: key);
 
   @override
@@ -109,12 +106,7 @@ class RouteWaypointItem extends StatelessWidget {
   /// If the waypoint is the last waypoint.
   bool get isLast => idx == count - 1;
 
-  const RouteWaypointItem(
-      {this.onDelete,
-      required this.waypoint,
-      required this.idx,
-      required this.count,
-      Key? key})
+  const RouteWaypointItem({this.onDelete, required this.waypoint, required this.idx, required this.count, Key? key})
       : super(key: key);
 
   @override
@@ -145,9 +137,7 @@ class RouteWaypointItem extends StatelessWidget {
             const SmallHSpace(),
             Flexible(
               child: BoldContent(
-                text: waypoint.address != null
-                    ? waypoint.address!
-                    : "Aktueller Standort",
+                text: waypoint.address != null ? waypoint.address! : "Aktueller Standort",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 context: context,
@@ -223,8 +213,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
     // Tell the tutorial that the user has changed the order of the waypoints.
-    Provider.of<Tutorial>(context, listen: false)
-        .complete("priobike.tutorial.draw-waypoints");
+    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
     if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
@@ -243,8 +232,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
-    final result = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const RouteSearch()));
+    final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RouteSearch()));
     if (result == null) return;
 
     final waypoint = result as Waypoint;
@@ -289,13 +277,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
             const SizedBox(height: 36),
             Stack(alignment: AlignmentDirectional.center, children: [
               Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  width: 16,
-                  height: s.selectedWaypoints!.length * 42),
+                  color: Theme.of(context).colorScheme.surface, width: 16, height: s.selectedWaypoints!.length * 42),
               Container(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 8,
-                  height: s.selectedWaypoints!.length * 42),
+                  color: Theme.of(context).colorScheme.primary, width: 8, height: s.selectedWaypoints!.length * 42),
             ]),
           ]),
       ]),
@@ -328,8 +312,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (s.selectedRoute == null) return Container();
-    final distInfo =
-        "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
+    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
     final seconds = s.selectedRoute!.path.time / 1000;
     // Get the full hours needed to cover the route.
     final hours = seconds ~/ 3600;
@@ -359,8 +342,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       iconColor: Colors.white,
       label: "Losfahren",
       onPressed: widget.onSelectStartButton,
-      boxConstraints:
-          BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
     );
   }
 
@@ -372,8 +354,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       iconColor: Colors.white,
       label: "Route speichern",
       onPressed: widget.onSelectSaveButton,
-      boxConstraints:
-          BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
     );
   }
 
@@ -384,12 +365,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return SizedBox(
       height: frame.size.height, // Needed for reorderable list.
       child: DraggableScrollableSheet(
-        initialChildSize: 114 / frame.size.height +
-            (frame.padding.bottom / frame.size.height),
-        maxChildSize: (frame.size.height - 86) / frame.size.height -
-            (frame.padding.top / frame.size.height),
-        minChildSize: 114 / frame.size.height +
-            (frame.padding.bottom / frame.size.height),
+        initialChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height),
+        maxChildSize: (frame.size.height - 86) / frame.size.height - (frame.padding.top / frame.size.height),
+        minChildSize: 114 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: BoxDecoration(

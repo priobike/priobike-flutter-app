@@ -11,8 +11,7 @@ class DefaultDebugCyclingView extends StatefulWidget {
   const DefaultDebugCyclingView({Key? key}) : super(key: key);
 
   @override
-  State<DefaultDebugCyclingView> createState() =>
-      _DefaultDebugCyclingViewState();
+  State<DefaultDebugCyclingView> createState() => _DefaultDebugCyclingViewState();
 }
 
 class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
@@ -59,9 +58,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
     if (ride.currentRecommendation == null) return Container();
     if (positioning.lastPosition == null) return Container();
     return Scaffold(
-      backgroundColor: ride.currentRecommendation!.isGreen
-          ? const Color(0xff4caf50)
-          : const Color(0xfff44235),
+      backgroundColor: ride.currentRecommendation!.isGreen ? const Color(0xff4caf50) : const Color(0xfff44235),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -81,11 +78,9 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                 child: Row(
                   children: [
                     const SizedBox(width: 10),
-                    Text("${ride.currentRecommendation!.countdown}s ",
-                        style: const TextStyle(fontSize: 40)),
+                    Text("${ride.currentRecommendation!.countdown}s ", style: const TextStyle(fontSize: 40)),
                     const Spacer(),
-                    Text(
-                        "${ride.currentRecommendation!.distance.toStringAsFixed(0)}m",
+                    Text("${ride.currentRecommendation!.distance.toStringAsFixed(0)}m",
                         style: const TextStyle(fontSize: 40)),
                     const SizedBox(width: 10),
                   ],
@@ -97,8 +92,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
               child: FlutterMap(
                 options: MapOptions(
                   bounds: LatLngBounds.fromPoints(points),
-                  boundsOptions:
-                      const FitBoundsOptions(padding: EdgeInsets.all(30)),
+                  boundsOptions: const FitBoundsOptions(padding: EdgeInsets.all(30)),
                   zoom: 13.0,
                   maxZoom: 20.0,
                   minZoom: 7,
@@ -110,8 +104,7 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                 ),
                 layers: [
                   TileLayerOptions(
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                   ),
                   PolylineLayerOptions(
@@ -128,17 +121,14 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
                       ...trafficLights,
                       positioning.lastPosition != null
                           ? Marker(
-                              point: LatLng(positioning.lastPosition!.latitude,
-                                  positioning.lastPosition!.longitude),
+                              point: LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
                               builder: (ctx) => Icon(
                                 Icons.location_pin,
                                 color: Colors.blue[900],
                                 size: 30,
                               ),
                             )
-                          : Marker(
-                              point: LatLng(0, 0),
-                              builder: (ctx) => Container()),
+                          : Marker(point: LatLng(0, 0), builder: (ctx) => Container()),
                       Marker(
                         point: points.last,
                         builder: (ctx) => Icon(
@@ -177,20 +167,14 @@ class _DefaultDebugCyclingViewState extends State<DefaultDebugCyclingView> {
               "${(ride.currentRecommendation!.speedDiff * 3.6).toStringAsFixed(1)}km/h",
               style: const TextStyle(fontSize: 35),
             ),
-            if (ride.currentRecommendation!.speedDiff > 0)
-              const Text("Schneller!", style: TextStyle(fontSize: 25)),
-            if (ride.currentRecommendation!.speedDiff < 0)
-              const Text("Langsamer!", style: TextStyle(fontSize: 25)),
+            if (ride.currentRecommendation!.speedDiff > 0) const Text("Schneller!", style: TextStyle(fontSize: 25)),
+            if (ride.currentRecommendation!.speedDiff < 0) const Text("Langsamer!", style: TextStyle(fontSize: 25)),
             if (ride.currentRecommendation!.speedDiff == 0)
-              const Text("Geschwindigkeit halten.",
-                  style: TextStyle(fontSize: 25)),
+              const Text("Geschwindigkeit halten.", style: TextStyle(fontSize: 25)),
             const Spacer(),
             Text(
-              ride.currentRecommendation!.error
-                  ? "Fehler: ${ride.currentRecommendation!.errorMessage}"
-                  : '',
-              style: TextStyle(
-                  fontSize: 20, color: Theme.of(context).colorScheme.primary),
+              ride.currentRecommendation!.error ? "Fehler: ${ride.currentRecommendation!.errorMessage}" : '',
+              style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.primary),
             ),
             const SizedBox(
               width: double.infinity,

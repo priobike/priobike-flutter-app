@@ -40,19 +40,16 @@ class Session with ChangeNotifier {
     final authRequest = AuthRequest(clientId: clientId);
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final authEndpoint =
-        Uri.parse('https://$baseUrl/session-wrapper/authentication');
+    final authEndpoint = Uri.parse('https://$baseUrl/session-wrapper/authentication');
     final response =
-        await Http.post(authEndpoint, body: json.encode(authRequest.toJson()))
-            .onError((error, stackTrace) {
+        await Http.post(authEndpoint, body: json.encode(authRequest.toJson())).onError((error, stackTrace) {
       log.e("Error during authentication: $error");
       ToastMessage.showError(error.toString());
       throw Exception();
     });
 
     if (response.statusCode != 200) {
-      final err =
-          "Error during authentication with endpoint $authEndpoint: ${response.body}";
+      final err = "Error during authentication with endpoint $authEndpoint: ${response.body}";
       log.e(err);
       ToastMessage.showError(err);
       throw Exception(err);
@@ -60,14 +57,14 @@ class Session with ChangeNotifier {
 
     try {
       final authResponse = AuthResponse.fromJson(json.decode(response.body));
-      log.i(
-          "Successfully authenticated with endpoint $authEndpoint: ${response.body}");
+      log.i("Successfully authenticated with endpoint $authEndpoint: ${response.body}");
       sessionId = authResponse.sessionId!;
       return sessionId!;
     } catch (error, stack) {
       final hint = "Error during authentication: $error";
-      if (!kDebugMode)
+      if (!kDebugMode) {
         await Sentry.captureException(error, stackTrace: stack, hint: hint);
+      }
       log.e(hint);
       ToastMessage.showError(hint);
       throw Exception(hint);

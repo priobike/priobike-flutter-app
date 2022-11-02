@@ -90,10 +90,7 @@ class TutorialViewState extends State<TutorialView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(
-                  child: BoldSmall(
-                      text: widget.text,
-                      color: const Color.fromARGB(255, 91, 91, 91),
-                      context: context),
+                  child: BoldSmall(text: widget.text, color: const Color.fromARGB(255, 91, 91, 91), context: context),
                 ),
                 const SmallHSpace(),
                 Column(children: [
@@ -102,26 +99,18 @@ class TutorialViewState extends State<TutorialView> {
                     firstChild: const Icon(Icons.check, color: Colors.green),
                     secondChild: const Padding(
                         padding: EdgeInsets.only(left: 6),
-                        child: Icon(Icons.tips_and_updates,
-                            color: Color.fromARGB(255, 91, 91, 91))),
-                    crossFadeState: checkmarkIsShown
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
+                        child: Icon(Icons.tips_and_updates, color: Color.fromARGB(255, 91, 91, 91))),
+                    crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                   ),
                   const SmallVSpace(),
-                  Small(
-                      text: "Tutorial",
-                      color: const Color.fromARGB(255, 91, 91, 91),
-                      context: context),
+                  Small(text: "Tutorial", color: const Color.fromARGB(255, 91, 91, 91), context: context),
                 ]),
               ],
             ),
           ],
         ),
       ),
-      crossFadeState: tutorialIsShown
-          ? CrossFadeState.showSecond
-          : CrossFadeState.showFirst,
+      crossFadeState: tutorialIsShown ? CrossFadeState.showSecond : CrossFadeState.showFirst,
     );
   }
 }

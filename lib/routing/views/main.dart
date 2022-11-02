@@ -78,8 +78,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
-    void startRide() =>
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+    void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           // Avoid navigation back, only allow stop button to be pressed.
           // Note: Don't use pushReplacement since this will call
           // the result handler of the RouteView's host.
@@ -90,8 +89,7 @@ class RoutingViewState extends State<RoutingView> {
         }));
 
     final preferences = await SharedPreferences.getInstance();
-    final didViewWarning =
-        preferences.getBool("priobike.routing.warning") ?? false;
+    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
     if (didViewWarning) {
       startRide();
     } else {
@@ -114,10 +112,7 @@ class RoutingViewState extends State<RoutingView> {
                       preferences.setBool("priobike.routing.warning", true);
                       startRide();
                     },
-                    child: BoldContent(
-                        text: 'OK',
-                        color: Theme.of(context).colorScheme.primary,
-                        context: context),
+                    child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
                   ),
                 ],
               ));
@@ -131,8 +126,7 @@ class RoutingViewState extends State<RoutingView> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      backgroundColor:
-          Theme.of(context).colorScheme.background.withOpacity(0.95),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
       builder: (_) => const LayerSelectionView(),
     );
   }
@@ -145,17 +139,14 @@ class RoutingViewState extends State<RoutingView> {
         final nameController = TextEditingController();
         return AlertDialog(
           title: BoldContent(
-              text:
-                  'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.',
-              context: context),
+              text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.', context: context),
           content: SizedBox(
               height: 48,
               child: Column(
                 children: [
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(
-                        hintText: 'Heimweg, Zur Arbeit, ...'),
+                    decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
                   ),
                 ],
               )),
@@ -166,16 +157,14 @@ class RoutingViewState extends State<RoutingView> {
             TextButton(
               onPressed: () async {
                 final name = nameController.text;
-                if (name.isEmpty)
+                if (name.isEmpty) {
                   ToastMessage.showError("Name darf nicht leer sein.");
+                }
                 await shortcuts?.saveNewShortcut(name, context);
                 ToastMessage.showSuccess("Route gespeichert!");
                 Navigator.pop(context);
               },
-              child: BoldContent(
-                  text: 'Speichern',
-                  color: Theme.of(context).colorScheme.primary,
-                  context: context),
+              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
             ),
           ],
         );
@@ -196,8 +185,7 @@ class RoutingViewState extends State<RoutingView> {
                       child: Column(children: [
                         const CircularProgressIndicator(),
                         const VSpace(),
-                        BoldContent(
-                            text: "Lade...", maxLines: 1, context: context),
+                        BoldContent(text: "Lade...", maxLines: 1, context: context),
                       ]))))),
     ]);
   }
@@ -218,15 +206,9 @@ class RoutingViewState extends State<RoutingView> {
                               height: 128,
                               width: 256,
                               child: Column(children: [
-                                BoldSmall(
-                                    text: "Fehler beim Laden der Route.",
-                                    maxLines: 1,
-                                    context: context),
+                                BoldSmall(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
                                 const SmallVSpace(),
-                                Small(
-                                    text: "Prüfe deine Verbindung.",
-                                    maxLines: 1,
-                                    context: context),
+                                Small(text: "Prüfe deine Verbindung.", maxLines: 1, context: context),
                                 const VSpace(),
                                 BigButton(
                                     label: "Erneut Laden",
@@ -277,9 +259,8 @@ class RoutingViewState extends State<RoutingView> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
         // Show status bar in opposite color of the background.
-        value: Theme.of(context).brightness == Brightness.light
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light,
+        value:
+            Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
         child: Scaffold(
           body: NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
@@ -296,19 +277,15 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                   child: Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppBackButton(
-                          icon: Icons.chevron_left_rounded,
-                          onPressed: () => Navigator.pop(context)),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        // Avoid expansion of alerts view.
-                        width: frame.size.width - 80,
-                        child: const AlertsView(),
-                      )
-                    ]),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    // Avoid expansion of alerts view.
+                    width: frame.size.width - 80,
+                    child: const AlertsView(),
+                  )
+                ]),
               )),
 
               // Side Bar
@@ -332,9 +309,7 @@ class RoutingViewState extends State<RoutingView> {
                 ),
               ),
 
-              RouteDetailsBottomSheet(
-                  onSelectStartButton: onStartRide,
-                  onSelectSaveButton: onRequestShortcutName),
+              RouteDetailsBottomSheet(onSelectStartButton: onStartRide, onSelectSaveButton: onRequestShortcutName),
             ]),
           ),
         ));

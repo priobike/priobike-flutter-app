@@ -44,8 +44,7 @@ class RideSelectionViewState extends State<RideSelectionView> {
   }
 
   /// A callback that is fired when a ride preference is selected.
-  Future<void> onRideSelected(
-      BuildContext context, RidePreference preference) async {
+  Future<void> onRideSelected(BuildContext context, RidePreference preference) async {
     final settings = Provider.of<Settings>(context, listen: false);
     await settings.selectRidePreference(preference);
 
@@ -62,9 +61,7 @@ class RideSelectionViewState extends State<RideSelectionView> {
 
   /// Get a screenshot of a ride preference type.
   Widget screenshot(RidePreference p, BuildContext context) {
-    final type = Theme.of(context).colorScheme.brightness == Brightness.dark
-        ? 'dark'
-        : 'light';
+    final type = Theme.of(context).colorScheme.brightness == Brightness.dark ? 'dark' : 'light';
     String? asset;
     switch (p) {
       case RidePreference.speedometerView:
@@ -89,23 +86,16 @@ class RideSelectionViewState extends State<RideSelectionView> {
   @override
   Widget build(BuildContext context) {
     final elements = RidePreference.values
-        .map((e) =>
-            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        .map((e) => Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Tile(
                 fill: Theme.of(context).colorScheme.background,
                 onPressed: () => onRideSelected(context, e),
                 padding: const EdgeInsets.all(4),
-                content: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: screenshot(e, context)),
+                content: ClipRRect(borderRadius: BorderRadius.circular(20), child: screenshot(e, context)),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Small(
-                    text: e.description,
-                    maxLines: 4,
-                    context: context,
-                    textAlign: TextAlign.center),
+                child: Small(text: e.description, maxLines: 4, context: context, textAlign: TextAlign.center),
               ),
             ]))
         .toList();

@@ -30,8 +30,7 @@ class PostAnswerRequest {
     this.value,
   });
 
-  factory PostAnswerRequest.fromJson(Map<String, dynamic> json) =>
-      PostAnswerRequest(
+  factory PostAnswerRequest.fromJson(Map<String, dynamic> json) => PostAnswerRequest(
         deviceId: json['deviceId'],
         deviceType: json['deviceType'],
         appVersion: json['appVersion'],

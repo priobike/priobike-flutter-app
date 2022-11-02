@@ -70,22 +70,15 @@ class DangerButtonState extends State<DangerButton> {
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
                   const SmallHSpace(),
-                  Flexible(
-                      child: BoldContent(
-                          text: "Gefahr melden",
-                          context: context,
-                          maxLines: 1)),
+                  Flexible(child: BoldContent(text: "Gefahr melden", context: context, maxLines: 1)),
                 ],
               ),
             ),
-            crossFadeState:
-                showHint ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: showHint ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           ),
           onPressed: onTap,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topRight: Radius.circular(24),
-                bottomRight: Radius.circular(24)),
+            borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
           ),
         ),
       ),

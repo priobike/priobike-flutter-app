@@ -51,8 +51,7 @@ class PredictionStatusSummary with ChangeNotifier {
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();
-        final err =
-            "Error while fetching prediction status: ${response.statusCode}";
+        final err = "Error while fetching prediction status: ${response.statusCode}";
         log.e(err);
         ToastMessage.showError(err);
         throw Exception(err);

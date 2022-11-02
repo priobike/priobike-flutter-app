@@ -35,8 +35,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
     // Don't show a countdown if...
     if (rs.currentRecommendation == null || // we have no recommendation
-            rs.currentRecommendation!.sgId ==
-                null || // if no signal group is focused
+            rs.currentRecommendation!.sgId == null || // if no signal group is focused
             rs.currentRecommendation!.error // or if there is an error
         ) return alternativeView;
 
@@ -79,21 +78,18 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                 ),
               ),
               offset: const Offset(0, -24)),
-          Transform.translate(
-              child: const CancelButton(), offset: const Offset(0, 24)),
+          Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
         ],
       )),
     );
 
-    final showCountdown = rs.currentRecommendation!.distance < 500 &&
-        (rs.currentRecommendation!.quality ?? 0) > 0.9;
+    final showCountdown = rs.currentRecommendation!.distance < 500 && (rs.currentRecommendation!.quality ?? 0) > 0.9;
 
     return AnimatedCrossFade(
       duration: const Duration(milliseconds: 300),
       firstChild: trafficLight,
       secondChild: alternativeView,
-      crossFadeState:
-          showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+      crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
     );
   }
 }

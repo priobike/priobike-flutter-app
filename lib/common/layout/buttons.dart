@@ -82,8 +82,7 @@ class AppBackButton extends StatelessWidget {
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
+          padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
           child: Icon(
             icon,
             size: 32,
@@ -91,8 +90,7 @@ class AppBackButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
+          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
     );
@@ -162,10 +160,7 @@ class BigButton extends StatelessWidget {
               label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             )),
             const SizedBox(width: 32),
           ],

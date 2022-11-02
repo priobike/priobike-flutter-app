@@ -11,11 +11,7 @@ class StatisticsElementView extends StatelessWidget {
   final void Function()? onPressed;
 
   const StatisticsElementView(
-      {Key? key,
-      required this.icon,
-      required this.title,
-      this.onPressed,
-      required BuildContext context})
+      {Key? key, required this.icon, required this.title, this.onPressed, required BuildContext context})
       : super(key: key);
 
   @override
@@ -81,13 +77,9 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Flexible(
-                                child: BoldSubHeader(
-                                    text: "Information zu Fahrtstatistiken",
-                                    context: context)),
+                            Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
                             const SizedBox(height: 4),
-                            BoldContent(
-                                text: "auf diesem Gerät", context: context),
+                            BoldContent(text: "auf diesem Gerät", context: context),
                             const Divider(),
                             Content(
                                 text:
@@ -110,8 +102,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           children: [
             StatisticsElementView(
               icon: Icons.co2,
-              title:
-                  "ca. ${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg\neingespart",
+              title: "ca. ${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg\neingespart",
               context: context,
               onPressed: () {
                 showModalBottomSheet(
@@ -121,10 +112,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Flexible(
-                                  child: BoldSubHeader(
-                                      text: "Information zur CO2-Berechnung",
-                                      context: context)),
+                              Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
                               const Divider(),
                               Content(
                                 text:
@@ -138,8 +126,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             ),
             StatisticsElementView(
               icon: Icons.directions_bike,
-              title:
-                  "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
+              title: "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
               context: context,
             ),
             StatisticsElementView(
@@ -150,8 +137,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             ),
             StatisticsElementView(
               icon: Icons.speed,
-              title:
-                  "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
+              title: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
               context: context,
             ),
           ],
