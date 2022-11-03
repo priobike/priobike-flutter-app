@@ -289,7 +289,7 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
     }
     // Avoid looking too far away from the route.
-    if (cameraHeading == null || (cameraHeading - userSnapHeading).abs() > 45) {
+    if (cameraHeading == null || (cameraHeading - userSnapHeading).abs() > 30) {
       cameraHeading = userSnapHeading; // Look into the direction of the user.
     }
 
