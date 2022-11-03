@@ -39,11 +39,19 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
             rs.currentRecommendation!.error // or if there is an error
         ) return alternativeView;
 
+    // Check if we have all auxiliary data that the app calculated.
+    if (rs.calcCurrentSignalIsGreen == null || rs.calcCurrentPhaseChangeTime == null) return alternativeView;
+    // Calculate the countdown.
+    final countdown = rs.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    // If the countdown is 0 (or negative), we hide the countdown. In this way the user
+    // is not confused if the countdown is at 0 for a few seconds.
+    final countdownLabel = countdown > 0 ? "$countdown" : "";
+
     final trafficLight = Container(
       width: 128,
       height: 128,
       decoration: BoxDecoration(
-        color: rs.currentRecommendation!.isGreen
+        color: rs.calcCurrentSignalIsGreen!
             ? const Color.fromARGB(255, 0, 255, 106)
             : const Color.fromARGB(255, 243, 60, 39),
         borderRadius: BorderRadius.circular(64),
@@ -55,7 +63,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         children: [
           Transform.translate(
               child: Text(
-                "${rs.currentRecommendation!.countdown}",
+                countdownLabel,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 64,
@@ -69,7 +77,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
               offset: const Offset(0, -24)),
           Transform.translate(
               child: Text(
-                "${rs.currentRecommendation!.countdown}",
+                countdownLabel,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 64,

@@ -324,9 +324,10 @@ class RideMapViewState extends State<RideMapView> {
 
     final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
     final r = ride.currentRecommendation;
+    final isGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
 
-    if (r != null && !r.error && r.sgPos != null && r.quality! >= qualityThreshold) {
-      if (r.isGreen) {
+    if (r != null && !r.error && isGreen != null && r.sgPos != null && r.quality! >= qualityThreshold) {
+      if (isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
             geo: LatLng(r.sgPos!.lat, r.sgPos!.lon),
