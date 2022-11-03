@@ -46,12 +46,6 @@ class Ride with ChangeNotifier {
   /// may lag behind depending on the network latency / server time.
   bool? calcCurrentSignalIsGreen;
 
-  /// A timer to periodically update the auxiliary recommendation info.
-  /// The recommendation should arrive once a second. However, sometimes
-  /// the network latency may be high, so we need to periodically update
-  /// the auxiliary info.
-  Timer? calcTimer;
-
   /// A timestamp when the last calculation was performed.
   /// This is used to prevent fast recurring calculations.
   DateTime? calcLastTime;
@@ -72,7 +66,6 @@ class Ride with ChangeNotifier {
     currentRecommendation = null;
     recommendations.clear();
     needsLayout = {};
-    calcTimer = null;
     notifyListeners();
   }
 
@@ -111,10 +104,10 @@ class Ride with ChangeNotifier {
   }
 
   /// Calculate auxiliary values for the current recommendation.
-  Future<void> calculateRecommendationInfo() async {
-    // Don't do a computation if the last one was recently done. Since we expect the countdown every 1s to change,
-    // we can apply the shannon nyquist theorem here and only do a calculation every <0.5s.
-    if (calcLastTime != null && calcLastTime!.difference(DateTime.now()).inMilliseconds.abs() < 499) return;
+  /// This is done periodically to prevent lagging behind.
+  Future<void> calculateRecommendationInfo({scheduled = false}) async {
+    // Don't do a computation if the last one was recently done.
+    if (calcLastTime != null && calcLastTime!.difference(DateTime.now()).inMilliseconds.abs() < 1000) return;
     calcLastTime = DateTime.now();
 
     // This will be executed if we fail somewhere.
@@ -161,6 +154,11 @@ class Ride with ChangeNotifier {
     calcCurrentSignalIsGreen = greenNow;
 
     notifyListeners();
+
+    // Schedule another execution. If the current execution is scheduled, we take a delay of 1s.
+    // Otherwise, we take a delay of 1.25s to await the next recommendation from the server.
+    final delay = Duration(milliseconds: scheduled ? 1000 : 1250);
+    await Future.delayed(delay, () => calculateRecommendationInfo(scheduled: true));
   }
 
   /// Connect the websocket.
@@ -239,10 +237,6 @@ class Ride with ChangeNotifier {
     final req = const NavigationRequest(active: true).toJson();
     log.i("Sending navigation request via websocket: $req");
     await jsonRPCPeer?.sendRequest("Navigation", req);
-    // Start the timer that updates the current phase change time.
-    // We check every 100 ms. If a recommendation gets missing, the countdown etc. will still be updated.
-    // The method itself will check again if we do too many computations.
-    calcTimer = Timer.periodic(const Duration(milliseconds: 100), (_) => calculateRecommendationInfo());
   }
 
   /// Update the current user position and send it to the server.
@@ -279,8 +273,6 @@ class Ride with ChangeNotifier {
     log.i("Sending navigation request via websocket: $req");
     await jsonRPCPeer?.sendRequest('Navigation', req);
     await jsonRPCPeer?.close();
-    // Stop the calculation timer.
-    calcTimer?.cancel();
   }
 
   @override
