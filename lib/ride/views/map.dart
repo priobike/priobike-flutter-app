@@ -251,7 +251,7 @@ class RideMapViewState extends State<RideMapView> {
     if (routing.selectedRoute == null) return;
 
     // Get some data that we will need for adaptive camera control.
-    final sgPos = ride.currentRecommendation?.sgPos;
+    final sgPos = ride.currentRecommendation?.sg?.position;
     final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
     final userSnapPos = snapping.snappedPosition;
     final userSnapHeading = snapping.snappedHeading;
@@ -326,18 +326,18 @@ class RideMapViewState extends State<RideMapView> {
     final r = ride.currentRecommendation;
     final isGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
 
-    if (r != null && !r.error && isGreen != null && r.sgPos != null && r.quality! >= qualityThreshold) {
+    if (r != null && !r.error && isGreen != null && r.sg?.position != null && r.quality! >= qualityThreshold) {
       if (isGreen) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
-            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon),
+            geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
             iconSize: iconSize,
           ),
         );
       } else {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightRedMarker(
-            geo: LatLng(r.sgPos!.lat, r.sgPos!.lon),
+            geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
             iconSize: iconSize,
           ),
         );

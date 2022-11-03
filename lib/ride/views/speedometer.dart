@@ -66,7 +66,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
     var phases = rs.currentRecommendation?.predictionValue;
     var dist = rs.currentRecommendation?.distance;
-    var sgId = rs.currentRecommendation?.sgId;
+    var sg = rs.currentRecommendation?.sg;
     var error = rs.currentRecommendation?.error;
     var currentQuality = rs.currentRecommendation?.quality;
 
@@ -79,7 +79,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
         tGreen == null ||
         phases == null ||
         dist == null ||
-        sgId == null ||
+        sg == null ||
         error == true ||
         currentQuality == null) {
       gaugeColors = [defaultGaugeColor];

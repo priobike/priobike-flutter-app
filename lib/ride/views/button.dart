@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
@@ -33,6 +34,10 @@ class CancelButton extends StatelessWidget {
     // Calculate a summary of the ride.
     final statistics = Provider.of<Statistics>(context, listen: false);
     await statistics.calculateSummary(context);
+
+    // Disconnect from the mqtt broker.
+    final datastream = Provider.of<Datastream>(context, listen: false);
+    await datastream.disconnect();
 
     // End the recommendations.
     final recommendation = Provider.of<Ride>(context, listen: false);

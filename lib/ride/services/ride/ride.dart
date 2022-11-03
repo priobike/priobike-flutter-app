@@ -27,6 +27,9 @@ class Ride with ChangeNotifier {
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
 
+  /// An optional callback that is called when a new recommendation is received.
+  void Function(Recommendation)? onRecommendation;
+
   /// The web socket channel to the backend.
   WebSocketChannel? socket;
 
@@ -80,7 +83,7 @@ class Ride with ChangeNotifier {
   }
 
   /// A callback that is executed when a new recommendation arrives.
-  Future<void> onNewRecommendation(Parameters params) async {
+  Future<void> onJsonRPCRecommendation(Parameters params) async {
     if (!navigationIsActive) {
       log.w("Received recommendation while navigation is not active.");
       return;
@@ -89,6 +92,7 @@ class Ride with ChangeNotifier {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       recommendations.add(currentRecommendation!);
       calculateRecommendationInfo();
+      onRecommendation?.call(currentRecommendation!);
       if (currentRecommendation!.error) {
         log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
@@ -174,7 +178,7 @@ class Ride with ChangeNotifier {
     socket = Http.connectWebSocket(Uri.parse(wsUrl));
     jsonRPCPeer = Peer(socket!.cast<String>());
     jsonRPCPeer!.listen().then((_) => onCloseWebsocket(context));
-    jsonRPCPeer!.registerMethod("RecommendationUpdate", onNewRecommendation);
+    jsonRPCPeer!.registerMethod("RecommendationUpdate", onJsonRPCRecommendation);
     log.i("Connected to session websocket.");
   }
 

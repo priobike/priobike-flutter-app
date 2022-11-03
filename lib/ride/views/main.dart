@@ -4,6 +4,7 @@ import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
@@ -45,6 +46,7 @@ class RideViewState extends State<RideView> {
       final tracking = Provider.of<Tracking>(context, listen: false);
       final positioning = Provider.of<Positioning>(context, listen: false);
       final accelerometer = Provider.of<Accelerometer>(context, listen: false);
+      final datastream = Provider.of<Datastream>(context, listen: false);
       final ride = Provider.of<Ride>(context, listen: false);
       final session = Provider.of<Session>(context, listen: false);
       final snapping = Provider.of<Snapping>(context, listen: false);
@@ -55,6 +57,10 @@ class RideViewState extends State<RideView> {
       await tracking.start(context);
       // Authenticate a new session.
       await session.openSession(context);
+      // Connect the datastream mqtt client.
+      await datastream.connect(context);
+      // Link the ride to the datastream.
+      ride.onRecommendation = (r) => datastream.select(sg: r.sg);
       // Select the ride.
       await ride.selectRide(context, routing.selectedRoute!);
       // Start navigating.
