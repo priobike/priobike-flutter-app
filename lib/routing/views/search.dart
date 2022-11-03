@@ -93,11 +93,12 @@ class SearchViewState extends State<SearchView> {
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
     geosearch.clearGeosearch();
-
+    print("widget.index");
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
     List<Waypoint> newWaypoints = waypoints.toList();
     List<Waypoint?> newRoutingItems = routing.routingItems;
+    print(widget.index);
     if (widget.index != null) {
       // Check if it has to be put in selectedWaypoints or not.
       if (widget.fromRouteSearch) {
@@ -245,14 +246,22 @@ class SearchViewState extends State<SearchView> {
                         : Container(),
                     SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                     _locationSearchController.text == ""
-                        ? LastSearchRequests(onCompleteSearch: onCompleteSearch, onWaypointTapped: onWaypointTapped)
+                        ? LastSearchRequests(
+                            onCompleteSearch: onCompleteSearch,
+                            onWaypointTapped: onWaypointTapped,
+                            fromRouteSearch: false,
+                          )
                         : Container(),
                     Column(children: [
                       const SmallVSpace(),
                       if (geosearch.results?.isNotEmpty == true) ...[
                         for (final waypoint in geosearch.results!) ...[
                           WaypointListItemView(
-                              waypoint: waypoint, onTap: onWaypointTapped, onCompleteSearch: onCompleteSearch)
+                            waypoint: waypoint,
+                            onTap: onWaypointTapped,
+                            onCompleteSearch: onCompleteSearch,
+                            fromRouteSearch: false,
+                          )
                         ]
                       ]
                     ]),

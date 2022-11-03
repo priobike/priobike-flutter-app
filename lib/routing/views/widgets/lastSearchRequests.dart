@@ -10,11 +10,10 @@ import 'package:provider/provider.dart';
 class LastSearchRequests extends StatefulWidget {
   final Function onWaypointTapped;
   final Function onCompleteSearch;
+  final bool fromRouteSearch;
 
   const LastSearchRequests(
-      {Key? key,
-      required this.onWaypointTapped,
-      required this.onCompleteSearch})
+      {Key? key, required this.onWaypointTapped, required this.onCompleteSearch, required this.fromRouteSearch})
       : super(key: key);
 
   @override
@@ -51,8 +50,7 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
           WaypointListItemView(
               waypoint: waypoint,
               onTap: (waypoint) => widget.onWaypointTapped(waypoint),
-              onCompleteSearch: (waypoint) =>
-                  widget.onCompleteSearch(waypoint)),
+              onCompleteSearch: (waypoint) => widget.onCompleteSearch(waypoint), fromRouteSearch: widget.fromRouteSearch),
         ]
       ]
     ]);

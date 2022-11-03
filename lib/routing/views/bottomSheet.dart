@@ -539,7 +539,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 Icon(Icons.security,
                     color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 5),
-                Content(text: "2,5", context: context),
+                Content(text: "n.A.", context: context),
                 const SizedBox(width: 10),
                 const Icon(Icons.traffic),
                 Content(

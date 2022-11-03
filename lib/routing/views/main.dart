@@ -360,7 +360,11 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             return false;
           },
           child: Stack(children: [
-            RoutingMapView(sheetMovement: sheetMovement.stream, controllerType: ControllerType.main),
+            RoutingMapView(
+              sheetMovement: sheetMovement.stream,
+              controllerType: ControllerType.main,
+              withRouting: true,
+            ),
 
             if (routing.isFetchingRoute) renderLoadingIndicator(),
             if (geocoding.isFetchingAddress) renderLoadingIndicator(),

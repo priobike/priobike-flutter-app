@@ -20,11 +20,14 @@ class WaypointListItemView extends StatefulWidget {
   /// A callback function that is called when the user taps on the ArrowButton.
   final void Function(Waypoint) onCompleteSearch;
 
+  final bool fromRouteSearch;
+
   const WaypointListItemView({
     this.isCurrentPosition = false,
     required this.waypoint,
     required this.onTap,
     required this.onCompleteSearch,
+    required this.fromRouteSearch,
     Key? key,
   }) : super(key: key);
 
@@ -57,8 +60,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   void updateDistance() {
     if (positioning?.lastPosition == null) return;
     if (widget.waypoint == null) return;
-    final lastPos = LatLng(positioning!.lastPosition!.latitude,
-        positioning!.lastPosition!.longitude);
+    final lastPos = LatLng(positioning!.lastPosition!.latitude, positioning!.lastPosition!.longitude);
     final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
     const vincenty = Distance();
     distance = vincenty.distance(lastPos, waypointPos);
@@ -77,19 +79,12 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                   const Icon(Icons.location_on),
                   widget.isCurrentPosition
                       ? Small(
-                          text: "Aktuelle Position",
-                          context: context,
-                          color: Theme.of(context).colorScheme.onPrimary)
+                          text: "Aktuelle Position", context: context, color: Theme.of(context).colorScheme.onPrimary)
                       : (distance == null
                           ? Container()
                           : (distance! > 1000
-                              ? (Small(
-                                  text:
-                                      "${(distance! / 1000).toStringAsFixed(1)} km",
-                                  context: context))
-                              : (Small(
-                                  text: "${distance!.toStringAsFixed(0)} m",
-                                  context: context)))),
+                              ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km", context: context))
+                              : (Small(text: "${distance!.toStringAsFixed(0)} m", context: context)))),
                 ],
               ),
         title: widget.waypoint == null
@@ -97,18 +92,14 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
             : BoldSmall(
                 text: widget.waypoint!.address ?? "",
                 context: context,
-                color: widget.isCurrentPosition
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : null,
+                color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
               ),
-        trailing: IconButton(
+        trailing: !widget.fromRouteSearch ? IconButton(
           icon: Transform.rotate(
             angle: -45 * math.pi / 180,
             child: Icon(
               Icons.arrow_upward_sharp,
-              color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
+              color: Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black,
             ),
           ),
           onPressed: () {
@@ -117,13 +108,11 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
             }
           },
           splashRadius: 20,
-        ),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24))),
+        ) : null,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        tileColor: widget.isCurrentPosition
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.background,
+        tileColor:
+            widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         onTap: () {
           if (widget.waypoint != null) widget.onTap(widget.waypoint!);
         },

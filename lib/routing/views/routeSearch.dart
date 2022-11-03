@@ -87,7 +87,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
 
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
-    if (routing.nextItem > 0) {
+    if (routing.nextItem >= 0) {
       routing.routingItems[routing.nextItem] = waypoint;
       routing.notifyListeners();
     }
@@ -175,7 +175,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
                   _locationSearchController.text == ""
                       ? LastSearchRequests(
                           onCompleteSearch: onCompleteSearch,
-                          onWaypointTapped: onWaypointTapped)
+                          onWaypointTapped: onWaypointTapped, fromRouteSearch: true)
                       : Container(),
                 ],
               ),

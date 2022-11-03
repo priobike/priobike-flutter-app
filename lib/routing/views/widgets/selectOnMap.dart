@@ -25,11 +25,7 @@ class SelectOnMapView extends StatefulWidget {
   final int? index;
   final bool withName;
 
-  const SelectOnMapView(
-      {Key? key,
-      this.index,
-      required this.withName})
-      : super(key: key);
+  const SelectOnMapView({Key? key, this.index, required this.withName}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SelectOnMapViewState();
@@ -146,9 +142,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
           Container(
@@ -165,16 +159,13 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                       Hero(
                         tag: 'appBackButton',
                         child: AppBackButton(
-                            icon: Icons.chevron_left_rounded,
-                            onPressed: () => Navigator.pop(context),
-                            elevation: 5),
+                            icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context), elevation: 5),
                       ),
                       const SizedBox(width: 16),
                       widget.withName
                           ? Expanded(
                               child: Container(
-                                padding:
-                                    const EdgeInsets.only(left: 20, right: 5),
+                                padding: const EdgeInsets.only(left: 20, right: 5),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.surface,
                                   borderRadius: const BorderRadius.only(
@@ -185,22 +176,17 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                                 ),
                                 child: TextField(
                                   controller: nameController,
-                                  decoration: const InputDecoration(
-                                      hintText: "Name",
-                                      border: InputBorder.none),
+                                  decoration: const InputDecoration(hintText: "Name", border: InputBorder.none),
                                 ),
                               ),
                             )
                           : Center(
-                              child: SubHeader(
-                                  text: "Standort auf Karte wählen",
-                                  context: context),
+                              child: SubHeader(text: "Standort auf Karte wählen", context: context),
                             ),
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           primary: Theme.of(context).colorScheme.secondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
@@ -213,25 +199,13 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                               return;
                             }
                           }
-                          if (mapController.getCameraPosition(
-                                  ControllerType.selectOnMap) !=
-                              null) {
-                            onComplete(
-                                context,
-                                mapController
-                                    .getCameraPosition(
-                                        ControllerType.selectOnMap)!
-                                    .latitude,
-                                mapController
-                                    .getCameraPosition(
-                                        ControllerType.selectOnMap)!
-                                    .longitude);
+                          if (mapController.getCameraPosition(ControllerType.selectOnMap) != null) {
+                            onComplete(context, mapController.getCameraPosition(ControllerType.selectOnMap)!.latitude,
+                                mapController.getCameraPosition(ControllerType.selectOnMap)!.longitude);
                           }
                         },
                         child: Content(
-                            text: widget.withName ? "Speichern" : "Fertig",
-                            context: context,
-                            color: Colors.white),
+                            text: widget.withName ? "Speichern" : "Fertig", context: context, color: Colors.white),
                       ),
                       const SizedBox(width: 10),
                     ]),
@@ -243,23 +217,20 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
               children: [
                 RoutingMapView(
                     sheetMovement: sheetMovement.stream,
-                    controllerType: ControllerType.selectOnMap),
+                    controllerType: ControllerType.selectOnMap,
+                    withRouting: false),
                 if (routing.isFetchingRoute) renderLoadingIndicator(),
                 Padding(
                   /// Align with FAB
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 10),
-                          CompassButton(centerNorth: _centerNorth),
-                          const SizedBox(height: 10),
-                          ZoomInAndOutButton(
-                              zoomIn: _zoomIn, zoomOut: _zoomOut),
-                        ]),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      const SizedBox(height: 10),
+                      CompassButton(centerNorth: _centerNorth),
+                      const SizedBox(height: 10),
+                      ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
+                    ]),
                   ),
                 ),
                 Center(
@@ -277,8 +248,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GPSButton(
-                myLocationTrackingMode:
-                    mapController.myLocationTrackingModeSelectOnMapView,
+                myLocationTrackingMode: mapController.myLocationTrackingModeSelectOnMapView,
                 gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,

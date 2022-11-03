@@ -62,8 +62,9 @@ class RoutingMapView extends StatefulWidget {
   /// The selected ControllerType
   final ControllerType controllerType;
 
-  const RoutingMapView(
-      {required this.sheetMovement, required this.controllerType, Key? key})
+  final bool withRouting;
+
+  const RoutingMapView({required this.sheetMovement, required this.controllerType, required this.withRouting, Key? key})
       : super(key: key);
 
   @override
@@ -119,8 +120,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   List<Symbol>? waypoints;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
-  StreamSubscription<DraggableScrollableNotification>?
-      sheetMovementSubscription;
+  StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
   bool initSources = false;
 
@@ -135,8 +135,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void initState() {
     super.initState();
-    sheetMovementSubscription =
-        widget.sheetMovement?.listen(onScrollBottomSheet);
+    sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
   }
 
   /// A callback that gets fired when the bottom sheet of the parent view is dragged.
@@ -151,7 +150,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
-    if (routing.needsLayout[viewId] != false) {
+    if (routing.needsLayout[viewId] != false && widget.withRouting) {
       onRoutingUpdate();
       routing.needsLayout[viewId] = false;
     }
@@ -211,14 +210,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
     allRoutes = [];
     for (r.Route altRoute in routing.allRoutes ?? []) {
       allRoutes!.add(await mapboxMapController!.addLine(
-        RouteBackgroundLayer(
-            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
       // Make it easier to click the alt route layer.
       allRoutes!.add(await mapboxMapController!.addLine(
-        RouteBackgroundClickLayer(
-            points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
+        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         altRoute.toJson(),
       ));
     }
@@ -235,10 +232,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (routing.selectedRoute != null) {
       // Add the new route layer.
       route = await mapboxMapController!.addLine(
-        RouteLayer(
-            points: routing.selectedRoute!.route
-                .map((e) => LatLng(e.lat, e.lon))
-                .toList()),
+        RouteLayer(points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
         routing.selectedRoute!.toJson(),
       );
     }
@@ -256,8 +250,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     discomfortLocations = [];
     discomfortSections = [];
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, DiscomfortSegment> e
-        in discomforts.foundDiscomforts?.asMap().entries ?? []) {
+    for (MapEntry<int, DiscomfortSegment> e in discomforts.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       if (e.value.coordinates.length == 1) {
         // A single location.
@@ -267,9 +260,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
               geo: location,
               number: e.key + 1,
               zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
-              iconSize: discomforts.selectedDiscomfort == e.value
-                  ? iconSize * 1.33
-                  : iconSize),
+              iconSize: discomforts.selectedDiscomfort == e.value ? iconSize * 1.33 : iconSize),
           e.value.toJson(),
         ));
       } else {
@@ -279,9 +270,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
               geo: e.value.coordinates.first,
               number: e.key + 1,
               zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
-              iconSize: discomforts.selectedDiscomfort == e.value
-                  ? iconSize * 1.33
-                  : iconSize),
+              iconSize: discomforts.selectedDiscomfort == e.value ? iconSize * 1.33 : iconSize),
           e.value.toJson(),
         ));
         discomfortSections!.add(await mapboxMapController!.addLine(
@@ -319,37 +308,26 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
       double width = MediaQuery.of(context).size.width;
       double height = MediaQuery.of(context).size.height;
-      double meterPerPixel = zoomToGeographicalDistance[
-              mapboxMapController!.cameraPosition!.zoom.toInt()] ??
-          0;
-      double cameraPosLat =
-          mapboxMapController!.cameraPosition!.target.latitude;
-      double cameraPosLong =
-          mapboxMapController!.cameraPosition!.target.longitude;
+      double meterPerPixel = zoomToGeographicalDistance[mapboxMapController!.cameraPosition!.zoom.toInt()] ?? 0;
+      double cameraPosLat = mapboxMapController!.cameraPosition!.target.latitude;
+      double cameraPosLong = mapboxMapController!.cameraPosition!.target.longitude;
 
       // Cast to LatLng2 format.
       LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
 
       // Getting the bounds north, east, south, west.
       // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      LatLng2.LatLng north =
-          distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-      LatLng2.LatLng east =
-          distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-      LatLng2.LatLng south =
-          distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-      LatLng2.LatLng west =
-          distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      LatLng2.LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+      LatLng2.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
+      LatLng2.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
+      LatLng2.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
       if (oldRouteLabelLocations != null && oldRouteLabelLocations.isNotEmpty) {
-
         for (Symbol symbol in oldRouteLabelLocations) {
           // Check for data of symbol.
-          if (symbol.data != null &&
-              symbol.data!["lat"] != null &&
-              symbol.data!["lon"] != null) {
+          if (symbol.data != null && symbol.data!["lat"] != null && symbol.data!["lon"] != null) {
             // Check out of new bounds.
 
             if (symbol.data!["lat"] < south.latitude ||
@@ -365,12 +343,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
       // If all in bounds then we don't have to calculate new positions.
       // But update route labels in case the selected route changed.
-      if (allInBounds &&
-          oldRouteLabelLocations != null &&
-          oldRouteLabelLocations.isNotEmpty) {
-
-        for(Symbol symbol in oldRouteLabelLocations) {
-          if (symbol.data != null && symbol.data!["data"] != null && symbol.data!["lat"] != null && symbol.data!["lon"] != null) {
+      if (allInBounds && oldRouteLabelLocations != null && oldRouteLabelLocations.isNotEmpty) {
+        for (Symbol symbol in oldRouteLabelLocations) {
+          if (symbol.data != null &&
+              symbol.data!["data"] != null &&
+              symbol.data!["lat"] != null &&
+              symbol.data!["lon"] != null) {
             r.Route symbolRoute = r.Route.fromJson(symbol.data!["data"]);
 
             // Update Route labels.
@@ -408,13 +386,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
             // Would always be not unique without this check.
             if (routeToBeChecked.id != route.id) {
               // Compare coordinate to all coordinates in other route.
-              for (GHCoordinate coordinateToBeChecked
-                  in routeToBeChecked.path.points.coordinates) {
+              for (GHCoordinate coordinateToBeChecked in routeToBeChecked.path.points.coordinates) {
                 if (!unique) {
                   break;
                 }
-                if (coordinateToBeChecked.lon == coordinate.lon &&
-                    coordinateToBeChecked.lat == coordinate.lat) {
+                if (coordinateToBeChecked.lon == coordinate.lon && coordinateToBeChecked.lat == coordinate.lat) {
                   unique = false;
                 }
               }
@@ -434,8 +410,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
         // Determine which coordinate to use.
         if (uniqueInBounceCoordinates.isNotEmpty) {
-          chosenCoordinate =
-              uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
+          chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
         }
 
         if (chosenCoordinate != null) {
@@ -446,12 +421,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
                 geo: LatLng(chosenCoordinate.lat, chosenCoordinate.lon),
                 number: ((route.path.time * 0.001) * 0.016).round(),
                 iconSize: iconSize),
-            {
-              "data": route.toJson(),
-              "isRouteLabel": true,
-              "lat": chosenCoordinate.lat,
-              "lon": chosenCoordinate.lon
-            },
+            {"data": route.toJson(), "isRouteLabel": true, "lat": chosenCoordinate.lat, "lon": chosenCoordinate.lon},
           ));
         }
       }
@@ -471,8 +441,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final settings = Provider.of<Settings>(context, listen: false);
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final statusProvider =
-        Provider.of<PredictionSGStatus>(context, listen: false);
+    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
@@ -548,8 +517,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry
-        in routing.selectedWaypoints?.asMap().entries ?? []) {
+    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapboxMapController!.addSymbol(
           StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
@@ -590,7 +558,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (positioning.lastPosition == null) return;
 
     await mapboxMapController?.updateUserLocation(
-
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
@@ -620,10 +587,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
+  Future<void> onFillTapped(Fill fill) async {
+    /* Do nothing */
+  }
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
+  Future<void> onCircleTapped(Circle circle) async {
+    /* Do nothing */
+  }
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
@@ -650,17 +621,13 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is called when the user taps a symbol.
   Future<void> onSymbolTapped(Symbol symbol) async {
     // Check if symbol is a RouteLabel.
-    if (symbol.data != null &&
-        symbol.data!["isRouteLabel"] != null &&
-        symbol.data!["isRouteLabel"]) {
+    if (symbol.data != null && symbol.data!["isRouteLabel"] != null && symbol.data!["isRouteLabel"]) {
       r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
       routing.switchToRoute(context, selectedRoute);
     }
 
     // Check if symbol is a trafficLight.
-    if (symbol.data != null &&
-        symbol.data!["trafficLightMarker"] != null &&
-        symbol.data!["trafficLightMarker"]) {
+    if (symbol.data != null && symbol.data!["trafficLightMarker"] != null && symbol.data!["trafficLightMarker"]) {
       discomforts.selectTrafficLight();
       discomforts.unselectDiscomfort();
     }
@@ -714,8 +681,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await mapboxMapController!.setSymbolTextIgnorePlacement(true);
 
     // Force adapt the map.
-    await onRoutingUpdate();
-    await onDiscomfortsUpdate();
+    if (widget.withRouting) {
+      await onRoutingUpdate();
+      await onDiscomfortsUpdate();
+    }
     await onPositioningUpdate();
     await onLayersUpdate();
   }
@@ -723,11 +692,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is executed when the map was longclicked.
   Future<void> onMapLongClick(BuildContext context, LatLng coord) async {
     final geocoding = Provider.of<Geocoding>(context, listen: false);
-    String fallback =
-        "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
+    String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
-    await routing.addWaypoint(
-        Waypoint(coord.latitude, coord.longitude, address: address));
+    await routing.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
     await routing.loadRoutes(context);
   }
 
@@ -746,7 +713,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback that is executed when the camera movement of the user stopped.
   void onCameraIdle() {
     // Check if the route labels have to be positionally adjusted.
-    loadRouteLabels();
+    if (widget.withRouting) {
+      loadRouteLabels();
+    }
   }
 
   @override
