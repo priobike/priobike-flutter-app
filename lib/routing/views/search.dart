@@ -26,12 +26,7 @@ class SearchView extends StatefulWidget {
   final Function onPressed;
   final bool fromRouteSearch;
 
-  const SearchView(
-      {Key? key,
-      this.index,
-      required this.onPressed,
-      required this.fromRouteSearch})
-      : super(key: key);
+  const SearchView({Key? key, this.index, required this.onPressed, required this.fromRouteSearch}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchViewState();
@@ -57,8 +52,7 @@ class SearchViewState extends State<SearchView> {
   late Profile profile;
 
   /// The Location Search Text Editing Controller
-  final TextEditingController _locationSearchController =
-      TextEditingController();
+  final TextEditingController _locationSearchController = TextEditingController();
 
   /// The currentLocationWaypoint
   Waypoint? currentLocationWaypoint;
@@ -93,8 +87,7 @@ class SearchViewState extends State<SearchView> {
         currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) {
       return;
     }
-    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
-        positioning.lastPosition!.longitude);
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -193,9 +186,7 @@ class SearchViewState extends State<SearchView> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Stack(children: [
@@ -213,30 +204,27 @@ class SearchViewState extends State<SearchView> {
                     padding: const EdgeInsets.only(top: 20),
                     child: Column(
                       children: [
-                        Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Hero(
-                                tag: 'appBackButton',
-                                child: AppBackButton(
-                                    icon: Icons.chevron_left_rounded,
-                                    onPressed: () {
-                                      geosearch.clearGeosearch();
-                                      Navigator.pop(context);
-                                    },
-                                    elevation: 5),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                // Avoid expansion of alerts view.
-                                width: frame.size.width - 80,
-                                child: SearchBar(
-                                    fromClicked: true,
-                                    startSearch: () {},
-                                    locationSearchController:
-                                        _locationSearchController),
-                              ),
-                            ]),
+                        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Hero(
+                            tag: 'appBackButton',
+                            child: AppBackButton(
+                                icon: Icons.chevron_left_rounded,
+                                onPressed: () {
+                                  geosearch.clearGeosearch();
+                                  Navigator.pop(context);
+                                },
+                                elevation: 5),
+                          ),
+                          const SizedBox(width: 16),
+                          SizedBox(
+                            // Avoid expansion of alerts view.
+                            width: frame.size.width - 80,
+                            child: SearchBar(
+                                fromClicked: true,
+                                startSearch: () {},
+                                locationSearchController: _locationSearchController),
+                          ),
+                        ]),
                         ShortCutsRow(onPressed: widget.onPressed, close: true),
                       ],
                     ),
@@ -253,23 +241,18 @@ class SearchViewState extends State<SearchView> {
                       color: Theme.of(context).colorScheme.surface,
                     ),
                     widget.index == null || widget.index! == 0
-                        ? CurrentLocationButton(
-                            onPressed: _currentLocationPressed)
+                        ? CurrentLocationButton(onPressed: _currentLocationPressed)
                         : Container(),
                     SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                     _locationSearchController.text == ""
-                        ? LastSearchRequests(
-                            onCompleteSearch: onCompleteSearch,
-                            onWaypointTapped: onWaypointTapped)
+                        ? LastSearchRequests(onCompleteSearch: onCompleteSearch, onWaypointTapped: onWaypointTapped)
                         : Container(),
                     Column(children: [
                       const SmallVSpace(),
                       if (geosearch.results?.isNotEmpty == true) ...[
                         for (final waypoint in geosearch.results!) ...[
                           WaypointListItemView(
-                              waypoint: waypoint,
-                              onTap: onWaypointTapped,
-                              onCompleteSearch: onCompleteSearch)
+                              waypoint: waypoint, onTap: onWaypointTapped, onCompleteSearch: onCompleteSearch)
                         ]
                       ]
                     ]),

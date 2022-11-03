@@ -13,10 +13,10 @@ class NavigationArrow extends StatelessWidget {
   Widget inv(String asset, bool isDark) {
     final filter = <double>[
       //R  G   B  A  Const
-      -1,  0,  0, 0, 255, //
-      0,  -1,  0, 0, 255, //
-      0,   0, -1, 0, 255, //
-      0,   0,  0, 1, 0, //
+      -1, 0, 0, 0, 255, //
+      0, -1, 0, 0, 255, //
+      0, 0, -1, 0, 255, //
+      0, 0, 0, 1, 0, //
     ];
 
     if (isDark) {
@@ -27,12 +27,11 @@ class NavigationArrow extends StatelessWidget {
     }
 
     return ColorFiltered(
-      colorFilter: ColorFilter.matrix(filter),
-      child: Image.asset(
-        asset,
-        width: width,
-      )
-    );
+        colorFilter: ColorFilter.matrix(filter),
+        child: Image.asset(
+          asset,
+          width: width,
+        ));
   }
 
   @override

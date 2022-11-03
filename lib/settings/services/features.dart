@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -32,9 +30,7 @@ class Feature with ChangeNotifier {
   /// if beta features can be enabled.
   late bool canEnableBetaFeatures;
 
-  Feature() {
-    log.i("Feature started.");
-  }
+  Feature();
 
   /// Load the service.
   Future<void> load() async {

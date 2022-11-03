@@ -78,10 +78,7 @@ class DangerButtonState extends State<DangerButton> {
           ),
           onPressed: onTap,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(24), 
-              bottomRight: Radius.circular(24)
-            ),
+            borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
           ),
         ),
       ),

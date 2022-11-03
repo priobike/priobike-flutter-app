@@ -80,29 +80,29 @@ class RideViewState extends State<RideView> {
       // Start fetching accelerometer updates.
       await accelerometer.start();
       // Start geolocating. This must only be executed once.
-      await positioning.startGeolocation(context: context, onNewPosition: (pos) async {
-        // Pass new positions to the ride service.
-        await ride.updatePosition(context);
-        // Notify the snapping service.
-        await snapping.updatePosition(context);
-        // Notify the accelerometer service.
-        await accelerometer.updatePosition(context);
-        // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
-        if (
-          settings.rerouting == Rerouting.enabled &&
-          (snapping.distance ?? 0) > rerouteDistance &&
-          (snapping.remainingWaypoints?.isNotEmpty ?? false)
-        ) {
-          // Use a timed lock to avoid rapid refreshing of routes.
-          lock.run(() async {
-            await routing.selectWaypoints(snapping.remainingWaypoints);
-            final routes = await routing.loadRoutes(context);
-            if (routes != null && routes.isNotEmpty) {
-              await ride.selectRide(context, routes.first);
+      await positioning.startGeolocation(
+          context: context,
+          onNewPosition: (pos) async {
+            // Pass new positions to the ride service.
+            await ride.updatePosition(context);
+            // Notify the snapping service.
+            await snapping.updatePosition(context);
+            // Notify the accelerometer service.
+            await accelerometer.updatePosition(context);
+            // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
+            if (settings.rerouting == Rerouting.enabled &&
+                (snapping.distance ?? 0) > rerouteDistance &&
+                (snapping.remainingWaypoints?.isNotEmpty ?? false)) {
+              // Use a timed lock to avoid rapid refreshing of routes.
+              lock.run(() async {
+                await routing.selectWaypoints(snapping.remainingWaypoints);
+                final routes = await routing.loadRoutes(context);
+                if (routes != null && routes.isNotEmpty) {
+                  await ride.selectRide(context, routes.first);
+                }
+              });
             }
           });
-        }
-      });
     });
   }
 
@@ -120,23 +120,20 @@ class RideViewState extends State<RideView> {
     Widget? view;
     switch (settings.ridePreference) {
       case RidePreference.speedometerView:
-        view = Stack(
-          alignment: Alignment.center,
-          children: const [
-            RideMapView(),
-            RideSpeedometerView(),
-            DangerButton(),
-          ]
-        );
+        view = Stack(alignment: Alignment.center, children: const [
+          RideMapView(),
+          RideSpeedometerView(),
+          DangerButton(),
+        ]);
         break;
       case RidePreference.defaultCyclingView:
-        view = const SafeArea(child: DefaultCyclingView()); 
+        view = const SafeArea(child: DefaultCyclingView());
         break;
       case RidePreference.minimalRecommendationCyclingView:
-        view = const SafeArea(child: MinimalRecommendationCyclingView()); 
+        view = const SafeArea(child: MinimalRecommendationCyclingView());
         break;
       case RidePreference.minimalCountdownCyclingView:
-        view = const SafeArea(child: MinimalCountdownCyclingView()); 
+        view = const SafeArea(child: MinimalCountdownCyclingView());
         break;
       default:
         view = Container();

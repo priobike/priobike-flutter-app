@@ -25,9 +25,7 @@ class Geosearch with ChangeNotifier {
   /// The list of results.
   List<Waypoint>? results;
 
-  Geosearch() {
-    log.i("Geosearch started.");
-  }
+  Geosearch();
 
   /// Fetch addresses to a given query.
   /// See: https://nominatim.org/release-docs/develop/api/Search/
@@ -38,7 +36,7 @@ class Geosearch with ChangeNotifier {
     notifyListeners();
 
     hadErrorDuringFetch = false;
- 
+
     try {
       final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
@@ -59,7 +57,9 @@ class Geosearch with ChangeNotifier {
         isFetchingAddress = false;
         notifyListeners();
         final err = "Addresses could not be fetched from $endpoint: ${response.body}";
-        log.e(err); ToastMessage.showError(err); throw Exception(err);
+        log.e(err);
+        ToastMessage.showError(err);
+        throw Exception(err);
       }
 
       final List<NominatimAddress> addresses = [];
@@ -69,9 +69,7 @@ class Geosearch with ChangeNotifier {
       }
 
       isFetchingAddress = false;
-      results = addresses.map((e) => Waypoint(
-        e.lat, e.lon, address: e.displayName
-      )).toList();
+      results = addresses.map((e) => Waypoint(e.lat, e.lon, address: e.displayName)).toList();
       notifyListeners();
     } catch (e, stack) {
       isFetchingAddress = false;
@@ -79,13 +77,16 @@ class Geosearch with ChangeNotifier {
       hadErrorDuringFetch = true;
       notifyListeners();
       final hint = "Addresses could not be fetched: $e";
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
-      log.e(hint); ToastMessage.showError(hint); throw Exception(hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
+      log.e(hint);
+      ToastMessage.showError(hint);
+      throw Exception(hint);
     }
   }
 
-
-  void clearGeosearch()  {
+  void clearGeosearch() {
     results = [];
     notifyListeners();
   }

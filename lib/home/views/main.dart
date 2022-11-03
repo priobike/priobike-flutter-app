@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -69,7 +70,6 @@ class HomeViewState extends State<HomeView> {
     settings = Provider.of<Settings>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     places = Provider.of<Places>(context);
-
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
@@ -90,12 +90,10 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const NewsView()))
-      .then((_) {
-        // Mark all notifications as read.
-        news.markAllArticlesAsRead(context);
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then((_) {
+      // Mark all notifications as read.
+      news.markAllArticlesAsRead(context);
+    });
   }
 
   /// A callback that is fired when the settings button is tapped.
@@ -111,36 +109,35 @@ class HomeViewState extends State<HomeView> {
     routing.selectWaypoints(shortcut.waypoints);
     routing.loadRoutes(context);
 
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew(), settings: const RouteSettings(name: "RouteScreen")))
-      .then((_) {
-        routing.reset();
-        discomforts.reset();
-        predictionSGStatus.reset();
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then((_) {
+      routing.reset();
+      discomforts.reset();
+      predictionSGStatus.reset();
+    });
   }
 
   /// A callback that is fired when free routingOLD was selected.
   void onStartFreeRouting() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingViewNew(), settings: const RouteSettings(name: "RouteScreen")))
-      .then((_) {
-        routing.reset();
-        discomforts.reset();
-        predictionSGStatus.reset();
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then((_) {
+      routing.reset();
+      discomforts.reset();
+      predictionSGStatus.reset();
+    });
   }
 
   /// A callback that is fired when the shortcuts should be edited.
   void onOpenShortcutEditView() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
   Widget renderDebugHint() {
     String? description;
-    if (settings.backend != Backend.production) description = "Testort ist gewählt.";
-    if (settings.positioningMode != PositioningMode.gnss) description = "Testortung ist aktiv.";
+    if (settings.backend != Backend.production) {
+      description = "Testort ist gewählt.";
+    }
+    if (settings.positioningMode != PositioningMode.gnss) {
+      description = "Testortung ist aktiv.";
+    }
     if (description == null) return Container();
 
     return Padding(
@@ -151,7 +148,8 @@ class HomeViewState extends State<HomeView> {
           color: Color.fromARGB(246, 255, 153, 0),
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
-        child: HPad(child: Row(children: [
+        child: HPad(
+            child: Row(children: [
           const Icon(Icons.warning_rounded),
           const SmallHSpace(),
           Flexible(child: Content(text: description, context: context)),
@@ -163,46 +161,66 @@ class HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    body: CustomScrollView(
+        body: CustomScrollView(
       slivers: <Widget>[
         NavBarView(
           onTapNotificationButton: onNotificationsButtonTapped,
           onTapSettingsButton: onSettingsButtonTapped,
         ),
-        SliverList(
-          delegate: SliverChildListDelegate([
-            const VSpace(),
-            const StatusView(),
-            Row(children: [
-              const SizedBox(width: 40),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                BoldContent(text: "Deine Shortcuts", context: context),
-                const SizedBox(height: 4),
-                Small(text: "Direkt zum Ziel navigieren", context: context),
-              ]),
-              Expanded(child: Container()),
-              SmallIconButton(
-                icon: Icons.edit,
-                fill: Theme.of(context).colorScheme.background,
-                splash: Colors.white,
-                onPressed: onOpenShortcutEditView,
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              const VSpace(),
+              const BlendIn(child: StatusView()),
+              BlendIn(
+                delay: const Duration(milliseconds: 250),
+                child: Row(children: [
+                  const SizedBox(width: 40),
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    BoldContent(text: "Deine Shortcuts", context: context),
+                    const SizedBox(height: 4),
+                    Small(text: "Direkt zum Ziel navigieren", context: context),
+                  ]),
+                  Expanded(child: Container()),
+                  SmallIconButton(
+                    icon: Icons.edit,
+                    fill: Theme.of(context).colorScheme.background,
+                    splash: Colors.white,
+                    onPressed: onOpenShortcutEditView,
+                  ),
+                  const SizedBox(width: 40),
+                ]),
               ),
-              const SizedBox(width: 40),
-            ]),
-            const VSpace(),
-            const TutorialView(
-              id: "priobike.tutorial.select-shortcut",
-              text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-            ),
-            ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
-            const ProfileView(),
-            const VSpace(),
-            const SmallVSpace(),
-            const TotalStatisticsView(),
-            renderDebugHint(),
-            const SizedBox(height: 128),
-          ]),
+              const VSpace(),
+              BlendIn(
+                delay: const Duration(milliseconds: 500),
+                child: Column(children: [
+                  const TutorialView(
+                    id: "priobike.tutorial.select-shortcut",
+                    text:
+                        'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+                    padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                  ),
+                  ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                ]),
+              ),
+              const BlendIn(
+                delay: Duration(milliseconds: 750),
+                child: ProfileView(),
+              ),
+              const VSpace(),
+              const SmallVSpace(),
+              const BlendIn(
+                delay: Duration(milliseconds: 1000),
+                child: TotalStatisticsView(),
+              ),
+              BlendIn(
+                delay: const Duration(milliseconds: 1250),
+                child: renderDebugHint(),
+              ),
+              const SizedBox(height: 128),
+            ],
+          ),
         ),
       ],
     ));

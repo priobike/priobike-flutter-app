@@ -42,7 +42,7 @@ class Feedback with ChangeNotifier {
   Future<bool> send(BuildContext context) async {
     if (!willSendFeedback) return false;
 
-    isSendingFeedback = true; 
+    isSendingFeedback = true;
     notifyListeners();
 
     // Get some session- and device-specific data.
@@ -68,9 +68,9 @@ class Feedback with ChangeNotifier {
     final endpoint = Uri.parse('https://$baseUrl/feedback-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAnswerRequest(
-        deviceId: deviceId, 
-        deviceType: deviceType, 
-        appVersion: appVersion, 
+        deviceId: deviceId,
+        deviceType: deviceType,
+        appVersion: appVersion,
         questionText: entry.value.text,
         questionImage: entry.value.imageData != null ? base64Encode(entry.value.imageData!) : null,
         sessionId: sessionId,
@@ -79,14 +79,15 @@ class Feedback with ChangeNotifier {
 
       final response = await Http.post(endpoint, body: json.encode(request.toJson()));
       if (response.statusCode != 200) {
-        log.e("Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
+        log.e(
+            "Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
       } else {
         log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
       }
     }
 
     pending = {};
-    isSendingFeedback = false; 
+    isSendingFeedback = false;
     notifyListeners();
 
     return true;

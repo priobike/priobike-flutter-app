@@ -12,7 +12,7 @@ class Lock {
   Lock({required this.milliseconds});
 
   run(VoidCallback action) {
-    if(timer == null || !(timer!.isActive)) {
+    if (timer == null || !(timer!.isActive)) {
       action();
       timer = Timer(Duration(milliseconds: milliseconds), () {});
     }

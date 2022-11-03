@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({Key? key}) : super(key: key);
 
-  @override 
+  @override
   ShortcutsEditViewState createState() => ShortcutsEditViewState();
 }
 
@@ -31,7 +31,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    
+
     final reorderedShortcuts = shortcuts.shortcuts!.toList();
     final shortcut = reorderedShortcuts.removeAt(oldIndex);
     reorderedShortcuts.insert(newIndex, shortcut);
@@ -45,7 +45,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
 
     final newShortcuts = shortcuts.shortcuts!.toList();
     newShortcuts.removeAt(idx);
-    
+
     shortcuts.updateShortcuts(newShortcuts, context);
   }
 
@@ -54,9 +54,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
-      child: Scaffold(body: 
-        SingleChildScrollView(
-          child: SafeArea(child: Column(children: [
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: SafeArea(
+              child: Column(children: [
             const SizedBox(height: 8),
             Row(children: [
               AppBackButton(onPressed: () => Navigator.pop(context), icon: Icons.chevron_left),
@@ -71,14 +72,13 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               },
               children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
                 return Container(
-                  key: Key("$entry.key"),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16, top: 8),
-                    child: Tile(
+                    key: Key("$entry.key"),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 8),
+                      child: Tile(
                         fill: Theme.of(context).colorScheme.background,
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            bottomLeft: Radius.circular(24)),
+                        borderRadius:
+                            const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                         content: Row(children: [
                           Flexible(
                               child: BoldContent(
@@ -94,8 +94,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                           ),
                         ]),
                       ),
-                    )
-                );
+                    ));
               }).toList(),
               onReorder: onChangeShortcutOrder,
             ),

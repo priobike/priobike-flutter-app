@@ -17,13 +17,9 @@ class FeedbackView extends StatefulWidget {
   /// A boolean indicating if a back button should be shown.
   final bool showBackButton;
 
-  const FeedbackView({
-    required this.onSubmitted,
-    this.showBackButton = false,
-    Key? key
-  }) : super(key: key);
+  const FeedbackView({required this.onSubmitted, this.showBackButton = false, Key? key}) : super(key: key);
 
-  @override 
+  @override
   FeedbackViewState createState() => FeedbackViewState();
 }
 
@@ -67,45 +63,44 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Scaffold(body: 
-      Container(
+    return Scaffold(
+      body: Container(
         color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
-          ]
-        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
+        ]),
       ),
     );
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
-    if (
-      feedback.isSendingFeedback ||
-      tracking.isSendingTrack
-    ) return renderLoadingIndicator();
+    if (feedback.isSendingFeedback || tracking.isSendingTrack) {
+      return renderLoadingIndicator();
+    }
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(body: Stack(children: [
+      child: Scaffold(
+          body: Stack(children: [
         Container(
           color: Theme.of(context).colorScheme.surface,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
-            child: SafeArea(child: Column(
+            child: SafeArea(
+                child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 8),
-                if (widget.showBackButton) Row(children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                  const HSpace(),
-                  SubHeader(text: "Feedback", context: context),
-                ]),
+                if (widget.showBackButton)
+                  Row(children: [
+                    AppBackButton(onPressed: () => Navigator.pop(context)),
+                    const HSpace(),
+                    SubHeader(text: "Feedback", context: context),
+                  ]),
                 const VSpace(),
                 const Divider(),
                 const VSpace(),
@@ -131,9 +126,11 @@ class FeedbackViewState extends State<FeedbackView> {
                 BigButton(
                   iconColor: Colors.white,
                   icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                   ? Icons.send : Icons.check,
+                      ? Icons.send
+                      : Icons.check,
                   label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                    ? "Senden" : "Fertig",
+                      ? "Senden"
+                      : "Fertig",
                   onPressed: () => submit(context),
                 ),
                 const SizedBox(height: 128),

@@ -32,7 +32,8 @@ class SendTrackingViewState extends State<SendTrackingView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Flexible(child: Content(
+        Flexible(
+            child: Content(
           text: "Aufgezeichnete Daten zur Verbesserung der App senden (${jsonSizeKB.toStringAsFixed(1)} KB)",
           context: context,
         )),

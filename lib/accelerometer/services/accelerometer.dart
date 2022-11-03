@@ -40,7 +40,7 @@ class Accelerometer with ChangeNotifier {
   /// May be used for DCI or other indices. See: https://doi.org/10.1016/j.trc.2015.05.007
   Future<void> updatePosition(BuildContext context) async {
     // First, clear the accelerometer window.
-    final aXYZ = window.toList(); 
+    final aXYZ = window.toList();
     window.clear();
     // Clear and cache the window start time.
     final windowStart = this.windowStart;
@@ -71,9 +71,7 @@ class Accelerometer with ChangeNotifier {
       return;
     }
     // Compute the magnitude of the acceleration in m/s².
-    final aMag = aXYZ
-      .map((e) => e.x * e.x + e.y * e.y + e.z * e.z)
-      .map((e) => sqrt(e));
+    final aMag = aXYZ.map((e) => e.x * e.x + e.y * e.y + e.z * e.z).map((e) => sqrt(e));
     // Compute the average acceleration in m/s².
     final n = aMag.length;
     final aAvg = aMag.reduce((a, b) => a + b) / n;

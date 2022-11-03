@@ -17,14 +17,14 @@ class Crossing {
   });
 
   factory Crossing.fromJson(Map<String, dynamic> json) => Crossing(
-    name: json['name'],
-    position: Point.fromJson(json['position']),
-    connected: json['connected'],
-  );
+        name: json['name'],
+        position: Point.fromJson(json['position']),
+        connected: json['connected'],
+      );
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'position': position.toJson(),
-    'connected': connected,
-  };
+        'name': name,
+        'position': position.toJson(),
+        'connected': connected,
+      };
 }

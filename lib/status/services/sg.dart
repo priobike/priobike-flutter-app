@@ -33,12 +33,10 @@ class PredictionSGStatus with ChangeNotifier {
   /// The number of disconnected sgs.
   int disconnected = 0;
 
-  PredictionSGStatus() {
-    log.i("PredictionSGStatus started.");
-  }
+  PredictionSGStatus();
 
   /// Populate the sg status cache with the current route and
-  /// Recalculate the status for this route. 
+  /// Recalculate the status for this route.
   Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
     if (isLoading) return;
 
@@ -84,8 +82,8 @@ class PredictionSGStatus with ChangeNotifier {
     // Wait for all requests to finish.
     await Future.wait(pending);
 
-    ok = 0; 
-    offline = 0; 
+    ok = 0;
+    offline = 0;
     bad = 0;
     for (final sg in sgs) {
       if (!cache.containsKey(sg.id)) {
@@ -94,9 +92,15 @@ class PredictionSGStatus with ChangeNotifier {
       }
       final status = cache[sg.id]!;
       switch (status.predictionState) {
-        case SGPredictionState.ok: ok++; break;
-        case SGPredictionState.offline: offline++; break;
-        case SGPredictionState.bad: bad++; break;
+        case SGPredictionState.ok:
+          ok++;
+          break;
+        case SGPredictionState.offline:
+          offline++;
+          break;
+        case SGPredictionState.bad:
+          bad++;
+          break;
       }
     }
 

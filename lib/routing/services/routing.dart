@@ -136,9 +136,7 @@ class Routing with ChangeNotifier {
     this.selectedWaypoints,
     this.selectedRoute,
     this.allRoutes,
-  }) {
-    log.i("Routing started.");
-  }
+  });
 
   /// Add a new waypoint.
   Future<void> addWaypoint(Waypoint waypoint) async {
@@ -210,8 +208,10 @@ class Routing with ChangeNotifier {
     } catch (e, stack) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
-      if (!kDebugMode)
+
+      if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
       return null;
     }
   }
@@ -303,8 +303,9 @@ class Routing with ChangeNotifier {
     } catch (e, stacktrace) {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
-      if (!kDebugMode)
+      if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      }
       return null;
     }
   }
@@ -336,8 +337,8 @@ class Routing with ChangeNotifier {
     }
 
     // Load the SG-Selector responses for each path.
-    final sgSelectorResponses = await Future.wait(
-        ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
+    final sgSelectorResponses =
+        await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -372,10 +373,11 @@ class Routing with ChangeNotifier {
             signalGroups: sgsInOrderOfRoute,
             crossings: sgSelectorResponse.crossings,
           );
-
           // Connect the route to the start and end points.
           route = route.connected(
               selectedWaypoints!.first, selectedWaypoints!.last);
+          // Connect the route to the start and end points.
+          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
           return MapEntry(i, route);
         })
         .values

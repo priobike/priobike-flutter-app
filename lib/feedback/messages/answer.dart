@@ -31,24 +31,24 @@ class PostAnswerRequest {
   });
 
   factory PostAnswerRequest.fromJson(Map<String, dynamic> json) => PostAnswerRequest(
-    deviceId: json['deviceId'], 
-    deviceType: json['deviceType'], 
-    appVersion: json['appVersion'], 
-    questionText: json['questionText'],
-    questionImage: json['questionImage'],
-    sessionId: json['sessionId'],
-    value: json['value'],
-  );
+        deviceId: json['deviceId'],
+        deviceType: json['deviceType'],
+        appVersion: json['appVersion'],
+        questionText: json['questionText'],
+        questionImage: json['questionImage'],
+        sessionId: json['sessionId'],
+        value: json['value'],
+      );
 
   Map<String, dynamic> toJson() => {
-    'deviceId': deviceId,
-    'deviceType': deviceType,
-    'appVersion': appVersion,
-    'questionText': questionText,
-    if (questionImage != null) 'questionImage': questionImage,
-    if (sessionId != null) 'sessionId': sessionId,
-    if (value != null) 'value': value,
-  };
+        'deviceId': deviceId,
+        'deviceType': deviceType,
+        'appVersion': appVersion,
+        'questionText': questionText,
+        if (questionImage != null) 'questionImage': questionImage,
+        if (sessionId != null) 'sessionId': sessionId,
+        if (value != null) 'value': value,
+      };
 }
 
 class PostAnswerResponse {
@@ -61,6 +61,6 @@ class PostAnswerResponse {
   }
 
   Map<String, dynamic> toJson() => {
-    'success': success,
-  };
+        'success': success,
+      };
 }

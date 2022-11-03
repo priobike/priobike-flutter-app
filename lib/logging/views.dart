@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LogsView extends StatefulWidget {
   const LogsView({Key? key}) : super(key: key);
@@ -13,8 +14,21 @@ class LogsViewState extends State<LogsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(
+    return Scaffold(
+        body: SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Logs"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
+              },
+              tooltip: 'Teilen',
+            ),
+          ],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(

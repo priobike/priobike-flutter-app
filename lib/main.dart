@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/accelerometer/services/accelerometer.dart';
-import 'package:priobike/common/map/view.dart';
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
-import 'package:priobike/common/fcm.dart';
-import 'package:priobike/http.dart';
+import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -17,7 +16,6 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/main.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -32,7 +30,6 @@ import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/settings/views/features.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -42,39 +39,22 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 final log = Logger("main.dart");
 
 Future<void> main() async {
-  Http.initClient();
-
-  // Ensure that the widgets binding is initialized before
-  // loading something from the shared preferences + mapbox tiles.
+  // Ensure that the widgets binding is initialized.
+  // This is required by some plugins and functions.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load offline map tiles.
-  await AppMap.loadOfflineTiles();
+  // Setup the push notifications. We cannot do this in the
+  // widget tree down further, as a restriction of Android.
+  await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
   runZonedGuarded(() async {
-    // Initialize Sentry.
-    await SentryFlutter.init((options) {
-      // Our Sentry uses an on-premise installation.
-      options.dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
-    });
-
-    // Load offline map tiles.
-    await AppMap.loadOfflineTiles();
-
-    // Load the color mode before the first view build.
-    final initialColorMode = await Settings.loadColorModeFromSharedPreferences();
-    // Load the backend before the first view build.
-    final initialBackend = await Settings.loadBackendFromSharedPreferences();
-
-    // Setup the push notifications.
-    FCM.load(initialBackend);
-
-    runApp(App(initialColorMode: initialColorMode));
+    runApp(const App());
   }, (error, stack) async {
     // Log the error to the console.
     log.e(error.toString());
     log.e(stack.toString());
-    if (!kDebugMode) if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack);
+    // Send the error to Sentry, but only if we are not in debug mode.
+    if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack);
   });
 }
 
@@ -83,10 +63,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  /// The color mode that is initially used by the app.
-  final ColorMode initialColorMode;
-
-  const App({required this.initialColorMode, Key? key}) : super(key: key);
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +78,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Feature()),
         ChangeNotifierProvider(create: (context) => PrivacyPolicy()),
         ChangeNotifierProvider(create: (context) => Tutorial()),
-        ChangeNotifierProvider(create: (context) => Settings(colorMode: initialColorMode)),
+        ChangeNotifierProvider(create: (context) => Settings()),
         ChangeNotifierProvider(create: (context) => PredictionStatusSummary()),
         ChangeNotifierProvider(create: (context) => PredictionSGStatus()),
         ChangeNotifierProvider(create: (context) => Profile()),
@@ -162,10 +139,7 @@ class App extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                bodyText1: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xFF000000)),
+                bodyText1: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: Color(0xFF000000)),
                 subtitle1: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
@@ -233,11 +207,7 @@ class App extends StatelessWidget {
                     : ThemeMode.system,
             // The navigator key is used to access the app's build context.
             navigatorKey: navigatorKey,
-            home: const FeatureLoaderView(
-              child: PrivacyPolicyView(
-                child: HomeView(),
-              ),
-            ),
+            home: const PrivacyPolicyView(child: Loader()),
           );
         },
       ),

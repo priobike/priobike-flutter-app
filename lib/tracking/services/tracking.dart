@@ -187,23 +187,23 @@ class Tracking with ChangeNotifier {
 
   /// Convert the track to a JSON object.
   Map<String, dynamic> toJson() => {
-    'startTime': startTime,
-    'endTime': endTime,
-    'debug': debug,
-    'route': route?.toJson(),
-    'positions': positions?.map((p) => p.toJson()).toList(),
-    'recommendations': recommendations?.map((r) => r.toJson()).toList(),
-    'logs': logs,
-    'dangers': dangers?.map((d) => d.toJson()).toList(),
-    'accelerations': accelerations?.map((d) => d.toJson()).toList(),
-    'settings': settings?.toJson(),
-    'statusSummary': statusSummary?.toJsonCamelCase(),
-    'deviceInfo': deviceInfo?.toMap(),
-    'packageInfo': {
-      'appName': packageInfo?.appName,
-      'packageName': packageInfo?.packageName,
-      'version': packageInfo?.version,
-      'buildNumber': packageInfo?.buildNumber,
-    }
-  };
+        'startTime': startTime,
+        'endTime': endTime,
+        'debug': debug,
+        'route': route?.toJson(),
+        'positions': positions?.map((p) => p.toJson()).toList(),
+        'recommendations': recommendations?.map((r) => r.toJson()).toList(),
+        'logs': logs,
+        'dangers': dangers?.map((d) => d.toJson()).toList(),
+        'accelerations': accelerations?.map((d) => d.toJson()).toList(),
+        'settings': settings?.toJson(),
+        'statusSummary': statusSummary?.toJsonCamelCase(),
+        'deviceInfo': deviceInfo?.toMap(),
+        'packageInfo': {
+          'appName': packageInfo?.appName,
+          'packageName': packageInfo?.packageName,
+          'version': packageInfo?.version,
+          'buildNumber': packageInfo?.buildNumber,
+        }
+      };
 }

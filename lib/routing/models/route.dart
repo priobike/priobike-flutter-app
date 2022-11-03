@@ -16,8 +16,8 @@ class Route {
   final GHRouteResponsePath path;
 
   /// A list of navigation nodes representing the route.
-  /// 
-  /// This is set by the SG selector with an interpolated 
+  ///
+  /// This is set by the SG selector with an interpolated
   /// route that contains the signal groups.
   final List<NavigationNode> route;
 
@@ -55,31 +55,30 @@ class Route {
   Route connected(Waypoint startpoint, Waypoint endpoint) {
     const vincenty = latlng.Distance();
     final first = route.isNotEmpty ? route.first : null;
-    final distToFirst = first == null ? null : vincenty.distance(
-      latlng.LatLng(startpoint.lat, startpoint.lon), 
-      latlng.LatLng(first.lat, first.lon)
-    );
+    final distToFirst = first == null
+        ? null
+        : vincenty.distance(latlng.LatLng(startpoint.lat, startpoint.lon), latlng.LatLng(first.lat, first.lon));
     final last = route.isNotEmpty ? route.last : null;
-    final distToLast = last == null ? null : vincenty.distance(
-      latlng.LatLng(last.lat, last.lon), 
-      latlng.LatLng(endpoint.lat, endpoint.lon)
-    );
+    final distToLast = last == null
+        ? null
+        : vincenty.distance(latlng.LatLng(last.lat, last.lon), latlng.LatLng(endpoint.lat, endpoint.lon));
     return Route(
       id: id,
       path: path,
       signalGroups: signalGroups,
       route: [
         NavigationNode(
-          lon: startpoint.lon, 
-          lat: startpoint.lat, 
+          lon: startpoint.lon,
+          lat: startpoint.lat,
           alt: first?.alt ?? 0,
-          distanceToNextSignal: first?.distanceToNextSignal == null ? null : (first!.distanceToNextSignal! + distToFirst!),
+          distanceToNextSignal:
+              first?.distanceToNextSignal == null ? null : (first!.distanceToNextSignal! + distToFirst!),
           signalGroupId: first?.signalGroupId,
         ),
         ...route,
         NavigationNode(
-          lon: endpoint.lon, 
-          lat: endpoint.lat, 
+          lon: endpoint.lon,
+          lat: endpoint.lat,
           alt: last?.alt ?? 0,
           distanceToNextSignal: last?.distanceToNextSignal == null ? null : (last!.distanceToNextSignal! + distToLast!),
           signalGroupId: last?.signalGroupId,
@@ -93,10 +92,7 @@ class Route {
   LatLngBounds get bounds {
     assert(route.isNotEmpty);
     var first = route.first;
-    var s = first.lat,
-        n = first.lat,
-        w = first.lon,
-        e = first.lon;
+    var s = first.lat, n = first.lat, w = first.lon, e = first.lon;
     for (var i = 1; i < route.length; i++) {
       var node = route[i];
       s = min(s, node.lat);
@@ -114,7 +110,7 @@ class Route {
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
     const pad = 0.001;
     return LatLngBounds(
-      southwest: LatLng(bounds.southwest.latitude - pad, bounds.southwest.longitude - pad), 
+      southwest: LatLng(bounds.southwest.latitude - pad, bounds.southwest.longitude - pad),
       northeast: LatLng(bounds.northeast.latitude + pad, bounds.northeast.longitude + pad),
     );
   }

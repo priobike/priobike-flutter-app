@@ -123,7 +123,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       sheetMovementSubscription;
 
   /// The default map insets.
-  static const defaultMapInsets = EdgeInsets.only(
+  final defaultMapInsets = const EdgeInsets.only(
     top: 108,
     bottom: 80,
     left: 8,
@@ -143,9 +143,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final maxBottomInset = frame.size.height - frame.padding.top - 300;
     final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
     mapboxMapController?.updateContentInsets(
-        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top,
-            defaultMapInsets.left, newBottomInset),
-        false);
+        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset), false);
   }
 
   @override
@@ -590,6 +588,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (positioning.lastPosition == null) return;
 
     await mapboxMapController?.updateUserLocation(
+
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
@@ -610,14 +609,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async {
-    /* Do nothing */
-  }
+  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async {
-    /* Do nothing */
-  }
+  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
@@ -658,6 +653,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       discomforts.selectTrafficLight();
       discomforts.unselectDiscomfort();
     }
+
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {

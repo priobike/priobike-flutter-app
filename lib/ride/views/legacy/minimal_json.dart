@@ -10,8 +10,7 @@ class MinimalDebugCyclingView extends StatefulWidget {
   const MinimalDebugCyclingView({Key? key}) : super(key: key);
 
   @override
-  State<MinimalDebugCyclingView> createState() =>
-      _MinimalDebugCyclingViewState();
+  State<MinimalDebugCyclingView> createState() => _MinimalDebugCyclingViewState();
 }
 
 class _MinimalDebugCyclingViewState extends State<MinimalDebugCyclingView> {

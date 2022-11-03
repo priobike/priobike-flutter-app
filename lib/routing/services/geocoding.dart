@@ -21,9 +21,7 @@ class Geocoding with ChangeNotifier {
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
 
-  Geocoding() {
-    log.i("Geocoding started.");
-  }
+  Geocoding();
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
@@ -40,7 +38,7 @@ class Geocoding with ChangeNotifier {
     notifyListeners();
 
     hadErrorDuringFetch = false;
- 
+
     try {
       final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
@@ -61,7 +59,8 @@ class Geocoding with ChangeNotifier {
         isFetchingAddress = false;
         notifyListeners();
         final err = "Address could not be fetched from $endpoint: ${response.body}";
-        log.e(err); throw Exception(err);
+        log.e(err);
+        throw Exception(err);
       }
 
       final decoded = json.decode(response.body);
@@ -74,7 +73,9 @@ class Geocoding with ChangeNotifier {
     } catch (error, stacktrace) {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+      }
       isFetchingAddress = false;
       hadErrorDuringFetch = true;
       notifyListeners();

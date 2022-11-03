@@ -105,20 +105,20 @@ class TrafficLightOffMarker extends SymbolOptions {
     int zIndex = 2,
     String iconImage = "trafficlightoff",
     String? label,
-  }): super(
-    geometry: geo,
-    iconImage: iconImage,
-    iconSize: iconSize,
-    zIndex: zIndex,
-    textField: label,
-    textSize: 16,
-    textOffset: const Offset(0, -3.5),
-    textAnchor: "bottom",
-    textJustify: "center",
-    textHaloColor: "#ffffff",
-    textHaloWidth: 1,
-    textHaloBlur: 1,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: iconImage,
+          iconSize: iconSize,
+          zIndex: zIndex,
+          textField: label,
+          textSize: 16,
+          textOffset: const Offset(0, -3.5),
+          textAnchor: "bottom",
+          textJustify: "center",
+          textHaloColor: "#ffffff",
+          textHaloWidth: 1,
+          textHaloBlur: 1,
+        );
 }
 
 class OnlineMarker extends TrafficLightOffMarker {
@@ -127,13 +127,13 @@ class OnlineMarker extends TrafficLightOffMarker {
     double iconSize = 1,
     String? label,
     bool tilted = false,
-  }): super(
-    geo: geo,
-    iconSize: iconSize,
-    iconImage: tilted ? "onlinetilted" : "online",
-    zIndex: 3,
-    label: label,
-  );
+  }) : super(
+          geo: geo,
+          iconSize: iconSize,
+          iconImage: tilted ? "onlinetilted" : "online",
+          zIndex: 3,
+          label: label,
+        );
 }
 
 class DisconnectedMarker extends TrafficLightOffMarker {
@@ -142,13 +142,13 @@ class DisconnectedMarker extends TrafficLightOffMarker {
     double iconSize = 1,
     String? label,
     bool tilted = false,
-  }): super(
-    geo: geo,
-    iconSize: iconSize,
-    iconImage: tilted ? "disconnectedtilted" : "disconnected",
-    zIndex: 3,
-    label: label,
-  );
+  }) : super(
+          geo: geo,
+          iconSize: iconSize,
+          iconImage: tilted ? "disconnectedtilted" : "disconnected",
+          zIndex: 3,
+          label: label,
+        );
 }
 
 class OfflineMarker extends TrafficLightOffMarker {
@@ -157,13 +157,13 @@ class OfflineMarker extends TrafficLightOffMarker {
     double iconSize = 1,
     String? label,
     bool tilted = false,
-  }): super(
-    geo: geo,
-    iconSize: iconSize,
-    iconImage: tilted ? "offlinetilted" : "offline",
-    zIndex: 3,
-    label: label,
-  );
+  }) : super(
+          geo: geo,
+          iconSize: iconSize,
+          iconImage: tilted ? "offlinetilted" : "offline",
+          zIndex: 3,
+          label: label,
+        );
 }
 
 class BadSignalMarker extends TrafficLightOffMarker {
@@ -172,29 +172,26 @@ class BadSignalMarker extends TrafficLightOffMarker {
     double iconSize = 1,
     String? label,
     bool tilted = false,
-  }): super(
-    geo: geo,
-    iconSize: iconSize,
-    iconImage: tilted ? "badsignaltilted" : "badsignal",
-    zIndex: 3,
-    label: label,
-  );
+  }) : super(
+          geo: geo,
+          iconSize: iconSize,
+          iconImage: tilted ? "badsignaltilted" : "badsignal",
+          zIndex: 3,
+          label: label,
+        );
 }
 
 /// A map layer which marks a traffic light on the map.
 class TrafficLightGreenMarker extends SymbolOptions {
   /// Create a new traffic light marker.
-  TrafficLightGreenMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    double iconOpacity = 1
-  }): super(
-    geometry: geo,
-    iconImage: "trafficlightgreen",
-    iconSize: iconSize,
-    iconOpacity: iconOpacity,
-    zIndex: 5,
-  );
+  TrafficLightGreenMarker({required LatLng geo, double iconSize = 1, double iconOpacity = 1})
+      : super(
+          geometry: geo,
+          iconImage: "trafficlightgreen",
+          iconSize: iconSize,
+          iconOpacity: iconOpacity,
+          zIndex: 5,
+        );
 }
 
 /// A map layer which marks a traffic light on the map.
@@ -204,13 +201,13 @@ class TrafficLightRedMarker extends SymbolOptions {
     required LatLng geo,
     double iconSize = 1,
     double iconOpacity = 1,
-  }): super(
-    geometry: geo,
-    iconImage: "trafficlightred",
-    iconSize: iconSize,
-    iconOpacity: iconOpacity,
-    zIndex: 5,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: "trafficlightred",
+          iconSize: iconSize,
+          iconOpacity: iconOpacity,
+          zIndex: 5,
+        );
 }
 
 /// A map layer which marks the current position on the map.
@@ -219,12 +216,12 @@ class CurrentPositionMarker extends SymbolOptions {
   CurrentPositionMarker({
     required LatLng geo,
     required double orientation,
-  }): super(
-    geometry: geo,
-    iconRotate: orientation,
-    iconImage: "direction",
-    iconSize: 4,
-  );
+  }) : super(
+          geometry: geo,
+          iconRotate: orientation,
+          iconImage: "direction",
+          iconSize: 4,
+        );
 }
 
 /// A map layer which marks the start position on the map.
@@ -232,11 +229,11 @@ class StartMarker extends SymbolOptions {
   /// Create a new start marker.
   StartMarker({
     required LatLng geo,
-  }): super(
-    geometry: geo,
-    iconImage: "start",
-    iconSize: 0.75,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: "start",
+          iconSize: 0.75,
+        );
 }
 
 /// A map layer which marks the end position on the map.
@@ -244,11 +241,11 @@ class DestinationMarker extends SymbolOptions {
   /// Create a new destination marker.
   DestinationMarker({
     required LatLng geo,
-  }): super(
-    geometry: geo,
-    iconImage: "destination",
-    iconSize: 0.75,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: "destination",
+          iconSize: 0.75,
+        );
 }
 
 /// A map layer which marks an intermediate position on the map.
@@ -256,10 +253,10 @@ class WaypointMarker extends SymbolOptions {
   /// Create a new waypoint marker.
   WaypointMarker({
     required LatLng geo,
-  }): super(
-    geometry: geo,
-    iconImage: "waypoint",
-    iconSize: 0.75,
-    zIndex: 5,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: "waypoint",
+          iconSize: 0.75,
+          zIndex: 5,
+        );
 }

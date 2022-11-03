@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -12,7 +11,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
-  /// NOTE: This feature is currently disabled. 
+  /// NOTE: This feature is currently disabled.
   static Future<void> loadOfflineTiles() async {
     try {
       // At the moment, this will result in black maps being displayed.
@@ -23,7 +22,9 @@ class AppMap extends StatefulWidget {
     } catch (err, stacktrace) {
       final hint = "Failed to load offline tiles: $err";
       Logger("AppMap").e(hint);
-      if (!kDebugMode) await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
+      }
     }
   }
 
@@ -93,10 +94,10 @@ class AppMapState extends State<AppMap> {
   @override
   Widget build(BuildContext context) {
     return MapboxMap(
-      styleString: Theme.of(context).colorScheme.brightness == Brightness.light 
-        // Use a custom light style that adds some more color to the light theme.
-        ? "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu"
-        : "mapbox://styles/mapbox/dark-v10" ,
+      styleString: Theme.of(context).colorScheme.brightness == Brightness.light
+          // Use a custom light style that adds some more color to the light theme.
+          ? "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu"
+          : "mapbox://styles/mapbox/dark-v10",
       // At the moment, we hard code the map box access token. In the future,
       // this token will be provided by an environment variable. However, we need
       // to integrate this in the CI builds and provide a development guide.
@@ -118,11 +119,7 @@ class AppMapState extends State<AppMap> {
       puckImage: widget.puckImage,
       puckSize: widget.puckSize,
       // Point on the test location center, which is Dresden or Hamburg.
-      initialCameraPosition: CameraPosition(
-        target: settings.backend.center,
-        tilt: 0,
-        zoom: 12
-      ),
+      initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
     );
   }
 }

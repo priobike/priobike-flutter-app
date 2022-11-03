@@ -3,17 +3,14 @@ import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:provider/provider.dart';
 
-
 class MinimalCountdownCyclingView extends StatefulWidget {
   const MinimalCountdownCyclingView({Key? key}) : super(key: key);
 
   @override
-  State<MinimalCountdownCyclingView> createState() =>
-      _MinimalCountdownCyclingViewState();
+  State<MinimalCountdownCyclingView> createState() => _MinimalCountdownCyclingViewState();
 }
 
-class _MinimalCountdownCyclingViewState
-    extends State<MinimalCountdownCyclingView> {
+class _MinimalCountdownCyclingViewState extends State<MinimalCountdownCyclingView> {
   late Ride app;
 
   @override
@@ -57,9 +54,7 @@ class _MinimalCountdownCyclingViewState
                   child: CircularProgressIndicator(
                     strokeWidth: 40,
                     // backgroundColor: Colors.black,
-                    color: recommendation.isGreen
-                        ? const Color.fromARGB(255, 54, 222, 70)
-                        : Colors.red,
+                    color: recommendation.isGreen ? const Color.fromARGB(255, 54, 222, 70) : Colors.red,
                     value: recommendation.countdown / 60,
                   ),
                 ),

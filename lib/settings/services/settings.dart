@@ -95,25 +95,15 @@ class Settings with ChangeNotifier {
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
-    this.backend = Backend.production, 
+    this.backend = Backend.production,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,
     this.sgLabelsMode = SGLabelsMode.disabled,
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
-    required this.colorMode
+    this.colorMode = ColorMode.system,
   });
-
-  /// Load the color mode from the shared 
-  /// preferences, for the initial view build.
-  static Future<ColorMode> loadColorModeFromSharedPreferences() async {
-    final storage = await SharedPreferences.getInstance();
-    var colorMode = ColorMode.system;
-    final colorModeStr = storage.getString("priobike.settings.colorMode");
-    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
-    return colorMode;
-  }
 
   /// Load the backend from the shared
   /// preferences, for the initial view build.
@@ -142,18 +132,32 @@ class Settings with ChangeNotifier {
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
 
-    if (backendStr != null) backend = Backend.values.byName(backendStr);
-    if (positioningModeStr != null) positioningMode = PositioningMode.values.byName(positioningModeStr);
-    if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
-    if (routingEndpointStr != null) routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-    if (sgLabelsModeStr != null) sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+    if (backendStr != null) {
+      backend = Backend.values.byName(backendStr);
+    }
+    if (positioningModeStr != null) {
+      positioningMode = PositioningMode.values.byName(positioningModeStr);
+    }
+    if (reroutingStr != null) {
+      rerouting = Rerouting.values.byName(reroutingStr);
+    }
+    if (routingEndpointStr != null) {
+      routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+    }
+    if (sgLabelsModeStr != null) {
+      sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+    }
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
     } else {
       ridePreference = null;
     }
-    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
-    if (speedModeStr != null) speedMode = SpeedMode.values.byName(speedModeStr);
+    if (colorModeStr != null) {
+      colorMode = ColorMode.values.byName(colorModeStr);
+    }
+    if (speedModeStr != null) {
+      speedMode = SpeedMode.values.byName(speedModeStr);
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -184,15 +188,15 @@ class Settings with ChangeNotifier {
 
   /// Convert the settings to a json object.
   Map<String, dynamic> toJson() => {
-    "enableBetaFeatures": enableBetaFeatures,
-    "enableInternalFeatures": enableInternalFeatures,
-    "backend": backend.name,
-    "positioningMode": positioningMode.name,
-    "rerouting": rerouting.name,
-    "routingEndpoint": routingEndpoint.name,
-    "sgLabelsMode": sgLabelsMode.name,
-    "ridePreference": ridePreference?.name,
-    "colorMode": colorMode.name,
-    "speedMode": speedMode.name,
-  };
+        "enableBetaFeatures": enableBetaFeatures,
+        "enableInternalFeatures": enableInternalFeatures,
+        "backend": backend.name,
+        "positioningMode": positioningMode.name,
+        "rerouting": rerouting.name,
+        "routingEndpoint": routingEndpoint.name,
+        "sgLabelsMode": sgLabelsMode.name,
+        "ridePreference": ridePreference?.name,
+        "colorMode": colorMode.name,
+        "speedMode": speedMode.name,
+      };
 }

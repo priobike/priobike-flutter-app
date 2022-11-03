@@ -116,29 +116,29 @@ class Recommendation {
     final map = params.asMap.map((key, value) {
       return MapEntry<String, dynamic>(key, value);
     });
-    
+
     return Recommendation.fromJson(map);
   }
 
   Map<String, dynamic> toJson() => {
-    'timeUnixMillis': timeUnixMillis,
-    'label': label,
-    'countdown': countdown,
-    'distance': distance,
-    'speedRec': speedRec,
-    'speedDiff': speedDiff,
-    'green': isGreen,
-    'error': error,
-    'errorMessage': errorMessage,
-    'snapPos': snapPos.toJson(),
-    'navText': navText,
-    'navSign': navSign,
-    'navDist': navDist,
-    'quality': quality,
-    'predictionGreentimeThreshold': predictionGreentimeThreshold,
-    'predictionStartTime': predictionStartTime,
-    'predictionValue': predictionValue,
-    'sgId': sgId,
-    'sgPos': sgPos,
-  };
+        'timeUnixMillis': timeUnixMillis,
+        'label': label,
+        'countdown': countdown,
+        'distance': distance,
+        'speedRec': speedRec,
+        'speedDiff': speedDiff,
+        'green': isGreen,
+        'error': error,
+        'errorMessage': errorMessage,
+        'snapPos': snapPos.toJson(),
+        'navText': navText,
+        'navSign': navSign,
+        'navDist': navDist,
+        'quality': quality,
+        'predictionGreentimeThreshold': predictionGreentimeThreshold,
+        'predictionStartTime': predictionStartTime,
+        'predictionValue': predictionValue,
+        'sgId': sgId,
+        'sgPos': sgPos,
+      };
 }
