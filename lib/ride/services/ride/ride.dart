@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,26 @@ class Ride with ChangeNotifier {
   /// The current recommendation from the server.
   Recommendation? currentRecommendation;
 
+  /// The current predicted time of the next phase change, calculated periodically.
+  /// Note: This is currently calculated in the recommendation as well, but
+  /// may lag behind depending on the network latency / server time.
+  DateTime? calcCurrentPhaseChangeTime;
+
+  /// If the signal is currently predicted to be green, calculated periodically.
+  /// Note: This is currently calculated in the recommendation as well, but
+  /// may lag behind depending on the network latency / server time.
+  bool? calcCurrentSignalIsGreen;
+
+  /// A timer to periodically update the auxiliary recommendation info.
+  /// The recommendation should arrive once a second. However, sometimes
+  /// the network latency may be high, so we need to periodically update
+  /// the auxiliary info.
+  Timer? calcTimer;
+
+  /// A timestamp when the last calculation was performed.
+  /// This is used to prevent fast recurring calculations.
+  DateTime? calcLastTime;
+
   /// The recorded recommendations of the ride.
   final recommendations = List<Recommendation>.empty(growable: true);
 
@@ -51,6 +72,7 @@ class Ride with ChangeNotifier {
     currentRecommendation = null;
     recommendations.clear();
     needsLayout = {};
+    calcTimer = null;
     notifyListeners();
   }
 
@@ -73,12 +95,12 @@ class Ride with ChangeNotifier {
     try {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       recommendations.add(currentRecommendation!);
+      calculateRecommendationInfo();
       if (currentRecommendation!.error) {
         log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
       } else {
         log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
       }
-      notifyListeners();
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
       log.e(hint);
@@ -86,6 +108,59 @@ class Ride with ChangeNotifier {
         await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
       }
     }
+  }
+
+  /// Calculate auxiliary values for the current recommendation.
+  Future<void> calculateRecommendationInfo() async {
+    // Don't do a computation if the last one was recently done. Since we expect the countdown every 1s to change,
+    // we can apply the shannon nyquist theorem here and only do a calculation every <0.5s.
+    if (calcLastTime != null && calcLastTime!.difference(DateTime.now()).inMilliseconds.abs() < 499) return;
+    calcLastTime = DateTime.now();
+
+    // This will be executed if we fail somewhere.
+    onFailure(reason) {
+      log.w("Failed to calculate recommendation info: $reason");
+      calcCurrentPhaseChangeTime = null;
+      calcCurrentSignalIsGreen = null;
+      notifyListeners();
+    }
+
+    // Check if we have all necessary information.
+    if (currentRecommendation == null) return onFailure("No recommendation.");
+    if (currentRecommendation!.error) return onFailure("Recommendation has error.");
+    final greentimeThreshold = currentRecommendation!.predictionGreentimeThreshold;
+    if (greentimeThreshold == null) return onFailure("No greentime threshold.");
+    final vector = currentRecommendation!.predictionValue;
+    if (vector == null || vector.isEmpty) return onFailure("No prediction vector.");
+    final startTimeStr = currentRecommendation!.predictionStartTime;
+    if (startTimeStr == null) return onFailure("No prediction start time.");
+
+    // Decode the ISO 8601 timestamp.
+    // Use this specific format: 2022-11-03T10:48:47Z[UTC]
+    final startTime = DateTime.tryParse(startTimeStr.replaceAll("Z[UTC]", "Z"));
+    if (startTime == null) return onFailure("Could not parse start time: $startTimeStr");
+    // Calculate the seconds since the start of the prediction.
+    final now = DateTime.now();
+    final secondsSinceStart = now.difference(startTime).inSeconds;
+    // Chop off the seconds that are not in the prediction vector.
+    final secondsInVector = vector.length;
+    if (secondsSinceStart >= secondsInVector) return onFailure("Prediction vector is too short.");
+    // Calculate the current vector.
+    final currentVector = vector.sublist(secondsSinceStart);
+    if (currentVector.isEmpty) return onFailure("Current vector is empty.");
+    // Calculate the seconds to the next phase change.
+    int secondsToPhaseChange = 0;
+    bool greenNow = currentVector[0] >= greentimeThreshold;
+    for (int i = 1; i < currentVector.length; i++) {
+      final greenThen = currentVector[i] >= greentimeThreshold;
+      if ((greenNow && !greenThen) || (!greenNow && greenThen)) break;
+      secondsToPhaseChange++;
+    }
+    // Calculate the predicted time of the next phase change.
+    calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
+    calcCurrentSignalIsGreen = greenNow;
+
+    notifyListeners();
   }
 
   /// Connect the websocket.
@@ -164,6 +239,10 @@ class Ride with ChangeNotifier {
     final req = const NavigationRequest(active: true).toJson();
     log.i("Sending navigation request via websocket: $req");
     await jsonRPCPeer?.sendRequest("Navigation", req);
+    // Start the timer that updates the current phase change time.
+    // We check every 100 ms. If a recommendation gets missing, the countdown etc. will still be updated.
+    // The method itself will check again if we do too many computations.
+    calcTimer = Timer.periodic(const Duration(milliseconds: 100), (_) => calculateRecommendationInfo());
   }
 
   /// Update the current user position and send it to the server.
@@ -200,6 +279,8 @@ class Ride with ChangeNotifier {
     log.i("Sending navigation request via websocket: $req");
     await jsonRPCPeer?.sendRequest('Navigation', req);
     await jsonRPCPeer?.close();
+    // Stop the calculation timer.
+    calcTimer?.cancel();
   }
 
   @override
