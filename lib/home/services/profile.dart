@@ -37,9 +37,21 @@ class Profile with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
-    if (bikeType != null) await storage.setString("priobike.home.profile.bike", bikeType!.name);
-    if (preferenceType != null) await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
-    if (activityType != null) await storage.setString("priobike.home.profile.activity", activityType!.name);
+    if (bikeType != null) {
+      await storage.setString("priobike.home.profile.bike", bikeType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.bike");
+    }
+    if (preferenceType != null) {
+      await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.preferences");
+    }
+    if (activityType != null) {
+      await storage.setString("priobike.home.profile.activity", activityType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.activity");
+    }
 
     notifyListeners();
   }
