@@ -79,6 +79,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
+  /// Bool to save if sources have been initialized.
+  bool sourcesInitialized = false;
+
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
@@ -379,7 +382,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Load the map features.
     geoFeatureLoader = GeoFeatureLoader(mapController!);
-    await geoFeatureLoader!.removeFeatures();
+
+    // Initialize sources for the geo layers.
+    if (!sourcesInitialized) {
+      await geoFeatureLoader!.initSources();
+      setState(() {
+        sourcesInitialized = true;
+      });
+    }
+
+    await geoFeatureLoader!.removeFeatures(false);
     await geoFeatureLoader!.loadFeatures(context);
   }
 
@@ -470,7 +482,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   void dispose() {
     () async {
       // Remove geo features from the map.
-      await geoFeatureLoader?.removeFeatures();
+      await geoFeatureLoader?.removeFeatures(true);
 
       // Remove all layers from the map.
       await mapController?.clearFills();
