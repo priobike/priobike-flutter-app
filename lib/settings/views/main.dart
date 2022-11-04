@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -252,6 +253,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a datastream mode is selected.
+  Future<void> onSelectDatastreamMode(DatastreamMode datastreamMode) async {
+    // Tell the settings service that we selected the new datastream mode.
+    await settings.selectDatastreamMode(datastreamMode);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -338,6 +347,24 @@ class SettingsViewState extends State<SettingsView> {
                                   selected: settings.sgLabelsMode,
                                   title: (SGLabelsMode e) => e.description,
                                   callback: onSelectSGLabelsMode,
+                                );
+                              }),
+                        )),
+                  if (settings.enableInternalFeatures)
+                    Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Echtzeitdaten",
+                          subtitle: settings.datastreamMode.description,
+                          icon: Icons.expand_more,
+                          callback: () => showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SettingsSelection(
+                                  elements: DatastreamMode.values,
+                                  selected: settings.datastreamMode,
+                                  title: (DatastreamMode e) => e.description,
+                                  callback: onSelectDatastreamMode,
                                 );
                               }),
                         )),

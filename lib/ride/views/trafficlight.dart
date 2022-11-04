@@ -35,7 +35,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
     // Don't show a countdown if...
     if (rs.currentRecommendation == null || // we have no recommendation
-            rs.currentRecommendation!.sgId == null || // if no signal group is focused
+            rs.currentRecommendation!.sg == null || // if no signal group is focused
             rs.currentRecommendation!.error // or if there is an error
         ) return alternativeView;
 

@@ -8,6 +8,7 @@ import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -90,6 +91,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => Accelerometer()),
         ChangeNotifierProvider(create: (context) => Dangers()),
+        ChangeNotifierProvider(create: (context) => Datastream()),
         ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
