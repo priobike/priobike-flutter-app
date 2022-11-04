@@ -121,7 +121,7 @@ class Settings with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     enableBetaFeatures = storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
-    enableInternalFeatures = storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
+    enableInternalFeatures = true; // storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
 
     final backendStr = storage.getString("priobike.settings.backend");
     final positioningModeStr = storage.getString("priobike.settings.positioningMode");
