@@ -576,6 +576,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Initialize sources for the geo layers.
     if (!initSources) {
+      print("INIT LOL");
       await geoFeatureLoader!.initSources();
       setState(() {
         initSources = true;
@@ -725,10 +726,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
       await geoFeatureLoader?.removeFeatures(true);
 
       // Remove all layers from the map.
-      // await mapboxMapController?.clearFills();
-      // await mapboxMapController?.clearCircles();
-      // await mapboxMapController?.clearLines();
-      // await mapboxMapController?.clearSymbols();
+      await mapboxMapController?.clearFills();
+      await mapboxMapController?.clearCircles();
+      await mapboxMapController?.clearLines();
+      await mapboxMapController?.clearSymbols();
 
       // Unbind the sheet movement listener.
       await sheetMovementSubscription?.cancel();
