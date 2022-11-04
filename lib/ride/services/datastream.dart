@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -20,19 +21,22 @@ class Datastream with ChangeNotifier {
   Sg? sg;
 
   /// The current value for the car detector.
-  int? detectorCar;
+  DetectorCarObservation? detectorCar;
 
   /// The current value for the cyclists detector.
-  int? detectorCyclists;
+  DetectorCyclistsObservation? detectorCyclists;
 
   /// The current value for the cycle second.
-  int? cycleSecond;
+  CycleSecondObservation? cycleSecond;
 
   /// The current value for the primary signal.
-  int? primarySignal;
+  PrimarySignalObservation? primarySignal;
 
   /// The current value for the signal program.
-  int? signalProgram;
+  SignalProgramObservation? signalProgram;
+
+  /// The set of current subscriptions.
+  final Set<String> subscriptions = {};
 
   /// Get the topic for a datastream.
   static String? topic(String? datastreamId) =>
@@ -42,16 +46,18 @@ class Datastream with ChangeNotifier {
   void unsubscribe(String? datastreamId) {
     if (datastreamId == null) return;
     final t = topic(datastreamId)!;
-    log.i('Unsubscribing from $t');
     client?.unsubscribe(t);
+    subscriptions.remove(t);
+    notifyListeners();
   }
 
   /// Subscribe to a datastream.
   void subscribe(String? datastreamId) {
     if (datastreamId == null) return;
     final t = topic(datastreamId)!;
-    log.i('Subscribing to $t');
     client?.subscribe(t, MqttQos.exactlyOnce);
+    subscriptions.add(t);
+    notifyListeners();
   }
 
   /// Connect the mqtt client.
@@ -61,14 +67,17 @@ class Datastream with ChangeNotifier {
     client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
     client!.logging(on: false);
     client!.keepAlivePeriod = 30;
+    client!.secure = false;
     client!.port = backend.frostMQTTPort;
+    client!.autoReconnect = true;
+    client!.resubscribeOnAutoReconnect = true;
     client!.onDisconnected = () => log.i("MQTT client disconnected");
     client!.onConnected = () => log.i("MQTT client connected");
     client!.onSubscribed = (topic) => log.i("MQTT client subscribed to $topic");
     client!.onUnsubscribed = (topic) => log.i("MQTT client unsubscribed from $topic");
     client!.onAutoReconnect = () => log.i("MQTT client auto reconnect");
     client!.onAutoReconnected = () => log.i("MQTT client auto reconnected");
-    client!.setProtocolV31();
+    client!.setProtocolV311();
     client!.connectionMessage = MqttConnectMessage()
         .withClientIdentifier(client!.clientIdentifier)
         .startClean()
@@ -91,25 +100,28 @@ class Datastream with ChangeNotifier {
       final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       // Get the result of the observation.
       final json = jsonDecode(data);
-      final result = json['result'];
       // Match the result to the correct datastream.
-      if (message.topic == topic(sg?.datastreamDetectorCar)) {
-        detectorCar = result;
-        log.i("Received detectorCar: $detectorCar");
-      } else if (message.topic == topic(sg?.datastreamDetectorCyclists)) {
-        detectorCyclists = result;
-        log.i("Received detectorCyclists: $detectorCyclists");
-      } else if (message.topic == topic(sg?.datastreamCycleSecond)) {
-        cycleSecond = result;
-        log.i("Received cycleSecond: $cycleSecond");
-      } else if (message.topic == topic(sg?.datastreamPrimarySignal)) {
-        primarySignal = result;
-        log.i("Received primarySignal: $primarySignal");
-      } else if (message.topic == topic(sg?.datastreamSignalProgram)) {
-        signalProgram = result;
-        log.i("Received signalProgram: $signalProgram");
+      try {
+        if (message.topic == topic(sg?.datastreamDetectorCar)) {
+          detectorCar = DetectorCarObservation.fromJson(json);
+          log.i("MQTT: Received detectorCar: ${detectorCar!.pct}%");
+        } else if (message.topic == topic(sg?.datastreamDetectorCyclists)) {
+          detectorCyclists = DetectorCyclistsObservation.fromJson(json);
+          log.i("MQTT: Received detectorCyclists: ${detectorCyclists!.pct}%");
+        } else if (message.topic == topic(sg?.datastreamCycleSecond)) {
+          cycleSecond = CycleSecondObservation.fromJson(json);
+          log.i("MQTT: Received cycleSecond: ${cycleSecond!.second}s");
+        } else if (message.topic == topic(sg?.datastreamPrimarySignal)) {
+          primarySignal = PrimarySignalObservation.fromJson(json);
+          log.i("MQTT: Received primarySignal: ${primarySignal!.state.name}");
+        } else if (message.topic == topic(sg?.datastreamSignalProgram)) {
+          signalProgram = SignalProgramObservation.fromJson(json);
+          log.i("MQTT: Received signalProgram: #${signalProgram!.program}");
+        }
+        notifyListeners();
+      } catch (e) {
+        log.e("MQTT: Error while parsing message: $e");
       }
-      notifyListeners();
     }
   }
 
@@ -147,7 +159,11 @@ class Datastream with ChangeNotifier {
 
   /// Disconnect and dispose the mqtt client.
   Future<void> disconnect() async {
+    for (final t in subscriptions) {
+      client?.unsubscribe(t);
+    }
     client?.disconnect();
     client = null;
+    subscriptions.clear();
   }
 }

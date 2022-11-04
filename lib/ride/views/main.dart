@@ -8,12 +8,14 @@ import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
+import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
 import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -57,10 +59,12 @@ class RideViewState extends State<RideView> {
       await tracking.start(context);
       // Authenticate a new session.
       await session.openSession(context);
-      // Connect the datastream mqtt client.
-      await datastream.connect(context);
-      // Link the ride to the datastream.
-      ride.onRecommendation = (r) => datastream.select(sg: r.sg);
+      // Connect the datastream mqtt client, if the user enabled real-time data.
+      if (settings.datastreamMode == DatastreamMode.enabled) {
+        await datastream.connect(context);
+        // Link the ride to the datastream.
+        ride.onRecommendation = (r) => datastream.select(sg: r.sg);
+      }
       // Select the ride.
       await ride.selectRide(context, routing.selectedRoute!);
       // Start navigating.
@@ -112,6 +116,7 @@ class RideViewState extends State<RideView> {
           RideMapView(),
           RideSpeedometerView(),
           DangerButton(),
+          DatastreamView(),
         ]);
         break;
       case RidePreference.defaultCyclingView:

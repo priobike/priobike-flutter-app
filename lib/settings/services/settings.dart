@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
@@ -41,6 +42,9 @@ class Settings with ChangeNotifier {
 
   /// The selected speed mode.
   SpeedMode speedMode;
+
+  /// The selected datastream mode.
+  DatastreamMode datastreamMode;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -92,6 +96,11 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectDatastreamMode(DatastreamMode datastreamMode) async {
+    this.datastreamMode = datastreamMode;
+    await store();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
@@ -103,6 +112,7 @@ class Settings with ChangeNotifier {
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
+    this.datastreamMode = DatastreamMode.disabled,
   });
 
   /// Load the backend from the shared
@@ -131,6 +141,7 @@ class Settings with ChangeNotifier {
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
+    final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
 
     if (backendStr != null) {
       backend = Backend.values.byName(backendStr);
@@ -158,6 +169,9 @@ class Settings with ChangeNotifier {
     if (speedModeStr != null) {
       speedMode = SpeedMode.values.byName(speedModeStr);
     }
+    if (datastreamModeStr != null) {
+      datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -176,6 +190,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
+    await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -198,5 +213,6 @@ class Settings with ChangeNotifier {
         "ridePreference": ridePreference?.name,
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
+        "datastreamMode": datastreamMode.name,
       };
 }
