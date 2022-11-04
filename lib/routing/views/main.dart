@@ -257,7 +257,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapController.setMyLocationTrackingModeTracking(ControllerType.main);
   }
 
-  /// Private Function which is executed when FAB is pressed
+  /// Private Function which is executed when FAB is pressed.
   Future<void> _startRoutingSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -269,7 +269,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
-  /// Private Function which is executed when search is executed
+  /// Private Function which is executed when search is executed.
   Future<void> _startSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -377,7 +377,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    waypointsSelected
+                    waypointsSelected && !routing.isFetchingRoute
                         ? SizedBox(
                             // number of Elements * 40 + Padding (2*10) + System navigation bar
                             height: frame.size.height,
@@ -448,21 +448,23 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                   : Container(),
                             ]),
                           )
-                        : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Hero(
-                              tag: 'appBackButton',
-                              child: AppBackButton(
-                                  icon: Icons.chevron_left_rounded,
-                                  onPressed: () => Navigator.pop(context),
-                                  elevation: 5),
-                            ),
-                            const SizedBox(width: 16),
-                            SizedBox(
-                              // Avoid expansion of alerts view.
-                              width: frame.size.width - 80,
-                              child: SearchBar(fromClicked: false, startSearch: _startSearch),
-                            ),
-                          ]),
+                        : !routing.isFetchingRoute
+                            ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Hero(
+                                  tag: 'appBackButton',
+                                  child: AppBackButton(
+                                      icon: Icons.chevron_left_rounded,
+                                      onPressed: () => Navigator.pop(context),
+                                      elevation: 5),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  // Avoid expansion of alerts view.
+                                  width: frame.size.width - 80,
+                                  child: SearchBar(fromClicked: false, startSearch: _startSearch),
+                                ),
+                              ])
+                            : Container(),
                     !waypointsSelected ? ShortCutsRow(onPressed: _loadShortcutsRoute, close: false) : Container(),
                     !waypointsSelected
                         ? Padding(
@@ -485,7 +487,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 ),
               ),
             ),
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty
+            waypointsSelected && !routing.isFetchingRoute
                 ? Positioned(
                     bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
                     right: 0,
@@ -504,7 +506,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     ),
                   )
                 : Container(),
-            routing.selectedWaypoints != null ? const BottomSheetDetail() : Container(),
+            waypointsSelected && !routing.isFetchingRoute ? const BottomSheetDetail() : Container(),
           ]),
         ),
         floatingActionButton: routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty

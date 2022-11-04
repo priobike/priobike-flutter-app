@@ -93,12 +93,10 @@ class SearchViewState extends State<SearchView> {
   /// A callback that is fired when a waypoint is tapped.
   Future<void> onWaypointTapped(Waypoint waypoint) async {
     geosearch.clearGeosearch();
-    print("widget.index");
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
     List<Waypoint> newWaypoints = waypoints.toList();
     List<Waypoint?> newRoutingItems = routing.routingItems;
-    print(widget.index);
     if (widget.index != null) {
       // Check if it has to be put in selectedWaypoints or not.
       if (widget.fromRouteSearch) {
@@ -119,6 +117,7 @@ class SearchViewState extends State<SearchView> {
       }
     }
 
+    // Save in search history.
     if (waypoint.address != null && profile.saveSearchHistory) {
       profile.saveNewSearch(waypoint);
     }
@@ -128,7 +127,7 @@ class SearchViewState extends State<SearchView> {
       await routing.selectWaypoints(newWaypoints);
     }
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(waypoint);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -156,23 +155,25 @@ class SearchViewState extends State<SearchView> {
     // exchange with new waypoint
     List<Waypoint> newWaypoints = waypoints.toList();
 
-    if (widget.index != null) {
-      newWaypoints[widget.index!] = waypoint;
-    } else {
-      // Insert current location as first waypoint if option is set
-      if (profile.setLocationAsStart &&
-          currentLocationWaypoint != null &&
-          waypoints.isEmpty &&
-          waypoint.address != null) {
-        newWaypoints = [currentLocationWaypoint!, waypoint];
+    if (!widget.fromRouteSearch) {
+      if (widget.index != null) {
+        newWaypoints[widget.index!] = waypoint;
       } else {
-        newWaypoints = [...waypoints, waypoint];
+        // Insert current location as first waypoint if option is set
+        if (profile.setLocationAsStart &&
+            currentLocationWaypoint != null &&
+            waypoints.isEmpty &&
+            waypoint.address != null) {
+          newWaypoints = [currentLocationWaypoint!, waypoint];
+        } else {
+          newWaypoints = [...waypoints, waypoint];
+        }
       }
     }
 
     await routing.selectWaypoints(newWaypoints);
 
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(waypoint);
   }
 
   _currentLocationPressed() async {

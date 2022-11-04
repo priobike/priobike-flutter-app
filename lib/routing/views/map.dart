@@ -366,8 +366,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
               },
             ));
           }
-          await mapboxMapController?.removeSymbols(oldRouteLabelLocations);
         }
+        await mapboxMapController?.removeSymbols(oldRouteLabelLocations);
         return;
       }
 
@@ -725,10 +725,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
       await geoFeatureLoader?.removeFeatures(true);
 
       // Remove all layers from the map.
-      await mapboxMapController?.clearFills();
-      await mapboxMapController?.clearCircles();
-      await mapboxMapController?.clearLines();
-      await mapboxMapController?.clearSymbols();
+      // await mapboxMapController?.clearFills();
+      // await mapboxMapController?.clearCircles();
+      // await mapboxMapController?.clearLines();
+      // await mapboxMapController?.clearSymbols();
 
       // Unbind the sheet movement listener.
       await sheetMovementSubscription?.cancel();
@@ -740,7 +740,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
       mapboxMapController?.onSymbolTapped.remove(onSymbolTapped);
       mapboxMapController?.dispose();
     }();
-
     mapController.unsetController(widget.controllerType);
 
     super.dispose();

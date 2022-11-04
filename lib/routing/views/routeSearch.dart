@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -65,7 +66,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
     geosearch = Provider.of<Geosearch>(context);
     // to update the position of the current Location Waypoint
     updateWaypoint();
-    checkNextItem();
 
     super.didChangeDependencies();
   }
@@ -91,6 +91,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       routing.routingItems[routing.nextItem] = waypoint;
       routing.notifyListeners();
     }
+    checkNextItem();
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -113,6 +114,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       routing.routingItems[routing.nextItem] = result;
       routing.notifyListeners();
     }
+    checkNextItem();
   }
 
   _currentLocationPressed() async {
@@ -120,6 +122,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       routing.routingItems[routing.nextItem] = currentLocationWaypoint;
       routing.notifyListeners();
     }
+    checkNextItem();
   }
 
   /// A Function which finds the next missing item or reroutes to previous screen
@@ -133,12 +136,13 @@ class RouteSearchViewState extends State<RouteSearchView> {
       }
     }
     if (nextItemIndex == -1) {
-      // return to map view
-      // cast checked in loop
+      // Return to map view.
+      // Cast checked in loop.
       await routing.selectWaypoints(routing.routingItems.map((e) => e!).toList());
       routing.routingItems = [];
       routing.nextItem = -1;
       Navigator.of(context).pop();
+      return;
     }
     setState(() {
       routing.nextItem = nextItemIndex;
