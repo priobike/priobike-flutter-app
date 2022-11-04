@@ -71,34 +71,56 @@ class DatastreamViewState extends State<DatastreamView> {
       top: 8,
       right: 0,
       child: SafeArea(
-        child: Tile(
-          fill: Theme.of(context).colorScheme.background,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            bottomLeft: Radius.circular(24),
-          ),
-          content: Row(children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
-                  width: 1,
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Tile(
+                fill: Theme.of(context).colorScheme.background,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
                 ),
-                color: datastream.primarySignal?.state.color ?? Colors.grey,
+                content: Row(children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+                        width: 1,
+                      ),
+                      color: datastream.primarySignal?.state.color ?? Colors.grey,
+                    ),
+                  ),
+                  const SmallHSpace(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: datastream.primarySignal != null
+                        ? [
+                            Small(text: "Seit", context: context),
+                            BoldSmall(text: "${timeDiff?.toString()}s", context: context),
+                          ]
+                        : [
+                            Small(text: "Keine", context: context),
+                            BoldSmall(text: "Daten", context: context),
+                          ],
+                  ),
+                ]),
               ),
             ),
-            const SmallHSpace(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Small(text: "Seit", context: context),
-                BoldSmall(text: "${timeDiff?.toString() ?? '-'}s", context: context),
-              ],
-            ),
-          ]),
+            Tile(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              fill: Theme.of(context).colorScheme.background,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                bottomLeft: Radius.circular(24),
+              ),
+              content: Small(text: "Debug-Info", context: context),
+            )
+          ],
         ),
       ),
     );
