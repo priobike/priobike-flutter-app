@@ -82,10 +82,6 @@ class Datastream with ChangeNotifier {
         .withClientIdentifier(client!.clientIdentifier)
         .startClean()
         .withWillQos(MqttQos.atMostOnce);
-    if (backend.frostMQTTUsername != null && backend.frostMQTTPassword != null) {
-      client!.connectionMessage =
-          client!.connectionMessage?.authenticateAs(backend.frostMQTTUsername!, backend.frostMQTTPassword!);
-    }
     log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
     await client!.connect();
     client!.updates?.listen(onData);

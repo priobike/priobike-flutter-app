@@ -33,25 +33,7 @@ extension BackendFROSTMqtt on Backend {
       case Backend.production:
         return 1883;
       case Backend.staging:
-        return 20056;
-    }
-  }
-
-  String? get frostMQTTUsername {
-    switch (this) {
-      case Backend.production:
-        return null;
-      case Backend.staging:
-        return "user";
-    }
-  }
-
-  String? get frostMQTTPassword {
-    switch (this) {
-      case Backend.production:
-        return null;
-      case Backend.staging:
-        return "mqtt@priobike-2022";
+        return 20057;
     }
   }
 }
