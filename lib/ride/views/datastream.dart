@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -20,11 +24,43 @@ class DatastreamViewState extends State<DatastreamView> {
   /// The settings service which is injected by the provider.
   late Settings settings;
 
+  /// The timer used to refresh the view.
+  Timer? timer;
+
+  /// The displayed time diff.
+  String? timeDiff;
+
   @override
   void didChangeDependencies() {
     datastream = Provider.of<Datastream>(context);
     settings = Provider.of<Settings>(context);
+    refreshTimeDiff();
     super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(const Duration(seconds: 1), (_) => refreshTimeDiff());
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  /// Refresh the time diff.
+  void refreshTimeDiff() {
+    if (datastream.primarySignal?.phenomenonTime == null) {
+      setState(() => timeDiff = null);
+      return;
+    }
+    final now = DateTime.now();
+    final diff = now.difference(datastream.primarySignal!.phenomenonTime);
+    setState(() {
+      timeDiff = diff.inSeconds.toString();
+    });
   }
 
   @override
@@ -53,6 +89,14 @@ class DatastreamViewState extends State<DatastreamView> {
                 ),
                 color: datastream.primarySignal?.state.color ?? Colors.grey,
               ),
+            ),
+            const SmallHSpace(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Small(text: "Seit", context: context),
+                BoldSmall(text: "${timeDiff?.toString() ?? '-'}s", context: context),
+              ],
             ),
           ]),
         ),
