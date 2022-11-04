@@ -111,15 +111,16 @@ class DatastreamViewState extends State<DatastreamView> {
                 ]),
               ),
             ),
-            Tile(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              fill: Theme.of(context).colorScheme.background,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                bottomLeft: Radius.circular(24),
-              ),
-              content: Small(text: "Debug-Info", context: context),
-            )
+            if (datastream.detectorCar != null || datastream.detectorCyclists != null)
+              Tile(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                fill: Theme.of(context).colorScheme.background,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
+                ),
+                content: BoldSmall(text: "Angefordert!", context: context),
+              )
           ],
         ),
       ),
