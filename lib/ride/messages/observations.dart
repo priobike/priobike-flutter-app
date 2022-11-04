@@ -10,14 +10,10 @@ class Observation<R> {
   /// The result time of this observation, in the format: `2022-11-04T07:40:01.426926419Z`.
   final DateTime resultTime;
 
-  /// The id of the datastream of this observation.
-  final int datastreamId;
-
   const Observation({
     required this.phenomenonTime,
     required this.result,
     required this.resultTime,
-    required this.datastreamId,
   });
 }
 
@@ -84,19 +80,16 @@ class PrimarySignalObservation extends Observation<int> {
     required DateTime phenomenonTime,
     required int result,
     required DateTime resultTime,
-    required int datastreamId,
   }) : super(
           phenomenonTime: phenomenonTime,
           result: result,
           resultTime: resultTime,
-          datastreamId: datastreamId,
         );
 
   factory PrimarySignalObservation.fromJson(Map<String, dynamic> json) => PrimarySignalObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
         result: json['result'],
         resultTime: DateTime.parse(json['resultTime']),
-        datastreamId: json['Datastream']['@iot.id'],
       );
 }
 
@@ -108,19 +101,16 @@ class DetectorCarObservation extends Observation<int> {
     required DateTime phenomenonTime,
     required int result,
     required DateTime resultTime,
-    required int datastreamId,
   }) : super(
           phenomenonTime: phenomenonTime,
           result: result,
           resultTime: resultTime,
-          datastreamId: datastreamId,
         );
 
   factory DetectorCarObservation.fromJson(Map<String, dynamic> json) => DetectorCarObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
         result: json['result'],
         resultTime: DateTime.parse(json['resultTime']),
-        datastreamId: json['Datastream']['@iot.id'],
       );
 }
 
@@ -132,19 +122,16 @@ class DetectorCyclistsObservation extends Observation<int> {
     required DateTime phenomenonTime,
     required int result,
     required DateTime resultTime,
-    required int datastreamId,
   }) : super(
           phenomenonTime: phenomenonTime,
           result: result,
           resultTime: resultTime,
-          datastreamId: datastreamId,
         );
 
   factory DetectorCyclistsObservation.fromJson(Map<String, dynamic> json) => DetectorCyclistsObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
         result: json['result'],
         resultTime: DateTime.parse(json['resultTime']),
-        datastreamId: json['Datastream']['@iot.id'],
       );
 }
 
@@ -156,19 +143,16 @@ class CycleSecondObservation extends Observation<int> {
     required DateTime phenomenonTime,
     required int result,
     required DateTime resultTime,
-    required int datastreamId,
   }) : super(
           phenomenonTime: phenomenonTime,
           result: result,
           resultTime: resultTime,
-          datastreamId: datastreamId,
         );
 
   factory CycleSecondObservation.fromJson(Map<String, dynamic> json) => CycleSecondObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
         result: json['result'],
         resultTime: DateTime.parse(json['resultTime']),
-        datastreamId: json['Datastream']['@iot.id'],
       );
 }
 
@@ -180,18 +164,15 @@ class SignalProgramObservation extends Observation<int> {
     required DateTime phenomenonTime,
     required int result,
     required DateTime resultTime,
-    required int datastreamId,
   }) : super(
           phenomenonTime: phenomenonTime,
           result: result,
           resultTime: resultTime,
-          datastreamId: datastreamId,
         );
 
   factory SignalProgramObservation.fromJson(Map<String, dynamic> json) => SignalProgramObservation(
         phenomenonTime: DateTime.parse(json['phenomenonTime']),
         result: json['result'],
         resultTime: DateTime.parse(json['resultTime']),
-        datastreamId: json['Datastream']['@iot.id'],
       );
 }
