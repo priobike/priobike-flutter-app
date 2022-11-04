@@ -242,7 +242,7 @@ class SearchViewState extends State<SearchView> {
                       height: 10,
                       color: Theme.of(context).colorScheme.surface,
                     ),
-                    widget.index == null || widget.index! == 0
+                    (widget.index == null && widget.fromRouteSearch) || (widget.index != null && widget.index! == 0)
                         ? CurrentLocationButton(onPressed: _currentLocationPressed)
                         : Container(),
                     SelectOnMapButton(onPressed: _selectOnMapOnPressed),
