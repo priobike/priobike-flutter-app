@@ -27,7 +27,7 @@ class GeoFeatureLoader {
         opacity,
       ];
 
-  /// Load geo features into the map controller.
+  /// Initialize the geoJson sources.
   Future<void> initSources() async {
     await initAccidentHotspots("dresden", "assets/geo/accident_black_spots_dresden.geojson");
     await initAccidentHotspots("hamburg", "assets/geo/accident_black_spots.geojson");
@@ -112,7 +112,7 @@ class GeoFeatureLoader {
     );
   }
 
-  /// Add sources for bike parking.
+  /// Add source for accident hotspots.
   Future<void> initAccidentHotspots(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike shop to the map.
@@ -130,7 +130,7 @@ class GeoFeatureLoader {
     }
   }
 
-  /// Add points for bike parking.
+  /// Add layers for bike parking.
   Future<void> addBikeParkingPoints(BuildContext context, String layerPrefix) async {
     for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
       await mapController.addLayer(
@@ -264,7 +264,7 @@ class GeoFeatureLoader {
     }
   }
 
-  /// Add layers for construction sites.
+  /// Add sources for bike shops.
   Future<void> initBikeShopPoints(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike shop to the map.
@@ -319,7 +319,7 @@ class GeoFeatureLoader {
         ));
   }
 
-  /// Add layers for construction sites.
+  /// Add sources for construction sites.
   Future<void> initBikeAirStations(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the bike air station to the map.
@@ -362,7 +362,7 @@ class GeoFeatureLoader {
         ));
   }
 
-  /// Add layers for construction sites.
+  /// Add source for construction sites.
   Future<void> initConstructionSites(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
     // Add the construction sites to the map.

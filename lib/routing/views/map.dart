@@ -79,7 +79,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
-  bool initSources = false;
+  /// Bool to save if sources have been initialized.
+  bool sourcesInitialized = false;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
@@ -383,10 +384,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     geoFeatureLoader = GeoFeatureLoader(mapController!);
 
     // Initialize sources for the geo layers.
-    if (!initSources) {
+    if (!sourcesInitialized) {
       await geoFeatureLoader!.initSources();
       setState(() {
-        initSources = true;
+        sourcesInitialized = true;
       });
     }
 
