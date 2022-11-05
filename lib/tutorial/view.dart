@@ -36,7 +36,7 @@ class TutorialViewState extends State<TutorialView> {
   /// Whether the tutorial should be shown. Initially, it is not shown.
   bool tutorialIsShown = false;
 
-  /// The time in milliseconds it takes to fade out a finished tutorial.
+  /// The time in milliseconds for a finished tutorial to fade out.
   final int _fadeOutDuration = 1000;
 
   @override
