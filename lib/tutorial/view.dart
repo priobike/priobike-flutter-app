@@ -36,9 +36,6 @@ class TutorialViewState extends State<TutorialView> {
   /// Whether the tutorial should be shown. Initially, it is not shown.
   bool tutorialIsShown = false;
 
-  // The duration of the animation in milliseconds.
-  int _fadeDuration = 500;
-
   @override
   void initState() {
     super.initState();
@@ -70,12 +67,14 @@ class TutorialViewState extends State<TutorialView> {
         },
       );
       Future.delayed(
-        const Duration(seconds: 1),
+        const Duration(milliseconds: 1000),
         () {
           if (mounted) {
-            setState(() {
-              tutorialIsShown = false;
-            });
+            setState(
+              () {
+                tutorialIsShown = false;
+              },
+            );
           }
         },
       );
@@ -93,8 +92,7 @@ class TutorialViewState extends State<TutorialView> {
       child: AnimatedOpacity(
         /// If the checkmark is not show (i.e. the tutorial wasn't yet completet), the opacity is 1, otherwise it is 0.
         opacity: !checkmarkIsShown ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 500),
-
+        duration: const Duration(milliseconds: 1000),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,6 +119,7 @@ class TutorialViewState extends State<TutorialView> {
                             color: Color.fromARGB(255, 91, 91, 91),
                           ),
                     onPressed: () {
+                      // will trigger didChangeDependencies()
                       tutorial.complete(widget.id);
                     },
                   ),
