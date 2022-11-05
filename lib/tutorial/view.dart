@@ -31,10 +31,10 @@ class TutorialViewState extends State<TutorialView> {
   late Tutorial tutorial;
 
   /// Whether a green checkmark should be shown.
-  bool checkmarkIsShown = false;
+  bool _checkmarkIsShown = false;
 
   /// Whether the tutorial should be shown. Initially, it is not shown.
-  bool tutorialIsShown = false;
+  bool _tutorialIsShown = false;
 
   /// The time in milliseconds for a finished tutorial to fade out.
   final int _fadeOutDuration = 1000;
@@ -53,20 +53,22 @@ class TutorialViewState extends State<TutorialView> {
   @override
   void didChangeDependencies() {
     tutorial = Provider.of<Tutorial>(context);
-    final wasCompleted = tutorial.isCompleted(widget.id);
-    if (wasCompleted != null && !wasCompleted) {
+    final _wasCompleted = tutorial.isCompleted(widget.id);
+    if (_wasCompleted != null && !_wasCompleted) {
       // If the tutorial was not completed, show it.
       setState(
         () {
-          checkmarkIsShown = false;
-          tutorialIsShown = true;
+          _checkmarkIsShown = false;
+          _tutorialIsShown = true;
         },
       );
-    } else if (wasCompleted != null && !checkmarkIsShown && tutorialIsShown) {
+    } else if (_wasCompleted != null &&
+        !_checkmarkIsShown &&
+        _tutorialIsShown) {
       // If the tutorial was just completed, show the checkmark and hide it after a short delay.
       setState(
         () {
-          checkmarkIsShown = true;
+          _checkmarkIsShown = true;
         },
       );
       Future.delayed(
@@ -75,7 +77,7 @@ class TutorialViewState extends State<TutorialView> {
           if (mounted) {
             setState(
               () {
-                tutorialIsShown = false;
+                _tutorialIsShown = false;
               },
             );
           }
@@ -87,14 +89,14 @@ class TutorialViewState extends State<TutorialView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!tutorialIsShown) {
+    if (!_tutorialIsShown) {
       return Container();
     }
     return Padding(
       padding: widget.padding ?? const EdgeInsets.all(0),
       child: AnimatedOpacity(
         /// If the checkmark is not show (i.e. the tutorial wasn't yet completet), the opacity is 1, otherwise it is 0.
-        opacity: !checkmarkIsShown ? 1.0 : 0.0,
+        opacity: !_checkmarkIsShown ? 1.0 : 0.0,
         duration: Duration(milliseconds: _fadeOutDuration),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +114,7 @@ class TutorialViewState extends State<TutorialView> {
                 Padding(
                   padding: const EdgeInsets.only(left: 6),
                   child: IconButton(
-                    icon: checkmarkIsShown
+                    icon: _checkmarkIsShown
                         ? const Icon(
                             Icons.check,
                             color: Color.fromARGB(255, 91, 91, 91),
