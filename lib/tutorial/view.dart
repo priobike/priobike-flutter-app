@@ -36,6 +36,9 @@ class TutorialViewState extends State<TutorialView> {
   /// Whether the tutorial should be shown. Initially, it is not shown.
   bool tutorialIsShown = false;
 
+  // The duration of the animation in milliseconds.
+  int _fadeDuration = 500;
+
   @override
   void initState() {
     super.initState();
@@ -82,15 +85,16 @@ class TutorialViewState extends State<TutorialView> {
 
   @override
   Widget build(BuildContext context) {
-    /*if (!tutorialIsShown) {
+    if (!tutorialIsShown) {
       return Container();
-    }*/
+    }
     return Padding(
       padding: widget.padding ?? const EdgeInsets.all(0),
       child: AnimatedOpacity(
-        /// If the tutorial is shown, the opacity is 1, otherwise it is 0.
-        opacity: tutorialIsShown ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 300),
+        /// If the checkmark is not show (i.e. the tutorial wasn't yet completet), the opacity is 1, otherwise it is 0.
+        opacity: !checkmarkIsShown ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
