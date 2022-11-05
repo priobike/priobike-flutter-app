@@ -53,66 +53,78 @@ class TutorialViewState extends State<TutorialView> {
     final wasCompleted = tutorial.isCompleted(widget.id);
     if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
-      setState(() {
-        checkmarkIsShown = false;
-        tutorialIsShown = true;
-      });
+      setState(
+        () {
+          checkmarkIsShown = false;
+          tutorialIsShown = true;
+        },
+      );
     } else if (wasCompleted != null && !checkmarkIsShown && tutorialIsShown) {
       // If the tutorial was just completed, show the checkmark and hide it after a short delay.
-      setState(() {
-        checkmarkIsShown = true;
-      });
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() {
-            tutorialIsShown = false;
-          });
-        }
-      });
+      setState(
+        () {
+          checkmarkIsShown = true;
+        },
+      );
+      Future.delayed(
+        const Duration(seconds: 1),
+        () {
+          if (mounted) {
+            setState(() {
+              tutorialIsShown = false;
+            });
+          }
+        },
+      );
     }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!tutorialIsShown) {
+    /*if (!tutorialIsShown) {
       return Container();
-    }
+    }*/
     return Padding(
       padding: widget.padding ?? const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: BoldSmall(
-                    text: widget.text,
-                    color: const Color.fromARGB(255, 91, 91, 91),
-                    context: context),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: IconButton(
-                  icon: checkmarkIsShown
-                      ? const Icon(
-                          Icons.check,
-                          color: Color.fromARGB(255, 91, 91, 91),
-                        )
-                      : const Icon(
-                          Icons.close,
-                          color: Color.fromARGB(255, 91, 91, 91),
-                        ),
-                  onPressed: () {
-                    tutorial.complete(widget.id);
-                  },
+      child: AnimatedOpacity(
+        /// If the tutorial is shown, the opacity is 1, otherwise it is 0.
+        opacity: tutorialIsShown ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: BoldSmall(
+                      text: widget.text,
+                      color: const Color.fromARGB(255, 91, 91, 91),
+                      context: context),
                 ),
-              )
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: IconButton(
+                    icon: checkmarkIsShown
+                        ? const Icon(
+                            Icons.check,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          )
+                        : const Icon(
+                            Icons.close,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          ),
+                    onPressed: () {
+                      tutorial.complete(widget.id);
+                    },
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
