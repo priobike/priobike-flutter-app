@@ -94,7 +94,7 @@ class TutorialViewState extends State<TutorialView> {
       padding: widget.padding ?? const EdgeInsets.all(0),
       child: AnimatedOpacity(
         // Show checkmark only when tutorial is completed.
-        opacity: !_checkmarkIsShown ? 1.0 : 0.0,
+        opacity: _checkmarkIsShown ? 0.0 : 1.0,
         duration: _fadeOutDuration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
