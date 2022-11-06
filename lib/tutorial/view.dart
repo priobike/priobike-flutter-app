@@ -105,9 +105,10 @@ class TutorialViewState extends State<TutorialView> {
               children: [
                 Flexible(
                   child: BoldSmall(
-                      text: widget.text,
-                      color: const Color.fromARGB(255, 91, 91, 91),
-                      context: context),
+                    text: widget.text,
+                    color: const Color.fromARGB(255, 91, 91, 91),
+                    context: context,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 6),
