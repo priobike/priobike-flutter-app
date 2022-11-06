@@ -17,10 +17,7 @@ class SearchBar extends StatefulWidget {
   final TextEditingController? locationSearchController;
 
   const SearchBar(
-      {Key? key,
-      required this.fromClicked,
-      required this.startSearch,
-      this.locationSearchController})
+      {Key? key, required this.fromClicked, required this.startSearch, this.locationSearchController})
       : super(key: key);
 
   @override
@@ -75,10 +72,8 @@ class SearchBarState extends State<SearchBar> {
     }
     if (currentLocationWaypoint != null &&
         currentLocationWaypoint!.lat == positioning.lastPosition!.latitude &&
-        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude)
-      return;
-    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
-        positioning.lastPosition!.longitude);
+        currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) return;
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when the search is updated.
@@ -127,8 +122,7 @@ class SearchBarState extends State<SearchBar> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: Hero(
                         tag: "locationIcon",
                         child: Icon(Icons.location_on),
@@ -143,21 +137,16 @@ class SearchBarState extends State<SearchBar> {
                                 onChanged: onSearchUpdated,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    suffixIcon:
-                                        widget.locationSearchController?.text !=
-                                                ""
-                                            ? IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    geosearch.clearGeosearch();
-                                                    widget
-                                                        .locationSearchController
-                                                        ?.text = "";
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                    Icons.cancel_outlined))
-                                            : null),
+                                    suffixIcon: widget.locationSearchController?.text != ""
+                                        ? IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                geosearch.clearGeosearch();
+                                                widget.locationSearchController?.text = "";
+                                              });
+                                            },
+                                            icon: const Icon(Icons.cancel_outlined))
+                                        : null),
                                 autofocus: widget.fromClicked,
                               )
                             : SubHeader(

@@ -722,6 +722,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void dispose() {
     () async {
+      print("DISPOSE");
       // Remove geo features from the map.
       await geoFeatureLoader?.removeFeatures(true);
 

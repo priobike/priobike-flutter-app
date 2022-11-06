@@ -282,6 +282,22 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
+  /// A callback that is executed when the search page is opened.
+  Future<void> onSearch(Routing routing, int? index,
+      Function onPressed, bool fromRouteSearch) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SearchView(
+            index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
+      ),
+    );
+
+    if (routing.selectedWaypoints != null &&
+        routing.selectedWaypoints!.isNotEmpty) {
+      await routing.loadRoutes(context);
+    }
+  }
+
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
     mapController.centerNorth(ControllerType.main);
@@ -386,7 +402,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 // top calculates from maxHeight RoutingBar + padding + systemBar.
                                 top: showRoutingBar ? 0 : -(frame.size.height * 0.25 + 20 + frame.viewPadding.top),
                                 duration: const Duration(milliseconds: 250),
-                                child: RoutingBar(fromRoutingSearch: false, onPressed: _loadShortcutsRoute),
+                                child: RoutingBar(fromRoutingSearch: false, onPressed: _loadShortcutsRoute, onSearch: onSearch,),
                               ),
                               !showRoutingBar
                                   ? AnimatedPositioned(
