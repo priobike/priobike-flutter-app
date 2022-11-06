@@ -37,7 +37,7 @@ class RideSelectionViewState extends State<RideSelectionView> {
         deviceId = info.identifierForVendor ?? "n/a";
       } else if (Platform.isAndroid) {
         final info = (await deviceInfo.androidInfo);
-        deviceId = info.androidId ?? "n/a";
+        deviceId = info.product;
       }
       setState(() => seed = deviceId.hashCode);
     }();

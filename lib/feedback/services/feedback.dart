@@ -55,8 +55,8 @@ class Feedback with ChangeNotifier {
       deviceId = info.identifierForVendor ?? "n/a";
     } else if (Platform.isAndroid) {
       final info = (await deviceInfo.androidInfo);
-      deviceType = info.model ?? "n/a";
-      deviceId = info.androidId ?? "n/a";
+      deviceType = info.model;
+      deviceId = info.product;
     }
 
     final appVersion = Provider.of<Feature>(context, listen: false).appVersion;

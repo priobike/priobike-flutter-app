@@ -38,7 +38,7 @@ dependencies:
   syncfusion_flutter_gauges: ^20.3.52 # Speedometer
   cupertino_icons: ^1.0.2 # Icons package
   provider: ^6.0.0 # State management
-  geolocator: ^8.1.1 # GPS tracking
+  geolocator: ^9.0.2 # GPS tracking
   web_socket_channel: ^2.1.0 # WebSocket communication
   json_rpc_2: ^3.0.1 # JSON RPC support for WebSocket communication
   mapbox_gl: # Customized mapbox map framework
@@ -51,13 +51,13 @@ dependencies:
   flutter_native_splash: ^2.1.6 # Generated splash screen, see below
   wakelock: ^0.6.2 # Keep display active in certain conditions
   http: ^0.13.5 # HTTP client framework
-  device_info_plus: ^3.2.4 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
-  package_info_plus: ^1.4.2 # Fetch info about the package
-  battery_plus: ^2.1.4+1 # Fetch info about the battery state
+  device_info_plus: ^8.0.0 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
+  package_info_plus: ^3.0.1 # Fetch info about the package
+  battery_plus: ^3.0.2 # Fetch info about the battery state
   charts_flutter: ^0.12.0 # Display minimalistic charts 
-  share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
-  firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
-  firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
+  share_plus: ^6.2.0 # Used for debugging to share example requests/responses via e-mail/airdrop
+  firebase_core: ^2.1.1 # Used to initialize the connection to Firebase
+  firebase_messaging: ^14.0.4 # Used to receive push notifications of news service
   flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: ^2.0.0 # Used to get accelerometer data
   mqtt_client: ^9.6.8
@@ -72,7 +72,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
 
 # Configuration of the splash screens.
 flutter_native_splash:
