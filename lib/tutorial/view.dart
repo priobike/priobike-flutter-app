@@ -121,7 +121,7 @@ class TutorialViewState extends State<TutorialView> {
                             Icons.close,
                             color: Color.fromARGB(255, 91, 91, 91),
                           ),
-                    // will trigger notifyListeners()
+                    // The following call will trigger `notifyListeners()`.
                     onPressed: () => tutorial.complete(widget.id),
                   ),
                 )
