@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views/places.dart';
 import 'package:priobike/routing/views/routes.dart';
@@ -17,8 +19,14 @@ class SettingsView extends StatefulWidget {
 }
 
 class SettingsViewState extends State<SettingsView> {
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated profile service, which is injected by the provider.
   late Profile profile;
+
+  /// The associated shortcuts service, which is injected by the provider.
+  late Places places;
+
+  /// The associated shortcuts service, which is injected by the provider.
+  late Shortcuts shortcuts;
 
   @override
   void initState() {
@@ -28,6 +36,8 @@ class SettingsViewState extends State<SettingsView> {
   @override
   void didChangeDependencies() {
     profile = Provider.of<Profile>(context);
+    places = Provider.of<Places>(context);
+    shortcuts = Provider.of<Shortcuts>(context);
 
     super.didChangeDependencies();
   }
@@ -38,13 +48,21 @@ class SettingsViewState extends State<SettingsView> {
     ToastMessage.showSuccess("Suchhistorie gelöscht!");
   }
 
+  _deleteAllPlaces() {
+    places.updatePlaces([], context);
+    ToastMessage.showSuccess("Orte gelöscht!");
+  }
+
+  _deleteAllRoutes() {
+    shortcuts.updateShortcuts([], context);
+    ToastMessage.showSuccess("Routen gelöscht!");
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: SafeArea(
           top: true,
@@ -104,17 +122,13 @@ class SettingsViewState extends State<SettingsView> {
                       //   ),
                       // ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            BoldContent(
-                                text: "Standort als Start setzen",
-                                context: context),
+                            BoldContent(text: "Standort als Start setzen", context: context),
                             Switch(
-                                value:
-                                    profile.setLocationAsStart,
+                                value: profile.setLocationAsStart,
                                 onChanged: (value) {
                                   setState(() {
                                     profile.setLocationAsStart = value;
@@ -125,17 +139,13 @@ class SettingsViewState extends State<SettingsView> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            BoldContent(
-                                text: "Suchanfragen speichern",
-                                context: context),
+                            BoldContent(text: "Suchanfragen speichern", context: context),
                             Switch(
-                                value:
-                                    profile.saveSearchHistory,
+                                value: profile.saveSearchHistory,
                                 onChanged: (value) {
                                   setState(() {
                                     profile.saveSearchHistory = value;
@@ -147,10 +157,8 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                       InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child:
-                              BoldContent(text: "Meine Orte", context: context),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: BoldContent(text: "Meine Orte", context: context),
                         ),
                         onTap: () {
                           Navigator.of(context).push(
@@ -162,10 +170,8 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                       InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: BoldContent(
-                              text: "Meine Routen", context: context),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: BoldContent(text: "Meine Routen", context: context),
                         ),
                         onTap: () {
                           Navigator.of(context).push(
@@ -177,36 +183,29 @@ class SettingsViewState extends State<SettingsView> {
                       ),
                       InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: BoldContent(
-                              text: "Suchhistorie löschen", context: context),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: BoldContent(text: "Suchhistorie löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(
-                              context, "Suchanfragen", _deleteSearchHistory);
+                          showDeleteDialog(context, "Suchanfragen", _deleteSearchHistory);
                         },
                       ),
                       InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: BoldContent(
-                              text: "Meine Orte löschen", context: context),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: BoldContent(text: "Meine Orte löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(context, "Orte", () {});
+                          showDeleteDialog(context, "Orte", _deleteAllPlaces);
                         },
                       ),
                       InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: BoldContent(
-                              text: "Routen löschen", context: context),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                          child: BoldContent(text: "Routen löschen", context: context),
                         ),
                         onTap: () {
-                          showDeleteDialog(context, "Routen", () {});
+                          showDeleteDialog(context, "Routen", _deleteAllRoutes);
                         },
                       ),
                     ],

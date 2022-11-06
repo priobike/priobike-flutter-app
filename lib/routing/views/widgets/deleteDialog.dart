@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 
 showDeleteDialog(
-    BuildContext context, String deleteName, onPressed) {
+    BuildContext context, String deleteName, Function onPressed) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
