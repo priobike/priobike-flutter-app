@@ -93,7 +93,7 @@ class TutorialViewState extends State<TutorialView> {
     return Padding(
       padding: widget.padding ?? const EdgeInsets.all(0),
       child: AnimatedOpacity(
-        // If the checkmark is not show (i.e. the tutorial isn't yet completed), the opacity is 1, otherwise it is 0.
+        // Show checkmark only when tutorial is completed.
         opacity: !_checkmarkIsShown ? 1.0 : 0.0,
         duration: _fadeOutDuration,
         child: Column(
@@ -121,10 +121,8 @@ class TutorialViewState extends State<TutorialView> {
                             Icons.close,
                             color: Color.fromARGB(255, 91, 91, 91),
                           ),
-                    onPressed: () {
-                      // will trigger didChangeDependencies()
-                      tutorial.complete(widget.id);
-                    },
+                    // will trigger notifyListeners()
+                    onPressed: () => tutorial.complete(widget.id),
                   ),
                 )
               ],
