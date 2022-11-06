@@ -37,7 +37,7 @@ class TutorialViewState extends State<TutorialView> {
   bool _tutorialIsShown = false;
 
   /// The time in milliseconds for a finished tutorial to fade out.
-  final int _fadeOutDuration = 1000;
+  final _fadeOutDuration = const Duration(milliseconds: 1000);
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class TutorialViewState extends State<TutorialView> {
         },
       );
       Future.delayed(
-        Duration(milliseconds: _fadeOutDuration),
+        _fadeOutDuration,
         () {
           if (mounted) {
             setState(
@@ -95,7 +95,7 @@ class TutorialViewState extends State<TutorialView> {
       child: AnimatedOpacity(
         // If the checkmark is not show (i.e. the tutorial isn't yet completed), the opacity is 1, otherwise it is 0.
         opacity: !_checkmarkIsShown ? 1.0 : 0.0,
-        duration: Duration(milliseconds: _fadeOutDuration),
+        duration: _fadeOutDuration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
