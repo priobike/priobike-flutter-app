@@ -13,7 +13,7 @@ concurrency:
 jobs:
   test:
     runs-on: self-hosted
-    container: cirrusci/flutter:2.10.5
+    container: cirrusci/flutter:3.3.7
     steps:
       - uses: actions/checkout@v2
       - name: Run unit tests and check for styling errors
