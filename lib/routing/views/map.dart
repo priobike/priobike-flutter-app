@@ -79,13 +79,18 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
+  /// Bool to save if sources have been initialized.
+  bool sourcesInitialized = false;
+
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
-    top: 108, bottom: 80,
-    left: 8, right: 8,
+    top: 108,
+    bottom: 80,
+    left: 8,
+    right: 8,
   );
 
-  @override 
+  @override
   void initState() {
     super.initState();
     sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
@@ -100,9 +105,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final frame = MediaQuery.of(context);
     final maxBottomInset = frame.size.height - frame.padding.top - 300;
     final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
-    mapController?.updateContentInsets(EdgeInsets.fromLTRB(
-      defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset
-    ), false);
+    mapController?.updateContentInsets(
+        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset), false);
   }
 
   @override
@@ -363,7 +367,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (positioning.lastPosition == null) return;
 
     await mapController?.updateUserLocation(
-      lat: positioning.lastPosition!.latitude, 
+      lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
       acc: positioning.lastPosition!.accuracy,
@@ -378,15 +382,24 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Load the map features.
     geoFeatureLoader = GeoFeatureLoader(mapController!);
-    await geoFeatureLoader!.removeFeatures();
+
+    // Initialize sources for the geo layers.
+    if (!sourcesInitialized) {
+      await geoFeatureLoader!.initSources();
+      setState(() {
+        sourcesInitialized = true;
+      });
+    }
+
+    await geoFeatureLoader!.removeFeatures(false);
     await geoFeatureLoader!.loadFeatures(context);
   }
 
   /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async { /* Do nothing */ }
+  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async { /* Do nothing */ }
+  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
 
   /// A callback that is called when the user taps a line.
   Future<void> onLineTapped(Line line) async {
@@ -409,7 +422,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async { 
+  Future<void> onSymbolTapped(Symbol symbol) async {
     // If the symbol corresponds to a discomfort, we select that discomfort.
     for (Symbol discomfortLocation in discomfortLocations ?? []) {
       if (symbol.id == discomfortLocation.id) {
@@ -469,7 +482,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   void dispose() {
     () async {
       // Remove geo features from the map.
-      await geoFeatureLoader?.removeFeatures();
+      await geoFeatureLoader?.removeFeatures(true);
 
       // Remove all layers from the map.
       await mapController?.clearFills();
@@ -494,11 +507,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   Widget build(BuildContext context) {
     return AppMap(
-      puckImage: Theme.of(context).brightness == Brightness.dark 
-        ? 'assets/images/position-static-dark.png' 
-        : 'assets/images/position-static-light.png',
+      puckImage: Theme.of(context).brightness == Brightness.dark
+          ? 'assets/images/position-static-dark.png'
+          : 'assets/images/position-static-light.png',
       puckSize: 64,
-      onMapCreated: onMapCreated, 
+      onMapCreated: onMapCreated,
       onStyleLoaded: () => onStyleLoaded(context),
       onMapLongClick: (_, coord) => onMapLongClick(context, coord),
     );

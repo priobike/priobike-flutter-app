@@ -211,6 +211,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
+  event_bus:
+    dependency: transitive
+    description:
+      name: event_bus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -476,7 +483,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "32ccf42ec127c23df338d7560ca46b733c23c021"
+      resolved-ref: "018c21d05a7d0bb7580d94f4705a168a184a8c76"
       url: "https://github.com/priobike/priobike-flutter-mapbox"
     source: git
     version: "0.16.0"
@@ -540,6 +547,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  mqtt_client:
+    dependency: "direct main"
+    description:
+      name: mqtt_client
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "9.6.8"
   nested:
     dependency: transitive
     description:

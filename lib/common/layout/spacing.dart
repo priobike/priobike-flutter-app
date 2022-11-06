@@ -2,29 +2,19 @@ import 'package:flutter/material.dart';
 
 /// A regular vertical padding.
 class VPad extends Padding {
-  const VPad({Key? key, required Widget child}) : super(
-    key: key, 
-    padding: const EdgeInsets.symmetric(vertical: 24), 
-    child: child
-  );
+  const VPad({Key? key, required Widget child})
+      : super(key: key, padding: const EdgeInsets.symmetric(vertical: 24), child: child);
 }
 
 /// A regular horizontal padding.
 class HPad extends Padding {
-  const HPad({Key? key, required Widget child}) : super(
-    key: key, 
-    padding: const EdgeInsets.symmetric(horizontal: 24), 
-    child: child
-  );
+  const HPad({Key? key, required Widget child})
+      : super(key: key, padding: const EdgeInsets.symmetric(horizontal: 24), child: child);
 }
 
 /// A regular padding.
 class Pad extends Padding {
-  const Pad({Key? key, required Widget child}) : super(
-    key: key, 
-    padding: const EdgeInsets.all(32), 
-    child: child
-  );
+  const Pad({Key? key, required Widget child}) : super(key: key, padding: const EdgeInsets.all(32), child: child);
 }
 
 /// A regular vertical space.

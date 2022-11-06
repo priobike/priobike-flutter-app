@@ -42,12 +42,14 @@ class Snapping with ChangeNotifier {
     final routing = Provider.of<Routing>(context, listen: false);
 
     if (positioning.lastPosition == null) return;
-    if (routing.selectedRoute == null || routing.selectedWaypoints == null) return;
+    if (routing.selectedRoute == null || routing.selectedWaypoints == null) {
+      return;
+    }
     if (routing.selectedRoute!.route.length < 2 || routing.selectedWaypoints!.length < 2) return;
 
     final p = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final nodes = routing.selectedRoute!.route;
-    
+
     // Draw snapping lines to all route segments.
     var shortestDistance = double.infinity;
     var shortestDistanceIndex = 0;
@@ -105,14 +107,13 @@ class Snapping with ChangeNotifier {
       final s = snap(p, p1, p2);
       final d = vincenty.distance(p, s);
       if (d < shortestWaypointDistance) {
-        shortestWaypointDistance = d; 
+        shortestWaypointDistance = d;
         shortestWaypointToIdx = i + 1;
       }
     }
 
-    remainingWaypoints = [
-      Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")
-    ] + routing.selectedWaypoints!.sublist(shortestWaypointToIdx);
+    remainingWaypoints = [Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")] +
+        routing.selectedWaypoints!.sublist(shortestWaypointToIdx);
 
     notifyListeners();
   }
@@ -158,7 +159,7 @@ class Snapping with ChangeNotifier {
     notifyListeners();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();

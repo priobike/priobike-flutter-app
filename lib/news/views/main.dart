@@ -38,55 +38,54 @@ class NewsViewState extends State<NewsView> {
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: Container(
-          color: Theme.of(context).colorScheme.background,
-          child: Fade(
-            child: SingleChildScrollView(
-              child: SafeArea(child: Column(
-                children: [
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Row(children: [
-                        AppBackButton(onPressed: () => Navigator.pop(context)),
-                        const HSpace(),
-                        SubHeader(text: "Neuigkeiten", context: context),
-                      ]),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: !news.hasLoaded
-                      ? SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : news.articles.isEmpty
-                          ? const Center(
-                              child: Text('Keine Neuigkeiten verfügbar.'),
+            color: Theme.of(context).colorScheme.background,
+            child: Fade(
+              child: SingleChildScrollView(
+                child: SafeArea(
+                    child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Row(children: [
+                          AppBackButton(onPressed: () => Navigator.pop(context)),
+                          const HSpace(),
+                          SubHeader(text: "Neuigkeiten", context: context),
+                        ]),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: !news.hasLoaded
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.5,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             )
-                          : ListView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              children: <Widget>[
-                                for (int i = 0; i < news.articles.length; i++)
-                                  ArticleListItem(
-                                    article: news.articles[i],
-                                    category: news.categories[news.articles[i].categoryId],
-                                    wasRead: news.readArticles.contains(news.articles[i]),
-                                    totalNumberOfArticles: news.articles.length,
-                                    articleIndex: i
-                                  )
-                              ],
-                            ),
-                  ),
-                  const SizedBox(height: 128),
-                ],
-              )),
-            ),
-          )
-        ),
+                          : news.articles.isEmpty
+                              ? const Center(
+                                  child: Text('Keine Neuigkeiten verfügbar.'),
+                                )
+                              : ListView(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  children: <Widget>[
+                                    for (int i = 0; i < news.articles.length; i++)
+                                      ArticleListItem(
+                                          article: news.articles[i],
+                                          category: news.categories[news.articles[i].categoryId],
+                                          wasRead: news.readArticles.contains(news.articles[i]),
+                                          totalNumberOfArticles: news.articles.length,
+                                          articleIndex: i)
+                                  ],
+                                ),
+                    ),
+                    const SizedBox(height: 128),
+                  ],
+                )),
+              ),
+            )),
       ),
     );
   }

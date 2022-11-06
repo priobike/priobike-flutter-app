@@ -47,11 +47,10 @@ class SGStatusData {
   });
 
   factory SGStatusData.fromJson(Map<String, dynamic> json) => SGStatusData(
-    statusUpdateTime: json['status_update_time'],
-    thingName: json['thing_name'],
-    predictionQuality: json['prediction_quality'] is int
-        ? json['prediction_quality'].toDouble()
-        : json['prediction_quality'],
-    predictionTime: json['prediction_time'],
-  );
+        statusUpdateTime: json['status_update_time'],
+        thingName: json['thing_name'],
+        predictionQuality:
+            json['prediction_quality'] is int ? json['prediction_quality'].toDouble() : json['prediction_quality'],
+        predictionTime: json['prediction_time'],
+      );
 }

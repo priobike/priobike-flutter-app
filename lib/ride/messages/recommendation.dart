@@ -1,5 +1,6 @@
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:priobike/common/models/point.dart';
+import 'package:priobike/routing/models/sg.dart';
 
 class Recommendation {
   /// The time in unix millis.
@@ -57,13 +58,9 @@ class Recommendation {
   /// That is, if the value is greater than the threshold.
   final List<int>? predictionValue;
 
-  /// The id of the upcoming signal group.
+  /// The signal group.
   /// Can be null if there is no upcoming signal group.
-  final String? sgId;
-
-  /// The position of the upcoming signal group.
-  /// Can be null if there is no upcoming signal group.
-  final Point? sgPos;
+  final Sg? sg;
 
   const Recommendation({
     required this.timeUnixMillis,
@@ -83,8 +80,7 @@ class Recommendation {
     required this.predictionGreentimeThreshold,
     required this.predictionStartTime,
     required this.predictionValue,
-    required this.sgId,
-    required this.sgPos,
+    required this.sg,
   });
 
   factory Recommendation.fromJson(Map<String, dynamic> json) {
@@ -107,8 +103,7 @@ class Recommendation {
       predictionGreentimeThreshold: json['predictionGreentimeThreshold'],
       predictionStartTime: json['predictionStartTime'],
       predictionValue: (json['predictionValue'] as List?)?.map((e) => e as int).toList(),
-      sgId: json['sgId'],
-      sgPos: json['sgPos'] != null ? Point.fromJson(json['sgPos']) : null,
+      sg: json['sg'] != null ? Sg.fromJson(json['sg']) : null,
     );
   }
 
@@ -116,29 +111,28 @@ class Recommendation {
     final map = params.asMap.map((key, value) {
       return MapEntry<String, dynamic>(key, value);
     });
-    
+
     return Recommendation.fromJson(map);
   }
 
   Map<String, dynamic> toJson() => {
-    'timeUnixMillis': timeUnixMillis,
-    'label': label,
-    'countdown': countdown,
-    'distance': distance,
-    'speedRec': speedRec,
-    'speedDiff': speedDiff,
-    'green': isGreen,
-    'error': error,
-    'errorMessage': errorMessage,
-    'snapPos': snapPos.toJson(),
-    'navText': navText,
-    'navSign': navSign,
-    'navDist': navDist,
-    'quality': quality,
-    'predictionGreentimeThreshold': predictionGreentimeThreshold,
-    'predictionStartTime': predictionStartTime,
-    'predictionValue': predictionValue,
-    'sgId': sgId,
-    'sgPos': sgPos,
-  };
+        'timeUnixMillis': timeUnixMillis,
+        'label': label,
+        'countdown': countdown,
+        'distance': distance,
+        'speedRec': speedRec,
+        'speedDiff': speedDiff,
+        'green': isGreen,
+        'error': error,
+        'errorMessage': errorMessage,
+        'snapPos': snapPos.toJson(),
+        'navText': navText,
+        'navSign': navSign,
+        'navDist': navDist,
+        'quality': quality,
+        'predictionGreentimeThreshold': predictionGreentimeThreshold,
+        'predictionStartTime': predictionStartTime,
+        'predictionValue': predictionValue,
+        'sg': sg?.toJson(),
+      };
 }

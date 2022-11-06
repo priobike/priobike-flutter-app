@@ -8,23 +8,20 @@ import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
-  IconItem({Key? key, required IconData icon, required String text, required BuildContext context}) : super(
-    key: key,
-    children: [
-      SizedBox(
-        width: 64,
-        height: 64,
-        child: Icon(
-          icon,
-          color: Colors.blueAccent,
-          size: 64,
-          semanticLabel: text,
-        )
-      ),
-      const SmallHSpace(),
-      Expanded(child: Content(text: text, context: context)),
-    ]
-  );
+  IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
+      : super(key: key, children: [
+          SizedBox(
+              width: 64,
+              height: 64,
+              child: Icon(
+                icon,
+                color: Colors.blueAccent,
+                size: 64,
+                semanticLabel: text,
+              )),
+          const SmallHSpace(),
+          Expanded(child: Content(text: text, context: context)),
+        ]);
 }
 
 /// A view that displays the privacy policy.
@@ -34,7 +31,7 @@ class PrivacyPolicyView extends StatefulWidget {
   /// Create the privacy proxy view with the wrapped view.
   const PrivacyPolicyView({this.child, Key? key}) : super(key: key);
 
-  @override 
+  @override
   PrivacyPolicyViewState createState() => PrivacyPolicyViewState();
 }
 
@@ -56,18 +53,15 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Scaffold(body: 
-      Container(
+    return Scaffold(
+      body: Container(
         color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Lade...", style: TextStyle(fontSize: 16)),
-          ]
-        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text("Lade...", style: TextStyle(fontSize: 16)),
+        ]),
       ),
     );
   }
@@ -77,44 +71,56 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     await s.confirm();
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     if (!s.hasLoaded) return Container();
 
     if (s.isConfirmed == true && widget.child != null) return widget.child!;
 
-    return Scaffold(body: 
-      Container(
+    return Scaffold(
+      body: Container(
         color: Theme.of(context).colorScheme.surface,
         child: Stack(
-          alignment: Alignment.bottomCenter, 
+          alignment: Alignment.bottomCenter,
           children: [
-            HPad(child: 
-              Fade(child: 
-                SingleChildScrollView(
+            HPad(
+              child: Fade(
+                child: SingleChildScrollView(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, 
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!s.hasChanged!) 
-                        Header(text: "Diese App funktioniert mit", context: context),
-                      if (!s.hasChanged!) 
-                        Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
-                      if (s.hasChanged!) 
-                        Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (s.hasChanged!) 
+                      if (!s.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
+                      if (!s.hasChanged!) Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
+                      if (s.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
+                      if (s.hasChanged!)
                         Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
-                      if (!s.hasChanged!) 
-                        SubHeader(text: "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:", context: context),
-                      if (s.hasChanged!) 
+                      if (!s.hasChanged!)
+                        SubHeader(
+                            text:
+                                "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
+                            context: context),
+                      if (s.hasChanged!)
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
-                      IconItem(icon: Icons.route, text: "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.", context: context),
+                      IconItem(
+                          icon: Icons.route,
+                          text:
+                              "Wir speichern deine Positionsdaten, aber nur anonymisiert und ohne deinen Start- und Zielort.",
+                          context: context),
                       const SmallVSpace(),
-                      IconItem(icon: Icons.lock, text: "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.", context: context),
+                      IconItem(
+                          icon: Icons.lock,
+                          text:
+                              "Wenn du die App personalisierst, indem du zum Beispiel einen Shortcut nach Hause erstellst, wird dies nur auf diesem Gerät gespeichert.",
+                          context: context),
                       const SmallVSpace(),
-                      IconItem(icon: Icons.lightbulb, text: "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.", context: context),
+                      IconItem(
+                          icon: Icons.lightbulb,
+                          text:
+                              "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
+                          context: context),
                       const VSpace(),
                       Content(text: s.text!, context: context),
                       const SizedBox(height: 256),
@@ -123,20 +129,23 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                 ),
               ),
             ),
-            if (widget.child == null) SafeArea(child: Column(children: [
-              const SizedBox(height: 8),
-              Row(children: [
-                AppBackButton(onPressed: () => Navigator.pop(context)),
-              ]),
-            ])),
-            if (widget.child != null) Pad(
-              child: BigButton(
-                icon: Icons.check,
-                iconColor: Colors.white,
-                label: "Akzeptieren", 
-                onPressed: onAcceptButtonPressed,
+            if (widget.child == null)
+              SafeArea(
+                  child: Column(children: [
+                const SizedBox(height: 8),
+                Row(children: [
+                  AppBackButton(onPressed: () => Navigator.pop(context)),
+                ]),
+              ])),
+            if (widget.child != null)
+              Pad(
+                child: BigButton(
+                  icon: Icons.check,
+                  iconColor: Colors.white,
+                  label: "Akzeptieren",
+                  onPressed: onAcceptButtonPressed,
+                ),
               ),
-            ),
           ],
         ),
       ),

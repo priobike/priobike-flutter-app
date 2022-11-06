@@ -14,13 +14,14 @@ class LogsViewState extends State<LogsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(
+    return Scaffold(
+        body: SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Logs"),
           actions: [
             IconButton(
-              icon: const Icon(Icons.share), 
+              icon: const Icon(Icons.share),
               onPressed: () {
                 Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
               },

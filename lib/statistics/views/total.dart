@@ -10,13 +10,9 @@ class StatisticsElementView extends StatelessWidget {
   final String title;
   final void Function()? onPressed;
 
-  const StatisticsElementView({
-    Key? key, 
-    required this.icon, 
-    required this.title, 
-    this.onPressed,
-    required BuildContext context
-  }) : super(key: key);
+  const StatisticsElementView(
+      {Key? key, required this.icon, required this.title, this.onPressed, required BuildContext context})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,28 +64,30 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ]),
           Expanded(child: Container()),
           SmallIconButton(
-            icon: Icons.info, 
+            icon: Icons.info,
             fill: Theme.of(context).colorScheme.background,
             splash: Colors.white,
             onPressed: () {
-              // Show a small modal sheet explaining that the 
+              // Show a small modal sheet explaining that the
               // data is only stored on this device.
               showModalBottomSheet(
-                context: context,
-                builder: (context) => Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
-                      const SizedBox(height: 4),
-                      BoldContent(text: "auf diesem Gerät", context: context),
-                      const Divider(),
-                      Content(text: "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.", context: context),
-                    ],
-                  ),
-                )
-              );
+                  context: context,
+                  builder: (context) => Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
+                            const SizedBox(height: 4),
+                            BoldContent(text: "auf diesem Gerät", context: context),
+                            const Divider(),
+                            Content(
+                                text:
+                                    "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.",
+                                context: context),
+                          ],
+                        ),
+                      ));
             },
           ),
           const SizedBox(width: 40),
@@ -108,22 +106,22 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
               context: context,
               onPressed: () {
                 showModalBottomSheet(
-                  context: context,
-                  builder: (context) => Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
-                        const Divider(),
-                        Content(
-                          text: "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.", 
-                          context: context,
-                        ),
-                      ],
-                    ),
-                  )
-                );
+                    context: context,
+                    builder: (context) => Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
+                              const Divider(),
+                              Content(
+                                text:
+                                    "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+                                context: context,
+                              ),
+                            ],
+                          ),
+                        ));
               },
             ),
             StatisticsElementView(
@@ -133,7 +131,8 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             ),
             StatisticsElementView(
               icon: Icons.timer,
-              title: "${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first} Std.",
+              title:
+                  "${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first} Std.",
               context: context,
             ),
             StatisticsElementView(

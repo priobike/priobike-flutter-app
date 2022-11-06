@@ -19,13 +19,13 @@ class Article {
   final String _md5;
 
   const Article(
-      { required id,
-        required this.text,
-        required this.title,
-        required this.pubDate,
-        required this.categoryId,
-        required md5}) :
-        _id = id,
+      {required id,
+      required this.text,
+      required this.title,
+      required this.pubDate,
+      required this.categoryId,
+      required md5})
+      : _id = id,
         _md5 = md5;
 
   /// Returns an article given a [json] representation of an article.
@@ -41,14 +41,8 @@ class Article {
   }
 
   /// Returns a json representation of the article object calling this method.
-  Map<String, Object?> toJson() => {
-    'id': _id,
-    'title': title,
-    'text': text,
-    'pub_date': pubDate.toString(),
-    'category_id': categoryId,
-    'md5': _md5
-  };
+  Map<String, Object?> toJson() =>
+      {'id': _id, 'title': title, 'text': text, 'pub_date': pubDate.toString(), 'category_id': categoryId, 'md5': _md5};
 
   @override
   int get hashCode => _md5.hashCode;

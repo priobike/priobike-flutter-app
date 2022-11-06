@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -12,7 +10,7 @@ class NewsButton extends StatefulWidget {
 
   const NewsButton({required this.onPressed, Key? key}) : super(key: key);
 
-  @override 
+  @override
   NewsButtonState createState() => NewsButtonState();
 }
 
@@ -35,28 +33,29 @@ class NewsButtonState extends State<NewsButton> {
     super.didChangeDependencies();
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.topRight,
       children: [
         SmallIconButton(
-          icon: Icons.notifications, 
+          icon: Icons.notifications,
           color: Colors.white,
           splash: Colors.white,
           fill: const Color.fromARGB(50, 255, 255, 255),
           onPressed: widget.onPressed,
         ),
-        if (unread > 0) Container(
-          height: 18,
-          width: 18,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.red,
+        if (unread > 0)
+          Container(
+            height: 18,
+            width: 18,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red,
+            ),
+            child: Small(text: "$unread", color: Colors.white, context: context),
           ),
-          child: Small(text: "$unread", color: Colors.white, context: context),
-        ),
       ],
     );
   }

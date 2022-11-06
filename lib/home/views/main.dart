@@ -30,7 +30,7 @@ import 'package:provider/provider.dart';
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
-  @override 
+  @override
   HomeViewState createState() => HomeViewState();
 }
 
@@ -76,12 +76,10 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const NewsView()))
-      .then((_) {
-        // Mark all notifications as read.
-        news.markAllArticlesAsRead(context);
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then((_) {
+      // Mark all notifications as read.
+      news.markAllArticlesAsRead(context);
+    });
   }
 
   /// A callback that is fired when the settings button is tapped.
@@ -97,36 +95,35 @@ class HomeViewState extends State<HomeView> {
     routing.selectWaypoints(shortcut.waypoints);
     routing.loadRoutes(context);
 
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
-      .then((_) {
-        routing.reset();
-        discomforts.reset();
-        predictionSGStatus.reset();
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then((_) {
+      routing.reset();
+      discomforts.reset();
+      predictionSGStatus.reset();
+    });
   }
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const RoutingView()))
-      .then((_) {
-        routing.reset();
-        discomforts.reset();
-        predictionSGStatus.reset();
-      });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then((_) {
+      routing.reset();
+      discomforts.reset();
+      predictionSGStatus.reset();
+    });
   }
 
   /// A callback that is fired when the shortcuts should be edited.
   void onOpenShortcutEditView() {
-    Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
   Widget renderDebugHint() {
     String? description;
-    if (settings.backend != Backend.production) description = "Testort ist gewählt.";
-    if (settings.positioningMode != PositioningMode.gnss) description = "Testortung ist aktiv.";
+    if (settings.backend != Backend.production) {
+      description = "Testort ist gewählt.";
+    }
+    if (settings.positioningMode != PositioningMode.gnss) {
+      description = "Testortung ist aktiv.";
+    }
     if (description == null) return Container();
 
     return Padding(
@@ -137,7 +134,8 @@ class HomeViewState extends State<HomeView> {
           color: Color.fromARGB(246, 255, 153, 0),
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
-        child: HPad(child: Row(children: [
+        child: HPad(
+            child: Row(children: [
           const Icon(Icons.warning_rounded),
           const SmallHSpace(),
           Flexible(child: Content(text: description, context: context)),
@@ -146,10 +144,10 @@ class HomeViewState extends State<HomeView> {
     );
   }
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-    body: CustomScrollView(
+        body: CustomScrollView(
       slivers: <Widget>[
         NavBarView(
           onTapNotificationButton: onNotificationsButtonTapped,
@@ -171,7 +169,7 @@ class HomeViewState extends State<HomeView> {
                   ]),
                   Expanded(child: Container()),
                   SmallIconButton(
-                    icon: Icons.edit, 
+                    icon: Icons.edit,
                     fill: Theme.of(context).colorScheme.background,
                     splash: Colors.white,
                     onPressed: onOpenShortcutEditView,
@@ -184,8 +182,9 @@ class HomeViewState extends State<HomeView> {
                 delay: const Duration(milliseconds: 500),
                 child: Column(children: [
                   const TutorialView(
-                    id: "priobike.tutorial.select-shortcut", 
-                    text: 'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+                    id: "priobike.tutorial.select-shortcut",
+                    text:
+                        'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
                     padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                   ),
                   ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)

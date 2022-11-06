@@ -1,4 +1,15 @@
 {
     "cmake.configureOnOpen": false,
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "dart.lineLength": 120,
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.rulers": [
+            120
+        ],
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false,
+        "editor.suggest.insertMode": "replace"
+    },
 }

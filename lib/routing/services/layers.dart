@@ -82,7 +82,7 @@ class Layers with ChangeNotifier {
     notifyListeners();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();

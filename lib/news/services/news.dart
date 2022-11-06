@@ -82,7 +82,9 @@ class News with ChangeNotifier {
     } on SocketException catch (e, stack) {
       final hint = "Failed to load articles: $e";
       log.w(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];
@@ -99,8 +101,10 @@ class News with ChangeNotifier {
 
   /// Gets a all categories for the given [articles].
   Future<void> _getCategories(BuildContext context) async {
-    for(final article in articles){
-      if (article.categoryId != null && !categories.containsKey(article.categoryId)) await _getCategory(context, article.categoryId!);
+    for (final article in articles) {
+      if (article.categoryId != null && !categories.containsKey(article.categoryId)) {
+        await _getCategory(context, article.categoryId!);
+      }
     }
   }
 
@@ -108,7 +112,9 @@ class News with ChangeNotifier {
   Future<void> _getCategory(BuildContext context, int categoryId) async {
     Category? category = await _getStoredCategory(context, categoryId);
     if (category != null) {
-      if (!categories.containsKey(categoryId)) categories[categoryId] = category;
+      if (!categories.containsKey(categoryId)) {
+        categories[categoryId] = category;
+      }
       return;
     }
 
@@ -131,13 +137,17 @@ class News with ChangeNotifier {
 
       category = Category.fromJson(json.decode(response.body));
 
-      if (!categories.containsKey(categoryId)) categories[categoryId] = category;
+      if (!categories.containsKey(categoryId)) {
+        categories[categoryId] = category;
+      }
 
       await _storeCategory(context, category);
     } on SocketException catch (e, stack) {
       final hint = "Failed to load category: $e";
       log.i(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
     }
   }
 
@@ -185,12 +195,12 @@ class News with ChangeNotifier {
       storedArticlesStr = storage.getString("priobike.news.articles.staging");
     }
 
-    if (storedArticlesStr == null){
+    if (storedArticlesStr == null) {
       return [];
     }
 
     List<Article> storedArticles = [];
-    for (final articleMap in jsonDecode(storedArticlesStr)){
+    for (final articleMap in jsonDecode(storedArticlesStr)) {
       storedArticles.add(Article.fromJson(articleMap));
     }
 
@@ -211,7 +221,7 @@ class News with ChangeNotifier {
       storedCategoryStr = storage.getString("priobike.news.categories.staging.$categoryId");
     }
 
-    if (storedCategoryStr == null){
+    if (storedCategoryStr == null) {
       return null;
     }
 
@@ -248,12 +258,12 @@ class News with ChangeNotifier {
       storedReadArticlesStr = storage.getString("priobike.news.read_articles.staging");
     }
 
-    if (storedReadArticlesStr == null){
+    if (storedReadArticlesStr == null) {
       return {};
     }
 
     Set<Article> storedReadArticles = {};
-    for (final articleMap in jsonDecode(storedReadArticlesStr)){
+    for (final articleMap in jsonDecode(storedReadArticlesStr)) {
       storedReadArticles.add(Article.fromJson(articleMap));
     }
 
@@ -266,7 +276,7 @@ class News with ChangeNotifier {
     // stored in the shared preferences (not necessary for the readArticles set, but to
     // reduce unnecessary storing of the articles)
     final bool newUnreadArticles = !readArticles.containsAll(articles);
-    if (newUnreadArticles){
+    if (newUnreadArticles) {
       readArticles.addAll(articles);
       _storeReadArticles(context);
       notifyListeners();

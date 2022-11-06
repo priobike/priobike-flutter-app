@@ -59,7 +59,7 @@ extension RoutingProfileExtension on RoutingProfile {
         return "mtb_default";
       case RoutingProfile.mtbShortest:
         return "mtb_shortest";
-      case RoutingProfile.mtbFastest:  
+      case RoutingProfile.mtbFastest:
         return "mtb_fastest";
     }
   }
@@ -167,9 +167,14 @@ class Routing with ChangeNotifier {
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
-      final req = SGSelectorRequest(route: path.points.coordinates.map((e) => SGSelectorPosition(
-        lat: e.lat, lon: e.lon, alt: e.elevation ?? 0.0,
-      )).toList());
+      final req = SGSelectorRequest(
+          route: path.points.coordinates
+              .map((e) => SGSelectorPosition(
+                    lat: e.lat,
+                    lon: e.lon,
+                    alt: e.elevation ?? 0.0,
+                  ))
+              .toList());
       final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
@@ -181,7 +186,9 @@ class Routing with ChangeNotifier {
     } catch (e, stack) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
       return null;
     }
   }
@@ -268,10 +275,12 @@ class Routing with ChangeNotifier {
     } catch (e, stacktrace) {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
-      if (!kDebugMode) await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      }
       return null;
     }
-  } 
+  }
 
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
@@ -300,7 +309,8 @@ class Routing with ChangeNotifier {
     }
 
     // Load the SG-Selector responses for each path.
-    final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
+    final sgSelectorResponses =
+        await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -316,26 +326,30 @@ class Routing with ChangeNotifier {
     }
 
     // Create the routes.
-    final routes = ghResponse.paths.asMap().map((i, path) {
-      final sgSelectorResponse = sgSelectorResponses[i]!;
-      final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-      for (final waypoint in sgSelectorResponse.route) {
-        if (waypoint.signalGroupId == null) continue;
-        final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-        if (sg == null) continue;
-        if (sgsInOrderOfRoute.contains(sg)) continue;
-        sgsInOrderOfRoute.add(sg);
-      }
-      var route = r.Route(
-        path: path, 
-        route: sgSelectorResponse.route, 
-        signalGroups: sgsInOrderOfRoute,
-        crossings: sgSelectorResponse.crossings,
-      );
-      // Connect the route to the start and end points.
-      route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-      return MapEntry(i, route);
-    }).values.toList();
+    final routes = ghResponse.paths
+        .asMap()
+        .map((i, path) {
+          final sgSelectorResponse = sgSelectorResponses[i]!;
+          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+          for (final waypoint in sgSelectorResponse.route) {
+            if (waypoint.signalGroupId == null) continue;
+            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+            if (sg == null) continue;
+            if (sgsInOrderOfRoute.contains(sg)) continue;
+            sgsInOrderOfRoute.add(sg);
+          }
+          var route = r.Route(
+            path: path,
+            route: sgSelectorResponse.route,
+            signalGroups: sgsInOrderOfRoute,
+            crossings: sgSelectorResponse.crossings,
+          );
+          // Connect the route to the start and end points.
+          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+          return MapEntry(i, route);
+        })
+        .values
+        .toList();
 
     selectedRoute = routes.first;
     allRoutes = routes;
@@ -354,7 +368,7 @@ class Routing with ChangeNotifier {
 
   /// Select a route.
   Future<void> switchToRoute(BuildContext context, r.Route route) async {
-    // Can only select an alternative route if there are some, 
+    // Can only select an alternative route if there are some,
     // and if there is a currently selected route.
     selectedRoute = route;
 
@@ -367,7 +381,7 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();

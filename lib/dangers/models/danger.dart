@@ -1,6 +1,6 @@
 /// A dangerous location reported by the user.
 class Danger {
-   /// The GPS latitude of the location.
+  /// The GPS latitude of the location.
   final double lat;
 
   /// The GPS longitude of the location.
@@ -29,21 +29,21 @@ class Danger {
 
   /// Create a new danger from a json object.
   factory Danger.fromJson(Map<String, dynamic> json) => Danger(
-    lat: json['lat'] as double,
-    lng: json['lng'] as double,
-    sLat: json['sLat'] as double,
-    sLng: json['sLng'] as double,
-    acc: json['acc'] as double,
-    time: json['time'] as int,
-  );
+        lat: json['lat'] as double,
+        lng: json['lng'] as double,
+        sLat: json['sLat'] as double,
+        sLng: json['sLng'] as double,
+        acc: json['acc'] as double,
+        time: json['time'] as int,
+      );
 
   /// Convert this danger to a json object.
   Map<String, dynamic> toJson() => {
-    'lat': lat,
-    'lng': lng,
-    'sLat': sLat,
-    'sLng': sLng,
-    'acc': acc,
-    'time': time,
-  };
+        'lat': lat,
+        'lng': lng,
+        'sLat': sLat,
+        'sLng': sLng,
+        'acc': acc,
+        'time': time,
+      };
 }

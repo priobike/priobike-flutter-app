@@ -23,9 +23,9 @@ class WaypointListItemView extends StatefulWidget {
   final void Function(Waypoint) onTap;
 
   const WaypointListItemView({
-    this.isCurrentPosition = false, 
-    required this.waypoint, 
-    required this.onTap, 
+    this.isCurrentPosition = false,
+    required this.waypoint,
+    required this.onTap,
     Key? key,
   }) : super(key: key);
 
@@ -72,46 +72,34 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
         title: widget.waypoint == null
             ? null
             : widget.isCurrentPosition
-                ? BoldSubHeader(
-                    text: "Aktueller Standort",
-                    context: context,
-                    color: Colors.white)
+                ? BoldSubHeader(text: "Aktueller Standort", context: context, color: Colors.white)
                 : BoldSmall(
                     text: widget.waypoint!.address!,
                     context: context,
-                    color: widget.isCurrentPosition
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : null,
+                    color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
                   ),
         subtitle: widget.isCurrentPosition
-          ? null
-          : (
-            distance == null ? null : (
-              distance! > 1000 ? (
-                Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context)
-              ) : (
-                Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)
+            ? null
+            : (distance == null
+                ? null
+                : (distance! > 1000
+                    ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                    : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)))),
+        trailing: widget.waypoint == null
+            ? CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onPrimary,
               )
-            )
-          ),
-        trailing: widget.waypoint == null ? CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.onPrimary,
-        ) : Icon(
-          widget.isCurrentPosition ?
-            Icons.location_on :
-            Icons.arrow_forward,
-          color: widget.isCurrentPosition
-           ? Colors.white
-           : Theme.of(context).colorScheme.primary,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(24))
-        ),
+            : Icon(
+                widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
+                color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
+              ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        tileColor: widget.isCurrentPosition 
-          ? Theme.of(context).colorScheme.primary
-          : Theme.of(context).colorScheme.background,
-        onTap: () { if (widget.waypoint != null) widget.onTap(widget.waypoint!); },
+        tileColor:
+            widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
+        onTap: () {
+          if (widget.waypoint != null) widget.onTap(widget.waypoint!);
+        },
       ),
     );
   }
@@ -147,21 +135,15 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       waypoint = null;
       return;
     }
-    if (
-      waypoint != null && 
-      waypoint!.lat == positioning.lastPosition!.latitude &&
-      waypoint!.lon == positioning.lastPosition!.longitude
-    ) return;
+    if (waypoint != null &&
+        waypoint!.lat == positioning.lastPosition!.latitude &&
+        waypoint!.lon == positioning.lastPosition!.longitude) return;
     waypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
   @override
   Widget build(BuildContext context) {
-    return WaypointListItemView(
-      isCurrentPosition: true,
-      waypoint: waypoint, 
-      onTap: widget.onTap
-    );
+    return WaypointListItemView(isCurrentPosition: true, waypoint: waypoint, onTap: widget.onTap);
   }
 }
 
@@ -215,8 +197,8 @@ class RouteSearchState extends State<RouteSearch> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    return Scaffold(body:
-      Column(children: [
+    return Scaffold(
+      body: Column(children: [
         Container(
           padding: EdgeInsets.only(top: frame.padding.top),
           color: Theme.of(context).colorScheme.background,
@@ -232,39 +214,31 @@ class RouteSearchState extends State<RouteSearch> {
                 decoration: InputDecoration(
                   hintText: "Suche",
                   border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24), 
-                      bottomLeft: Radius.circular(24)
-                    )
-                  ),
-                  suffixIcon: geosearch.isFetchingAddress 
-                    ? const Padding(
-                        padding: EdgeInsets.all(12), 
-                        child: CircularProgressIndicator()
-                      )
-                    : const Icon(Icons.search),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24))),
+                  suffixIcon: geosearch.isFetchingAddress
+                      ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator())
+                      : const Icon(Icons.search),
                 ),
               ),
             ),
           ]),
         ),
-        Expanded(child: SingleChildScrollView(
-          child: Column(children: [
-            const SmallVSpace(),
-            if (positioning.lastPosition != null)
-              CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
-            if (geosearch.results?.isNotEmpty == true) ...[
-              for (final waypoint in geosearch.results!) ...[
-                WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
-              ]
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Small(text: "Keine weiteren Ergebnisse", context: context),
-              )
-            ],
-          ])
-        )),
+        Expanded(
+            child: SingleChildScrollView(
+                child: Column(children: [
+          const SmallVSpace(),
+          if (positioning.lastPosition != null) CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
+          if (geosearch.results?.isNotEmpty == true) ...[
+            for (final waypoint in geosearch.results!) ...[
+              WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
+            ]
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Small(text: "Keine weiteren Ergebnisse", context: context),
+            )
+          ],
+        ]))),
       ]),
     );
   }

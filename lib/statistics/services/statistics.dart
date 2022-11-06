@@ -34,9 +34,7 @@ class Statistics with ChangeNotifier {
 
   /// Get the average speed of all rides in km/h.
   double? get averageSpeedKmH {
-    if (totalDistanceMeters == null ||
-        totalDurationSeconds == null ||
-        totalDurationSeconds == 0) {
+    if (totalDistanceMeters == null || totalDurationSeconds == null || totalDurationSeconds == 0) {
       return null;
     }
     return totalDistanceMeters! / totalDurationSeconds! * 3.6;
@@ -76,7 +74,8 @@ class Statistics with ChangeNotifier {
     totalElevationGain = storage.getDouble("priobike.statistics.totalElevationGain") ?? 0.0;
     totalElevationLoss = storage.getDouble("priobike.statistics.totalElevationLoss") ?? 0.0;
     summaries = (storage.getStringList("priobike.statistics.summaries") ?? [])
-      .map((e) => Summary.fromJson(jsonDecode(e))).toList();
+        .map((e) => Summary.fromJson(jsonDecode(e)))
+        .toList();
 
     hasLoaded = true;
     notifyListeners();
@@ -153,7 +152,7 @@ class Statistics with ChangeNotifier {
   Future<void> recalculateStatistics() async {
     await loadStatistics();
     if (summaries == null) return;
-    
+
     totalDistanceMeters = summaries!.map((e) => e.distanceMeters).reduce((value, element) => value + element);
     totalDurationSeconds = summaries!.map((e) => e.durationSeconds).reduce((value, element) => value + element);
     totalElevationGain = summaries!.map((e) => e.elevationGain).reduce((value, element) => value + element);

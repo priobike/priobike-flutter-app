@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
@@ -41,6 +42,9 @@ class Settings with ChangeNotifier {
 
   /// The selected speed mode.
   SpeedMode speedMode;
+
+  /// The selected datastream mode.
+  DatastreamMode datastreamMode;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -92,10 +96,15 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectDatastreamMode(DatastreamMode datastreamMode) async {
+    this.datastreamMode = datastreamMode;
+    await store();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
-    this.backend = Backend.production, 
+    this.backend = Backend.production,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,
@@ -103,6 +112,7 @@ class Settings with ChangeNotifier {
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
+    this.datastreamMode = DatastreamMode.disabled,
   });
 
   /// Load the backend from the shared
@@ -131,19 +141,37 @@ class Settings with ChangeNotifier {
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
+    final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
 
-    if (backendStr != null) backend = Backend.values.byName(backendStr);
-    if (positioningModeStr != null) positioningMode = PositioningMode.values.byName(positioningModeStr);
-    if (reroutingStr != null) rerouting = Rerouting.values.byName(reroutingStr);
-    if (routingEndpointStr != null) routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-    if (sgLabelsModeStr != null) sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+    if (backendStr != null) {
+      backend = Backend.values.byName(backendStr);
+    }
+    if (positioningModeStr != null) {
+      positioningMode = PositioningMode.values.byName(positioningModeStr);
+    }
+    if (reroutingStr != null) {
+      rerouting = Rerouting.values.byName(reroutingStr);
+    }
+    if (routingEndpointStr != null) {
+      routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+    }
+    if (sgLabelsModeStr != null) {
+      sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+    }
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
     } else {
       ridePreference = null;
     }
-    if (colorModeStr != null) colorMode = ColorMode.values.byName(colorModeStr);
-    if (speedModeStr != null) speedMode = SpeedMode.values.byName(speedModeStr);
+    if (colorModeStr != null) {
+      colorMode = ColorMode.values.byName(colorModeStr);
+    }
+    if (speedModeStr != null) {
+      speedMode = SpeedMode.values.byName(speedModeStr);
+    }
+    if (datastreamModeStr != null) {
+      datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -162,6 +190,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
+    await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -174,15 +203,16 @@ class Settings with ChangeNotifier {
 
   /// Convert the settings to a json object.
   Map<String, dynamic> toJson() => {
-    "enableBetaFeatures": enableBetaFeatures,
-    "enableInternalFeatures": enableInternalFeatures,
-    "backend": backend.name,
-    "positioningMode": positioningMode.name,
-    "rerouting": rerouting.name,
-    "routingEndpoint": routingEndpoint.name,
-    "sgLabelsMode": sgLabelsMode.name,
-    "ridePreference": ridePreference?.name,
-    "colorMode": colorMode.name,
-    "speedMode": speedMode.name,
-  };
+        "enableBetaFeatures": enableBetaFeatures,
+        "enableInternalFeatures": enableInternalFeatures,
+        "backend": backend.name,
+        "positioningMode": positioningMode.name,
+        "rerouting": rerouting.name,
+        "routingEndpoint": routingEndpoint.name,
+        "sgLabelsMode": sgLabelsMode.name,
+        "ridePreference": ridePreference?.name,
+        "colorMode": colorMode.name,
+        "speedMode": speedMode.name,
+        "datastreamMode": datastreamMode.name,
+      };
 }

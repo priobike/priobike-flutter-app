@@ -1,5 +1,3 @@
-
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -53,33 +51,40 @@ class Discomforts with ChangeNotifier {
 
   Future<void> findDiscomforts(BuildContext context, GHRouteResponsePath path) async {
     final profile = Provider.of<Profile>(context, listen: false);
-    
+
     // Use the smoothness values to determine unsmooth sections.
     // See: https://wiki.openstreetmap.org/wiki/DE:Key:smoothness
     final unsmooth = path.details.smoothness
-      .map((segment) {
-        if (segment.value == null) return null;
-        final cs = getCoordinates(segment, path);
-        if (segment.value == "impassable") {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
-        } else if (segment.value == "very_horrible") {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
-        } else if (segment.value == "horrible") {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
-        } else if (segment.value == "very_bad") {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
-        } else if (segment.value == "bad") {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
-        } else if (
-          segment.value == "intermediate" && 
-          (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike)
-        ) {
-          return DiscomfortSegment(
-            segment: segment, coordinates: cs, 
-            description: "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.description()}) ungeeignet sein könnte."
-          );
-        }
-      }).where((e) => e != null).map((e) => e!).toList();
+        .map((segment) {
+          if (segment.value == null) return null;
+          final cs = getCoordinates(segment, path);
+          if (segment.value == "impassable") {
+            return DiscomfortSegment(
+                segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
+          } else if (segment.value == "very_horrible") {
+            return DiscomfortSegment(
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
+          } else if (segment.value == "horrible") {
+            return DiscomfortSegment(
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          } else if (segment.value == "very_bad") {
+            return DiscomfortSegment(
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
+          } else if (segment.value == "bad") {
+            return DiscomfortSegment(
+                segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
+          } else if (segment.value == "intermediate" &&
+              (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike)) {
+            return DiscomfortSegment(
+                segment: segment,
+                coordinates: cs,
+                description:
+                    "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.description()}) ungeeignet sein könnte.");
+          }
+        })
+        .where((e) => e != null)
+        .map((e) => e!)
+        .toList();
 
     // Traverse the points and calculate the elevation in degrees.
     final criticalElevationSegments = List<GHSegment>.empty(growable: true);
@@ -90,7 +95,9 @@ class Discomforts with ChangeNotifier {
       final c2 = path.points.coordinates[i + 1];
       if (c1.elevation == null || c2.elevation == null) continue;
       final dist = vincenty.distance(l.LatLng(c1.lat, c1.lon), l.LatLng(c2.lat, c2.lon));
-      if (dist < 50) continue; // Avoid short segments due to floating point inaccuracies.
+      if (dist < 50) {
+        continue; // Avoid short segments due to floating point inaccuracies.
+      }
       final eleDiff = c2.elevation! - c1.elevation!;
       final eleDiffPct = eleDiff / dist * 100;
       if (eleDiffPct < 10 && eleDiffPct > -10) {
@@ -110,31 +117,46 @@ class Discomforts with ChangeNotifier {
     final criticalElevation = criticalElevationSegments.map((segment) {
       final cs = getCoordinates(segment, path);
       if (segment.value! > 0) {
-        return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
+        return DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
       } else {
-        return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
+        return DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
       }
     }).toList();
 
     // Use the speed limit values to determine uncomfortable sections.
     // See: https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
     final unwantedSpeed = path.details.maxSpeed
-      .map((segment) {
-        if (segment.value == null) return null;
-        final cs = getCoordinates(segment, path);
-        if (segment.value! >= 100) {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
-        } else if (segment.value! <= 10) {
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
-        }
-      }).where((e) => e != null).map((e) => e!).toList();
-    
+        .map((segment) {
+          if (segment.value == null) return null;
+          final cs = getCoordinates(segment, path);
+          if (segment.value! >= 100) {
+            return DiscomfortSegment(
+                segment: segment,
+                coordinates: cs,
+                description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
+          } else if (segment.value! <= 10) {
+            return DiscomfortSegment(
+                segment: segment,
+                coordinates: cs,
+                description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
+          }
+        })
+        .where((e) => e != null)
+        .map((e) => e!)
+        .toList();
+
     foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));
     notifyListeners();
   }
 
-  @override 
+  @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();

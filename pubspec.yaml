@@ -60,6 +60,7 @@ dependencies:
   firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
   flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: ^2.0.0 # Used to get accelerometer data
+  mqtt_client: ^9.6.8
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons

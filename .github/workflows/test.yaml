@@ -16,7 +16,9 @@ jobs:
     container: cirrusci/flutter:2.10.5
     steps:
       - uses: actions/checkout@v2
-      - name: Run unit tests
+      - name: Run unit tests and check for styling errors
         run: |
           flutter pub get
+          flutter format --line-length 120 --set-exit-if-changed .
+          flutter analyze .
           flutter test

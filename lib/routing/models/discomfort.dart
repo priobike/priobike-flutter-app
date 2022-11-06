@@ -32,16 +32,16 @@ class DiscomfortSegment {
   bool operator ==(Object other) => other is DiscomfortSegment && other.id == id;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'segment': segment.toJson(),
-    'description': description,
-    'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
-  };
+        'id': id,
+        'segment': segment.toJson(),
+        'description': description,
+        'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
+      };
 
   factory DiscomfortSegment.fromJson(dynamic json) => DiscomfortSegment(
-    id: json['id'],
-    segment: GHSegment.fromJson(json['segment']),
-    description: json['description'],
-    coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
-  );
+        id: json['id'],
+        segment: GHSegment.fromJson(json['segment']),
+        description: json['description'],
+        coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
+      );
 }

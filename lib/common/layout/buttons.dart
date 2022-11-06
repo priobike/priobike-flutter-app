@@ -34,8 +34,8 @@ class SmallIconButton extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.white.withOpacity(0.04)
-            : Colors.black.withOpacity(0.04),
+              ? Colors.white.withOpacity(0.04)
+              : Colors.black.withOpacity(0.04),
           width: 1,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(24)),
@@ -67,8 +67,8 @@ class AppBackButton extends StatelessWidget {
   final void Function() onPressed;
 
   const AppBackButton({
-    this.icon = Icons.chevron_left, 
-    required this.onPressed, 
+    this.icon = Icons.chevron_left,
+    required this.onPressed,
     Key? key,
   }) : super(key: key);
 
@@ -90,10 +90,7 @@ class AppBackButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(24), 
-            bottomRight: Radius.circular(24)
-          ),
+          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
     );
@@ -124,9 +121,9 @@ class BigButton extends StatelessWidget {
   final BoxConstraints boxConstraints;
 
   const BigButton({
-    Key? key, 
-    this.icon, 
-    required this.label, 
+    Key? key,
+    this.icon,
+    required this.label,
     required this.onPressed,
     this.fillColor,
     this.splashColor,
@@ -134,7 +131,7 @@ class BigButton extends StatelessWidget {
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
   }) : super(key: key);
 
-  @override 
+  @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
       fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
@@ -152,12 +149,14 @@ class BigButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SizedBox(width: 32),
-            if (icon != null) Icon(
-              icon,
-              color: iconColor,
-            ),
+            if (icon != null)
+              Icon(
+                icon,
+                color: iconColor,
+              ),
             const SizedBox(width: 12),
-            Flexible(child: Text(
+            Flexible(
+                child: Text(
               label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

@@ -1,22 +1,19 @@
-
-
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:priobike/logging/logger.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// For older Android devices (Android 5), there will sometimes be a 
-/// HTTP error due to an expired certificate. This certificate lies within 
-/// the Android operating system and is not part of the app. For our app 
-/// to work on older Android devices, we need to ignore the certificate error. 
+/// For older Android devices (Android 5), there will sometimes be a
+/// HTTP error due to an expired certificate. This certificate lies within
+/// the Android operating system and is not part of the app. For our app
+/// to work on older Android devices, we need to ignore the certificate error.
 /// Note that this is a workaround and should be handled with care.
 /// See: https://github.com/flutter/flutter/issues/19588#issuecomment-406779390
 class OldAndroidHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super
-      .createHttpClient(context)
+    return super.createHttpClient(context)
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
@@ -57,8 +54,7 @@ class Http {
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
     // Passing the sticky cookie will allow us to connect to the same backend.
-    http.Response response = await _client
-      .get(url, headers: headers);
+    http.Response response = await _client.get(url, headers: headers);
     setCookies(response);
     return response;
   }
@@ -68,8 +64,7 @@ class Http {
     final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
     final headers = {"Cookie": cookieString};
     // Passing the sticky cookie will allow us to connect to the same backend.
-    http.Response response = await _client
-      .post(url, body: body, headers: headers);
+    http.Response response = await _client.post(url, body: body, headers: headers);
     setCookies(response);
     return response;
   }
@@ -82,4 +77,3 @@ class Http {
     return IOWebSocketChannel.connect(url, headers: headers);
   }
 }
-

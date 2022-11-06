@@ -24,19 +24,19 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
+      return;
+    }
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
-        final String? address = await geocoding.reverseGeocodeLatLng(
-            context, waypoint.lat, waypoint.lon);
+        final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
       }
     }
-    final newShortcut =
-        Shortcut(name: name, waypoints: routing.selectedWaypoints!);
+    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;
