@@ -26,7 +26,7 @@ class StatusViewState extends State<StatusView> {
   @override
   void didChangeDependencies() {
     predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    WidgetsBinding.instance!.addPostFrameCallback((_) => loadProblem());
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadProblem());
     super.didChangeDependencies();
   }
 

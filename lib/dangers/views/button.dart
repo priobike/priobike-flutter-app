@@ -22,7 +22,7 @@ class DangerButtonState extends State<DangerButton> {
     super.initState();
 
     // Hide the hint after a few seconds.
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 5), () {
         setState(() {
           showHint = false;

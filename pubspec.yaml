@@ -33,9 +33,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  sentry_flutter: ^6.4.0 # Error tracing
+  sentry_flutter: ^6.14.0 # Error tracing
   fluttertoast: ^8.0.8 # Minimalistic popup callable from everywhere
-  syncfusion_flutter_gauges: ^19.3.43 # Speedometer
+  syncfusion_flutter_gauges: ^20.3.52 # Speedometer
   cupertino_icons: ^1.0.2 # Icons package
   provider: ^6.0.0 # State management
   geolocator: ^8.1.1 # GPS tracking

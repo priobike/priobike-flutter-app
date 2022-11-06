@@ -95,7 +95,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     super.initState();
     sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       await layers.loadPreferences();
     });
   }

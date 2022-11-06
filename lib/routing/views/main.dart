@@ -54,7 +54,7 @@ class RoutingViewState extends State<RoutingView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       await routing?.loadRoutes(context);
 
       // Calling requestSingleLocation function to fill lastPosition of PositionService

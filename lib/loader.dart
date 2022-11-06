@@ -68,7 +68,7 @@ class LoaderState extends State<Loader> {
   void initState() {
     super.initState();
     // Init the view once the app is ready.
-    SchedulerBinding.instance!.addPostFrameCallback((_) => init(context));
+    SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
   }
 
   @override

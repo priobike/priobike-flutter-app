@@ -44,7 +44,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     s = Provider.of<PrivacyPolicy>(context);
 
     // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await s.loadPolicy(context);
     });
 

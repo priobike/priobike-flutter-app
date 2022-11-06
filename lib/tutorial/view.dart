@@ -41,7 +41,7 @@ class TutorialViewState extends State<TutorialView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       tutorial.loadCompleted();
     });
   }
