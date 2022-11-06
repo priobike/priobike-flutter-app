@@ -53,8 +53,8 @@ class TutorialViewState extends State<TutorialView> {
   @override
   void didChangeDependencies() {
     tutorial = Provider.of<Tutorial>(context);
-    final _wasCompleted = tutorial.isCompleted(widget.id);
-    if (_wasCompleted != null && !_wasCompleted) {
+    final wasCompleted = tutorial.isCompleted(widget.id);
+    if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
       setState(
         () {
@@ -62,9 +62,7 @@ class TutorialViewState extends State<TutorialView> {
           _tutorialIsShown = true;
         },
       );
-    } else if (_wasCompleted != null &&
-        !_checkmarkIsShown &&
-        _tutorialIsShown) {
+    } else if (wasCompleted != null && !_checkmarkIsShown && _tutorialIsShown) {
       // If the tutorial was just completed, show the checkmark and hide it after a short delay.
       setState(
         () {
