@@ -62,6 +62,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         alignment: AlignmentDirectional.center,
         children: [
           Transform.translate(
+              offset: const Offset(0, -24),
               child: Text(
                 countdownLabel,
                 textAlign: TextAlign.center,
@@ -73,9 +74,9 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                     ..strokeWidth = 4
                     ..color = const Color.fromARGB(255, 0, 0, 0),
                 ),
-              ),
-              offset: const Offset(0, -24)),
+              )),
           Transform.translate(
+              offset: const Offset(0, -24),
               child: Text(
                 countdownLabel,
                 textAlign: TextAlign.center,
@@ -84,9 +85,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 255, 255, 255),
                 ),
-              ),
-              offset: const Offset(0, -24)),
-          Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
+              )),
+          Transform.translate(offset: const Offset(0, 24), child: const CancelButton()),
         ],
       )),
     );

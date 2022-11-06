@@ -83,6 +83,7 @@ class StatusViewState extends State<StatusView> {
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
           content: Row(children: [
             Flexible(
+              fit: FlexFit.tight,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 problem != null
                     ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
@@ -90,7 +91,6 @@ class StatusViewState extends State<StatusView> {
                 if (problem != null) const SizedBox(height: 4),
                 if (problem != null) Small(text: problem!, context: context, color: Colors.white),
               ]),
-              fit: FlexFit.tight,
             ),
             const SmallHSpace(),
             Icon(

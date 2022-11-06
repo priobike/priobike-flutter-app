@@ -296,7 +296,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
             padding: const EdgeInsets.all(8),
             child: Stack(alignment: Alignment.center, children: [
               Container(
-                child: gauge,
                 height: (MediaQuery.of(context).size.width - 16),
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -312,14 +311,15 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
                     ),
                   ],
                 ),
+                child: gauge,
               ),
               Container(
-                child: gauge,
                 height: (MediaQuery.of(context).size.width - 16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.background,
                   borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
                 ),
+                child: gauge,
               ),
               const RideTrafficLightView(),
             ]),

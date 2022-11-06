@@ -61,6 +61,7 @@ dependencies:
   flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: ^2.0.0 # Used to get accelerometer data
   mqtt_client: ^9.6.8
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons

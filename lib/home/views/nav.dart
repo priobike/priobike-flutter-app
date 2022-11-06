@@ -52,7 +52,7 @@ class NavBarView extends StatelessWidget {
             children: [
               Row(children: [
                 Flexible(
-                    child: BoldContent(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
+                    fit: FlexFit.tight, child: BoldContent(text: "PrioBike", color: Colors.white, context: context)),
                 BoldContent(text: greeting, color: Colors.white, context: context),
               ]),
               const SmallVSpace(),

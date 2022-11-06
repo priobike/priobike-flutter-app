@@ -55,6 +55,7 @@ class SettingsElement extends StatelessWidget {
         fill: Theme.of(context).colorScheme.background,
         content: Row(children: [
           Flexible(
+              fit: FlexFit.tight,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -63,8 +64,7 @@ class SettingsElement extends StatelessWidget {
                   if (subtitle != null)
                     Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
                 ],
-              ),
-              fit: FlexFit.tight),
+              )),
           SmallIconButton(
             icon: icon,
             onPressed: callback,
@@ -110,14 +110,14 @@ class SettingsSelection<E> extends StatelessWidget {
                           : Theme.of(context).colorScheme.background,
                       content: Row(children: [
                         Flexible(
+                            fit: FlexFit.tight,
                             child: Content(
                               text: title(elements[index]),
                               context: context,
                               color: elements[index] == selected
                                   ? Theme.of(context).colorScheme.onPrimary
                                   : Theme.of(context).colorScheme.onBackground,
-                            ),
-                            fit: FlexFit.tight),
+                            )),
                         Expanded(child: Container()),
                         SmallIconButton(
                           icon: elements[index] == selected ? Icons.check : Icons.check_box_outline_blank,

@@ -70,6 +70,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               proxyDecorator: (proxyWidget, idx, anim) {
                 return proxyWidget;
               },
+              onReorder: onChangeShortcutOrder,
               children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
                 return Container(
                     key: Key("$entry.key"),
@@ -81,11 +82,11 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
                         content: Row(children: [
                           Flexible(
+                              fit: FlexFit.tight,
                               child: BoldContent(
                                 text: entry.value.name,
                                 context: context,
-                              ),
-                              fit: FlexFit.tight),
+                              )),
                           const HSpace(),
                           SmallIconButton(
                             icon: Icons.delete,
@@ -96,7 +97,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       ),
                     ));
               }).toList(),
-              onReorder: onChangeShortcutOrder,
             ),
             const SizedBox(height: 128),
           ])),

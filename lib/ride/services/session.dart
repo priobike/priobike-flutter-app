@@ -15,7 +15,7 @@ class Session with ChangeNotifier {
   final log = Logger("Session");
 
   /// The client id of this session.
-  var clientId = "beta-app-" + UniqueKey().toString();
+  var clientId = "beta-app-${UniqueKey()}";
 
   /// The active session id, if authenticated.
   /// Is set by: [openSession].

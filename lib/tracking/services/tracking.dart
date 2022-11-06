@@ -198,7 +198,7 @@ class Tracking with ChangeNotifier {
         'accelerations': accelerations?.map((d) => d.toJson()).toList(),
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
-        'deviceInfo': deviceInfo?.toMap(),
+        'deviceInfo': deviceInfo?.data,
         'packageInfo': {
           'appName': packageInfo?.appName,
           'packageName': packageInfo?.packageName,
