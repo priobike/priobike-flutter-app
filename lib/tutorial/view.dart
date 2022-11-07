@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +31,13 @@ class TutorialViewState extends State<TutorialView> {
   late Tutorial tutorial;
 
   /// Whether a green checkmark should be shown.
-  bool checkmarkIsShown = false;
+  bool _checkmarkIsShown = false;
 
   /// Whether the tutorial should be shown. Initially, it is not shown.
-  bool tutorialIsShown = false;
+  bool _tutorialIsShown = false;
+
+  /// The time in milliseconds for a finished tutorial to fade out.
+  final _fadeOutDuration = const Duration(milliseconds: 1000);
 
   @override
   void initState() {
@@ -52,36 +54,46 @@ class TutorialViewState extends State<TutorialView> {
     final wasCompleted = tutorial.isCompleted(widget.id);
     if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
-      setState(() {
-        checkmarkIsShown = false;
-        tutorialIsShown = true;
-      });
-    } else if (wasCompleted != null && !checkmarkIsShown && tutorialIsShown) {
+      setState(
+        () {
+          _checkmarkIsShown = false;
+          _tutorialIsShown = true;
+        },
+      );
+    } else if (wasCompleted != null && !_checkmarkIsShown && _tutorialIsShown) {
       // If the tutorial was just completed, show the checkmark and hide it after a short delay.
-      setState(() {
-        checkmarkIsShown = true;
-      });
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() {
-            tutorialIsShown = false;
-          });
-        }
-      });
+      setState(
+        () {
+          _checkmarkIsShown = true;
+        },
+      );
+      Future.delayed(
+        _fadeOutDuration,
+        () {
+          if (mounted) {
+            setState(
+              () {
+                _tutorialIsShown = false;
+              },
+            );
+          }
+        },
+      );
     }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!tutorialIsShown) {
+    if (!_tutorialIsShown) {
       return Container();
     }
-    return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 300),
-      firstChild: Container(),
-      secondChild: Padding(
-        padding: widget.padding ?? const EdgeInsets.all(0),
+    return Padding(
+      padding: widget.padding ?? const EdgeInsets.all(0),
+      child: AnimatedOpacity(
+        // Show checkmark only when tutorial is completed.
+        opacity: _checkmarkIsShown ? 0.0 : 1.0,
+        duration: _fadeOutDuration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,27 +102,33 @@ class TutorialViewState extends State<TutorialView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(
-                  child: BoldSmall(text: widget.text, color: const Color.fromARGB(255, 91, 91, 91), context: context),
-                ),
-                const SmallHSpace(),
-                Column(children: [
-                  AnimatedCrossFade(
-                    duration: const Duration(milliseconds: 300),
-                    firstChild: const Icon(Icons.check, color: Colors.green),
-                    secondChild: const Padding(
-                        padding: EdgeInsets.only(left: 6),
-                        child: Icon(Icons.tips_and_updates, color: Color.fromARGB(255, 91, 91, 91))),
-                    crossFadeState: checkmarkIsShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  child: BoldSmall(
+                    text: widget.text,
+                    color: const Color.fromARGB(255, 91, 91, 91),
+                    context: context,
                   ),
-                  const SmallVSpace(),
-                  Small(text: "Tutorial", color: const Color.fromARGB(255, 91, 91, 91), context: context),
-                ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: IconButton(
+                    icon: _checkmarkIsShown
+                        ? const Icon(
+                            Icons.check,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          )
+                        : const Icon(
+                            Icons.close,
+                            color: Color.fromARGB(255, 91, 91, 91),
+                          ),
+                    // The following call will trigger `notifyListeners()`.
+                    onPressed: () => tutorial.complete(widget.id),
+                  ),
+                )
               ],
             ),
           ],
         ),
       ),
-      crossFadeState: tutorialIsShown ? CrossFadeState.showSecond : CrossFadeState.showFirst,
     );
   }
 }
