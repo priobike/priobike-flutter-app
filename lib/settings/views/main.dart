@@ -191,6 +191,7 @@ class SettingsViewState extends State<SettingsView> {
     // Load stuff for the new backend.
     await news.getArticles(context);
     await shortcuts.loadShortcuts(context);
+    await predictionStatusSummary.fetch(context);
 
     Navigator.pop(context);
   }
