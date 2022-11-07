@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -17,6 +18,7 @@ import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,13 +82,16 @@ class RoutingViewState extends State<RoutingView> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
+    // Show the ride view directly if the user has selected his preferred ride view.
+    final preferredRideView = Provider.of<Settings>(context, listen: false).ridePreference;
+
     void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           // Avoid navigation back, only allow stop button to be pressed.
           // Note: Don't use pushReplacement since this will call
           // the result handler of the RouteView's host.
           return WillPopScope(
             onWillPop: () async => false,
-            child: const RideSelectionView(),
+            child: preferredRideView == null ? const RideSelectionView() : const RideView(),
           );
         }));
 

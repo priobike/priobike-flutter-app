@@ -126,7 +126,7 @@ class RideSelectionViewState extends State<RideSelectionView> {
                 HPad(
                     child: Content(
                         text:
-                            "Um deine Sicherheit zu erhöhen, kannst du während der Fahrt nicht mehr zwischen den Ansichten wechseln.",
+                            "Um deine Sicherheit zu erhöhen, kannst du während der Fahrt nicht mehr zwischen den Ansichten wechseln. Kehre zu den Einstellungen zurück, um eine andere Ansicht zu wählen.",
                         context: context)),
                 const SmallVSpace(),
                 GridView.count(
