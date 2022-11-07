@@ -78,6 +78,8 @@ class RoutingViewState extends State<RoutingView> {
 
   /// A callback that is fired when the ride is started.
   Future<void> onStartRide() async {
+    HapticFeedback.heavyImpact();
+
     void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           // Avoid navigation back, only allow stop button to be pressed.
           // Note: Don't use pushReplacement since this will call
