@@ -50,7 +50,10 @@ class DangerButtonState extends State<DangerButton> {
           splashColor: Theme.of(context).colorScheme.surface,
           constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           child: AnimatedCrossFade(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 500),
+            firstCurve: Curves.easeInOutCubic,
+            secondCurve: Curves.easeInOutCubic,
+            sizeCurve: Curves.easeInOutCubic,
             firstChild: SizedBox(
               width: 64,
               height: 64,

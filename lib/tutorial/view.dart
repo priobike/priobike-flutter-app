@@ -70,7 +70,7 @@ class TutorialViewState extends State<TutorialView> {
         },
       );
       Future.delayed(
-        _fadeOutDuration,
+        _fadeOutDuration ~/ 2,
         () {
           if (mounted) {
             setState(
@@ -87,48 +87,53 @@ class TutorialViewState extends State<TutorialView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_tutorialIsShown) {
-      return Container();
-    }
-    return Padding(
-      padding: widget.padding ?? const EdgeInsets.all(0),
-      child: AnimatedOpacity(
-        // Show checkmark only when tutorial is completed.
-        opacity: _checkmarkIsShown ? 0.0 : 1.0,
-        duration: _fadeOutDuration,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: BoldSmall(
-                    text: widget.text,
-                    color: const Color.fromARGB(255, 91, 91, 91),
-                    context: context,
+    return AnimatedCrossFade(
+      duration: _fadeOutDuration,
+      firstCurve: Curves.easeInOutCubic,
+      secondCurve: Curves.easeInOutCubic,
+      sizeCurve: Curves.easeInOutCubic,
+      crossFadeState: _tutorialIsShown ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+      firstChild: Container(),
+      secondChild: Padding(
+        padding: widget.padding ?? const EdgeInsets.all(0),
+        child: AnimatedOpacity(
+          // Show checkmark only when tutorial is completed.
+          opacity: _checkmarkIsShown ? 0.0 : 1.0,
+          duration: _fadeOutDuration,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: BoldSmall(
+                      text: widget.text,
+                      color: const Color.fromARGB(255, 91, 91, 91),
+                      context: context,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: IconButton(
-                    icon: _checkmarkIsShown
-                        ? const Icon(
-                            Icons.check,
-                            color: Color.fromARGB(255, 91, 91, 91),
-                          )
-                        : const Icon(
-                            Icons.close,
-                            color: Color.fromARGB(255, 91, 91, 91),
-                          ),
-                    // The following call will trigger `notifyListeners()`.
-                    onPressed: () => tutorial.complete(widget.id),
-                  ),
-                )
-              ],
-            ),
-          ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: IconButton(
+                      icon: _checkmarkIsShown
+                          ? const Icon(
+                              Icons.check,
+                              color: Color.fromARGB(255, 91, 91, 91),
+                            )
+                          : const Icon(
+                              Icons.close,
+                              color: Color.fromARGB(255, 91, 91, 91),
+                            ),
+                      // The following call will trigger `notifyListeners()`.
+                      onPressed: () => tutorial.complete(widget.id),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

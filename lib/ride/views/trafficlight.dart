@@ -94,7 +94,10 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final showCountdown = rs.currentRecommendation!.distance < 500 && (rs.currentRecommendation!.quality ?? 0) > 0.9;
 
     return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 300),
+      firstCurve: Curves.easeInOutCubic,
+      secondCurve: Curves.easeInOutCubic,
+      sizeCurve: Curves.easeInOutCubic,
+      duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
       secondChild: alternativeView,
       crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
