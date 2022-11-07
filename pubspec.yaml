@@ -138,7 +138,6 @@ flutter:
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 
     - assets/text/privacy.txt # Privacy policy
-    - assets/text/licenses.txt # Licenses
     - assets/text/thanks.txt # Aknowledgements
 
     # Assets for track simulation

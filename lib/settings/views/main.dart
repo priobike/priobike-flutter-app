@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/licenses/views.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -522,9 +523,8 @@ class SettingsViewState extends State<SettingsView> {
                       title: "Lizenzen",
                       icon: Icons.info,
                       callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                          return const AssetTextView(asset: "assets/text/licenses.txt");
-                        }));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
                       }),
                   const SmallVSpace(),
                   SettingsElement(
