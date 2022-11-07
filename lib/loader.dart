@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -95,7 +96,7 @@ class LoaderState extends State<Loader> {
                       0.1,
                       0.9,
                     ],
-                    colors: [Color.fromARGB(255, 0, 198, 255), Color.fromARGB(255, 0, 115, 255)],
+                    colors: [CI.lightBlue, CI.blue],
                   ))
                 : const BoxDecoration(
                     gradient: LinearGradient(
@@ -105,7 +106,7 @@ class LoaderState extends State<Loader> {
                       0.1,
                       0.9,
                     ],
-                    colors: [Color.fromARGB(255, 0, 115, 255), Color.fromARGB(255, 0, 115, 255)],
+                    colors: [CI.blue, CI.blue],
                   )),
           )),
       if (!isLoading)

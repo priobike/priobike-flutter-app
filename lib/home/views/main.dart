@@ -131,7 +131,7 @@ class HomeViewState extends State<HomeView> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(246, 255, 153, 0),
+          color: Color.fromARGB(246, 230, 51, 40),
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
         child: HPad(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:provider/provider.dart';
@@ -51,9 +52,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       width: 128,
       height: 128,
       decoration: BoxDecoration(
-        color: rs.calcCurrentSignalIsGreen!
-            ? const Color.fromARGB(255, 0, 255, 106)
-            : const Color.fromARGB(255, 243, 60, 39),
+        // Don't use the CI green here.
+        color: rs.calcCurrentSignalIsGreen! ? const Color.fromARGB(255, 0, 255, 106) : CI.red,
         borderRadius: BorderRadius.circular(64),
         border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),

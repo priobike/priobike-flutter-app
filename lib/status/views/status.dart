@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -77,9 +78,9 @@ class StatusViewState extends State<StatusView> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: Tile(
-          fill: problem != null ? const Color.fromARGB(255, 235, 59, 90) : Theme.of(context).colorScheme.background,
+          fill: problem != null ? CI.red : Theme.of(context).colorScheme.background,
           shadowIntensity: problem != null ? 0.2 : 0.05,
-          shadow: problem != null ? const Color.fromARGB(255, 235, 59, 90) : Colors.black,
+          shadow: problem != null ? CI.red : Colors.black,
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
           content: Row(children: [
             Flexible(

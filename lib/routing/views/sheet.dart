@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -323,7 +324,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return Column(children: [
       BoldSmall(
         text: s.selectedProfile?.explanation ?? "",
-        color: Colors.green,
+        color: CI.green,
         context: context,
       ),
       const SizedBox(height: 2),

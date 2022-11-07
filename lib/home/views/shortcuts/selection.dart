@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -36,7 +37,7 @@ class ShortcutView extends StatelessWidget {
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
-        shadow: isHighlighted ? const Color.fromARGB(255, 0, 64, 255) : const Color.fromARGB(255, 0, 0, 0),
+        shadow: isHighlighted ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: isHighlighted ? 0.3 : 0.08,
         padding: const EdgeInsets.all(16),
         content: SizedBox(

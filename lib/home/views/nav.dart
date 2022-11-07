@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/views/button.dart';
@@ -45,7 +46,7 @@ class NavBarView extends StatelessWidget {
               0.1,
               0.9,
             ],
-            colors: [Color.fromARGB(255, 0, 198, 255), Color.fromARGB(255, 0, 115, 255)],
+            colors: [CI.lightBlue, CI.blue],
           )),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

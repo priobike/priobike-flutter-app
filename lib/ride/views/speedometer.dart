@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -132,11 +133,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       if (phase >= tGreen) {
         // Map green values between the greentimeThreshold and the maxValue
         var factor = (phase - tGreen) / (maxValue - tGreen);
+        // Don't use the CI green here.
         return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
       } else {
         // Map red values between the minValue and the greentimeThreshold
         var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
+        return Color.lerp(CI.red, defaultGaugeColor, factor)!;
       }
     }).toList();
 
@@ -229,22 +231,22 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           interval: 10,
           minorTicksPerInterval: 4,
           showAxisLine: true,
-          radiusFactor: 0.985,
+          radiusFactor: 0.983,
           labelOffset: 14,
           axisLineStyle: AxisLineStyle(
             thicknessUnit: GaugeSizeUnit.factor,
             thickness: 0.25,
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+            color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: MajorTickStyle(
               length: 20,
               thickness: 1.5,
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
+              color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
           minorTickStyle: MinorTickStyle(
               length: 16,
               thickness: 1.5,
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
+              color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
           axisLabelStyle: GaugeTextStyle(
               color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
               fontWeight: FontWeight.bold,

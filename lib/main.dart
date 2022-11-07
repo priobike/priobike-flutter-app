@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/loader.dart';
@@ -108,8 +109,8 @@ class App extends StatelessWidget {
             theme: ThemeData(
               colorScheme: const ColorScheme.light(
                 background: Color(0xFFFFFFFF),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
+                primary: CI.blue,
+                secondary: CI.lightBlue,
                 surface: Color(0xF6F6F6FF),
                 brightness: Brightness.light,
               ),
@@ -150,8 +151,8 @@ class App extends StatelessWidget {
             darkTheme: ThemeData(
               colorScheme: const ColorScheme.dark(
                 background: Color(0xFF232323),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
+                primary: CI.blue,
+                secondary: CI.lightBlue,
                 surface: Color(0xF63B3B3B),
                 brightness: Brightness.dark,
               ),
