@@ -6,7 +6,7 @@ class RouteLayer extends LineOptions {
       : super(
           geometry: points,
           lineWidth: lineWidth,
-          lineColor: "#0094FF",
+          lineColor: "rgb(0, 115, 255)",
           lineJoin: "round",
         );
 }
@@ -40,7 +40,7 @@ class DiscomfortSectionLayer extends LineOptions {
       : super(
           geometry: points,
           lineWidth: 7.0,
-          lineColor: "#FF0000",
+          lineColor: "rgb(230, 51, 40)",
           lineJoin: "round",
         );
 }

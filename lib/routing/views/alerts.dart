@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -104,9 +105,8 @@ class AlertsViewState extends State<AlertsView> {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: i == currentPage
-                              ? Colors.red
-                              : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                          color:
+                              i == currentPage ? CI.red : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           shape: BoxShape.circle,
                         ),
                       ),

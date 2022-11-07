@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class NewsButtonState extends State<NewsButton> {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.red,
+              color: CI.red,
             ),
             child: Small(text: "$unread", color: Colors.white, context: context),
           ),
