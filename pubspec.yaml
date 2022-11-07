@@ -89,6 +89,18 @@ flutter_icons:
 
 # The following section is specific to Flutter.
 flutter:
+  fonts:
+    - family: HamburgSans
+      fonts:
+        - asset: assets/fonts/HamburgSans-Regular.ttf
+        - asset: assets/fonts/HamburgSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/HamburgSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/HamburgSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

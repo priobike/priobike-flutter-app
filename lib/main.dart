@@ -107,6 +107,7 @@ class App extends StatelessWidget {
           return MaterialApp(
             title: 'PrioBike',
             theme: ThemeData(
+              fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.light(
                 background: Color(0xFFFFFFFF),
                 primary: CI.blue,
@@ -116,32 +117,43 @@ class App extends StatelessWidget {
               ),
               textTheme: const TextTheme(
                 headline1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
                 headline2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
                 headline3: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
                 headline4: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                bodyText1: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: Color(0xFF000000)),
+                bodyText1: TextStyle(
+                  fontFamily: 'HamburgSans',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: Color(0xFF000000),
+                ),
                 subtitle1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
                 subtitle2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
@@ -149,6 +161,7 @@ class App extends StatelessWidget {
               ),
             ),
             darkTheme: ThemeData(
+              fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.dark(
                 background: Color(0xFF232323),
                 primary: CI.blue,
@@ -158,36 +171,43 @@ class App extends StatelessWidget {
               ),
               textTheme: const TextTheme(
                 headline1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline3: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline4: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 bodyText1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 subtitle1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 subtitle2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
