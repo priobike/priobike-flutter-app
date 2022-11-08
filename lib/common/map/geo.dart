@@ -62,14 +62,14 @@ class GeoFeatureLoader {
   }
 
   /// Remove all geo features from the map controller.
-  Future<void> removeFeatures(bool dispose) async {
-    await removeAccidentHotspots("dresden", dispose);
-    await removeAccidentHotspots("hamburg", dispose);
-    await removeBikeParkingPoints("hamburg", dispose);
-    await removeBikeRentalPoints("hamburg", dispose);
-    await removeBikeShopPoints("hamburg", dispose);
-    await removeBikeAirStations("hamburg", dispose);
-    await removeConstructionSites("hamburg", dispose);
+  Future<void> removeFeatures() async {
+    await removeAccidentHotspots("dresden");
+    await removeAccidentHotspots("hamburg");
+    await removeBikeParkingPoints("hamburg");
+    await removeBikeRentalPoints("hamburg");
+    await removeBikeShopPoints("hamburg");
+    await removeBikeAirStations("hamburg");
+    await removeConstructionSites("hamburg");
   }
 
   /// Add layers for accident hotspots.
@@ -120,14 +120,10 @@ class GeoFeatureLoader {
   }
 
   /// Remove layers for accident hotspots.
-  Future<void> removeAccidentHotspots(String layerPrefix, bool dispose) async {
-    if (dispose) {
-      // await mapController.removeSource("$layerPrefix-accident-hotspots");
-    } else {
-      await mapController.removeLayer("$layerPrefix-accident-hotspots-fill");
-      await mapController.removeLayer("$layerPrefix-accident-hotspots-line");
-      await mapController.removeLayer("$layerPrefix-accident-hotspots-label");
-    }
+  Future<void> removeAccidentHotspots(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-fill");
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-line");
+    await mapController.removeLayer("$layerPrefix-accident-hotspots-label");
   }
 
   /// Add layers for bike parking.
@@ -154,14 +150,9 @@ class GeoFeatureLoader {
   }
 
   /// Remove points for bike parking.
-  Future<void> removeBikeParkingPoints(String layerPrefix, bool dispose) async {
-    if (dispose) {
-      // await mapController.removeSource("$layerPrefix-bike-parking-points");
-      // await mapController.removeSource("$layerPrefix-bike-parking-polygons");
-    } else {
-      for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
-        await mapController.removeLayer("$layer-$layerPrefix-bike-parking-points-label");
-      }
+  Future<void> removeBikeParkingPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-parking-points", "$layerPrefix-bike-parking-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-parking-points-label");
     }
   }
 
@@ -211,14 +202,9 @@ class GeoFeatureLoader {
   }
 
   /// Remove points for bike rental.
-  Future<void> removeBikeRentalPoints(String layerPrefix, bool dispose) async {
-    if (dispose) {
-      // await mapController.removeSource("$layerPrefix-bike-rental-points");
-      // await mapController.removeSource("$layerPrefix-bike-rental-polygons");
-    } else {
-      for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
-        await mapController.removeLayer("$layer-$layerPrefix-bike-rental-points-label");
-      }
+  Future<void> removeBikeRentalPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-rental-points", "$layerPrefix-bike-rental-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-rental-points-label");
     }
   }
 
@@ -273,14 +259,9 @@ class GeoFeatureLoader {
   }
 
   /// Remove points for bike shops.
-  Future<void> removeBikeShopPoints(String layerPrefix, dispose) async {
-    if (dispose) {
-      // await mapController.removeSource("$layerPrefix-bike-shop-points");
-      // await mapController.removeSource("$layerPrefix-bike-shop-polygons");
-    } else {
-      for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
-        await mapController.removeLayer("$layer-$layerPrefix-bike-shop-points-label");
-      }
+  Future<void> removeBikeShopPoints(String layerPrefix) async {
+    for (final layer in ["$layerPrefix-bike-shop-points", "$layerPrefix-bike-shop-polygons"]) {
+      await mapController.removeLayer("$layer-$layerPrefix-bike-shop-points-label");
     }
   }
 
@@ -327,12 +308,8 @@ class GeoFeatureLoader {
   }
 
   /// Remove layers for bike air stations.
-  Future<void> removeBikeAirStations(String layerPrefix, bool dispose) async {
-    if (dispose) {
-      // await mapController.removeSource("$layerPrefix-bike-air-stations");
-    } else {
-      await mapController.removeLayer("$layerPrefix-bike-air-stations-label");
-    }
+  Future<void> removeBikeAirStations(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-bike-air-stations-label");
   }
 
   /// Add layers for construction sites.
@@ -371,12 +348,7 @@ class GeoFeatureLoader {
   }
 
   /// Remove layers for construction sites.
-  Future<void> removeConstructionSites(String layerPrefix, bool dispose) async {
-    if (dispose) {
-      // This seems not to work currently. The question is if it gets garbage collected automatically?
-      // await mapController.removeSource("$layerPrefix-construction-sites");
-    } else {
-      await mapController.removeLayer("$layerPrefix-construction-sites-label");
-    }
+  Future<void> removeConstructionSites(String layerPrefix) async {
+    await mapController.removeLayer("$layerPrefix-construction-sites-label");
   }
 }
