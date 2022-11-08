@@ -143,7 +143,6 @@ class Tracking with ChangeNotifier {
 
   /// Send the track to the server.
   Future<bool> send(BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
     if (json == null) {
       log.w("Cannot send track, because it is not ready.");
       return false;
@@ -161,6 +160,7 @@ class Tracking with ChangeNotifier {
     isSendingTrack = true;
     notifyListeners();
 
+    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
     final response = await Http.post(endpoint, body: json!);
