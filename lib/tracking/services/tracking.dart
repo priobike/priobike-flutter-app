@@ -90,13 +90,6 @@ class Tracking with ChangeNotifier {
 
   Tracking();
 
-  /// Adding taps.
-  void addTap(ScreenTrack screenTrack) {
-    print("TAPPED");
-    tapsTracked.add(screenTrack);
-    notifyListeners();
-  }
-
   /// Start a new track.
   Future<void> start(BuildContext context) async {
     log.i("Starting a new track.");
@@ -151,11 +144,6 @@ class Tracking with ChangeNotifier {
   /// Send the track to the server.
   Future<bool> send(BuildContext context) async {
     final settings = Provider.of<Settings>(context, listen: false);
-    print(deviceSize?.width);
-    print(deviceSize?.height);
-    print(tapsTracked);
-    print(tapsTracked.map((p) => p.toJson()).toList());
-    print(settings?.ridePreference.toString());
     if (json == null) {
       log.w("Cannot send track, because it is not ready.");
       return false;
@@ -220,8 +208,8 @@ class Tracking with ChangeNotifier {
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
         'deviceInfo': deviceInfo?.toMap(),
-        'deviceWidth': deviceSize?.width,
-        'deviceHeight': deviceSize?.height,
+        'deviceWidth': deviceSize?.width.round(),
+        'deviceHeight': deviceSize?.height.round(),
         'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
         'ridePreference': settings?.ridePreference.toString(),
         'packageInfo': {

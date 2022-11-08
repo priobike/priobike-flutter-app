@@ -39,24 +39,22 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
     super.didChangeDependencies();
   }
 
-  _onTapDown(TapDownDetails details) {
-    print("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+  _onTapDown(PointerEvent details) {
     // Temporary save position.
     setState(() {
-      tapDownX = details.globalPosition.dx;
-      tapDownY = details.globalPosition.dy;
+      tapDownX = details.position.dx;
+      tapDownY = details.position.dy;
     });
   }
 
-  _onTapUp(TapUpDetails details) {
-  print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+  _onTapUp(PointerEvent details) {
     // Add tap to tracks.
     if (tapDownX != null && tapDownY != null) {
-      tracking.addTap(ScreenTrack(
-          tapDownX: tapDownX!,
-          tapDownY: tapDownY!,
-          tapUpX: details.globalPosition.dx,
-          tapUpY: details.globalPosition.dy));
+      tracking.tapsTracked.add(ScreenTrack(
+          tapDownX: tapDownX!.round(),
+          tapDownY: tapDownY!.round(),
+          tapUpX: details.position.dx.round(),
+          tapUpY: details.position.dy.round()));
     }
 
     // Rest positions.
@@ -72,10 +70,10 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
     return SizedBox(
       width: frame.width,
       height: frame.height,
-      child: GestureDetector(
+      child: Listener(
         behavior: HitTestBehavior.translucent,
-        onTapDown: _onTapDown,
-        onTapUp: _onTapUp,
+        onPointerDown: _onTapDown,
+        onPointerUp: _onTapUp,
         child: widget.child,
       ),
     );

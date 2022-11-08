@@ -1,16 +1,16 @@
 /// The model of tap tracking.
 class ScreenTrack {
   /// The tap down x coordinate.
-  final double tapDownX;
+  final int tapDownX;
 
   /// The tap down y coordinate.
-  final double tapDownY;
+  final int tapDownY;
 
   /// The tap up x coordinate.
-  final double tapUpX;
+  final int tapUpX;
 
   /// The tap up x coordinate.
-  final double tapUpY;
+  final int tapUpY;
 
   const ScreenTrack({
     required this.tapDownX,
@@ -27,9 +27,9 @@ class ScreenTrack {
       };
 
   factory ScreenTrack.fromJson(Map<String, dynamic> json) => ScreenTrack(
-        tapDownX: json['tapDownX'] as double,
-        tapDownY: json['tapDownY'] as double,
-        tapUpX: json['tapUpX'] as double,
-        tapUpY: json['tapUpY'] as double,
+        tapDownX: json['tapDownX'] as int,
+        tapDownY: json['tapDownY'] as int,
+        tapUpX: json['tapUpX'] as int,
+        tapUpY: json['tapUpY'] as int,
       );
 }
