@@ -439,6 +439,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
 
+    // Remove previously existing geo features from the map.
+    await geoFeatureLoader?.removeFeatures(true);
+
+    // Remove all previously existing layers from the map.
+    await mapController?.clearFills();
+    await mapController?.clearCircles();
+    await mapController?.clearLines();
+    await mapController?.clearSymbols();
+
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
@@ -469,27 +478,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void dispose() {
-    () async {
-      // Remove geo features from the map.
-      await geoFeatureLoader?.removeFeatures(true);
-
-      // Remove all layers from the map.
-      await mapController?.clearFills();
-      await mapController?.clearCircles();
-      await mapController?.clearLines();
-      await mapController?.clearSymbols();
-
-      // Unbind the sheet movement listener.
-      await sheetMovementSubscription?.cancel();
-
-      // Unbind the interaction callbacks.
-      mapController?.onFillTapped.remove(onFillTapped);
-      mapController?.onCircleTapped.remove(onCircleTapped);
-      mapController?.onLineTapped.remove(onLineTapped);
-      mapController?.onSymbolTapped.remove(onSymbolTapped);
-      mapController?.dispose();
-    }();
-
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
     super.dispose();
   }
 

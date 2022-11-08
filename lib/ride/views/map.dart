@@ -374,6 +374,12 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
 
+    // Remove all layers from the map that may still exist.
+    await mapController?.clearFills();
+    await mapController?.clearCircles();
+    await mapController?.clearLines();
+    await mapController?.clearSymbols();
+
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
@@ -386,26 +392,6 @@ class RideMapViewState extends State<RideMapView> {
     onRoutingUpdate();
     onSnappingUpdate();
     onRideUpdate();
-  }
-
-  @override
-  void dispose() {
-    () async {
-      // Remove all layers from the map.
-      await mapController?.clearFills();
-      await mapController?.clearCircles();
-      await mapController?.clearLines();
-      await mapController?.clearSymbols();
-
-      // Unbind the interaction callbacks.
-      mapController?.onFillTapped.remove(onFillTapped);
-      mapController?.onCircleTapped.remove(onCircleTapped);
-      mapController?.onLineTapped.remove(onLineTapped);
-      mapController?.onSymbolTapped.remove(onSymbolTapped);
-      mapController?.dispose();
-    }();
-
-    super.dispose();
   }
 
   @override
