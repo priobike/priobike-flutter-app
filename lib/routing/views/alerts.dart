@@ -141,12 +141,20 @@ class AlertsViewState extends State<AlertsView> {
                     children: [
                       const TextSpan(text: "Diese Route enthält "),
                       if (predictionStatus.offline > 0 || predictionStatus.bad > 0) ...[
-                        const WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: OfflineIcon(
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Container(
+                            padding: const EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const OfflineIcon(
                               height: 14,
                               width: 14,
-                            )),
+                            ),
+                          ),
+                        ),
                         TextSpan(
                           text: " ${predictionStatus.offline + predictionStatus.bad} aktuell nicht",
                           style: Theme.of(context)
@@ -162,10 +170,10 @@ class AlertsViewState extends State<AlertsView> {
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Container(
+                            padding: const EdgeInsets.all(1),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.black, width: 1),
                             ),
                             child: const DisconnectedIcon(
                               height: 14,
