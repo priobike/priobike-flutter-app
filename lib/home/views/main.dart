@@ -136,9 +136,9 @@ class HomeViewState extends State<HomeView> {
         ),
         child: HPad(
             child: Row(children: [
-          const Icon(Icons.warning_rounded),
+          const Icon(Icons.warning_rounded, color: Colors.white),
           const SmallHSpace(),
-          Flexible(child: Content(text: description, context: context)),
+          Flexible(child: Content(text: description, context: context, color: Colors.white)),
         ])),
       ),
     );
