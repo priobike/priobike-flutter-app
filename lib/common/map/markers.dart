@@ -174,10 +174,11 @@ class StartMarker extends SymbolOptions {
   /// Create a new start marker.
   StartMarker({
     required LatLng geo,
+    required double iconSize,
   }) : super(
           geometry: geo,
           iconImage: "start",
-          iconSize: 0.75,
+          iconSize: iconSize,
         );
 }
 
@@ -186,10 +187,11 @@ class DestinationMarker extends SymbolOptions {
   /// Create a new destination marker.
   DestinationMarker({
     required LatLng geo,
+    required double iconSize,
   }) : super(
           geometry: geo,
           iconImage: "destination",
-          iconSize: 0.75,
+          iconSize: iconSize,
         );
 }
 
@@ -198,10 +200,11 @@ class WaypointMarker extends SymbolOptions {
   /// Create a new waypoint marker.
   WaypointMarker({
     required LatLng geo,
+    required double iconSize,
   }) : super(
           geometry: geo,
           iconImage: "waypoint",
-          iconSize: 0.75,
+          iconSize: iconSize,
           zIndex: 5,
         );
 }

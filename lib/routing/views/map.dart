@@ -315,20 +315,21 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final oldWaypoints = waypoints;
     waypoints = [];
     // Create a new waypoint marker for each waypoint.
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
     for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
       if (entry.key == 0) {
         waypoints!.add(await mapController!.addSymbol(
-          StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
+          StartMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
           entry.value.toJSON(),
         ));
       } else if (entry.key == routing.selectedWaypoints!.length - 1) {
         waypoints!.add(await mapController!.addSymbol(
-          DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
+          DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
           entry.value.toJSON(),
         ));
       } else {
         waypoints!.add(await mapController!.addSymbol(
-          WaypointMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
+          WaypointMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
           entry.value.toJSON(),
         ));
       }
