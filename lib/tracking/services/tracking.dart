@@ -21,6 +21,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/dangers/models/danger.dart';
+import 'package:priobike/tracking/models/tapTracking.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.
@@ -81,7 +82,20 @@ class Tracking with ChangeNotifier {
   /// If the track can be sent.
   bool get canSendTrack => json != null;
 
+  /// The positions where the user tapped during a ride.
+  List<ScreenTrack> tapsTracked = [];
+
+  /// The devices frame size used to analyse on taps in ride view.
+  Size? deviceSize;
+
   Tracking();
+
+  /// Adding taps.
+  void addTap(ScreenTrack screenTrack) {
+    print("TAPPED");
+    tapsTracked.add(screenTrack);
+    notifyListeners();
+  }
 
   /// Start a new track.
   Future<void> start(BuildContext context) async {
@@ -136,6 +150,12 @@ class Tracking with ChangeNotifier {
 
   /// Send the track to the server.
   Future<bool> send(BuildContext context) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    print(deviceSize?.width);
+    print(deviceSize?.height);
+    print(tapsTracked);
+    print(tapsTracked.map((p) => p.toJson()).toList());
+    print(settings?.ridePreference.toString());
     if (json == null) {
       log.w("Cannot send track, because it is not ready.");
       return false;
@@ -153,7 +173,6 @@ class Tracking with ChangeNotifier {
     isSendingTrack = true;
     notifyListeners();
 
-    final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
     final response = await Http.post(endpoint, body: json!);
@@ -182,6 +201,8 @@ class Tracking with ChangeNotifier {
     positions = null;
     recommendations = null;
     logs = null;
+    tapsTracked = [];
+    deviceSize = null;
     notifyListeners();
   }
 
@@ -199,6 +220,10 @@ class Tracking with ChangeNotifier {
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
         'deviceInfo': deviceInfo?.toMap(),
+        'deviceWidth': deviceSize?.width,
+        'deviceHeight': deviceSize?.height,
+        'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
+        'ridePreference': settings?.ridePreference.toString(),
         'packageInfo': {
           'appName': packageInfo?.appName,
           'packageName': packageInfo?.packageName,
