@@ -380,7 +380,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       });
     }
 
-    await geoFeatureLoader!.removeFeatures(false);
+    await geoFeatureLoader!.removeFeatures();
     await geoFeatureLoader!.loadFeatures(context);
   }
 
