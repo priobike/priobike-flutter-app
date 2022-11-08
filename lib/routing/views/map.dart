@@ -439,9 +439,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
 
-    // Remove previously existing geo features from the map.
-    await geoFeatureLoader?.removeFeatures(true);
-
     // Remove all previously existing layers from the map.
     await mapController?.clearFills();
     await mapController?.clearCircles();
