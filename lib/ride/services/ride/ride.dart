@@ -93,11 +93,6 @@ class Ride with ChangeNotifier {
       recommendations.add(currentRecommendation!);
       calculateRecommendationInfo();
       onRecommendation?.call(currentRecommendation!);
-      if (currentRecommendation!.error) {
-        log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
-      } else {
-        log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
-      }
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
       log.e(hint);
