@@ -303,6 +303,14 @@ class SettingsViewState extends State<SettingsView> {
                     Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
+                          title: "Performance-Overlay",
+                          icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
+                          callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
+                        )),
+                  if (settings.enableInternalFeatures)
+                    Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
                           title: "Testort",
                           subtitle: settings.backend.region,
                           icon: Icons.expand_more,

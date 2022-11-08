@@ -251,31 +251,18 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 2.5;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
-      if (status == null) {
+      if (status == null ||
+          status.predictionState == SGPredictionState.offline ||
+          status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapController!.addSymbol(
           OfflineMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
-          ),
-        ));
-      } else if (status.predictionState == SGPredictionState.offline) {
-        trafficLights!.add(await mapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-          ),
-        ));
-      } else if (status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapController!.addSymbol(
-          BadSignalMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
+            brightness: Theme.of(context).brightness,
           ),
         ));
       } else {
@@ -284,6 +271,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
+            brightness: Theme.of(context).brightness,
           ),
         ));
       }
@@ -303,7 +291,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     final settings = Provider.of<Settings>(context, listen: false);
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 2.5;
     for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
       offlineCrossings!.add(await mapController!.addSymbol(
@@ -311,6 +299,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
           iconSize: iconSize,
           geo: LatLng(crossing.position.lat, crossing.position.lon),
           label: willShowLabels ? crossing.name : null,
+          brightness: Theme.of(context).brightness,
         ),
       ));
     }
@@ -391,7 +380,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       });
     }
 
-    await geoFeatureLoader!.removeFeatures(false);
+    await geoFeatureLoader!.removeFeatures();
     await geoFeatureLoader!.loadFeatures(context);
   }
 
@@ -450,6 +439,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null) return;
 
+    // Remove all previously existing layers from the map.
+    await mapController?.clearFills();
+    await mapController?.clearCircles();
+    await mapController?.clearLines();
+    await mapController?.clearSymbols();
+
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
@@ -480,27 +475,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void dispose() {
-    () async {
-      // Remove geo features from the map.
-      await geoFeatureLoader?.removeFeatures(true);
-
-      // Remove all layers from the map.
-      await mapController?.clearFills();
-      await mapController?.clearCircles();
-      await mapController?.clearLines();
-      await mapController?.clearSymbols();
-
-      // Unbind the sheet movement listener.
-      await sheetMovementSubscription?.cancel();
-
-      // Unbind the interaction callbacks.
-      mapController?.onFillTapped.remove(onFillTapped);
-      mapController?.onCircleTapped.remove(onCircleTapped);
-      mapController?.onLineTapped.remove(onLineTapped);
-      mapController?.onSymbolTapped.remove(onSymbolTapped);
-      mapController?.dispose();
-    }();
-
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
     super.dispose();
   }
 

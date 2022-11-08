@@ -140,45 +140,47 @@ class AlertsViewState extends State<AlertsView> {
                     style: Theme.of(context).textTheme.headline4,
                     children: [
                       const TextSpan(text: "Diese Route enthält "),
-                      if (predictionStatus.bad > 0) ...[
-                        const WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: BadSignalIcon(
+                      if (predictionStatus.offline > 0 || predictionStatus.bad > 0) ...[
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Container(
+                            padding: const EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const OfflineIcon(
                               height: 14,
                               width: 14,
-                            )),
-                        TextSpan(
-                          text: " ${predictionStatus.bad} schwer",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4!
-                              .merge(const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
                         ),
-                      ],
-                      if (predictionStatus.bad > 0 && predictionStatus.offline > 0) const TextSpan(text: ", "),
-                      if (predictionStatus.offline > 0) ...[
-                        const WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: OfflineIcon(
-                              height: 14,
-                              width: 14,
-                            )),
                         TextSpan(
-                          text: " ${predictionStatus.offline} aktuell nicht",
+                          text: " ${predictionStatus.offline + predictionStatus.bad} aktuell nicht",
                           style: Theme.of(context)
                               .textTheme
                               .headline4!
                               .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                         ),
                       ],
-                      if (predictionStatus.offline > 0 && predictionStatus.disconnected > 0) const TextSpan(text: ", "),
+                      if ((predictionStatus.offline > 0 || predictionStatus.bad > 0) &&
+                          predictionStatus.disconnected > 0)
+                        const TextSpan(text: " und "),
                       if (predictionStatus.disconnected > 0) ...[
-                        const WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: DisconnectedIcon(
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Container(
+                            padding: const EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const DisconnectedIcon(
                               height: 14,
                               width: 14,
-                            )),
+                            ),
+                          ),
+                        ),
                         TextSpan(
                           text: " ${predictionStatus.disconnected} gar nicht",
                           style: Theme.of(context)

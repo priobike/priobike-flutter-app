@@ -10,6 +10,13 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:provider/provider.dart';
 
+enum WarnType {
+  warnSensitiveBikes,
+  warnRegularBikes,
+  warnRobustBikes,
+  warnNone,
+}
+
 class Discomforts with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -52,35 +59,111 @@ class Discomforts with ChangeNotifier {
   Future<void> findDiscomforts(BuildContext context, GHRouteResponsePath path) async {
     final profile = Provider.of<Profile>(context, listen: false);
 
-    // Use the smoothness values to determine unsmooth sections.
-    // See: https://wiki.openstreetmap.org/wiki/DE:Key:smoothness
-    final unsmooth = path.details.smoothness
+    // Use the surface values to determine unsmooth sections.
+    // See: https://wiki.openstreetmap.org/wiki/Key:surface
+    final warnTypeMap = {
+      "paved": WarnType.warnNone,
+      "asphalt": WarnType.warnNone,
+      "chipseal": WarnType.warnNone,
+      "concrete": WarnType.warnNone,
+      "concrete:plates": WarnType.warnRegularBikes,
+      "concrete:lanes": WarnType.warnRegularBikes,
+      "paving_stones": WarnType.warnNone,
+      "sett": WarnType.warnRegularBikes,
+      "unhewn_cobblestone": WarnType.warnRobustBikes,
+      "cobblestone": WarnType.warnRobustBikes,
+      "metal": WarnType.warnRegularBikes,
+      "wood": WarnType.warnRegularBikes,
+      "stepping_stones": WarnType.warnRobustBikes,
+      "unpaved": WarnType.warnRegularBikes,
+      "compacted": WarnType.warnRegularBikes,
+      "fine_gravel": WarnType.warnRegularBikes,
+      "gravel": WarnType.warnRobustBikes,
+      "rock": WarnType.warnRobustBikes,
+      "pebblestone": WarnType.warnRobustBikes,
+      "ground": WarnType.warnRegularBikes,
+      "dirt": WarnType.warnRegularBikes,
+      "earth": WarnType.warnRegularBikes,
+      "soil": WarnType.warnRegularBikes,
+      "grass": WarnType.warnRobustBikes,
+      "grass_paver": WarnType.warnRegularBikes,
+      "mud": WarnType.warnRobustBikes,
+      "sand": WarnType.warnRobustBikes,
+      "woodchips": WarnType.warnRobustBikes,
+      "snow": WarnType.warnRobustBikes,
+      "ice": WarnType.warnRobustBikes,
+      "salt": WarnType.warnRobustBikes,
+      "clay": WarnType.warnRegularBikes,
+      "tartan": WarnType.warnNone,
+      "artificial_turf": WarnType.warnRobustBikes,
+      "acrylic": WarnType.warnSensitiveBikes,
+      "metal_grid": WarnType.warnRobustBikes,
+      "carpet": WarnType.warnRegularBikes,
+    };
+
+    final translationsMap = {
+      "paved": "Asphalt",
+      "asphalt": "Asphalt",
+      "chipseal": "Versiegelte Schotterstraße",
+      "concrete": "Beton",
+      "concrete:plates": "Betonplatten",
+      "concrete:lanes": "Betonplatten",
+      "paving_stones": "Pflastersteine",
+      "sett": "Pflastersteine",
+      "unhewn_cobblestone": "Ungezimmerte Kopfsteinpflaster",
+      "cobblestone": "Kopfsteinpflaster",
+      "metal": "Metall",
+      "wood": "Holz",
+      "stepping_stones": "Steinplatten",
+      "unpaved": "Unbefestigte Straße",
+      "compacted": "Kompakte Straße",
+      "fine_gravel": "Feinkies",
+      "gravel": "Kies",
+      "rock": "Fels",
+      "pebblestone": "Kies",
+      "ground": "Erde",
+      "dirt": "Erde",
+      "earth": "Erde",
+      "soil": "Erde",
+      "grass": "Gras",
+      "grass_paver": "Gras",
+      "mud": "Matsch",
+      "sand": "Sand",
+      "woodchips": "Holzspäne",
+      "snow": "Schnee",
+      "ice": "Eis",
+      "salt": "Salz",
+      "clay": "Lehm",
+      "tartan": "Tartan",
+      "artificial_turf": "Kunstrasen",
+      "acrylic": "Acryl",
+      "metal_grid": "Metallgitter",
+      "carpet": "Teppich",
+    };
+
+    final shouldWarnMap = {
+      WarnType.warnSensitiveBikes: profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike,
+      WarnType.warnRegularBikes: profile.bikeType != BikeType.mountainbike,
+      WarnType.warnRobustBikes: profile.bikeType == BikeType.mountainbike,
+    };
+
+    final unsmooth = path.details.surface
         .map((segment) {
           if (segment.value == null) return null;
           final cs = getCoordinates(segment, path);
-          if (segment.value == "impassable") {
-            return DiscomfortSegment(
-                segment: segment, coordinates: cs, description: "Nicht passierbarer Wegabschnitt.");
-          } else if (segment.value == "very_horrible") {
-            return DiscomfortSegment(
-                segment: segment, coordinates: cs, description: "Wegabschnitt mit extrem schlechter Oberfläche.");
-          } else if (segment.value == "horrible") {
-            return DiscomfortSegment(
-                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
-          } else if (segment.value == "very_bad") {
-            return DiscomfortSegment(
-                segment: segment, coordinates: cs, description: "Wegabschnitt mit sehr schlechter Oberfläche.");
-          } else if (segment.value == "bad") {
-            return DiscomfortSegment(
-                segment: segment, coordinates: cs, description: "Wegabschnitt mit schlechter Oberfläche.");
-          } else if (segment.value == "intermediate" &&
-              (profile.bikeType == BikeType.racingbike || profile.bikeType == BikeType.cargobike)) {
-            return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description:
-                    "Wegabschnitt, der für dein gewähltes Fahrrad (${profile.bikeType!.description()}) ungeeignet sein könnte.");
-          }
+
+          final warnType = warnTypeMap[segment.value!];
+          if (warnType == null) return null;
+
+          final shouldWarn = shouldWarnMap[warnType];
+          if (shouldWarn == null) return null;
+          if (!shouldWarn) return null;
+
+          final translation = translationsMap[segment.value!];
+          if (translation == null) return null;
+
+          final description = "Ungeeigneter Wegtyp für dein Fahrrad (${profile.bikeType!.description()}): $translation";
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: description);
         })
         .where((e) => e != null)
         .map((e) => e!)
@@ -139,7 +222,7 @@ class Discomforts with ChangeNotifier {
             return DiscomfortSegment(
                 segment: segment,
                 coordinates: cs,
-                description: "Auf einem Wegabschnitt dürfen Autos ${segment.value} km/h fahren.");
+                description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.");
           } else if (segment.value! <= 10) {
             return DiscomfortSegment(
                 segment: segment,

@@ -146,7 +146,7 @@ class RoutingViewState extends State<RoutingView> {
         final nameController = TextEditingController();
         return AlertDialog(
           title: BoldContent(
-              text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.', context: context),
+              text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.', context: context),
           content: SizedBox(
               height: 48,
               child: Column(
