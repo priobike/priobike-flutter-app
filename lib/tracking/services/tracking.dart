@@ -21,6 +21,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/dangers/models/danger.dart';
+import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.
@@ -80,6 +81,12 @@ class Tracking with ChangeNotifier {
 
   /// If the track can be sent.
   bool get canSendTrack => json != null;
+
+  /// The positions where the user tapped during a ride.
+  List<ScreenTrack> tapsTracked = [];
+
+  /// The devices frame size used to analyse on taps in ride view.
+  Size? deviceSize;
 
   Tracking();
 
@@ -182,6 +189,8 @@ class Tracking with ChangeNotifier {
     positions = null;
     recommendations = null;
     logs = null;
+    tapsTracked = [];
+    deviceSize = null;
     notifyListeners();
   }
 
@@ -199,6 +208,9 @@ class Tracking with ChangeNotifier {
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
         'deviceInfo': deviceInfo?.toMap(),
+        'deviceWidth': deviceSize?.width.round(),
+        'deviceHeight': deviceSize?.height.round(),
+        'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
         'packageInfo': {
           'appName': packageInfo?.appName,
           'packageName': packageInfo?.packageName,

@@ -13,6 +13,7 @@ import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
 import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
+import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -112,7 +113,7 @@ class RideViewState extends State<RideView> {
     Widget? view;
     switch (settings.ridePreference) {
       case RidePreference.speedometerView:
-        view = Stack(alignment: Alignment.center, children: const [
+        view = Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: const [
           RideMapView(),
           RideSpeedometerView(),
           DangerButton(),
@@ -132,6 +133,8 @@ class RideViewState extends State<RideView> {
         view = Container();
     }
 
-    return Scaffold(body: view);
+    return Scaffold(
+      body: ScreenTrackingView(child: view),
+    );
   }
 }
