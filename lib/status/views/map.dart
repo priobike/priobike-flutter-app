@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -54,11 +55,9 @@ class SGStatusMapViewMode {
         -1,
         "#000000",
         0,
-        "#ff0000",
-        0.5,
-        "#ffff00",
+        "rgb(230, 51, 40)",
         1,
-        "#00ff00",
+        "rgb(0, 115, 255)",
       ],
       firstLabel: [
         "concat",
@@ -69,9 +68,8 @@ class SGStatusMapViewMode {
       secondLabel: ["get", "prediction_quality"],
       legend: [
         SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement("Schlechte Prognose", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement("Mittlere Prognose", const Color(0xffffff00)),
-        SGStatusMapViewLegendElement("Gute Prognose", const Color(0xff00ff00)),
+        SGStatusMapViewLegendElement("Schlechte Prognose", CI.red),
+        SGStatusMapViewLegendElement("Gute Prognose", CI.blue),
       ],
     ),
     SGStatusMapViewMode(
@@ -94,13 +92,11 @@ class SGStatusMapViewMode {
             ["get", "prediction_time_diff"]
           ],
           0,
-          "#00ff00",
+          "rgb(0, 115, 255)",
           60,
-          "#00ff00",
+          "rgb(0, 115, 255)",
           600,
-          "#ffff00",
-          3600,
-          "#ff0000",
+          "rgb(230, 51, 40)",
         ]
       ],
       firstLabel: [
@@ -140,9 +136,8 @@ class SGStatusMapViewMode {
       ],
       legend: [
         SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor >1h", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor 10min", const Color(0xffffff00)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor 1min", const Color(0xff00ff00)),
+        SGStatusMapViewLegendElement("Letzte Prognose vor >10min", CI.red),
+        SGStatusMapViewLegendElement("Letzte Prognose vor 1min", CI.blue),
       ],
     ),
   ];
@@ -168,7 +163,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
 
     mapController?.updateContentInsets(EdgeInsets.only(
       top: 0,
-      bottom: 128 + MediaQuery.of(context).padding.bottom,
+      bottom: 108 + MediaQuery.of(context).padding.bottom,
       left: 18,
       right: 18,
     ));
@@ -297,7 +292,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
             child: Tile(
               fill: Theme.of(context).colorScheme.background,
               content: SizedBox(
-                  height: 80,
+                  height: 60,
                   child: PageView.builder(
                     itemCount: SGStatusMapViewMode.all.length,
                     onPageChanged: (index) {
