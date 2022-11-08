@@ -101,11 +101,11 @@ class App extends StatelessWidget {
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          // Rebuild the view hierarchy when the color mode changes.
-          final colorMode = Provider.of<Settings>(context).colorMode;
+          final settings = Provider.of<Settings>(context);
 
           return MaterialApp(
             title: 'PrioBike',
+            showPerformanceOverlay: settings.enablePerformanceOverlay,
             theme: ThemeData(
               fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.light(
@@ -214,9 +214,9 @@ class App extends StatelessWidget {
                 ),
               ),
             ),
-            themeMode: colorMode == ColorMode.light
+            themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light
-                : colorMode == ColorMode.dark
+                : settings.colorMode == ColorMode.dark
                     ? ThemeMode.dark
                     // Fallback to the system preference.
                     : ThemeMode.system,

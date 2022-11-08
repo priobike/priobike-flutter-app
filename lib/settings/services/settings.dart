@@ -19,6 +19,9 @@ class Settings with ChangeNotifier {
   /// Whether beta features should be enabled.
   bool enableBetaFeatures;
 
+  /// Whether the performance overlay should be enabled.
+  bool enablePerformanceOverlay;
+
   /// The selected backend.
   Backend backend;
 
@@ -53,6 +56,11 @@ class Settings with ChangeNotifier {
 
   Future<void> setEnableBetaFeatures(bool enableBetaFeatures) async {
     this.enableBetaFeatures = enableBetaFeatures;
+    await store();
+  }
+
+  Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay) async {
+    this.enablePerformanceOverlay = enablePerformanceOverlay;
     await store();
   }
 
@@ -104,6 +112,7 @@ class Settings with ChangeNotifier {
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
+    this.enablePerformanceOverlay = false,
     this.backend = Backend.production,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
@@ -132,6 +141,7 @@ class Settings with ChangeNotifier {
 
     enableBetaFeatures = storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
     enableInternalFeatures = storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
+    enablePerformanceOverlay = storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false;
 
     final backendStr = storage.getString("priobike.settings.backend");
     final positioningModeStr = storage.getString("priobike.settings.positioningMode");
@@ -183,6 +193,7 @@ class Settings with ChangeNotifier {
 
     await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
@@ -205,6 +216,7 @@ class Settings with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         "enableBetaFeatures": enableBetaFeatures,
         "enableInternalFeatures": enableInternalFeatures,
+        "enablePerformanceOverlay": enablePerformanceOverlay,
         "backend": backend.name,
         "positioningMode": positioningMode.name,
         "rerouting": rerouting.name,
