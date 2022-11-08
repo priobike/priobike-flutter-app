@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
@@ -13,23 +12,20 @@ class SymbolLoader {
   /// Load all symbols into the map controller.
   /// Make sure that all symbols are added to the pubspec.yaml file.
   Future<void> loadSymbols() async {
-    await addImageFromAsset("disconnected", "assets/images/disconnected.drawio.png");
-    await addImageFromAsset("disconnectedtilted", "assets/images/disconnected-tilted.drawio.png");
-    await addImageFromAsset("badsignal", "assets/images/bad-signal.drawio.png");
-    await addImageFromAsset("badsignaltilted", "assets/images/bad-signal-tilted.drawio.png");
-    await addImageFromAsset("offline", "assets/images/offline.drawio.png");
-    await addImageFromAsset("offlinetilted", "assets/images/offline-tilted.drawio.png");
-    await addImageFromAsset("online", "assets/images/online.drawio.png");
-    await addImageFromAsset("onlinetilted", "assets/images/online-tilted.drawio.png");
+    await addImageFromAsset("trafficlightdisconnecteddark", "assets/images/trafficlights/disconnected-dark.png");
+    await addImageFromAsset("trafficlightdisconnectedlight", "assets/images/trafficlights/disconnected-light.png");
+    await addImageFromAsset("trafficlightofflinedark", "assets/images/trafficlights/offline-dark.png");
+    await addImageFromAsset("trafficlightofflinelight", "assets/images/trafficlights/offline-light.png");
+    await addImageFromAsset("trafficlightonlinedark", "assets/images/trafficlights/online-dark.png");
+    await addImageFromAsset("trafficlightonlinelight", "assets/images/trafficlights/online-light.png");
+    await addImageFromAsset("trafficlightonlinegreendark", "assets/images/trafficlights/online-green-dark.png");
+    await addImageFromAsset("trafficlightonlinegreenlight", "assets/images/trafficlights/online-green-light.png");
+    await addImageFromAsset("trafficlightonlinereddark", "assets/images/trafficlights/online-red-dark.png");
+    await addImageFromAsset("trafficlightonlineredlight", "assets/images/trafficlights/online-red-light.png");
+
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");
     await addImageFromAsset("destination", "assets/images/destination.drawio.png");
-    await addImageFromAsset("trafficlightoff", "assets/images/trafficlight-off.drawio.png");
-    await addImageFromAsset("trafficlightoffoffline", "assets/images/trafficlight-off-offline.drawio.png");
-    await addImageFromAsset("trafficlightoffbadsignal", "assets/images/trafficlight-off-bad-signal.drawio.png");
-    await addImageFromAsset("trafficlightoffonline", "assets/images/trafficlight-off-online.drawio.png");
-    await addImageFromAsset("trafficlightred", "assets/images/trafficlight-red-countdown.drawio.png");
-    await addImageFromAsset("trafficlightgreen", "assets/images/trafficlight-green-countdown.drawio.png");
     await addImageFromAsset("waypoint", "assets/images/waypoint.drawio.png");
 
     await addImageFromAsset("airdark", "assets/images/air-dark.png");
@@ -54,9 +50,7 @@ class SymbolLoader {
   }
 }
 
-/// A map layer which marks a discomfort location on the map.
 class DiscomfortLocationMarker extends SymbolOptions {
-  /// Create a new discomfort location marker.
   DiscomfortLocationMarker({
     required LatLng geo,
     required int number,
@@ -71,114 +65,90 @@ class DiscomfortLocationMarker extends SymbolOptions {
         );
 }
 
-/// A map layer which marks a traffic light on the map.
-class TrafficLightOffMarker extends SymbolOptions {
-  /// Create a new traffic light marker.
-  TrafficLightOffMarker({
+class TrafficLightMarker extends SymbolOptions {
+  TrafficLightMarker({
     required LatLng geo,
     double iconSize = 1,
     int zIndex = 2,
-    String iconImage = "trafficlightoff",
+    required String iconImage,
     String? label,
   }) : super(
           geometry: geo,
           iconImage: iconImage,
           iconSize: iconSize,
           zIndex: zIndex,
-          textField: label,
-          textSize: 16,
-          textOffset: const Offset(0, -3.5),
-          textAnchor: "bottom",
-          textJustify: "center",
-          textHaloColor: "#ffffff",
-          textHaloWidth: 1,
-          textHaloBlur: 1,
         );
 }
 
-class OnlineMarker extends TrafficLightOffMarker {
+class OnlineMarker extends TrafficLightMarker {
   OnlineMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
-    bool tilted = false,
+    Brightness? brightness,
   }) : super(
           geo: geo,
           iconSize: iconSize,
-          iconImage: tilted ? "onlinetilted" : "online",
+          iconImage: brightness == Brightness.dark ? "trafficlightonlinedark" : "trafficlightonlinelight",
           zIndex: 3,
           label: label,
         );
 }
 
-class DisconnectedMarker extends TrafficLightOffMarker {
+class DisconnectedMarker extends TrafficLightMarker {
   DisconnectedMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
-    bool tilted = false,
+    Brightness? brightness,
   }) : super(
           geo: geo,
           iconSize: iconSize,
-          iconImage: tilted ? "disconnectedtilted" : "disconnected",
+          iconImage: brightness == Brightness.dark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
           zIndex: 3,
           label: label,
         );
 }
 
-class OfflineMarker extends TrafficLightOffMarker {
+class OfflineMarker extends TrafficLightMarker {
   OfflineMarker({
     required LatLng geo,
     double iconSize = 1,
     String? label,
-    bool tilted = false,
+    Brightness? brightness,
   }) : super(
           geo: geo,
           iconSize: iconSize,
-          iconImage: tilted ? "offlinetilted" : "offline",
+          iconImage: brightness == Brightness.dark ? "trafficlightofflinedark" : "trafficlightofflinelight",
           zIndex: 3,
           label: label,
         );
 }
 
-class BadSignalMarker extends TrafficLightOffMarker {
-  BadSignalMarker({
+class TrafficLightGreenMarker extends SymbolOptions {
+  TrafficLightGreenMarker({
     required LatLng geo,
     double iconSize = 1,
-    String? label,
-    bool tilted = false,
+    double iconOpacity = 1,
+    Brightness? brightness,
   }) : super(
-          geo: geo,
-          iconSize: iconSize,
-          iconImage: tilted ? "badsignaltilted" : "badsignal",
-          zIndex: 3,
-          label: label,
-        );
-}
-
-/// A map layer which marks a traffic light on the map.
-class TrafficLightGreenMarker extends SymbolOptions {
-  /// Create a new traffic light marker.
-  TrafficLightGreenMarker({required LatLng geo, double iconSize = 1, double iconOpacity = 1})
-      : super(
           geometry: geo,
-          iconImage: "trafficlightgreen",
+          iconImage: brightness == Brightness.dark ? "trafficlightonlinegreendark" : "trafficlightonlinegreenlight",
           iconSize: iconSize,
           iconOpacity: iconOpacity,
           zIndex: 5,
         );
 }
 
-/// A map layer which marks a traffic light on the map.
 class TrafficLightRedMarker extends SymbolOptions {
-  /// Create a new traffic light marker.
   TrafficLightRedMarker({
     required LatLng geo,
     double iconSize = 1,
     double iconOpacity = 1,
+    Brightness? brightness,
   }) : super(
           geometry: geo,
-          iconImage: "trafficlightred",
+          iconImage: brightness == Brightness.dark ? "trafficlightonlinereddark" : "trafficlightonlineredlight",
           iconSize: iconSize,
           iconOpacity: iconOpacity,
           zIndex: 5,
