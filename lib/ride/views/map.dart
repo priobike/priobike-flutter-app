@@ -311,7 +311,7 @@ class RideMapViewState extends State<RideMapView> {
     final currentTrafficLight = upcomingTrafficLight;
     final currentTrafficLightIsGreen = upcomingTrafficLightIsGreen;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final iconSize = MediaQuery.of(context).devicePixelRatio / 2; // Green/Red icons are x2.
     final r = ride.currentRecommendation;
     final isGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
 
