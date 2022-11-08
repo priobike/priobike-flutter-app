@@ -41,10 +41,8 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
 
   _onTapDown(PointerEvent details) {
     // Temporary save position.
-    setState(() {
-      tapDownX = details.position.dx;
-      tapDownY = details.position.dy;
-    });
+    tapDownX = details.position.dx;
+    tapDownY = details.position.dy;
   }
 
   _onTapUp(PointerEvent details) {
@@ -58,10 +56,8 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
     }
 
     // Rest positions.
-    setState(() {
-      tapDownX = null;
-      tapDownY = null;
-    });
+    tapDownX = null;
+    tapDownY = null;
   }
 
   @override

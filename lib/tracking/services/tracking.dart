@@ -211,7 +211,6 @@ class Tracking with ChangeNotifier {
         'deviceWidth': deviceSize?.width.round(),
         'deviceHeight': deviceSize?.height.round(),
         'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
-        'ridePreference': settings?.ridePreference.toString(),
         'packageInfo': {
           'appName': packageInfo?.appName,
           'packageName': packageInfo?.packageName,

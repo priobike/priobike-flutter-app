@@ -13,7 +13,7 @@ import 'package:priobike/ride/views/legacy/default.dart';
 import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
 import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
-import 'package:priobike/ride/views/screenTracking.dart';
+import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';

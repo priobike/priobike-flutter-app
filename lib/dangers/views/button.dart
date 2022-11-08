@@ -33,7 +33,6 @@ class DangerButtonState extends State<DangerButton> {
 
   /// A callback that is called when the button is tapped.
   Future<void> onTap() async {
-    print("TAPPED!!!!!!!!");
     final dangers = Provider.of<Dangers>(context, listen: false);
     dangers.reportDanger(context);
     ToastMessage.showSuccess("Danke für's Melden!");
