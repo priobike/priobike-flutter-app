@@ -21,7 +21,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/dangers/models/danger.dart';
-import 'package:priobike/tracking/models/tapTracking.dart';
+import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.

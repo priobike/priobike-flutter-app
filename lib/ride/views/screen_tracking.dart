@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/tracking/models/tapTracking.dart';
+import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
 
