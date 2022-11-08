@@ -62,7 +62,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
             Row(children: [
               AppBackButton(onPressed: () => Navigator.pop(context)),
               const HSpace(),
-              SubHeader(text: "Shortcuts", context: context),
+              SubHeader(text: "Strecken", context: context),
             ]),
             ReorderableListView(
               physics: const NeverScrollableScrollPhysics(),

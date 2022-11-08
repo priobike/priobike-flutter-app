@@ -163,7 +163,7 @@ class HomeViewState extends State<HomeView> {
                 child: Row(children: [
                   const SizedBox(width: 40),
                   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    BoldContent(text: "Deine Shortcuts", context: context),
+                    BoldContent(text: "Deine Strecken", context: context),
                     const SizedBox(height: 4),
                     Small(text: "Direkt zum Ziel navigieren", context: context),
                   ]),
@@ -184,7 +184,7 @@ class HomeViewState extends State<HomeView> {
                   const TutorialView(
                     id: "priobike.tutorial.select-shortcut",
                     text:
-                        'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
+                        'Fährst du eine Route häufiger? Du kannst neue Strecken erstellen, indem du eine Route planst und dann auf "Strecke speichern" klickst.',
                     padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                   ),
                   ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)

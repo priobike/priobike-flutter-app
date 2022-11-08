@@ -353,7 +353,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return BigButton(
       icon: Icons.save,
       iconColor: Colors.white,
-      label: "Route speichern",
+      label: "Strecke speichern",
       onPressed: widget.onSelectSaveButton,
       boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
     );
