@@ -29,7 +29,7 @@ class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
   /// The threshold used for showing traffic light colors and speedometer colors
-  static const qualityThreshold = 0.75;
+  static const qualityThreshold = 0.5;
 
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
@@ -63,6 +63,9 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
+
+  /// If the upcoming traffic light is green.
+  bool? upcomingTrafficLightIsGreen;
 
   @override
   void didChangeDependencies() {
@@ -145,34 +148,18 @@ class RideMapViewState extends State<RideMapView> {
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    final iconSize = MediaQuery.of(context).devicePixelRatio;
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
-      if (status == null) {
+      if (status == null ||
+          status.predictionState == SGPredictionState.offline ||
+          status.predictionState == SGPredictionState.bad) {
         trafficLights!.add(await mapController!.addSymbol(
           OfflineMarker(
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
-            tilted: true,
-          ),
-        ));
-      } else if (status.predictionState == SGPredictionState.offline) {
-        trafficLights!.add(await mapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            tilted: true,
-          ),
-        ));
-      } else if (status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapController!.addSymbol(
-          BadSignalMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            tilted: true,
+            brightness: Theme.of(context).brightness,
           ),
         ));
       } else {
@@ -181,7 +168,7 @@ class RideMapViewState extends State<RideMapView> {
             iconSize: iconSize,
             geo: LatLng(sg.position.lat, sg.position.lon),
             label: willShowLabels ? sg.label : null,
-            tilted: true,
+            brightness: Theme.of(context).brightness,
           ),
         ));
       }
@@ -200,7 +187,7 @@ class RideMapViewState extends State<RideMapView> {
     offlineCrossings = [];
     final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    final iconSize = MediaQuery.of(context).devicePixelRatio;
     for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
       offlineCrossings!.add(await mapController!.addSymbol(
@@ -208,6 +195,7 @@ class RideMapViewState extends State<RideMapView> {
           iconSize: iconSize,
           geo: LatLng(crossing.position.lat, crossing.position.lon),
           label: willShowLabels ? crossing.name : null,
+          brightness: Theme.of(context).brightness,
         ),
       ));
     }
@@ -321,31 +309,38 @@ class RideMapViewState extends State<RideMapView> {
 
     // Cache the already displayed one to remove it after we have drawn on top.
     final currentTrafficLight = upcomingTrafficLight;
+    final currentTrafficLightIsGreen = upcomingTrafficLightIsGreen;
 
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 1.5;
+    final iconSize = MediaQuery.of(context).devicePixelRatio;
     final r = ride.currentRecommendation;
     final isGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
 
     if (r != null && !r.error && isGreen != null && r.sg?.position != null && r.quality! >= qualityThreshold) {
-      if (isGreen) {
+      if (isGreen && currentTrafficLightIsGreen != true) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightGreenMarker(
             geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
             iconSize: iconSize,
+            brightness: Theme.of(context).brightness,
           ),
         );
-      } else {
+        upcomingTrafficLightIsGreen = isGreen;
+        if (currentTrafficLight != null) {
+          await mapController!.removeSymbol(currentTrafficLight);
+        }
+      } else if (!isGreen && currentTrafficLightIsGreen != false) {
         upcomingTrafficLight = await mapController!.addSymbol(
           TrafficLightRedMarker(
             geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
             iconSize: iconSize,
+            brightness: Theme.of(context).brightness,
           ),
         );
+        upcomingTrafficLightIsGreen = isGreen;
+        if (currentTrafficLight != null) {
+          await mapController!.removeSymbol(currentTrafficLight);
+        }
       }
-    }
-
-    if (currentTrafficLight != null) {
-      await mapController!.removeSymbol(currentTrafficLight);
     }
   }
 
