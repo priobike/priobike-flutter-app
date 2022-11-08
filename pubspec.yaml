@@ -145,6 +145,7 @@ flutter:
     - assets/tracks/dresden/philipp.json
 
     # Map symbols
+    - assets/images/pin.png
     - assets/images/trafficlights/
     - assets/images/disconnected.png
     - assets/images/offline.png
