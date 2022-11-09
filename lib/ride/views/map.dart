@@ -52,12 +52,6 @@ class RideMapViewState extends State<RideMapView> {
   /// The route background that is displayed, if a route is selected.
   Line? routeBackground;
 
-  /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<Symbol>? trafficLights;
-
-  /// The offline crossings that are displayed, if there are offline crossings on the route.
-  List<Symbol>? offlineCrossings;
-
   /// The current waypoints, if the route is selected.
   List<Symbol>? waypoints;
 
@@ -141,66 +135,91 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
     if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldTrafficLights = trafficLights;
-    // Create a new traffic light marker for each traffic light.
-    trafficLights = [];
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final features = List.empty(growable: true);
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
-      if (status == null ||
+      final isOffline = status == null ||
           status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      } else {
-        trafficLights!.add(await mapController!.addSymbol(
-          OnlineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      }
+          status.predictionState == SGPredictionState.bad;
+      features.add({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [sg.position.lon, sg.position.lat],
+        },
+        "properties": {
+          "id": sg.id,
+          "isOffline": isOffline,
+        },
+      });
     }
-    // Remove the old traffic lights.
-    await mapController!.removeSymbols(oldTrafficLights ?? []);
+    await mapController!.setGeoJsonSource(
+      "traffic-lights",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await mapController!.removeLayer("traffic-light-icons");
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await mapController!.addLayer(
+      "traffic-lights",
+      "traffic-light-icons",
+      SymbolLayerProperties(
+        iconImage: [
+          "case",
+          ["get", "isOffline"],
+          isDark ? "trafficlightofflinedark" : "trafficlightofflinelight",
+          isDark ? "trafficlightonlinedark" : "trafficlightonlinelight",
+        ],
+        iconSize: MediaQuery.of(context).devicePixelRatio,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        iconOpacity: LayerTools.showAfter(zoom: 15),
+        symbolZOrder: 3,
+        textField:
+            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "id"] : null,
+      ),
+    );
   }
 
   /// Load the current crossings.
   Future<void> loadOfflineCrossingMarkers() async {
     // If we have no map controller, we cannot load the crossings.
     if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldOfflineCrossings = offlineCrossings;
-    // Create a new crossing marker for each crossing.
-    offlineCrossings = [];
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
+    final features = List.empty(growable: true);
     for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
-      offlineCrossings!.add(await mapController!.addSymbol(
-        DisconnectedMarker(
-          iconSize: iconSize,
-          geo: LatLng(crossing.position.lat, crossing.position.lon),
-          label: willShowLabels ? crossing.name : null,
-          brightness: Theme.of(context).brightness,
-        ),
-      ));
+      features.add({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [crossing.position.lon, crossing.position.lat],
+        },
+        "properties": {
+          "name": crossing.name,
+        },
+      });
     }
-    // Remove the old crossings.
-    await mapController!.removeSymbols(oldOfflineCrossings ?? []);
+    await mapController!.setGeoJsonSource(
+      "offline-crossings",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await mapController!.removeLayer("offline-crossing-icons");
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await mapController!.addLayer(
+      "offline-crossings",
+      "offline-crossing-icons",
+      SymbolLayerProperties(
+        iconImage: isDark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
+        iconSize: MediaQuery.of(context).devicePixelRatio,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        iconOpacity: LayerTools.showAfter(zoom: 15),
+        symbolZOrder: 3,
+        textField:
+            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "name"] : null,
+      ),
+    );
   }
 
   /// Load the current waypoint markers.

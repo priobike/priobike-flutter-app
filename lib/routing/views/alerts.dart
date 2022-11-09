@@ -44,9 +44,9 @@ class AlertsViewState extends State<AlertsView> {
       if (found != null && found.isNotEmpty) {
         for (int i = 0; i < found.length; i++) {
           if (found[i] == discomforts.selectedDiscomfort) {
-            controller.jumpToPage(i);
+            controller.jumpToPage(i + 1);
             setState(() {
-              currentPage = i;
+              currentPage = i + 1;
             });
             break;
           }

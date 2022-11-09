@@ -370,16 +370,15 @@ class Routing with ChangeNotifier {
   }
 
   /// Select a route.
-  Future<void> switchToRoute(BuildContext context, r.Route route) async {
-    // Can only select an alternative route if there are some,
-    // and if there is a currently selected route.
-    selectedRoute = route;
+  Future<void> switchToRoute(BuildContext context, int idx) async {
+    if (idx < 0 || idx >= allRoutes!.length) return;
+    selectedRoute = allRoutes![idx];
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
-    await discomforts.findDiscomforts(context, route.path);
+    await discomforts.findDiscomforts(context, selectedRoute!.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, route.signalGroups, route.crossings);
+    await status.fetch(context, selectedRoute!.signalGroups, selectedRoute!.crossings);
 
     notifyListeners();
   }

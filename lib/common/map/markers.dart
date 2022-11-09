@@ -65,66 +65,6 @@ class DiscomfortLocationMarker extends SymbolOptions {
         );
 }
 
-class TrafficLightMarker extends SymbolOptions {
-  TrafficLightMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    int zIndex = 2,
-    required String iconImage,
-    String? label,
-  }) : super(
-          geometry: geo,
-          iconImage: iconImage,
-          iconSize: iconSize,
-          zIndex: zIndex,
-        );
-}
-
-class OnlineMarker extends TrafficLightMarker {
-  OnlineMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    String? label,
-    Brightness? brightness,
-  }) : super(
-          geo: geo,
-          iconSize: iconSize,
-          iconImage: brightness == Brightness.dark ? "trafficlightonlinedark" : "trafficlightonlinelight",
-          zIndex: 3,
-          label: label,
-        );
-}
-
-class DisconnectedMarker extends TrafficLightMarker {
-  DisconnectedMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    String? label,
-    Brightness? brightness,
-  }) : super(
-          geo: geo,
-          iconSize: iconSize,
-          iconImage: brightness == Brightness.dark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
-          zIndex: 3,
-          label: label,
-        );
-}
-
-class OfflineMarker extends TrafficLightMarker {
-  OfflineMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    String? label,
-    Brightness? brightness,
-  }) : super(
-          geo: geo,
-          iconSize: iconSize,
-          iconImage: brightness == Brightness.dark ? "trafficlightofflinedark" : "trafficlightofflinelight",
-          zIndex: 3,
-          label: label,
-        );
-}
-
 class TrafficLightGreenMarker extends SymbolOptions {
   TrafficLightGreenMarker({
     required LatLng geo,
@@ -136,7 +76,7 @@ class TrafficLightGreenMarker extends SymbolOptions {
           iconImage: brightness == Brightness.dark ? "trafficlightonlinegreendark" : "trafficlightonlinegreenlight",
           iconSize: iconSize,
           iconOpacity: iconOpacity,
-          zIndex: 5,
+          zIndex: 3,
         );
 }
 

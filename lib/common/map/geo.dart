@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:provider/provider.dart';
 
@@ -13,19 +14,6 @@ class GeoFeatureLoader {
 
   /// Create a new geo feature loader.
   GeoFeatureLoader(this.mapController);
-
-  /// Fade a layer out before a specific zoom level.
-  static dynamic showAfter({required int zoom, double opacity = 1.0}) => [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        0,
-        0,
-        zoom - 1,
-        0,
-        zoom,
-        opacity,
-      ];
 
   /// Initialize the geoJson sources.
   Future<void> initSources() async {
@@ -88,7 +76,7 @@ class GeoFeatureLoader {
       LineLayerProperties(
         lineColor: "#ff0000",
         lineWidth: 2,
-        lineOpacity: showAfter(zoom: 14),
+        lineOpacity: LayerTools.showAfter(zoom: 14),
       ),
       enableInteraction: false,
     );
@@ -106,7 +94,7 @@ class GeoFeatureLoader {
         ],
         textAnchor: "bottom",
         textColor: "#ff0000",
-        textOpacity: showAfter(zoom: 15),
+        textOpacity: LayerTools.showAfter(zoom: 15),
       ),
       enableInteraction: false,
     );
@@ -115,7 +103,7 @@ class GeoFeatureLoader {
   /// Add source for accident hotspots.
   Future<void> initAccidentHotspots(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the bike shop to the map.
+    await mapController.removeSource("$layerPrefix-accident-hotspots");
     await mapController.addSource("$layerPrefix-accident-hotspots", GeojsonSourceProperties(data: d));
   }
 
@@ -135,7 +123,7 @@ class GeoFeatureLoader {
         SymbolLayerProperties(
           iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "parklight" : "parkdark",
           iconSize: 1.0,
-          iconOpacity: showAfter(zoom: 15),
+          iconOpacity: LayerTools.showAfter(zoom: 15),
         ),
       );
     }
@@ -144,7 +132,8 @@ class GeoFeatureLoader {
   /// Add sources for bike parking.
   Future<void> initBikeParkingPoints(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the bike shop to the map.
+    await mapController.removeSource("$layerPrefix-bike-parking-points");
+    await mapController.removeSource("$layerPrefix-bike-parking-polygons");
     await mapController.addSource("$layerPrefix-bike-parking-points", GeojsonSourceProperties(data: d));
     await mapController.addSource("$layerPrefix-bike-parking-polygons", GeojsonSourceProperties(data: d));
   }
@@ -166,7 +155,7 @@ class GeoFeatureLoader {
             iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "rentlight" : "rentdark",
             iconSize: 1.0,
             iconAllowOverlap: true,
-            iconOpacity: showAfter(zoom: 15),
+            iconOpacity: LayerTools.showAfter(zoom: 15),
             textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
             textHaloWidth: 1,
             textOffset: [
@@ -188,7 +177,7 @@ class GeoFeatureLoader {
             textSize: 12,
             textAnchor: "center",
             textColor: "#0075FF",
-            textOpacity: showAfter(zoom: 17),
+            textOpacity: LayerTools.showAfter(zoom: 17),
           ));
     }
   }
@@ -196,7 +185,8 @@ class GeoFeatureLoader {
   /// Add sources for bike rental.
   Future<void> initBikeRentalPoints(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the bike shop to the map.
+    await mapController.removeSource("$layerPrefix-bike-rental-points");
+    await mapController.removeSource("$layerPrefix-bike-rental-polygons");
     await mapController.addSource("$layerPrefix-bike-rental-points", GeojsonSourceProperties(data: d));
     await mapController.addSource("$layerPrefix-bike-rental-polygons", GeojsonSourceProperties(data: d));
   }
@@ -218,7 +208,7 @@ class GeoFeatureLoader {
             iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "repairlight" : "repairdark",
             iconSize: 1.0,
             iconAllowOverlap: true,
-            iconOpacity: showAfter(zoom: 15),
+            iconOpacity: LayerTools.showAfter(zoom: 15),
             textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
             textHaloWidth: 1,
             textOffset: [
@@ -245,7 +235,7 @@ class GeoFeatureLoader {
             textSize: 12,
             textAnchor: "center",
             textColor: "#0075FF",
-            textOpacity: showAfter(zoom: 17),
+            textOpacity: LayerTools.showAfter(zoom: 17),
           ));
     }
   }
@@ -253,7 +243,8 @@ class GeoFeatureLoader {
   /// Add sources for bike shops.
   Future<void> initBikeShopPoints(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the bike shop to the map.
+    await mapController.removeSource("$layerPrefix-bike-shop-points");
+    await mapController.removeSource("$layerPrefix-bike-shop-polygons");
     await mapController.addSource("$layerPrefix-bike-shop-points", GeojsonSourceProperties(data: d));
     await mapController.addSource("$layerPrefix-bike-shop-polygons", GeojsonSourceProperties(data: d));
   }
@@ -274,7 +265,7 @@ class GeoFeatureLoader {
           iconImage: Theme.of(context).colorScheme.brightness == Brightness.light ? "airlight" : "airdark",
           iconSize: 1.0,
           iconAllowOverlap: true,
-          iconOpacity: showAfter(zoom: 15),
+          iconOpacity: LayerTools.showAfter(zoom: 15),
           textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
           textHaloWidth: 1,
           textOffset: [
@@ -296,14 +287,14 @@ class GeoFeatureLoader {
           textSize: 12,
           textAnchor: "center",
           textColor: "#0075FF",
-          textOpacity: showAfter(zoom: 17),
+          textOpacity: LayerTools.showAfter(zoom: 17),
         ));
   }
 
   /// Add sources for construction sites.
   Future<void> initBikeAirStations(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the bike air station to the map.
+    await mapController.removeSource("$layerPrefix-bike-air-stations");
     await mapController.addSource("$layerPrefix-bike-air-stations", GeojsonSourceProperties(data: d));
   }
 
@@ -323,7 +314,7 @@ class GeoFeatureLoader {
               Theme.of(context).colorScheme.brightness == Brightness.light ? "constructionlight" : "constructiondark",
           iconSize: 1.0,
           iconAllowOverlap: true,
-          iconOpacity: showAfter(zoom: 14),
+          iconOpacity: LayerTools.showAfter(zoom: 14),
           textHaloColor: Theme.of(context).colorScheme.brightness == Brightness.light ? "#ffffff" : "#000000",
           textHaloWidth: 1,
           textOffset: [
@@ -335,15 +326,14 @@ class GeoFeatureLoader {
           textSize: 12,
           textAnchor: "center",
           textColor: "#e67e22",
-          textOpacity: showAfter(zoom: 15),
+          textOpacity: LayerTools.showAfter(zoom: 15),
         ));
   }
 
   /// Add source for construction sites.
   Future<void> initConstructionSites(String layerPrefix, String file) async {
     final d = jsonDecode(await rootBundle.loadString(file));
-    // Add the construction sites to the map.
-    // await mapController.setGeoJsonSource("$layerPrefix-construction-sites", d);
+    await mapController.removeSource("$layerPrefix-construction-sites");
     await mapController.addSource("$layerPrefix-construction-sites", GeojsonSourceProperties(data: d));
   }
 

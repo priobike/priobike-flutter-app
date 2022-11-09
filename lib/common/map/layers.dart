@@ -1,5 +1,20 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+class LayerTools {
+  /// Fade a layer out before a specific zoom level.
+  static dynamic showAfter({required int zoom, double opacity = 1.0}) => [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        0,
+        0,
+        zoom - 1,
+        0,
+        zoom,
+        opacity,
+      ];
+}
+
 /// A line layer for the route.
 class RouteLayer extends LineOptions {
   RouteLayer({required List<LatLng> points, double lineWidth = 7.0})

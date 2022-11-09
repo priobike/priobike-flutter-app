@@ -17,7 +17,6 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
@@ -49,38 +48,17 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
+  /// A lock for concurrent updates to map layers.
+  var isUpdatingLayers = false;
+
   /// A map controller for the map.
   MapboxMapController? mapController;
 
   /// The geo feature loader for the map.
   GeoFeatureLoader? geoFeatureLoader;
 
-  /// All routes that are displayed, if they were fetched.
-  List<Line>? allRoutes;
-
-  /// The route that is displayed, if a route is selected.
-  Line? route;
-
-  /// The discomfort sections that are displayed, if they were fetched.
-  List<Line>? discomfortSections;
-
-  /// The discomfort locations that are displayed, if they were fetched.
-  List<Symbol>? discomfortLocations;
-
-  /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<Symbol>? trafficLights;
-
-  /// The offline crossings that are displayed, if there are offline crossings on the route.
-  List<Symbol>? offlineCrossings;
-
-  /// The current waypoints, if the route is selected.
-  List<Symbol>? waypoints;
-
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
-
-  /// Bool to save if sources have been initialized.
-  bool sourcesInitialized = false;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
@@ -100,6 +78,34 @@ class RoutingMapViewState extends State<RoutingMapView> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    routing = Provider.of<Routing>(context);
+    discomforts = Provider.of<Discomforts>(context);
+    if (routing.needsLayout[viewId] != false || discomforts.needsLayout[viewId] != false) {
+      print("RoutingMapView: needs routing/discomforts");
+      updateMapLayers();
+      routing.needsLayout[viewId] = false;
+      discomforts.needsLayout[viewId] = false;
+    }
+
+    positioning = Provider.of<Positioning>(context);
+    if (positioning.needsLayout[viewId] != false) {
+      print("RoutingMapView: needs positioning");
+      onPositioningUpdate();
+      positioning.needsLayout[viewId] = false;
+    }
+
+    layers = Provider.of<Layers>(context);
+    if (layers.needsLayout[viewId] != false) {
+      print("RoutingMapView: needs layers");
+      loadGeoFeatures();
+      layers.needsLayout[viewId] = false;
+    }
+
+    super.didChangeDependencies();
+  }
+
   /// A callback that gets fired when the bottom sheet of the parent view is dragged.
   Future<void> onScrollBottomSheet(DraggableScrollableNotification n) async {
     final frame = MediaQuery.of(context);
@@ -109,238 +115,332 @@ class RoutingMapViewState extends State<RoutingMapView> {
         EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset), false);
   }
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    if (routing.needsLayout[viewId] != false) {
-      onRoutingUpdate();
-      routing.needsLayout[viewId] = false;
-    }
-
-    discomforts = Provider.of<Discomforts>(context);
-    if (discomforts.needsLayout[viewId] != false) {
-      onDiscomfortsUpdate();
-      discomforts.needsLayout[viewId] = false;
-    }
-
-    positioning = Provider.of<Positioning>(context);
-    if (positioning.needsLayout[viewId] != false) {
-      onPositioningUpdate();
-      positioning.needsLayout[viewId] = false;
-    }
-
-    layers = Provider.of<Layers>(context);
-    if (layers.needsLayout[viewId] != false) {
-      onLayersUpdate();
-      layers.needsLayout[viewId] = false;
-    }
-
-    super.didChangeDependencies();
-  }
-
-  Future<void> onRoutingUpdate() async {
+  Future<void> updateMapLayers() async {
+    if (isUpdatingLayers) return;
+    isUpdatingLayers = true;
     await loadAllRouteLayers();
     await loadSelectedRouteLayer();
+    await loadWaypointMarkers();
+    await loadDiscomforts();
     await loadTrafficLightMarkers();
     await loadOfflineCrossingMarkers();
-    await loadWaypointMarkers();
     await moveMap();
-  }
-
-  Future<void> onDiscomfortsUpdate() async {
-    await loadDiscomforts();
+    isUpdatingLayers = false;
   }
 
   Future<void> onPositioningUpdate() async {
     await showUserLocation();
   }
 
-  Future<void> onLayersUpdate() async {
-    await loadLayers();
-  }
-
   /// Load the route layerouting.
   Future<void> loadAllRouteLayers() async {
     // If we have no map controller, we cannot load the layerouting.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldRoutes = allRoutes;
-    // Add the new layers, if they exist.
-    allRoutes = [];
-    for (r.Route altRoute in routing.allRoutes ?? []) {
-      allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-        altRoute.toJson(),
-      ));
-      // Make it easier to click the alt route layer.
-      allRoutes!.add(await mapController!.addLine(
-        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-        altRoute.toJson(),
-      ));
+    if (mapController == null || !mounted) return;
+    final features = List.empty(growable: true);
+    for (final entry in routing.allRoutes?.asMap().entries.toList() ?? []) {
+      final geometry = {
+        "type": "LineString",
+        "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
+      };
+      features.add({
+        "id": "route-${entry.key}", // Required for click listener.
+        "type": "Feature",
+        "geometry": geometry,
+      });
     }
-    // Remove the old layerouting.
-    await mapController?.removeLines(oldRoutes ?? []);
+    await mapController?.removeLayer("routes-layer");
+    await mapController?.removeLayer("routes-clicklayer");
+    await mapController?.removeSource("routes");
+    await mapController?.addGeoJsonSource(
+      "routes",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await mapController?.addLayer(
+      "routes",
+      "routes-layer",
+      const LineLayerProperties(
+        lineWidth: 9.0,
+        lineColor: "#C6C6C6",
+        lineJoin: "round",
+      ),
+      enableInteraction: false,
+      belowLayerId: "discomforts-layer",
+    );
+    // Make it easier to click on the route.
+    await mapController?.addLayer(
+      "routes",
+      "routes-clicklayer",
+      const LineLayerProperties(
+        lineWidth: 25.0,
+        lineColor: "#000000",
+        lineJoin: "round",
+        lineOpacity: 0.001, // Not 0 to make the click listener work.
+      ),
+      enableInteraction: true,
+      belowLayerId: "discomforts-layer",
+    );
   }
 
   /// Load the current route layer.
   Future<void> loadSelectedRouteLayer() async {
     // If we have no map controller, we cannot load the route layer.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldRoute = route;
-    if (routing.selectedRoute == null) return;
-    // Add the new route layer.
-    route = await mapController!.addLine(
-      RouteLayer(points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-      routing.selectedRoute!.toJson(),
+    if (mapController == null || !mounted) return;
+    final geometry = {
+      "type": "LineString",
+      "coordinates": routing.selectedRoute?.route.map((e) => [e.lon, e.lat]).toList() ?? [],
+    };
+    final feature = {
+      "type": "Feature",
+      "properties": {},
+      "geometry": geometry,
+    };
+    await mapController?.removeLayer("route-background-layer");
+    await mapController?.removeLayer("route-layer");
+    await mapController?.removeSource("route");
+    await mapController?.addGeoJsonSource(
+      "route",
+      {
+        "type": "FeatureCollection",
+        "features": [feature]
+      },
     );
-    if (oldRoute != null) await mapController?.removeLine(oldRoute);
+    await mapController?.addLayer(
+      "route",
+      "route-background-layer",
+      const LineLayerProperties(
+        lineWidth: 9.0,
+        lineColor: "#C6C6C6",
+        lineJoin: "round",
+      ),
+      enableInteraction: false,
+      belowLayerId: "discomforts-layer",
+    );
+    await mapController?.addLayer(
+      "route",
+      "route-layer",
+      const LineLayerProperties(
+        lineWidth: 7.0,
+        lineColor: "#0073ff",
+        lineJoin: "round",
+      ),
+      enableInteraction: false,
+      belowLayerId: "discomforts-layer",
+    );
   }
 
   /// Load the discomforts.
   Future<void> loadDiscomforts() async {
     // If we have no map controller, we cannot load the layerouting.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldDiscomfortLocations = discomfortLocations;
-    final oldDiscomfortSections = discomfortSections;
-    // Add the new layerouting.
-    discomfortLocations = [];
-    discomfortSections = [];
+    if (mapController == null || !mounted) return;
+    final features = List.empty(growable: true);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
     for (MapEntry<int, DiscomfortSegment> e in discomforts.foundDiscomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
-      if (e.value.coordinates.length == 1) {
-        // A single location.
-        final location = e.value.coordinates.first;
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: location, number: e.key + 1, iconSize: iconSize),
-          e.value.toJson(),
-        ));
-      } else {
-        // A section of the route.
-        discomfortLocations!.add(await mapController!.addSymbol(
-          DiscomfortLocationMarker(geo: e.value.coordinates.first, number: e.key + 1, iconSize: iconSize),
-          e.value.toJson(),
-        ));
-        discomfortSections!.add(await mapController!.addLine(
-          DiscomfortSectionLayer(points: e.value.coordinates),
-          e.value.toJson(),
-        ));
-        // Make it easier to click the discomfort section layer.
-        discomfortSections!.add(await mapController!.addLine(
-          DiscomfortSectionClickLayer(points: e.value.coordinates),
-          e.value.toJson(),
-        ));
-      }
+      // A section of the route.
+      final geometry = {
+        "type": "LineString",
+        "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
+      };
+      features.add({
+        "id": "discomfort-${e.key}", // Required for click listener.
+        "type": "Feature",
+        "properties": {
+          "number": e.key + 1,
+        },
+        "geometry": geometry,
+      });
     }
-    // Remove the old layerouting.
-    await mapController?.removeSymbols(oldDiscomfortLocations ?? []);
-    await mapController?.removeLines(oldDiscomfortSections ?? []);
+    await mapController?.removeLayer("discomforts-layer");
+    await mapController?.removeLayer("discomforts-clicklayer");
+    await mapController?.removeLayer("discomforts-markers");
+    await mapController?.removeSource("discomforts");
+    await mapController?.addGeoJsonSource(
+      "discomforts",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await mapController?.addLayer(
+      "discomforts",
+      "discomforts-layer",
+      const LineLayerProperties(
+        lineWidth: 7.0,
+        lineColor: "#e63328",
+        lineCap: "round",
+        lineJoin: "round",
+      ),
+      enableInteraction: false,
+      belowLayerId: "discomforts-clicklayer",
+    );
+    await mapController?.addLayer(
+      "discomforts",
+      "discomforts-clicklayer",
+      const LineLayerProperties(
+        lineWidth: 30.0,
+        lineColor: "#000000",
+        lineCap: "round",
+        lineJoin: "round",
+        lineOpacity: 0.001, // Not 0 to make the click listener work.
+      ),
+      enableInteraction: true,
+      belowLayerId: "discomforts-markers",
+    );
+    await mapController?.addLayer(
+      "discomforts",
+      "discomforts-markers",
+      SymbolLayerProperties(
+        iconImage: "alert",
+        iconSize: iconSize,
+        textField: ["get", "number"],
+        textSize: 12,
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
+      ),
+      enableInteraction: true,
+    );
   }
 
   /// Load the current traffic lights.
   Future<void> loadTrafficLightMarkers() async {
     // If we have no map controller, we cannot load the traffic lights.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldTrafficLights = trafficLights;
-    // Create a new traffic light marker for each traffic light.
-    trafficLights = [];
-    final settings = Provider.of<Settings>(context, listen: false);
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
+    if (mapController == null || !mounted) return;
     // Check the prediction status of the traffic light.
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 2.5;
+    final features = List.empty(growable: true);
     for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
       final status = statusProvider.cache[sg.id];
-      if (status == null ||
+      final isOffline = status == null ||
           status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      } else {
-        trafficLights!.add(await mapController!.addSymbol(
-          OnlineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      }
+          status.predictionState == SGPredictionState.bad;
+      features.add({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [sg.position.lon, sg.position.lat],
+        },
+        "properties": {
+          "id": sg.id,
+          "isOffline": isOffline,
+        },
+      });
     }
-    // Remove the old traffic lights.
-    await mapController?.removeSymbols(oldTrafficLights ?? []);
+    await mapController?.removeLayer("traffic-lights-icons");
+    await mapController?.removeSource("traffic-lights");
+    await mapController?.addGeoJsonSource(
+      "traffic-lights",
+      {"type": "FeatureCollection", "features": features},
+    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await mapController?.addLayer(
+      "traffic-lights",
+      "traffic-lights-icons",
+      SymbolLayerProperties(
+        iconImage: [
+          "case",
+          ["get", "isOffline"],
+          isDark ? "trafficlightofflinedark" : "trafficlightofflinelight",
+          isDark ? "trafficlightonlinedark" : "trafficlightonlinelight",
+        ],
+        iconSize: MediaQuery.of(context).devicePixelRatio / 2.5,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        iconOpacity: LayerTools.showAfter(zoom: 13),
+        symbolZOrder: 3,
+        textField:
+            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "id"] : null,
+      ),
+      enableInteraction: false,
+    );
   }
 
   /// Load the current crossings.
   Future<void> loadOfflineCrossingMarkers() async {
     // If we have no map controller, we cannot load the crossings.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldCrossings = offlineCrossings;
-    // Create a new crossing marker for each crossing.
-    offlineCrossings = [];
-    final settings = Provider.of<Settings>(context, listen: false);
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 2.5;
+    if (mapController == null || !mounted) return;
+    final features = List.empty(growable: true);
     for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
-      offlineCrossings!.add(await mapController!.addSymbol(
-        DisconnectedMarker(
-          iconSize: iconSize,
-          geo: LatLng(crossing.position.lat, crossing.position.lon),
-          label: willShowLabels ? crossing.name : null,
-          brightness: Theme.of(context).brightness,
-        ),
-      ));
+      features.add({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [crossing.position.lon, crossing.position.lat],
+        },
+        "properties": {
+          "name": crossing.name,
+        },
+      });
     }
-    // Remove the old crossings.
-    await mapController?.removeSymbols(oldCrossings ?? []);
+    await mapController?.removeLayer("offline-crossings-icons");
+    await mapController?.removeSource("offline-crossings");
+    await mapController?.addGeoJsonSource(
+      "offline-crossings",
+      {"type": "FeatureCollection", "features": features},
+    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await mapController?.addLayer(
+      "offline-crossings",
+      "offline-crossings-icons",
+      SymbolLayerProperties(
+        iconImage: isDark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
+        iconSize: MediaQuery.of(context).devicePixelRatio / 2.5,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        iconOpacity: LayerTools.showAfter(zoom: 13),
+        symbolZOrder: 3,
+        textField:
+            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "name"] : null,
+      ),
+      enableInteraction: false,
+    );
   }
 
   /// Load the current waypoint markerouting.
   Future<void> loadWaypointMarkers() async {
     // If we have no map controller, we cannot load the waypoint layer.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldWaypoints = waypoints;
-    waypoints = [];
-    // Create a new waypoint marker for each waypoint.
+    if (mapController == null || !mounted) return;
+    final features = List.empty(growable: true);
     final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
     for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
-      if (entry.key == 0) {
-        waypoints!.add(await mapController!.addSymbol(
-          StartMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      } else if (entry.key == routing.selectedWaypoints!.length - 1) {
-        waypoints!.add(await mapController!.addSymbol(
-          DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      } else {
-        waypoints!.add(await mapController!.addSymbol(
-          WaypointMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      }
+      features.add({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [entry.value.lon, entry.value.lat],
+        },
+        "properties": {
+          "isFirst": entry.key == 0,
+          "isLast": entry.key == routing.selectedWaypoints!.length - 1,
+        },
+      });
     }
-    // Remove the old waypoints.
-    await mapController?.removeSymbols(oldWaypoints ?? []);
+    await mapController?.removeLayer("waypoints-icons");
+    await mapController?.removeSource("waypoints");
+    await mapController?.addGeoJsonSource(
+      "waypoints",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await mapController?.addLayer(
+      "waypoints",
+      "waypoints-icons",
+      SymbolLayerProperties(
+        iconImage: [
+          "case",
+          ["get", "isFirst"],
+          "start",
+          ["get", "isLast"],
+          "destination",
+          "waypoint",
+        ],
+        iconSize: iconSize,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+      ),
+      enableInteraction: false,
+    );
   }
 
   /// Adapt the map controller.
   Future<void> moveMap() async {
-    if (mapController == null) return;
+    if (mapController == null || !mounted) return;
     if (routing.selectedRoute != null && !mapController!.isCameraMoving) {
       // The delay is necessary, otherwise sometimes the camera won't move.
       await Future.delayed(const Duration(milliseconds: 500));
@@ -353,7 +453,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// Show the user location on the map.
   Future<void> showUserLocation() async {
-    if (mapController == null) return;
+    if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
 
     await mapController?.updateUserLocation(
@@ -367,58 +467,27 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the map layers.
-  Future<void> loadLayers() async {
-    if (mapController == null) return;
+  Future<void> loadGeoFeatures() async {
+    if (mapController == null || !mounted) return;
 
     // Load the map features.
     geoFeatureLoader = GeoFeatureLoader(mapController!);
-
-    // Initialize sources for the geo layers.
-    if (!sourcesInitialized) {
-      await geoFeatureLoader!.initSources();
-      setState(() {
-        sourcesInitialized = true;
-      });
-    }
-
     await geoFeatureLoader!.removeFeatures();
+    await geoFeatureLoader!.initSources();
     await geoFeatureLoader!.loadFeatures(context);
   }
 
-  /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
-
-  /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
-
-  /// A callback that is called when the user taps a line.
-  Future<void> onLineTapped(Line line) async {
-    // If the line corresponds to a discomfort line, we select the discomfort.
-    for (Line discomfortLine in discomfortSections ?? []) {
-      if (line.id == discomfortLine.id) {
-        final discomfort = DiscomfortSegment.fromJson(line.data);
-        discomforts.selectDiscomfort(discomfort);
-        return;
-      }
-    }
-    // If the line corresponds to an alternative route, we select that one.
-    for (Line routeLine in allRoutes ?? []) {
-      if (line.id == routeLine.id) {
-        final route = r.Route.fromJson(line.data);
-        routing.switchToRoute(context, route);
-        return;
-      }
-    }
-  }
-
-  /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async {
-    // If the symbol corresponds to a discomfort, we select that discomfort.
-    for (Symbol discomfortLocation in discomfortLocations ?? []) {
-      if (symbol.id == discomfortLocation.id) {
-        final discomfort = DiscomfortSegment.fromJson(symbol.data);
-        discomforts.selectDiscomfort(discomfort);
-      }
+  /// A callback that is called when the user taps a feature.
+  Future<void> onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
+    if (id is! String) return;
+    if (id.startsWith("route-")) {
+      final routeIdx = int.tryParse(id.split("-")[1]);
+      if (routeIdx == null) return;
+      routing.switchToRoute(context, routeIdx);
+    } else if (id.startsWith("discomfort-")) {
+      final discomfortIdx = int.tryParse(id.split("-")[1]);
+      if (discomfortIdx == null) return;
+      discomforts.selectDiscomfort(discomfortIdx);
     }
   }
 
@@ -427,10 +496,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     mapController = controller;
 
     // Bind the interaction callbacks.
-    controller.onFillTapped.add(onFillTapped);
-    controller.onCircleTapped.add(onCircleTapped);
-    controller.onLineTapped.add(onLineTapped);
-    controller.onSymbolTapped.add(onSymbolTapped);
+    controller.onFeatureTapped.add(onFeatureTapped);
 
     // Dont call any line/symbol/... removal/add operations here.
     // The mapcontroller won't have the necessary line/symbol/...manager.
@@ -438,7 +504,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(BuildContext context) async {
-    if (mapController == null) return;
+    if (mapController == null || !mounted) return;
 
     // Remove all previously existing layers from the map.
     await mapController?.clearFills();
@@ -459,10 +525,9 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await mapController!.setSymbolTextIgnorePlacement(true);
 
     // Force adapt the map.
-    await onRoutingUpdate();
-    await onDiscomfortsUpdate();
+    await updateMapLayers();
     await onPositioningUpdate();
-    await onLayersUpdate();
+    await loadGeoFeatures();
   }
 
   /// A callback that is executed when the map was longclicked.
