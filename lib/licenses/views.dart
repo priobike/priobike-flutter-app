@@ -36,7 +36,6 @@ class LicenseView extends StatelessWidget {
             height: 25,
           ),
         ),
-        applicationLegalese: "applicationLegalese - TODO",
       ),
     );
   }
