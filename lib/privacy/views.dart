@@ -41,16 +41,16 @@ class PrivacyPolicyView extends StatefulWidget {
 
 class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
-  late PrivacyPolicy s;
+  late PrivacyPolicy privacyService;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<PrivacyPolicy>(context);
+    privacyService = Provider.of<PrivacyPolicy>(context);
 
     // Load once the window was built.
     WidgetsBinding.instance?.addPostFrameCallback(
       (_) async {
-        await s.loadPolicy(context);
+        await privacyService.loadPolicy(context);
       },
     );
 
@@ -77,14 +77,14 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    await s.confirm();
+    await privacyService.confirm();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!s.hasLoaded) return Container();
+    if (!privacyService.hasLoaded) return Container();
 
-    if (s.isConfirmed == true && widget.child != null) return widget.child!;
+    if (privacyService.isConfirmed == true && widget.child != null) return widget.child!;
 
     return Scaffold(
       body: Container(
@@ -99,18 +99,19 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!s.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!s.hasChanged!) Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
-                      if (s.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (s.hasChanged!)
+                      if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
+                      if (!privacyService.hasChanged!)
+                        Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
+                      if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
+                      if (privacyService.hasChanged!)
                         Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
-                      if (!s.hasChanged!)
+                      if (!privacyService.hasChanged!)
                         SubHeader(
                             text:
                                 "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
-                      if (s.hasChanged!)
+                      if (privacyService.hasChanged!)
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
@@ -131,7 +132,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
                           context: context),
                       const VSpace(),
-                      Content(text: s.text!, context: context),
+                      Content(text: privacyService.text!, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),
