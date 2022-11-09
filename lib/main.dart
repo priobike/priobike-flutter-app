@@ -166,7 +166,7 @@ class App extends StatelessWidget {
                 background: Color(0xFF232323),
                 primary: CI.blue,
                 secondary: CI.lightBlue,
-                surface: Color(0xF63B3B3B),
+                surface: Color.fromARGB(246, 244, 241, 241),
                 brightness: Brightness.dark,
               ),
               textTheme: const TextTheme(
