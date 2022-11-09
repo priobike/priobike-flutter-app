@@ -61,7 +61,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Looking for local tcp Bonjour service</string>
+	<string>Diese App nutzt TCP-Netzwerkdienste, um Verbindungen zu Ampeln herzustellen, und braucht hierfür deine Erlaubnis.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>mqtt.tcp</string>
