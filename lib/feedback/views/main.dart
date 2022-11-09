@@ -110,11 +110,13 @@ class FeedbackViewState extends State<FeedbackView> {
                     children: [
                       const SizedBox(height: 8),
                       if (widget.showBackButton)
-                        Row(children: [
-                          AppBackButton(onPressed: () => Navigator.pop(context)),
-                          const HSpace(),
-                          SubHeader(text: "Feedback", context: context),
-                        ]),
+                        Row(
+                          children: [
+                            AppBackButton(onPressed: () => Navigator.pop(context)),
+                            const HSpace(),
+                            SubHeader(text: "Feedback", context: context),
+                          ],
+                        ),
                       const VSpace(),
                       const Divider(),
                       const VSpace(),

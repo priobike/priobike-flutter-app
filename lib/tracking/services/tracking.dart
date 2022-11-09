@@ -191,6 +191,7 @@ class Tracking with ChangeNotifier {
     logs = null;
     tapsTracked = [];
     deviceSize = null;
+    isSendingTrack = false;
     notifyListeners();
   }
 
