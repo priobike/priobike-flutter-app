@@ -25,8 +25,8 @@ class NavBarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      foregroundColor: CI.lightBlue,
-      backgroundColor: CI.blue,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.secondary,
       pinned: true,
       snap: false,
       floating: false,
