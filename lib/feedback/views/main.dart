@@ -67,11 +67,24 @@ class FeedbackViewState extends State<FeedbackView> {
       body: Container(
         color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
-        ]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            const Text(
+              "Sende Feedback...",
+              style: TextStyle(fontSize: 16),
+            ),
+            TextButton(
+              onPressed: () async => await widget.onSubmitted(context),
+              child: const Text(
+                "Abbrechen",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -85,60 +98,66 @@ class FeedbackViewState extends State<FeedbackView> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          body: Stack(children: [
-        Container(
-          color: Theme.of(context).colorScheme.surface,
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            child: SafeArea(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 8),
-                if (widget.showBackButton)
-                  Row(children: [
-                    AppBackButton(onPressed: () => Navigator.pop(context)),
-                    const HSpace(),
-                    SubHeader(text: "Feedback", context: context),
-                  ]),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: StarRatingView(text: "Feedback zur App"),
+        body: Stack(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.surface,
+              height: MediaQuery.of(context).size.height,
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      if (widget.showBackButton)
+                        Row(
+                          children: [
+                            AppBackButton(onPressed: () => Navigator.pop(context)),
+                            const HSpace(),
+                            SubHeader(text: "Feedback", context: context),
+                          ],
+                        ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: StarRatingView(text: "Feedback zur App"),
+                      ),
+                      const VSpace(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: TextFeedbackView(text: "Was können wir verbessern?"),
+                      ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: SendTrackingView(),
+                      ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      BigButton(
+                        iconColor: Colors.white,
+                        icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
+                            ? Icons.send
+                            : Icons.check,
+                        label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
+                            ? "Senden"
+                            : "Fertig",
+                        onPressed: () => submit(context),
+                      ),
+                      const SizedBox(height: 128),
+                    ],
+                  ),
                 ),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: TextFeedbackView(text: "Was können wir verbessern?"),
-                ),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: SendTrackingView(),
-                ),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                BigButton(
-                  iconColor: Colors.white,
-                  icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                      ? Icons.send
-                      : Icons.check,
-                  label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                      ? "Senden"
-                      : "Fertig",
-                  onPressed: () => submit(context),
-                ),
-                const SizedBox(height: 128),
-              ],
-            )),
-          ),
+              ),
+            ),
+          ],
         ),
-      ])),
+      ),
     );
   }
 }
