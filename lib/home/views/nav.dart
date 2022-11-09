@@ -25,6 +25,8 @@ class NavBarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.secondary,
       pinned: true,
       snap: false,
       floating: false,
@@ -37,25 +39,38 @@ class NavBarView extends StatelessWidget {
         expandedTitleScale: 1,
         titlePadding: const EdgeInsets.only(top: 24, bottom: 12),
         background: Container(
-          padding: EdgeInsets.only(left: 24, right: 24, bottom: 32, top: MediaQuery.of(context).padding.top + 14),
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            bottom: 32,
+            top: MediaQuery.of(context).padding.top + 14,
+          ),
           decoration: const BoxDecoration(
-              gradient: LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
-            stops: [
-              0.1,
-              0.9,
-            ],
-            colors: [CI.lightBlue, CI.blue],
-          )),
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              stops: [
+                0.1,
+                0.9,
+              ],
+              colors: [CI.lightBlue, CI.blue],
+            ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
-                Flexible(
-                    child: BoldContent(text: "PrioBike", color: Colors.white, context: context), fit: FlexFit.tight),
-                BoldContent(text: greeting, color: Colors.white, context: context),
-              ]),
+              Row(
+                children: [
+                  Flexible(
+                      child: BoldContent(
+                        text: "PrioBike",
+                        color: Colors.white,
+                        context: context,
+                      ),
+                      fit: FlexFit.tight),
+                  BoldContent(text: greeting, color: Colors.white, context: context),
+                ],
+              ),
               const SmallVSpace(),
               const Divider(color: Color.fromARGB(50, 255, 255, 255), thickness: 2),
             ],
@@ -63,28 +78,33 @@ class NavBarView extends StatelessWidget {
         ),
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(children: [
-            const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
-            const SmallHSpace(),
-            Flexible(
-                child: Small(
-                    text: "Wetterinformationen sind aktuell noch nicht verfügbar.",
-                    color: Colors.white,
-                    context: context)),
-            const SmallHSpace(),
-            NewsButton(onPressed: () {
-              onTapNotificationButton?.call();
-            }),
-            const SmallHSpace(),
-            SmallIconButton(
+          child: Row(
+            children: [
+              const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+              const SmallHSpace(),
+              Flexible(
+                  child: Small(
+                      text: "Wetterinformationen sind aktuell noch nicht verfügbar.",
+                      color: Colors.white,
+                      context: context)),
+              const SmallHSpace(),
+              NewsButton(
+                onPressed: () {
+                  onTapNotificationButton?.call();
+                },
+              ),
+              const SmallHSpace(),
+              SmallIconButton(
                 icon: Icons.settings,
                 color: Colors.white,
                 splash: Colors.white,
                 fill: const Color.fromARGB(50, 255, 255, 255),
                 onPressed: () {
                   onTapSettingsButton?.call();
-                }),
-          ]),
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
