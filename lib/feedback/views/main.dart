@@ -77,7 +77,7 @@ class FeedbackViewState extends State<FeedbackView> {
               style: TextStyle(fontSize: 16),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () async => await widget.onSubmitted(context),
               child: const Text(
                 "Abbrechen",
                 style: TextStyle(fontSize: 16),
@@ -91,8 +91,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   Widget build(BuildContext context) {
-    if (true) {
-      //(feedback.isSendingFeedback || tracking.isSendingTrack) {
+    if (feedback.isSendingFeedback || tracking.isSendingTrack) {
       return renderLoadingIndicator();
     }
 
