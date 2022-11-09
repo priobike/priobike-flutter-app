@@ -289,8 +289,11 @@ class Routing with ChangeNotifier {
 
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints) return null;
-    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return null;
-    if (selectedWaypoints!.length < 2) return null;
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty || selectedWaypoints!.length < 2) {
+      hadErrorDuringFetch = false;
+      notifyListeners();
+      return null;
+    }
 
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
