@@ -55,26 +55,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
         await privacyService.loadPolicy(context);
       },
     );
-
     super.didChangeDependencies();
-  }
-
-  /// Render a loading indicator.
-  Widget renderLoadingIndicator() {
-    return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Lade...", style: TextStyle(fontSize: 16)),
-          ],
-        ),
-      ),
-    );
   }
 
   /// A callback that is executed when the accept button was pressed.
@@ -86,7 +67,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   Widget build(BuildContext context) {
     if (!privacyService.hasLoaded) return Container();
 
-    if (privacyService.isConfirmed == true && widget.child != null) return widget.child!;
+    if ((privacyService.isConfirmed == true) && (widget.child != null)) return widget.child!;
 
     return Scaffold(
       body: Container(
