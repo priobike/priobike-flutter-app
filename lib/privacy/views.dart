@@ -23,7 +23,9 @@ class IconItem extends Row {
               ),
             ),
             const SmallHSpace(),
-            Expanded(child: Content(text: text, context: context)),
+            Expanded(
+              child: Content(text: text, context: context),
+            ),
           ],
         );
 }

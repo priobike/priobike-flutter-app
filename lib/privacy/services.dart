@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer show log;
 
 class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
@@ -22,8 +23,11 @@ class PrivacyPolicy with ChangeNotifier {
     text = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
     final storage = await SharedPreferences.getInstance();
     final accepted = storage.getString(key);
-    isConfirmed = accepted == text;
-    hasChanged = accepted != null && !isConfirmed!;
+
+    developer.log('text == accepted ' + (text == accepted).toString());
+
+    isConfirmed = (accepted == text);
+    hasChanged = (accepted != null && !isConfirmed!);
     hasLoaded = true;
 
     notifyListeners();
