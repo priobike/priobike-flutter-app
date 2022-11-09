@@ -9,8 +9,10 @@ import 'package:provider/provider.dart';
 /// A list item with icon.
 class IconItem extends Row {
   IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
-      : super(key: key, children: [
-          SizedBox(
+      : super(
+          key: key,
+          children: [
+            SizedBox(
               width: 64,
               height: 64,
               child: Icon(
@@ -18,10 +20,12 @@ class IconItem extends Row {
                 color: Colors.blueAccent,
                 size: 64,
                 semanticLabel: text,
-              )),
-          const SmallHSpace(),
-          Expanded(child: Content(text: text, context: context)),
-        ]);
+              ),
+            ),
+            const SmallHSpace(),
+            Expanded(child: Content(text: text, context: context)),
+          ],
+        );
 }
 
 /// A view that displays the privacy policy.
@@ -44,9 +48,11 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     s = Provider.of<PrivacyPolicy>(context);
 
     // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await s.loadPolicy(context);
-    });
+    WidgetsBinding.instance?.addPostFrameCallback(
+      (_) async {
+        await s.loadPolicy(context);
+      },
+    );
 
     super.didChangeDependencies();
   }
@@ -57,11 +63,14 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
       body: Container(
         color: Theme.of(context).colorScheme.background,
         width: MediaQuery.of(context).size.width,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text("Lade...", style: TextStyle(fontSize: 16)),
-        ]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text("Lade...", style: TextStyle(fontSize: 16)),
+          ],
+        ),
       ),
     );
   }
@@ -131,12 +140,17 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
             ),
             if (widget.child == null)
               SafeArea(
-                  child: Column(children: [
-                const SizedBox(height: 8),
-                Row(children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                ]),
-              ])),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             if (widget.child != null)
               Pad(
                 child: BigButton(
