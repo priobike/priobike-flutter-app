@@ -18,6 +18,7 @@ import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -199,34 +200,44 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    return Scaffold(
-      body: SafeArea(
-        child: Pad(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                  child: Tile(
-                      fill: Theme.of(context).colorScheme.background,
-                      content: Center(
-                          child: SizedBox(
-                              height: 128,
-                              width: 256,
-                              child: Column(children: [
-                                BoldSmall(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
-                                const SmallVSpace(),
-                                Small(text: "Prüfe deine Verbindung.", maxLines: 1, context: context),
-                                const VSpace(),
-                                BigButton(
-                                    label: "Erneut Laden",
-                                    onPressed: () async {
-                                      await routing?.loadRoutes(context);
-                                    }),
-                              ]))))),
-            ],
+    final backend = Provider.of<Settings>(context, listen: false).backend;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Tile(
+            fill: Theme.of(context).colorScheme.surface,
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                const VSpace(),
+                BoldSmall(
+                  text: "Tut uns Leid, aber diese Route konnte nicht geladen werden.",
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+                const SmallVSpace(),
+                Small(
+                  text:
+                      "Achte darauf, dass du mit dem Internet verbunden bist. Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+                const VSpace(),
+                BigButton(
+                  label: "Erneut versuchen",
+                  onPressed: () async {
+                    await routing?.loadRoutes(context);
+                  },
+                ),
+                // Move the button a bit more up.
+                const SizedBox(height: 64),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -260,10 +271,7 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    if (routing!.hadErrorDuringFetch) return renderTryAgainButton();
-
     final frame = MediaQuery.of(context);
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
         // Show status bar in opposite color of the background.
         value:
@@ -279,6 +287,7 @@ class RoutingViewState extends State<RoutingView> {
 
               if (routing!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
+              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar
               SafeArea(

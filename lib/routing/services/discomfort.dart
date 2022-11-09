@@ -102,43 +102,43 @@ class Discomforts with ChangeNotifier {
     };
 
     final translationsMap = {
-      "paved": "Asphalt",
-      "asphalt": "Asphalt",
+      "paved": "Asphaltierter Wegabschnitt",
+      "asphalt": "Asphaltierter Wegabschnitt",
       "chipseal": "Versiegelte Schotterstraße",
-      "concrete": "Beton",
-      "concrete:plates": "Betonplatten",
-      "concrete:lanes": "Betonplatten",
-      "paving_stones": "Pflastersteine",
-      "sett": "Pflastersteine",
-      "unhewn_cobblestone": "Ungezimmerte Kopfsteinpflaster",
+      "concrete": "Wegabschnitt mit Beton",
+      "concrete:plates": "Wegabschnitt mit Betonplatten",
+      "concrete:lanes": "Wegabschnitt Betonplatten",
+      "paving_stones": "Gepflasterter Wegabschnitt",
+      "sett": "Gepflasterter Wegabschnitt",
+      "unhewn_cobblestone": "Kopfsteinpflaster",
       "cobblestone": "Kopfsteinpflaster",
-      "metal": "Metall",
-      "wood": "Holz",
-      "stepping_stones": "Steinplatten",
+      "metal": "Wegabschnitt auf Metall",
+      "wood": "Wegabschnitt auf Holz",
+      "stepping_stones": "Wegabschnitt mit Steinplatten",
       "unpaved": "Unbefestigte Straße",
-      "compacted": "Kompakte Straße",
-      "fine_gravel": "Feinkies",
-      "gravel": "Kies",
-      "rock": "Fels",
-      "pebblestone": "Kies",
-      "ground": "Erde",
-      "dirt": "Erde",
-      "earth": "Erde",
-      "soil": "Erde",
-      "grass": "Gras",
-      "grass_paver": "Gras",
-      "mud": "Matsch",
-      "sand": "Sand",
-      "woodchips": "Holzspäne",
-      "snow": "Schnee",
-      "ice": "Eis",
-      "salt": "Salz",
-      "clay": "Lehm",
-      "tartan": "Tartan",
-      "artificial_turf": "Kunstrasen",
-      "acrylic": "Acryl",
-      "metal_grid": "Metallgitter",
-      "carpet": "Teppich",
+      "compacted": "Unbefestigte Straße",
+      "fine_gravel": "Wegabschnitt auf Feinkies",
+      "gravel": "Wegabschnitt auf Kies",
+      "rock": "Wegabschnitt über Felsen",
+      "pebblestone": "Wegabschnitt auf Kies",
+      "ground": "Unbefestigter Wegabschnitt",
+      "dirt": "Unbefestigter Wegabschnitt",
+      "earth": "Unbefestigter Wegabschnitt",
+      "soil": "Unbefestigter Wegabschnitt",
+      "grass": "Wegabschnitt über Gras",
+      "grass_paver": "Wegabschnitt über Gras mit Pflastersteinen",
+      "mud": "Wegabschnitt durch Matsch",
+      "sand": "Wegabschnitt über Sand",
+      "woodchips": "Wegabschnitt über Holzspäne",
+      "snow": "Wegabschnitt über Schnee",
+      "ice": "Wegabschnitt über Eis",
+      "salt": "Wegabschnitt über Salz",
+      "clay": "Wegabschnitt über Lehm",
+      "tartan": "Wegabschnitt über Tartan",
+      "artificial_turf": "Wegabschnitt über Kunstrasen",
+      "acrylic": "Wegabschnitt über Acryl",
+      "metal_grid": "Wegabschnitt über Metallgitter",
+      "carpet": "Wegabschnitt über Teppich",
     };
 
     final shouldWarnMap = {
@@ -162,8 +162,7 @@ class Discomforts with ChangeNotifier {
           final translation = translationsMap[segment.value!];
           if (translation == null) return null;
 
-          final description = "Ungeeigneter Wegtyp für dein Fahrrad (${profile.bikeType!.description()}): $translation";
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: description);
+          return DiscomfortSegment(segment: segment, coordinates: cs, description: translation);
         })
         .where((e) => e != null)
         .map((e) => e!)
