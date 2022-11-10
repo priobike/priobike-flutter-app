@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
@@ -48,14 +48,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
-  /// A lock for concurrent updates to map layers.
-  var isUpdatingLayers = false;
-
   /// A map controller for the map.
   MapboxMapController? mapController;
 
-  /// The geo feature loader for the map.
-  GeoFeatureLoader? geoFeatureLoader;
+  /// A layer controller to safe add and remove layers.
+  LayerController? layerController;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
@@ -63,7 +60,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
-    bottom: 80,
+    bottom: 120,
     left: 8,
     right: 8,
   );
@@ -72,10 +69,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
   void initState() {
     super.initState();
     sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
-
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await layers.loadPreferences();
-    });
   }
 
   @override
@@ -83,22 +76,19 @@ class RoutingMapViewState extends State<RoutingMapView> {
     routing = Provider.of<Routing>(context);
     discomforts = Provider.of<Discomforts>(context);
     if (routing.needsLayout[viewId] != false || discomforts.needsLayout[viewId] != false) {
-      print("RoutingMapView: needs routing/discomforts");
-      updateMapLayers();
+      loadMapLayers();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
     }
 
     positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false) {
-      print("RoutingMapView: needs positioning");
       onPositioningUpdate();
       positioning.needsLayout[viewId] = false;
     }
 
     layers = Provider.of<Layers>(context);
     if (layers.needsLayout[viewId] != false) {
-      print("RoutingMapView: needs layers");
       loadGeoFeatures();
       layers.needsLayout[viewId] = false;
     }
@@ -115,9 +105,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
         EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset), false);
   }
 
-  Future<void> updateMapLayers() async {
-    if (isUpdatingLayers) return;
-    isUpdatingLayers = true;
+  Future<void> loadMapLayers() async {
     await loadAllRouteLayers();
     await loadSelectedRouteLayer();
     await loadWaypointMarkers();
@@ -125,7 +113,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await loadTrafficLightMarkers();
     await loadOfflineCrossingMarkers();
     await moveMap();
-    isUpdatingLayers = false;
   }
 
   Future<void> onPositioningUpdate() async {
@@ -148,14 +135,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
         "geometry": geometry,
       });
     }
-    await mapController?.removeLayer("routes-layer");
-    await mapController?.removeLayer("routes-clicklayer");
-    await mapController?.removeSource("routes");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "routes",
       {"type": "FeatureCollection", "features": features},
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "routes",
       "routes-layer",
       const LineLayerProperties(
@@ -167,7 +151,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       belowLayerId: "discomforts-layer",
     );
     // Make it easier to click on the route.
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "routes",
       "routes-clicklayer",
       const LineLayerProperties(
@@ -194,17 +178,14 @@ class RoutingMapViewState extends State<RoutingMapView> {
       "properties": {},
       "geometry": geometry,
     };
-    await mapController?.removeLayer("route-background-layer");
-    await mapController?.removeLayer("route-layer");
-    await mapController?.removeSource("route");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "route",
       {
         "type": "FeatureCollection",
         "features": [feature]
       },
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "route",
       "route-background-layer",
       const LineLayerProperties(
@@ -215,7 +196,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       enableInteraction: false,
       belowLayerId: "discomforts-layer",
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "route",
       "route-layer",
       const LineLayerProperties(
@@ -250,15 +231,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
         "geometry": geometry,
       });
     }
-    await mapController?.removeLayer("discomforts-layer");
-    await mapController?.removeLayer("discomforts-clicklayer");
-    await mapController?.removeLayer("discomforts-markers");
-    await mapController?.removeSource("discomforts");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "discomforts",
       {"type": "FeatureCollection", "features": features},
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "discomforts",
       "discomforts-layer",
       const LineLayerProperties(
@@ -270,7 +247,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       enableInteraction: false,
       belowLayerId: "discomforts-clicklayer",
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "discomforts",
       "discomforts-clicklayer",
       const LineLayerProperties(
@@ -283,7 +260,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
       enableInteraction: true,
       belowLayerId: "discomforts-markers",
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "discomforts",
       "discomforts-markers",
       SymbolLayerProperties(
@@ -322,14 +299,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
         },
       });
     }
-    await mapController?.removeLayer("traffic-lights-icons");
-    await mapController?.removeSource("traffic-lights");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "traffic-lights",
       {"type": "FeatureCollection", "features": features},
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "traffic-lights",
       "traffic-lights-icons",
       SymbolLayerProperties(
@@ -369,14 +344,12 @@ class RoutingMapViewState extends State<RoutingMapView> {
         },
       });
     }
-    await mapController?.removeLayer("offline-crossings-icons");
-    await mapController?.removeSource("offline-crossings");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "offline-crossings",
       {"type": "FeatureCollection", "features": features},
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "offline-crossings",
       "offline-crossings-icons",
       SymbolLayerProperties(
@@ -412,13 +385,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
         },
       });
     }
-    await mapController?.removeLayer("waypoints-icons");
-    await mapController?.removeSource("waypoints");
-    await mapController?.addGeoJsonSource(
+    await layerController?.addGeoJsonSource(
       "waypoints",
       {"type": "FeatureCollection", "features": features},
     );
-    await mapController?.addLayer(
+    await layerController?.addLayer(
       "waypoints",
       "waypoints-icons",
       SymbolLayerProperties(
@@ -471,10 +442,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
     if (mapController == null || !mounted) return;
 
     // Load the map features.
-    geoFeatureLoader = GeoFeatureLoader(mapController!);
-    await geoFeatureLoader!.removeFeatures();
-    await geoFeatureLoader!.initSources();
-    await geoFeatureLoader!.loadFeatures(context);
+    final geoFeatureLoader = GeoFeatureLoader(mapController!);
+    await geoFeatureLoader.removeFeatures();
+    await geoFeatureLoader.initSources();
+    await geoFeatureLoader.loadFeatures(context);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -495,6 +466,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    layerController = LayerController(mapController: controller);
+
     // Bind the interaction callbacks.
     controller.onFeatureTapped.add(onFeatureTapped);
 
@@ -505,12 +478,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(BuildContext context) async {
     if (mapController == null || !mounted) return;
-
-    // Remove all previously existing layers from the map.
-    await mapController?.clearFills();
-    await mapController?.clearCircles();
-    await mapController?.clearLines();
-    await mapController?.clearSymbols();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -525,7 +492,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
     await mapController!.setSymbolTextIgnorePlacement(true);
 
     // Force adapt the map.
-    await updateMapLayers();
+    await loadMapLayers();
     await onPositioningUpdate();
     await loadGeoFeatures();
   }
