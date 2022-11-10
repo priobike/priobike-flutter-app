@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:priobike/accelerometer/models/acceleration.dart';
@@ -163,11 +164,18 @@ class Tracking with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
-    final response = await Http.post(endpoint, body: json!);
-    if (response.statusCode != 200) {
-      log.e("Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
-    } else {
-      log.i("Successfully sent track to $endpoint");
+    try {
+      final response = await Http.post(endpoint, body: json!).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e(
+            "Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
+      } else {
+        log.i("Successfully sent track to $endpoint");
+      }
+    } on TimeoutException catch (error) {
+      log.w("Timeout sending track to $endpoint: $error");
+    } on SocketException catch (error) {
+      log.w("Error sending track to $endpoint: $error");
     }
 
     isSendingTrack = false;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' hide Category;
@@ -66,7 +67,7 @@ class News with ChangeNotifier {
 
     // Catch the error if there is no connection to the internet.
     try {
-      http.Response response = await Http.get(newsArticlesEndpoint);
+      http.Response response = await Http.get(newsArticlesEndpoint).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
         final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
@@ -81,6 +82,12 @@ class News with ChangeNotifier {
       });
     } on SocketException catch (e, stack) {
       final hint = "Failed to load articles: $e";
+      log.w(hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
+    } on TimeoutException catch (e, stack) {
+      final hint = "Timed out loading articles: $e";
       log.w(hint);
       if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
@@ -126,7 +133,7 @@ class News with ChangeNotifier {
 
     // Catch the error if there is no connection to the internet.
     try {
-      http.Response response = await Http.get(newsCategoryEndpoint);
+      http.Response response = await Http.get(newsCategoryEndpoint).timeout(const Duration(seconds: 4));
 
       if (response.statusCode != 200) {
         final err = "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";
@@ -144,7 +151,13 @@ class News with ChangeNotifier {
       await _storeCategory(context, category);
     } on SocketException catch (e, stack) {
       final hint = "Failed to load category: $e";
-      log.i(hint);
+      log.w(hint);
+      if (!kDebugMode) {
+        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
+    } on TimeoutException catch (e, stack) {
+      final hint = "Timed out loading categories: $e";
+      log.w(hint);
       if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
