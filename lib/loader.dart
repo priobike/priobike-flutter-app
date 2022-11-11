@@ -58,13 +58,19 @@ class LoaderState extends State<Loader> {
 
     // Load all other services.
     try {
+      // Load local stuff.
       await Provider.of<Feature>(context, listen: false).load();
-      await Provider.of<News>(context, listen: false).getArticles(context);
       await Provider.of<Profile>(context, listen: false).loadProfile();
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
-      await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
       await Provider.of<Layers>(context, listen: false).loadPreferences();
+      // Load stuff from the server.
+      final news = Provider.of<News>(context, listen: false);
+      await news.getArticles(context);
+      if (!news.hasLoaded) throw Exception("Could not load news");
+      final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
+      await predictionStatusSummary.fetch(context);
+      if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
     } catch (e, stackTrace) {
       await Sentry.captureException(e, stackTrace: stackTrace);
       HapticFeedback.heavyImpact();
@@ -162,6 +168,19 @@ class LoaderState extends State<Loader> {
                       ],
                     ),
                   ),
+                ),
+              )
+            : Container(),
+      ),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        switchInCurve: Curves.easeInOutCubic,
+        switchOutCurve: Curves.easeInOutCubic,
+        child: isLoading && !hasError && !shouldMorph
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 128),
+                  child: CircularProgressIndicator(color: Colors.white),
                 ),
               )
             : Container(),
