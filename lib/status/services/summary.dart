@@ -47,7 +47,7 @@ class PredictionStatusSummary with ChangeNotifier {
       var url = "https://$baseUrl/prediction-monitor-nginx/status.json";
       final endpoint = Uri.parse(url);
 
-      final response = await Http.get(endpoint);
+      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();
