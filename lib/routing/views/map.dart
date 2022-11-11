@@ -245,7 +245,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapLongClick(BuildContext context, double x, double y) async {
     if (mapController == null) return;
     // Convert x and y into a lat/lon.
-    final coord = await mapController!.toLatLng(Point(x, y));
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final coord = await mapController!.toLatLng(Point(x * ppi, y * ppi));
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
