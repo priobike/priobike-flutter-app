@@ -134,6 +134,7 @@ class RoutingViewState extends State<RoutingView> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
       builder: (_) => const LayerSelectionView(),
     );

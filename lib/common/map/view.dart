@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -72,9 +73,13 @@ class AppMapState extends State<AppMap> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// The associated layers service.
+  late Layers layers;
+
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
+    layers = Provider.of<Layers>(context);
     super.didChangeDependencies();
   }
 
@@ -82,9 +87,8 @@ class AppMapState extends State<AppMap> {
   Widget build(BuildContext context) {
     return MapboxMap(
       styleString: Theme.of(context).colorScheme.brightness == Brightness.light
-          // Use a custom light style that adds some more color to the light theme.
-          ? "mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu"
-          : "mapbox://styles/mapbox/dark-v10",
+          ? layers.mapDesign.lightStyle
+          : layers.mapDesign.darkStyle,
       // At the moment, we hard code the map box access token. In the future,
       // this token will be provided by an environment variable. However, we need
       // to integrate this in the CI builds and provide a development guide.
