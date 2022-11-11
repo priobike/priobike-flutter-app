@@ -7,6 +7,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -54,6 +55,7 @@ class LoaderState extends State<Loader> {
     await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
     await Provider.of<Statistics>(context, listen: false).loadStatistics();
     await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+    await Provider.of<Layers>(context, listen: false).loadPreferences();
 
     // Finish loading.
     setState(() => shouldMorph = true);

@@ -483,7 +483,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "018c21d05a7d0bb7580d94f4705a168a184a8c76"
+      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
       url: "https://github.com/priobike/priobike-flutter-mapbox"
     source: git
     version: "0.16.0"
@@ -499,7 +499,7 @@ packages:
     description:
       path: mapbox_gl_platform_interface
       ref: HEAD
-      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"
@@ -508,7 +508,7 @@ packages:
     description:
       path: mapbox_gl_web
       ref: HEAD
-      resolved-ref: fdecc267cdf46aac6596c939ca718551df25b057
+      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"

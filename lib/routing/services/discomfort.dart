@@ -41,8 +41,10 @@ class Discomforts with ChangeNotifier {
   }
 
   /// Select a discomfort.
-  selectDiscomfort(DiscomfortSegment discomfortSegment) {
-    selectedDiscomfort = discomfortSegment;
+  selectDiscomfort(int idx) {
+    if (foundDiscomforts == null) return;
+    if (idx < 0 || idx >= foundDiscomforts!.length) return;
+    selectedDiscomfort = foundDiscomforts![idx];
     notifyListeners();
   }
 

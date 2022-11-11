@@ -3,19 +3,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
-import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/status/messages/sg.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
@@ -46,20 +41,8 @@ class RideMapViewState extends State<RideMapView> {
   /// A map controller for the map.
   MapboxMapController? mapController;
 
-  /// The route that is displayed, if a route is selected.
-  Line? route;
-
-  /// The route background that is displayed, if a route is selected.
-  Line? routeBackground;
-
-  /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<Symbol>? trafficLights;
-
-  /// The offline crossings that are displayed, if there are offline crossings on the route.
-  List<Symbol>? offlineCrossings;
-
-  /// The current waypoints, if the route is selected.
-  List<Symbol>? waypoints;
+  /// A layer controller to safe add and remove layers.
+  LayerController? layerController;
 
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
@@ -94,10 +77,11 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
-    await loadRouteLayer();
-    await loadTrafficLightMarkers();
-    await loadOfflineCrossingMarkers();
-    await loadWaypointMarkers();
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    await SelectedRouteLayer(context).addTo(layerController!, bgLineWidth: 20, fgLineWidth: 14);
+    await WaypointsLayer(context).addTo(layerController!, iconSize: ppi / 4);
+    await TrafficLightsLayer(context).addTo(layerController!, iconSize: ppi);
+    await OfflineCrossingsLayer(context).addTo(layerController!, iconSize: ppi);
   }
 
   /// Update the view with the current data.
@@ -108,130 +92,6 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
     await loadNextTrafficLightLayer();
-  }
-
-  /// Load the current route layer.
-  Future<void> loadRouteLayer() async {
-    // If we have no map controller, we cannot load the route layer.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldRoute = route;
-    final oldRouteBackground = routeBackground;
-    if (routing.selectedRoute == null) return;
-    // Add the new route layer.
-    routeBackground = await mapController!.addLine(
-      RouteBackgroundLayer(
-        points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(),
-        lineWidth: 20,
-      ),
-      routing.selectedRoute!.toJson(),
-    );
-    route = await mapController!.addLine(
-      RouteLayer(points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList(), lineWidth: 14),
-      routing.selectedRoute!.toJson(),
-    );
-    // Remove the old route layer.
-    if (oldRoute != null) await mapController!.removeLine(oldRoute);
-    if (oldRouteBackground != null) {
-      await mapController!.removeLine(oldRouteBackground);
-    }
-  }
-
-  /// Load the current traffic lights.
-  Future<void> loadTrafficLightMarkers() async {
-    // If we have no map controller, we cannot load the traffic lights.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldTrafficLights = trafficLights;
-    // Create a new traffic light marker for each traffic light.
-    trafficLights = [];
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
-    for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
-      final status = statusProvider.cache[sg.id];
-      if (status == null ||
-          status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapController!.addSymbol(
-          OfflineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      } else {
-        trafficLights!.add(await mapController!.addSymbol(
-          OnlineMarker(
-            iconSize: iconSize,
-            geo: LatLng(sg.position.lat, sg.position.lon),
-            label: willShowLabels ? sg.label : null,
-            brightness: Theme.of(context).brightness,
-          ),
-        ));
-      }
-    }
-    // Remove the old traffic lights.
-    await mapController!.removeSymbols(oldTrafficLights ?? []);
-  }
-
-  /// Load the current crossings.
-  Future<void> loadOfflineCrossingMarkers() async {
-    // If we have no map controller, we cannot load the crossings.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldOfflineCrossings = offlineCrossings;
-    // Create a new crossing marker for each crossing.
-    offlineCrossings = [];
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio;
-    for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
-      if (crossing.connected) continue;
-      offlineCrossings!.add(await mapController!.addSymbol(
-        DisconnectedMarker(
-          iconSize: iconSize,
-          geo: LatLng(crossing.position.lat, crossing.position.lon),
-          label: willShowLabels ? crossing.name : null,
-          brightness: Theme.of(context).brightness,
-        ),
-      ));
-    }
-    // Remove the old crossings.
-    await mapController!.removeSymbols(oldOfflineCrossings ?? []);
-  }
-
-  /// Load the current waypoint markers.
-  Future<void> loadWaypointMarkers() async {
-    // If we have no map controller, we cannot load the waypoint layer.
-    if (mapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldWaypoints = waypoints;
-    waypoints = [];
-    // Create a new waypoint marker for each waypoint.
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
-      if (entry.key == 0) {
-        waypoints!.add(await mapController!.addSymbol(
-          StartMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      } else if (entry.key == routing.selectedWaypoints!.length - 1) {
-        waypoints!.add(await mapController!.addSymbol(
-          DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      } else {
-        waypoints!.add(await mapController!.addSymbol(
-          WaypointMarker(geo: LatLng(entry.value.lat, entry.value.lon), iconSize: iconSize),
-          entry.value.toJSON(),
-        ));
-      }
-    }
-    // Remove the old waypoint markers.
-    await mapController!.removeSymbols(oldWaypoints ?? []);
   }
 
   /// Adapt the map controller to a changed position.
@@ -345,27 +205,12 @@ class RideMapViewState extends State<RideMapView> {
     }
   }
 
-  /// A callback that is called when the user taps a fill.
-  Future<void> onFillTapped(Fill fill) async {/* Do nothing */}
-
-  /// A callback that is called when the user taps a circle.
-  Future<void> onCircleTapped(Circle circle) async {/* Do nothing */}
-
-  /// A callback that is called when the user taps a line.
-  Future<void> onLineTapped(Line line) async {/* Do nothing */}
-
-  /// A callback that is called when the user taps a symbol.
-  Future<void> onSymbolTapped(Symbol symbol) async {/* Do nothing */}
-
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
-    // Bind the interaction callbacks.
-    controller.onFillTapped.add(onFillTapped);
-    controller.onCircleTapped.add(onCircleTapped);
-    controller.onLineTapped.add(onLineTapped);
-    controller.onSymbolTapped.add(onSymbolTapped);
+    // Wrap the map controller in a layer controller for safer layer access.
+    layerController = LayerController(mapController: controller);
 
     // Dont call any line/symbol/... removal/add operations here.
     // The mapcontroller won't have the necessary line/symbol/...manager.
