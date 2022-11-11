@@ -268,7 +268,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // Show the map.
       GestureDetector(
         onLongPressDown: (details) {
-          setState(() => tapPosition = details.localPosition);
+          tapPosition = details.localPosition;
           animationController.forward();
         },
         onLongPressCancel: () {
@@ -291,58 +291,70 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
       // Show an animation when the user taps the map.
       if (tapPosition != null)
-        Opacity(
-          opacity: min(1, animationController.value * 2),
+        IgnorePointer(
           child: Stack(children: [
             Positioned(
-              left: tapPosition!.dx - animation.value * 64 - 12,
-              top: tapPosition!.dy - animation.value * 64 - 12,
-              child: Container(
-                width: animation.value * 128 + 24,
-                height: animation.value * 128 + 24,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
-                    width: 2.0 - animation.value * 2,
+              left: tapPosition!.dx - animation.value * 128 - 12,
+              top: tapPosition!.dy - animation.value * 128 - 12,
+              child: Opacity(
+                opacity: max(0, min(1, (animation.value) * 4)),
+                child: Container(
+                  width: animation.value * 256 + 24,
+                  height: animation.value * 256 + 24,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
+                      width: 8.0 - animation.value * 8,
+                    ),
+                    borderRadius: BorderRadius.circular(128),
                   ),
-                  borderRadius: BorderRadius.circular(128),
                 ),
               ),
             ),
             Positioned(
               left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
               top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
-              child: Container(
-                width: (1.0 - animation.value) * 128 + 24,
-                height: (1.0 - animation.value) * 128 + 24,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.2 * animation.value),
-                  borderRadius: BorderRadius.circular(128),
+              child: Opacity(
+                opacity: max(0, (animation.value - 0.5) * 2),
+                child: Container(
+                  width: (1.0 - animation.value) * 128 + 24,
+                  height: (1.0 - animation.value) * 128 + 24,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2 * animation.value),
+                    borderRadius: BorderRadius.circular(128),
+                  ),
                 ),
               ),
             ),
             Positioned(
               left: tapPosition!.dx - 12,
-              top: min(12 + tapPosition!.dy - 128 + 128 * animation.value, tapPosition!.dy) - 12,
+              top: min(12 + tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3), tapPosition!.dy) -
+                  12,
               child: SizedBox(
                 width: 24,
                 height: 24,
-                child: Image.asset(
-                  'assets/images/pin.png',
-                  fit: BoxFit.contain,
+                child: Opacity(
+                  opacity: max(0, (animation.value - 0.5) * 2),
+                  child: Image.asset(
+                    'assets/images/pin.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
             Positioned(
               left: tapPosition!.dx - 12,
-              top: (tapPosition!.dy - 128 + 128 * animation.value) - 12,
+              top: (tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3)) - 12,
               child: SizedBox(
                 width: 24,
                 height: 24,
-                child: Image.asset(
-                  'assets/images/waypoint.drawio.png',
-                  fit: BoxFit.contain,
+                child: Opacity(
+                  opacity: max(0, (animation.value - 0.5) * 2),
+                  child: Image.asset(
+                    'assets/images/waypoint.drawio.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
