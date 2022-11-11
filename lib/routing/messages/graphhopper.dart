@@ -250,16 +250,16 @@ class GHInstruction {
 
 class GHDetails {
   /// The surface of the line segments.
-  final List<GHSegment<String>> surface;
+  final List<GHSegment> surface;
 
   /// The max speed of the line segments.
-  final List<GHSegment<double>> maxSpeed;
+  final List<GHSegment> maxSpeed;
 
   /// The smoothness of the line segments.
-  final List<GHSegment<String>> smoothness;
+  final List<GHSegment> smoothness;
 
   /// The lanes of the line segments.
-  final List<GHSegment<int>> lanes;
+  final List<GHSegment> lanes;
 
   const GHDetails({
     required this.surface,
@@ -270,10 +270,10 @@ class GHDetails {
 
   factory GHDetails.fromJson(Map<String, dynamic> json) {
     return GHDetails(
-      surface: (json['surface'] as List).map((e) => GHSegment<String>.fromJson(e)).toList(),
-      maxSpeed: (json['max_speed'] as List).map((e) => GHSegment<double>.fromJson(e)).toList(),
-      smoothness: (json['smoothness'] as List).map((e) => GHSegment<String>.fromJson(e)).toList(),
-      lanes: (json['lanes'] as List).map((e) => GHSegment<int>.fromJson(e)).toList(),
+      surface: (json['surface'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      maxSpeed: (json['max_speed'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      smoothness: (json['smoothness'] as List).map((e) => GHSegment.fromJson(e)).toList(),
+      lanes: (json['lanes'] as List).map((e) => GHSegment.fromJson(e)).toList(),
     );
   }
 
@@ -285,7 +285,7 @@ class GHDetails {
       };
 }
 
-class GHSegment<T> {
+class GHSegment {
   /// The from coordinate number.
   final int from;
 
@@ -293,7 +293,7 @@ class GHSegment<T> {
   final int to;
 
   /// The value.
-  final T? value;
+  final dynamic value;
 
   const GHSegment({
     required this.from,

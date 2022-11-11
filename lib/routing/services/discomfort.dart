@@ -149,30 +149,28 @@ class Discomforts with ChangeNotifier {
       WarnType.warnRobustBikes: profile.bikeType == BikeType.mountainbike,
     };
 
-    final unsmooth = path.details.surface
-        .map((segment) {
-          if (segment.value == null) return null;
-          final cs = getCoordinates(segment, path);
+    final unsmooth = List.empty(growable: true);
+    for (final segment in path.details.surface) {
+      if (segment.value == null) continue;
+      if (segment.value is! String) continue;
+      final cs = getCoordinates(segment, path);
 
-          final warnType = warnTypeMap[segment.value!];
-          if (warnType == null) return null;
+      final warnType = warnTypeMap[segment.value!];
+      if (warnType == null) continue;
 
-          final shouldWarn = shouldWarnMap[warnType];
-          if (shouldWarn == null) return null;
-          if (!shouldWarn) return null;
+      final shouldWarn = shouldWarnMap[warnType];
+      if (shouldWarn == null) continue;
+      if (!shouldWarn) continue;
 
-          final translation = translationsMap[segment.value!];
-          if (translation == null) return null;
+      final translation = translationsMap[segment.value!];
+      if (translation == null) continue;
 
-          return DiscomfortSegment(segment: segment, coordinates: cs, description: translation);
-        })
-        .where((e) => e != null)
-        .map((e) => e!)
-        .toList();
+      unsmooth.add(DiscomfortSegment(segment: segment, coordinates: cs, description: translation));
+    }
 
     // Traverse the points and calculate the elevation in degrees.
     final criticalElevationSegments = List<GHSegment>.empty(growable: true);
-    GHSegment<double>? currentSegment;
+    GHSegment? currentSegment;
     const vincenty = l.Distance(roundResult: false);
     for (int i = 0; i < path.points.coordinates.length - 1; i++) {
       final c1 = path.points.coordinates[i];
@@ -195,45 +193,59 @@ class Discomforts with ChangeNotifier {
       if (currentSegment == null) {
         currentSegment = GHSegment(from: i, to: i + 1, value: eleDiffPct);
       } else {
-        currentSegment = GHSegment(from: currentSegment.from, to: i + 1, value: max(eleDiffPct, currentSegment.value!));
+        if (currentSegment.value == null) continue;
+        if (currentSegment.value is! double) continue;
+        currentSegment = GHSegment(
+          from: currentSegment.from,
+          to: i + 1,
+          value: max(
+            eleDiffPct,
+            currentSegment.value! as double,
+          ),
+        );
       }
     }
-    final criticalElevation = criticalElevationSegments.map((segment) {
+    final criticalElevation = List.empty(growable: true);
+    for (final segment in criticalElevationSegments) {
+      if (segment.value == null) continue;
+      if (segment.value is! double) continue;
       final cs = getCoordinates(segment, path);
       if (segment.value! > 0) {
-        return DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.");
+        criticalElevation.add(DiscomfortSegment(
+          segment: segment,
+          coordinates: cs,
+          description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+        ));
       } else {
-        return DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.");
+        criticalElevation.add(DiscomfortSegment(
+          segment: segment,
+          coordinates: cs,
+          description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+        ));
       }
-    }).toList();
+    }
 
     // Use the speed limit values to determine uncomfortable sections.
     // See: https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
-    final unwantedSpeed = path.details.maxSpeed
-        .map((segment) {
-          if (segment.value == null) return null;
-          final cs = getCoordinates(segment, path);
-          if (segment.value! >= 100) {
-            return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.");
-          } else if (segment.value! <= 10) {
-            return DiscomfortSegment(
-                segment: segment,
-                coordinates: cs,
-                description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.");
-          }
-        })
-        .where((e) => e != null)
-        .map((e) => e!)
-        .toList();
+    final unwantedSpeed = List.empty(growable: true);
+    for (final segment in path.details.maxSpeed) {
+      if (segment.value == null) continue;
+      if (segment.value is! num) continue;
+      final cs = getCoordinates(segment, path);
+      if (segment.value! >= 100) {
+        unwantedSpeed.add(DiscomfortSegment(
+          segment: segment,
+          coordinates: cs,
+          description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+        ));
+      } else if (segment.value! <= 10) {
+        unwantedSpeed.add(DiscomfortSegment(
+          segment: segment,
+          coordinates: cs,
+          description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+        ));
+      }
+    }
 
     foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
     foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));

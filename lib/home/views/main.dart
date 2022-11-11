@@ -93,7 +93,6 @@ class HomeViewState extends State<HomeView> {
     Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
-    routing.loadRoutes(context);
 
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then((_) {
       routing.reset();
