@@ -48,9 +48,7 @@ class LayerController {
       layersBySource.remove(sourceId);
     }
     log.i("Adding source $sourceId");
-    // Use our custom setGeoJsonSource method. This will create a source
-    // if it doesn't exist yet, or update it if it does.
-    await mapController.setGeoJsonSource(sourceId, properties);
+    await mapController.addGeoJsonSource(sourceId, properties);
     sources[sourceId] = properties;
     layersBySource[sourceId] = {};
 
@@ -116,6 +114,35 @@ class LayerController {
     );
     layers[layerId] = properties;
     layersBySource[sourceId]?.add(layerId);
+
+    if (queue.isNotEmpty) {
+      final next = queue.removeAt(0);
+      next();
+    }
+  }
+
+  /// Remove a geojson source from the map, together with all layers that are associated with it.
+  removeGeoJsonSourceAndLayers(String sourceId) async {
+    if (queue.isNotEmpty) {
+      queue.add(() => removeGeoJsonSourceAndLayers(sourceId));
+      return;
+    }
+
+    if (!sources.containsKey(sourceId)) {
+      log.w("Cannot remove source $sourceId: Source does not exist.");
+      return;
+    }
+    // Remove all layers that are associated with this source.
+    for (final layer in layersBySource[sourceId] ?? {}) {
+      log.i("---- Removing layer $layer");
+      await mapController.removeLayer(layer);
+      layers.remove(layer);
+    }
+    // Remove the source.
+    log.i("-- Removing source $sourceId");
+    await mapController.removeSource(sourceId);
+    sources.remove(sourceId);
+    layersBySource.remove(sourceId);
 
     if (queue.isNotEmpty) {
       final next = queue.removeAt(0);

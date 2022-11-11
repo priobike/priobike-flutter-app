@@ -50,21 +50,6 @@ class SymbolLoader {
   }
 }
 
-class DiscomfortLocationMarker extends SymbolOptions {
-  DiscomfortLocationMarker({
-    required LatLng geo,
-    required int number,
-    double iconSize = 0.5,
-  }) : super(
-          geometry: geo,
-          iconImage: "alert",
-          iconSize: iconSize,
-          textField: "$number",
-          textSize: 12,
-          zIndex: 1,
-        );
-}
-
 class TrafficLightGreenMarker extends SymbolOptions {
   TrafficLightGreenMarker({
     required LatLng geo,
@@ -91,60 +76,6 @@ class TrafficLightRedMarker extends SymbolOptions {
           iconImage: brightness == Brightness.dark ? "trafficlightonlinereddark" : "trafficlightonlineredlight",
           iconSize: iconSize,
           iconOpacity: iconOpacity,
-          zIndex: 5,
-        );
-}
-
-/// A map layer which marks the current position on the map.
-class CurrentPositionMarker extends SymbolOptions {
-  /// Create a new current position marker.
-  CurrentPositionMarker({
-    required LatLng geo,
-    required double orientation,
-  }) : super(
-          geometry: geo,
-          iconRotate: orientation,
-          iconImage: "direction",
-          iconSize: 4,
-        );
-}
-
-/// A map layer which marks the start position on the map.
-class StartMarker extends SymbolOptions {
-  /// Create a new start marker.
-  StartMarker({
-    required LatLng geo,
-    required double iconSize,
-  }) : super(
-          geometry: geo,
-          iconImage: "start",
-          iconSize: iconSize,
-        );
-}
-
-/// A map layer which marks the end position on the map.
-class DestinationMarker extends SymbolOptions {
-  /// Create a new destination marker.
-  DestinationMarker({
-    required LatLng geo,
-    required double iconSize,
-  }) : super(
-          geometry: geo,
-          iconImage: "destination",
-          iconSize: iconSize,
-        );
-}
-
-/// A map layer which marks an intermediate position on the map.
-class WaypointMarker extends SymbolOptions {
-  /// Create a new waypoint marker.
-  WaypointMarker({
-    required LatLng geo,
-    required double iconSize,
-  }) : super(
-          geometry: geo,
-          iconImage: "waypoint",
-          iconSize: iconSize,
           zIndex: 5,
         );
 }

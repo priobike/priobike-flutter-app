@@ -4,23 +4,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
-import 'package:priobike/common/map/geo.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/markers.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/discomfort.dart';
-import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/sg_labels.dart';
-import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/status/messages/sg.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -68,365 +60,69 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void initState() {
     super.initState();
-    sheetMovementSubscription = widget.sheetMovement?.listen(onScrollBottomSheet);
+    // Connect the sheet movement listener to adapt the map insets.
+    sheetMovementSubscription = widget.sheetMovement?.listen((n) {
+      final frame = MediaQuery.of(context);
+      final maxBottomInset = frame.size.height - frame.padding.top - 300;
+      final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
+      mapController?.updateContentInsets(
+        EdgeInsets.fromLTRB(
+          defaultMapInsets.left,
+          defaultMapInsets.top,
+          defaultMapInsets.left,
+          newBottomInset,
+        ),
+        false,
+      );
+    });
   }
 
   @override
   void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    if (routing.needsLayout[viewId] != false || discomforts.needsLayout[viewId] != false) {
-      loadMapLayers();
-      routing.needsLayout[viewId] = false;
-      discomforts.needsLayout[viewId] = false;
+    // Check if the selected map layers have changed.
+    layers = Provider.of<Layers>(context);
+    if (layers.needsLayout[viewId] != false) {
+      loadGeoLayers();
+      layers.needsLayout[viewId] = false;
     }
 
+    // Check if the position has changed.
     positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false) {
-      onPositioningUpdate();
+      displayCurrentUserLocation();
       positioning.needsLayout[viewId] = false;
     }
 
-    layers = Provider.of<Layers>(context);
-    if (layers.needsLayout[viewId] != false) {
-      loadGeoFeatures();
-      layers.needsLayout[viewId] = false;
+    // Check if route-related stuff has changed.
+    routing = Provider.of<Routing>(context);
+    discomforts = Provider.of<Discomforts>(context);
+    // Use && to wait for both to be ready.
+    if (routing.needsLayout[viewId] != false && discomforts.needsLayout[viewId] != false) {
+      loadRouteMapLayers();
+      fitCameraToRouteBounds();
+      routing.needsLayout[viewId] = false;
+      discomforts.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
   }
 
-  /// A callback that gets fired when the bottom sheet of the parent view is dragged.
-  Future<void> onScrollBottomSheet(DraggableScrollableNotification n) async {
-    final frame = MediaQuery.of(context);
-    final maxBottomInset = frame.size.height - frame.padding.top - 300;
-    final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
-    mapController?.updateContentInsets(
-        EdgeInsets.fromLTRB(defaultMapInsets.left, defaultMapInsets.top, defaultMapInsets.left, newBottomInset), false);
-  }
-
-  Future<void> loadMapLayers() async {
-    await loadAllRouteLayers();
-    await loadSelectedRouteLayer();
-    await loadWaypointMarkers();
-    await loadDiscomforts();
-    await loadTrafficLightMarkers();
-    await loadOfflineCrossingMarkers();
-    await moveMap();
-  }
-
-  Future<void> onPositioningUpdate() async {
-    await showUserLocation();
-  }
-
-  /// Load the route layerouting.
-  Future<void> loadAllRouteLayers() async {
-    // If we have no map controller, we cannot load the layerouting.
+  /// Fit the camera to the current route.
+  fitCameraToRouteBounds() async {
     if (mapController == null || !mounted) return;
-    final features = List.empty(growable: true);
-    for (final entry in routing.allRoutes?.asMap().entries.toList() ?? []) {
-      final geometry = {
-        "type": "LineString",
-        "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
-      };
-      features.add({
-        "id": "route-${entry.key}", // Required for click listener.
-        "type": "Feature",
-        "geometry": geometry,
-      });
-    }
-    await layerController?.addGeoJsonSource(
-      "routes",
-      {"type": "FeatureCollection", "features": features},
+    if (routing.selectedRoute == null || mapController?.isCameraMoving != false) return;
+    // The delay is necessary, otherwise sometimes the camera won't move.
+    await Future.delayed(const Duration(milliseconds: 500));
+    await mapController?.animateCamera(
+      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
+      duration: const Duration(milliseconds: 1000),
     );
-    await layerController?.addLayer(
-      "routes",
-      "routes-layer",
-      const LineLayerProperties(
-        lineWidth: 9.0,
-        lineColor: "#C6C6C6",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: "discomforts-layer",
-    );
-    // Make it easier to click on the route.
-    await layerController?.addLayer(
-      "routes",
-      "routes-clicklayer",
-      const LineLayerProperties(
-        lineWidth: 25.0,
-        lineColor: "#000000",
-        lineJoin: "round",
-        lineOpacity: 0.001, // Not 0 to make the click listener work.
-      ),
-      enableInteraction: true,
-      belowLayerId: "discomforts-layer",
-    );
-  }
-
-  /// Load the current route layer.
-  Future<void> loadSelectedRouteLayer() async {
-    // If we have no map controller, we cannot load the route layer.
-    if (mapController == null || !mounted) return;
-    final geometry = {
-      "type": "LineString",
-      "coordinates": routing.selectedRoute?.route.map((e) => [e.lon, e.lat]).toList() ?? [],
-    };
-    final feature = {
-      "type": "Feature",
-      "properties": {},
-      "geometry": geometry,
-    };
-    await layerController?.addGeoJsonSource(
-      "route",
-      {
-        "type": "FeatureCollection",
-        "features": [feature]
-      },
-    );
-    await layerController?.addLayer(
-      "route",
-      "route-background-layer",
-      const LineLayerProperties(
-        lineWidth: 9.0,
-        lineColor: "#C6C6C6",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: "discomforts-layer",
-    );
-    await layerController?.addLayer(
-      "route",
-      "route-layer",
-      const LineLayerProperties(
-        lineWidth: 7.0,
-        lineColor: "#0073ff",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: "discomforts-layer",
-    );
-  }
-
-  /// Load the discomforts.
-  Future<void> loadDiscomforts() async {
-    // If we have no map controller, we cannot load the layerouting.
-    if (mapController == null || !mounted) return;
-    final features = List.empty(growable: true);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, DiscomfortSegment> e in discomforts.foundDiscomforts?.asMap().entries ?? []) {
-      if (e.value.coordinates.isEmpty) continue;
-      // A section of the route.
-      final geometry = {
-        "type": "LineString",
-        "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
-      };
-      features.add({
-        "id": "discomfort-${e.key}", // Required for click listener.
-        "type": "Feature",
-        "properties": {
-          "number": e.key + 1,
-        },
-        "geometry": geometry,
-      });
-    }
-    await layerController?.addGeoJsonSource(
-      "discomforts",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController?.addLayer(
-      "discomforts",
-      "discomforts-layer",
-      const LineLayerProperties(
-        lineWidth: 7.0,
-        lineColor: "#e63328",
-        lineCap: "round",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: "discomforts-clicklayer",
-    );
-    await layerController?.addLayer(
-      "discomforts",
-      "discomforts-clicklayer",
-      const LineLayerProperties(
-        lineWidth: 30.0,
-        lineColor: "#000000",
-        lineCap: "round",
-        lineJoin: "round",
-        lineOpacity: 0.001, // Not 0 to make the click listener work.
-      ),
-      enableInteraction: true,
-      belowLayerId: "discomforts-markers",
-    );
-    await layerController?.addLayer(
-      "discomforts",
-      "discomforts-markers",
-      SymbolLayerProperties(
-        iconImage: "alert",
-        iconSize: iconSize,
-        textField: ["get", "number"],
-        textSize: 12,
-        textAllowOverlap: true,
-        textIgnorePlacement: true,
-      ),
-      enableInteraction: true,
-    );
-  }
-
-  /// Load the current traffic lights.
-  Future<void> loadTrafficLightMarkers() async {
-    // If we have no map controller, we cannot load the traffic lights.
-    if (mapController == null || !mounted) return;
-    // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final features = List.empty(growable: true);
-    for (Sg sg in routing.selectedRoute?.signalGroups ?? []) {
-      final status = statusProvider.cache[sg.id];
-      final isOffline = status == null ||
-          status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad;
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [sg.position.lon, sg.position.lat],
-        },
-        "properties": {
-          "id": sg.id,
-          "isOffline": isOffline,
-        },
-      });
-    }
-    await layerController?.addGeoJsonSource(
-      "traffic-lights",
-      {"type": "FeatureCollection", "features": features},
-    );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    await layerController?.addLayer(
-      "traffic-lights",
-      "traffic-lights-icons",
-      SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isOffline"],
-          isDark ? "trafficlightofflinedark" : "trafficlightofflinelight",
-          isDark ? "trafficlightonlinedark" : "trafficlightonlinelight",
-        ],
-        iconSize: MediaQuery.of(context).devicePixelRatio / 2.5,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconOpacity: LayerTools.showAfter(zoom: 13),
-        symbolZOrder: 3,
-        textField:
-            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "id"] : null,
-      ),
-      enableInteraction: false,
-    );
-  }
-
-  /// Load the current crossings.
-  Future<void> loadOfflineCrossingMarkers() async {
-    // If we have no map controller, we cannot load the crossings.
-    if (mapController == null || !mounted) return;
-    final features = List.empty(growable: true);
-    for (Crossing crossing in routing.selectedRoute?.crossings ?? []) {
-      if (crossing.connected) continue;
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [crossing.position.lon, crossing.position.lat],
-        },
-        "properties": {
-          "name": crossing.name,
-        },
-      });
-    }
-    await layerController?.addGeoJsonSource(
-      "offline-crossings",
-      {"type": "FeatureCollection", "features": features},
-    );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    await layerController?.addLayer(
-      "offline-crossings",
-      "offline-crossings-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
-        iconSize: MediaQuery.of(context).devicePixelRatio / 2.5,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconOpacity: LayerTools.showAfter(zoom: 13),
-        symbolZOrder: 3,
-        textField:
-            Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled ? ["get", "name"] : null,
-      ),
-      enableInteraction: false,
-    );
-  }
-
-  /// Load the current waypoint markerouting.
-  Future<void> loadWaypointMarkers() async {
-    // If we have no map controller, we cannot load the waypoint layer.
-    if (mapController == null || !mounted) return;
-    final features = List.empty(growable: true);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, Waypoint> entry in routing.selectedWaypoints?.asMap().entries ?? []) {
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [entry.value.lon, entry.value.lat],
-        },
-        "properties": {
-          "isFirst": entry.key == 0,
-          "isLast": entry.key == routing.selectedWaypoints!.length - 1,
-        },
-      });
-    }
-    await layerController?.addGeoJsonSource(
-      "waypoints",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController?.addLayer(
-      "waypoints",
-      "waypoints-icons",
-      SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isFirst"],
-          "start",
-          ["get", "isLast"],
-          "destination",
-          "waypoint",
-        ],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-      ),
-      enableInteraction: false,
-    );
-  }
-
-  /// Adapt the map controller.
-  Future<void> moveMap() async {
-    if (mapController == null || !mounted) return;
-    if (routing.selectedRoute != null && !mapController!.isCameraMoving) {
-      // The delay is necessary, otherwise sometimes the camera won't move.
-      await Future.delayed(const Duration(milliseconds: 500));
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
-        duration: const Duration(milliseconds: 1000),
-      );
-    }
   }
 
   /// Show the user location on the map.
-  Future<void> showUserLocation() async {
+  displayCurrentUserLocation() async {
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
-
     await mapController?.updateUserLocation(
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
@@ -438,19 +134,52 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// Load the map layers.
-  Future<void> loadGeoFeatures() async {
+  loadGeoLayers() async {
     if (mapController == null || !mounted) return;
-
     // Load the map features.
-    final geoFeatureLoader = GeoFeatureLoader(mapController!);
-    await geoFeatureLoader.removeFeatures();
-    await geoFeatureLoader.initSources();
-    await geoFeatureLoader.loadFeatures(context);
+    if (layers.showAirStations) {
+      BikeAirStationLayer(context).addTo(layerController!);
+    } else {
+      BikeAirStationLayer.removeFrom(layerController!);
+    }
+    if (layers.showConstructionSites) {
+      ConstructionSitesLayer(context).addTo(layerController!);
+    } else {
+      ConstructionSitesLayer.removeFrom(layerController!);
+    }
+    if (layers.showParkingStations) {
+      ParkingStationsLayer(context).addTo(layerController!);
+    } else {
+      ParkingStationsLayer.removeFrom(layerController!);
+    }
+    if (layers.showRentalStations) {
+      RentalStationsLayer(context).addTo(layerController!);
+    } else {
+      RentalStationsLayer.removeFrom(layerController!);
+    }
+    if (layers.showRepairStations) {
+      BikeShopLayer(context).addTo(layerController!);
+    } else {
+      BikeShopLayer.removeFrom(layerController!);
+    }
+  }
+
+  /// Load the map layers for the route.
+  loadRouteMapLayers() async {
+    if (layerController == null || !mounted) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    await AllRoutesLayer(context).addTo(layerController!);
+    await SelectedRouteLayer(context).addTo(layerController!);
+    await WaypointsLayer(context).addTo(layerController!, iconSize: ppi / 4);
+    await DiscomfortsLayer(context).addTo(layerController!, iconSize: ppi / 4);
+    await TrafficLightsLayer(context).addTo(layerController!, iconSize: ppi / 2.5);
+    await OfflineCrossingsLayer(context).addTo(layerController!, iconSize: ppi / 2.5);
   }
 
   /// A callback that is called when the user taps a feature.
-  Future<void> onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
+  onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
     if (id is! String) return;
+    // Map the ids of the layers to the corresponding feature.
     if (id.startsWith("route-")) {
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
@@ -463,9 +192,10 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback which is executed when the map was created.
-  Future<void> onMapCreated(MapboxMapController controller) async {
+  onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    // Wrap the map controller in a layer controller for safer layer access.
     layerController = LayerController(mapController: controller);
 
     // Bind the interaction callbacks.
@@ -475,8 +205,8 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
-  /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded(BuildContext context) async {
+  /// A callback which is executed when the map style was (re-)loaded.
+  onStyleLoaded(BuildContext context) async {
     if (mapController == null || !mounted) return;
 
     // Load all symbols that will be displayed on the map.
@@ -485,20 +215,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);
 
-    // Allow overlaps so that important symbols and texts are not hidden.
-    await mapController!.setSymbolIconAllowOverlap(true);
-    await mapController!.setSymbolIconIgnorePlacement(true);
-    await mapController!.setSymbolTextAllowOverlap(true);
-    await mapController!.setSymbolTextIgnorePlacement(true);
-
-    // Force adapt the map.
-    await loadMapLayers();
-    await onPositioningUpdate();
-    await loadGeoFeatures();
+    // Trigger an update of the map layers.
+    await loadRouteMapLayers();
+    await fitCameraToRouteBounds();
+    await displayCurrentUserLocation();
+    await loadGeoLayers();
   }
 
   /// A callback that is executed when the map was longclicked.
-  Future<void> onMapLongClick(BuildContext context, LatLng coord) async {
+  onMapLongClick(BuildContext context, LatLng coord) async {
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
