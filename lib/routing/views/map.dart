@@ -25,7 +25,7 @@ class RoutingMapView extends StatefulWidget {
   State<StatefulWidget> createState() => RoutingMapViewState();
 }
 
-class RoutingMapViewState extends State<RoutingMapView> {
+class RoutingMapViewState extends State<RoutingMapView> with TickerProviderStateMixin {
   static const viewId = "routing.views.map";
 
   /// The associated routing service, which is injected by the provider.
@@ -48,6 +48,15 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
+
+  /// Where the user is currently tapping.
+  Offset? tapPosition;
+
+  /// The animation controller for the on-tap animation.
+  late AnimationController animationController;
+
+  /// The animation for the on-tap animation.
+  late Animation<double> animation;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
@@ -75,6 +84,16 @@ class RoutingMapViewState extends State<RoutingMapView> {
         false,
       );
     });
+
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+      reverseDuration: const Duration(milliseconds: 0),
+    )..addListener(() => setState(() {}));
+    animation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeInOutCubicEmphasized,
+    );
   }
 
   @override
@@ -223,7 +242,11 @@ class RoutingMapViewState extends State<RoutingMapView> {
   }
 
   /// A callback that is executed when the map was longclicked.
-  onMapLongClick(BuildContext context, LatLng coord) async {
+  onMapLongClick(BuildContext context, double x, double y) async {
+    if (mapController == null) return;
+    // Convert x and y into a lat/lon.
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final coord = await mapController!.toLatLng(Point(x * ppi, y * ppi));
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
@@ -233,6 +256,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   void dispose() {
+    animationController.dispose();
     // Unbind the sheet movement listener.
     sheetMovementSubscription?.cancel();
     super.dispose();
@@ -240,14 +264,102 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
   @override
   Widget build(BuildContext context) {
-    return AppMap(
-      puckImage: Theme.of(context).brightness == Brightness.dark
-          ? 'assets/images/position-static-dark.png'
-          : 'assets/images/position-static-light.png',
-      puckSize: 64,
-      onMapCreated: onMapCreated,
-      onStyleLoaded: () => onStyleLoaded(context),
-      onMapLongClick: (_, coord) => onMapLongClick(context, coord),
-    );
+    return Stack(children: [
+      // Show the map.
+      GestureDetector(
+        onLongPressDown: (details) {
+          tapPosition = details.localPosition;
+          animationController.forward();
+        },
+        onLongPressCancel: () {
+          animationController.reverse();
+        },
+        onLongPressEnd: (details) {
+          animationController.reverse();
+          onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+        },
+        behavior: HitTestBehavior.translucent,
+        child: AppMap(
+          puckImage: Theme.of(context).brightness == Brightness.dark
+              ? 'assets/images/position-static-dark.png'
+              : 'assets/images/position-static-light.png',
+          puckSize: 64,
+          onMapCreated: onMapCreated,
+          onStyleLoaded: () => onStyleLoaded(context),
+        ),
+      ),
+
+      // Show an animation when the user taps the map.
+      if (tapPosition != null)
+        IgnorePointer(
+          child: Stack(children: [
+            Positioned(
+              left: tapPosition!.dx - animation.value * 128 - 12,
+              top: tapPosition!.dy - animation.value * 128 - 12,
+              child: Opacity(
+                opacity: max(0, min(1, (animation.value) * 4)),
+                child: Container(
+                  width: animation.value * 256 + 24,
+                  height: animation.value * 256 + 24,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
+                      width: 8.0 - animation.value * 8,
+                    ),
+                    borderRadius: BorderRadius.circular(128),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
+              top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
+              child: Opacity(
+                opacity: max(0, (animation.value - 0.5) * 2),
+                child: Container(
+                  width: (1.0 - animation.value) * 128 + 24,
+                  height: (1.0 - animation.value) * 128 + 24,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2 * animation.value),
+                    borderRadius: BorderRadius.circular(128),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: tapPosition!.dx - 12,
+              top: min(12 + tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3), tapPosition!.dy) -
+                  12,
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: Opacity(
+                  opacity: max(0, (animation.value - 0.5) * 2),
+                  child: Image.asset(
+                    'assets/images/pin.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: tapPosition!.dx - 12,
+              top: (tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3)) - 12,
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: Opacity(
+                  opacity: max(0, (animation.value - 0.5) * 2),
+                  child: Image.asset(
+                    'assets/images/waypoint.drawio.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        ),
+    ]);
   }
 }
