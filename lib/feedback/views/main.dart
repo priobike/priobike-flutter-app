@@ -6,6 +6,7 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
@@ -117,6 +118,18 @@ class FeedbackViewState extends State<FeedbackView> {
                             SubHeader(text: "Feedback", context: context),
                           ],
                         ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Small(text: "Hat dir die Route gefallen?", context: context),
+                      ),
+                      const SmallVSpace(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: BigButton(label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
+                      ),
                       const VSpace(),
                       const Divider(),
                       const VSpace(),
