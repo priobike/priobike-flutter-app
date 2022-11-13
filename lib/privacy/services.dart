@@ -8,7 +8,7 @@ class PrivacyPolicy with ChangeNotifier {
   bool hasLoaded = false;
 
   /// The text of the privacy policy.
-  late String storedPrivacyPolicy;
+  String storedPrivacyPolicy = '';
 
   /// An indicator if the privacy policy was confirmed by the user.
   bool isConfirmed = false;
@@ -25,7 +25,7 @@ class PrivacyPolicy with ChangeNotifier {
     storedPrivacyPolicy = storage.getString(key) ?? '';
 
     // Strings must be have their leading and tailing whitespaces trimmed
-    // otherwise Android will have a bug where the strings are not equal.
+    // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
     isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy.trim());
 
     hasChanged = !isConfirmed;
@@ -39,7 +39,7 @@ class PrivacyPolicy with ChangeNotifier {
   Future<void> confirm(BuildContext context) async {
     if (!hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
-    final newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    final String newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
 
     isConfirmed = await storage.setString(key, newPrivacyPolicy);
 
