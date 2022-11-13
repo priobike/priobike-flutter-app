@@ -60,7 +60,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    await privacyService.confirm();
+    await privacyService.confirm(context);
   }
 
   @override
@@ -82,19 +82,19 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!)
+                      if (!privacyService.hasChanged) Header(text: "Diese App funktioniert mit", context: context),
+                      if (!privacyService.hasChanged)
                         Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
-                      if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (privacyService.hasChanged!)
+                      if (privacyService.hasChanged) Header(text: "Wir haben die Erklärung zum", context: context),
+                      if (privacyService.hasChanged)
                         Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
-                      if (!privacyService.hasChanged!)
+                      if (!privacyService.hasChanged)
                         SubHeader(
                             text:
                                 "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
-                      if (privacyService.hasChanged!)
+                      if (privacyService.hasChanged)
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
@@ -115,7 +115,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
                           context: context),
                       const VSpace(),
-                      Content(text: privacyService.text!, context: context),
+                      Content(text: privacyService.storedPrivacyPolicy, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),

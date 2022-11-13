@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:developer' as developer show log;
 
 class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
@@ -9,60 +8,40 @@ class PrivacyPolicy with ChangeNotifier {
   bool hasLoaded = false;
 
   /// The text of the privacy policy.
-  String? text;
+  late String storedPrivacyPolicy;
 
   /// An indicator if the privacy policy was confirmed by the user.
   bool isConfirmed = false;
 
   /// An indicator if the privacy policy has changed.
-  bool? hasChanged;
+  bool hasChanged = true;
 
   /// Load the privacy policy.
   Future<void> loadPolicy(BuildContext context) async {
     if (hasLoaded) return;
 
-    developer.log("Loading privacy policy");
     final storage = await SharedPreferences.getInstance();
+    final String newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    storedPrivacyPolicy = storage.getString(key) ?? '';
 
-    text = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    // Strings must be have their leading and tailing whitespaces trimmed
+    // otherwise Android will have a bug where the strings are not equal.
+    isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy.trim());
 
-    developer.log('#loadpolicy - Contains key: ${storage.containsKey(key)}');
-
-    final accepted = storage.getString(key) ?? '';
-
-    developer.log('#loadpolicy - Accepted length: ' + accepted.trim().length.toString());
-    developer.log('#loadpolicy - Text length: ' + text!.trim().length.toString());
-
-    isConfirmed = (accepted.trim() == text!.trim());
-
-    developer.log('#loadpolicy - accepted.allMatches(text!): ${accepted.allMatches(text!).toString()}');
-
-    developer.log('#loadpolicy - Is confirmed: $isConfirmed');
-
-    hasChanged = ((accepted != null) && (!isConfirmed));
-    developer.log('#loadpolicy - Has changed: $hasChanged');
+    hasChanged = !isConfirmed;
 
     hasLoaded = true;
 
     notifyListeners();
   }
 
-  /// Confirm the privacy policy.
-  Future<void> confirm() async {
+  /// Confirm the privacy policy and commits the new version to shared preferences.
+  Future<void> confirm(BuildContext context) async {
     if (!hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
+    final newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
 
-    developer.log('Contains key: ${storage.containsKey(key)}');
-
-    //storage.reload();
-
-    bool successful = await storage.setString(key, text!);
-
-    developer.log('Set string: $successful');
-    developer.log('Storage: $storage');
-    developer.log('Key: $key');
-
-    isConfirmed = true;
+    isConfirmed = await storage.setString(key, newPrivacyPolicy);
 
     notifyListeners();
   }
