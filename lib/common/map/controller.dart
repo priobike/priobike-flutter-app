@@ -58,6 +58,32 @@ class LayerController {
     }
   }
 
+  /// Update a source on the map.
+  updateGeoJsonSource(String sourceId, Map<String, dynamic> properties) async {
+    if (queue.isNotEmpty) {
+      queue.add(() => addGeoJsonSource(sourceId, properties));
+      return;
+    }
+
+    if (sources.containsKey(sourceId)) {
+      // If the properties are the same, we don't need to do anything.
+      if (sources[sourceId] == properties) return;
+      log.i("Updating source $sourceId");
+      await mapController.setGeoJsonSource(sourceId, properties);
+      sources[sourceId] = properties;
+    } else {
+      log.i("Adding source $sourceId");
+      await mapController.addGeoJsonSource(sourceId, properties);
+      sources[sourceId] = properties;
+      layersBySource[sourceId] = {};
+    }
+
+    if (queue.isNotEmpty) {
+      final next = queue.removeAt(0);
+      next();
+    }
+  }
+
   /// Add a layer to the map.
   addLayer(
     String sourceId,

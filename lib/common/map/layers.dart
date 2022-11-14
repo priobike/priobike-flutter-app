@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -50,7 +51,7 @@ class AllRoutesLayer {
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {lineWidth = 9.0, clickLineWidth = 25.0}) async {
+  install(LayerController layerController, {lineWidth = 9.0, clickLineWidth = 25.0}) async {
     await layerController.addGeoJsonSource(
       "routes",
       {"type": "FeatureCollection", "features": features},
@@ -64,7 +65,6 @@ class AllRoutesLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
-      belowLayerId: "discomforts-layer",
     );
     // Make it easier to click on the route.
     await layerController.addLayer(
@@ -77,7 +77,14 @@ class AllRoutesLayer {
         lineOpacity: 0.001, // Not 0 to make the click listener work.
       ),
       enableInteraction: true,
-      belowLayerId: "discomforts-layer",
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "routes",
+      {"type": "FeatureCollection", "features": features},
     );
   }
 }
@@ -101,7 +108,7 @@ class SelectedRouteLayer {
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0}) async {
+  install(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0}) async {
     await layerController.addGeoJsonSource(
       "route",
       {"type": "FeatureCollection", "features": features},
@@ -115,7 +122,6 @@ class SelectedRouteLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
-      belowLayerId: "discomforts-layer",
     );
     await layerController.addLayer(
       "route",
@@ -126,7 +132,14 @@ class SelectedRouteLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
-      belowLayerId: "discomforts-layer",
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "route",
+      {"type": "FeatureCollection", "features": features},
     );
   }
 }
@@ -156,7 +169,7 @@ class DiscomfortsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 0.25, lineWidth = 7.0, clickWidth = 35.0}) async {
+  install(LayerController layerController, {iconSize = 0.25, lineWidth = 7.0, clickWidth = 35.0}) async {
     await layerController.addGeoJsonSource(
       "discomforts",
       {"type": "FeatureCollection", "features": features},
@@ -171,7 +184,6 @@ class DiscomfortsLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
-      belowLayerId: "discomforts-clicklayer",
     );
     await layerController.addLayer(
       "discomforts",
@@ -184,7 +196,6 @@ class DiscomfortsLayer {
         lineOpacity: 0.001, // Not 0 to make the click listener work.
       ),
       enableInteraction: true,
-      belowLayerId: "discomforts-markers",
     );
     await layerController.addLayer(
       "discomforts",
@@ -198,6 +209,14 @@ class DiscomfortsLayer {
         textIgnorePlacement: true,
       ),
       enableInteraction: true,
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "discomforts",
+      {"type": "FeatureCollection", "features": features},
     );
   }
 }
@@ -225,7 +244,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 0.75}) async {
+  install(LayerController layerController, {iconSize = 0.75}) async {
     await layerController.addGeoJsonSource(
       "waypoints",
       {"type": "FeatureCollection", "features": features},
@@ -249,21 +268,23 @@ class WaypointsLayer {
       enableInteraction: false,
     );
   }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "waypoints",
+      {"type": "FeatureCollection", "features": features},
+    );
+  }
 }
 
 class TrafficLightsLayer {
-  /// If the layer should display a dark version of the icons.
-  final bool isDark;
-
-  /// If the layer should display labels.
-  final bool showLabels;
-
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayer(BuildContext context)
-      : isDark = Theme.of(context).brightness == Brightness.dark,
-        showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled {
+  TrafficLightsLayer(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     final routing = Provider.of<Routing>(context, listen: false);
     for (final sg in routing.selectedRoute?.signalGroups ?? []) {
@@ -280,13 +301,15 @@ class TrafficLightsLayer {
         "properties": {
           "id": sg.id,
           "isOffline": isOffline,
+          "isDark": isDark,
+          "showLabels": showLabels,
         },
       });
     }
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "traffic-lights",
       {"type": "FeatureCollection", "features": features},
@@ -298,33 +321,119 @@ class TrafficLightsLayer {
         iconImage: [
           "case",
           ["get", "isOffline"],
-          isDark ? "trafficlightofflinedark" : "trafficlightofflinelight",
-          isDark ? "trafficlightonlinedark" : "trafficlightonlinelight",
+          [
+            "case",
+            ["get", "isDark"],
+            "trafficlightofflinedark",
+            "trafficlightofflinelight",
+          ],
+          [
+            "case",
+            ["get", "isDark"],
+            "trafficlightonlinedark",
+            "trafficlightonlinelight",
+          ],
         ],
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
         iconOpacity: showAfter(zoom: 12),
-        textField: showLabels ? ["get", "id"] : null,
+        textField: [
+          "case",
+          ["get", "showLabels"],
+          ["get", "id"],
+          ""
+        ],
       ),
       enableInteraction: false,
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "traffic-lights",
+      {"type": "FeatureCollection", "features": features},
+    );
+  }
+}
+
+class TrafficLightLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  TrafficLightLayer(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ride = Provider.of<Ride>(context, listen: false);
+    final sgRec = ride.currentRecommendation;
+    final sgIsGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
+    final sgPos = ride.currentRecommendation?.sg?.position;
+    if (sgRec == null || sgIsGreen == null || sgPos == null) return;
+    if (sgRec.error) return;
+    if ((sgRec.quality ?? 0) < Ride.qualityThreshold) return;
+    features.add({
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [sgPos.lon, sgPos.lat],
+      },
+      "properties": {
+        "isGreen": sgIsGreen,
+        "isDark": isDark,
+      },
+    });
+  }
+
+  /// Install the overlay on the layer controller.
+  install(LayerController layerController, {iconSize = 1.0}) async {
+    await layerController.addGeoJsonSource(
+      "traffic-light",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await layerController.addLayer(
+      "traffic-light",
+      "traffic-light-icon",
+      SymbolLayerProperties(
+        iconImage: [
+          "case",
+          ["get", "isGreen"],
+          [
+            "case",
+            ["get", "isDark"],
+            "trafficlightonlinegreendark",
+            "trafficlightonlinegreenlight",
+          ],
+          [
+            "case",
+            ["get", "isDark"],
+            "trafficlightonlinereddark",
+            "trafficlightonlineredlight",
+          ],
+        ],
+        iconSize: iconSize,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+      ),
+      enableInteraction: false,
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "traffic-light",
+      {"type": "FeatureCollection", "features": features},
     );
   }
 }
 
 class OfflineCrossingsLayer {
-  /// If the layer should display a dark version of the icons.
-  final bool isDark;
-
-  /// If the layer should display labels.
-  final bool showLabels;
-
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  OfflineCrossingsLayer(BuildContext context)
-      : isDark = Theme.of(context).brightness == Brightness.dark,
-        showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled {
+  OfflineCrossingsLayer(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final routing = Provider.of<Routing>(context, listen: false);
     for (final crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
@@ -336,13 +445,15 @@ class OfflineCrossingsLayer {
         },
         "properties": {
           "name": crossing.name,
+          "isDark": isDark,
+          "showLabels": showLabels,
         },
       });
     }
   }
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "offline-crossings",
       {"type": "FeatureCollection", "features": features},
@@ -351,14 +462,32 @@ class OfflineCrossingsLayer {
       "offline-crossings",
       "offline-crossings-icons",
       SymbolLayerProperties(
-        iconImage: isDark ? "trafficlightdisconnecteddark" : "trafficlightdisconnectedlight",
+        iconImage: [
+          "case",
+          ["get", "isDark"],
+          "trafficlightdisconnecteddark",
+          "trafficlightdisconnectedlight",
+        ],
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
         iconOpacity: showAfter(zoom: 12),
-        textField: showLabels ? ["get", "name"] : null,
+        textField: [
+          "case",
+          ["get", "showLabels"],
+          ["get", "name"],
+          ""
+        ],
       ),
       enableInteraction: false,
+    );
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "offline-crossings",
+      {"type": "FeatureCollection", "features": features},
     );
   }
 }
@@ -370,7 +499,7 @@ class AccidentHotspotsLayer {
   AccidentHotspotsLayer(BuildContext context, {this.file = "assets/geo/accident_black_spots.geojson"});
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController) async {
+  install(LayerController layerController) async {
     await layerController.addGeoJsonSource(
       "accident-hotspots",
       jsonDecode(await rootBundle.loadString(file)),
@@ -430,7 +559,7 @@ class ParkingStationsLayer {
       : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "parking-stations",
       jsonDecode(await rootBundle.loadString(file)),
@@ -463,7 +592,7 @@ class RentalStationsLayer {
       : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "rental-stations",
       jsonDecode(await rootBundle.loadString(file)),
@@ -519,7 +648,7 @@ class BikeShopLayer {
       : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "bike-shop",
       jsonDecode(await rootBundle.loadString(file)),
@@ -580,7 +709,7 @@ class BikeAirStationLayer {
       : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "bike-air-station",
       jsonDecode(await rootBundle.loadString(file)),
@@ -636,7 +765,7 @@ class ConstructionSitesLayer {
       : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  addTo(LayerController layerController, {iconSize = 1.0}) async {
+  install(LayerController layerController, {iconSize = 1.0}) async {
     await layerController.addGeoJsonSource(
       "construction-sites",
       jsonDecode(await rootBundle.loadString(file)),
