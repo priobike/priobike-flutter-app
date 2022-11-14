@@ -150,8 +150,8 @@ class AlertsViewState extends State<AlertsView> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const OfflineIcon(
-                              height: 14,
-                              width: 14,
+                              height: 8,
+                              width: 8,
                             ),
                           ),
                         ),
@@ -176,8 +176,8 @@ class AlertsViewState extends State<AlertsView> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const DisconnectedIcon(
-                              height: 14,
-                              width: 14,
+                              height: 8,
+                              width: 8,
                             ),
                           ),
                         ),
