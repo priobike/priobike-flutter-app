@@ -61,7 +61,7 @@ class LayerController {
   /// Update a source on the map.
   updateGeoJsonSource(String sourceId, Map<String, dynamic> properties) async {
     if (queue.isNotEmpty) {
-      queue.add(() => addGeoJsonSource(sourceId, properties));
+      queue.add(() => updateGeoJsonSource(sourceId, properties));
       return;
     }
 
