@@ -6,7 +6,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
-import 'package:priobike/common/map/markers.dart';
+import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -22,9 +22,6 @@ class RideMapView extends StatefulWidget {
 
 class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
-
-  /// The threshold used for showing traffic light colors and speedometer colors
-  static const qualityThreshold = 0.5;
 
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
@@ -77,11 +74,10 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    await SelectedRouteLayer(context).addTo(layerController!, bgLineWidth: 20, fgLineWidth: 14);
-    await WaypointsLayer(context).addTo(layerController!, iconSize: ppi / 4);
-    await TrafficLightsLayer(context).addTo(layerController!, iconSize: ppi);
-    await OfflineCrossingsLayer(context).addTo(layerController!, iconSize: ppi);
+    await SelectedRouteLayer(context).update(layerController!);
+    await WaypointsLayer(context).update(layerController!);
+    await TrafficLightsLayer(context).update(layerController!);
+    await OfflineCrossingsLayer(context).update(layerController!);
   }
 
   /// Update the view with the current data.
@@ -91,7 +87,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
-    await loadNextTrafficLightLayer();
+    await TrafficLightLayer(context).update(layerController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -164,47 +160,6 @@ class RideMapViewState extends State<RideMapView> {
     );
   }
 
-  /// Load the upcoming traffic light layer.
-  Future<void> loadNextTrafficLightLayer() async {
-    if (mapController == null) return;
-
-    // Cache the already displayed one to remove it after we have drawn on top.
-    final currentTrafficLight = upcomingTrafficLight;
-    final currentTrafficLightIsGreen = upcomingTrafficLightIsGreen;
-
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 2; // Green/Red icons are x2.
-    final r = ride.currentRecommendation;
-    final isGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
-
-    if (r != null && !r.error && isGreen != null && r.sg?.position != null && r.quality! >= qualityThreshold) {
-      if (isGreen && currentTrafficLightIsGreen != true) {
-        upcomingTrafficLight = await mapController!.addSymbol(
-          TrafficLightGreenMarker(
-            geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
-            iconSize: iconSize,
-            brightness: Theme.of(context).brightness,
-          ),
-        );
-        upcomingTrafficLightIsGreen = isGreen;
-        if (currentTrafficLight != null) {
-          await mapController!.removeSymbol(currentTrafficLight);
-        }
-      } else if (!isGreen && currentTrafficLightIsGreen != false) {
-        upcomingTrafficLight = await mapController!.addSymbol(
-          TrafficLightRedMarker(
-            geo: LatLng(r.sg!.position.lat, r.sg!.position.lon),
-            iconSize: iconSize,
-            brightness: Theme.of(context).brightness,
-          ),
-        );
-        upcomingTrafficLightIsGreen = isGreen;
-        if (currentTrafficLight != null) {
-          await mapController!.removeSymbol(currentTrafficLight);
-        }
-      }
-    }
-  }
-
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
@@ -234,6 +189,14 @@ class RideMapViewState extends State<RideMapView> {
     await mapController!.setSymbolIconIgnorePlacement(true);
     await mapController!.setSymbolTextAllowOverlap(true);
     await mapController!.setSymbolTextIgnorePlacement(true);
+
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    await SelectedRouteLayer(context).install(layerController!, bgLineWidth: 20, fgLineWidth: 14);
+    await WaypointsLayer(context).install(layerController!, iconSize: ppi / 4);
+    await TrafficLightsLayer(context).install(layerController!, iconSize: ppi);
+    await OfflineCrossingsLayer(context).install(layerController!, iconSize: ppi);
+    // The traffic light layer image has a 2x resolution to make it look good on high DPI screens.
+    await TrafficLightLayer(context).install(layerController!, iconSize: ppi / 2);
 
     onRoutingUpdate();
     onSnappingUpdate();

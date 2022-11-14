@@ -49,33 +49,3 @@ class SymbolLoader {
     return mapController.addImage(name, bytesArr);
   }
 }
-
-class TrafficLightGreenMarker extends SymbolOptions {
-  TrafficLightGreenMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    double iconOpacity = 1,
-    Brightness? brightness,
-  }) : super(
-          geometry: geo,
-          iconImage: brightness == Brightness.dark ? "trafficlightonlinegreendark" : "trafficlightonlinegreenlight",
-          iconSize: iconSize,
-          iconOpacity: iconOpacity,
-          zIndex: 3,
-        );
-}
-
-class TrafficLightRedMarker extends SymbolOptions {
-  TrafficLightRedMarker({
-    required LatLng geo,
-    double iconSize = 1,
-    double iconOpacity = 1,
-    Brightness? brightness,
-  }) : super(
-          geometry: geo,
-          iconImage: brightness == Brightness.dark ? "trafficlightonlinereddark" : "trafficlightonlineredlight",
-          iconSize: iconSize,
-          iconOpacity: iconOpacity,
-          zIndex: 5,
-        );
-}

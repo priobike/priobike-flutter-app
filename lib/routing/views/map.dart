@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/layers.dart';
-import 'package:priobike/common/map/markers.dart';
+import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -158,27 +158,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     // Load the map features.
     if (layers.showAirStations) {
-      BikeAirStationLayer(context).addTo(layerController!);
+      BikeAirStationLayer(context).install(layerController!);
     } else {
       BikeAirStationLayer.removeFrom(layerController!);
     }
     if (layers.showConstructionSites) {
-      ConstructionSitesLayer(context).addTo(layerController!);
+      ConstructionSitesLayer(context).install(layerController!);
     } else {
       ConstructionSitesLayer.removeFrom(layerController!);
     }
     if (layers.showParkingStations) {
-      ParkingStationsLayer(context).addTo(layerController!);
+      ParkingStationsLayer(context).install(layerController!);
     } else {
       ParkingStationsLayer.removeFrom(layerController!);
     }
     if (layers.showRentalStations) {
-      RentalStationsLayer(context).addTo(layerController!);
+      RentalStationsLayer(context).install(layerController!);
     } else {
       RentalStationsLayer.removeFrom(layerController!);
     }
     if (layers.showRepairStations) {
-      BikeShopLayer(context).addTo(layerController!);
+      BikeShopLayer(context).install(layerController!);
     } else {
       BikeShopLayer.removeFrom(layerController!);
     }
@@ -187,13 +187,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map layers for the route.
   loadRouteMapLayers() async {
     if (layerController == null || !mounted) return;
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    await AllRoutesLayer(context).addTo(layerController!);
-    await SelectedRouteLayer(context).addTo(layerController!);
-    await WaypointsLayer(context).addTo(layerController!, iconSize: ppi / 4);
-    await DiscomfortsLayer(context).addTo(layerController!, iconSize: ppi / 4);
-    await TrafficLightsLayer(context).addTo(layerController!, iconSize: ppi / 2.5);
-    await OfflineCrossingsLayer(context).addTo(layerController!, iconSize: ppi / 2.5);
+    await AllRoutesLayer(context).update(layerController!);
+    await SelectedRouteLayer(context).update(layerController!);
+    await WaypointsLayer(context).update(layerController!);
+    await DiscomfortsLayer(context).update(layerController!);
+    await TrafficLightsLayer(context).update(layerController!);
+    await OfflineCrossingsLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -236,6 +235,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await mapController!.updateContentInsets(defaultMapInsets);
 
     // Trigger an update of the map layers.
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    await AllRoutesLayer(context).install(layerController!);
+    await SelectedRouteLayer(context).install(layerController!);
+    await WaypointsLayer(context).install(layerController!, iconSize: ppi / 4);
+    await DiscomfortsLayer(context).install(layerController!, iconSize: ppi / 4);
+    await TrafficLightsLayer(context).install(layerController!, iconSize: ppi / 2.5);
+    await OfflineCrossingsLayer(context).install(layerController!, iconSize: ppi / 2.5);
+
     await loadRouteMapLayers();
     await fitCameraToRouteBounds();
     await displayCurrentUserLocation();

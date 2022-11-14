@@ -24,6 +24,9 @@ import 'package:http/http.dart' as http;
 class Ride with ChangeNotifier {
   final log = Logger("Ride");
 
+  /// The threshold used for showing traffic light colors and speedometer colors
+  static const qualityThreshold = 0.5;
+
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
 

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -88,7 +87,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       return;
     }
 
-    if (currentQuality < RideMapViewState.qualityThreshold) {
+    if (currentQuality < Ride.qualityThreshold) {
       gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
