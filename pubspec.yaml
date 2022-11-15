@@ -113,75 +113,24 @@ flutter:
     - assets/splash.png
 
     # Geo data
-    - assets/geo/accident_black_spots_dresden.geojson
-    - assets/geo/accident_black_spots.geojson
-    - assets/geo/bicycle_parking_polygon.geojson
-    - assets/geo/bicycle_parking.geojson
-    - assets/geo/bicycle_rental_polygon.geojson
-    - assets/geo/bicycle_rental.geojson
-    - assets/geo/bicycle_shop_polygon.geojson
-    - assets/geo/bicycle_shop.geojson
-    - assets/geo/bike_air_station.geojson
-    - assets/geo/bike_and_ride.geojson
-    - assets/geo/bike_count.geojson
-    - assets/geo/construction_sides.geojson
-    - assets/geo/dresden_boundary.geojson
-    - assets/geo/hamburg_boundary.geojson
+    - assets/geo/
 
     # Sideloaded offline maps
-    - assets/offline/hamburg-light.db
-    - assets/offline/hamburg-dark.db
+    - assets/offline/
 
     # Files needed to get git info within the app, e.g. current branch or tag.
     # Please make sure that the repository is cloned by the branch name, and 
     # not by the commit hash (as is the default for Jenkins CI pipelines).
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 
-    - assets/text/privacy.txt # Privacy policy
-    - assets/text/thanks.txt # Aknowledgements
+    - assets/text/
 
     # Assets for track simulation
-    - assets/tracks/hamburg/thomas.json
-    - assets/tracks/dresden/philipp.json
+    - assets/tracks/hamburg/
+    - assets/tracks/dresden/
 
-    # Map symbols
-    - assets/images/pin.png
-    - assets/images/trafficlights/
-    - assets/images/disconnected.png
-    - assets/images/offline.png
-    - assets/images/online.png
-    - assets/images/alert.drawio.png
-    - assets/images/start.drawio.png
-    - assets/images/destination.drawio.png
-    - assets/images/waypoint.drawio.png
-    - assets/images/direction.png
-    - assets/images/air-dark.png
-    - assets/images/air-light.png
-    - assets/images/construction-dark.png
-    - assets/images/construction-light.png
-    - assets/images/park-dark.png
-    - assets/images/park-light.png
-    - assets/images/position-dark.png
-    - assets/images/position-light.png
-    - assets/images/position-static-dark.png
-    - assets/images/position-static-light.png
-    - assets/images/rent-dark.png
-    - assets/images/rent-light.png
-    - assets/images/repair-dark.png
-    - assets/images/repair-light.png
-
-    # Navigation icons
-    - assets/images/dark_continue.png
-    - assets/images/dark_finish.png
-    - assets/images/dark_keep_left.png
-    - assets/images/dark_keep_right.png
-    - assets/images/dark_roundabout.png
-    - assets/images/dark_turn_left.png
-    - assets/images/dark_turn_right.png
-    - assets/images/dark_turn_sharp_left.png
-    - assets/images/dark_turn_sharp_right.png
-    - assets/images/dark_turn_slight_left.png
-    - assets/images/dark_turn_slight_right.png
+    # Map symbols & Navigation icons
+    - assets/images/
 
     # Screenshots
     - assets/images/screenshots/
