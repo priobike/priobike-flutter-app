@@ -115,7 +115,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
                           context: context),
                       const VSpace(),
-                      Content(text: privacyService.storedPrivacyPolicy!, context: context),
+                      Content(text: privacyService.assetText!, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),

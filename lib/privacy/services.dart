@@ -8,7 +8,7 @@ class PrivacyPolicy with ChangeNotifier {
   bool hasLoaded = false;
 
   /// The text of the privacy policy.
-  String? storedPrivacyPolicy;
+  String? assetText;
 
   /// An indicator if the privacy policy was confirmed by the user.
   bool? isConfirmed;
@@ -21,15 +21,14 @@ class PrivacyPolicy with ChangeNotifier {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();
-    final String newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
-    storedPrivacyPolicy = storage.getString(key) ?? '';
+    assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    final storedPrivacyPolicy = storage.getString(key);
 
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
-    isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy?.trim());
+    isConfirmed = storedPrivacyPolicy?.trim() == assetText?.trim();
     hasChanged = !isConfirmed!;
     hasLoaded = true;
-
     notifyListeners();
   }
 
@@ -37,6 +36,8 @@ class PrivacyPolicy with ChangeNotifier {
   Future<void> deleteStoredPolicy() async {
     final storage = await SharedPreferences.getInstance();
     await storage.remove(key);
+    isConfirmed = false;
+    hasChanged = true;
     notifyListeners();
   }
 
@@ -44,9 +45,10 @@ class PrivacyPolicy with ChangeNotifier {
   Future<void> confirm(BuildContext context) async {
     if (!hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
-    final String newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
 
-    isConfirmed = await storage.setString(key, newPrivacyPolicy);
+    isConfirmed = await storage.setString(key, confirmedPolicy);
+    hasChanged = false;
     notifyListeners();
   }
 }
