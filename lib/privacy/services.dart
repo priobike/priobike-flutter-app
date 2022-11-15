@@ -8,13 +8,13 @@ class PrivacyPolicy with ChangeNotifier {
   bool hasLoaded = false;
 
   /// The text of the privacy policy.
-  String storedPrivacyPolicy = '';
+  String? storedPrivacyPolicy;
 
   /// An indicator if the privacy policy was confirmed by the user.
-  bool isConfirmed = false;
+  bool? isConfirmed;
 
   /// An indicator if the privacy policy has changed.
-  bool hasChanged = true;
+  bool? hasChanged;
 
   /// Load the privacy policy.
   Future<void> loadPolicy(BuildContext context) async {
@@ -26,9 +26,9 @@ class PrivacyPolicy with ChangeNotifier {
 
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
-    isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy.trim());
+    isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy?.trim());
 
-    hasChanged = !isConfirmed;
+    hasChanged = !isConfirmed!;
 
     hasLoaded = true;
 
