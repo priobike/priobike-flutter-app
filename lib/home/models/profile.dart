@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 enum BikeType {
-  bike,
   ebike,
   racingbike,
   mountainbike,
@@ -11,8 +10,6 @@ enum BikeType {
 extension BikeTypeDescription on BikeType {
   String description() {
     switch (this) {
-      case BikeType.bike:
-        return "Standard";
       case BikeType.ebike:
         return "E-Bike";
       case BikeType.racingbike:
@@ -28,8 +25,6 @@ extension BikeTypeDescription on BikeType {
 extension BikeTypeColor on BikeType {
   Color color() {
     switch (this) {
-      case BikeType.bike:
-        return const Color.fromRGBO(163, 203, 56, 1.0);
       case BikeType.ebike:
         return const Color.fromRGBO(0, 148, 50, 1.0);
       case BikeType.racingbike:
@@ -45,8 +40,6 @@ extension BikeTypeColor on BikeType {
 extension BikeTypeIcon on BikeType {
   IconData icon() {
     switch (this) {
-      case BikeType.bike:
-        return Icons.pedal_bike;
       case BikeType.ebike:
         return Icons.electric_bike;
       case BikeType.racingbike:
