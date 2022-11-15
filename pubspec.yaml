@@ -123,6 +123,7 @@ flutter:
     # not by the commit hash (as is the default for Jenkins CI pipelines).
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 
+    # Privacy Policy & Aknowledgements
     - assets/text/
 
     # Assets for track simulation
@@ -131,6 +132,8 @@ flutter:
 
     # Map symbols & Navigation icons
     - assets/images/
+    - assets/images/trafficlights/
+
 
     # Screenshots
     - assets/images/screenshots/
