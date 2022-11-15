@@ -27,11 +27,16 @@ class PrivacyPolicy with ChangeNotifier {
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
     isConfirmed = (newPrivacyPolicy.trim() == storedPrivacyPolicy?.trim());
-
     hasChanged = !isConfirmed!;
-
     hasLoaded = true;
 
+    notifyListeners();
+  }
+
+  /// Delete the stored privacy policy for debugging purposes.
+  Future<void> deleteStoredPolicy() async {
+    final storage = await SharedPreferences.getInstance();
+    await storage.remove(key);
     notifyListeners();
   }
 
@@ -42,7 +47,6 @@ class PrivacyPolicy with ChangeNotifier {
     final String newPrivacyPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
 
     isConfirmed = await storage.setString(key, newPrivacyPolicy);
-
     notifyListeners();
   }
 }

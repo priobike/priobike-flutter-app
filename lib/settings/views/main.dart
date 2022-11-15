@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
+import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -407,6 +408,15 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Tutorials zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Datenschutz zurücksetzen",
+                          icon: Icons.recycling,
+                          callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
                         ),
                       ),
                     if (feature.canEnableBetaFeatures)
