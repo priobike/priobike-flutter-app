@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/routing/views/layers.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// The layer button.
 class LayerButton extends StatelessWidget {
 
   const LayerButton({Key? key}) : super(key: key);

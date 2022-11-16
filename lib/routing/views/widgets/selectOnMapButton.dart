@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 
 /// Widget for last search results
 class SelectOnMapButton extends StatelessWidget {

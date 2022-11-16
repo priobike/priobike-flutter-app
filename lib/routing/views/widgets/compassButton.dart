@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// A button that displays a compass.
 class CompassButton extends StatelessWidget {
   final Function centerNorth;
 

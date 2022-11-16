@@ -19,16 +19,19 @@ class BottomSheetState with ChangeNotifier {
 
   BottomSheetState();
 
+  /// Function which sets the showRoutingBar.
   void setShowRoutingBar() {
     showRoutingBar = true;
     notifyListeners();
   }
 
+  /// Function which unsets the showRoutingBar.
   void setNotShowRoutingBar() {
     showRoutingBar = false;
     notifyListeners();
   }
 
+  /// Function which animates the scroll controller to a given value.
   void animateController(double value) {
     draggableScrollableController.animateTo(
         value,

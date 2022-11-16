@@ -10,7 +10,7 @@ import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/views/settings.dart';
 import 'package:provider/provider.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// A view that displays the search bar.
 class SearchBar extends StatefulWidget {
   final bool fromClicked;
   final Function startSearch;

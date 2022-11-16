@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 
-/// Widget for last search results
+/// The current location button.
 class CurrentLocationButton extends StatelessWidget {
   final Function onPressed;
 

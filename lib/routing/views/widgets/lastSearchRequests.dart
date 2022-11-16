@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/views/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';

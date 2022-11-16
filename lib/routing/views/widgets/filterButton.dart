@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/views/widgets/filterDialog.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// The filter button.
 class FilterButton extends StatelessWidget {
   final Profile? profileService;
 

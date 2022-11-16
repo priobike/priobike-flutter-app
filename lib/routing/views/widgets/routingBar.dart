@@ -12,7 +12,7 @@ import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// A view that displays the routing bar.
 class RoutingBar extends StatefulWidget {
   final TextEditingController? locationSearchController;
   final bool fromRoutingSearch;
@@ -40,7 +40,7 @@ class RoutingBarState extends State<RoutingBar> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated routing service, which is injected by the provider.
+  /// The associated discomforts service, which is injected by the provider.
   late Discomforts discomforts;
 
   /// The associated profile service, which is injected by the provider.
@@ -113,6 +113,7 @@ class RoutingBarState extends State<RoutingBar> {
     currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
+  /// The widget that displays a routing bar row.
   _routingBarRow(int index, int max, Waypoint? waypoint, int nextItem) {
     IconData? leadingIcon;
     if (index == 0) leadingIcon = Icons.gps_fixed_outlined;
@@ -265,6 +266,7 @@ class RoutingBarState extends State<RoutingBar> {
     }
   }
 
+  /// The proxy decorator used to style the reorderable list.
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
     return AnimatedBuilder(
       animation: animation,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 
-/// A button which is used to change route types.
+/// The route type button.
 class RouteTypeButton extends StatelessWidget {
   final String routeType;
   final Function changeRouteType;

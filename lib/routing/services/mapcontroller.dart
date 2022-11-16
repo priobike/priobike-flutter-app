@@ -27,6 +27,7 @@ class MapController with ChangeNotifier {
     log.i("MapControllerService started.");
   }
 
+  /// Function which unsets the controller by type.
   void unsetController(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -38,6 +39,7 @@ class MapController with ChangeNotifier {
     }
   }
 
+  /// Function which zooms in the controller by type.
   void zoomIn(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -49,6 +51,7 @@ class MapController with ChangeNotifier {
     }
   }
 
+  /// Function which zooms out the controller by type.
   void zoomOut(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -60,6 +63,7 @@ class MapController with ChangeNotifier {
     }
   }
 
+  /// Function which clears the bearing of the controller by type.
   void centerNorth(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -71,6 +75,7 @@ class MapController with ChangeNotifier {
     }
   }
 
+  /// Function which the location tracking mode of the controller by type.
   void setMyLocationTrackingModeTracking(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -83,6 +88,7 @@ class MapController with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Function which the location tracking mode to none of the controller by type.
   void setMyLocationTrackingModeNone(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
@@ -95,6 +101,7 @@ class MapController with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Function which the camera position of the controller by type.
   LatLng? getCameraPosition(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:

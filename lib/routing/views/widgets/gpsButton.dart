@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// The gps button.
 class GPSButton extends StatelessWidget {
   final MyLocationTrackingMode? myLocationTrackingMode;
   final Function gpsCentralization;

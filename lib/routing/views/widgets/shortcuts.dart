@@ -5,7 +5,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// Displays the shortcut row.
 class ShortCutsRow extends StatefulWidget {
   final Function onPressed;
   final bool close;
@@ -34,6 +34,7 @@ class ShortCutsRowState extends State<ShortCutsRow> {
     routing = Provider.of<Routing>(context);
   }
 
+  /// Widget that displays a shortcut row.
   Widget _shortcutItem(
       BuildContext context, String name, Function onPressed, bool isShortCut) {
     return Padding(

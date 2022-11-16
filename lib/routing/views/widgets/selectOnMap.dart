@@ -32,16 +32,16 @@ class SelectOnMapView extends StatefulWidget {
 }
 
 class SelectOnMapViewState extends State<SelectOnMapView> {
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated mapController service, which is injected by the provider.
   late MapController mapController;
 
-  /// The associated geosearch service, which is injected by the provider.
+  /// The associated geocoding service, which is injected by the provider.
   late Geocoding geocoding;
 
-  /// The associated geosearch service, which is injected by the provider.
+  /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
   /// The associated place service, which is injected by the provider.

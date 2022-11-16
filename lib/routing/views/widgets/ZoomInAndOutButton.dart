@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// A view that displays the zoom in and out button.
 class ZoomInAndOutButton extends StatelessWidget {
   final Function zoomIn;
   final Function zoomOut;
