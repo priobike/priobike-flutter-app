@@ -331,7 +331,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
           // Check for data of symbol.
           if (symbol.data != null && symbol.data!["lat"] != null && symbol.data!["lon"] != null) {
             // Check out of new bounds.
-
             if (symbol.data!["lat"] < south.latitude ||
                 symbol.data!["lat"] > north.latitude ||
                 symbol.data!["lon"] < west.longitude ||
@@ -375,7 +374,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
       // Search appropriate Point in Route
       for (r.Route route in routing.allRoutes!) {
-        // Find closest to camera in bounds
         GHCoordinate? chosenCoordinate;
         List<GHCoordinate> uniqueInBounceCoordinates = [];
 
@@ -412,6 +410,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
         // Determine which coordinate to use.
         if (uniqueInBounceCoordinates.isNotEmpty) {
+          // Use the middlest coordinate.
           chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
         }
 
@@ -578,7 +577,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
 
     // Initialize sources for the geo layers.
     if (!initSources) {
-      print("INIT LOL");
       await geoFeatureLoader!.initSources();
       setState(() {
         initSources = true;
