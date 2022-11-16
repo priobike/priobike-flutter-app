@@ -22,7 +22,7 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated places service, which is injected by the provider.
   late Places places;
 
   /// The associated shortcuts service, which is injected by the provider.
@@ -42,17 +42,20 @@ class SettingsViewState extends State<SettingsView> {
     super.didChangeDependencies();
   }
 
+  /// The callback that is executed when the delete search history button is pressed.
   _deleteSearchHistory() {
     profile.searchHistory = [];
     profile.store();
     ToastMessage.showSuccess("Suchhistorie gelöscht!");
   }
 
+  /// The callback that is executed when the delete all places button is pressed.
   _deleteAllPlaces() {
     places.updatePlaces([], context);
     ToastMessage.showSuccess("Orte gelöscht!");
   }
 
+  /// The callback that is executed when the delete all routes button is pressed.
   _deleteAllRoutes() {
     shortcuts.updateShortcuts([], context);
     ToastMessage.showSuccess("Routen gelöscht!");

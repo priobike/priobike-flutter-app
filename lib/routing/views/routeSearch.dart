@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -38,10 +37,10 @@ class RouteSearchViewState extends State<RouteSearchView> {
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated mapController service, which is injected by the provider.
   late MapController mapController;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
   /// The Location Search Text Editing Controller
@@ -104,6 +103,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
     });
   }
 
+  /// The callback that is executed when the select on map button is pressed.
   _selectOnMapOnPressed() async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
@@ -117,6 +117,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
     checkNextItem();
   }
 
+  /// The callback that is executed when the current location button is pressed.
   _currentLocationPressed() async {
     if (routing.nextItem > 0 && currentLocationWaypoint != null) {
       routing.routingItems[routing.nextItem] = currentLocationWaypoint;
@@ -125,7 +126,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
     checkNextItem();
   }
 
-  /// A Function which finds the next missing item or reroutes to previous screen
+  /// A Function which finds the next missing item or reroutes to previous the screen.
   checkNextItem() async {
     if (routing.routingItems.isEmpty) return;
 

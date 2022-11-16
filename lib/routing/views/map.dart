@@ -62,6 +62,7 @@ class RoutingMapView extends StatefulWidget {
   /// The selected ControllerType
   final ControllerType controllerType;
 
+  /// The bool that decides if the Route will be displayed.
   final bool withRouting;
 
   const RoutingMapView({required this.sheetMovement, required this.controllerType, required this.withRouting, Key? key})
@@ -122,6 +123,7 @@ class RoutingMapViewState extends State<RoutingMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
 
+  /// The bool that saves information about the source init state.
   bool initSources = false;
 
   /// The default map insets.
@@ -722,7 +724,6 @@ class RoutingMapViewState extends State<RoutingMapView> {
   @override
   void dispose() {
     () async {
-      print("DISPOSE");
       // Remove geo features from the map.
       await geoFeatureLoader?.removeFeatures(true);
 

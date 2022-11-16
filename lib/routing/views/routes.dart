@@ -40,6 +40,7 @@ class RoutesViewState extends State<RoutesView> {
     shortcuts.updateShortcuts(newShortcuts, context);
   }
 
+  /// The widget that displays a waypoint.
   Widget _waypointItem(Waypoint waypoint) {
     return Align(
       alignment: Alignment.centerLeft,
@@ -54,6 +55,7 @@ class RoutesViewState extends State<RoutesView> {
     );
   }
 
+  /// The widget between items.
   Widget _itemDivider() {
     return const Align(
       alignment: Alignment.centerLeft,
@@ -64,6 +66,7 @@ class RoutesViewState extends State<RoutesView> {
     );
   }
 
+  /// The widget that displays a shortcut row.
   Widget _shortcutRowItem(Shortcut shortcut) {
     List<Widget> waypoints =
         shortcut.waypoints.map((entry) => _waypointItem(entry)).toList();

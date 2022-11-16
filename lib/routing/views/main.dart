@@ -44,7 +44,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated geocoding service, which is injected by the provider.
   late Geocoding geocoding;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
@@ -71,6 +71,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The threshold for the location accuracy in meter
   final int locationAccuracyThreshold = 20;
 
+  /// The attribute which holds the state of which the RoutingBar has to be displayed.
   bool showRoutingBar = true;
 
   @override
@@ -105,6 +106,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     super.didChangeDependencies();
   }
 
+  /// Function which checks if the RoutingBar needs to be shown.
   _checkRoutingBarShown() {
     // This seems not to work somehow
     if (routing.selectedWaypoints != null &&
@@ -303,6 +305,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     mapController.centerNorth(ControllerType.main);
   }
 
+  /// Function which calculates the RoutingBar height.
   _calculateRoutingBarHeight(MediaQueryData frame) {
     // case Items between 2 and 5.
     if (routing.selectedWaypoints!.length >= 2 && routing.selectedWaypoints!.length <= 5) {
@@ -333,11 +336,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
+  /// Function which loads Routes from shortcuts view.
   _loadShortcutsRoute(List<Waypoint> waypoints) async {
     await routing.selectWaypoints(waypoints);
     await routing.loadRoutes(context);
   }
 
+  /// Function which switches the Type of a selected Route (prototype).
   _switchRouteType() {
     if (routing.allRoutes != null && routing.selectedRoute != null && routing.allRoutes!.length == 2) {
       final switchedRoute = routing.selectedRoute!.id == 0 ? routing.allRoutes![1] : routing.allRoutes![0];

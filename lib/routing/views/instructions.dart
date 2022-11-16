@@ -30,6 +30,7 @@ class InstructionsViewState extends State<InstructionsView> {
     super.didChangeDependencies();
   }
 
+  /// The widget that displays an instruction.
   _instructionItem(
       BuildContext context, GHInstruction ghInstruction, MediaQueryData frame) {
     return Padding(

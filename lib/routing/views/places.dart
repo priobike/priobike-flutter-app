@@ -4,7 +4,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
-import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/views/widgets/selectOnMap.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +15,7 @@ class PlacesView extends StatefulWidget {
 }
 
 class PlacesViewState extends State<PlacesView> {
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated places service, which is injected by the provider.
   late Places places;
 
   @override
@@ -41,6 +40,7 @@ class PlacesViewState extends State<PlacesView> {
     places.updatePlaces(newPlaces, context);
   }
 
+  /// The widget which displays a place.
   Widget _placeRowItem(Place place) {
     return Padding(
       padding: const EdgeInsets.only(top: 0, left: 20, bottom: 20, right: 10),

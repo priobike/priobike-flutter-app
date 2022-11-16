@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/bottomSheetState.dart';
 
+/// The translation from of the road class.
 final roadClassTranslation = {
   "motorway": "Autobahn",
   "trunk": "Fernstraße",
@@ -36,6 +37,7 @@ final roadClassTranslation = {
   "other": "Sonstiges"
 };
 
+/// The translation of the surface.
 final surfaceTranslation = {
   "asphalt": "Asphalt",
   "cobblestone": "Kopfsteinpflaster",
@@ -52,6 +54,7 @@ final surfaceTranslation = {
   "unpaved": "Unbefestigter Boden",
 };
 
+/// The color translation of road class.
 final roadClassColor = {
   "Autobahn": const Color(0xFF5B81FF),
   "Fernstraße": const Color(0xFF90A9FF),
@@ -75,6 +78,7 @@ final roadClassColor = {
   "Sonstiges": const Color(0xFFB74093)
 };
 
+/// The color translation of the surface.
 final surfaceColor = {
   "Asphalt": const Color(0xFF323232),
   "Kopfsteinpflaster": const Color(0xFF434849),
@@ -191,6 +195,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     }
   }
 
+  /// The callback that is executed when the detail/map button is pressed.
   _changeDetailView(double topSnapRatio) {
     if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
         bottomSheetState.draggableScrollableController.size <= 0.65) {
@@ -216,6 +221,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         curve: Curves.easeOutCubic);
   }
 
+  /// The widget that displays a detail row in the bar.
   _detailRow(BuildContext context, String key, double value,
       Map<String, Color> colorTranslation) {
     return Padding(
@@ -244,6 +250,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  /// The widget that displays a bar with details.
   _barWithDetails(
       BuildContext context,
       Map<String, int> map,
@@ -321,6 +328,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  /// The widget that displays the dot rows in the safety score.
   _dotRow(BuildContext context) {
     return Row(
       children: [
@@ -405,6 +413,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  /// The widget that displays the details.
   _details(BuildContext context, MediaQueryData frame) {
     // The roadClassMap, surfaceMap, roadClassMax and surfaceMax needed to display the surface- and roadClass bars.
     Map<String, int> roadClassMap = {};
@@ -719,6 +728,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     ];
   }
 
+  /// The callback that is executed when less details button is pressed.
   _lessDetails(BuildContext context, MediaQueryData frame) {
     return [
       Padding(
@@ -755,6 +765,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     ];
   }
 
+  /// The widget that displays the bottom buttons.
   _bottomButtons(bool isTop, double topSnapRatio) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -788,6 +799,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  /// The widget that displays the bottom buttons when in saving state.
   _bottomButtonsSaving(TextEditingController nameController) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -816,6 +828,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
+  /// The callback that is executed when a shortcut is saved.
   Future<void> _saveShortCut(TextEditingController nameController) async {
     if (routing.selectedWaypoints != null && nameController.text != "") {
       // Save shortcut.

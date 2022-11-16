@@ -36,7 +36,7 @@ class SearchViewState extends State<SearchView> {
   /// The associated geosearch service, which is injected by the provider.
   late Geosearch geosearch;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated shortcuts service, which is injected by the provider.
@@ -45,10 +45,10 @@ class SearchViewState extends State<SearchView> {
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated mapController service, which is injected by the provider.
   late MapController mapController;
 
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated profile service, which is injected by the provider.
   late Profile profile;
 
   /// The Location Search Text Editing Controller
@@ -140,6 +140,7 @@ class SearchViewState extends State<SearchView> {
     });
   }
 
+  /// The callback that is executed when the select on map button is pressed.
   _selectOnMapOnPressed() async {
     // Closing the keyboard. Otherwise the inputs for the map are kind of laggy.
     FocusManager.instance.primaryFocus?.unfocus();
@@ -176,6 +177,7 @@ class SearchViewState extends State<SearchView> {
     Navigator.of(context).pop(waypoint);
   }
 
+  /// The callback that is executed when the current location button is pressed.
   _currentLocationPressed() async {
     if (currentLocationWaypoint != null) {
       Navigator.of(context).pop(currentLocationWaypoint);
