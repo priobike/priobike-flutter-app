@@ -199,6 +199,7 @@ class HomeViewState extends State<HomeView> {
                 delay: Duration(milliseconds: 1000),
                 child: TotalStatisticsView(),
               ),
+              const VSpace(),
               BlendIn(
                 delay: const Duration(milliseconds: 1250),
                 child: renderDebugHint(),

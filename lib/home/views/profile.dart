@@ -162,8 +162,8 @@ class ProfileViewState extends State<ProfileView> {
             padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
           ),
           Tile(
-            fill: Theme.of(context).colorScheme.background,
             padding: const EdgeInsets.symmetric(horizontal: 16),
+            shadowIntensity: 0.05,
             content: Column(
               children: [
                 const SizedBox(height: 16),
