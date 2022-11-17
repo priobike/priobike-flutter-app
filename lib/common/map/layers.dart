@@ -536,62 +536,6 @@ class OfflineCrossingsLayer {
   }
 }
 
-class AccidentHotspotsLayer {
-  /// The geojson file to display.
-  final String file;
-
-  AccidentHotspotsLayer(BuildContext context, {this.file = "assets/geo/accident_black_spots.geojson"});
-
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController) async {
-    await layerController.addGeoJsonSource(
-      "accident-hotspots",
-      jsonDecode(await rootBundle.loadString(file)),
-    );
-    // Add a fill to the polygons.
-    await layerController.addLayer(
-      "accident-hotspots",
-      "accident-hotspots-fill",
-      const FillLayerProperties(fillOpacity: 0.25, fillColor: "#ff0000"),
-      enableInteraction: false,
-    );
-    // Add a line to the polygons.
-    await layerController.addLayer(
-      "accident-hotspots",
-      "accident-hotspots-line",
-      LineLayerProperties(
-        lineColor: "#ff0000",
-        lineWidth: 2,
-        lineOpacity: showAfter(zoom: 14),
-      ),
-      enableInteraction: false,
-    );
-    // Add a label to the polygons.
-    await layerController.addLayer(
-      "accident-hotspots",
-      "accident-hotspots-label",
-      SymbolLayerProperties(
-        textField: "Erhöhte Unfallgefahr für Radfahrer",
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 14,
-        textOffset: [
-          Expressions.literal,
-          [0, 5]
-        ],
-        textAnchor: "bottom",
-        textColor: "#ff0000",
-        textOpacity: showAfter(zoom: 15),
-      ),
-      enableInteraction: false,
-    );
-  }
-
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("accident-hotspots");
-  }
-}
-
 class ParkingStationsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
@@ -841,5 +785,51 @@ class ConstructionSitesLayer {
   /// Remove the overlay from the layer controller.
   static removeFrom(LayerController layerController) async {
     await layerController.removeGeoJsonSourceAndLayers("construction-sites");
+  }
+}
+
+class AccidentHotspotsLayer {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  /// The geojson file to display.
+  final String file;
+
+  AccidentHotspotsLayer(BuildContext context, {this.file = "assets/geo/accident_hot_spots.geojson"})
+      : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the overlay on the layer controller.
+  install(LayerController layerController, {iconSize = 1.0}) async {
+    await layerController.addGeoJsonSource(
+      "accident-hotspots",
+      jsonDecode(await rootBundle.loadString(file)),
+    );
+    await layerController.addLayer(
+      "accident-hotspots",
+      "accident-hotspots-icons",
+      SymbolLayerProperties(
+        iconImage: isDark ? "accidentdark" : "accidentlight",
+        iconSize: iconSize,
+        iconAllowOverlap: true,
+        iconOpacity: showAfter(zoom: 13),
+        textHaloColor: isDark ? "#000000" : "#ffffff",
+        textHaloWidth: 1,
+        textOffset: [
+          Expressions.literal,
+          [0, 1]
+        ],
+        textField: "Unfallschwerpunkt",
+        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        textSize: 12,
+        textAnchor: "center",
+        textColor: "#ff4757",
+        textOpacity: showAfter(zoom: 14),
+      ),
+    );
+  }
+
+  /// Remove the overlay from the layer controller.
+  static removeFrom(LayerController layerController) async {
+    await layerController.removeGeoJsonSourceAndLayers("accident-hotspots");
   }
 }

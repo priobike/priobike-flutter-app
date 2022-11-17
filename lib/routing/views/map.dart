@@ -189,6 +189,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       BikeShopLayer.removeFrom(layerController!);
     }
+    if (layers.showAccidentHotspots) {
+      AccidentHotspotsLayer(context).install(layerController!);
+    } else {
+      AccidentHotspotsLayer.removeFrom(layerController!);
+    }
   }
 
   /// Load the map layers for the route.

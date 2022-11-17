@@ -1,0 +1,221 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": 1,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.027414954261143,
+                    53.533826287918799
+                ]
+            },
+            "properties": {
+                "OBJECTID": 1,
+                "Join_Count": 8,
+                "TARGET_FID": 1436,
+                "Join_Count_1": 2,
+                "TARGET_FID_1": 1436,
+                "Unfallkategorie": 9,
+                "PKW": 7,
+                "Fußgänger": null,
+                "Kraftrad": 0,
+                "Rad": 8,
+                "GKFZ": 0,
+                "Sonstige": 1,
+                "score_vulnerability": 1.125,
+                "score_amount": 8,
+                "osm_id": "829829779",
+                "code": 5134,
+                "fclass": "secondary_link",
+                "name": " ",
+                "score_road": 1.5,
+                "score_area": 4.3448243141174316,
+                "total_score": 7.3318910598754883,
+                "x": 568095.6875,
+                "y": 5932148
+            }
+        },
+        {
+            "type": "Feature",
+            "id": 2,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.026598415236663,
+                    53.553905801230378
+                ]
+            },
+            "properties": {
+                "OBJECTID": 2,
+                "Join_Count": 16,
+                "TARGET_FID": 2741,
+                "Join_Count_1": 0,
+                "TARGET_FID_1": 2741,
+                "Unfallkategorie": 17,
+                "PKW": 15,
+                "Fußgänger": null,
+                "Kraftrad": 0,
+                "Rad": 16,
+                "GKFZ": 0,
+                "Sonstige": 0,
+                "score_vulnerability": 1.0625,
+                "score_amount": 16,
+                "osm_id": null,
+                "code": null,
+                "fclass": null,
+                "name": null,
+                "score_road": 2,
+                "score_area": 3.9715256690979004,
+                "total_score": 8.4394922256469727,
+                "x": 568009.375,
+                "y": 5934381
+            }
+        },
+        {
+            "type": "Feature",
+            "id": 3,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.002197640162262,
+                    53.557339806785436
+                ]
+            },
+            "properties": {
+                "OBJECTID": 3,
+                "Join_Count": 10,
+                "TARGET_FID": 3183,
+                "Join_Count_1": 1,
+                "TARGET_FID_1": 3183,
+                "Unfallkategorie": 13,
+                "PKW": 7,
+                "Fußgänger": null,
+                "Kraftrad": 1,
+                "Rad": 10,
+                "GKFZ": 0,
+                "Sonstige": 2,
+                "score_vulnerability": 1.2999999523162842,
+                "score_amount": 10,
+                "osm_id": "186713419",
+                "code": 5113,
+                "fclass": "primary",
+                "name": "Kennedybrücke",
+                "score_road": 1.2000000476837158,
+                "score_area": 4.6550445556640625,
+                "total_score": 7.2618694305419922,
+                "x": 566387.5625,
+                "y": 5934740
+            }
+        },
+        {
+            "type": "Feature",
+            "id": 4,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.04093834845591,
+                    53.608169711515281
+                ]
+            },
+            "properties": {
+                "OBJECTID": 4,
+                "Join_Count": 9,
+                "TARGET_FID": 8139,
+                "Join_Count_1": 0,
+                "TARGET_FID_1": 8139,
+                "Unfallkategorie": 12,
+                "PKW": 9,
+                "Fußgänger": null,
+                "Kraftrad": 0,
+                "Rad": 9,
+                "GKFZ": 0,
+                "Sonstige": 0,
+                "score_vulnerability": 1.3333333730697632,
+                "score_amount": 9,
+                "osm_id": null,
+                "code": null,
+                "fclass": null,
+                "name": null,
+                "score_road": 2,
+                "score_area": 3.0685093402862549,
+                "total_score": 8.1826915740966797,
+                "x": 568871.0625,
+                "y": 5940431.5
+            }
+        },
+        {
+            "type": "Feature",
+            "id": 5,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.153867122318466,
+                    53.614608494361569
+                ]
+            },
+            "properties": {
+                "OBJECTID": 5,
+                "Join_Count": 15,
+                "TARGET_FID": 8498,
+                "Join_Count_1": 0,
+                "TARGET_FID_1": 8498,
+                "Unfallkategorie": 18,
+                "PKW": 15,
+                "Fußgänger": null,
+                "Kraftrad": 0,
+                "Rad": 15,
+                "GKFZ": 0,
+                "Sonstige": 0,
+                "score_vulnerability": 1.2000000476837158,
+                "score_amount": 15,
+                "osm_id": null,
+                "code": null,
+                "fclass": null,
+                "name": null,
+                "score_road": 2,
+                "score_area": 5.1945767402648926,
+                "total_score": 12.466984748840332,
+                "x": 576330.8125,
+                "y": 5941263
+            }
+        },
+        {
+            "type": "Feature",
+            "id": 6,
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    10.011476294813379,
+                    53.649169002456226
+                ]
+            },
+            "properties": {
+                "OBJECTID": 6,
+                "Join_Count": 20,
+                "TARGET_FID": 9513,
+                "Join_Count_1": 0,
+                "TARGET_FID_1": 9513,
+                "Unfallkategorie": 23,
+                "PKW": 19,
+                "Fußgänger": null,
+                "Kraftrad": 0,
+                "Rad": 20,
+                "GKFZ": 0,
+                "Sonstige": 0,
+                "score_vulnerability": 1.1499999761581421,
+                "score_amount": 20,
+                "osm_id": null,
+                "code": null,
+                "fclass": null,
+                "name": null,
+                "score_road": 2,
+                "score_area": 8.8722314834594727,
+                "total_score": 20.406131744384766,
+                "x": 566857,
+                "y": 5944964.5
+            }
+        }
+    ]
+}
