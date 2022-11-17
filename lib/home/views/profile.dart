@@ -163,7 +163,7 @@ class ProfileViewState extends State<ProfileView> {
           ),
           Tile(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            shadowIntensity: 0.05,
+            fill: Theme.of(context).colorScheme.background,
             content: Column(
               children: [
                 const SizedBox(height: 16),
