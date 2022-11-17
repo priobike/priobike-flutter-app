@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -6,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/ride/services/datastream.dart';
+import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +26,9 @@ class DatastreamViewState extends State<DatastreamView> {
   /// The settings service which is injected by the provider.
   late Settings settings;
 
+  /// The ride service which is injected by the provider.
+  late Ride ride;
+
   /// The timer used to refresh the view.
   Timer? timer;
 
@@ -34,6 +39,7 @@ class DatastreamViewState extends State<DatastreamView> {
   void didChangeDependencies() {
     datastream = Provider.of<Datastream>(context);
     settings = Provider.of<Settings>(context);
+    ride = Provider.of<Ride>(context);
     refreshTimeDiff();
     super.didChangeDependencies();
   }
@@ -67,6 +73,41 @@ class DatastreamViewState extends State<DatastreamView> {
   Widget build(BuildContext context) {
     if (settings.datastreamMode == DatastreamMode.disabled) return Container();
     if (datastream.subscriptions.isEmpty) return Container();
+
+    const comparisonLength = 40;
+    final predictionLastSeconds = ride.calcHistory
+            ?.sublist(max(0, ride.calcHistory!.length - comparisonLength), ride.calcHistory!.length)
+            .map<Widget>(
+              (value) => Container(
+                margin: const EdgeInsets.only(right: 1),
+                height: 6,
+                width: 2,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(1),
+                  color: (ride.currentRecommendation?.predictionGreentimeThreshold ?? 0) > value
+                      ? Colors.red
+                      : Colors.green,
+                ),
+              ),
+            )
+            .toList() ??
+        <Widget>[];
+    final datastreamLastSeconds = datastream.primarySignalHistory
+        .sublist(
+            max(0, datastream.primarySignalHistory.length - comparisonLength), datastream.primarySignalHistory.length)
+        .map<Widget>(
+          (value) => Container(
+            margin: const EdgeInsets.only(right: 1),
+            height: 6,
+            width: 2,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1),
+              color: value.state.color,
+            ),
+          ),
+        )
+        .toList();
+
     return Positioned(
       top: 8,
       right: 0,
@@ -83,6 +124,27 @@ class DatastreamViewState extends State<DatastreamView> {
                   bottomLeft: Radius.circular(24),
                 ),
                 content: Row(children: [
+                  SizedBox(
+                    width: comparisonLength * 3.0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Small(text: "Prediction vs. Realität", context: context),
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: predictionLastSeconds,
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: datastreamLastSeconds,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SmallHSpace(),
                   Container(
                     width: 32,
                     height: 32,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ class Datastream with ChangeNotifier {
   /// The currently active signal group.
   Sg? sg;
 
+  /// The timer that updates the history every second.
+  Timer? timer;
+
   /// The current value for the car detector.
   DetectorCarObservation? detectorCar;
 
@@ -31,6 +35,9 @@ class Datastream with ChangeNotifier {
 
   /// The current value for the primary signal.
   PrimarySignalObservation? primarySignal;
+
+  /// The last 180 seconds of the primary signal.
+  final List<PrimarySignalObservation> primarySignalHistory = [];
 
   /// The current value for the signal program.
   SignalProgramObservation? signalProgram;
@@ -85,6 +92,15 @@ class Datastream with ChangeNotifier {
     log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
     await client!.connect();
     client!.updates?.listen(onData);
+
+    // Init the timer that updates the history every second.
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (primarySignal != null) {
+        primarySignalHistory.add(primarySignal!);
+        if (primarySignalHistory.length > 180) primarySignalHistory.removeAt(0);
+      }
+      notifyListeners();
+    });
   }
 
   /// A callback that is executed when data arrives.
@@ -161,5 +177,7 @@ class Datastream with ChangeNotifier {
     client?.disconnect();
     client = null;
     subscriptions.clear();
+    timer?.cancel();
+    timer = null;
   }
 }

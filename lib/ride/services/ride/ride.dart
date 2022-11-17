@@ -52,6 +52,9 @@ class Ride with ChangeNotifier {
   /// may lag behind depending on the network latency / server time.
   bool? calcCurrentSignalIsGreen;
 
+  /// The calculated history of the current recommendation.
+  List<int>? calcHistory;
+
   /// A timestamp when the last calculation was performed.
   /// This is used to prevent fast recurring calculations.
   DateTime? calcLastTime;
@@ -117,6 +120,7 @@ class Ride with ChangeNotifier {
       log.w("Failed to calculate recommendation info: $reason");
       calcCurrentPhaseChangeTime = null;
       calcCurrentSignalIsGreen = null;
+      calcHistory = null;
       notifyListeners();
     }
 
@@ -143,6 +147,7 @@ class Ride with ChangeNotifier {
     // Calculate the current vector.
     final currentVector = vector.sublist(secondsSinceStart);
     if (currentVector.isEmpty) return onFailure("Current vector is empty.");
+    calcHistory = vector.sublist(0, secondsSinceStart);
     // Calculate the seconds to the next phase change.
     int secondsToPhaseChange = 0;
     bool greenNow = currentVector[0] >= greentimeThreshold;
