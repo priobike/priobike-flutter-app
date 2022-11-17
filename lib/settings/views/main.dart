@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -99,11 +100,10 @@ class SettingsSelection<E> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height / 2,
-      color: Theme.of(context).colorScheme.surface,
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 64),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 64),
         itemCount: elements.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
@@ -329,7 +329,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Testort",
                           subtitle: settings.backend.region,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -348,7 +348,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Ortung",
                           subtitle: settings.positioningMode.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -368,7 +368,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "SG-Info",
                           subtitle: settings.sgLabelsMode.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -388,7 +388,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Echtzeitdaten",
                           subtitle: settings.datastreamMode.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -442,7 +442,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Routing",
                           subtitle: settings.routingEndpoint.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -462,7 +462,7 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Routenneuberechnung",
                           subtitle: settings.rerouting.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
+                          callback: () => showAppSheet(
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
@@ -496,7 +496,7 @@ class SettingsViewState extends State<SettingsView> {
                         title: "Farbmodus",
                         subtitle: settings.colorMode.description,
                         icon: Icons.expand_more,
-                        callback: () => showModalBottomSheet<void>(
+                        callback: () => showAppSheet(
                           context: context,
                           builder: (BuildContext context) {
                             return SettingsSelection(
@@ -513,7 +513,7 @@ class SettingsViewState extends State<SettingsView> {
                       title: "Fahrtansicht",
                       subtitle: settings.ridePreference?.description,
                       icon: Icons.expand_more,
-                      callback: () => showModalBottomSheet<void>(
+                      callback: () => showAppSheet(
                         context: context,
                         builder: (BuildContext context) {
                           return SettingsSelection(
@@ -529,7 +529,7 @@ class SettingsViewState extends State<SettingsView> {
                       title: "Tacho-Spanne",
                       subtitle: settings.speedMode.description,
                       icon: Icons.expand_more,
-                      callback: () => showModalBottomSheet<void>(
+                      callback: () => showAppSheet(
                         context: context,
                         builder: (BuildContext context) {
                           return SettingsSelection(
