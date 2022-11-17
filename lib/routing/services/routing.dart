@@ -142,6 +142,11 @@ class Routing with ChangeNotifier {
   /// Select new waypoints.
   Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
+    if ((waypoints?.length ?? 0) < 2) {
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
+    }
     notifyListeners();
   }
 

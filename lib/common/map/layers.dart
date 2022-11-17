@@ -99,21 +99,36 @@ class AllRoutesLayer {
 
 class SelectedRouteLayer {
   /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
+  final List<dynamic> features = List.filled(1, null, growable: false); // For optmization.
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
     final route = routing.selectedRoute?.route ?? [];
+    final waypoints = routing.selectedWaypoints ?? [];
     final coordinates = route.map((e) => [e.lon, e.lat]).toList();
-    final geometry = {
-      "type": "LineString",
-      "coordinates": coordinates.length > 1 ? coordinates : [],
-    };
-    features.add({
-      "id": "selected-route",
-      "type": "Feature",
-      "geometry": geometry,
-    });
+    if (waypoints.length > 1) {
+      final geometry = {
+        "type": "LineString",
+        "coordinates": coordinates,
+      };
+      features[0] = {
+        "id": "selected-route",
+        "type": "Feature",
+        "properties": {},
+        "geometry": geometry,
+      };
+    } else {
+      final geometry = {
+        "type": "MultiPoint",
+        "coordinates": coordinates,
+      };
+      features[0] = {
+        "id": "selected-route",
+        "type": "Feature",
+        "properties": {},
+        "geometry": geometry,
+      };
+    }
   }
 
   /// Install the overlay on the layer controller.
