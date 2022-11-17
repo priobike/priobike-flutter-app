@@ -567,7 +567,7 @@ class SettingsViewState extends State<SettingsView> {
                     const VSpace(),
                     SettingsElement(
                       title: "Datenschutz",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
                         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
                       },
@@ -575,7 +575,7 @@ class SettingsViewState extends State<SettingsView> {
                     const SmallVSpace(),
                     SettingsElement(
                       title: "Lizenzen",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
@@ -584,7 +584,7 @@ class SettingsViewState extends State<SettingsView> {
                     const SmallVSpace(),
                     SettingsElement(
                       title: "Danksagung",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(

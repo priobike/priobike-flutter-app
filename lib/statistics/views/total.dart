@@ -80,7 +80,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ]),
           Expanded(child: Container()),
           SmallIconButton(
-            icon: Icons.info,
+            icon: Icons.info_outline_rounded,
             fill: Theme.of(context).colorScheme.background,
             splash: Colors.white,
             onPressed: () {

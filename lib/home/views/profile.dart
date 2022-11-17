@@ -182,7 +182,7 @@ class ProfileViewState extends State<ProfileView> {
                       child: s.bikeType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
-                              icon: Icons.electric_bike,
+                              icon: Icons.electric_bike_rounded,
                               title: "Radtyp",
                               color: Theme.of(context).colorScheme.onBackground,
                               backgroundColor: Theme.of(context).colorScheme.background,
@@ -205,7 +205,7 @@ class ProfileViewState extends State<ProfileView> {
                       child: s.preferenceType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
-                              icon: Icons.thumbs_up_down,
+                              icon: Icons.thumbs_up_down_rounded,
                               title: "Präferenz",
                               color: Theme.of(context).colorScheme.onBackground,
                               backgroundColor: Theme.of(context).colorScheme.background,
@@ -229,7 +229,7 @@ class ProfileViewState extends State<ProfileView> {
                       child: s.activityType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
-                              icon: Icons.home_work,
+                              icon: Icons.home_work_rounded,
                               title: "Aktivität",
                               color: Theme.of(context).colorScheme.onBackground,
                               backgroundColor: Theme.of(context).colorScheme.background,
@@ -333,7 +333,7 @@ class ProfileViewState extends State<ProfileView> {
                   .toList() +
               [
                 ProfileElementButton(
-                  icon: Icons.delete,
+                  icon: Icons.delete_rounded,
                   title: "Löschen",
                   color: Theme.of(context).colorScheme.onBackground,
                   backgroundColor: Theme.of(context).colorScheme.surface,
@@ -368,7 +368,7 @@ class ProfileViewState extends State<ProfileView> {
             ),
             const SmallHSpace(),
             SmallIconButton(
-              icon: Icons.close,
+              icon: Icons.close_rounded,
               onPressed: () {
                 togglePreferenceSelection();
               },
@@ -400,7 +400,7 @@ class ProfileViewState extends State<ProfileView> {
                   .toList() +
               [
                 ProfileElementButton(
-                  icon: Icons.delete,
+                  icon: Icons.delete_rounded,
                   title: "Löschen",
                   color: Theme.of(context).colorScheme.onBackground,
                   backgroundColor: Theme.of(context).colorScheme.surface,
@@ -468,7 +468,7 @@ class ProfileViewState extends State<ProfileView> {
                   .toList() +
               [
                 ProfileElementButton(
-                  icon: Icons.delete,
+                  icon: Icons.delete_rounded,
                   title: "Löschen",
                   color: Theme.of(context).colorScheme.onBackground,
                   backgroundColor: Theme.of(context).colorScheme.surface,

@@ -95,7 +95,7 @@ class NavBarView extends StatelessWidget {
               ),
               const SmallHSpace(),
               SmallIconButton(
-                icon: Icons.settings,
+                icon: Icons.settings_rounded,
                 color: Colors.white,
                 splash: Colors.white,
                 fill: const Color.fromARGB(50, 255, 255, 255),

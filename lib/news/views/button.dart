@@ -40,7 +40,7 @@ class NewsButtonState extends State<NewsButton> {
       alignment: Alignment.topRight,
       children: [
         SmallIconButton(
-          icon: Icons.notifications,
+          icon: Icons.notifications_rounded,
           color: Colors.white,
           splash: Colors.white,
           fill: const Color.fromARGB(50, 255, 255, 255),

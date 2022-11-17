@@ -41,13 +41,13 @@ extension BikeTypeIcon on BikeType {
   IconData icon() {
     switch (this) {
       case BikeType.ebike:
-        return Icons.electric_bike;
+        return Icons.electric_bike_rounded;
       case BikeType.racingbike:
-        return Icons.directions_bike;
+        return Icons.directions_bike_rounded;
       case BikeType.mountainbike:
-        return Icons.pedal_bike;
+        return Icons.pedal_bike_rounded;
       case BikeType.cargobike:
-        return Icons.pedal_bike;
+        return Icons.pedal_bike_rounded;
     }
   }
 }
@@ -88,11 +88,11 @@ extension PreferenceTypeIcon on PreferenceType {
   IconData icon() {
     switch (this) {
       case PreferenceType.fast:
-        return Icons.access_time;
+        return Icons.access_time_rounded;
       case PreferenceType.short:
-        return Icons.straighten;
+        return Icons.straighten_rounded;
       case PreferenceType.comfortible:
-        return Icons.chair;
+        return Icons.chair_rounded;
     }
   }
 }
@@ -117,9 +117,9 @@ extension ActivityTypeIcon on ActivityType {
   IconData icon() {
     switch (this) {
       case ActivityType.work:
-        return Icons.work;
+        return Icons.work_rounded;
       case ActivityType.sport:
-        return Icons.sports_gymnastics;
+        return Icons.speed_rounded;
     }
   }
 }

@@ -315,7 +315,7 @@ class RoutingViewState extends State<RoutingView> {
                         fill: Theme.of(context).colorScheme.background,
                         onPressed: onLayerSelection,
                         content: Icon(
-                          Icons.layers,
+                          Icons.layers_rounded,
                           color: Theme.of(context).colorScheme.onBackground,
                         ),
                       ),
