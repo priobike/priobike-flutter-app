@@ -216,7 +216,10 @@ class Tracking with ChangeNotifier {
         'accelerations': accelerations?.map((d) => d.toJson()).toList(),
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
-        'deviceInfo': deviceInfo?.toMap(),
+        'deviceInfo': {
+          'name': 'unknown', // Default, required by tracking service.
+          ...(deviceInfo?.toMap() ?? {}),
+        },
         'deviceWidth': deviceSize?.width.round(),
         'deviceHeight': deviceSize?.height.round(),
         'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
