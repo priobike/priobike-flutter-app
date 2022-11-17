@@ -19,6 +19,8 @@ class LogsViewState extends State<LogsView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Logs"),
+          elevation: 0,
+          titleTextStyle: const TextStyle(fontSize: 20),
           actions: [
             IconButton(
               icon: const Icon(Icons.share),
