@@ -12,6 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
+  /// An indicator if the data of this notifier changed.
+  Map<String, bool> needsLayout = {};
+
   /// The logger for this service.
   final log = Logger("PredictionSGStatus");
 
@@ -65,6 +68,7 @@ class PredictionSGStatus with ChangeNotifier {
           if (response.statusCode == 200) {
             final data = SGStatusData.fromJson(jsonDecode(response.body));
             cache[sg.id] = data;
+            log.i("Fetched status for ${sg.id}.");
           } else {
             log.e("Failed to fetch $url: ${response.statusCode}");
           }
@@ -116,5 +120,11 @@ class PredictionSGStatus with ChangeNotifier {
     cache = {};
     isLoading = false;
     notifyListeners();
+  }
+
+  @override
+  void notifyListeners() {
+    needsLayout.updateAll((key, value) => true);
+    super.notifyListeners();
   }
 }
