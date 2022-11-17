@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -171,13 +172,9 @@ class RoutingViewState extends State<RoutingView> {
 
   /// A callback that is fired when the user wants to select the displayed layers.
   void onLayerSelection() {
-    showModalBottomSheet(
+    showAppSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
       builder: (_) => const LayerSelectionView(),
     );
   }

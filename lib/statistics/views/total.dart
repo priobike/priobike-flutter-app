@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -70,24 +71,25 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             onPressed: () {
               // Show a small modal sheet explaining that the
               // data is only stored on this device.
-              showModalBottomSheet(
-                  context: context,
-                  builder: (context) => Container(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
-                            const SizedBox(height: 4),
-                            BoldContent(text: "auf diesem Gerät", context: context),
-                            const Divider(),
-                            Content(
-                                text:
-                                    "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.",
-                                context: context),
-                          ],
-                        ),
-                      ));
+              showAppSheet(
+                context: context,
+                builder: (context) => Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
+                      const SizedBox(height: 4),
+                      BoldContent(text: "auf diesem Gerät", context: context),
+                      const Divider(),
+                      Content(
+                          text:
+                              "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.",
+                          context: context),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
           const SizedBox(width: 40),
@@ -105,23 +107,24 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
               title: "ca. ${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg\neingespart",
               context: context,
               onPressed: () {
-                showModalBottomSheet(
-                    context: context,
-                    builder: (context) => Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
-                              const Divider(),
-                              Content(
-                                text:
-                                    "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
-                                context: context,
-                              ),
-                            ],
-                          ),
-                        ));
+                showAppSheet(
+                  context: context,
+                  builder: (context) => Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
+                        const Divider(),
+                        Content(
+                          text:
+                              "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+                          context: context,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               },
             ),
             StatisticsElementView(
