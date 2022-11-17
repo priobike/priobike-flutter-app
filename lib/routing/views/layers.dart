@@ -77,9 +77,17 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 icon: Theme.of(context).colorScheme.brightness == Brightness.light
                     ? Image.asset("assets/images/repair-light.png")
                     : Image.asset("assets/images/repair-dark.png"),
-                title: 'Standard',
+                title: 'Reparieren',
                 selected: layers.showRepairStations,
                 onTap: () => layers.setShowRepairStations(!layers.showRepairStations),
+              ),
+              LayerSelectionItem(
+                icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                    ? Image.asset("assets/images/accident-light.png")
+                    : Image.asset("assets/images/accident-dark.png"),
+                title: 'Unfallgefahren',
+                selected: layers.showAccidentHotspots,
+                onTap: () => layers.setShowAccidentHotspots(!layers.showAccidentHotspots),
               ),
             ],
           ),

@@ -44,6 +44,13 @@ class MapDesign {
         'darkScreenshot': darkScreenshot,
       };
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is MapDesign && runtimeType == other.runtimeType && name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
+
   /// The standard map design.
   static const standard = MapDesign(
     name: 'PrioBike',
@@ -94,6 +101,9 @@ class Layers with ChangeNotifier {
   /// If repair stations are currently visible.
   bool showRepairStations;
 
+  /// If accident hotspots are currently visible.
+  bool showAccidentHotspots;
+
   /// The currently selected style of the map.
   MapDesign mapDesign;
 
@@ -122,6 +132,11 @@ class Layers with ChangeNotifier {
     await storePreferences();
   }
 
+  Future<void> setShowAccidentHotspots(bool showAccidentHotspots) async {
+    this.showAccidentHotspots = showAccidentHotspots;
+    await storePreferences();
+  }
+
   Future<void> setMapDesign(MapDesign mapDesign) async {
     this.mapDesign = mapDesign;
     await storePreferences();
@@ -133,6 +148,7 @@ class Layers with ChangeNotifier {
     this.showConstructionSites = true,
     this.showAirStations = false,
     this.showRepairStations = false,
+    this.showAccidentHotspots = false,
     this.mapDesign = MapDesign.standard,
   });
 
@@ -146,6 +162,7 @@ class Layers with ChangeNotifier {
     showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
     showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
     showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
+    showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
 
     final mapDesignStr = storage.getString("priobike.layers.style");
     if (mapDesignStr != null) {
@@ -166,6 +183,7 @@ class Layers with ChangeNotifier {
     await storage.setBool("priobike.layers.showConstructionSites", showConstructionSites);
     await storage.setBool("priobike.layers.showAirStations", showAirStations);
     await storage.setBool("priobike.layers.showRepairStations", showRepairStations);
+    await storage.setBool("priobike.layers.showAccidentHotspots", showAccidentHotspots);
     await storage.setString("priobike.layers.style", jsonEncode(mapDesign.toJson()));
 
     notifyListeners();

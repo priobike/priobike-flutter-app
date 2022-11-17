@@ -40,6 +40,8 @@ class SymbolLoader {
     await addImageFromAsset("rentlight", "assets/images/rent-light.png");
     await addImageFromAsset("repairdark", "assets/images/repair-dark.png");
     await addImageFromAsset("repairlight", "assets/images/repair-light.png");
+    await addImageFromAsset("accidentdark", "assets/images/accident-dark.png");
+    await addImageFromAsset("accidentlight", "assets/images/accident-light.png");
   }
 
   /// Adds an asset image to the currently displayed style
