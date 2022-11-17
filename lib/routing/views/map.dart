@@ -14,6 +14,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -40,6 +41,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
+
+  /// The associated status service, which is injected by the provider.
+  late PredictionSGStatus status;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -116,12 +120,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check if route-related stuff has changed.
     routing = Provider.of<Routing>(context);
     discomforts = Provider.of<Discomforts>(context);
-    // Use && to wait for both to be ready.
-    if (routing.needsLayout[viewId] != false && discomforts.needsLayout[viewId] != false) {
+    status = Provider.of<PredictionSGStatus>(context);
+    if (routing.needsLayout[viewId] != false ||
+        discomforts.needsLayout[viewId] != false ||
+        status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
+      status.needsLayout[viewId] = false;
     }
 
     super.didChangeDependencies();
@@ -186,13 +193,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers for the route.
   loadRouteMapLayers() async {
-    if (layerController == null || !mounted) return;
-    await AllRoutesLayer(context).update(layerController!);
-    await SelectedRouteLayer(context).update(layerController!);
-    await WaypointsLayer(context).update(layerController!);
-    await DiscomfortsLayer(context).update(layerController!);
-    await TrafficLightsLayer(context).update(layerController!);
-    await OfflineCrossingsLayer(context).update(layerController!);
+    if (layerController == null) return;
+    if (mounted) await AllRoutesLayer(context).update(layerController!);
+    if (mounted) await SelectedRouteLayer(context).update(layerController!);
+    if (mounted) await WaypointsLayer(context).update(layerController!);
+    if (mounted) await DiscomfortsLayer(context).update(layerController!);
+    if (mounted) await TrafficLightsLayer(context).update(layerController!);
+    if (mounted) await OfflineCrossingsLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
