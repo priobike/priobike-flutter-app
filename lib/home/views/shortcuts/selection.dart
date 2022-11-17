@@ -162,7 +162,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
           if (!rs.isFetchingRoute) widget.onStartFreeRouting();
         },
         isHighlighted: true,
-        icon: Icons.play_circle,
+        icon: Icons.map_rounded,
         title: "Freies Routing starten",
         width: shortcutWidth,
         height: shortcutHeight,
@@ -178,7 +178,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
                     if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
                   },
                   isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
-                  icon: Icons.route,
+                  icon: Icons.route_outlined,
                   title: shortcut.name,
                   width: shortcutWidth,
                   height: shortcutHeight,

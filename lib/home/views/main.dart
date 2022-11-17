@@ -168,7 +168,7 @@ class HomeViewState extends State<HomeView> {
                   ]),
                   Expanded(child: Container()),
                   SmallIconButton(
-                    icon: Icons.edit,
+                    icon: Icons.edit_rounded,
                     fill: Theme.of(context).colorScheme.background,
                     splash: Colors.white,
                     onPressed: onOpenShortcutEditView,
@@ -199,6 +199,7 @@ class HomeViewState extends State<HomeView> {
                 delay: Duration(milliseconds: 1000),
                 child: TotalStatisticsView(),
               ),
+              const VSpace(),
               BlendIn(
                 delay: const Duration(milliseconds: 1250),
                 child: renderDebugHint(),
