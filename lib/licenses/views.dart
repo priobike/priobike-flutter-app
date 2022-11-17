@@ -19,11 +19,8 @@ class LicenseView extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
           elevation: 0,
-          centerTitle: false,
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20),
-          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(fontSize: 20),
         ),
       ),
       child: LicensePage(
