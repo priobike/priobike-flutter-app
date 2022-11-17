@@ -1,5 +1,6 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:collection/collection.dart';
 
 /// A wrapper around the Mapbox Map Controller.
 /// This controller keeps track of which layers are currently
@@ -22,19 +23,21 @@ class LayerController {
   /// The sources together with their layers.
   final Map<String, Set<String>> layersBySource = {};
 
-  /// A queue of waiting function calls.
-  final List<Function> queue = [];
+  /// Notify the layer controller that a style has been loaded.
+  notifyStyleLoaded() {
+    layers.clear();
+    sources.clear();
+    layersBySource.clear();
+  }
 
   /// Add a source to the map.
   addGeoJsonSource(String sourceId, Map<String, dynamic> properties) async {
-    if (queue.isNotEmpty) {
-      queue.add(() => addGeoJsonSource(sourceId, properties));
-      return;
-    }
-
     if (sources.containsKey(sourceId)) {
       // If the properties are the same, we don't need to do anything.
-      if (sources[sourceId] == properties) return;
+      if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
+        log.i("Source $sourceId is already added with the same properties.");
+        return;
+      }
       // Remove all layers that are associated with this source.
       for (final layer in layersBySource[sourceId] ?? {}) {
         log.i("---- Removing layer $layer");
@@ -51,36 +54,22 @@ class LayerController {
     await mapController.addGeoJsonSource(sourceId, properties);
     sources[sourceId] = properties;
     layersBySource[sourceId] = {};
-
-    if (queue.isNotEmpty) {
-      final next = queue.removeAt(0);
-      next();
-    }
   }
 
   /// Update a source on the map.
   updateGeoJsonSource(String sourceId, Map<String, dynamic> properties) async {
-    if (queue.isNotEmpty) {
-      queue.add(() => updateGeoJsonSource(sourceId, properties));
-      return;
-    }
-
     if (sources.containsKey(sourceId)) {
       // If the properties are the same, we don't need to do anything.
-      if (sources[sourceId] == properties) return;
+      if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
+        log.i("Source $sourceId is already up to date.");
+        return;
+      }
       log.i("Updating source $sourceId");
       await mapController.setGeoJsonSource(sourceId, properties);
       sources[sourceId] = properties;
     } else {
-      log.i("Adding source $sourceId");
-      await mapController.addGeoJsonSource(sourceId, properties);
-      sources[sourceId] = properties;
-      layersBySource[sourceId] = {};
-    }
-
-    if (queue.isNotEmpty) {
-      final next = queue.removeAt(0);
-      next();
+      // [addGeoJsonSource] should always be called before [updateGeoJsonSource].
+      log.w("Skipping update of source $sourceId, because it is not added.");
     }
   }
 
@@ -96,30 +85,16 @@ class LayerController {
     double? maxzoom,
     dynamic filter,
   }) async {
-    if (queue.isNotEmpty) {
-      queue.add(
-        () => addLayer(
-          sourceId,
-          layerId,
-          properties,
-          belowLayerId: belowLayerId,
-          enableInteraction: enableInteraction,
-          sourceLayer: sourceLayer,
-          minzoom: minzoom,
-          maxzoom: maxzoom,
-          filter: filter,
-        ),
-      );
-      return;
-    }
-
     if (!sources.containsKey(sourceId)) {
       log.w("Cannot add layer $layerId to source $sourceId: Source does not exist.");
       return;
     }
     if (layers.containsKey(layerId)) {
       // If the properties are the same, we don't need to do anything.
-      if (layers[layerId] == properties) return;
+      if (const DeepCollectionEquality().equals(layers[layerId], properties)) {
+        log.i("Layer $layerId is already added with the same properties.");
+        return;
+      }
       // Remove the layer.
       log.i("-- Removing layer $layerId");
       await mapController.removeLayer(layerId);
@@ -140,20 +115,10 @@ class LayerController {
     );
     layers[layerId] = properties;
     layersBySource[sourceId]?.add(layerId);
-
-    if (queue.isNotEmpty) {
-      final next = queue.removeAt(0);
-      next();
-    }
   }
 
   /// Remove a geojson source from the map, together with all layers that are associated with it.
   removeGeoJsonSourceAndLayers(String sourceId) async {
-    if (queue.isNotEmpty) {
-      queue.add(() => removeGeoJsonSourceAndLayers(sourceId));
-      return;
-    }
-
     if (!sources.containsKey(sourceId)) {
       log.w("Cannot remove source $sourceId: Source does not exist.");
       return;
@@ -169,10 +134,5 @@ class LayerController {
     await mapController.removeSource(sourceId);
     sources.remove(sourceId);
     layersBySource.remove(sourceId);
-
-    if (queue.isNotEmpty) {
-      final next = queue.removeAt(0);
-      next();
-    }
   }
 }

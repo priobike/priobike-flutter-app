@@ -194,12 +194,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map layers for the route.
   loadRouteMapLayers() async {
     if (layerController == null) return;
-    if (mounted) await AllRoutesLayer(context).update(layerController!);
-    if (mounted) await SelectedRouteLayer(context).update(layerController!);
-    if (mounted) await WaypointsLayer(context).update(layerController!);
-    if (mounted) await DiscomfortsLayer(context).update(layerController!);
-    if (mounted) await TrafficLightsLayer(context).update(layerController!);
-    if (mounted) await OfflineCrossingsLayer(context).update(layerController!);
+    await AllRoutesLayer(context).update(layerController!);
+    await SelectedRouteLayer(context).update(layerController!);
+    await WaypointsLayer(context).update(layerController!);
+    await DiscomfortsLayer(context).update(layerController!);
+    await TrafficLightsLayer(context).update(layerController!);
+    await OfflineCrossingsLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -241,14 +241,37 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Fit the content below the top and the bottom stuff.
     await mapController!.updateContentInsets(defaultMapInsets);
 
+    // Clear all layers and sources from the layer controller.
+    layerController?.notifyStyleLoaded();
     // Trigger an update of the map layers.
     final ppi = MediaQuery.of(context).devicePixelRatio;
-    await AllRoutesLayer(context).install(layerController!);
-    await SelectedRouteLayer(context).install(layerController!);
-    await WaypointsLayer(context).install(layerController!, iconSize: ppi / 4);
-    await DiscomfortsLayer(context).install(layerController!, iconSize: ppi / 4);
-    await TrafficLightsLayer(context).install(layerController!, iconSize: ppi / 2.5);
-    await OfflineCrossingsLayer(context).install(layerController!, iconSize: ppi / 2.5);
+    final offlineCrossings = await OfflineCrossingsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 2.5,
+    );
+    final trafficLights = await TrafficLightsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 2.5,
+      below: offlineCrossings,
+    );
+    final discomforts = await DiscomfortsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 4,
+      below: trafficLights,
+    );
+    final waypoints = await WaypointsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 4,
+      below: discomforts,
+    );
+    final selectedRoute = await SelectedRouteLayer(context).install(
+      layerController!,
+      below: waypoints,
+    );
+    await AllRoutesLayer(context).install(
+      layerController!,
+      below: selectedRoute,
+    );
 
     await loadRouteMapLayers();
     await fitCameraToRouteBounds();

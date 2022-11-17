@@ -51,7 +51,12 @@ class AllRoutesLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {lineWidth = 9.0, clickLineWidth = 25.0}) async {
+  Future<String> install(
+    LayerController layerController, {
+    lineWidth = 9.0,
+    clickLineWidth = 25.0,
+    String? below,
+  }) async {
     await layerController.addGeoJsonSource(
       "routes",
       {"type": "FeatureCollection", "features": features},
@@ -65,6 +70,7 @@ class AllRoutesLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
     // Make it easier to click on the route.
     await layerController.addLayer(
@@ -77,7 +83,9 @@ class AllRoutesLayer {
         lineOpacity: 0.001, // Not 0 to make the click listener work.
       ),
       enableInteraction: true,
+      belowLayerId: below,
     );
+    return "routes-layer";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
@@ -95,20 +103,21 @@ class SelectedRouteLayer {
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
+    final route = routing.selectedRoute?.route ?? [];
+    final coordinates = route.map((e) => [e.lon, e.lat]).toList();
     final geometry = {
       "type": "LineString",
-      "coordinates": routing.selectedRoute?.route.map((e) => [e.lon, e.lat]).toList() ?? [],
+      "coordinates": coordinates.length > 1 ? coordinates : [],
     };
-    final feature = {
+    features.add({
+      "id": "selected-route",
       "type": "Feature",
-      "properties": {},
       "geometry": geometry,
-    };
-    features.add(feature);
+    });
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0}) async {
+  Future<String> install(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
     await layerController.addGeoJsonSource(
       "route",
       {"type": "FeatureCollection", "features": features},
@@ -122,6 +131,7 @@ class SelectedRouteLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
     await layerController.addLayer(
       "route",
@@ -132,11 +142,12 @@ class SelectedRouteLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
+    return "route-layer";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
+  update(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
     await layerController.updateGeoJsonSource(
       "route",
       {"type": "FeatureCollection", "features": features},
@@ -169,7 +180,13 @@ class DiscomfortsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 0.25, lineWidth = 7.0, clickWidth = 35.0}) async {
+  Future<String> install(
+    LayerController layerController, {
+    iconSize = 0.25,
+    lineWidth = 7.0,
+    clickWidth = 35.0,
+    String? below,
+  }) async {
     await layerController.addGeoJsonSource(
       "discomforts",
       {"type": "FeatureCollection", "features": features},
@@ -184,6 +201,7 @@ class DiscomfortsLayer {
         lineJoin: "round",
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
     await layerController.addLayer(
       "discomforts",
@@ -196,6 +214,7 @@ class DiscomfortsLayer {
         lineOpacity: 0.001, // Not 0 to make the click listener work.
       ),
       enableInteraction: true,
+      belowLayerId: below,
     );
     await layerController.addLayer(
       "discomforts",
@@ -209,7 +228,9 @@ class DiscomfortsLayer {
         textIgnorePlacement: true,
       ),
       enableInteraction: true,
+      belowLayerId: below,
     );
+    return "discomforts-layer";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
@@ -244,7 +265,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 0.75}) async {
+  Future<String> install(LayerController layerController, {iconSize = 0.75, String? below}) async {
     await layerController.addGeoJsonSource(
       "waypoints",
       {"type": "FeatureCollection", "features": features},
@@ -266,7 +287,9 @@ class WaypointsLayer {
         iconIgnorePlacement: true,
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
+    return "waypoints-icons";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
@@ -309,7 +332,7 @@ class TrafficLightsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
     await layerController.addGeoJsonSource(
       "traffic-lights",
       {"type": "FeatureCollection", "features": features},
@@ -346,7 +369,9 @@ class TrafficLightsLayer {
         ],
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
+    return "traffic-lights-icons";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
@@ -385,7 +410,7 @@ class TrafficLightLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
     await layerController.addGeoJsonSource(
       "traffic-light",
       {"type": "FeatureCollection", "features": features},
@@ -415,7 +440,9 @@ class TrafficLightLayer {
         iconIgnorePlacement: true,
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
+    return "traffic-light-icon";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
@@ -453,7 +480,7 @@ class OfflineCrossingsLayer {
   }
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
     await layerController.addGeoJsonSource(
       "offline-crossings",
       {"type": "FeatureCollection", "features": features},
@@ -480,7 +507,9 @@ class OfflineCrossingsLayer {
         ],
       ),
       enableInteraction: false,
+      belowLayerId: below,
     );
+    return "offline-crossings-icons";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
