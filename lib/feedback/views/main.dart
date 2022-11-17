@@ -15,10 +15,11 @@ class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
   final Future<void> Function(BuildContext context) onSubmitted;
 
-  /// A boolean indicating if a back button should be shown.
-  final bool showBackButton;
+  /// A boolean indicating if the view is used isolated or after a ride.
+  /// This determines whether a back button should be shown and also whether the option to save a route should be shown.
+  final bool isolatedViewUsage;
 
-  const FeedbackView({required this.onSubmitted, this.showBackButton = false, Key? key}) : super(key: key);
+  const FeedbackView({required this.onSubmitted, this.isolatedViewUsage = false, Key? key}) : super(key: key);
 
   @override
   FeedbackViewState createState() => FeedbackViewState();
@@ -110,7 +111,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 8),
-                      if (widget.showBackButton)
+                      if (widget.isolatedViewUsage)
                         Row(
                           children: [
                             AppBackButton(onPressed: () => Navigator.pop(context)),
@@ -121,18 +122,24 @@ class FeedbackViewState extends State<FeedbackView> {
                       const VSpace(),
                       const Divider(),
                       const VSpace(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Small(text: "Hat dir die Route gefallen?", context: context),
-                      ),
-                      const SmallVSpace(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: BigButton(label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
-                      ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
+                      if (!widget.isolatedViewUsage)
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: Small(text: "Hat dir die Route gefallen?", context: context),
+                            ),
+                            const SmallVSpace(),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: BigButton(
+                                  label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
+                            ),
+                            const VSpace(),
+                            const Divider(),
+                            const VSpace(),
+                          ],
+                        ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 32),
                         child: StarRatingView(text: "Feedback zur App"),

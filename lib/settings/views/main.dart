@@ -551,7 +551,7 @@ class SettingsViewState extends State<SettingsView> {
                               onSubmitted: (context) async {
                                 Navigator.pop(context);
                               },
-                              showBackButton: true,
+                              isolatedViewUsage: true,
                             ),
                           ),
                         );
