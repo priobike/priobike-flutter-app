@@ -209,7 +209,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
             thicknessUnit: GaugeSizeUnit.factor,
             thickness: 0.25,
             color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
-            cornerStyle: CornerStyle.bothCurve,
+            cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: MajorTickStyle(
             length: 20,
