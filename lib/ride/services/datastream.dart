@@ -37,7 +37,7 @@ class Datastream with ChangeNotifier {
   PrimarySignalObservation? primarySignal;
 
   /// The last 180 seconds of the primary signal.
-  final List<PrimarySignalObservation> primarySignalHistory = [];
+  final List<PrimarySignalObservation?> primarySignalHistory = [];
 
   /// The current value for the signal program.
   SignalProgramObservation? signalProgram;
@@ -55,6 +55,7 @@ class Datastream with ChangeNotifier {
     final t = topic(datastreamId)!;
     client?.unsubscribe(t);
     subscriptions.remove(t);
+    primarySignalHistory.clear();
     notifyListeners();
   }
 
@@ -64,6 +65,7 @@ class Datastream with ChangeNotifier {
     final t = topic(datastreamId)!;
     client?.subscribe(t, MqttQos.exactlyOnce);
     subscriptions.add(t);
+    primarySignalHistory.clear();
     notifyListeners();
   }
 
@@ -95,10 +97,8 @@ class Datastream with ChangeNotifier {
 
     // Init the timer that updates the history every second.
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (primarySignal != null) {
-        primarySignalHistory.add(primarySignal!);
-        if (primarySignalHistory.length > 180) primarySignalHistory.removeAt(0);
-      }
+      primarySignalHistory.add(primarySignal);
+      if (primarySignalHistory.length > 180) primarySignalHistory.removeAt(0);
       notifyListeners();
     });
   }

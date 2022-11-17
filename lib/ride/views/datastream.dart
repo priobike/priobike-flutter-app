@@ -74,27 +74,31 @@ class DatastreamViewState extends State<DatastreamView> {
     if (settings.datastreamMode == DatastreamMode.disabled) return Container();
     if (datastream.subscriptions.isEmpty) return Container();
 
-    const comparisonLength = 40;
-    final predictionLastSeconds = ride.calcHistory
-            ?.sublist(max(0, ride.calcHistory!.length - comparisonLength), ride.calcHistory!.length)
-            .map<Widget>(
-              (value) => Container(
-                margin: const EdgeInsets.only(right: 1),
-                height: 6,
-                width: 2,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1),
-                  color: (ride.currentRecommendation?.predictionGreentimeThreshold ?? 0) > value
-                      ? Colors.red
-                      : Colors.green,
-                ),
-              ),
-            )
-            .toList() ??
-        <Widget>[];
-    final datastreamLastSeconds = datastream.primarySignalHistory
-        .sublist(
-            max(0, datastream.primarySignalHistory.length - comparisonLength), datastream.primarySignalHistory.length)
+    const comparisonLength = 40; // We want to compare the last 40 seconds of the vector.
+    final predictionHistory = ride.calcHistory?.sublist(
+          max(0, ride.calcHistory!.length - comparisonLength),
+          ride.calcHistory!.length,
+        ) ??
+        [];
+    final predictionVectorSquares = predictionHistory
+        .map(
+          (value) => Container(
+            margin: const EdgeInsets.only(right: 1),
+            height: 6,
+            width: 2,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1),
+              color:
+                  (ride.currentRecommendation?.predictionGreentimeThreshold ?? 0) > value ? Colors.red : Colors.green,
+            ),
+          ),
+        )
+        .toList();
+    final datastreamHistory = datastream.primarySignalHistory.sublist(
+      max(0, datastream.primarySignalHistory.length - comparisonLength),
+      datastream.primarySignalHistory.length,
+    );
+    final datastreamHistorySquares = datastreamHistory
         .map<Widget>(
           (value) => Container(
             margin: const EdgeInsets.only(right: 1),
@@ -102,7 +106,7 @@ class DatastreamViewState extends State<DatastreamView> {
             width: 2,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(1),
-              color: value.state.color,
+              color: value?.state.color ?? Colors.grey,
             ),
           ),
         )
@@ -134,12 +138,12 @@ class DatastreamViewState extends State<DatastreamView> {
                         const SizedBox(height: 2),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: predictionLastSeconds,
+                          children: predictionVectorSquares,
                         ),
                         const SizedBox(height: 2),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: datastreamLastSeconds,
+                          children: datastreamHistorySquares,
                         ),
                       ],
                     ),
