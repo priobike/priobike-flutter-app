@@ -147,7 +147,7 @@ class SelectedRouteLayer {
     return "route-layer";
   }
 
-  update(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
+  update(LayerController layerController, {String? below}) async {
     await layerController.updateGeoJsonSource(
       "route",
       {"type": "FeatureCollection", "features": features},

@@ -74,7 +74,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
-    await SelectedRouteLayer(context).update(layerController!, bgLineWidth: 20, fgLineWidth: 14);
+    await SelectedRouteLayer(context).update(layerController!);
     await WaypointsLayer(context).update(layerController!);
     await TrafficLightsLayer(context).update(layerController!);
     await OfflineCrossingsLayer(context).update(layerController!);
