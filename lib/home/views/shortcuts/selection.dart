@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -15,6 +17,7 @@ class ShortcutView extends StatelessWidget {
   final IconData icon;
   final String title;
   final double width;
+  final double height;
   final double rightPad;
 
   const ShortcutView(
@@ -25,6 +28,7 @@ class ShortcutView extends StatelessWidget {
       required this.icon,
       required this.title,
       required this.width,
+      required this.height,
       required this.rightPad,
       required BuildContext context})
       : super(key: key);
@@ -41,7 +45,7 @@ class ShortcutView extends StatelessWidget {
         shadowIntensity: isHighlighted ? 0.3 : 0.08,
         padding: const EdgeInsets.all(16),
         content: SizedBox(
-          height: 128,
+          height: height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: isLoading
@@ -145,6 +149,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   Widget build(BuildContext context) {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
 
     List<Widget> views = [
       AnimatedContainer(
@@ -160,6 +165,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
         icon: Icons.play_circle,
         title: "Freies Routing starten",
         width: shortcutWidth,
+        height: shortcutHeight,
         rightPad: shortcutRightPad,
         context: context,
       ),
@@ -175,6 +181,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
                   icon: Icons.route,
                   title: shortcut.name,
                   width: shortcutWidth,
+                  height: shortcutHeight,
                   rightPad: shortcutRightPad,
                   context: context,
                 ))
