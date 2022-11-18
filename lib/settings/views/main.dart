@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/general_nav.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
