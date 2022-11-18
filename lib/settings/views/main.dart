@@ -284,7 +284,9 @@ class SettingsViewState extends State<SettingsView> {
         body: SafeArea(
           top: true,
           child: CustomScrollView(slivers: <Widget>[
-            const GeneralNavBarView(title: "Einstellungen",),
+            const GeneralNavBarView(
+              title: "Einstellungen",
+            ),
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
