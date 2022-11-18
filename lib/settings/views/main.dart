@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/general_nav.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -57,6 +56,7 @@ class SettingsElement extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.background,
+        onPressed: callback,
         content: Row(
           children: [
             Flexible(
@@ -70,10 +70,10 @@ class SettingsElement extends StatelessWidget {
                   ],
                 ),
                 fit: FlexFit.tight),
-            SmallIconButton(
-              icon: icon,
-              onPressed: callback,
-              fill: Theme.of(context).colorScheme.surface,
+            SizedBox(
+              height: 48,
+              width: 48,
+              child: Icon(icon),
             ),
           ],
         ),
@@ -113,6 +113,7 @@ class SettingsSelection<E> extends StatelessWidget {
               fill: elements[index] == selected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.background,
+              onPressed: () => callback(elements[index]),
               content: Row(
                 children: [
                   Flexible(
@@ -127,9 +128,10 @@ class SettingsSelection<E> extends StatelessWidget {
                   Expanded(
                     child: Container(),
                   ),
-                  SmallIconButton(
-                    icon: elements[index] == selected ? Icons.check : Icons.check_box_outline_blank,
-                    onPressed: () => callback(elements[index]),
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Icon(elements[index] == selected ? Icons.check : Icons.check_box_outline_blank),
                   ),
                 ],
               ),
