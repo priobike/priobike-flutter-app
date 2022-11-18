@@ -47,19 +47,8 @@ Future<void> main() async {
   // widget tree down further, as a restriction of Android.
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
-  // Set the Android Overscroll Indicator depending on the Android version
-  // to match the standardized design on each version.
-  // Android Version >= 12: stretch
-  // Android Version < 12: glow
-  final androidInfo = await DeviceInfoPlugin().androidInfo;
-  final sdkVersion = androidInfo.version.sdkInt ?? 0;
-  final androidOverscrollIndicator =
-      sdkVersion > 30 ? AndroidOverscrollIndicator.stretch : AndroidOverscrollIndicator.glow;
-
   runZonedGuarded(() async {
-    runApp(App(
-      androidOverscrollIndicator: androidOverscrollIndicator,
-    ));
+    runApp(const App());
   }, (error, stack) async {
     // Log the error to the console.
     log.e(error.toString());
@@ -74,13 +63,7 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  /// The used Android overscroll indicator (stretch/glow).
-  final AndroidOverscrollIndicator androidOverscrollIndicator;
-
-  const App({
-    Key? key,
-    this.androidOverscrollIndicator = AndroidOverscrollIndicator.glow,
-  }) : super(key: key);
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +160,7 @@ class App extends StatelessWidget {
                   color: Color(0xFF000000),
                 ),
               ),
-              androidOverscrollIndicator: androidOverscrollIndicator,
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             darkTheme: ThemeData(
               fontFamily: 'HamburgSans',
@@ -232,7 +215,7 @@ class App extends StatelessWidget {
                   color: Color(0xFFFFFFFF),
                 ),
               ),
-              androidOverscrollIndicator: androidOverscrollIndicator,
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light
