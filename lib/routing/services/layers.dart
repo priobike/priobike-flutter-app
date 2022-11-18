@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_info_plus/system_info_plus.dart';
 
 class MapDesign {
   /// The name of the map design.
@@ -107,6 +108,13 @@ class Layers with ChangeNotifier {
   /// The currently selected style of the map.
   MapDesign mapDesign;
 
+  /// Whether the layers can be enabled.
+  bool layersCanBeEnabled;
+
+  /// The memory threshold in mB.
+  // Generally this app uses between 500-1500 (expecting mapbox memory leak to occur).
+  static const memoryThreshold = 2000;
+
   Future<void> setShowRentalStations(bool showRentalStations) async {
     this.showRentalStations = showRentalStations;
     await storePreferences();
@@ -145,32 +153,38 @@ class Layers with ChangeNotifier {
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
-    this.showConstructionSites = true,
+    this.showConstructionSites = false,
     this.showAirStations = false,
     this.showRepairStations = false,
-    this.showAccidentHotspots = false,
+    this.showAccidentHotspots = true,
     this.mapDesign = MapDesign.standard,
+    this.layersCanBeEnabled = false,
   });
 
   /// Load the preferred settings.
   Future<void> loadPreferences() async {
     if (hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
+    final systemMemory = await SystemInfoPlus.physicalMemory;
 
-    showRentalStations = storage.getBool("priobike.layers.showRentalStations") ?? false;
-    showParkingStations = storage.getBool("priobike.layers.showParkingStations") ?? false;
-    showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
-    showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
-    showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
-    showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
+    // Use standard setup on insufficient RAM.
+    if (systemMemory != null && systemMemory >= memoryThreshold) {
+      layersCanBeEnabled = true;
 
-    final mapDesignStr = storage.getString("priobike.layers.style");
-    if (mapDesignStr != null) {
-      mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
-    } else {
-      mapDesign = MapDesign.standard;
+      showRentalStations = storage.getBool("priobike.layers.showRentalStations") ?? false;
+      showParkingStations = storage.getBool("priobike.layers.showParkingStations") ?? false;
+      showConstructionSites = storage.getBool("priobike.layers.showConstructionSites") ?? true;
+      showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
+      showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
+      showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
+
+      final mapDesignStr = storage.getString("priobike.layers.style");
+      if (mapDesignStr != null) {
+        mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
+      } else {
+        mapDesign = MapDesign.standard;
+      }
     }
-
     notifyListeners();
   }
 

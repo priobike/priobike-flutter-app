@@ -14,6 +14,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
@@ -86,6 +87,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated shortcuts service, which is injected by the provider.
   Shortcuts? shortcuts;
 
+  /// The associated layers service, which is injected by the provider.
+  late Layers layers;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -119,6 +123,7 @@ class RoutingViewState extends State<RoutingView> {
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     positioning = Provider.of<Positioning>(context);
+    layers = Provider.of<Layers>(context);
     super.didChangeDependencies();
   }
 
@@ -304,25 +309,27 @@ class RoutingViewState extends State<RoutingView> {
               )),
 
               // Side Bar
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 80, left: 8),
-                  child: Column(children: [
-                    SizedBox(
-                      width: 58,
-                      height: 58,
-                      child: Tile(
-                        fill: Theme.of(context).colorScheme.background,
-                        onPressed: onLayerSelection,
-                        content: Icon(
-                          Icons.layers_rounded,
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
+              layers.layersCanBeEnabled
+                  ? SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 80, left: 8),
+                        child: Column(children: [
+                          SizedBox(
+                            width: 58,
+                            height: 58,
+                            child: Tile(
+                              fill: Theme.of(context).colorScheme.background,
+                              onPressed: onLayerSelection,
+                              content: Icon(
+                                Icons.layers_rounded,
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
+                            ),
+                          )
+                        ]),
                       ),
                     )
-                  ]),
-                ),
-              ),
+                  : Container(),
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
