@@ -23,12 +23,12 @@ samples, guidance on mobile development, and a full API reference.
 ## Troubleshooting
 
 ### IOS-Simulator doesn't work on M1-Macs
-Currently (Nov. 2022) XCode still has legacy applications that don't fully work on Apple's M1-Chips. One such application is the IOS-Simulator. 
+Currently (Nov. 2022) XCode still has legacy applications that don't fully work on Apple's M1-Chips. One such application is the iOS-Simulator. 
 
 There are [several options](https://blog.sudeium.com/2021/06/18/build-for-x86-simulator-on-apple-silicon-macs/) to fix this.
 
 The easiest fix is to change `PrioBike/priobike-flutter-app/ios/Pods/Pods.xcodeproj/project.pbxproj`
 
-Replace <br> `"VALID_ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";` <br> everywhere with <br>
-`"VALID_ARCHS[sdk=iphonesimulator*]" = x86_64;`
+Replace <br> `VALID_ARCHS[sdk=iphonesimulator*] = "$(ARCHS_STANDARD)";` <br> everywhere with <br>
+`VALID_ARCHS[sdk=iphonesimulator*] = x86_64;`
 
