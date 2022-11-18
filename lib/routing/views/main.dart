@@ -309,25 +309,27 @@ class RoutingViewState extends State<RoutingView> {
               )),
 
               // Side Bar
-              layers.layersCanBeEnabled ? SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 80, left: 8),
-                  child: Column(children: [
-                    SizedBox(
-                      width: 58,
-                      height: 58,
-                      child: Tile(
-                        fill: Theme.of(context).colorScheme.background,
-                        onPressed: onLayerSelection,
-                        content: Icon(
-                          Icons.layers_rounded,
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
+              layers.layersCanBeEnabled
+                  ? SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 80, left: 8),
+                        child: Column(children: [
+                          SizedBox(
+                            width: 58,
+                            height: 58,
+                            child: Tile(
+                              fill: Theme.of(context).colorScheme.background,
+                              onPressed: onLayerSelection,
+                              content: Icon(
+                                Icons.layers_rounded,
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
+                            ),
+                          )
+                        ]),
                       ),
                     )
-                  ]),
-                ),
-              ) : Container(),
+                  : Container(),
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
