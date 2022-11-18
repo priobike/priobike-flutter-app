@@ -29,14 +29,6 @@ class PredictionStatusSummary with ChangeNotifier {
   Future<void> fetch(BuildContext context) async {
     if (isLoading || hadError) return;
 
-    // If the last fetched status is not older than 5 minutes,
-    // we do not need to fetch it again.
-    if (current != null) {
-      final now = DateTime.now().millisecondsSinceEpoch / 1000;
-      final lastFetched = current!.statusUpdateTime;
-      if (now - lastFetched < 5 * 60) return;
-    }
-
     isLoading = true;
     hadError = false;
     notifyListeners();
