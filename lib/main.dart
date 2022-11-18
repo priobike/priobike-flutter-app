@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/accelerometer/services/accelerometer.dart';
@@ -46,8 +47,19 @@ Future<void> main() async {
   // widget tree down further, as a restriction of Android.
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
+  // Set the Android Overscroll Indicator depending on the Android version
+  // to match the standardized design on each version.
+  // Android Version >= 12: stretch
+  // Android Version < 12: glow
+  final androidInfo = await DeviceInfoPlugin().androidInfo;
+  final sdkVersion = androidInfo.version.sdkInt ?? 0;
+  final androidOverscrollIndicator =
+      sdkVersion > 30 ? AndroidOverscrollIndicator.stretch : AndroidOverscrollIndicator.glow;
+
   runZonedGuarded(() async {
-    runApp(const App());
+    runApp(App(
+      androidOverscrollIndicator: androidOverscrollIndicator,
+    ));
   }, (error, stack) async {
     // Log the error to the console.
     log.e(error.toString());
@@ -62,7 +74,13 @@ class App extends StatelessWidget {
   /// The current navigator state key of the app.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
-  const App({Key? key}) : super(key: key);
+  /// The used Android overscroll indicator (stretch/glow).
+  final AndroidOverscrollIndicator androidOverscrollIndicator;
+
+  const App({
+    Key? key,
+    this.androidOverscrollIndicator = AndroidOverscrollIndicator.glow,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +177,7 @@ class App extends StatelessWidget {
                   color: Color(0xFF000000),
                 ),
               ),
+              androidOverscrollIndicator: androidOverscrollIndicator,
             ),
             darkTheme: ThemeData(
               fontFamily: 'HamburgSans',
@@ -213,6 +232,7 @@ class App extends StatelessWidget {
                   color: Color(0xFFFFFFFF),
                 ),
               ),
+              androidOverscrollIndicator: androidOverscrollIndicator,
             ),
             themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light
