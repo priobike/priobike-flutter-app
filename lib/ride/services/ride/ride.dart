@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,9 @@ class Ride with ChangeNotifier {
   /// Note: This is currently calculated in the recommendation as well, but
   /// may lag behind depending on the network latency / server time.
   bool? calcCurrentSignalIsGreen;
+
+  /// The calculated history of the current recommendation.
+  List<int>? calcHistory;
 
   /// A timestamp when the last calculation was performed.
   /// This is used to prevent fast recurring calculations.
@@ -117,6 +121,7 @@ class Ride with ChangeNotifier {
       log.w("Failed to calculate recommendation info: $reason");
       calcCurrentPhaseChangeTime = null;
       calcCurrentSignalIsGreen = null;
+      calcHistory = null;
       notifyListeners();
     }
 
@@ -136,13 +141,14 @@ class Ride with ChangeNotifier {
     if (startTime == null) return onFailure("Could not parse start time: $startTimeStr");
     // Calculate the seconds since the start of the prediction.
     final now = DateTime.now();
-    final secondsSinceStart = now.difference(startTime).inSeconds;
+    final secondsSinceStart = max(0, now.difference(startTime).inSeconds);
     // Chop off the seconds that are not in the prediction vector.
     final secondsInVector = vector.length;
     if (secondsSinceStart >= secondsInVector) return onFailure("Prediction vector is too short.");
     // Calculate the current vector.
     final currentVector = vector.sublist(secondsSinceStart);
     if (currentVector.isEmpty) return onFailure("Current vector is empty.");
+    calcHistory = vector.sublist(0, secondsSinceStart);
     // Calculate the seconds to the next phase change.
     int secondsToPhaseChange = 0;
     bool greenNow = currentVector[0] >= greentimeThreshold;

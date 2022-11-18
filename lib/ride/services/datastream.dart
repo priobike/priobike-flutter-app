@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -20,6 +22,9 @@ class Datastream with ChangeNotifier {
   /// The currently active signal group.
   Sg? sg;
 
+  /// The timer that updates the history every second.
+  Timer? timer;
+
   /// The current value for the car detector.
   DetectorCarObservation? detectorCar;
 
@@ -31,6 +36,9 @@ class Datastream with ChangeNotifier {
 
   /// The current value for the primary signal.
   PrimarySignalObservation? primarySignal;
+
+  /// The last 180 seconds of the primary signal.
+  final primarySignalHistory = List<PrimarySignalObservation?>.filled(180, null);
 
   /// The current value for the signal program.
   SignalProgramObservation? signalProgram;
@@ -85,6 +93,25 @@ class Datastream with ChangeNotifier {
     log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
     await client!.connect();
     client!.updates?.listen(onData);
+
+    // Init the timer that updates the history every second.
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // Shift the history to the left.
+      for (var i = 0; i < primarySignalHistory.length - 1; i++) {
+        primarySignalHistory[i] = primarySignalHistory[i + 1];
+      }
+      // Add the current value to the history.
+      primarySignalHistory[primarySignalHistory.length - 1] = primarySignal;
+      // If we have a primary signal, update the history by the phenomenon time.
+      if (primarySignal != null) {
+        final diff = DateTime.now().difference(primarySignal!.phenomenonTime);
+        final startIndex = max(primarySignalHistory.length - 1 - diff.inSeconds, 0);
+        for (var i = startIndex; i < primarySignalHistory.length; i++) {
+          primarySignalHistory[i] = primarySignal;
+        }
+      }
+      notifyListeners();
+    });
   }
 
   /// A callback that is executed when data arrives.
@@ -135,6 +162,9 @@ class Datastream with ChangeNotifier {
       cycleSecond = null;
       unsubscribe(this.sg?.datastreamCycleSecond);
       primarySignal = null;
+      for (var i = 0; i < primarySignalHistory.length; i++) {
+        primarySignalHistory[i] = null;
+      }
       unsubscribe(this.sg?.datastreamPrimarySignal);
       signalProgram = null;
       unsubscribe(this.sg?.datastreamSignalProgram);
@@ -161,5 +191,10 @@ class Datastream with ChangeNotifier {
     client?.disconnect();
     client = null;
     subscriptions.clear();
+    timer?.cancel();
+    timer = null;
+    for (var i = 0; i < primarySignalHistory.length; i++) {
+      primarySignalHistory[i] = null;
+    }
   }
 }

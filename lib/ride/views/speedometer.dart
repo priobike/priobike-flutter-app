@@ -108,7 +108,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
 
     // Calculate the elapsed seconds since the prediction and adjust the prediction accordingly
-    var diff = DateTime.now().difference(time).inSeconds;
+    var diff = max(0, DateTime.now().difference(time).inSeconds);
     if (diff > phases.length) {
       diff = phases.length;
     }
