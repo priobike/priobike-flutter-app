@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -37,7 +38,7 @@ class Datastream with ChangeNotifier {
   PrimarySignalObservation? primarySignal;
 
   /// The last 180 seconds of the primary signal.
-  final List<PrimarySignalObservation?> primarySignalHistory = [];
+  final primarySignalHistory = List<PrimarySignalObservation?>.filled(180, null);
 
   /// The current value for the signal program.
   SignalProgramObservation? signalProgram;
@@ -55,7 +56,6 @@ class Datastream with ChangeNotifier {
     final t = topic(datastreamId)!;
     client?.unsubscribe(t);
     subscriptions.remove(t);
-    primarySignalHistory.clear();
     notifyListeners();
   }
 
@@ -65,7 +65,6 @@ class Datastream with ChangeNotifier {
     final t = topic(datastreamId)!;
     client?.subscribe(t, MqttQos.exactlyOnce);
     subscriptions.add(t);
-    primarySignalHistory.clear();
     notifyListeners();
   }
 
@@ -97,8 +96,20 @@ class Datastream with ChangeNotifier {
 
     // Init the timer that updates the history every second.
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      primarySignalHistory.add(primarySignal);
-      if (primarySignalHistory.length > 180) primarySignalHistory.removeAt(0);
+      // Shift the history to the left.
+      for (var i = 0; i < primarySignalHistory.length - 1; i++) {
+        primarySignalHistory[i] = primarySignalHistory[i + 1];
+      }
+      // Add the current value to the history.
+      primarySignalHistory[primarySignalHistory.length - 1] = primarySignal;
+      // If we have a primary signal, update the history by the phenomenon time.
+      if (primarySignal != null) {
+        final diff = DateTime.now().difference(primarySignal!.phenomenonTime);
+        final startIndex = max(primarySignalHistory.length - 1 - diff.inSeconds, 0);
+        for (var i = startIndex; i < primarySignalHistory.length; i++) {
+          primarySignalHistory[i] = primarySignal;
+        }
+      }
       notifyListeners();
     });
   }
@@ -151,6 +162,9 @@ class Datastream with ChangeNotifier {
       cycleSecond = null;
       unsubscribe(this.sg?.datastreamCycleSecond);
       primarySignal = null;
+      for (var i = 0; i < primarySignalHistory.length; i++) {
+        primarySignalHistory[i] = null;
+      }
       unsubscribe(this.sg?.datastreamPrimarySignal);
       signalProgram = null;
       unsubscribe(this.sg?.datastreamSignalProgram);
@@ -179,5 +193,8 @@ class Datastream with ChangeNotifier {
     subscriptions.clear();
     timer?.cancel();
     timer = null;
+    for (var i = 0; i < primarySignalHistory.length; i++) {
+      primarySignalHistory[i] = null;
+    }
   }
 }

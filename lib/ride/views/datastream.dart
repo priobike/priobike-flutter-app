@@ -134,7 +134,7 @@ class DatastreamViewState extends State<DatastreamView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Small(text: "Prediction vs. Realität", context: context),
+                        Small(text: "Prognose vs. Realität", context: context),
                         const SizedBox(height: 2),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,

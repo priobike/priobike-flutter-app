@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -140,7 +141,7 @@ class Ride with ChangeNotifier {
     if (startTime == null) return onFailure("Could not parse start time: $startTimeStr");
     // Calculate the seconds since the start of the prediction.
     final now = DateTime.now();
-    final secondsSinceStart = now.difference(startTime).inSeconds;
+    final secondsSinceStart = max(0, now.difference(startTime).inSeconds);
     // Chop off the seconds that are not in the prediction vector.
     final secondsInVector = vector.length;
     if (secondsSinceStart >= secondsInVector) return onFailure("Prediction vector is too short.");
