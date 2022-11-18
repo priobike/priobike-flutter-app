@@ -153,10 +153,10 @@ class Layers with ChangeNotifier {
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
-    this.showConstructionSites = true,
+    this.showConstructionSites = false,
     this.showAirStations = false,
     this.showRepairStations = false,
-    this.showAccidentHotspots = false,
+    this.showAccidentHotspots = true,
     this.mapDesign = MapDesign.standard,
     this.layersCanBeEnabled = false,
   });
