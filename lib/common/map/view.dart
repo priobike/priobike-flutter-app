@@ -53,6 +53,9 @@ class AppMap extends StatefulWidget {
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
 
+  final Point<num>? logoViewMargins;
+  final Point<num>? attributionButtonMargins;
+
   const AppMap(
       {this.puckImage,
       this.puckSize = 128,
@@ -61,6 +64,8 @@ class AppMap extends StatefulWidget {
       this.onStyleLoaded,
       this.onCameraIdle,
       this.onMapLongClick,
+      this.logoViewMargins,
+      this.attributionButtonMargins,
       this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
       Key? key})
       : super(key: key);
@@ -108,6 +113,10 @@ class AppMapState extends State<AppMap> {
       attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
       initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
+      // The position of the logo and the attribution button.
+      // Both are usually at the same height on different sides of the map.
+      logoViewMargins: widget.logoViewMargins,
+      attributionButtonMargins: widget.attributionButtonMargins,
     );
   }
 }

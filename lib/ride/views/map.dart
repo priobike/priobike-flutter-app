@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -142,13 +143,16 @@ class RideMapViewState extends State<RideMapView> {
     final cameraTarget = LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
 
     await mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(CameraPosition(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
           bearing: cameraHeading,
           target: cameraTarget,
           zoom: zoom,
           tilt: 60,
-        )),
-        duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */));
+        ),
+      ),
+      duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */),
+    );
 
     await mapController!.updateUserLocation(
       lat: userSnapPos.latitude,
@@ -205,6 +209,7 @@ class RideMapViewState extends State<RideMapView> {
 
   @override
   Widget build(BuildContext context) {
+    final frame = MediaQuery.of(context);
     return AppMap(
       puckImage: Theme.of(context).brightness == Brightness.dark
           ? 'assets/images/position-dark.png'
@@ -212,6 +217,8 @@ class RideMapViewState extends State<RideMapView> {
       dragEnabled: false,
       onMapCreated: onMapCreated,
       onStyleLoaded: () => onStyleLoaded(context),
+      logoViewMargins: Point(10, frame.size.height - MediaQuery.of(context).padding.top - 35),
+      attributionButtonMargins: Point(10, frame.size.height - MediaQuery.of(context).padding.top - 35),
     );
   }
 }

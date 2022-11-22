@@ -169,9 +169,11 @@ class RouteSearchState extends State<RouteSearch> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await positioning.requestSingleLocation(context);
-    });
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) async {
+        await positioning.requestSingleLocation(context);
+      },
+    );
   }
 
   @override
@@ -184,9 +186,11 @@ class RouteSearchState extends State<RouteSearch> {
   /// A callback that is fired when the search is updated.
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
-    debouncer.run(() {
-      geosearch.geosearch(context, query);
-    });
+    debouncer.run(
+      () {
+        geosearch.geosearch(context, query);
+      },
+    );
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -198,48 +202,57 @@ class RouteSearchState extends State<RouteSearch> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
     return Scaffold(
-      body: Column(children: [
-        Container(
-          padding: EdgeInsets.only(top: frame.padding.top),
-          color: Theme.of(context).colorScheme.background,
-          child: Row(children: [
-            AppBackButton(onPressed: () => Navigator.pop(context)),
-            const SmallHSpace(),
-            Container(
-              padding: const EdgeInsets.only(top: 16, bottom: 16),
-              width: frame.size.width - 72,
-              child: TextField(
-                autofocus: true,
-                onChanged: onSearchUpdated,
-                decoration: InputDecoration(
-                  hintText: "Suche",
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24))),
-                  suffixIcon: geosearch.isFetchingAddress
-                      ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator())
-                      : const Icon(Icons.search),
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.only(top: frame.padding.top),
+            color: Theme.of(context).colorScheme.background,
+            child: Row(
+              children: [
+                AppBackButton(onPressed: () => Navigator.pop(context)),
+                const SmallHSpace(),
+                Container(
+                  padding: const EdgeInsets.only(top: 16, bottom: 16),
+                  width: frame.size.width - 72,
+                  child: TextField(
+                    autofocus: true,
+                    onChanged: onSearchUpdated,
+                    decoration: InputDecoration(
+                      hintText: "Suche",
+                      border: const OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24))),
+                      suffixIcon: geosearch.isFetchingAddress
+                          ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator())
+                          : const Icon(Icons.search),
+                    ),
+                  ),
                 ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SmallVSpace(),
+                  if (positioning.lastPosition != null) CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
+                  if (geosearch.results?.isNotEmpty == true) ...[
+                    for (final waypoint in geosearch.results!) ...[
+                      WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
+                    ]
+                  ] else ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                    )
+                  ],
+                ],
               ),
             ),
-          ]),
-        ),
-        Expanded(
-            child: SingleChildScrollView(
-                child: Column(children: [
-          const SmallVSpace(),
-          if (positioning.lastPosition != null) CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
-          if (geosearch.results?.isNotEmpty == true) ...[
-            for (final waypoint in geosearch.results!) ...[
-              WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
-            ]
-          ] else ...[
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Small(text: "Keine weiteren Ergebnisse", context: context),
-            )
-          ],
-        ]))),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }

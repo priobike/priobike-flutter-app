@@ -113,7 +113,7 @@ class DatastreamViewState extends State<DatastreamView> {
         .toList();
 
     return Positioned(
-      top: 8,
+      top: 48, // Below the MapBox attribution.
       right: 0,
       child: SafeArea(
         child: Stack(
