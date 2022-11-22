@@ -52,14 +52,16 @@ class LoaderState extends State<Loader> {
     const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     await SentryFlutter.init((options) => options.dsn = dsn);
 
+    // Load the feature.
+    final feature = Provider.of<Feature>(context, listen: false);
+    await feature.load();
     // Load the settings.
     final settings = Provider.of<Settings>(context, listen: false);
-    await settings.loadSettings();
+    await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
     // Load all other services.
     try {
       // Load local stuff.
-      await Provider.of<Feature>(context, listen: false).load();
       await Provider.of<Profile>(context, listen: false).loadProfile();
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
