@@ -202,12 +202,13 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final selectRideEndpoint = Uri.parse('https://$baseUrl/session-wrapper/ride');
-    http.Response response =
-        await Http.post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson())).onError((error, stackTrace) {
-      log.e("Error during select ride: $error");
-      ToastMessage.showError(error.toString());
-      throw Exception();
-    });
+    http.Response response = await Http.post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson())).onError(
+      (error, stackTrace) {
+        log.e("Error during select ride: $error");
+        ToastMessage.showError(error.toString());
+        throw Exception();
+      },
+    );
 
     if (response.statusCode != 200) {
       final err = "Error during select ride with endpoint $selectRideEndpoint: ${response.body}";

@@ -59,17 +59,19 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
     }
 
-    setState(() {
-      minDistance = data.first.distance;
-      maxDistance = data.last.distance;
-      series = charts.Series<HeightData, double>(
-        id: 'Height',
-        colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
-        domainFn: (HeightData data, _) => data.distance,
-        measureFn: (HeightData data, _) => data.height,
-        data: data,
-      );
-    });
+    setState(
+      () {
+        minDistance = data.first.distance;
+        maxDistance = data.last.distance;
+        series = charts.Series<HeightData, double>(
+          id: 'Height',
+          colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
+          domainFn: (HeightData data, _) => data.distance,
+          measureFn: (HeightData data, _) => data.height,
+          data: data,
+        );
+      },
+    );
   }
 
   @override
@@ -92,28 +94,30 @@ class RouteHeightChartState extends State<RouteHeightChart> {
           SizedBox(
             height: 128,
             width: frame.size.width - 16,
-            child: charts.LineChart([series!],
-                animate: true,
-                defaultRenderer: charts.LineRendererConfig(
-                  includeArea: true,
-                  strokeWidthPx: 4,
+            child: charts.LineChart(
+              [series!],
+              animate: true,
+              defaultRenderer: charts.LineRendererConfig(
+                includeArea: true,
+                strokeWidthPx: 4,
+              ),
+              domainAxis: charts.NumericAxisSpec(
+                viewport: charts.NumericExtents(
+                  minDistance ?? 0,
+                  maxDistance ?? 0,
                 ),
-                domainAxis: charts.NumericAxisSpec(
-                  viewport: charts.NumericExtents(
-                    minDistance ?? 0,
-                    maxDistance ?? 0,
-                  ),
-                  tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                    desiredTickCount: 5,
-                    desiredMinTickCount: 3,
-                  ),
+                tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+                  desiredTickCount: 5,
+                  desiredMinTickCount: 3,
                 ),
-                primaryMeasureAxis: const charts.NumericAxisSpec(
-                  showAxisLine: false,
-                  tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                    zeroBound: true,
-                  ),
-                )),
+              ),
+              primaryMeasureAxis: const charts.NumericAxisSpec(
+                showAxisLine: false,
+                tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                  zeroBound: true,
+                ),
+              ),
+            ),
           ),
           Small(text: "Distanz der Route in Kilometer", context: context),
         ],

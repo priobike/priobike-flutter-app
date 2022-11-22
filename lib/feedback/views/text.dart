@@ -32,9 +32,11 @@ class TextFeedbackViewState extends State<TextFeedbackView> {
   /// A callback that is called when the text changes.
   Future<void> onTextChanged(String text) async {
     // Set the text.
-    setState(() {
-      userInput = text;
-    });
+    setState(
+      () {
+        userInput = text;
+      },
+    );
 
     // Save the text.
     final question = Question(

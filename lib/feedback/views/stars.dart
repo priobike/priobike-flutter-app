@@ -32,9 +32,11 @@ class StarRatingViewState extends State<StarRatingView> {
   /// A callback that is called when a star is tapped.
   Future<void> onStarTapped(int index) async {
     // Set the rating.
-    setState(() {
-      rating = index;
-    });
+    setState(
+      () {
+        rating = index;
+      },
+    );
 
     // Save the rating.
     final question = Question(

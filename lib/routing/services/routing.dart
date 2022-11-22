@@ -336,26 +336,28 @@ class Routing with ChangeNotifier {
     // Create the routes.
     final routes = ghResponse.paths
         .asMap()
-        .map((i, path) {
-          final sgSelectorResponse = sgSelectorResponses[i]!;
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          for (final waypoint in sgSelectorResponse.route) {
-            if (waypoint.signalGroupId == null) continue;
-            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-            if (sg == null) continue;
-            if (sgsInOrderOfRoute.contains(sg)) continue;
-            sgsInOrderOfRoute.add(sg);
-          }
-          var route = r.Route(
-            path: path,
-            route: sgSelectorResponse.route,
-            signalGroups: sgsInOrderOfRoute,
-            crossings: sgSelectorResponse.crossings,
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-          return MapEntry(i, route);
-        })
+        .map(
+          (i, path) {
+            final sgSelectorResponse = sgSelectorResponses[i]!;
+            final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+            for (final waypoint in sgSelectorResponse.route) {
+              if (waypoint.signalGroupId == null) continue;
+              final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+              if (sg == null) continue;
+              if (sgsInOrderOfRoute.contains(sg)) continue;
+              sgsInOrderOfRoute.add(sg);
+            }
+            var route = r.Route(
+              path: path,
+              route: sgSelectorResponse.route,
+              signalGroups: sgsInOrderOfRoute,
+              crossings: sgSelectorResponse.crossings,
+            );
+            // Connect the route to the start and end points.
+            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+            return MapEntry(i, route);
+          },
+        )
         .values
         .toList();
 

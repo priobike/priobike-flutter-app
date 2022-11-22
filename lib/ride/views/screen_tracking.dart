@@ -28,9 +28,11 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
     super.initState();
 
     // Setting the device Size.
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      tracking.deviceSize = MediaQuery.of(context).size;
-    });
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) {
+        tracking.deviceSize = MediaQuery.of(context).size;
+      },
+    );
   }
 
   @override

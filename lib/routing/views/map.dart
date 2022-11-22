@@ -236,15 +236,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
       false,
     );
-    setState(() {
-      bottomSheetOffset = newBottomInset;
-      // On Android, the bottom inset needs to be added to the attribution margins.
-      if (Platform.isAndroid) {
-        attributionMargins = Point(20, newBottomInset);
-      } else {
-        attributionMargins = const Point(20, 0);
-      }
-    });
+    setState(
+      () {
+        bottomSheetOffset = newBottomInset;
+        // On Android, the bottom inset needs to be added to the attribution margins.
+        if (Platform.isAndroid) {
+          attributionMargins = Point(20, newBottomInset);
+        } else {
+          attributionMargins = const Point(20, 0);
+        }
+      },
+    );
   }
 
   /// A callback which is executed when the map was created.
