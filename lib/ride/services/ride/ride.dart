@@ -31,6 +31,9 @@ class Ride with ChangeNotifier {
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
 
+  /// A boolean indicating if the webSocket is connected.
+  var connected = false;
+
   /// An optional callback that is called when a new recommendation is received.
   void Function(Recommendation)? onRecommendation;
 
@@ -81,11 +84,14 @@ class Ride with ChangeNotifier {
 
   /// A callback that is executed when the websocket closes.
   Future<void> onCloseWebsocket(BuildContext context) async {
+    connected = false;
+    notifyListeners();
     // If this is on purpose, we don't do anything.
     if (!navigationIsActive) return;
     // Otherwise, we attempt to reconnect.
     log.w("Reconnecting websocket after disconnect: ${socket?.closeCode} ${socket?.closeReason}");
     // Connect to the websocket channel.
+    // FIXME The delay can trigger an error in the console if the connection to the web socket closes and the user stops the navigation.
     await Future.delayed(const Duration(milliseconds: 500), () => connectWebsocket(context));
   }
 
@@ -184,6 +190,8 @@ class Ride with ChangeNotifier {
     jsonRPCPeer!.listen().then((_) => onCloseWebsocket(context));
     jsonRPCPeer!.registerMethod("RecommendationUpdate", onJsonRPCRecommendation);
     log.i("Connected to session websocket.");
+    connected = true;
+    notifyListeners();
   }
 
   /// Select a new ride.
@@ -276,11 +284,14 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
     // Mark that navigation is inactive.
     navigationIsActive = false;
-    // Send a navigation request.
-    final req = const NavigationRequest(active: false).toJson();
-    log.i("Sending navigation request via websocket: $req");
-    await jsonRPCPeer?.sendRequest('Navigation', req);
-    await jsonRPCPeer?.close();
+    // Prevents sending to a closed web socket and getting an error when sending feedback.
+    if (connected) {
+      // Send a navigation request.
+      final req = const NavigationRequest(active: false).toJson();
+      log.i("Sending navigation request via websocket: $req");
+      await jsonRPCPeer?.sendRequest('Navigation', req);
+      await jsonRPCPeer?.close();
+    }
   }
 
   @override

@@ -24,9 +24,11 @@ class DangerButtonState extends State<DangerButton> {
     // Hide the hint after a few seconds.
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 5), () {
-        setState(() {
-          showHint = false;
-        });
+        if (mounted) {
+          setState(() {
+            showHint = false;
+          });
+        }
       });
     });
   }
@@ -45,7 +47,8 @@ class DangerButtonState extends State<DangerButton> {
       left: 0,
       child: SafeArea(
         child: RawMaterialButton(
-          elevation: 0, // Hide ugly material shadows.
+          elevation: 0,
+          // Hide ugly material shadows.
           fillColor: Theme.of(context).colorScheme.background,
           splashColor: Theme.of(context).colorScheme.surface,
           constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
