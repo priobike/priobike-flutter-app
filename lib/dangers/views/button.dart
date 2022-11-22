@@ -54,8 +54,7 @@ class DangerButtonState extends State<DangerButton> {
       left: 0,
       child: SafeArea(
         child: RawMaterialButton(
-          elevation: 0,
-          // Hide ugly material shadows.
+          elevation: 0, // Hide ugly material shadows.
           fillColor: Theme.of(context).colorScheme.background,
           splashColor: Theme.of(context).colorScheme.surface,
           constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
