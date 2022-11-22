@@ -334,20 +334,22 @@ class RoutingViewState extends State<RoutingView> {
                   ? SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 80, left: 8),
-                        child: Column(children: [
-                          SizedBox(
-                            width: 58,
-                            height: 58,
-                            child: Tile(
-                              fill: Theme.of(context).colorScheme.background,
-                              onPressed: onLayerSelection,
-                              content: Icon(
-                                Icons.layers_rounded,
-                                color: Theme.of(context).colorScheme.onBackground,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 58,
+                              height: 58,
+                              child: Tile(
+                                fill: Theme.of(context).colorScheme.background,
+                                onPressed: onLayerSelection,
+                                content: Icon(
+                                  Icons.layers_rounded,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                ),
                               ),
-                            ),
-                          )
-                        ]),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   : Container(),

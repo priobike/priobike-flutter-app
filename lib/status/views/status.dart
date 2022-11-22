@@ -96,57 +96,62 @@ class StatusViewState extends State<StatusView> {
           shadowIntensity: problem != null ? 0.2 : 0.05,
           shadow: problem != null ? CI.red : Colors.black,
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
-          content: Row(children: [
-            Flexible(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                problem != null
-                    ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
-                    : BoldContent(text: "Datenverfügbarkeit", context: context),
-                const SizedBox(height: 4),
-                problem != null
-                    ? Small(text: problem!, context: context, color: Colors.white)
-                    : Small(text: "Alles super.", context: context),
-              ]),
-              fit: FlexFit.tight,
-            ),
-            const SmallHSpace(),
-            // Show a progress indicator with the pct value.
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: CircularProgressIndicator(
-                      value: predictionStatusSummary.isLoading ? null : goodPct,
-                      strokeWidth: 6,
-                      backgroundColor: problem != null
-                          ? const Color.fromARGB(255, 161, 35, 28)
-                          : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                      valueColor: problem != null
-                          ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                          : AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-                    ),
-                  ),
-                  Opacity(
-                    opacity: 0.2,
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      color: problem != null ? Colors.white : Theme.of(context).colorScheme.primary,
-                      size: 42,
-                    ),
-                  ),
-                  BoldSmall(
-                    text: "${((goodPct ?? 0) * 100).round()}%",
-                    context: context,
-                    color: problem != null ? Colors.white : Theme.of(context).colorScheme.onBackground,
-                  ),
-                ],
+          content: Row(
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    problem != null
+                        ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                        : BoldContent(text: "Datenverfügbarkeit", context: context),
+                    const SizedBox(height: 4),
+                    problem != null
+                        ? Small(text: problem!, context: context, color: Colors.white)
+                        : Small(text: "Alles super.", context: context),
+                  ],
+                ),
+                fit: FlexFit.tight,
               ),
-            ),
-          ]),
+              const SmallHSpace(),
+              // Show a progress indicator with the pct value.
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 42,
+                      height: 42,
+                      child: CircularProgressIndicator(
+                        value: predictionStatusSummary.isLoading ? null : goodPct,
+                        strokeWidth: 6,
+                        backgroundColor: problem != null
+                            ? const Color.fromARGB(255, 161, 35, 28)
+                            : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                        valueColor: problem != null
+                            ? const AlwaysStoppedAnimation<Color>(Colors.white)
+                            : AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                    Opacity(
+                      opacity: 0.2,
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: problem != null ? Colors.white : Theme.of(context).colorScheme.primary,
+                        size: 42,
+                      ),
+                    ),
+                    BoldSmall(
+                      text: "${((goodPct ?? 0) * 100).round()}%",
+                      context: context,
+                      color: problem != null ? Colors.white : Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
