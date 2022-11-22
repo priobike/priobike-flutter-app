@@ -27,11 +27,12 @@ class NavigationArrow extends StatelessWidget {
     }
 
     return ColorFiltered(
-        colorFilter: ColorFilter.matrix(filter),
-        child: Image.asset(
-          asset,
-          width: width,
-        ));
+      colorFilter: ColorFilter.matrix(filter),
+      child: Image.asset(
+        asset,
+        width: width,
+      ),
+    );
   }
 
   @override

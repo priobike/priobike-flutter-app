@@ -119,11 +119,13 @@ class ShortcutsViewState extends State<ShortcutsView> {
   void initState() {
     super.initState();
     scrollController = ScrollController();
-    scrollController.addListener(() {
-      if (scrollController.offset > 0) {
-        hasScrolled = true;
-      }
-    });
+    scrollController.addListener(
+      () {
+        if (scrollController.offset > 0) {
+          hasScrolled = true;
+        }
+      },
+    );
   }
 
   @override
@@ -172,31 +174,35 @@ class ShortcutsViewState extends State<ShortcutsView> {
     ];
 
     views += ss.shortcuts
-            ?.map((shortcut) => ShortcutView(
-                  onPressed: () {
-                    // Allow only one shortcut to be fetched at a time.
-                    if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
-                  },
-                  isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
-                  icon: Icons.route_outlined,
-                  title: shortcut.name,
-                  width: shortcutWidth,
-                  height: shortcutHeight,
-                  rightPad: shortcutRightPad,
-                  context: context,
-                ))
+            ?.map(
+              (shortcut) => ShortcutView(
+                onPressed: () {
+                  // Allow only one shortcut to be fetched at a time.
+                  if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
+                },
+                isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
+                icon: Icons.route_outlined,
+                title: shortcut.name,
+                width: shortcutWidth,
+                height: shortcutHeight,
+                rightPad: shortcutRightPad,
+                context: context,
+              ),
+            )
             .toList() ??
         [];
 
     List<Widget> animatedViews = views
         .asMap()
         .entries
-        .map((e) => BlendIn(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOutCubic,
-              delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
-              child: e.value,
-            ))
+        .map(
+          (e) => BlendIn(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutCubic,
+            delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
+            child: e.value,
+          ),
+        )
         .toList();
 
     return SingleChildScrollView(

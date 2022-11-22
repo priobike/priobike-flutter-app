@@ -64,17 +64,21 @@ class PredictionSGStatus with ChangeNotifier {
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
-        final future = Http.get(endpoint).then((response) {
-          if (response.statusCode == 200) {
-            final data = SGStatusData.fromJson(jsonDecode(response.body));
-            cache[sg.id] = data;
-            log.i("Fetched status for ${sg.id}.");
-          } else {
-            log.e("Failed to fetch $url: ${response.statusCode}");
-          }
-        }).catchError((error) {
-          log.e("Failed to fetch $url: $error");
-        });
+        final future = Http.get(endpoint).then(
+          (response) {
+            if (response.statusCode == 200) {
+              final data = SGStatusData.fromJson(jsonDecode(response.body));
+              cache[sg.id] = data;
+              log.i("Fetched status for ${sg.id}.");
+            } else {
+              log.e("Failed to fetch $url: ${response.statusCode}");
+            }
+          },
+        ).catchError(
+          (error) {
+            log.e("Failed to fetch $url: $error");
+          },
+        );
         pending.add(future);
       } catch (e, stack) {
         final hint = "Error while fetching prediction status: $e";

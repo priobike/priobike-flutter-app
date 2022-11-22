@@ -57,18 +57,23 @@ class StaticMockPositionSource extends PositionSource {
     // Create a new stream, which we will later use to push positions.
     var streamController = StreamController<Position>();
 
-    timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      streamController.add(Position(
-        latitude: position.latitude,
-        longitude: position.longitude,
-        altitude: 0,
-        speed: 0,
-        heading: heading, // Not 0, since 0 indicates an error.
-        accuracy: 1,
-        speedAccuracy: 1,
-        timestamp: DateTime.now().toUtc(),
-      ));
-    });
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (t) {
+        streamController.add(
+          Position(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            altitude: 0,
+            speed: 0,
+            heading: heading, // Not 0, since 0 indicates an error.
+            accuracy: 1,
+            speedAccuracy: 1,
+            timestamp: DateTime.now().toUtc(),
+          ),
+        );
+      },
+    );
 
     return streamController.stream;
   }
@@ -125,16 +130,18 @@ class RecordedMockPositionSource extends PositionSource {
     String filecontents = await rootBundle.loadString(filepath);
     List<dynamic> json = jsonDecode(filecontents);
     for (int i = 0; i < json.length; i++) {
-      positions.add(Position(
-        latitude: checkDouble(json[i]['positionLat']),
-        longitude: checkDouble(json[i]['positionLon']),
-        altitude: 0.0,
-        speed: checkDouble(json[i]['speed']),
-        heading: checkDouble(json[i]['heading']),
-        accuracy: checkDouble(json[i]['accuracy']),
-        speedAccuracy: 0.0,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(json[i]['timeUnixMillis']),
-      ));
+      positions.add(
+        Position(
+          latitude: checkDouble(json[i]['positionLat']),
+          longitude: checkDouble(json[i]['positionLon']),
+          altitude: 0.0,
+          speed: checkDouble(json[i]['speed']),
+          heading: checkDouble(json[i]['heading']),
+          accuracy: checkDouble(json[i]['accuracy']),
+          speedAccuracy: 0.0,
+          timestamp: DateTime.fromMillisecondsSinceEpoch(json[i]['timeUnixMillis']),
+        ),
+      );
     }
   }
 
@@ -163,42 +170,45 @@ class RecordedMockPositionSource extends PositionSource {
     DateTime? startPositionTime;
     DateTime? startRealTime;
 
-    timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
-      // If we have finished, reset the index.
-      if (index >= positions.length) {
-        index = 0;
-        return;
-      }
+    timer = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (t) {
+        // If we have finished, reset the index.
+        if (index >= positions.length) {
+          index = 0;
+          return;
+        }
 
-      // If the index is 0, we need to set the reference times.
-      if (index == 0 || startPositionTime == null || startRealTime == null) {
-        startPositionTime = positions[index].timestamp!;
-        startRealTime = DateTime.now();
-      }
+        // If the index is 0, we need to set the reference times.
+        if (index == 0 || startPositionTime == null || startRealTime == null) {
+          startPositionTime = positions[index].timestamp!;
+          startRealTime = DateTime.now();
+        }
 
-      // Compute the milliseconds between the current position and the reference position time.
-      final elapsedPositionTime = positions[index].timestamp!.difference(startPositionTime!).inMilliseconds;
-      // Compute the milliseconds between the current real time and the reference real time.
-      final elapsedRealTime = DateTime.now().difference(startRealTime!).inMilliseconds;
+        // Compute the milliseconds between the current position and the reference position time.
+        final elapsedPositionTime = positions[index].timestamp!.difference(startPositionTime!).inMilliseconds;
+        // Compute the milliseconds between the current real time and the reference real time.
+        final elapsedRealTime = DateTime.now().difference(startRealTime!).inMilliseconds;
 
-      // Dispatch the position if the elapsed time is greater than or equal to the position time.
-      if (elapsedRealTime >= elapsedPositionTime) {
-        var p = positions[index];
-        // Map the position to the current time.
-        var pNow = Position(
-          latitude: p.latitude,
-          longitude: p.longitude,
-          altitude: p.altitude,
-          speed: p.speed,
-          heading: p.heading,
-          accuracy: p.accuracy,
-          speedAccuracy: p.speedAccuracy,
-          timestamp: DateTime.now().toUtc(),
-        );
-        streamController.add(pNow);
-        index++;
-      }
-    });
+        // Dispatch the position if the elapsed time is greater than or equal to the position time.
+        if (elapsedRealTime >= elapsedPositionTime) {
+          var p = positions[index];
+          // Map the position to the current time.
+          var pNow = Position(
+            latitude: p.latitude,
+            longitude: p.longitude,
+            altitude: p.altitude,
+            speed: p.speed,
+            heading: p.heading,
+            accuracy: p.accuracy,
+            speedAccuracy: p.speedAccuracy,
+            timestamp: DateTime.now().toUtc(),
+          );
+          streamController.add(pNow);
+          index++;
+        }
+      },
+    );
 
     return streamController.stream;
   }

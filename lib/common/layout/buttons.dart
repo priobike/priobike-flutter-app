@@ -156,12 +156,13 @@ class BigButton extends StatelessWidget {
               ),
             const SizedBox(width: 12),
             Flexible(
-                child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            )),
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
             const SizedBox(width: 32),
           ],
         ),

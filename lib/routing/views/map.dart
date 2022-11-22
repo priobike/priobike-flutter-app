@@ -63,32 +63,29 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The animation for the on-tap animation.
   late Animation<double> animation;
 
+  /// The offset for the draggable bottom sheet.
+  double? bottomSheetOffset;
+
+  /// The margins of the attribution.
+  Point? attributionMargins;
+
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
     bottom: 120,
-    left: 8,
-    right: 8,
   );
+
+  /// The extra distance between the bottom sheet and the attribution.
+  final sheetPadding = 16.0;
 
   @override
   void initState() {
     super.initState();
+
     // Connect the sheet movement listener to adapt the map insets.
-    sheetMovementSubscription = widget.sheetMovement?.listen((n) {
-      final frame = MediaQuery.of(context);
-      final maxBottomInset = frame.size.height - frame.padding.top - 300;
-      final newBottomInset = min(maxBottomInset, n.extent * frame.size.height);
-      mapController?.updateContentInsets(
-        EdgeInsets.fromLTRB(
-          defaultMapInsets.left,
-          defaultMapInsets.top,
-          defaultMapInsets.left,
-          newBottomInset,
-        ),
-        false,
-      );
-    });
+    sheetMovementSubscription = widget.sheetMovement?.listen(
+      (n) => fitAttributionPosition(sheetHeightRelative: n.extent),
+    );
 
     animationController = AnimationController(
       vsync: this,
@@ -222,6 +219,36 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Fit the attribution position to the position of the bottom sheet.
+  fitAttributionPosition({double? sheetHeightRelative}) {
+    final frame = MediaQuery.of(context);
+    final sheetHeightAbs = sheetHeightRelative == null
+        ? 114 + frame.padding.bottom + sheetPadding // Default value.
+        : sheetHeightRelative * frame.size.height + sheetPadding;
+    final maxBottomInset = frame.size.height - frame.padding.top - 100;
+    double newBottomInset = min(maxBottomInset, sheetHeightAbs);
+    mapController?.updateContentInsets(
+      EdgeInsets.fromLTRB(
+        defaultMapInsets.left,
+        defaultMapInsets.top,
+        defaultMapInsets.left,
+        newBottomInset,
+      ),
+      false,
+    );
+    setState(
+      () {
+        bottomSheetOffset = newBottomInset;
+        // On Android, the bottom inset needs to be added to the attribution margins.
+        if (Platform.isAndroid) {
+          attributionMargins = Point(20, newBottomInset);
+        } else {
+          attributionMargins = const Point(20, 0);
+        }
+      },
+    );
+  }
+
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMapController controller) async {
     mapController = controller;
@@ -244,7 +271,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await SymbolLoader(mapController!).loadSymbols();
 
     // Fit the content below the top and the bottom stuff.
-    await mapController!.updateContentInsets(defaultMapInsets);
+    fitAttributionPosition();
 
     // Clear all layers and sources from the layer controller.
     layerController?.notifyStyleLoaded();
@@ -313,102 +340,111 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      // Show the map.
-      GestureDetector(
-        onLongPressDown: (details) {
-          tapPosition = details.localPosition;
-          animationController.forward();
-        },
-        onLongPressCancel: () {
-          animationController.reverse();
-        },
-        onLongPressEnd: (details) {
-          animationController.reverse();
-          onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
-        },
-        behavior: HitTestBehavior.translucent,
-        child: AppMap(
-          puckImage: Theme.of(context).brightness == Brightness.dark
-              ? 'assets/images/position-static-dark.png'
-              : 'assets/images/position-static-light.png',
-          puckSize: 64,
-          onMapCreated: onMapCreated,
-          onStyleLoaded: () => onStyleLoaded(context),
+    return Stack(
+      children: [
+        // Show the map.
+        GestureDetector(
+          onLongPressDown: (details) {
+            tapPosition = details.localPosition;
+            animationController.forward();
+          },
+          onLongPressCancel: () {
+            animationController.reverse();
+          },
+          onLongPressEnd: (details) {
+            animationController.reverse();
+            onMapLongClick(context, details.localPosition.dx, details.localPosition.dy);
+          },
+          behavior: HitTestBehavior.translucent,
+          child: AppMap(
+            puckImage: Theme.of(context).brightness == Brightness.dark
+                ? 'assets/images/position-static-dark.png'
+                : 'assets/images/position-static-light.png',
+            puckSize: 64,
+            onMapCreated: onMapCreated,
+            onStyleLoaded: () => onStyleLoaded(context),
+            // On iOS, the logoViewMargins and attributionButtonMargins will be set by
+            // updateContentInsets. This is why we set them to 0 here.
+            logoViewMargins: attributionMargins,
+            attributionButtonMargins: attributionMargins,
+          ),
         ),
-      ),
 
-      // Show an animation when the user taps the map.
-      if (tapPosition != null)
-        IgnorePointer(
-          child: Stack(children: [
-            Positioned(
-              left: tapPosition!.dx - animation.value * 128 - 12,
-              top: tapPosition!.dy - animation.value * 128 - 12,
-              child: Opacity(
-                opacity: max(0, min(1, (animation.value) * 4)),
-                child: Container(
-                  width: animation.value * 256 + 24,
-                  height: animation.value * 256 + 24,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
-                      width: 8.0 - animation.value * 8,
+        // Show an animation when the user taps the map.
+        if (tapPosition != null)
+          IgnorePointer(
+            child: Stack(
+              children: [
+                Positioned(
+                  left: tapPosition!.dx - animation.value * 128 - 12,
+                  top: tapPosition!.dy - animation.value * 128 - 12,
+                  child: Opacity(
+                    opacity: max(0, min(1, (animation.value) * 4)),
+                    child: Container(
+                      width: animation.value * 256 + 24,
+                      height: animation.value * 256 + 24,
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(1.0 - animation.value),
+                          width: 8.0 - animation.value * 8,
+                        ),
+                        borderRadius: BorderRadius.circular(128),
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(128),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
-              top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
-              child: Opacity(
-                opacity: max(0, (animation.value - 0.5) * 2),
-                child: Container(
-                  width: (1.0 - animation.value) * 128 + 24,
-                  height: (1.0 - animation.value) * 128 + 24,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2 * animation.value),
-                    borderRadius: BorderRadius.circular(128),
+                Positioned(
+                  left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
+                  top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
+                  child: Opacity(
+                    opacity: max(0, (animation.value - 0.5) * 2),
+                    child: Container(
+                      width: (1.0 - animation.value) * 128 + 24,
+                      height: (1.0 - animation.value) * 128 + 24,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.2 * animation.value),
+                        borderRadius: BorderRadius.circular(128),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: tapPosition!.dx - 12,
-              top: min(12 + tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3), tapPosition!.dy) -
-                  12,
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: Opacity(
-                  opacity: max(0, (animation.value - 0.5) * 2),
-                  child: Image.asset(
-                    'assets/images/pin.png',
-                    fit: BoxFit.contain,
+                Positioned(
+                  left: tapPosition!.dx - 12,
+                  top: min(12 + tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3),
+                          tapPosition!.dy) -
+                      12,
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Opacity(
+                      opacity: max(0, (animation.value - 0.5) * 2),
+                      child: Image.asset(
+                        'assets/images/pin.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              left: tapPosition!.dx - 12,
-              top: (tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3)) - 12,
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: Opacity(
-                  opacity: max(0, (animation.value - 0.5) * 2),
-                  child: Image.asset(
-                    'assets/images/waypoint.drawio.png',
-                    fit: BoxFit.contain,
+                Positioned(
+                  left: tapPosition!.dx - 12,
+                  top: (tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3)) - 12,
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Opacity(
+                      opacity: max(0, (animation.value - 0.5) * 2),
+                      child: Image.asset(
+                        'assets/images/waypoint.drawio.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ]),
-        ),
-    ]);
+          ),
+      ],
+    );
   }
 }

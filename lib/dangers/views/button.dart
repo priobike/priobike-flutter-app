@@ -22,28 +22,35 @@ class DangerButtonState extends State<DangerButton> {
     super.initState();
 
     // Hide the hint after a few seconds.
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 5), () {
-        if (mounted) {
-          setState(() {
-            showHint = false;
-          });
-        }
-      });
-    });
+    WidgetsBinding.instance!.addPostFrameCallback(
+      (_) {
+        Future.delayed(
+          const Duration(seconds: 5),
+          () {
+            if (mounted) {
+              setState(
+                () {
+                  showHint = false;
+                },
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   /// A callback that is called when the button is tapped.
   Future<void> onTap() async {
     final dangers = Provider.of<Dangers>(context, listen: false);
     dangers.reportDanger(context);
-    ToastMessage.showSuccess("Danke für's Melden!");
+    ToastMessage.showSuccess("Danke für's Melden der Gefahr!");
   }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 8,
+      top: 48, // Below the MapBox attribution.
       left: 0,
       child: SafeArea(
         child: RawMaterialButton(

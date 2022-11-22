@@ -58,37 +58,38 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),
       child: Center(
-          child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          Transform.translate(
-              child: Text(
-                countdownLabel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 4
-                    ..color = const Color.fromARGB(255, 0, 0, 0),
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+            Transform.translate(
+                child: Text(
+                  countdownLabel,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 64,
+                    fontWeight: FontWeight.bold,
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 4
+                      ..color = const Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
-              ),
-              offset: const Offset(0, -24)),
-          Transform.translate(
-              child: Text(
-                countdownLabel,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 255, 255, 255),
+                offset: const Offset(0, -24)),
+            Transform.translate(
+                child: Text(
+                  countdownLabel,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 64,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ),
                 ),
-              ),
-              offset: const Offset(0, -24)),
-          Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
-        ],
-      )),
+                offset: const Offset(0, -24)),
+            Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
+          ],
+        ),
+      ),
     );
 
     final showCountdown = rs.currentRecommendation!.distance < 500 && (rs.currentRecommendation!.quality ?? 0) > 0.9;
