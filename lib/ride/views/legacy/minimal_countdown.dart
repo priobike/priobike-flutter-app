@@ -32,43 +32,45 @@ class _MinimalCountdownCyclingViewState extends State<MinimalCountdownCyclingVie
               style: const TextStyle(fontSize: 35),
             ),
             const Spacer(),
-            Stack(children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Container(
-                  height: MediaQuery.of(context).size.width / 2.0,
-                  width: MediaQuery.of(context).size.width / 2.0,
-                  decoration: BoxDecoration(
-                    color: recommendation.isGreen
-                        ? const Color.fromARGB(255, 23, 94, 30)
-                        : const Color.fromARGB(255, 109, 29, 25),
-                    shape: BoxShape.circle,
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Container(
+                    height: MediaQuery.of(context).size.width / 2.0,
+                    width: MediaQuery.of(context).size.width / 2.0,
+                    decoration: BoxDecoration(
+                      color: recommendation.isGreen
+                          ? const Color.fromARGB(255, 23, 94, 30)
+                          : const Color.fromARGB(255, 109, 29, 25),
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.width / 2.0,
-                  width: MediaQuery.of(context).size.width / 2.0,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 40,
-                    // backgroundColor: Colors.black,
-                    color: recommendation.isGreen ? const Color.fromARGB(255, 54, 222, 70) : Colors.red,
-                    value: recommendation.countdown / 60,
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.width / 2.0,
+                    width: MediaQuery.of(context).size.width / 2.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 40,
+                      // backgroundColor: Colors.black,
+                      color: recommendation.isGreen ? const Color.fromARGB(255, 54, 222, 70) : Colors.red,
+                      value: recommendation.countdown / 60,
+                    ),
                   ),
                 ),
-              ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "${recommendation.countdown}s ",
-                    style: const TextStyle(fontSize: 50),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "${recommendation.countdown}s ",
+                      style: const TextStyle(fontSize: 50),
+                    ),
                   ),
                 ),
-              ),
-            ]),
+              ],
+            ),
             const Spacer(),
             const SizedBox(
               width: double.infinity,

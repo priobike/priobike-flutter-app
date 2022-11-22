@@ -110,10 +110,12 @@ class CancelButton extends StatelessWidget {
           label: BoldSmall(text: text, context: context, color: Colors.white),
           onPressed: () => onTap(context),
           style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
-            )),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
+              ),
+            ),
             foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
             backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
           ),

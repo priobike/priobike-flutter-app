@@ -27,9 +27,11 @@ class NewsButtonState extends State<NewsButton> {
     news = Provider.of<News>(context);
     final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
     if (unread != this.unread) {
-      setState(() {
-        this.unread = unread;
-      });
+      setState(
+        () {
+          this.unread = unread;
+        },
+      );
     }
     super.didChangeDependencies();
   }
