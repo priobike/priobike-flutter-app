@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' as l;
 import 'package:mapbox_gl/mapbox_gl.dart';
