@@ -39,7 +39,9 @@ class Tile extends StatelessWidget {
     this.shadowIntensity = 0.05,
     this.showShadow = true,
     this.padding = const EdgeInsets.all(16),
-    this.borderRadius = const BorderRadius.all(Radius.circular(24)),
+    this.borderRadius = const BorderRadius.all(
+      Radius.circular(24),
+    ),
   }) : super(key: key);
 
   @override

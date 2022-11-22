@@ -15,42 +15,43 @@ class LogsViewState extends State<LogsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Logs"),
-          elevation: 0,
-          titleTextStyle: const TextStyle(fontSize: 20),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () {
-                Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
-              },
-              tooltip: 'Teilen',
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                for (var item in Logger.db)
-                  Text(
-                    item,
-                    style: const TextStyle(
-                      fontFamily: "monospace",
-                      fontSize: 12,
-                    ),
-                  )
-              ],
+      body: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Logs"),
+            elevation: 0,
+            titleTextStyle: const TextStyle(fontSize: 20),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: () {
+                  Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike');
+                },
+                tooltip: 'Teilen',
+              ),
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  for (var item in Logger.db)
+                    Text(
+                      item,
+                      style: const TextStyle(
+                        fontFamily: "monospace",
+                        fontSize: 12,
+                      ),
+                    )
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

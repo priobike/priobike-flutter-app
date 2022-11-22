@@ -62,52 +62,62 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
       child: Scaffold(
         body: SafeArea(
           top: true,
-          child: CustomScrollView(controller: scrollController, slivers: <Widget>[
-            const GeneralNavBarView(
-              title: "Strecken",
-            ),
-            SliverToBoxAdapter(
-              child: Column(children: [
-                const SizedBox(height: 8),
-                ReorderableListView(
-                  scrollController: scrollController,
-                  // physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  proxyDecorator: (proxyWidget, idx, anim) {
-                    return proxyWidget;
-                  },
-                  children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
-                    return Container(
-                        key: Key("$entry.key"),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, top: 8),
-                          child: Tile(
-                            fill: Theme.of(context).colorScheme.background,
-                            borderRadius:
-                                const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                            content: Row(children: [
-                              Flexible(
-                                  child: BoldContent(
-                                    text: entry.value.name,
-                                    context: context,
-                                  ),
-                                  fit: FlexFit.tight),
-                              const HSpace(),
-                              SmallIconButton(
-                                icon: Icons.delete,
-                                onPressed: () => onDeleteShortcut(entry.key),
-                                fill: Theme.of(context).colorScheme.surface,
+          child: CustomScrollView(
+            controller: scrollController,
+            slivers: <Widget>[
+              const GeneralNavBarView(
+                title: "Strecken",
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    ReorderableListView(
+                      scrollController: scrollController,
+                      // physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      proxyDecorator: (proxyWidget, idx, anim) {
+                        return proxyWidget;
+                      },
+                      children: shortcuts.shortcuts!.asMap().entries.map<Widget>(
+                        (entry) {
+                          return Container(
+                            key: Key("$entry.key"),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16, top: 8),
+                              child: Tile(
+                                fill: Theme.of(context).colorScheme.background,
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                                content: Row(
+                                  children: [
+                                    Flexible(
+                                        child: BoldContent(
+                                          text: entry.value.name,
+                                          context: context,
+                                        ),
+                                        fit: FlexFit.tight),
+                                    const HSpace(),
+                                    SmallIconButton(
+                                      icon: Icons.delete,
+                                      onPressed: () => onDeleteShortcut(entry.key),
+                                      fill: Theme.of(context).colorScheme.surface,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ]),
-                          ),
-                        ));
-                  }).toList(),
-                  onReorder: onChangeShortcutOrder,
+                            ),
+                          );
+                        },
+                      ).toList(),
+                      onReorder: onChangeShortcutOrder,
+                    ),
+                    const SizedBox(height: 128),
+                  ],
                 ),
-                const SizedBox(height: 128),
-              ]),
-            ),
-          ]),
+              ),
+            ],
+          ),
         ),
       ),
     );
