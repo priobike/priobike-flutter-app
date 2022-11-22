@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -35,13 +36,6 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(MapboxMapController controller) async {
     mapController = controller;
-
-    mapController?.updateContentInsets(EdgeInsets.only(
-      top: 0,
-      bottom: 108 + MediaQuery.of(context).padding.bottom,
-      left: 18,
-      right: 18,
-    ));
   }
 
   /// A callback which is executed when the map style was loaded.
@@ -251,54 +245,72 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-          body: Stack(children: [
-        AppMap(
-          dragEnabled: true,
-          onMapCreated: onMapCreated,
-          onStyleLoaded: () => onStyleLoaded(context),
-        ),
-        SafeArea(
-          minimum: const EdgeInsets.only(top: 8),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-            ]),
-          ),
-        ),
-        SafeArea(
-            child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Tile(
-              fill: Theme.of(context).colorScheme.background,
-              content: SizedBox(
-                height: 60,
-                child: Column(
-                  children: legend
-                      .map((e) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Row(children: [
-                              Container(
-                                height: 16,
-                                width: 16,
-                                decoration: BoxDecoration(
-                                  color: e.color,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              const HSpace(),
-                              Small(text: e.title, context: context),
-                            ]),
-                          ))
-                      .toList(),
+        body: Stack(
+          children: [
+            AppMap(
+              // Logo is on the button left, attribution is on the button right.
+              logoViewMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
+              attributionButtonMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
+              dragEnabled: true,
+              onMapCreated: onMapCreated,
+              onStyleLoaded: () => onStyleLoaded(context),
+            ),
+            SafeArea(
+              minimum: const EdgeInsets.only(top: 8),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                  ],
                 ),
               ),
             ),
-          ),
-        )),
-      ])),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    bottom: 12,
+                    right: 12,
+                  ),
+                  child: Tile(
+                    fill: Theme.of(context).colorScheme.background,
+                    content: SizedBox(
+                      height: 60,
+                      child: Column(
+                        children: legend
+                            .map(
+                              (e) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 16,
+                                      width: 16,
+                                      decoration: BoxDecoration(
+                                        color: e.color,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    const HSpace(),
+                                    Small(text: e.title, context: context),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
