@@ -27,11 +27,13 @@ class DangerButtonState extends State<DangerButton> {
         Future.delayed(
           const Duration(seconds: 5),
           () {
-            setState(
-              () {
-                showHint = false;
-              },
-            );
+            if (mounted) {
+              setState(
+                () {
+                  showHint = false;
+                },
+              );
+            }
           },
         );
       },
