@@ -119,7 +119,9 @@ class AppMapState extends State<AppMap> {
     );
   }
 
-  /// Disables mapbox telemetry settings
+  /// A wrapper for the default onMapCreated callback.
+  /// In this callback we configure the default settings.
+  /// For example, we set the MapBox telemetry to disabled.
   Future<void> onMapCreated(MapboxMapController controller) async {
     controller.setTelemetryEnabled(false);
     widget.onMapCreated?.call(controller);
