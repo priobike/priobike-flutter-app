@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -98,7 +97,7 @@ class AppMapState extends State<AppMap> {
       // this token will be provided by an environment variable. However, we need
       // to integrate this in the CI builds and provide a development guide.
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
-      onMapCreated: widget.onMapCreated,
+      onMapCreated: onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
@@ -118,5 +117,13 @@ class AppMapState extends State<AppMap> {
       logoViewMargins: widget.logoViewMargins,
       attributionButtonMargins: widget.attributionButtonMargins,
     );
+  }
+
+  /// A wrapper for the default onMapCreated callback.
+  /// In this callback we configure the default settings.
+  /// For example, we set the MapBox telemetry to disabled.
+  Future<void> onMapCreated(MapboxMapController controller) async {
+    controller.setTelemetryEnabled(false);
+    widget.onMapCreated?.call(controller);
   }
 }
