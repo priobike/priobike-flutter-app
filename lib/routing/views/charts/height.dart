@@ -4,7 +4,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'dart:math' as math;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({Key? key}) : super(key: key);
