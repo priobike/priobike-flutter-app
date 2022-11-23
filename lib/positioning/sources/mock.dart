@@ -261,7 +261,7 @@ class PathMockPositionSource extends PositionSource {
   Future<LocationPermission> checkPermission() async => Geolocator.checkPermission();
 
   /// Request the location permissions.
-  /// With the mock client,  this still has to request for permission to display the custom puck.
+  /// With the mock client, this still has to request for permission to display the custom puck.
   @override
   Future<LocationPermission> requestPermission() async => Geolocator.requestPermission();
 
