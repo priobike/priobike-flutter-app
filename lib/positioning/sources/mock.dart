@@ -67,8 +67,7 @@ class StaticMockPositionSource extends PositionSource {
             longitude: position.longitude,
             altitude: 0,
             speed: 0,
-            heading: heading,
-            // Not 0, since 0 indicates an error.
+            heading: heading, // Not 0, since 0 indicates an error.
             accuracy: 1,
             speedAccuracy: 1,
             timestamp: DateTime.now().toUtc(),
@@ -89,8 +88,7 @@ class StaticMockPositionSource extends PositionSource {
       longitude: position.longitude,
       altitude: 0,
       speed: 0,
-      heading: heading,
-      // Not 0, since 0 indicates an error.
+      heading: heading, // Not 0, since 0 indicates an error.
       accuracy: 1,
       speedAccuracy: 1,
       timestamp: DateTime.now().toUtc(),
@@ -332,8 +330,7 @@ class PathMockPositionSource extends PositionSource {
         longitude: currentLocation.longitude,
         altitude: 0,
         speed: speed,
-        heading: heading,
-        // Not 0, since 0 indicates an error.
+        heading: heading, // Not 0, since 0 indicates an error.
         accuracy: 1,
         speedAccuracy: 1,
         timestamp: DateTime.now().toUtc(),
