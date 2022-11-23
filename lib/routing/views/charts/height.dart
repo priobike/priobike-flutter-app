@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'dart:math' as math;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({Key? key}) : super(key: key);
@@ -89,31 +90,40 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             text: "Höhenprofil dieser Route",
             context: context,
           ),
-          SizedBox(
-            height: 128,
-            width: frame.size.width - 16,
-            child: charts.LineChart([series!],
-                animate: true,
-                defaultRenderer: charts.LineRendererConfig(
-                  includeArea: true,
-                  strokeWidthPx: 4,
-                ),
-                domainAxis: charts.NumericAxisSpec(
-                  viewport: charts.NumericExtents(
-                    minDistance ?? 0,
-                    maxDistance ?? 0,
-                  ),
-                  tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                    desiredTickCount: 5,
-                    desiredMinTickCount: 3,
-                  ),
-                ),
-                primaryMeasureAxis: const charts.NumericAxisSpec(
-                  showAxisLine: false,
-                  tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                    zeroBound: true,
-                  ),
-                )),
+          Row(
+            children: [
+              RotatedBox(
+                quarterTurns: -1,
+                child: Small(text: "Höhe in Meter", context: context),
+              ),
+              SizedBox(
+                height: 128,
+                width: frame.size.width - 50,
+                child: charts.LineChart([series!],
+                    animate: true,
+                    defaultRenderer: charts.LineRendererConfig(
+                      includeArea: true,
+                      strokeWidthPx: 4,
+                    ),
+                    domainAxis: charts.NumericAxisSpec(
+                      viewport: charts.NumericExtents(
+                        minDistance ?? 0,
+                        maxDistance ?? 0,
+                      ),
+                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+                        desiredTickCount: 5,
+                        desiredMinTickCount: 3,
+                        dataIsInWholeNumbers: false,
+                      ),
+                    ),
+                    primaryMeasureAxis: const charts.NumericAxisSpec(
+                      showAxisLine: false,
+                      tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                        zeroBound: true,
+                      ),
+                    )),
+              ),
+            ],
           ),
           Small(text: "Distanz der Route in Kilometer", context: context),
         ],
