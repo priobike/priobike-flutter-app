@@ -114,4 +114,18 @@ class Route {
       northeast: LatLng(bounds.northeast.latitude + pad, bounds.northeast.longitude + pad),
     );
   }
+
+  /// Calculate a camera position for this route.
+  CameraPosition get cameraPosition {
+    final bounds = this.bounds;
+    // Calculate the center.
+    final center = latlng.LatLng((bounds.southwest.latitude + bounds.northeast.latitude) / 2,
+        (bounds.southwest.longitude + bounds.northeast.longitude) / 2);
+    return CameraPosition(
+      target: LatLng(center.latitude, center.longitude),
+      zoom: 12.0,
+      bearing: 0.0,
+      tilt: 0.0,
+    );
+  }
 }

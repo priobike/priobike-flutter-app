@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:priobike/ride/views/map.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -66,7 +66,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
     var phases = rs.currentRecommendation?.predictionValue;
     var dist = rs.currentRecommendation?.distance;
-    var sgId = rs.currentRecommendation?.sgId;
+    var sg = rs.currentRecommendation?.sg;
     var error = rs.currentRecommendation?.error;
     var currentQuality = rs.currentRecommendation?.quality;
 
@@ -79,7 +79,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
         tGreen == null ||
         phases == null ||
         dist == null ||
-        sgId == null ||
+        sg == null ||
         error == true ||
         currentQuality == null) {
       gaugeColors = [defaultGaugeColor];
@@ -87,7 +87,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       return;
     }
 
-    if (currentQuality < RideMapViewState.qualityThreshold) {
+    if (currentQuality < Ride.qualityThreshold) {
       gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
@@ -108,7 +108,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
 
     // Calculate the elapsed seconds since the prediction and adjust the prediction accordingly
-    var diff = DateTime.now().difference(time).inSeconds;
+    var diff = max(0, DateTime.now().difference(time).inSeconds);
     if (diff > phases.length) {
       diff = phases.length;
     }
@@ -128,28 +128,34 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
 
     // Map each second from now to the corresponding predicted signal color
-    var colors = phasesFromNow.map((phase) {
-      if (phase >= tGreen) {
-        // Map green values between the greentimeThreshold and the maxValue
-        var factor = (phase - tGreen) / (maxValue - tGreen);
-        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
-      } else {
-        // Map red values between the minValue and the greentimeThreshold
-        var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(const Color.fromARGB(255, 243, 60, 39), defaultGaugeColor, factor)!;
-      }
-    }).toList();
+    var colors = phasesFromNow.map(
+      (phase) {
+        if (phase >= tGreen) {
+          // Map green values between the greentimeThreshold and the maxValue
+          var factor = (phase - tGreen) / (maxValue - tGreen);
+          // Don't use the CI green here.
+          return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
+        } else {
+          // Map red values between the minValue and the greentimeThreshold
+          var factor = (phase - minValue) / (tGreen - minValue);
+          return Color.lerp(CI.red, defaultGaugeColor, factor)!;
+        }
+      },
+    ).toList();
 
     // Since we want the color steps not by second, but by speed, we map the stops accordingly
-    var stops = Iterable<double>.generate(colors.length, (second) {
-      if (second == 0) {
-        return double.infinity;
-      }
-      // Map the second to the needed speed
-      var speedKmh = (dist / second) * 3.6;
-      // Scale the speed between minSpeed and maxSpeed
-      return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
-    }).toList();
+    var stops = Iterable<double>.generate(
+      colors.length,
+      (second) {
+        if (second == 0) {
+          return double.infinity;
+        }
+        // Map the second to the needed speed
+        var speedKmh = (dist / second) * 3.6;
+        // Scale the speed between minSpeed and maxSpeed
+        return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+      },
+    ).toList();
 
     // Add stops and colos to indicate unavailable prediction ranges
     if (stops.isNotEmpty) {
@@ -191,35 +197,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
     var gauge = SfRadialGauge(
-      enableLoadingAnimation: true,
+      enableLoadingAnimation: false,
       axes: [
-        RadialAxis(
-          minimum: minSpeed,
-          maximum: maxSpeed,
-          onAxisTapped: onTapSpeedometer,
-          startAngle: 0,
-          endAngle: 360,
-          showTicks: false,
-          showLabels: false,
-          showAxisLine: false,
-          radiusFactor: 1,
-          labelOffset: 15,
-          axisLineStyle: const AxisLineStyle(
-            thicknessUnit: GaugeSizeUnit.factor,
-            thickness: 0.25,
-            color: Color.fromARGB(255, 44, 62, 80),
-            cornerStyle: CornerStyle.bothFlat,
-          ),
-          ranges: [
-            GaugeRange(
-              startValue: minSpeed,
-              endValue: maxSpeed,
-              startWidth: 53,
-              endWidth: 53,
-              color: const Color.fromARGB(255, 0, 0, 0),
-            ),
-          ],
-        ),
         RadialAxis(
           minimum: minSpeed,
           maximum: maxSpeed,
@@ -229,26 +208,30 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           interval: 10,
           minorTicksPerInterval: 4,
           showAxisLine: true,
-          radiusFactor: 0.985,
+          radiusFactor: 1,
           labelOffset: 14,
           axisLineStyle: AxisLineStyle(
             thicknessUnit: GaugeSizeUnit.factor,
             thickness: 0.25,
-            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+            color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
             cornerStyle: CornerStyle.bothFlat,
           ),
           majorTickStyle: MajorTickStyle(
-              length: 20,
-              thickness: 1.5,
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
+            length: 20,
+            thickness: 1.5,
+            color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+          ),
           minorTickStyle: MinorTickStyle(
-              length: 16,
-              thickness: 1.5,
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0)),
+            length: 16,
+            thickness: 1.5,
+            color: isDark ? const Color.fromARGB(131, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+          ),
           axisLabelStyle: GaugeTextStyle(
-              color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
-              fontWeight: FontWeight.bold,
-              fontSize: 18),
+            color: isDark ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 0, 0, 0),
+            fontWeight: FontWeight.bold,
+            fontFamily: "HamburgSans",
+            fontSize: 18,
+          ),
           ranges: [
             GaugeRange(
               startValue: minSpeed,
@@ -263,8 +246,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               value: (ps.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 24,
-              markerOffset: 4,
-              elevation: 4,
+              elevation: 0,
               markerWidth: 64,
               enableAnimation: true,
               animationType: AnimationType.ease,
@@ -274,11 +256,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               value: (ps.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 18,
-              markerOffset: 4,
-              elevation: 4,
+              elevation: 0,
               markerWidth: 58,
               enableAnimation: true,
-              borderWidth: 4,
+              borderWidth: 2,
               borderColor: Theme.of(context).colorScheme.background,
               animationType: AnimationType.ease,
               color: Theme.of(context).colorScheme.primary,
@@ -291,39 +272,67 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Transform.translate(
-          offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - 8 - MediaQuery.of(context).padding.bottom),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Stack(alignment: Alignment.center, children: [
-              Container(
-                child: gauge,
-                height: (MediaQuery.of(context).size.width - 16),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
-                    topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
+        offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - MediaQuery.of(context).padding.bottom),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
+                  topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 16,
-                      offset: const Offset(0, 0),
-                    ),
-                  ],
-                ),
+                ],
               ),
-              Container(
-                child: gauge,
-                height: (MediaQuery.of(context).size.width - 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
-                ),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
               ),
-              const RideTrafficLightView(),
-            ]),
-          )),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.width - 32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 52),
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.width - 4),
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: defaultGaugeColor, width: 48),
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.width - 4),
+              margin: const EdgeInsets.all(2),
+              child: gauge,
+            ),
+            const RideTrafficLightView(),
+          ],
+        ),
+      ),
     );
   }
 }

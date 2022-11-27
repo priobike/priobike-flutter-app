@@ -14,24 +14,11 @@ class AlertIcon extends Image {
         );
 }
 
-class BadSignalIcon extends Image {
-  const BadSignalIcon({double width = 24, double height = 24, Key? key})
-      : super(
-          key: key,
-          image: const AssetImage("assets/images/bad-signal.drawio.png"),
-          width: width,
-          height: height,
-          color: null,
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.center,
-        );
-}
-
 class DisconnectedIcon extends Image {
   const DisconnectedIcon({double width = 24, double height = 24, Key? key})
       : super(
           key: key,
-          image: const AssetImage("assets/images/disconnected.drawio.png"),
+          image: const AssetImage("assets/images/disconnected.png"),
           width: width,
           height: height,
           color: null,
@@ -44,7 +31,7 @@ class OfflineIcon extends Image {
   const OfflineIcon({double width = 24, double height = 24, Key? key})
       : super(
           key: key,
-          image: const AssetImage("assets/images/offline.drawio.png"),
+          image: const AssetImage("assets/images/offline.png"),
           width: width,
           height: height,
           color: null,

@@ -91,8 +91,7 @@ class AppBackButton extends StatelessWidget {
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
+          padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
           child: Icon(
             icon,
             size: 32,
@@ -100,8 +99,7 @@ class AppBackButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
+          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
     );
@@ -167,15 +165,13 @@ class BigButton extends StatelessWidget {
               ),
             const SizedBox(width: 12),
             Flexible(
-                child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            )),
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
             const SizedBox(width: 32),
           ],
         ),
@@ -225,8 +221,7 @@ class IconTextButton extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints =
-        const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
     this.borderColor,
     this.textColor,
   }) : super(key: key);
@@ -261,8 +256,7 @@ class IconTextButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style:
-                      TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
                 ),
               ),
             ),

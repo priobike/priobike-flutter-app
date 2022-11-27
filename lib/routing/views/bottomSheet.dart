@@ -423,7 +423,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
     // Getting all roadClass elements.
     if (routing.selectedRoute != null) {
-      for (GHSegment<String> element
+      for (GHSegment element
           in routing.selectedRoute!.path.details.roadClass) {
         if (element.value != null &&
             roadClassTranslation[element.value!] != null) {
@@ -442,7 +442,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       }
 
       // Getting all surface elements.
-      for (GHSegment<String> element
+      for (GHSegment element
           in routing.selectedRoute!.path.details.surface) {
         if (element.value != null &&
             surfaceTranslation[element.value!] != null) {

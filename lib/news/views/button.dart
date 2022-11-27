@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:provider/provider.dart';
@@ -26,9 +27,11 @@ class NewsButtonState extends State<NewsButton> {
     news = Provider.of<News>(context);
     final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
     if (unread != this.unread) {
-      setState(() {
-        this.unread = unread;
-      });
+      setState(
+        () {
+          this.unread = unread;
+        },
+      );
     }
     super.didChangeDependencies();
   }
@@ -39,7 +42,7 @@ class NewsButtonState extends State<NewsButton> {
       alignment: Alignment.topRight,
       children: [
         SmallIconButton(
-          icon: Icons.notifications,
+          icon: Icons.notifications_rounded,
           color: Colors.white,
           splash: Colors.white,
           fill: const Color.fromARGB(50, 255, 255, 255),
@@ -52,7 +55,7 @@ class NewsButtonState extends State<NewsButton> {
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.red,
+              color: CI.red,
             ),
             child: Small(text: "$unread", color: Colors.white, context: context),
           ),

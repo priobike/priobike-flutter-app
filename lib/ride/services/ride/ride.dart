@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +25,17 @@ import 'package:http/http.dart' as http;
 class Ride with ChangeNotifier {
   final log = Logger("Ride");
 
+  /// The threshold used for showing traffic light colors and speedometer colors
+  static const qualityThreshold = 0.5;
+
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
+
+  /// A boolean indicating if the webSocket is connected.
+  var connected = false;
+
+  /// An optional callback that is called when a new recommendation is received.
+  void Function(Recommendation)? onRecommendation;
 
   /// The web socket channel to the backend.
   WebSocketChannel? socket;
@@ -45,6 +55,9 @@ class Ride with ChangeNotifier {
   /// Note: This is currently calculated in the recommendation as well, but
   /// may lag behind depending on the network latency / server time.
   bool? calcCurrentSignalIsGreen;
+
+  /// The calculated history of the current recommendation.
+  List<int>? calcHistory;
 
   /// A timestamp when the last calculation was performed.
   /// This is used to prevent fast recurring calculations.
@@ -71,16 +84,19 @@ class Ride with ChangeNotifier {
 
   /// A callback that is executed when the websocket closes.
   Future<void> onCloseWebsocket(BuildContext context) async {
+    connected = false;
+    notifyListeners();
     // If this is on purpose, we don't do anything.
     if (!navigationIsActive) return;
     // Otherwise, we attempt to reconnect.
     log.w("Reconnecting websocket after disconnect: ${socket?.closeCode} ${socket?.closeReason}");
     // Connect to the websocket channel.
+    // FIXME The delay can trigger an error in the console if the connection to the web socket closes and the user stops the navigation.
     await Future.delayed(const Duration(milliseconds: 500), () => connectWebsocket(context));
   }
 
   /// A callback that is executed when a new recommendation arrives.
-  Future<void> onNewRecommendation(Parameters params) async {
+  Future<void> onJsonRPCRecommendation(Parameters params) async {
     if (!navigationIsActive) {
       log.w("Received recommendation while navigation is not active.");
       return;
@@ -89,11 +105,7 @@ class Ride with ChangeNotifier {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       recommendations.add(currentRecommendation!);
       calculateRecommendationInfo();
-      if (currentRecommendation!.error) {
-        log.w("Recommendation arrived with set error: ${currentRecommendation!.toJson()}");
-      } else {
-        log.i("Got recommendation via websocket: ${currentRecommendation!.toJson()}");
-      }
+      onRecommendation?.call(currentRecommendation!);
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
       log.e(hint);
@@ -115,6 +127,7 @@ class Ride with ChangeNotifier {
       log.w("Failed to calculate recommendation info: $reason");
       calcCurrentPhaseChangeTime = null;
       calcCurrentSignalIsGreen = null;
+      calcHistory = null;
       notifyListeners();
     }
 
@@ -134,13 +147,14 @@ class Ride with ChangeNotifier {
     if (startTime == null) return onFailure("Could not parse start time: $startTimeStr");
     // Calculate the seconds since the start of the prediction.
     final now = DateTime.now();
-    final secondsSinceStart = now.difference(startTime).inSeconds;
+    final secondsSinceStart = max(0, now.difference(startTime).inSeconds);
     // Chop off the seconds that are not in the prediction vector.
     final secondsInVector = vector.length;
     if (secondsSinceStart >= secondsInVector) return onFailure("Prediction vector is too short.");
     // Calculate the current vector.
     final currentVector = vector.sublist(secondsSinceStart);
     if (currentVector.isEmpty) return onFailure("Current vector is empty.");
+    calcHistory = vector.sublist(0, secondsSinceStart);
     // Calculate the seconds to the next phase change.
     int secondsToPhaseChange = 0;
     bool greenNow = currentVector[0] >= greentimeThreshold;
@@ -174,8 +188,10 @@ class Ride with ChangeNotifier {
     socket = Http.connectWebSocket(Uri.parse(wsUrl));
     jsonRPCPeer = Peer(socket!.cast<String>());
     jsonRPCPeer!.listen().then((_) => onCloseWebsocket(context));
-    jsonRPCPeer!.registerMethod("RecommendationUpdate", onNewRecommendation);
+    jsonRPCPeer!.registerMethod("RecommendationUpdate", onJsonRPCRecommendation);
     log.i("Connected to session websocket.");
+    connected = true;
+    notifyListeners();
   }
 
   /// Select a new ride.
@@ -194,12 +210,13 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final selectRideEndpoint = Uri.parse('https://$baseUrl/session-wrapper/ride');
-    http.Response response =
-        await Http.post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson())).onError((error, stackTrace) {
-      log.e("Error during select ride: $error");
-      ToastMessage.showError(error.toString());
-      throw Exception();
-    });
+    http.Response response = await Http.post(selectRideEndpoint, body: json.encode(selectRideRequest.toJson())).onError(
+      (error, stackTrace) {
+        log.e("Error during select ride: $error");
+        ToastMessage.showError(error.toString());
+        throw Exception();
+      },
+    );
 
     if (response.statusCode != 200) {
       final err = "Error during select ride with endpoint $selectRideEndpoint: ${response.body}";
@@ -268,11 +285,14 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
     // Mark that navigation is inactive.
     navigationIsActive = false;
-    // Send a navigation request.
-    final req = const NavigationRequest(active: false).toJson();
-    log.i("Sending navigation request via websocket: $req");
-    await jsonRPCPeer?.sendRequest('Navigation', req);
-    await jsonRPCPeer?.close();
+    // Prevents sending to a closed web socket and getting an error when sending feedback.
+    if (connected) {
+      // Send a navigation request.
+      final req = const NavigationRequest(active: false).toJson();
+      log.i("Sending navigation request via websocket: $req");
+      await jsonRPCPeer?.sendRequest('Navigation', req);
+      await jsonRPCPeer?.close();
+    }
   }
 
   @override

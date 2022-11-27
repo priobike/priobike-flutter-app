@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:priobike/accelerometer/models/acceleration.dart';
@@ -21,6 +22,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/dangers/models/danger.dart';
+import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.
@@ -80,6 +82,12 @@ class Tracking with ChangeNotifier {
 
   /// If the track can be sent.
   bool get canSendTrack => json != null;
+
+  /// The positions where the user tapped during a ride.
+  List<ScreenTrack> tapsTracked = [];
+
+  /// The devices frame size used to analyse on taps in ride view.
+  Size? deviceSize;
 
   Tracking();
 
@@ -156,11 +164,18 @@ class Tracking with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
-    final response = await Http.post(endpoint, body: json!);
-    if (response.statusCode != 200) {
-      log.e("Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
-    } else {
-      log.i("Successfully sent track to $endpoint");
+    try {
+      final response = await Http.post(endpoint, body: json!).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e(
+            "Error sending track to $endpoint: ${response.body}"); // If the track gets lost here, it's not a big deal.
+      } else {
+        log.i("Successfully sent track to $endpoint");
+      }
+    } on TimeoutException catch (error) {
+      log.w("Timeout sending track to $endpoint: $error");
+    } on SocketException catch (error) {
+      log.w("Error sending track to $endpoint: $error");
     }
 
     isSendingTrack = false;
@@ -182,6 +197,9 @@ class Tracking with ChangeNotifier {
     positions = null;
     recommendations = null;
     logs = null;
+    tapsTracked = [];
+    deviceSize = null;
+    isSendingTrack = false;
     notifyListeners();
   }
 
@@ -198,7 +216,13 @@ class Tracking with ChangeNotifier {
         'accelerations': accelerations?.map((d) => d.toJson()).toList(),
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
-        'deviceInfo': deviceInfo?.toMap(),
+        'deviceInfo': {
+          'name': 'unknown', // Default, required by tracking service.
+          ...(deviceInfo?.toMap() ?? {}),
+        },
+        'deviceWidth': deviceSize?.width.round(),
+        'deviceHeight': deviceSize?.height.round(),
+        'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
         'packageInfo': {
           'appName': packageInfo?.appName,
           'packageName': packageInfo?.packageName,

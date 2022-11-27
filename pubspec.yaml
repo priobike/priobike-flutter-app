@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.10.0
+version: 1.0.0
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -54,12 +54,14 @@ dependencies:
   device_info_plus: ^3.2.4 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
   package_info_plus: ^1.4.2 # Fetch info about the package
   battery_plus: ^2.1.4+1 # Fetch info about the battery state
-  charts_flutter: ^0.12.0 # Display minimalistic charts 
+  charts_flutter: ^0.12.0 # Display minimalistic charts
   share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
-  firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
-  firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
+  firebase_core: ^2.3.0 # Used to initialize the connection to Firebase
+  firebase_messaging: ^14.1.2 # Used to receive push notifications of news service
   flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: ^2.0.0 # Used to get accelerometer data
+  mqtt_client: ^9.6.8
+  system_info_plus: ^0.0.5 # Used to check the RAM of user device
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons
@@ -88,6 +90,18 @@ flutter_icons:
 
 # The following section is specific to Flutter.
 flutter:
+  fonts:
+    - family: HamburgSans
+      fonts:
+        - asset: assets/fonts/HamburgSans-Regular.ttf
+        - asset: assets/fonts/HamburgSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/HamburgSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/HamburgSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -100,97 +114,26 @@ flutter:
     - assets/splash.png
 
     # Geo data
-    - assets/geo/accident_black_spots_dresden.geojson
-    - assets/geo/accident_black_spots.geojson
-    - assets/geo/bicycle_parking_polygon.geojson
-    - assets/geo/bicycle_parking.geojson
-    - assets/geo/bicycle_rental_polygon.geojson
-    - assets/geo/bicycle_rental.geojson
-    - assets/geo/bicycle_shop_polygon.geojson
-    - assets/geo/bicycle_shop.geojson
-    - assets/geo/bike_air_station.geojson
-    - assets/geo/bike_and_ride.geojson
-    - assets/geo/bike_count.geojson
-    - assets/geo/construction_sides.geojson
-    - assets/geo/dresden_boundary.geojson
-    - assets/geo/hamburg_boundary.geojson
+    - assets/geo/
 
     # Sideloaded offline maps
-    - assets/offline/hamburg-light.db
-    - assets/offline/hamburg-dark.db
+    - assets/offline/
 
     # Files needed to get git info within the app, e.g. current branch or tag.
     # Please make sure that the repository is cloned by the branch name, and 
     # not by the commit hash (as is the default for Jenkins CI pipelines).
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 
-    - assets/text/privacy.txt # Privacy policy
-    - assets/text/licenses.txt # Licenses
-    - assets/text/thanks.txt # Aknowledgements
+    # Privacy Policy & Aknowledgements
+    - assets/text/
 
     # Assets for track simulation
-    - assets/tracks/hamburg/thomas.json
-    - assets/tracks/dresden/philipp.json
+    - assets/tracks/hamburg/
+    - assets/tracks/dresden/
 
-    # Map symbols
-    - assets/images/disconnected.drawio.png
-    - assets/images/disconnected-tilted.drawio.png
-    - assets/images/online.drawio.png
-    - assets/images/online-tilted.drawio.png
-    - assets/images/bad-signal.drawio.png
-    - assets/images/bad-signal-tilted.drawio.png
-    - assets/images/offline.drawio.png
-    - assets/images/offline-tilted.drawio.png
-    - assets/images/alert.drawio.png
-    - assets/images/start.drawio.png
-    - assets/images/destination.drawio.png
-    - assets/images/trafficlight.drawio.png
-    - assets/images/trafficlight-green-countdown.drawio.png
-    - assets/images/trafficlight-off.drawio.png
-    - assets/images/trafficlight-off-online.drawio.png
-    - assets/images/trafficlight-off-offline.drawio.png
-    - assets/images/trafficlight-off-bad-signal.drawio.png
-    - assets/images/trafficlight-red-countdown.drawio.png
-    - assets/images/waypoint.drawio.png
-    - assets/images/direction.png
-    - assets/images/air-dark.png
-    - assets/images/air-light.png
-    - assets/images/construction-dark.png
-    - assets/images/construction-light.png
-    - assets/images/park-dark.png
-    - assets/images/park-light.png
-    - assets/images/position-dark.png
-    - assets/images/position-light.png
-    - assets/images/position-static-dark.png
-    - assets/images/position-static-light.png
-    - assets/images/rent-dark.png
-    - assets/images/rent-light.png
-    - assets/images/repair-dark.png
-    - assets/images/repair-light.png
-
-    # Navigation icons
-    - assets/images/dark_continue.png
-    - assets/images/dark_finish.png
-    - assets/images/dark_keep_left.png
-    - assets/images/dark_keep_right.png
-    - assets/images/dark_roundabout.png
-    - assets/images/dark_turn_left.png
-    - assets/images/dark_turn_right.png
-    - assets/images/dark_turn_sharp_left.png
-    - assets/images/dark_turn_sharp_right.png
-    - assets/images/dark_turn_slight_left.png
-    - assets/images/dark_turn_slight_right.png
+    # Map symbols & Navigation icons
+    - assets/images/
+    - assets/images/trafficlights/
 
     # Screenshots
-    - assets/images/screenshots/speedometer-light.png
-    - assets/images/screenshots/speedometer-dark.png
-    - assets/images/screenshots/default-cycling-light.png
-    - assets/images/screenshots/default-cycling-dark.png
-    - assets/images/screenshots/minimal-recommendation-light.png
-    - assets/images/screenshots/minimal-recommendation-dark.png
-    - assets/images/screenshots/minimal-countdown-light.png
-    - assets/images/screenshots/minimal-countdown-dark.png
-
-    # Route Label
-    - assets/images/route-label-smm.png
-    - assets/images/route-label-pmm.png
+    - assets/images/screenshots/

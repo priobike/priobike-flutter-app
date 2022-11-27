@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/fcm.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -94,6 +96,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => Accelerometer()),
         ChangeNotifierProvider(create: (context) => Dangers()),
+        ChangeNotifierProvider(create: (context) => Datastream()),
         ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
@@ -104,104 +107,126 @@ class App extends StatelessWidget {
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          // Rebuild the view hierarchy when the color mode changes.
-          final colorMode = Provider.of<Settings>(context).colorMode;
+          final settings = Provider.of<Settings>(context);
 
           return MaterialApp(
             title: 'PrioBike',
+            showPerformanceOverlay: settings.enablePerformanceOverlay,
             theme: ThemeData(
               dialogBackgroundColor: const Color(0xFFFFFFFF),
+              fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.light(
                 background: Color(0xFFFFFFFF),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
-                surface: Color(0xFFF6F6FF),
+                primary: CI.blue,
+                secondary: CI.lightBlue,
+                surface: Color(0xF6F6F6FF),
                 brightness: Brightness.light,
               ),
               textTheme: const TextTheme(
                 headline1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
                 headline2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
                 headline3: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
                 headline4: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                bodyText1: TextStyle(fontSize: 16, fontWeight: FontWeight.w300, color: Color(0xFF000000)),
+                bodyText1: TextStyle(
+                  fontFamily: 'HamburgSans',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w300,
+                  color: Color(0xFF000000),
+                ),
                 subtitle1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
                 subtitle2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
               ),
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             darkTheme: ThemeData(
               dialogBackgroundColor: const Color(0xFF232323),
+              fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.dark(
                 background: Color(0xFF232323),
-                primary: Color.fromARGB(255, 0, 115, 255),
-                secondary: Color.fromARGB(255, 0, 198, 255),
-                surface: Color(0xFF3B3B3B),
+                primary: CI.blue,
+                secondary: CI.lightBlue,
+                surface: Color(0xF63B3B3B),
                 brightness: Brightness.dark,
               ),
               textTheme: const TextTheme(
                 headline1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline3: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 headline4: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
                 bodyText1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 subtitle1: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
                 subtitle2: TextStyle(
+                  fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
               ),
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
-            themeMode: colorMode == ColorMode.light
+            themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light
-                : colorMode == ColorMode.dark
+                : settings.colorMode == ColorMode.dark
                     ? ThemeMode.dark
                     // Fallback to the system preference.
                     : ThemeMode.system,

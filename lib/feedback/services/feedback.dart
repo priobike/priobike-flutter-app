@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -77,12 +78,19 @@ class Feedback with ChangeNotifier {
         value: entry.value.answer,
       );
 
-      final response = await Http.post(endpoint, body: json.encode(request.toJson()));
-      if (response.statusCode != 200) {
-        log.e(
-            "Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
-      } else {
-        log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
+      try {
+        final response =
+            await Http.post(endpoint, body: json.encode(request.toJson())).timeout(const Duration(seconds: 4));
+        if (response.statusCode != 200) {
+          log.e(
+              "Error sending feedback to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
+        } else {
+          log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
+        }
+      } on TimeoutException catch (error) {
+        log.w("Timeout sending feedback to $endpoint: $error");
+      } on SocketException catch (error) {
+        log.w("Error sending feedback to $endpoint: $error");
       }
     }
 

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/general_nav.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/licenses/views.dart';
+import 'package:priobike/privacy/services.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -53,24 +57,27 @@ class SettingsElement extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.background,
-        content: Row(children: [
-          Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BoldContent(text: title, context: context),
-                  if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null)
-                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
-                ],
-              ),
-              fit: FlexFit.tight),
-          SmallIconButton(
-            icon: icon,
-            onPressed: callback,
-            fill: Theme.of(context).colorScheme.surface,
-          ),
-        ]),
+        onPressed: callback,
+        content: Row(
+          children: [
+            Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BoldContent(text: title, context: context),
+                    if (subtitle != null) const SmallVSpace(),
+                    if (subtitle != null)
+                      Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                  ],
+                ),
+                fit: FlexFit.tight),
+            SizedBox(
+              height: 48,
+              width: 48,
+              child: Icon(icon),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -95,36 +102,45 @@ class SettingsSelection<E> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: MediaQuery.of(context).size.height / 2,
-        color: Theme.of(context).colorScheme.surface,
-        child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 64),
-            itemCount: elements.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Tile(
-                      fill: elements[index] == selected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.background,
-                      content: Row(children: [
-                        Flexible(
-                            child: Content(
-                              text: title(elements[index]),
-                              context: context,
-                              color: elements[index] == selected
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onBackground,
-                            ),
-                            fit: FlexFit.tight),
-                        Expanded(child: Container()),
-                        SmallIconButton(
-                          icon: elements[index] == selected ? Icons.check : Icons.check_box_outline_blank,
-                          onPressed: () => callback(elements[index]),
-                        ),
-                      ])));
-            }));
+    return SizedBox(
+      height: MediaQuery.of(context).size.height / 2,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 64),
+        itemCount: elements.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Tile(
+              fill: elements[index] == selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.background,
+              onPressed: () => callback(elements[index]),
+              content: Row(
+                children: [
+                  Flexible(
+                      child: Content(
+                        text: title(elements[index]),
+                        context: context,
+                        color: elements[index] == selected
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onBackground,
+                      ),
+                      fit: FlexFit.tight),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Icon(elements[index] == selected ? Icons.check : Icons.check_box_outline_blank),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
@@ -196,6 +212,7 @@ class SettingsViewState extends State<SettingsView> {
     await news.getArticles(context);
     await shortcuts.loadShortcuts(context);
     await places.loadPlaces(context);
+    await predictionStatusSummary.fetch(context);
 
     Navigator.pop(context);
   }
@@ -258,176 +275,231 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a datastream mode is selected.
+  Future<void> onSelectDatastreamMode(DatastreamMode datastreamMode) async {
+    // Tell the settings service that we selected the new datastream mode.
+    await settings.selectDatastreamMode(datastreamMode);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-        // Show status bar in opposite color of the background.
-        value:
-            Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-        child: Scaffold(
-          body: Stack(children: [
-            Container(color: Theme.of(context).colorScheme.surface),
-            SingleChildScrollView(
-              child: SafeArea(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    AppBackButton(onPressed: () => Navigator.pop(context)),
-                    const HSpace(),
-                    SubHeader(text: "Einstellungen", context: context),
-                  ]),
-                  const SmallVSpace(),
-                  if (feature.canEnableInternalFeatures)
-                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                  if (feature.canEnableInternalFeatures)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32, top: 8),
-                      child: Content(text: "Interne Testfeatures", context: context),
-                    ),
-                  if (feature.canEnableInternalFeatures)
-                    Padding(
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SafeArea(
+          top: true,
+          child: CustomScrollView(
+            slivers: <Widget>[
+              const GeneralNavBarView(
+                title: "Einstellungen",
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (feature.canEnableInternalFeatures)
+                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                    if (feature.canEnableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 32, top: 8),
+                        child: Content(text: "Interne Testfeatures", context: context),
+                      ),
+                    if (feature.canEnableInternalFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Interne Features",
                           icon: settings.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank,
                           callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
-                        )),
-                  if (settings.enableInternalFeatures)
-                    Padding(
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Performance-Overlay",
+                          icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
+                          callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Testort",
                           subtitle: settings.backend.region,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SettingsSelection(
-                                    elements: Backend.values,
-                                    selected: settings.backend,
-                                    title: (Backend e) => e.region,
-                                    callback: onSelectBackend);
-                              }),
-                        )),
-                  if (settings.enableInternalFeatures)
-                    Padding(
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                  elements: Backend.values,
+                                  selected: settings.backend,
+                                  title: (Backend e) => e.region,
+                                  callback: onSelectBackend);
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Ortung",
                           subtitle: settings.positioningMode.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SettingsSelection(
-                                  elements: PositioningMode.values,
-                                  selected: settings.positioningMode,
-                                  title: (PositioningMode e) => e.description,
-                                  callback: onSelectPositioningMode,
-                                );
-                              }),
-                        )),
-                  if (settings.enableInternalFeatures)
-                    Padding(
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                elements: PositioningMode.values,
+                                selected: settings.positioningMode,
+                                title: (PositioningMode e) => e.description,
+                                callback: onSelectPositioningMode,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "SG-Info",
                           subtitle: settings.sgLabelsMode.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SettingsSelection(
-                                  elements: SGLabelsMode.values,
-                                  selected: settings.sgLabelsMode,
-                                  title: (SGLabelsMode e) => e.description,
-                                  callback: onSelectSGLabelsMode,
-                                );
-                              }),
-                        )),
-                  if (settings.enableInternalFeatures)
-                    Padding(
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                elements: SGLabelsMode.values,
+                                selected: settings.sgLabelsMode,
+                                title: (SGLabelsMode e) => e.description,
+                                callback: onSelectSGLabelsMode,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Echtzeitdaten",
+                          subtitle: settings.datastreamMode.description,
+                          icon: Icons.expand_more,
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                elements: DatastreamMode.values,
+                                selected: settings.datastreamMode,
+                                title: (DatastreamMode e) => e.description,
+                                callback: onSelectDatastreamMode,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Tutorials zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
-                        )),
-                  if (feature.canEnableBetaFeatures)
-                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                  if (feature.canEnableBetaFeatures)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32, top: 8),
-                      child: Content(text: "Beta Testfeatures", context: context),
-                    ),
-                  if (feature.canEnableBetaFeatures)
-                    Padding(
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Datenschutz zurücksetzen",
+                          icon: Icons.recycling,
+                          callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
+                        ),
+                      ),
+                    if (feature.canEnableBetaFeatures)
+                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                    if (feature.canEnableBetaFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 32, top: 8),
+                        child: Content(text: "Beta Testfeatures", context: context),
+                      ),
+                    if (feature.canEnableBetaFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Beta Features",
                           icon: settings.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank,
                           callback: () => settings.setEnableBetaFeatures(!settings.enableBetaFeatures),
-                        )),
-                  if (settings.enableBetaFeatures)
-                    Padding(
+                        ),
+                      ),
+                    if (settings.enableBetaFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Routing",
                           subtitle: settings.routingEndpoint.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SettingsSelection(
-                                  elements: RoutingEndpoint.values,
-                                  selected: settings.routingEndpoint,
-                                  title: (RoutingEndpoint e) => e.description,
-                                  callback: onSelectRoutingMode,
-                                );
-                              }),
-                        )),
-                  if (settings.enableBetaFeatures)
-                    Padding(
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                elements: RoutingEndpoint.values,
+                                selected: settings.routingEndpoint,
+                                title: (RoutingEndpoint e) => e.description,
+                                callback: onSelectRoutingMode,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableBetaFeatures)
+                      Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
                           title: "Routenneuberechnung",
                           subtitle: settings.rerouting.description,
                           icon: Icons.expand_more,
-                          callback: () => showModalBottomSheet<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return SettingsSelection(
-                                    elements: Rerouting.values,
-                                    selected: settings.rerouting,
-                                    title: (Rerouting e) => e.description,
-                                    callback: onSelectRerouting);
-                              }),
-                        )),
-                  if (settings.enableBetaFeatures)
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                  elements: Rerouting.values,
+                                  selected: settings.rerouting,
+                                  title: (Rerouting e) => e.description,
+                                  callback: onSelectRerouting);
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableBetaFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                            title: "Logs",
+                            icon: Icons.list,
+                            callback: () =>
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
+                      ),
+                    const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
+                    const SmallVSpace(),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: Content(text: "Nutzbarkeit", context: context),
+                    ),
+                    const SmallVSpace(),
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: SettingsElement(
-                          title: "Logs",
-                          icon: Icons.list,
-                          callback: () =>
-                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
-                    ),
-                  const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
-                  const SmallVSpace(),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32),
-                    child: Content(text: "Nutzbarkeit", context: context),
-                  ),
-                  const SmallVSpace(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: SettingsElement(
-                      title: "Farbmodus",
-                      subtitle: settings.colorMode.description,
-                      icon: Icons.expand_more,
-                      callback: () => showModalBottomSheet<void>(
+                        title: "Farbmodus",
+                        subtitle: settings.colorMode.description,
+                        icon: Icons.expand_more,
+                        callback: () => showAppSheet(
                           context: context,
                           builder: (BuildContext context) {
                             return SettingsSelection(
@@ -435,15 +507,16 @@ class SettingsViewState extends State<SettingsView> {
                                 selected: settings.colorMode,
                                 title: (ColorMode e) => e.description,
                                 callback: onChangeColorMode);
-                          }),
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                  const SmallVSpace(),
-                  SettingsElement(
-                    title: "Fahrtansicht",
-                    subtitle: settings.ridePreference?.description,
-                    icon: Icons.expand_more,
-                    callback: () => showModalBottomSheet<void>(
+                    const SmallVSpace(),
+                    SettingsElement(
+                      title: "Fahrtansicht",
+                      subtitle: settings.ridePreference?.description,
+                      icon: Icons.expand_more,
+                      callback: () => showAppSheet(
                         context: context,
                         builder: (BuildContext context) {
                           return SettingsSelection(
@@ -451,14 +524,15 @@ class SettingsViewState extends State<SettingsView> {
                               selected: settings.ridePreference,
                               title: (RidePreference e) => e.description,
                               callback: onSelectRidePreference);
-                        }),
-                  ),
-                  const SmallVSpace(),
-                  SettingsElement(
-                    title: "Tacho-Spanne",
-                    subtitle: settings.speedMode.description,
-                    icon: Icons.expand_more,
-                    callback: () => showModalBottomSheet<void>(
+                        },
+                      ),
+                    ),
+                    const SmallVSpace(),
+                    SettingsElement(
+                      title: "Tacho-Spanne",
+                      subtitle: settings.speedMode.description,
+                      icon: Icons.expand_more,
+                      callback: () => showAppSheet(
                         context: context,
                         builder: (BuildContext context) {
                           return SettingsSelection(
@@ -466,68 +540,82 @@ class SettingsViewState extends State<SettingsView> {
                               selected: settings.speedMode,
                               title: (SpeedMode e) => e.description,
                               callback: onSelectSpeedMode);
-                        }),
-                  ),
-                  const SmallVSpace(),
-                  SettingsElement(
+                        },
+                      ),
+                    ),
+                    const SmallVSpace(),
+                    SettingsElement(
                       title: "Feedback geben",
                       icon: Icons.email,
                       callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
                             builder: (_) => FeedbackView(
-                                  onSubmitted: (context) async {
-                                    Navigator.pop(context);
-                                  },
-                                  showBackButton: true,
-                                )));
-                      }),
-                  const SmallVSpace(),
-                  const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                  const SmallVSpace(),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32),
-                    child: Content(text: "Weitere Informationen", context: context),
-                  ),
-                  const VSpace(),
-                  SettingsElement(
+                              onSubmitted: (context) async {
+                                Navigator.pop(context);
+                              },
+                              isolatedViewUsage: true,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SmallVSpace(),
+                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                    const SmallVSpace(),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: Content(text: "Weitere Informationen", context: context),
+                    ),
+                    const VSpace(),
+                    SettingsElement(
                       title: "Datenschutz",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
                         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
-                      }),
-                  const SmallVSpace(),
-                  SettingsElement(
+                      },
+                    ),
+                    const SmallVSpace(),
+                    SettingsElement(
                       title: "Lizenzen",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                          return const AssetTextView(asset: "assets/text/licenses.txt");
-                        }));
-                      }),
-                  const SmallVSpace(),
-                  SettingsElement(
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
+                      },
+                    ),
+                    const SmallVSpace(),
+                    SettingsElement(
                       title: "Danksagung",
-                      icon: Icons.info,
+                      icon: Icons.info_outline_rounded,
                       callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                          return const AssetTextView(asset: "assets/text/thanks.txt");
-                        }));
-                      }),
-                  const SmallVSpace(),
-                  const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                  const SmallVSpace(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Small(
-                        text: "PrioBike v${feature.appVersion} ${feature.gitHead}",
-                        color: Colors.grey,
-                        context: context),
-                  ),
-                  const SizedBox(height: 128),
-                ],
-              )),
-            ),
-          ]),
-        ));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) {
+                              return const AssetTextView(asset: "assets/text/thanks.txt");
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    const SmallVSpace(),
+                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                    const SmallVSpace(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Small(
+                          text: "PrioBike v${feature.appVersion} ${feature.gitHead}",
+                          color: Colors.grey,
+                          context: context),
+                    ),
+                    const SizedBox(height: 128),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

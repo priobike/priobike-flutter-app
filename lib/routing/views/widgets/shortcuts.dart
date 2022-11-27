@@ -62,18 +62,18 @@ class ShortCutsRowState extends State<ShortCutsRow> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> shortCutItems = shortcuts.shortcuts!.map((entry) {
+    final List<Widget> shortCutItems = shortcuts.shortcuts != null ? shortcuts.shortcuts!.map((entry) {
       return _shortcutItem(context, entry.name, () async {
         widget.onPressed(entry.waypoints);
         if (widget.close) Navigator.of(context).pop();
       }, true);
-    }).toList();
-    final List<Widget> placesItems = places.places!.map((entry) {
+    }).toList() : [];
+    final List<Widget> placesItems = places.places != null ? places.places!.map((entry) {
       return _shortcutItem(context, entry.name, () async {
         widget.onPressed([entry.waypoint]);
         if (widget.close) Navigator.of(context).pop();
       }, false);
-    }).toList();
+    }).toList() : [];
     return SizedBox(
       /// 32 + 2*10 padding
       height: 52,

@@ -6,6 +6,7 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
@@ -14,10 +15,11 @@ class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
   final Future<void> Function(BuildContext context) onSubmitted;
 
-  /// A boolean indicating if a back button should be shown.
-  final bool showBackButton;
+  /// A boolean indicating if the view is used isolated or after a ride.
+  /// This determines whether a back button should be shown and also whether the option to save a route should be shown.
+  final bool isolatedViewUsage;
 
-  const FeedbackView({required this.onSubmitted, this.showBackButton = false, Key? key}) : super(key: key);
+  const FeedbackView({required this.onSubmitted, this.isolatedViewUsage = false, Key? key}) : super(key: key);
 
   @override
   FeedbackViewState createState() => FeedbackViewState();
@@ -67,11 +69,24 @@ class FeedbackViewState extends State<FeedbackView> {
       body: Container(
         color: Theme.of(context).colorScheme.surface,
         width: MediaQuery.of(context).size.width,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text("Sende Feedback...", style: TextStyle(fontSize: 16)),
-        ]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            const Text(
+              "Sende Feedback...",
+              style: TextStyle(fontSize: 16),
+            ),
+            TextButton(
+              onPressed: () async => await widget.onSubmitted(context),
+              child: const Text(
+                "Abbrechen",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -85,60 +100,84 @@ class FeedbackViewState extends State<FeedbackView> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          body: Stack(children: [
-        Container(
-          color: Theme.of(context).colorScheme.surface,
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            child: SafeArea(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 8),
-                if (widget.showBackButton)
-                  Row(children: [
-                    AppBackButton(onPressed: () => Navigator.pop(context)),
-                    const HSpace(),
-                    SubHeader(text: "Feedback", context: context),
-                  ]),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: StarRatingView(text: "Feedback zur App"),
+        body: Stack(
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.surface,
+              height: MediaQuery.of(context).size.height,
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      if (widget.isolatedViewUsage)
+                        Row(
+                          children: [
+                            AppBackButton(onPressed: () => Navigator.pop(context)),
+                            const HSpace(),
+                            SubHeader(text: "Feedback", context: context),
+                          ],
+                        ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      if (!widget.isolatedViewUsage)
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: Small(text: "Hat dir die Route gefallen?", context: context),
+                            ),
+                            const SmallVSpace(),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: BigButton(
+                                  label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
+                            ),
+                            const VSpace(),
+                            const Divider(),
+                            const VSpace(),
+                          ],
+                        ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: StarRatingView(text: "Feedback zur App"),
+                      ),
+                      const VSpace(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: TextFeedbackView(text: "Was können wir verbessern?"),
+                      ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: SendTrackingView(),
+                      ),
+                      const VSpace(),
+                      const Divider(),
+                      const VSpace(),
+                      BigButton(
+                        iconColor: Colors.white,
+                        icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
+                            ? Icons.send
+                            : Icons.check,
+                        label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
+                            ? "Senden"
+                            : "Fertig",
+                        onPressed: () => submit(context),
+                      ),
+                      const SizedBox(height: 128),
+                    ],
+                  ),
                 ),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: TextFeedbackView(text: "Was können wir verbessern?"),
-                ),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
-                  child: SendTrackingView(),
-                ),
-                const VSpace(),
-                const Divider(),
-                const VSpace(),
-                BigButton(
-                  iconColor: Colors.white,
-                  icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                      ? Icons.send
-                      : Icons.check,
-                  label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                      ? "Senden"
-                      : "Fertig",
-                  onPressed: () => submit(context),
-                ),
-                const SizedBox(height: 128),
-              ],
-            )),
-          ),
+              ),
+            ),
+          ],
         ),
-      ])),
+      ),
     );
   }
 }

@@ -9,8 +9,10 @@ import 'package:provider/provider.dart';
 /// A list item with icon.
 class IconItem extends Row {
   IconItem({Key? key, required IconData icon, required String text, required BuildContext context})
-      : super(key: key, children: [
-          SizedBox(
+      : super(
+          key: key,
+          children: [
+            SizedBox(
               width: 64,
               height: 64,
               child: Icon(
@@ -18,10 +20,14 @@ class IconItem extends Row {
                 color: Colors.blueAccent,
                 size: 64,
                 semanticLabel: text,
-              )),
-          const SmallHSpace(),
-          Expanded(child: Content(text: text, context: context)),
-        ]);
+              ),
+            ),
+            const SmallHSpace(),
+            Expanded(
+              child: Content(text: text, context: context),
+            ),
+          ],
+        );
 }
 
 /// A view that displays the privacy policy.
@@ -37,45 +43,31 @@ class PrivacyPolicyView extends StatefulWidget {
 
 class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
-  late PrivacyPolicy s;
+  late PrivacyPolicy privacyService;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<PrivacyPolicy>(context);
+    privacyService = Provider.of<PrivacyPolicy>(context);
 
     // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await s.loadPolicy(context);
-    });
-
-    super.didChangeDependencies();
-  }
-
-  /// Render a loading indicator.
-  Widget renderLoadingIndicator() {
-    return Scaffold(
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        width: MediaQuery.of(context).size.width,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text("Lade...", style: TextStyle(fontSize: 16)),
-        ]),
-      ),
+    WidgetsBinding.instance?.addPostFrameCallback(
+      (_) async {
+        await privacyService.loadPolicy(context);
+      },
     );
+    super.didChangeDependencies();
   }
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    await s.confirm();
+    await privacyService.confirm(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!s.hasLoaded) return Container();
+    if (!privacyService.hasLoaded) return Container();
 
-    if (s.isConfirmed == true && widget.child != null) return widget.child!;
+    if ((privacyService.isConfirmed == true) && (widget.child != null)) return widget.child!;
 
     return Scaffold(
       body: Container(
@@ -90,18 +82,19 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 164),
-                      if (!s.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!s.hasChanged!) Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
-                      if (s.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
-                      if (s.hasChanged!)
+                      if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
+                      if (!privacyService.hasChanged!)
+                        Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
+                      if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
+                      if (privacyService.hasChanged!)
                         Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
                       const SmallVSpace(),
-                      if (!s.hasChanged!)
+                      if (!privacyService.hasChanged!)
                         SubHeader(
                             text:
                                 "Bitte lies dir deshalb kurz durch, wie wir deine Daten schützen. Das Wichtigste zuerst:",
                             context: context),
-                      if (s.hasChanged!)
+                      if (privacyService.hasChanged!)
                         SubHeader(text: "Lies dir hierzu kurz unsere Änderungen durch.", context: context),
                       const VSpace(),
                       IconItem(
@@ -122,7 +115,7 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                               "Um die App zu verbessern, sammeln wir Informationen über den Komfort von Straßen, Fehlerberichte und Feedback.",
                           context: context),
                       const VSpace(),
-                      Content(text: s.text!, context: context),
+                      Content(text: privacyService.assetText!, context: context),
                       const SizedBox(height: 256),
                     ],
                   ),
@@ -131,12 +124,17 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
             ),
             if (widget.child == null)
               SafeArea(
-                  child: Column(children: [
-                const SizedBox(height: 8),
-                Row(children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                ]),
-              ])),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             if (widget.child != null)
               Pad(
                 child: BigButton(

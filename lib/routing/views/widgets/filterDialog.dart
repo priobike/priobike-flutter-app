@@ -52,13 +52,12 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.bikeType = BikeType.bike;
+                                      profileService?.bikeType = null;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService?.bikeType ==
-                                            BikeType.bike
+                                    backgroundColor: profileService?.bikeType == null
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(context)
                                             .colorScheme
@@ -74,8 +73,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.pedal_bike,
-                                        color: profileService?.bikeType ==
-                                                BikeType.bike
+                                        color: profileService?.bikeType == null
                                             ? Colors.white
                                             : Theme.of(context)
                                                         .colorScheme

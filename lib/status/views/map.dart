@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -17,108 +19,115 @@ class SGStatusMapViewLegendElement {
   SGStatusMapViewLegendElement(this.title, this.color);
 }
 
-class SGStatusMapViewMode {
-  /// The name of the mode.
-  final String name;
+class SGStatusMapView extends StatefulWidget {
+  const SGStatusMapView({Key? key}) : super(key: key);
 
-  /// The MapBox color function.
-  final dynamic color;
+  @override
+  SGStatusMapViewState createState() => SGStatusMapViewState();
+}
 
-  /// The MapBox first label function.
-  final dynamic firstLabel;
+class SGStatusMapViewState extends State<SGStatusMapView> {
+  /// A map controller for the map.
+  MapboxMapController? mapController;
 
-  /// The MapBox second label function.
-  final dynamic secondLabel;
+  /// Bool to save if sources have been initialized.
+  bool sourcesInitialized = false;
 
-  /// The legend.
-  final List<SGStatusMapViewLegendElement> legend;
+  /// A callback which is executed when the map was created.
+  Future<void> onMapCreated(MapboxMapController controller) async {
+    mapController = controller;
+  }
 
-  const SGStatusMapViewMode({
-    required this.name,
-    required this.color,
-    required this.firstLabel,
-    required this.secondLabel,
-    required this.legend,
-  });
+  /// A callback which is executed when the map style was loaded.
+  Future<void> onStyleLoaded(BuildContext context) async {
+    if (mapController == null) return;
 
-  static final all = [
-    SGStatusMapViewMode(
-      name: "Prognosequalität",
-      color: [
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+
+    if (!sourcesInitialized) {
+      await mapController?.addSource(
+        "sg-locs",
+        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson"),
+      );
+      await mapController?.addSource(
+        "sg-lanes",
+        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson"),
+      );
+      sourcesInitialized = true;
+    }
+
+    // Define the color scheme for the layers.
+    final color = [
+      "case",
+      // Display black if prediction_available is false.
+      [
+        "==",
+        ["get", "prediction_available"],
+        false
+      ],
+      "#000000",
+      // Otherwise, display a color based on the time since the last prediction.
+      [
         "interpolate",
         ["linear"],
         [
           "number",
-          ["get", "prediction_quality"]
+          ["get", "prediction_time_diff"]
         ],
-        -1,
-        "#000000",
-        0,
-        "#ff0000",
-        0.5,
-        "#ffff00",
-        1,
-        "#00ff00",
-      ],
-      firstLabel: [
-        "concat",
-        ["get", "thing_name"],
-        " ",
-        ["get", "thing_properties_lanetype"],
-      ],
-      secondLabel: ["get", "prediction_quality"],
-      legend: [
-        SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement("Schlechte Prognose", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement("Mittlere Prognose", const Color(0xffffff00)),
-        SGStatusMapViewLegendElement("Gute Prognose", const Color(0xff00ff00)),
-      ],
-    ),
-    SGStatusMapViewMode(
-      name: "Zeit seit letzter Prognose",
-      color: [
-        "case",
-        // Display black if prediction_available is false.
-        [
-          "==",
-          ["get", "prediction_available"],
-          false
-        ],
-        "#000000",
-        // Otherwise, display a color based on the time since the last prediction.
+        // If the prediction is recent, interpolate based on the prediction quality.
+        60,
         [
           "interpolate",
           ["linear"],
           [
             "number",
-            ["get", "prediction_time_diff"]
+            ["get", "prediction_quality"]
           ],
+          -1,
+          "#000000",
           0,
-          "#00ff00",
-          60,
-          "#00ff00",
-          600,
-          "#ffff00",
-          3600,
-          "#ff0000",
-        ]
-      ],
-      firstLabel: [
-        "concat",
-        ["get", "thing_name"],
-        " ",
-        ["get", "thing_properties_lanetype"],
-      ],
-      // Convert prediction_time_diff from unix millis to minutes.
-      // But display nothing if prediction_available = false
-      secondLabel: [
-        "case",
-        [
-          "==",
-          ["get", "prediction_available"],
-          false
+          "rgb(230, 51, 40)",
+          1,
+          "rgb(0, 115, 255)",
         ],
-        "Keine Prognose",
+        // Otherwise, show that the prediction is bad.
+        600,
+        "rgb(230, 51, 40)",
+      ]
+    ];
+
+    // Define the label that will be displayed on top.
+    final title = [
+      "concat",
+      ["get", "thing_name"],
+      " ",
+      ["get", "thing_properties_lanetype"],
+    ];
+
+    await mapController?.removeLayer("sg-lines-bg");
+    await mapController?.addLayer(
+      "sg-lanes",
+      "sg-lines-bg",
+      const LineLayerProperties(
+        lineColor: "#000000",
+        lineCap: "round",
+        lineJoin: "round",
+        lineWidth: 4,
+      ),
+    );
+
+    // Define the label that will be displayed below.
+    final subtitle = [
+      "case",
+      [
+        "==",
+        ["get", "prediction_available"],
+        false
+      ],
+      "Keine Prognose",
+      [
+        "concat",
         [
           "concat",
           [
@@ -135,203 +144,173 @@ class SGStatusMapViewMode {
               ]
             ]
           ],
-          " min",
-        ]
-      ],
-      legend: [
-        SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor >1h", const Color(0xffff0000)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor 10min", const Color(0xffffff00)),
-        SGStatusMapViewLegendElement("Letzte Prognose vor 1min", const Color(0xff00ff00)),
-      ],
-    ),
-  ];
-}
-
-class SGStatusMapView extends StatefulWidget {
-  const SGStatusMapView({Key? key}) : super(key: key);
-
-  @override
-  SGStatusMapViewState createState() => SGStatusMapViewState();
-}
-
-class SGStatusMapViewState extends State<SGStatusMapView> {
-  /// A map controller for the map.
-  MapboxMapController? mapController;
-
-  /// The current mode.
-  SGStatusMapViewMode mode = SGStatusMapViewMode.all.first;
-
-  /// A callback which is executed when the map was created.
-  Future<void> onMapCreated(MapboxMapController controller) async {
-    mapController = controller;
-
-    mapController?.updateContentInsets(EdgeInsets.only(
-      top: 0,
-      bottom: 128 + MediaQuery.of(context).padding.bottom,
-      left: 18,
-      right: 18,
-    ));
-  }
-
-  /// A callback that is executed when the mode was changed.
-  Future<void> updateMapMode(SGStatusMapViewMode mode) async {
-    await mapController?.removeLayer("sg-lines-bg");
-    await mapController?.addLayer("sg-lanes", "sg-lines-bg",
-        const LineLayerProperties(lineColor: "#000000", lineCap: "round", lineJoin: "round", lineWidth: 4));
+          " min - Qualität:",
+        ],
+        ["get", "prediction_quality"],
+      ]
+    ];
 
     await mapController?.removeLayer("sg-lines");
-    await mapController?.addLayer("sg-lanes", "sg-lines",
-        LineLayerProperties(lineColor: mode.color, lineCap: "round", lineJoin: "round", lineWidth: 2));
+    await mapController?.addLayer(
+      "sg-lanes",
+      "sg-lines",
+      LineLayerProperties(
+        lineColor: color,
+        lineCap: "round",
+        lineJoin: "round",
+        lineWidth: 2,
+      ),
+    );
 
     await mapController?.removeLayer("sg-circles");
     await mapController?.addLayer(
-        "sg-locs",
-        "sg-circles",
-        CircleLayerProperties(
-          circleColor: mode.color,
-          circleRadius: 3,
-          circleStrokeWidth: 2,
-          circleStrokeColor: "#000000",
-        ));
+      "sg-locs",
+      "sg-circles",
+      CircleLayerProperties(
+        circleColor: color,
+        circleRadius: 3,
+        circleStrokeWidth: 2,
+        circleStrokeColor: "#000000",
+      ),
+    );
 
     await mapController?.removeLayer("sg-first-labels");
     await mapController?.addLayer(
-        "sg-locs",
-        "sg-first-labels",
-        SymbolLayerProperties(
-          textField: mode.firstLabel,
-          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          textSize: 14,
-          textOffset: [
-            Expressions.literal,
-            [0, 1]
-          ],
-          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
-          // Hide after zoom level 15.
-          textOpacity: [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            0,
-            0,
-            14,
-            0,
-            15,
-            0.75,
-          ],
-          textAllowOverlap: true,
-        ));
+      "sg-locs",
+      "sg-first-labels",
+      SymbolLayerProperties(
+        textField: title,
+        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        textSize: 14,
+        textOffset: [
+          Expressions.literal,
+          [0, 1]
+        ],
+        textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
+        // Hide after zoom level 15.
+        textOpacity: [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0,
+          0,
+          16,
+          0,
+          17,
+          0.75,
+        ],
+        textAllowOverlap: true,
+      ),
+    );
 
     await mapController?.removeLayer("sg-second-labels");
     await mapController?.addLayer(
-        "sg-locs",
-        "sg-second-labels",
-        SymbolLayerProperties(
-          textField: mode.secondLabel,
-          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          textSize: 12,
-          textOffset: [
-            Expressions.literal,
-            [0, 2]
-          ],
-          textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
-          // Hide after zoom level 15.
-          textOpacity: [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            0,
-            0,
-            14,
-            0,
-            15,
-            0.75,
-          ],
-          textAllowOverlap: true,
-        ));
-  }
-
-  /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded(BuildContext context) async {
-    if (mapController == null) return;
-
-    final settings = Provider.of<Settings>(context, listen: false);
-    final baseUrl = settings.backend.path;
-
-    await mapController?.addSource("sg-locs",
-        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson"));
-
-    await mapController?.addSource("sg-lanes",
-        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson"));
-
-    updateMapMode(mode);
+      "sg-locs",
+      "sg-second-labels",
+      SymbolLayerProperties(
+        textField: subtitle,
+        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        textSize: 12,
+        textOffset: [
+          Expressions.literal,
+          [0, 2.5]
+        ],
+        textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
+        // Hide after zoom level 15.
+        textOpacity: [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0,
+          0,
+          16,
+          0,
+          17,
+          0.75,
+        ],
+        textAllowOverlap: true,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final legend = [
+      SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
+      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.red),
+      SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
+    ];
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-          body: Stack(children: [
-        AppMap(
-          dragEnabled: true,
-          onMapCreated: onMapCreated,
-          onStyleLoaded: () => onStyleLoaded(context),
-        ),
-        SafeArea(
-          minimum: const EdgeInsets.only(top: 8),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-            ]),
-          ),
-        ),
-        SafeArea(
-            child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Tile(
-              fill: Theme.of(context).colorScheme.background,
-              content: SizedBox(
-                  height: 80,
-                  child: PageView.builder(
-                    itemCount: SGStatusMapViewMode.all.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        mode = SGStatusMapViewMode.all[index];
-                      });
-                      updateMapMode(mode);
-                    },
-                    itemBuilder: (context, index) {
-                      final mode = SGStatusMapViewMode.all[index];
-                      return Column(
-                          children: mode.legend
-                              .map((e) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: Row(children: [
-                                      Container(
-                                        height: 16,
-                                        width: 16,
-                                        decoration: BoxDecoration(
-                                          color: e.color,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      const HSpace(),
-                                      Small(text: e.title, context: context),
-                                    ]),
-                                  ))
-                              .toList());
-                    },
-                  )),
+        body: Stack(
+          children: [
+            AppMap(
+              // Logo is on the button left, attribution is on the button right.
+              logoViewMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
+              attributionButtonMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
+              dragEnabled: true,
+              onMapCreated: onMapCreated,
+              onStyleLoaded: () => onStyleLoaded(context),
             ),
-          ),
-        )),
-      ])),
+            SafeArea(
+              minimum: const EdgeInsets.only(top: 8),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                  ],
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    bottom: 12,
+                    right: 12,
+                  ),
+                  child: Tile(
+                    fill: Theme.of(context).colorScheme.background,
+                    content: SizedBox(
+                      height: 60,
+                      child: Column(
+                        children: legend
+                            .map(
+                              (e) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 16,
+                                      width: 16,
+                                      decoration: BoxDecoration(
+                                        color: e.color,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    const HSpace(),
+                                    Small(text: e.title, context: context),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

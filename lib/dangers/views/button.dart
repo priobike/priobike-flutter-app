@@ -22,26 +22,35 @@ class DangerButtonState extends State<DangerButton> {
     super.initState();
 
     // Hide the hint after a few seconds.
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 5), () {
-        setState(() {
-          showHint = false;
-        });
-      });
-    });
+    WidgetsBinding.instance!.addPostFrameCallback(
+      (_) {
+        Future.delayed(
+          const Duration(seconds: 5),
+          () {
+            if (mounted) {
+              setState(
+                () {
+                  showHint = false;
+                },
+              );
+            }
+          },
+        );
+      },
+    );
   }
 
   /// A callback that is called when the button is tapped.
   Future<void> onTap() async {
     final dangers = Provider.of<Dangers>(context, listen: false);
     dangers.reportDanger(context);
-    ToastMessage.showSuccess("Danke für's Melden!");
+    ToastMessage.showSuccess("Danke für's Melden der Gefahr!");
   }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 8,
+      top: 48, // Below the MapBox attribution.
       left: 0,
       child: SafeArea(
         child: RawMaterialButton(
@@ -50,7 +59,10 @@ class DangerButtonState extends State<DangerButton> {
           splashColor: Theme.of(context).colorScheme.surface,
           constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           child: AnimatedCrossFade(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 500),
+            firstCurve: Curves.easeInOutCubic,
+            secondCurve: Curves.easeInOutCubic,
+            sizeCurve: Curves.easeInOutCubic,
             firstChild: SizedBox(
               width: 64,
               height: 64,

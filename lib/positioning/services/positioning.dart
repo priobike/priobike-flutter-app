@@ -187,13 +187,15 @@ class Positioning with ChangeNotifier {
       ),
     );
 
-    positionSubscription = positionStream.listen((Position position) {
-      if (!isGeolocating) return;
-      lastPosition = position;
-      positions.add(position);
-      onNewPosition(position);
-      notifyListeners();
-    });
+    positionSubscription = positionStream.listen(
+      (Position position) {
+        if (!isGeolocating) return;
+        lastPosition = position;
+        positions.add(position);
+        onNewPosition(position);
+        notifyListeners();
+      },
+    );
 
     log.i('Geolocator started!');
   }

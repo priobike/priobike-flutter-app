@@ -142,8 +142,7 @@ class MockRide extends Ride {
               100,
               100,
             ],
-            sgId: "SG 1",
-            sgPos: const Point(lat: 53.564292, lon: 9.902202),
+            sg: null,
             timeUnixMillis: 0,
           ),
         );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/general_nav.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -17,6 +18,9 @@ class ShortcutsEditView extends StatefulWidget {
 class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
+
+  /// The ScrollController for syncing reorderable list and custom scroll.
+  final ScrollController scrollController = ScrollController();
 
   @override
   void didChangeDependencies() {
@@ -53,53 +57,67 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: SafeArea(
-              child: Column(children: [
-            const SizedBox(height: 8),
-            Row(children: [
-              AppBackButton(onPressed: () => Navigator.pop(context), icon: Icons.chevron_left),
-              const HSpace(),
-              SubHeader(text: "Shortcuts", context: context),
-            ]),
-            ReorderableListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              proxyDecorator: (proxyWidget, idx, anim) {
-                return proxyWidget;
-              },
-              children: shortcuts.shortcuts!.asMap().entries.map<Widget>((entry) {
-                return Container(
-                    key: Key("$entry.key"),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 8),
-                      child: Tile(
-                        fill: Theme.of(context).colorScheme.background,
-                        borderRadius:
-                            const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                        content: Row(children: [
-                          Flexible(
-                              child: BoldContent(
-                                text: entry.value.name,
-                                context: context,
+        body: SafeArea(
+          top: true,
+          child: CustomScrollView(
+            controller: scrollController,
+            slivers: <Widget>[
+              const GeneralNavBarView(
+                title: "Strecken",
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    ReorderableListView(
+                      scrollController: scrollController,
+                      // physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      proxyDecorator: (proxyWidget, idx, anim) {
+                        return proxyWidget;
+                      },
+                      children: shortcuts.shortcuts!.asMap().entries.map<Widget>(
+                        (entry) {
+                          return Container(
+                            key: Key("$entry.key"),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16, top: 8),
+                              child: Tile(
+                                fill: Theme.of(context).colorScheme.background,
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                                content: Row(
+                                  children: [
+                                    Flexible(
+                                        child: BoldContent(
+                                          text: entry.value.name,
+                                          context: context,
+                                        ),
+                                        fit: FlexFit.tight),
+                                    const HSpace(),
+                                    SmallIconButton(
+                                      icon: Icons.delete,
+                                      onPressed: () => onDeleteShortcut(entry.key),
+                                      fill: Theme.of(context).colorScheme.surface,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              fit: FlexFit.tight),
-                          const HSpace(),
-                          SmallIconButton(
-                            icon: Icons.delete,
-                            onPressed: () => onDeleteShortcut(entry.key),
-                            fill: Theme.of(context).colorScheme.surface,
-                          ),
-                        ]),
-                      ),
-                    ));
-              }).toList(),
-              onReorder: onChangeShortcutOrder,
-            ),
-            const SizedBox(height: 128),
-          ])),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                      onReorder: onChangeShortcutOrder,
+                    ),
+                    const SizedBox(height: 128),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

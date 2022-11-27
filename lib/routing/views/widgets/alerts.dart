@@ -49,12 +49,10 @@ class AlertsViewState extends State<AlertsView> {
         for (int i = 0; i < found.length; i++) {
           if (found[i] == discomforts.selectedDiscomfort) {
             // Add offset if prediction error is displayed.
-            if (predictionStatus.bad != 0 ||
-                predictionStatus.offline != 0 ||
-                predictionStatus.disconnected != 0) {
+            if (predictionStatus.bad != 0 || predictionStatus.offline != 0 || predictionStatus.disconnected != 0) {
               i += 1;
             }
-            if(controller.hasClients) {
+            if (controller.hasClients) {
               controller.jumpToPage(i);
             }
             setState(() {
@@ -67,7 +65,7 @@ class AlertsViewState extends State<AlertsView> {
     } else {
       // Case trafficLightClicked when alerts open.
       if (discomforts.trafficLightClicked) {
-        if(controller.hasClients) {
+        if (controller.hasClients) {
           controller.jumpToPage(0);
         }
         setState(() {
@@ -81,17 +79,15 @@ class AlertsViewState extends State<AlertsView> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
+    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
       final alerts = [
         ...renderSignalAlerts(context, constraints),
         ...renderComfortAlerts(context, constraints),
       ];
       if (alerts.isEmpty) return Container();
 
-      bool withSignalGroupDiscomforts = (predictionStatus.bad != 0 ||
-          predictionStatus.offline != 0 ||
-          predictionStatus.disconnected != 0);
+      bool withSignalGroupDiscomforts =
+          (predictionStatus.bad != 0 || predictionStatus.offline != 0 || predictionStatus.disconnected != 0);
       return Stack(
         alignment: AlignmentDirectional.bottomEnd,
         children: [
@@ -106,43 +102,33 @@ class AlertsViewState extends State<AlertsView> {
                     bottomRight: Radius.circular(24.0),
                   ),
                 ),
-                child:
-                    Stack(alignment: AlignmentDirectional.topStart, children: [
+                child: Stack(alignment: AlignmentDirectional.topStart, children: [
                   GestureDetector(
                     onHorizontalDragEnd: (details) {
                       (details.primaryVelocity ?? 0) < 0
                           ? controller
-                              .nextPage(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeInOut)
+                              .nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut)
                               .then((value) {
                               // Check bounds.
                               if (currentPage <
-                                  discomforts.foundDiscomforts!.length -
-                                      (withSignalGroupDiscomforts ? 0 : 1)) {
-                                discomforts.selectDiscomfort(discomforts
-                                        .foundDiscomforts![
+                                  discomforts.foundDiscomforts!.length - (withSignalGroupDiscomforts ? 0 : 1)) {
+                                discomforts.selectDiscomfort(
                                     // Add offset if prediction error is displayed.
-                                    withSignalGroupDiscomforts
-                                        ? currentPage
-                                        : currentPage + 1]);
+                                    withSignalGroupDiscomforts ? currentPage : currentPage + 1);
                               }
                             })
                           : controller
-                              .previousPage(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeInOut)
+                              .previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut)
                               .then((value) {
                               // Check bounds.
                               if (currentPage > 1) {
-                                discomforts.selectDiscomfort(discomforts
-                                        .foundDiscomforts![
+                                discomforts.selectDiscomfort(
                                     // Add offset if prediction error is displayed.
                                     (predictionStatus.bad != 0 ||
                                             predictionStatus.offline != 0 ||
                                             predictionStatus.disconnected != 0)
                                         ? currentPage - 2
-                                        : currentPage - 1]);
+                                        : currentPage - 1);
                               }
                               if (currentPage == 1) {
                                 setState(() {
@@ -179,10 +165,7 @@ class AlertsViewState extends State<AlertsView> {
                         decoration: BoxDecoration(
                           color: i == currentPage
                               ? Colors.red
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .onBackground
-                                  .withOpacity(0.5),
+                              : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -196,97 +179,93 @@ class AlertsViewState extends State<AlertsView> {
   }
 
   /// Render signal alerts.
-  List<Widget> renderSignalAlerts(
-      BuildContext context, BoxConstraints constraints) {
+  List<Widget> renderSignalAlerts(BuildContext context, BoxConstraints constraints) {
     if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
-    if (predictionStatus.bad == 0 &&
-        predictionStatus.offline == 0 &&
-        predictionStatus.disconnected == 0) return [];
-    final sum = predictionStatus.bad +
-        predictionStatus.offline +
-        predictionStatus.disconnected;
+    if (predictionStatus.bad == 0 && predictionStatus.offline == 0 && predictionStatus.disconnected == 0) return [];
+    final sum = predictionStatus.bad + predictionStatus.offline + predictionStatus.disconnected;
     return [
       Padding(
         padding: const EdgeInsets.only(left: 16, top: 2, bottom: 2, right: 16),
-        child: Row(children: [
-          SizedBox(
-            width: constraints.maxWidth - 32,
-            height: constraints.maxHeight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.headline4,
-                    children: [
-                      const TextSpan(text: "Diese Route enthält "),
-                      if (predictionStatus.bad > 0) ...[
-                        const WidgetSpan(
+        child: Row(
+          children: [
+            SizedBox(
+              width: constraints.maxWidth - 32,
+              height: constraints.maxHeight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.headline4,
+                      children: [
+                        const TextSpan(text: "Diese Route enthält "),
+                        if (predictionStatus.offline > 0 || predictionStatus.bad > 0) ...[
+                          WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
-                            child: BadSignalIcon(
-                              height: 14,
-                              width: 14,
-                            )),
-                        TextSpan(
-                          text: " ${predictionStatus.bad} schwer",
-                          style: Theme.of(context).textTheme.headline4!.merge(
-                              const TextStyle(
-                                  color: Colors.orange,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                      if (predictionStatus.bad > 0 &&
-                          predictionStatus.offline > 0)
-                        const TextSpan(text: ", "),
-                      if (predictionStatus.offline > 0) ...[
-                        const WidgetSpan(
+                            child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const OfflineIcon(
+                                height: 8,
+                                width: 8,
+                              ),
+                            ),
+                          ),
+                          TextSpan(
+                            text: " ${predictionStatus.offline + predictionStatus.bad} aktuell nicht",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4!
+                                .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                        if ((predictionStatus.offline > 0 || predictionStatus.bad > 0) &&
+                            predictionStatus.disconnected > 0)
+                          const TextSpan(text: " und "),
+                        if (predictionStatus.disconnected > 0) ...[
+                          WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
-                            child: OfflineIcon(
-                              height: 14,
-                              width: 14,
-                            )),
-                        TextSpan(
-                          text: " ${predictionStatus.offline} aktuell nicht",
-                          style: Theme.of(context).textTheme.headline4!.merge(
-                              const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold)),
-                        ),
+                            child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const DisconnectedIcon(
+                                height: 8,
+                                width: 8,
+                              ),
+                            ),
+                          ),
+                          TextSpan(
+                            text: " ${predictionStatus.disconnected} gar nicht",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4!
+                                .merge(const TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                        const TextSpan(text: " vorhersagbare "),
+                        if (sum == 1) const TextSpan(text: "Ampel."),
+                        if (sum > 1) const TextSpan(text: "Ampeln."),
                       ],
-                      if (predictionStatus.offline > 0 &&
-                          predictionStatus.disconnected > 0)
-                        const TextSpan(text: ", "),
-                      if (predictionStatus.disconnected > 0) ...[
-                        const WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: DisconnectedIcon(
-                              height: 14,
-                              width: 14,
-                            )),
-                        TextSpan(
-                          text: " ${predictionStatus.disconnected} gar nicht",
-                          style: Theme.of(context).textTheme.headline4!.merge(
-                              const TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                      const TextSpan(text: " vorhersagbare "),
-                      if (sum == 1) const TextSpan(text: "Ampel."),
-                      if (sum > 1) const TextSpan(text: "Ampeln."),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       )
     ];
   }
 
   /// Render comfort alerts
-  List<Widget> renderComfortAlerts(
-      BuildContext context, BoxConstraints constraints) {
+  List<Widget> renderComfortAlerts(BuildContext context, BoxConstraints constraints) {
     if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
     if (discomforts.foundDiscomforts == null) return [];
     return discomforts.foundDiscomforts!
@@ -302,20 +281,13 @@ class AlertsViewState extends State<AlertsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Flexible(
-                          child: BoldSmall(
-                              text: e.value.description,
-                              maxLines: 3,
-                              context: context)),
+                      Flexible(child: BoldSmall(text: e.value.description, maxLines: 3, context: context)),
                     ],
                   ),
                 ),
                 Stack(alignment: AlignmentDirectional.center, children: [
                   const AlertIcon(width: 30, height: 30),
-                  BoldContent(
-                      text: "${e.key + 1}",
-                      context: context,
-                      color: Colors.black),
+                  BoldContent(text: "${e.key + 1}", context: context, color: Colors.black),
                 ]),
               ]),
             ))

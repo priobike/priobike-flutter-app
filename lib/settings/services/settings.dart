@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
@@ -17,6 +18,9 @@ class Settings with ChangeNotifier {
 
   /// Whether beta features should be enabled.
   bool enableBetaFeatures;
+
+  /// Whether the performance overlay should be enabled.
+  bool enablePerformanceOverlay;
 
   /// The selected backend.
   Backend backend;
@@ -42,6 +46,9 @@ class Settings with ChangeNotifier {
   /// The selected speed mode.
   SpeedMode speedMode;
 
+  /// The selected datastream mode.
+  DatastreamMode datastreamMode;
+
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
     await store();
@@ -49,6 +56,11 @@ class Settings with ChangeNotifier {
 
   Future<void> setEnableBetaFeatures(bool enableBetaFeatures) async {
     this.enableBetaFeatures = enableBetaFeatures;
+    await store();
+  }
+
+  Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay) async {
+    this.enablePerformanceOverlay = enablePerformanceOverlay;
     await store();
   }
 
@@ -92,9 +104,15 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectDatastreamMode(DatastreamMode datastreamMode) async {
+    this.datastreamMode = datastreamMode;
+    await store();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
+    this.enablePerformanceOverlay = false,
     this.backend = Backend.production,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
@@ -103,6 +121,7 @@ class Settings with ChangeNotifier {
     this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
+    this.datastreamMode = DatastreamMode.disabled,
   });
 
   /// Load the backend from the shared
@@ -116,37 +135,55 @@ class Settings with ChangeNotifier {
   }
 
   /// Load the stored settings.
-  Future<void> loadSettings() async {
+  Future<void> loadSettings(bool canEnableInternalFeatures, bool canEnableBetaFeatures) async {
     if (hasLoaded) return;
+
     final storage = await SharedPreferences.getInstance();
 
-    enableBetaFeatures = storage.getBool("priobike.settings.enableBetaFeatures") ?? false;
-    enableInternalFeatures = true; // storage.getBool("priobike.settings.enableInternalFeatures") ?? false;
+    // All internal settings.
+    if (canEnableInternalFeatures) {
+      enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
+      enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
 
-    final backendStr = storage.getString("priobike.settings.backend");
-    final positioningModeStr = storage.getString("priobike.settings.positioningMode");
-    final reroutingStr = storage.getString("priobike.settings.rerouting");
-    final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
-    final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
+      final backendStr = storage.getString("priobike.settings.backend");
+      final positioningModeStr = storage.getString("priobike.settings.positioningMode");
+      final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
+      final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
+
+      if (backendStr != null) {
+        backend = Backend.values.byName(backendStr);
+      }
+      if (positioningModeStr != null) {
+        positioningMode = PositioningMode.values.byName(positioningModeStr);
+      }
+      if (sgLabelsModeStr != null) {
+        sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+      }
+      if (datastreamModeStr != null) {
+        datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
+      }
+    }
+
+    // All beta settings.
+    if (canEnableBetaFeatures) {
+      enableBetaFeatures = (storage.getBool("priobike.settings.enableBetaFeatures") ?? false);
+
+      final reroutingStr = storage.getString("priobike.settings.rerouting");
+      final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
+
+      if (reroutingStr != null) {
+        rerouting = Rerouting.values.byName(reroutingStr);
+      }
+      if (routingEndpointStr != null) {
+        routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+      }
+    }
+
+    // All remaining settings.
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
 
-    if (backendStr != null) {
-      backend = Backend.values.byName(backendStr);
-    }
-    if (positioningModeStr != null) {
-      positioningMode = PositioningMode.values.byName(positioningModeStr);
-    }
-    if (reroutingStr != null) {
-      rerouting = Rerouting.values.byName(reroutingStr);
-    }
-    if (routingEndpointStr != null) {
-      routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-    }
-    if (sgLabelsModeStr != null) {
-      sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
-    }
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
     } else {
@@ -169,6 +206,7 @@ class Settings with ChangeNotifier {
 
     await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
@@ -176,6 +214,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.colorMode", colorMode.name);
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
+    await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -190,6 +229,7 @@ class Settings with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         "enableBetaFeatures": enableBetaFeatures,
         "enableInternalFeatures": enableInternalFeatures,
+        "enablePerformanceOverlay": enablePerformanceOverlay,
         "backend": backend.name,
         "positioningMode": positioningMode.name,
         "rerouting": rerouting.name,
@@ -198,5 +238,6 @@ class Settings with ChangeNotifier {
         "ridePreference": ridePreference?.name,
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
+        "datastreamMode": datastreamMode.name,
       };
 }

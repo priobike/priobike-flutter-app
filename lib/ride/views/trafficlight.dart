@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
 
     // Don't show a countdown if...
     if (rs.currentRecommendation == null || // we have no recommendation
-            rs.currentRecommendation!.sgId == null || // if no signal group is focused
+            rs.currentRecommendation!.sg == null || // if no signal group is focused
             rs.currentRecommendation!.error // or if there is an error
         ) return alternativeView;
 
@@ -51,50 +52,53 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       width: 128,
       height: 128,
       decoration: BoxDecoration(
-        color: rs.calcCurrentSignalIsGreen!
-            ? const Color.fromARGB(255, 0, 255, 106)
-            : const Color.fromARGB(255, 243, 60, 39),
+        // Don't use the CI green here.
+        color: rs.calcCurrentSignalIsGreen! ? const Color.fromARGB(255, 0, 255, 106) : CI.red,
         borderRadius: BorderRadius.circular(64),
         border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),
       child: Center(
-          child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: [
-          Transform.translate(
-              child: Text(
-                countdownLabel,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 4
-                    ..color = const Color.fromARGB(255, 0, 0, 0),
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+            Transform.translate(
+                child: Text(
+                  countdownLabel,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 64,
+                    fontWeight: FontWeight.bold,
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 4
+                      ..color = const Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
-              ),
-              offset: const Offset(0, -24)),
-          Transform.translate(
-              child: Text(
-                countdownLabel,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 255, 255, 255),
+                offset: const Offset(0, -24)),
+            Transform.translate(
+                child: Text(
+                  countdownLabel,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 64,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ),
                 ),
-              ),
-              offset: const Offset(0, -24)),
-          Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
-        ],
-      )),
+                offset: const Offset(0, -24)),
+            Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
+          ],
+        ),
+      ),
     );
 
     final showCountdown = rs.currentRecommendation!.distance < 500 && (rs.currentRecommendation!.quality ?? 0) > 0.9;
 
     return AnimatedCrossFade(
-      duration: const Duration(milliseconds: 300),
+      firstCurve: Curves.easeInOutCubic,
+      secondCurve: Curves.easeInOutCubic,
+      sizeCurve: Curves.easeInOutCubic,
+      duration: const Duration(milliseconds: 500),
       firstChild: trafficLight,
       secondChild: alternativeView,
       crossFadeState: showCountdown ? CrossFadeState.showFirst : CrossFadeState.showSecond,

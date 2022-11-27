@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 enum BikeType {
-  bike,
   ebike,
   racingbike,
   mountainbike,
@@ -11,8 +10,6 @@ enum BikeType {
 extension BikeTypeDescription on BikeType {
   String description() {
     switch (this) {
-      case BikeType.bike:
-        return "Standard";
       case BikeType.ebike:
         return "E-Bike";
       case BikeType.racingbike:
@@ -28,8 +25,6 @@ extension BikeTypeDescription on BikeType {
 extension BikeTypeColor on BikeType {
   Color color() {
     switch (this) {
-      case BikeType.bike:
-        return const Color.fromRGBO(163, 203, 56, 1.0);
       case BikeType.ebike:
         return const Color.fromRGBO(0, 148, 50, 1.0);
       case BikeType.racingbike:
@@ -45,16 +40,14 @@ extension BikeTypeColor on BikeType {
 extension BikeTypeIcon on BikeType {
   IconData icon() {
     switch (this) {
-      case BikeType.bike:
-        return Icons.pedal_bike;
       case BikeType.ebike:
-        return Icons.electric_bike;
+        return Icons.electric_bike_rounded;
       case BikeType.racingbike:
-        return Icons.directions_bike;
+        return Icons.directions_bike_rounded;
       case BikeType.mountainbike:
-        return Icons.pedal_bike;
+        return Icons.pedal_bike_rounded;
       case BikeType.cargobike:
-        return Icons.pedal_bike;
+        return Icons.pedal_bike_rounded;
     }
   }
 }
@@ -95,11 +88,11 @@ extension PreferenceTypeIcon on PreferenceType {
   IconData icon() {
     switch (this) {
       case PreferenceType.fast:
-        return Icons.access_time;
+        return Icons.access_time_rounded;
       case PreferenceType.short:
-        return Icons.straighten;
+        return Icons.straighten_rounded;
       case PreferenceType.comfortible:
-        return Icons.chair;
+        return Icons.chair_rounded;
     }
   }
 }
@@ -124,9 +117,9 @@ extension ActivityTypeIcon on ActivityType {
   IconData icon() {
     switch (this) {
       case ActivityType.work:
-        return Icons.work;
+        return Icons.work_rounded;
       case ActivityType.sport:
-        return Icons.sports_gymnastics;
+        return Icons.speed_rounded;
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -14,7 +15,10 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottomSheetState.dart';
 import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/ride/views/main.dart';
+import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/bottomSheet.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -31,7 +35,54 @@ import 'package:priobike/routing/views/widgets/routeTypeButton.dart';
 import 'package:priobike/routing/views/widgets/routingBar.dart';
 import 'package:priobike/routing/views/widgets/searchBar.dart';
 import 'package:priobike/routing/views/widgets/shortcuts.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:priobike/routing/views/layers.dart';
+
+/// Show a sheet to save the current route as a shortcut.
+void showSaveShortcutSheet(context) {
+  final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+  showDialog(
+    context: context,
+    builder: (_) {
+      final nameController = TextEditingController();
+      return AlertDialog(
+        title: BoldContent(
+            text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.', context: context),
+        content: SizedBox(
+          height: 48,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
+              ),
+            ],
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+              }
+              await shortcuts.saveNewShortcut(name, context);
+              ToastMessage.showSuccess("Route gespeichert!");
+              Navigator.pop(context);
+            },
+            child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 class RoutingViewNew extends StatefulWidget {
   const RoutingViewNew({Key? key}) : super(key: key);
@@ -65,6 +116,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The associated Discomfort, which is injected by the provider.
   late Discomforts discomforts;
 
+  /// The associated layers service, which is injected by the provider.
+  late Layers layers;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -78,16 +132,19 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routing.loadRoutes(context);
-      // Calling requestSingleLocation function to fill lastPosition of PositionService
-      await positioning.requestSingleLocation(context);
-      // Checking threshold for location accuracy
-      if (positioning.lastPosition?.accuracy != null &&
-          positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
-        _showAlertGPSQualityDialog();
-      }
-    });
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) async {
+        await routing.loadRoutes(context);
+
+        // Calling requestSingleLocation function to fill lastPosition of PositionService
+        await positioning.requestSingleLocation(context);
+        // Checking threshold for location accuracy
+        if (positioning.lastPosition?.accuracy != null &&
+            positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
+          _showAlertGPSQualityDialog();
+        }
+      },
+    );
   }
 
   @override
@@ -100,6 +157,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);
     discomforts = Provider.of<Discomforts>(context);
+    layers = Provider.of<Layers>(context);
 
     _checkRoutingBarShown();
 
@@ -116,103 +174,135 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     }
   }
 
-  /// A callback that is fired when the shortcut should be saved but a name is required.
-  void onRequestShortcutName() {
-    showDialog(
-      context: context,
-      builder: (_) {
-        final nameController = TextEditingController();
-        return AlertDialog(
+  /// A callback that is fired when the ride is started.
+  Future<void> onStartRide() async {
+    HapticFeedback.heavyImpact();
+
+    // Show the ride view directly if the user has selected his preferred ride view.
+    final preferredRideView = Provider.of<Settings>(context, listen: false).ridePreference;
+
+    void startRide() => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) {
+              // Avoid navigation back, only allow stop button to be pressed.
+              // Note: Don't use pushReplacement since this will call
+              // the result handler of the RouteView's host.
+              return WillPopScope(
+                onWillPop: () async => false,
+                child: preferredRideView == null ? const RideSelectionView() : const RideView(),
+              );
+            },
+          ),
+        );
+
+    final preferences = await SharedPreferences.getInstance();
+    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
+    if (didViewWarning) {
+      startRide();
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
           title: BoldContent(
-              text: 'Bitte gib einen Namen an, unter dem der Shortcut gespeichert werden soll.', context: context),
-          content: SizedBox(
-              height: 48,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
-                  ),
-                ],
-              )),
+              text:
+                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
+          content: Container(height: 0),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(24)),
           ),
           actions: [
             TextButton(
-              onPressed: () async {
-                final name = nameController.text;
-                if (name.isEmpty) {
-                  ToastMessage.showError("Name darf nicht leer sein.");
-                }
-
-                await shortcuts.saveNewShortcut(name, context);
-
-                ToastMessage.showSuccess("Route gespeichert!");
-                Navigator.pop(context);
+              onPressed: () {
+                preferences.setBool("priobike.routing.warning", true);
+                startRide();
               },
-              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
+              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
             ),
           ],
-        );
-      },
+        ),
+      );
+    }
+  }
+
+  /// A callback that is fired when the user wants to select the displayed layers.
+  void onLayerSelection() {
+    showAppSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const LayerSelectionView(),
     );
   }
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Expanded(
-        child: Tile(
-          fill: Theme.of(context).colorScheme.background,
-          content: Center(
-            child: SizedBox(
-              height: 86,
-              width: 256,
-              child: Column(children: [
-                const CircularProgressIndicator(),
-                const VSpace(),
-                BoldContent(text: "Lade...", maxLines: 1, context: context),
-              ]),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Tile(
+            fill: Theme.of(context).colorScheme.surface,
+            content: Center(
+              child: SizedBox(
+                height: 86,
+                width: 256,
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    const VSpace(),
+                    BoldContent(text: "Lade...", maxLines: 1, context: context),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    return Scaffold(
-      body: SafeArea(
-        child: Pad(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Center(
-                    child: SizedBox(
-                      height: 128,
-                      width: 256,
-                      child: Column(children: [
-                        BoldContent(text: "Fehler beim Laden der Route.", maxLines: 1, context: context),
-                        const VSpace(),
-                        BigButton(
-                            label: "Erneut Laden",
-                            onPressed: () async {
-                              await routing.loadRoutes(context);
-                            }),
-                      ]),
-                    ),
-                  ),
+    final backend = Provider.of<Settings>(context, listen: false).backend;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Tile(
+            fill: Theme.of(context).colorScheme.surface,
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                const VSpace(),
+                BoldSmall(
+                  text: "Tut uns Leid, aber diese Route konnte nicht geladen werden.",
+                  context: context,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const SmallVSpace(),
+                Small(
+                  text:
+                      "Achte darauf, dass du mit dem Internet verbunden bist. Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
+                  context: context,
+                  textAlign: TextAlign.center,
+                ),
+                const VSpace(),
+                BigButton(
+                  label: "Erneut versuchen",
+                  onPressed: () async {
+                    await routing.loadRoutes(context);
+                  },
+                ),
+                // Move the button a bit more up.
+                const SizedBox(height: 64),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -345,11 +435,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Function which switches the Type of a selected Route (prototype).
   _switchRouteType() {
     if (routing.allRoutes != null && routing.selectedRoute != null && routing.allRoutes!.length == 2) {
-      final switchedRoute = routing.selectedRoute!.id == 0 ? routing.allRoutes![1] : routing.allRoutes![0];
 
       routing.routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
 
-      routing.switchToRoute(context, switchedRoute);
+      routing.switchToRoute(context, routing.selectedRoute!.id == 0 ? 1 : 0);
     }
   }
 
@@ -360,6 +449,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     final frame = MediaQuery.of(context);
 
     bool waypointsSelected = routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty;
+
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.

@@ -29,14 +29,6 @@ class PredictionStatusSummary with ChangeNotifier {
   Future<void> fetch(BuildContext context) async {
     if (isLoading || hadError) return;
 
-    // If the last fetched status is not older than 5 minutes,
-    // we do not need to fetch it again.
-    if (current != null) {
-      final now = DateTime.now().millisecondsSinceEpoch / 1000;
-      final lastFetched = current!.statusUpdateTime;
-      if (now - lastFetched < 5 * 60) return;
-    }
-
     isLoading = true;
     hadError = false;
     notifyListeners();
@@ -47,7 +39,7 @@ class PredictionStatusSummary with ChangeNotifier {
       var url = "https://$baseUrl/prediction-monitor-nginx/status.json";
       final endpoint = Uri.parse(url);
 
-      final response = await Http.get(endpoint);
+      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
         isLoading = false;
         notifyListeners();

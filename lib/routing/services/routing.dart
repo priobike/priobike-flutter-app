@@ -151,6 +151,11 @@ class Routing with ChangeNotifier {
   /// Select new waypoints.
   Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
+    if ((waypoints?.length ?? 0) < 2) {
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
+    }
     notifyListeners();
   }
 
@@ -317,8 +322,11 @@ class Routing with ChangeNotifier {
 
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints) return null;
-    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) return null;
-    if (selectedWaypoints!.length < 2) return null;
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty || selectedWaypoints!.length < 2) {
+      hadErrorDuringFetch = false;
+      notifyListeners();
+      return null;
+    }
 
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
@@ -356,30 +364,29 @@ class Routing with ChangeNotifier {
     // Create the routes.
     final routes = ghResponse.paths
         .asMap()
-        .map((i, path) {
-          final sgSelectorResponse = sgSelectorResponses[i]!;
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          for (final waypoint in sgSelectorResponse.route) {
-            if (waypoint.signalGroupId == null) continue;
-            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-            if (sg == null) continue;
-            if (sgsInOrderOfRoute.contains(sg)) continue;
-            sgsInOrderOfRoute.add(sg);
-          }
-          var route = r.Route(
-            id: i,
-            path: path,
-            route: sgSelectorResponse.route,
-            signalGroups: sgsInOrderOfRoute,
-            crossings: sgSelectorResponse.crossings,
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(
-              selectedWaypoints!.first, selectedWaypoints!.last);
-          // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-          return MapEntry(i, route);
-        })
+        .map(
+          (i, path) {
+            final sgSelectorResponse = sgSelectorResponses[i]!;
+            final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+            for (final waypoint in sgSelectorResponse.route) {
+              if (waypoint.signalGroupId == null) continue;
+              final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+              if (sg == null) continue;
+              if (sgsInOrderOfRoute.contains(sg)) continue;
+              sgsInOrderOfRoute.add(sg);
+            }
+            var route = r.Route(
+              id: i,
+              path: path,
+              route: sgSelectorResponse.route,
+              signalGroups: sgsInOrderOfRoute,
+              crossings: sgSelectorResponse.crossings,
+            );
+            // Connect the route to the start and end points.
+            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+            return MapEntry(i, route);
+          },
+        )
         .values
         .toList();
 
@@ -401,19 +408,15 @@ class Routing with ChangeNotifier {
   }
 
   /// Select a route.
-  Future<void> switchToRoute(BuildContext context, r.Route route) async {
-    // Can only select an alternative route if there are some,
-    // and if there is a currently selected route.
-    routeType = selectedRoute!.id == 0 ? "Bequem" : "Schnell";
-
-    selectedRoute = route;
-    notifyListeners();
+  Future<void> switchToRoute(BuildContext context, int idx) async {
+    if (idx < 0 || idx >= allRoutes!.length) return;
+    selectedRoute = allRoutes![idx];
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
-    await discomforts.findDiscomforts(context, route.path);
+    await discomforts.findDiscomforts(context, selectedRoute!.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, route.signalGroups, route.crossings);
+    await status.fetch(context, selectedRoute!.signalGroups, selectedRoute!.crossings);
 
     notifyListeners();
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -11,6 +12,7 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
@@ -75,30 +77,26 @@ class HomeViewState extends State<HomeView> {
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     statistics = Provider.of<Statistics>(context, listen: false);
 
-    // Load once the window was built.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await news.getArticles(context);
-      await settings.loadSettings();
-      await profile.loadProfile();
-      await shortcuts.loadShortcuts(context);
-      await places.loadPlaces(context);
-      await statistics.loadStatistics();
-    });
-
     super.didChangeDependencies();
   }
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then((_) {
-      // Mark all notifications as read.
-      news.markAllArticlesAsRead(context);
-    });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
+      (_) {
+        // Mark all notifications as read.
+        news.markAllArticlesAsRead(context);
+      },
+    );
   }
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsView()));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SettingsView(),
+      ),
+    );
   }
 
   /// A callback that is fired when a shortcut was selected.
@@ -107,22 +105,25 @@ class HomeViewState extends State<HomeView> {
     Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
-    routing.loadRoutes(context);
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then((_) {
-      routing.reset();
-      discomforts.reset();
-      predictionSGStatus.reset();
-    });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then(
+      (_) {
+        routing.reset();
+        discomforts.reset();
+        predictionSGStatus.reset();
+      },
+    );
   }
 
   /// A callback that is fired when free routingOLD was selected.
   void onStartFreeRouting() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then((_) {
-      routing.reset();
-      discomforts.reset();
-      predictionSGStatus.reset();
-    });
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewNew())).then(
+      (_) {
+        routing.reset();
+        discomforts.reset();
+        predictionSGStatus.reset();
+      },
+    );
   }
 
   /// A callback that is fired when the shortcuts should be edited.
@@ -145,15 +146,18 @@ class HomeViewState extends State<HomeView> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(246, 255, 153, 0),
+          color: Color.fromARGB(246, 230, 51, 40),
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
         child: HPad(
-            child: Row(children: [
-          const Icon(Icons.warning_rounded),
-          const SmallHSpace(),
-          Flexible(child: Content(text: description, context: context)),
-        ])),
+          child: Row(
+            children: [
+              const Icon(Icons.warning_rounded, color: Colors.white),
+              const SmallHSpace(),
+              Flexible(child: Content(text: description, context: context, color: Colors.white)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -161,68 +165,92 @@ class HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: CustomScrollView(
-      slivers: <Widget>[
-        NavBarView(
-          onTapNotificationButton: onNotificationsButtonTapped,
-          onTapSettingsButton: onSettingsButtonTapped,
-        ),
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              const VSpace(),
-              const BlendIn(child: StatusView()),
-              BlendIn(
-                delay: const Duration(milliseconds: 250),
-                child: Row(children: [
-                  const SizedBox(width: 40),
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    BoldContent(text: "Deine Shortcuts", context: context),
-                    const SizedBox(height: 4),
-                    Small(text: "Direkt zum Ziel navigieren", context: context),
-                  ]),
-                  Expanded(child: Container()),
-                  SmallIconButton(
-                    icon: Icons.edit,
-                    fill: Theme.of(context).colorScheme.background,
-                    splash: Colors.white,
-                    onPressed: onOpenShortcutEditView,
+      body: RefreshIndicator(
+        edgeOffset: 128 + MediaQuery.of(context).padding.top,
+        color: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        displacement: 42,
+        onRefresh: () async {
+          HapticFeedback.lightImpact();
+          await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+          // Wait for one more second, otherwise the user will get impatient.
+          await Future.delayed(
+            const Duration(seconds: 1),
+          );
+          HapticFeedback.lightImpact();
+        },
+        child: CustomScrollView(
+          slivers: <Widget>[
+            NavBarView(
+              onTapNotificationButton: onNotificationsButtonTapped,
+              onTapSettingsButton: onSettingsButtonTapped,
+            ),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const VSpace(),
+                  const BlendIn(child: StatusView()),
+                  BlendIn(
+                    delay: const Duration(milliseconds: 250),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 40),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BoldContent(text: "Deine Strecken", context: context),
+                            const SizedBox(height: 4),
+                            Small(text: "Direkt zum Ziel navigieren", context: context),
+                          ],
+                        ),
+                        Expanded(child: Container()),
+                        SmallIconButton(
+                          icon: Icons.edit_rounded,
+                          fill: Theme.of(context).colorScheme.background,
+                          splash: Colors.white,
+                          onPressed: onOpenShortcutEditView,
+                        ),
+                        const SizedBox(width: 40),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 40),
-                ]),
-              ),
-              const VSpace(),
-              BlendIn(
-                delay: const Duration(milliseconds: 500),
-                child: Column(children: [
-                  const TutorialView(
-                    id: "priobike.tutorial.select-shortcut",
-                    text:
-                        'Fährst du eine Route häufiger? Du kannst neue Shortcuts erstellen, indem du eine Route planst und dann auf "Route speichern" klickst.',
-                    padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                  const VSpace(),
+                  BlendIn(
+                    delay: const Duration(milliseconds: 500),
+                    child: Column(
+                      children: [
+                        const TutorialView(
+                          id: "priobike.tutorial.select-shortcut",
+                          text:
+                              'Fährst du eine Route häufiger? Du kannst neue Strecken erstellen, indem du eine Route planst und dann auf "Strecke speichern" klickst.',
+                          padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
+                        ),
+                        ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                      ],
+                    ),
                   ),
-                  ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
-                ]),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 750),
+                    child: ProfileView(),
+                  ),
+                  const VSpace(),
+                  const SmallVSpace(),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 1000),
+                    child: TotalStatisticsView(),
+                  ),
+                  const VSpace(),
+                  BlendIn(
+                    delay: const Duration(milliseconds: 1250),
+                    child: renderDebugHint(),
+                  ),
+                  const SizedBox(height: 128),
+                ],
               ),
-              const BlendIn(
-                delay: Duration(milliseconds: 750),
-                child: ProfileView(),
-              ),
-              const VSpace(),
-              const SmallVSpace(),
-              const BlendIn(
-                delay: Duration(milliseconds: 1000),
-                child: TotalStatisticsView(),
-              ),
-              BlendIn(
-                delay: const Duration(milliseconds: 1250),
-                child: renderDebugHint(),
-              ),
-              const SizedBox(height: 128),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    ));
+      ),
+    );
   }
 }

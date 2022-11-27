@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/animation.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -14,6 +17,7 @@ class ShortcutView extends StatelessWidget {
   final IconData icon;
   final String title;
   final double width;
+  final double height;
   final double rightPad;
 
   const ShortcutView(
@@ -24,6 +28,7 @@ class ShortcutView extends StatelessWidget {
       required this.icon,
       required this.title,
       required this.width,
+      required this.height,
       required this.rightPad,
       required BuildContext context})
       : super(key: key);
@@ -36,11 +41,11 @@ class ShortcutView extends StatelessWidget {
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
-        shadow: isHighlighted ? const Color.fromARGB(255, 0, 64, 255) : const Color.fromARGB(255, 0, 0, 0),
+        shadow: isHighlighted ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: isHighlighted ? 0.3 : 0.08,
         padding: const EdgeInsets.all(16),
         content: SizedBox(
-          height: 128,
+          height: height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: isLoading
@@ -114,11 +119,13 @@ class ShortcutsViewState extends State<ShortcutsView> {
   void initState() {
     super.initState();
     scrollController = ScrollController();
-    scrollController.addListener(() {
-      if (scrollController.offset > 0) {
-        hasScrolled = true;
-      }
-    });
+    scrollController.addListener(
+      () {
+        if (scrollController.offset > 0) {
+          hasScrolled = true;
+        }
+      },
+    );
   }
 
   @override
@@ -144,6 +151,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   Widget build(BuildContext context) {
     const double shortcutRightPad = 16;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
 
     List<Widget> views = [
       AnimatedContainer(
@@ -156,39 +164,45 @@ class ShortcutsViewState extends State<ShortcutsView> {
           if (!rs.isFetchingRoute) widget.onStartFreeRouting();
         },
         isHighlighted: true,
-        icon: Icons.play_circle,
+        icon: Icons.map_rounded,
         title: "Freies Routing starten",
         width: shortcutWidth,
+        height: shortcutHeight,
         rightPad: shortcutRightPad,
         context: context,
       ),
     ];
 
     views += ss.shortcuts
-            ?.map((shortcut) => ShortcutView(
-                  onPressed: () {
-                    // Allow only one shortcut to be fetched at a time.
-                    if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
-                  },
-                  isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
-                  icon: Icons.route,
-                  title: shortcut.name,
-                  width: shortcutWidth,
-                  rightPad: shortcutRightPad,
-                  context: context,
-                ))
+            ?.map(
+              (shortcut) => ShortcutView(
+                onPressed: () {
+                  // Allow only one shortcut to be fetched at a time.
+                  if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
+                },
+                isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
+                icon: Icons.route_outlined,
+                title: shortcut.name,
+                width: shortcutWidth,
+                height: shortcutHeight,
+                rightPad: shortcutRightPad,
+                context: context,
+              ),
+            )
             .toList() ??
         [];
 
     List<Widget> animatedViews = views
         .asMap()
         .entries
-        .map((e) => BlendIn(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOutCubic,
-              delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
-              child: e.value,
-            ))
+        .map(
+          (e) => BlendIn(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutCubic,
+            delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
+            child: e.value,
+          ),
+        )
         .toList();
 
     return SingleChildScrollView(
