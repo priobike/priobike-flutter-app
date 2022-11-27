@@ -13,6 +13,7 @@ import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/views.dart';
@@ -251,6 +252,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a rerouting is selected.
+  Future<void> onSelectRoutingView(RoutingView routingView) async {
+    // Tell the settings service that we selected the new rerouting.
+    await settings.selectRoutingView(routingView);
+
+    Navigator.pop(context);
+  }
+
   /// A callback that is executed when a ride views preference is selected.
   Future<void> onSelectRidePreference(RidePreference ridePreference) async {
     // Tell the settings service that we selected the new ridePreference.
@@ -473,6 +482,25 @@ class SettingsViewState extends State<SettingsView> {
                                   selected: settings.rerouting,
                                   title: (Rerouting e) => e.description,
                                   callback: onSelectRerouting);
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableBetaFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Routenansicht",
+                          subtitle: settings.routingView.description,
+                          icon: Icons.expand_more,
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                  elements: RoutingView.values,
+                                  selected: settings.routingView,
+                                  title: (RoutingView e) => e.description,
+                                  callback: onSelectRoutingView);
                             },
                           ),
                         ),

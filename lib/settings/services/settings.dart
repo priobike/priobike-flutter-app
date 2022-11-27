@@ -10,6 +10,8 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/routing_view.dart';
+
 class Settings with ChangeNotifier {
   var hasLoaded = false;
 
@@ -49,6 +51,9 @@ class Settings with ChangeNotifier {
   /// The selected datastream mode.
   DatastreamMode datastreamMode;
 
+  /// The selected routing view mode.
+  RoutingView routingView;
+
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
     await store();
@@ -76,6 +81,11 @@ class Settings with ChangeNotifier {
 
   Future<void> selectRerouting(Rerouting rerouting) async {
     this.rerouting = rerouting;
+    await store();
+  }
+
+  Future<void> selectRoutingView(RoutingView routingView) async {
+    this.routingView = routingView;
     await store();
   }
 
@@ -122,6 +132,7 @@ class Settings with ChangeNotifier {
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
+    this.routingView = RoutingView.stable
   });
 
   /// Load the backend from the shared
@@ -170,12 +181,16 @@ class Settings with ChangeNotifier {
 
       final reroutingStr = storage.getString("priobike.settings.rerouting");
       final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
+      final routingViewStr = storage.getString("priobike.settings.routingView");
 
       if (reroutingStr != null) {
         rerouting = Rerouting.values.byName(reroutingStr);
       }
       if (routingEndpointStr != null) {
         routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+      }
+      if (routingViewStr != null) {
+        routingView = RoutingView.values.byName(routingViewStr);
       }
     }
 
@@ -215,6 +230,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
+    await storage.setString("priobike.settings.routingView", routingView.name);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -239,5 +255,6 @@ class Settings with ChangeNotifier {
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
+        "routingView": routingView.name,
       };
 }
