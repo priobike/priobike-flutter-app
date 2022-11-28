@@ -847,6 +847,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ? mapController.myLocationTrackingMode
                 : mapController.myLocationTrackingModeSelectOnMapView,
             onStyleLoaded: () => onStyleLoaded(context),
+            onCameraTrackingDismissed: onCameraTrackingDismissed,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,

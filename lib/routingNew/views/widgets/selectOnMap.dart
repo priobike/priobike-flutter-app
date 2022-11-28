@@ -181,7 +181,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                               ),
                             )
                           : Center(
-                              child: SubHeader(text: "Standort auf Karte wählen", context: context),
+                              child: BoldContent(text: "Standort auf Karte wählen", context: context),
                             ),
                       const SizedBox(width: 5),
                       TextButton(
