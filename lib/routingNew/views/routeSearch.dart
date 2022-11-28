@@ -44,8 +44,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
   late Profile profile;
 
   /// The Location Search Text Editing Controller
-  final TextEditingController _locationSearchController =
-      TextEditingController();
+  final TextEditingController _locationSearchController = TextEditingController();
 
   /// The currentLocationWaypoint
   Waypoint? currentLocationWaypoint;
@@ -80,8 +79,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
         currentLocationWaypoint!.lon == positioning.lastPosition!.longitude) {
       return;
     }
-    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude,
-        positioning.lastPosition!.longitude);
+    currentLocationWaypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -156,16 +154,18 @@ class RouteSearchViewState extends State<RouteSearchView> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             RoutingBar(
-                fromRoutingSearch: true, checkNextItem: checkNextItem, onPressed: widget.onPressed),
+              fromRoutingSearch: true,
+              checkNextItem: checkNextItem,
+              onPressed: widget.onPressed,
+              context: context,
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(0),
@@ -179,8 +179,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
                   SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                   _locationSearchController.text == ""
                       ? LastSearchRequests(
-                          onCompleteSearch: onCompleteSearch,
-                          onWaypointTapped: onWaypointTapped, fromRouteSearch: true)
+                          onCompleteSearch: onCompleteSearch, onWaypointTapped: onWaypointTapped, fromRouteSearch: true)
                       : Container(),
                 ],
               ),

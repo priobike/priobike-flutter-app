@@ -19,12 +19,14 @@ class RoutingBar extends StatefulWidget {
   final Function? checkNextItem;
   final Function onPressed;
   final Function? onSearch;
+  final BuildContext context;
 
   const RoutingBar(
       {Key? key,
       this.locationSearchController,
       required this.fromRoutingSearch,
       required this.onPressed,
+      required this.context,
       this.checkNextItem,
       this.onSearch})
       : super(key: key);
@@ -261,7 +263,7 @@ class RoutingBarState extends State<RoutingBar> {
         removedWaypoints.removeAt(index);
 
         routing.selectWaypoints(removedWaypoints);
-        routing.loadRoutes(context);
+        routing.loadRoutes(widget.context);
       }
     }
   }

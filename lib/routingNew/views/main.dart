@@ -375,17 +375,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// A callback that is executed when the search page is opened.
-  Future<void> onSearch(Routing routing, int? index,
-      Function onPressed, bool fromRouteSearch) async {
+  Future<void> onSearch(Routing routing, int? index, Function onPressed, bool fromRouteSearch) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SearchView(
-            index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
+        builder: (_) => SearchView(index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
       ),
     );
 
-    if (routing.selectedWaypoints != null &&
-        routing.selectedWaypoints!.isNotEmpty) {
+    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
     }
   }
@@ -435,7 +432,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Function which switches the Type of a selected Route (prototype).
   _switchRouteType() {
     if (routing.allRoutes != null && routing.selectedRoute != null && routing.allRoutes!.length == 2) {
-
       routing.routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
 
       routing.switchToRoute(context, routing.selectedRoute!.id == 0 ? 1 : 0);
@@ -449,7 +445,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     final frame = MediaQuery.of(context);
 
     bool waypointsSelected = routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty;
-
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -497,7 +492,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 // top calculates from maxHeight RoutingBar + padding + systemBar.
                                 top: showRoutingBar ? 0 : -(frame.size.height * 0.25 + 20 + frame.viewPadding.top),
                                 duration: const Duration(milliseconds: 250),
-                                child: RoutingBar(fromRoutingSearch: false, onPressed: _loadShortcutsRoute, onSearch: onSearch,),
+                                child: RoutingBar(
+                                  fromRoutingSearch: false,
+                                  onPressed: _loadShortcutsRoute,
+                                  onSearch: onSearch,
+                                  context: context,
+                                ),
                               ),
                               !showRoutingBar
                                   ? AnimatedPositioned(
