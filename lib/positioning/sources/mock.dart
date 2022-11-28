@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+
 // l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
@@ -255,14 +256,14 @@ class PathMockPositionSource extends PositionSource {
   Future<bool> isLocationServicesEnabled() async => true;
 
   /// Check the location permissions.
-  /// With the mock client, this does nothing and returns "always allowed".
+  /// With the mock client, this still has to check for permission to display the custom puck.
   @override
-  Future<LocationPermission> checkPermission() async => LocationPermission.always;
+  Future<LocationPermission> checkPermission() async => Geolocator.checkPermission();
 
   /// Request the location permissions.
-  /// With the mock client, this does nothing and returns "always allowed".
+  /// With the mock client, this still has to request for permission to display the custom puck.
   @override
-  Future<LocationPermission> requestPermission() async => LocationPermission.always;
+  Future<LocationPermission> requestPermission() async => Geolocator.requestPermission();
 
   /// Get the position stream of the device.
   /// With the mock client, this starts a stream of the mocked positions.
