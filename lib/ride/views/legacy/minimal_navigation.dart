@@ -4,7 +4,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/ride/views/button.dart';
 import 'package:priobike/ride/views/legacy/arrow.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 

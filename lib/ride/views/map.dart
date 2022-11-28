@@ -8,7 +8,7 @@ import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 

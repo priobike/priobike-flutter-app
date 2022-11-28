@@ -1,14 +1,14 @@
-enum RoutingView {
+enum RoutingViewOption {
   stable,
   beta,
 }
 
-extension RoutingViewDescription on RoutingView {
+extension RoutingViewDescription on RoutingViewOption {
   String get description {
     switch (this) {
-      case RoutingView.stable:
+      case RoutingViewOption.stable:
         return "Standard";
-      case RoutingView.beta:
+      case RoutingViewOption.beta:
         return "Beta";
     }
   }

@@ -19,7 +19,7 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/views.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -253,7 +253,7 @@ class SettingsViewState extends State<SettingsView> {
   }
 
   /// A callback that is executed when a rerouting is selected.
-  Future<void> onSelectRoutingView(RoutingView routingView) async {
+  Future<void> onSelectRoutingView(RoutingViewOption routingView) async {
     // Tell the settings service that we selected the new rerouting.
     await settings.selectRoutingView(routingView);
 
@@ -497,9 +497,9 @@ class SettingsViewState extends State<SettingsView> {
                             context: context,
                             builder: (BuildContext context) {
                               return SettingsSelection(
-                                  elements: RoutingView.values,
+                                  elements: RoutingViewOption.values,
                                   selected: settings.routingView,
-                                  title: (RoutingView e) => e.description,
+                                  title: (RoutingViewOption e) => e.description,
                                   callback: onSelectRoutingView);
                             },
                           ),

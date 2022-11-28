@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:provider/provider.dart';
 

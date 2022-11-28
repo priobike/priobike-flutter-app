@@ -51,8 +51,8 @@ class Settings with ChangeNotifier {
   /// The selected datastream mode.
   DatastreamMode datastreamMode;
 
-  /// The selected routing view mode.
-  RoutingView routingView;
+  /// The selected routingNew view mode.
+  RoutingViewOption routingView;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -84,7 +84,7 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Future<void> selectRoutingView(RoutingView routingView) async {
+  Future<void> selectRoutingView(RoutingViewOption routingView) async {
     this.routingView = routingView;
     await store();
   }
@@ -132,7 +132,7 @@ class Settings with ChangeNotifier {
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
-    this.routingView = RoutingView.stable
+    this.routingView = RoutingViewOption.stable
   });
 
   /// Load the backend from the shared
@@ -190,7 +190,7 @@ class Settings with ChangeNotifier {
         routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
       }
       if (routingViewStr != null) {
-        routingView = RoutingView.values.byName(routingViewStr);
+        routingView = RoutingViewOption.values.byName(routingViewStr);
       }
     }
 
