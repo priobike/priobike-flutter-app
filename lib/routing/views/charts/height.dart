@@ -80,8 +80,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
     processRouteData();
 
-    final frame = MediaQuery.of(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
