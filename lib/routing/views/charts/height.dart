@@ -92,36 +92,38 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             context: context,
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               RotatedBox(
                 quarterTurns: -1,
                 child: Small(text: "Höhe in Meter", context: context),
               ),
-              SizedBox(
-                height: 128,
-                width: frame.size.width - 50,
-                child: charts.LineChart(
-                  [series!],
-                  animate: true,
-                  defaultRenderer: charts.LineRendererConfig(
-                    includeArea: true,
-                    strokeWidthPx: 4,
-                  ),
-                  domainAxis: charts.NumericAxisSpec(
-                    viewport: charts.NumericExtents(
-                      minDistance ?? 0,
-                      maxDistance ?? 0,
+              Expanded(
+                child: SizedBox(
+                  height: 128,
+                  child: charts.LineChart(
+                    [series!],
+                    animate: true,
+                    defaultRenderer: charts.LineRendererConfig(
+                      includeArea: true,
+                      strokeWidthPx: 4,
                     ),
-                    tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                      desiredTickCount: 5,
-                      desiredMinTickCount: 3,
-                      dataIsInWholeNumbers: false,
+                    domainAxis: charts.NumericAxisSpec(
+                      viewport: charts.NumericExtents(
+                        minDistance ?? 0,
+                        maxDistance ?? 0,
+                      ),
+                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+                        desiredTickCount: 5,
+                        desiredMinTickCount: 3,
+                        dataIsInWholeNumbers: false,
+                      ),
                     ),
-                  ),
-                  primaryMeasureAxis: const charts.NumericAxisSpec(
-                    showAxisLine: false,
-                    tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                      zeroBound: true,
+                    primaryMeasureAxis: const charts.NumericAxisSpec(
+                      showAxisLine: false,
+                      tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                        zeroBound: true,
+                      ),
                     ),
                   ),
                 ),
