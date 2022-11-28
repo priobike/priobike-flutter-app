@@ -338,6 +338,7 @@ class TrafficLightsLayer {
           status.predictionState == SGPredictionState.bad;
       features.add(
         {
+          "id": "traffic-light",
           "type": "Feature",
           "geometry": {
             "type": "Point",
@@ -391,7 +392,7 @@ class TrafficLightsLayer {
           ""
         ],
       ),
-      enableInteraction: false,
+      enableInteraction: true,
       belowLayerId: below,
     );
     return "traffic-lights-icons";

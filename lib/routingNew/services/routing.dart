@@ -410,6 +410,9 @@ class Routing with ChangeNotifier {
   /// Select a route.
   Future<void> switchToRoute(BuildContext context, int idx) async {
     if (idx < 0 || idx >= allRoutes!.length) return;
+
+    routeType = selectedRoute!.id == 0 ? "Bequem" : "Schnell";
+
     selectedRoute = allRoutes![idx];
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
