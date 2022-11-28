@@ -28,11 +28,13 @@ class Accelerometer with ChangeNotifier {
   Future<void> start() async {
     log.i("Starting accelerometer updates");
     // User accelerometer events come without the gravity component.
-    sub = userAccelerometerEvents.listen((event) {
-      windowStart ??= DateTime.now().millisecondsSinceEpoch;
-      window.add(event);
-      notifyListeners();
-    });
+    sub = userAccelerometerEvents.listen(
+      (event) {
+        windowStart ??= DateTime.now().millisecondsSinceEpoch;
+        window.add(event);
+        notifyListeners();
+      },
+    );
   }
 
   /// Aggregate the raw acceleration values into a single acceleration data point.

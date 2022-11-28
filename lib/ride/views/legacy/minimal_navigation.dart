@@ -64,35 +64,37 @@ class _MinimalNavigationCyclingViewState extends State<MinimalNavigationCyclingV
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            Row(children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
-                child: NavigationArrow(
-                  sign: recommendation.navSign,
-                  width: 50,
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  recommendation.navDist != 0
-                      ? Text(
-                          "${recommendation.navDist.toStringAsFixed(0)} m",
-                          style: const TextStyle(
-                            fontSize: 40,
-                          ),
-                        )
-                      : const Text(''),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 110,
-                    child: Text(
-                      recommendation.navText ?? "",
-                      style: const TextStyle(fontSize: 20),
-                    ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+                  child: NavigationArrow(
+                    sign: recommendation.navSign,
+                    width: 50,
                   ),
-                ],
-              ),
-            ]),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    recommendation.navDist != 0
+                        ? Text(
+                            "${recommendation.navDist.toStringAsFixed(0)} m",
+                            style: const TextStyle(
+                              fontSize: 40,
+                            ),
+                          )
+                        : const Text(''),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 110,
+                      child: Text(
+                        recommendation.navText ?? "",
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
             const Spacer(),
             SizedBox(
               height: MediaQuery.of(context).size.height - 400,

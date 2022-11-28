@@ -64,9 +64,11 @@ class DatastreamViewState extends State<DatastreamView> {
     }
     final now = DateTime.now();
     final diff = now.difference(datastream.primarySignal!.phenomenonTime);
-    setState(() {
-      timeDiff = diff.inSeconds.toString();
-    });
+    setState(
+      () {
+        timeDiff = diff.inSeconds.toString();
+      },
+    );
   }
 
   @override
@@ -113,7 +115,7 @@ class DatastreamViewState extends State<DatastreamView> {
         .toList();
 
     return Positioned(
-      top: 8,
+      top: 48, // Below the MapBox attribution.
       right: 0,
       child: SafeArea(
         child: Stack(
@@ -127,54 +129,56 @@ class DatastreamViewState extends State<DatastreamView> {
                   topLeft: Radius.circular(24),
                   bottomLeft: Radius.circular(24),
                 ),
-                content: Row(children: [
-                  SizedBox(
-                    width: comparisonLength * 3.0,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Small(text: "Prognose vs. Realität", context: context),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: predictionVectorSquares,
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: datastreamHistorySquares,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SmallHSpace(),
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
-                        width: 1,
+                content: Row(
+                  children: [
+                    SizedBox(
+                      width: comparisonLength * 3.0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Small(text: "Prognose vs. Realität", context: context),
+                          const SizedBox(height: 2),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: predictionVectorSquares,
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: datastreamHistorySquares,
+                          ),
+                        ],
                       ),
-                      color: datastream.primarySignal?.state.color ?? Colors.grey,
                     ),
-                  ),
-                  const SmallHSpace(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: datastream.primarySignal != null
-                        ? [
-                            Small(text: "Seit", context: context),
-                            BoldSmall(text: "${timeDiff?.toString()}s", context: context),
-                          ]
-                        : [
-                            Small(text: "Keine", context: context),
-                            BoldSmall(text: "Daten", context: context),
-                          ],
-                  ),
-                ]),
+                    const SmallHSpace(),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+                          width: 1,
+                        ),
+                        color: datastream.primarySignal?.state.color ?? Colors.grey,
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: datastream.primarySignal != null
+                          ? [
+                              Small(text: "Seit", context: context),
+                              BoldSmall(text: "${timeDiff?.toString()}s", context: context),
+                            ]
+                          : [
+                              Small(text: "Keine", context: context),
+                              BoldSmall(text: "Daten", context: context),
+                            ],
+                    ),
+                  ],
+                ),
               ),
             ),
             if (datastream.detectorCar != null || datastream.detectorCyclists != null)

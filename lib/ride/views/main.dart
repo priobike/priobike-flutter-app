@@ -45,35 +45,36 @@ class RideViewState extends State<RideView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      final tracking = Provider.of<Tracking>(context, listen: false);
-      final positioning = Provider.of<Positioning>(context, listen: false);
-      final accelerometer = Provider.of<Accelerometer>(context, listen: false);
-      final datastream = Provider.of<Datastream>(context, listen: false);
-      final ride = Provider.of<Ride>(context, listen: false);
-      final session = Provider.of<Session>(context, listen: false);
-      final snapping = Provider.of<Snapping>(context, listen: false);
-      final routing = Provider.of<Routing>(context, listen: false);
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) async {
+        final tracking = Provider.of<Tracking>(context, listen: false);
+        final positioning = Provider.of<Positioning>(context, listen: false);
+        final accelerometer = Provider.of<Accelerometer>(context, listen: false);
+        final datastream = Provider.of<Datastream>(context, listen: false);
+        final ride = Provider.of<Ride>(context, listen: false);
+        final session = Provider.of<Session>(context, listen: false);
+        final snapping = Provider.of<Snapping>(context, listen: false);
+        final routing = Provider.of<Routing>(context, listen: false);
 
-      if (routing.selectedRoute == null) return;
-      // Start tracking.
-      await tracking.start(context);
-      // Authenticate a new session.
-      await session.openSession(context);
-      // Connect the datastream mqtt client, if the user enabled real-time data.
-      if (settings.datastreamMode == DatastreamMode.enabled) {
-        await datastream.connect(context);
-        // Link the ride to the datastream.
-        ride.onRecommendation = (r) => datastream.select(sg: r.sg);
-      }
-      // Select the ride.
-      await ride.selectRide(context, routing.selectedRoute!);
-      // Start navigating.
-      await ride.startNavigation(context);
-      // Start fetching accelerometer updates.
-      await accelerometer.start();
-      // Start geolocating. This must only be executed once.
-      await positioning.startGeolocation(
+        if (routing.selectedRoute == null) return;
+        // Start tracking.
+        await tracking.start(context);
+        // Authenticate a new session.
+        await session.openSession(context);
+        // Connect the datastream mqtt client, if the user enabled real-time data.
+        if (settings.datastreamMode == DatastreamMode.enabled) {
+          await datastream.connect(context);
+          // Link the ride to the datastream.
+          ride.onRecommendation = (r) => datastream.select(sg: r.sg);
+        }
+        // Select the ride.
+        await ride.selectRide(context, routing.selectedRoute!);
+        // Start navigating.
+        await ride.startNavigation(context);
+        // Start fetching accelerometer updates.
+        await accelerometer.start();
+        // Start geolocating. This must only be executed once.
+        await positioning.startGeolocation(
           context: context,
           onNewPosition: (pos) async {
             // Pass new positions to the ride service.
@@ -87,16 +88,20 @@ class RideViewState extends State<RideView> {
                 (snapping.distance ?? 0) > rerouteDistance &&
                 (snapping.remainingWaypoints?.isNotEmpty ?? false)) {
               // Use a timed lock to avoid rapid refreshing of routes.
-              lock.run(() async {
-                await routing.selectWaypoints(snapping.remainingWaypoints);
-                final routes = await routing.loadRoutes(context);
-                if (routes != null && routes.isNotEmpty) {
-                  await ride.selectRide(context, routes.first);
-                }
-              });
+              lock.run(
+                () async {
+                  await routing.selectWaypoints(snapping.remainingWaypoints);
+                  final routes = await routing.loadRoutes(context);
+                  if (routes != null && routes.isNotEmpty) {
+                    await ride.selectRide(context, routes.first);
+                  }
+                },
+              );
             }
-          });
-    });
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -113,12 +118,16 @@ class RideViewState extends State<RideView> {
     Widget? view;
     switch (settings.ridePreference) {
       case RidePreference.speedometerView:
-        view = Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: const [
-          RideMapView(),
-          RideSpeedometerView(),
-          DangerButton(),
-          DatastreamView(),
-        ]);
+        view = Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: const [
+            RideMapView(),
+            RideSpeedometerView(),
+            DangerButton(),
+            DatastreamView(),
+          ],
+        );
         break;
       case RidePreference.defaultCyclingView:
         view = const SafeArea(child: DefaultCyclingView());

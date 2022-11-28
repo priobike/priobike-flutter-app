@@ -76,10 +76,12 @@ class News with ChangeNotifier {
         throw Exception(err);
       }
 
-      await json.decode(response.body).forEach((element) {
-        final Article article = Article.fromJson(element);
-        articlesFromServer.add(article);
-      });
+      await json.decode(response.body).forEach(
+        (element) {
+          final Article article = Article.fromJson(element);
+          articlesFromServer.add(article);
+        },
+      );
     } on SocketException catch (e, stack) {
       final hint = "Failed to load articles: $e";
       log.w(hint);

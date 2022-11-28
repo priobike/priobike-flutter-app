@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -53,6 +52,9 @@ class AppMap extends StatefulWidget {
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
 
+  final Point<num>? logoViewMargins;
+  final Point<num>? attributionButtonMargins;
+
   const AppMap(
       {this.puckImage,
       this.puckSize = 128,
@@ -61,6 +63,8 @@ class AppMap extends StatefulWidget {
       this.onStyleLoaded,
       this.onCameraIdle,
       this.onMapLongClick,
+      this.logoViewMargins,
+      this.attributionButtonMargins,
       this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
       Key? key})
       : super(key: key);
@@ -93,7 +97,7 @@ class AppMapState extends State<AppMap> {
       // this token will be provided by an environment variable. However, we need
       // to integrate this in the CI builds and provide a development guide.
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
-      onMapCreated: widget.onMapCreated,
+      onMapCreated: onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
@@ -108,6 +112,18 @@ class AppMapState extends State<AppMap> {
       attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
       initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
+      // The position of the logo and the attribution button.
+      // Both are usually at the same height on different sides of the map.
+      logoViewMargins: widget.logoViewMargins,
+      attributionButtonMargins: widget.attributionButtonMargins,
     );
+  }
+
+  /// A wrapper for the default onMapCreated callback.
+  /// In this callback we configure the default settings.
+  /// For example, we set the MapBox telemetry to disabled.
+  Future<void> onMapCreated(MapboxMapController controller) async {
+    controller.setTelemetryEnabled(false);
+    widget.onMapCreated?.call(controller);
   }
 }

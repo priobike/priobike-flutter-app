@@ -42,11 +42,13 @@ class AllRoutesLayer {
         "type": "LineString",
         "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
       };
-      features.add({
-        "id": "route-${entry.key}", // Required for click listener.
-        "type": "Feature",
-        "geometry": geometry,
-      });
+      features.add(
+        {
+          "id": "route-${entry.key}", // Required for click listener.
+          "type": "Feature",
+          "geometry": geometry,
+        },
+      );
     }
   }
 
@@ -183,14 +185,16 @@ class DiscomfortsLayer {
         "type": "LineString",
         "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
       };
-      features.add({
-        "id": "discomfort-${e.key}", // Required for click listener.
-        "type": "Feature",
-        "properties": {
-          "number": e.key + 1,
+      features.add(
+        {
+          "id": "discomfort-${e.key}", // Required for click listener.
+          "type": "Feature",
+          "properties": {
+            "number": e.key + 1,
+          },
+          "geometry": geometry,
         },
-        "geometry": geometry,
-      });
+      );
     }
   }
 
@@ -265,17 +269,19 @@ class WaypointsLayer {
     final routing = Provider.of<Routing>(context, listen: false);
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [entry.value.lon, entry.value.lat],
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [entry.value.lon, entry.value.lat],
+          },
+          "properties": {
+            "isFirst": entry.key == 0,
+            "isLast": entry.key == waypoints.length - 1,
+          },
         },
-        "properties": {
-          "isFirst": entry.key == 0,
-          "isLast": entry.key == waypoints.length - 1,
-        },
-      });
+      );
     }
   }
 
@@ -330,19 +336,21 @@ class TrafficLightsLayer {
       final isOffline = status == null ||
           status.predictionState == SGPredictionState.offline ||
           status.predictionState == SGPredictionState.bad;
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [sg.position.lon, sg.position.lat],
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sg.position.lon, sg.position.lat],
+          },
+          "properties": {
+            "id": sg.id,
+            "isOffline": isOffline,
+            "isDark": isDark,
+            "showLabels": showLabels,
+          },
         },
-        "properties": {
-          "id": sg.id,
-          "isOffline": isOffline,
-          "isDark": isDark,
-          "showLabels": showLabels,
-        },
-      });
+      );
     }
   }
 
@@ -411,17 +419,19 @@ class TrafficLightLayer {
     if (sgRec == null || sgIsGreen == null || sgPos == null) return;
     if (sgRec.error) return;
     if ((sgRec.quality ?? 0) < Ride.qualityThreshold) return;
-    features.add({
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [sgPos.lon, sgPos.lat],
+    features.add(
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [sgPos.lon, sgPos.lat],
+        },
+        "properties": {
+          "isGreen": sgIsGreen,
+          "isDark": isDark,
+        },
       },
-      "properties": {
-        "isGreen": sgIsGreen,
-        "isDark": isDark,
-      },
-    });
+    );
   }
 
   /// Install the overlay on the layer controller.
@@ -479,18 +489,20 @@ class OfflineCrossingsLayer {
     final routing = Provider.of<Routing>(context, listen: false);
     for (final crossing in routing.selectedRoute?.crossings ?? []) {
       if (crossing.connected) continue;
-      features.add({
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [crossing.position.lon, crossing.position.lat],
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [crossing.position.lon, crossing.position.lat],
+          },
+          "properties": {
+            "name": crossing.name,
+            "isDark": isDark,
+            "showLabels": showLabels,
+          },
         },
-        "properties": {
-          "name": crossing.name,
-          "isDark": isDark,
-          "showLabels": showLabels,
-        },
-      });
+      );
     }
   }
 

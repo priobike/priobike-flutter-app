@@ -211,17 +211,21 @@ class Discomforts with ChangeNotifier {
       if (segment.value is! double) continue;
       final cs = getCoordinates(segment, path);
       if (segment.value! > 0) {
-        criticalElevation.add(DiscomfortSegment(
-          segment: segment,
-          coordinates: cs,
-          description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
-        ));
+        criticalElevation.add(
+          DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+          ),
+        );
       } else {
-        criticalElevation.add(DiscomfortSegment(
-          segment: segment,
-          coordinates: cs,
-          description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
-        ));
+        criticalElevation.add(
+          DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+          ),
+        );
       }
     }
 
@@ -233,17 +237,21 @@ class Discomforts with ChangeNotifier {
       if (segment.value is! num) continue;
       final cs = getCoordinates(segment, path);
       if (segment.value! >= 100) {
-        unwantedSpeed.add(DiscomfortSegment(
-          segment: segment,
-          coordinates: cs,
-          description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
-        ));
+        unwantedSpeed.add(
+          DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+          ),
+        );
       } else if (segment.value! <= 10) {
-        unwantedSpeed.add(DiscomfortSegment(
-          segment: segment,
-          coordinates: cs,
-          description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
-        ));
+        unwantedSpeed.add(
+          DiscomfortSegment(
+            segment: segment,
+            coordinates: cs,
+            description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+          ),
+        );
       }
     }
 

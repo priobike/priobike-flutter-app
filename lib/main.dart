@@ -159,6 +159,7 @@ class App extends StatelessWidget {
                   color: Color(0xFF000000),
                 ),
               ),
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             darkTheme: ThemeData(
               fontFamily: 'HamburgSans',
@@ -213,6 +214,7 @@ class App extends StatelessWidget {
                   color: Color(0xFFFFFFFF),
                 ),
               ),
+              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light

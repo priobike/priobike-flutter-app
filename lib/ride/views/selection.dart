@@ -48,15 +48,19 @@ class RideSelectionViewState extends State<RideSelectionView> {
     final settings = Provider.of<Settings>(context, listen: false);
     await settings.selectRidePreference(preference);
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      // Avoid navigation back, only allow stop button to be pressed.
-      // Note: Don't use pushReplacement since this will call
-      // the result handler of the RouteView's host.
-      return WillPopScope(
-        onWillPop: () async => false,
-        child: const RideView(),
-      );
-    }));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) {
+          // Avoid navigation back, only allow stop button to be pressed.
+          // Note: Don't use pushReplacement since this will call
+          // the result handler of the RouteView's host.
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: const RideView(),
+          );
+        },
+      ),
+    );
   }
 
   /// Get a screenshot of a ride preference type.
@@ -86,7 +90,10 @@ class RideSelectionViewState extends State<RideSelectionView> {
   @override
   Widget build(BuildContext context) {
     final elements = RidePreference.values
-        .map((e) => Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        .map(
+          (e) => Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
               Tile(
                 fill: Theme.of(context).colorScheme.background,
                 onPressed: () => onRideSelected(context, e),
@@ -97,7 +104,9 @@ class RideSelectionViewState extends State<RideSelectionView> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Small(text: e.description, maxLines: 4, context: context, textAlign: TextAlign.center),
               ),
-            ]))
+            ],
+          ),
+        )
         .toList();
 
     // Make sure to shuffle the elements to avoid bias.
@@ -111,8 +120,8 @@ class RideSelectionViewState extends State<RideSelectionView> {
     return Scaffold(
       body: SafeArea(
         child: Fade(
-            child: SingleChildScrollView(
-          child: Column(
+          child: SingleChildScrollView(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -140,8 +149,10 @@ class RideSelectionViewState extends State<RideSelectionView> {
                   children: elements,
                 ),
                 const SizedBox(height: 64),
-              ]),
-        )),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

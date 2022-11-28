@@ -40,50 +40,54 @@ class SearchWaypointItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(4),
-      child: Row(children: [
-        const WaypointIcon(width: 32, height: 32),
-        const SmallHSpace(),
-        SizedBox(
-          height: 42,
-          width: frame.size.width - 114,
-          child: Tile(
-            fill: Theme.of(context).colorScheme.surface,
-            onPressed: onSelect,
-            padding: const EdgeInsets.all(10),
-            content: Row(children: [
-              const SmallHSpace(),
-              Flexible(
-                child: BoldContent(
-                  color: Colors.grey,
-                  text: "Adresse suchen",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  context: context,
-                ),
-              ),
-            ]),
-          ),
-        ),
-        const SmallHSpace(),
-        SizedBox(
-          width: 42,
-          height: 42,
-          child: RawMaterialButton(
-            elevation: 0,
-            fillColor: Theme.of(context).colorScheme.surface,
-            splashColor: Colors.black,
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(
-                Icons.search,
-                color: Colors.grey,
+      child: Row(
+        children: [
+          const WaypointIcon(width: 32, height: 32),
+          const SmallHSpace(),
+          SizedBox(
+            height: 42,
+            width: frame.size.width - 114,
+            child: Tile(
+              fill: Theme.of(context).colorScheme.surface,
+              onPressed: onSelect,
+              padding: const EdgeInsets.all(10),
+              content: Row(
+                children: [
+                  const SmallHSpace(),
+                  Flexible(
+                    child: BoldContent(
+                      color: Colors.grey,
+                      text: "Adresse suchen",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      context: context,
+                    ),
+                  ),
+                ],
               ),
             ),
-            onPressed: onSelect,
-            shape: const CircleBorder(),
           ),
-        )
-      ]),
+          const SmallHSpace(),
+          SizedBox(
+            width: 42,
+            height: 42,
+            child: RawMaterialButton(
+              elevation: 0,
+              fillColor: Theme.of(context).colorScheme.surface,
+              splashColor: Colors.black,
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                ),
+              ),
+              onPressed: onSelect,
+              shape: const CircleBorder(),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -116,60 +120,64 @@ class RouteWaypointItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(4),
-      child: Row(children: [
-        if (isFirst)
-          const StartIcon(width: 32, height: 32)
-        else if (isLast)
-          const DestinationIcon(width: 32, height: 32)
-        else
-          const WaypointIcon(width: 32, height: 32),
+      child: Row(
+        children: [
+          if (isFirst)
+            const StartIcon(width: 32, height: 32)
+          else if (isLast)
+            const DestinationIcon(width: 32, height: 32)
+          else
+            const WaypointIcon(width: 32, height: 32),
 
-        const SmallHSpace(),
+          const SmallHSpace(),
 
-        Container(
-          height: 42,
-          width: frame.size.width - 114,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.all(10),
-          child: Row(children: [
-            const SmallHSpace(),
-            Flexible(
-              child: BoldContent(
-                text: waypoint.address != null ? waypoint.address! : "Aktueller Standort",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                context: context,
-              ),
-            ),
-          ]),
-        ),
-
-        const SmallHSpace(),
-
-        // A button to remove the waypoint.
-        if (onDelete != null)
-          SizedBox(
-            width: 42,
+          Container(
             height: 42,
-            child: RawMaterialButton(
-              elevation: 0,
-              fillColor: Theme.of(context).colorScheme.surface,
-              splashColor: Colors.black,
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.grey,
+            width: frame.size.width - 114,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              children: [
+                const SmallHSpace(),
+                Flexible(
+                  child: BoldContent(
+                    text: waypoint.address != null ? waypoint.address! : "Aktueller Standort",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    context: context,
+                  ),
                 ),
-              ),
-              onPressed: onDelete,
-              shape: const CircleBorder(),
+              ],
             ),
           ),
-      ]),
+
+          const SmallHSpace(),
+
+          // A button to remove the waypoint.
+          if (onDelete != null)
+            SizedBox(
+              width: 42,
+              height: 42,
+              child: RawMaterialButton(
+                elevation: 0,
+                fillColor: Theme.of(context).colorScheme.surface,
+                splashColor: Colors.black,
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.grey,
+                  ),
+                ),
+                onPressed: onDelete,
+                shape: const CircleBorder(),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -256,58 +264,79 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   Widget renderDragIndicator(BuildContext context) {
-    return Column(children: [
-      Container(
-        alignment: AlignmentDirectional.center,
-        width: 32,
-        height: 6,
-        decoration: const BoxDecoration(
-          color: Colors.grey,
-          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-        ),
-      )
-    ]);
+    return Column(
+      children: [
+        Container(
+          alignment: AlignmentDirectional.center,
+          width: 32,
+          height: 6,
+          decoration: const BoxDecoration(
+            color: Colors.grey,
+            borderRadius: BorderRadius.all(Radius.circular(4.0)),
+          ),
+        )
+      ],
+    );
   }
 
   Widget renderBottomSheetWaypoints(BuildContext context) {
-    return Stack(children: [
-      Row(children: [
-        const SizedBox(width: 12),
-        if (s.fetchedWaypoints != null)
-          Column(children: [
-            const SizedBox(height: 36),
-            Stack(alignment: AlignmentDirectional.center, children: [
-              Container(
-                  color: Theme.of(context).colorScheme.surface, width: 16, height: s.selectedWaypoints!.length * 42),
-              Container(
-                  color: Theme.of(context).colorScheme.primary, width: 8, height: s.selectedWaypoints!.length * 42),
-            ]),
-          ]),
-      ]),
-      Column(children: [
-        LayoutBuilder(builder: ((context, constraints) {
-          return ReorderableListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            proxyDecorator: (proxyWidget, idx, anim) {
-              return proxyWidget;
-            },
-            children: s.selectedWaypoints?.asMap().entries.map<Widget>((entry) {
-                  return RouteWaypointItem(
-                    onDelete: () => onRemoveWaypoint(entry.key),
-                    key: Key("$entry.key"),
-                    count: s.selectedWaypoints?.length ?? 0,
-                    idx: entry.key,
-                    waypoint: entry.value,
-                  );
-                }).toList() ??
-                [],
-            onReorder: onChangeWaypointOrder,
-          );
-        })),
-        SearchWaypointItem(onSelect: onSearch),
-      ]),
-    ]);
+    return Stack(
+      children: [
+        Row(
+          children: [
+            const SizedBox(width: 12),
+            if (s.fetchedWaypoints != null)
+              Column(
+                children: [
+                  const SizedBox(height: 36),
+                  Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      Container(
+                          color: Theme.of(context).colorScheme.surface,
+                          width: 16,
+                          height: s.selectedWaypoints!.length * 42),
+                      Container(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 8,
+                          height: s.selectedWaypoints!.length * 42),
+                    ],
+                  ),
+                ],
+              ),
+          ],
+        ),
+        Column(
+          children: [
+            LayoutBuilder(
+              builder: ((context, constraints) {
+                return ReorderableListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  proxyDecorator: (proxyWidget, idx, anim) {
+                    return proxyWidget;
+                  },
+                  children: s.selectedWaypoints?.asMap().entries.map<Widget>(
+                        (entry) {
+                          return RouteWaypointItem(
+                            onDelete: () => onRemoveWaypoint(entry.key),
+                            key: Key("$entry.key"),
+                            count: s.selectedWaypoints?.length ?? 0,
+                            idx: entry.key,
+                            waypoint: entry.value,
+                          );
+                        },
+                      ).toList() ??
+                      [],
+                  onReorder: onChangeWaypointOrder,
+                );
+              }),
+            ),
+            SearchWaypointItem(onSelect: onSearch),
+          ],
+        ),
+      ],
+    );
   }
 
   /// Render an info section on top of the bottom sheet.
@@ -321,18 +350,20 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final minutes = (seconds - hours * 3600) ~/ 60;
     // Calculate the time when the user will reach the destination.
     final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
-    return Column(children: [
-      BoldSmall(
-        text: s.selectedProfile?.explanation ?? "",
-        color: CI.green,
-        context: context,
-      ),
-      const SizedBox(height: 2),
-      Content(
-          text:
-              "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
-          context: context),
-    ]);
+    return Column(
+      children: [
+        BoldSmall(
+          text: s.selectedProfile?.explanation ?? "",
+          color: CI.green,
+          context: context,
+        ),
+        const SizedBox(height: 2),
+        Content(
+            text:
+                "${hours == 0 ? '' : '$hours Std. '}$minutes Min. - Ankunft ${arrivalTime.hour}:${arrivalTime.minute.toString().padLeft(2, "0")} Uhr, $distInfo",
+            context: context),
+      ],
+    );
   }
 
   /// Render the start ride button.

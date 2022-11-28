@@ -14,6 +14,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
@@ -35,15 +36,16 @@ void showSaveShortcutSheet(context) {
         title: BoldContent(
             text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.', context: context),
         content: SizedBox(
-            height: 48,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
-                ),
-              ],
-            )),
+          height: 48,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
+              ),
+            ],
+          ),
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(24)),
         ),
@@ -86,6 +88,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated shortcuts service, which is injected by the provider.
   Shortcuts? shortcuts;
 
+  /// The associated layers service, which is injected by the provider.
+  late Layers layers;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -100,17 +105,19 @@ class RoutingViewState extends State<RoutingView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
-      await routing?.loadRoutes(context);
+    SchedulerBinding.instance?.addPostFrameCallback(
+      (_) async {
+        await routing?.loadRoutes(context);
 
-      // Calling requestSingleLocation function to fill lastPosition of PositionService
-      await positioning?.requestSingleLocation(context);
-      // Checking threshold for location accuracy
-      if (positioning?.lastPosition?.accuracy != null &&
-          positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
-        showAlertGPSQualityDialog();
-      }
-    });
+        // Calling requestSingleLocation function to fill lastPosition of PositionService
+        await positioning?.requestSingleLocation(context);
+        // Checking threshold for location accuracy
+        if (positioning?.lastPosition?.accuracy != null &&
+            positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
+          showAlertGPSQualityDialog();
+        }
+      },
+    );
   }
 
   @override
@@ -119,6 +126,7 @@ class RoutingViewState extends State<RoutingView> {
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
     positioning = Provider.of<Positioning>(context);
+    layers = Provider.of<Layers>(context);
     super.didChangeDependencies();
   }
 
@@ -129,15 +137,19 @@ class RoutingViewState extends State<RoutingView> {
     // Show the ride view directly if the user has selected his preferred ride view.
     final preferredRideView = Provider.of<Settings>(context, listen: false).ridePreference;
 
-    void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          // Avoid navigation back, only allow stop button to be pressed.
-          // Note: Don't use pushReplacement since this will call
-          // the result handler of the RouteView's host.
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: preferredRideView == null ? const RideSelectionView() : const RideView(),
-          );
-        }));
+    void startRide() => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) {
+              // Avoid navigation back, only allow stop button to be pressed.
+              // Note: Don't use pushReplacement since this will call
+              // the result handler of the RouteView's host.
+              return WillPopScope(
+                onWillPop: () async => false,
+                child: preferredRideView == null ? const RideSelectionView() : const RideView(),
+              );
+            },
+          ),
+        );
 
     final preferences = await SharedPreferences.getInstance();
     final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
@@ -145,28 +157,29 @@ class RoutingViewState extends State<RoutingView> {
       startRide();
     } else {
       showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                alignment: AlignmentDirectional.center,
-                actionsAlignment: MainAxisAlignment.center,
-                title: BoldContent(
-                    text:
-                        'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-                    context: context),
-                content: Container(height: 0),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(24)),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      preferences.setBool("priobike.routing.warning", true);
-                      startRide();
-                    },
-                    child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
-                  ),
-                ],
-              ));
+        context: context,
+        builder: (_) => AlertDialog(
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
+          title: BoldContent(
+              text:
+                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
+          content: Container(height: 0),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                preferences.setBool("priobike.routing.warning", true);
+                startRide();
+              },
+              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -181,20 +194,29 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a loading indicator.
   Widget renderLoadingIndicator() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Expanded(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
           child: Tile(
-              fill: Theme.of(context).colorScheme.surface,
-              content: Center(
-                  child: SizedBox(
-                      height: 86,
-                      width: 256,
-                      child: Column(children: [
-                        const CircularProgressIndicator(),
-                        const VSpace(),
-                        BoldContent(text: "Lade...", maxLines: 1, context: context),
-                      ]))))),
-    ]);
+            fill: Theme.of(context).colorScheme.surface,
+            content: Center(
+              child: SizedBox(
+                height: 86,
+                width: 256,
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    const VSpace(),
+                    BoldContent(text: "Lade...", maxLines: 1, context: context),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   /// Render a try again button.
@@ -272,16 +294,16 @@ class RoutingViewState extends State<RoutingView> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-        // Show status bar in opposite color of the background.
-        value:
-            Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-        child: Scaffold(
-          body: NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              sheetMovement.add(notification);
-              return false;
-            },
-            child: Stack(children: [
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: NotificationListener<DraggableScrollableNotification>(
+          onNotification: (notification) {
+            sheetMovement.add(notification);
+            return false;
+          },
+          child: Stack(
+            children: [
               RoutingMapView(sheetMovement: sheetMovement.stream),
 
               if (routing!.isFetchingRoute) renderLoadingIndicator(),
@@ -290,47 +312,57 @@ class RoutingViewState extends State<RoutingView> {
 
               // Top Bar
               SafeArea(
-                  child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    // Avoid expansion of alerts view.
-                    width: frame.size.width - 80,
-                    child: const AlertsView(),
-                  )
-                ]),
-              )),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        // Avoid expansion of alerts view.
+                        width: frame.size.width - 80,
+                        child: const AlertsView(),
+                      )
+                    ],
+                  ),
+                ),
+              ),
 
               // Side Bar
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 80, left: 8),
-                  child: Column(children: [
-                    SizedBox(
-                      width: 58,
-                      height: 58,
-                      child: Tile(
-                        fill: Theme.of(context).colorScheme.background,
-                        onPressed: onLayerSelection,
-                        content: Icon(
-                          Icons.layers_rounded,
-                          color: Theme.of(context).colorScheme.onBackground,
+              layers.layersCanBeEnabled
+                  ? SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 80, left: 8),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 58,
+                              height: 58,
+                              child: Tile(
+                                fill: Theme.of(context).colorScheme.background,
+                                onPressed: onLayerSelection,
+                                content: Icon(
+                                  Icons.layers_rounded,
+                                  color: Theme.of(context).colorScheme.onBackground,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     )
-                  ]),
-                ),
-              ),
+                  : Container(),
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
                 onSelectSaveButton: () => showSaveShortcutSheet(context),
               ),
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   @override

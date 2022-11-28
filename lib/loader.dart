@@ -52,14 +52,16 @@ class LoaderState extends State<Loader> {
     const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     await SentryFlutter.init((options) => options.dsn = dsn);
 
+    // Load the feature.
+    final feature = Provider.of<Feature>(context, listen: false);
+    await feature.load();
     // Load the settings.
     final settings = Provider.of<Settings>(context, listen: false);
-    await settings.loadSettings();
+    await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
     // Load all other services.
     try {
       // Load local stuff.
-      await Provider.of<Feature>(context, listen: false).load();
       await Provider.of<Profile>(context, listen: false).loadProfile();
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
@@ -101,8 +103,9 @@ class LoaderState extends State<Loader> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    return Stack(children: [
-      Container(
+    return Stack(
+      children: [
+        Container(
           color: Theme.of(context).colorScheme.background,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 1000),
@@ -116,82 +119,86 @@ class LoaderState extends State<Loader> {
             decoration: shouldMorph
                 ? const BoxDecoration(
                     gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    stops: [
-                      0.1,
-                      0.9,
-                    ],
-                    colors: [CI.lightBlue, CI.blue],
-                  ))
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      stops: [
+                        0.1,
+                        0.9,
+                      ],
+                      colors: [CI.lightBlue, CI.blue],
+                    ),
+                  )
                 : const BoxDecoration(
                     gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    stops: [
-                      0.1,
-                      0.9,
-                    ],
-                    colors: [CI.blue, CI.blue],
-                  )),
-          )),
-      AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        switchInCurve: Curves.easeInOutCubic,
-        switchOutCurve: Curves.easeInOutCubic,
-        child: hasError
-            ? Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Tile(
-                    shadowIntensity: 0.2,
-                    fill: Theme.of(context).colorScheme.background,
-                    content: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
-                        const VSpace(),
-                        BoldContent(
-                          text: "Verbindungsfehler",
-                          context: context,
-                        ),
-                        const SmallVSpace(),
-                        Content(
-                          text:
-                              "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. Prüfe deine Verbindung und versuche es später erneut.",
-                          context: context,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      stops: [
+                        0.1,
+                        0.9,
                       ],
+                      colors: [CI.blue, CI.blue],
                     ),
                   ),
-                ),
-              )
-            : Container(),
-      ),
-      AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        switchInCurve: Curves.easeInOutCubic,
-        switchOutCurve: Curves.easeInOutCubic,
-        child: isLoading && !hasError && !shouldMorph
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 128),
-                  child: CircularProgressIndicator(color: Colors.white),
-                ),
-              )
-            : Container(),
-      ),
-      if (!isLoading)
+          ),
+        ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
           switchInCurve: Curves.easeInOutCubic,
           switchOutCurve: Curves.easeInOutCubic,
-          child: shouldBlendIn ? const HomeView() : Container(),
-        )
-    ]);
+          child: hasError
+              ? Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: Tile(
+                      shadowIntensity: 0.2,
+                      fill: Theme.of(context).colorScheme.background,
+                      content: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                          const VSpace(),
+                          BoldContent(
+                            text: "Verbindungsfehler",
+                            context: context,
+                          ),
+                          const SmallVSpace(),
+                          Content(
+                            text:
+                                "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. Prüfe deine Verbindung und versuche es später erneut.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          switchInCurve: Curves.easeInOutCubic,
+          switchOutCurve: Curves.easeInOutCubic,
+          child: isLoading && !hasError && !shouldMorph
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 128),
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                )
+              : Container(),
+        ),
+        if (!isLoading)
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            switchInCurve: Curves.easeInOutCubic,
+            switchOutCurve: Curves.easeInOutCubic,
+            child: shouldBlendIn ? const HomeView() : Container(),
+          )
+      ],
+    );
   }
 }

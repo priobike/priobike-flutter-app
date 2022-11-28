@@ -128,29 +128,34 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
 
     // Map each second from now to the corresponding predicted signal color
-    var colors = phasesFromNow.map((phase) {
-      if (phase >= tGreen) {
-        // Map green values between the greentimeThreshold and the maxValue
-        var factor = (phase - tGreen) / (maxValue - tGreen);
-        // Don't use the CI green here.
-        return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
-      } else {
-        // Map red values between the minValue and the greentimeThreshold
-        var factor = (phase - minValue) / (tGreen - minValue);
-        return Color.lerp(CI.red, defaultGaugeColor, factor)!;
-      }
-    }).toList();
+    var colors = phasesFromNow.map(
+      (phase) {
+        if (phase >= tGreen) {
+          // Map green values between the greentimeThreshold and the maxValue
+          var factor = (phase - tGreen) / (maxValue - tGreen);
+          // Don't use the CI green here.
+          return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
+        } else {
+          // Map red values between the minValue and the greentimeThreshold
+          var factor = (phase - minValue) / (tGreen - minValue);
+          return Color.lerp(CI.red, defaultGaugeColor, factor)!;
+        }
+      },
+    ).toList();
 
     // Since we want the color steps not by second, but by speed, we map the stops accordingly
-    var stops = Iterable<double>.generate(colors.length, (second) {
-      if (second == 0) {
-        return double.infinity;
-      }
-      // Map the second to the needed speed
-      var speedKmh = (dist / second) * 3.6;
-      // Scale the speed between minSpeed and maxSpeed
-      return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
-    }).toList();
+    var stops = Iterable<double>.generate(
+      colors.length,
+      (second) {
+        if (second == 0) {
+          return double.infinity;
+        }
+        // Map the second to the needed speed
+        var speedKmh = (dist / second) * 3.6;
+        // Scale the speed between minSpeed and maxSpeed
+        return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+      },
+    ).toList();
 
     // Add stops and colos to indicate unavailable prediction ranges
     if (stops.isNotEmpty) {
@@ -268,62 +273,65 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       onWillPop: () async => false,
       child: Transform.translate(
         offset: Offset(0, (MediaQuery.of(context).size.height / 2) - 64 - MediaQuery.of(context).padding.bottom),
-        child: Stack(alignment: Alignment.center, children: [
-          Container(
-            height: (MediaQuery.of(context).size.width),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
-                topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(MediaQuery.of(context).size.width / 2),
+                  topRight: Radius.circular(MediaQuery.of(context).size.width / 2),
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(
-            height: (MediaQuery.of(context).size.width),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
             ),
-          ),
-          Container(
-            height: (MediaQuery.of(context).size.width - 32),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+            Container(
+              height: (MediaQuery.of(context).size.width - 32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
             ),
-          ),
-          Container(
-            height: (MediaQuery.of(context).size.width),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 52),
-              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+            Container(
+              height: (MediaQuery.of(context).size.width),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 52),
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
             ),
-          ),
-          Container(
-            height: (MediaQuery.of(context).size.width - 4),
-            margin: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: defaultGaugeColor, width: 48),
-              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+            Container(
+              height: (MediaQuery.of(context).size.width - 4),
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: defaultGaugeColor, width: 48),
+                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width / 2)),
+              ),
             ),
-          ),
-          Container(
-            height: (MediaQuery.of(context).size.width - 4),
-            margin: const EdgeInsets.all(2),
-            child: gauge,
-          ),
-          const RideTrafficLightView(),
-        ]),
+            Container(
+              height: (MediaQuery.of(context).size.width - 4),
+              margin: const EdgeInsets.all(2),
+              child: gauge,
+            ),
+            const RideTrafficLightView(),
+          ],
+        ),
       ),
     );
   }

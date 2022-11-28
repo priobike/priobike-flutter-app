@@ -23,29 +23,31 @@ class StatisticsElementView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      const Divider(),
-      const SmallVSpace(),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BoldSmall(text: title, maxLines: 1, context: context),
-              const SizedBox(height: 4),
-              Small(text: subtitle, context: context),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Icon(icon, size: 32),
-          ),
-        ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BoldSmall(text: title, maxLines: 1, context: context),
+                const SizedBox(height: 4),
+                Small(text: subtitle, context: context),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(icon, size: 32),
+            ),
+          ],
+        ),
       ),
-      const SmallVSpace(),
-    ]);
+    );
   }
 }
 
@@ -114,6 +116,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           child: Column(
             children: [
               const SmallVSpace(),
+              const Divider(),
               StatisticsElementView(
                 icon: Icons.co2_rounded,
                 title: "${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg",
@@ -140,12 +143,14 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                   );
                 },
               ),
+              const Divider(),
               StatisticsElementView(
                 icon: Icons.directions_bike_rounded,
                 title: "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km",
                 subtitle: "Gefahrene Distanz",
                 context: context,
               ),
+              const Divider(),
               StatisticsElementView(
                 icon: Icons.timer_outlined,
                 title:
@@ -153,6 +158,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                 subtitle: "Gefahrene Zeit",
                 context: context,
               ),
+              const Divider(),
               StatisticsElementView(
                 icon: Icons.speed_rounded,
                 title: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
