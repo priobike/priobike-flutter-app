@@ -73,44 +73,43 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [
-          const SizedBox(width: 40),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            BoldContent(text: "Fahrtstatistiken", context: context),
-            const SizedBox(height: 4),
-            Small(text: "Auf diesem Gerät", context: context),
-          ]),
-          Expanded(child: Container()),
-          SmallIconButton(
-            icon: Icons.info_outline_rounded,
-            fill: Theme.of(context).colorScheme.background,
-            splash: Colors.white,
-            onPressed: () {
-              // Show a small modal sheet explaining that the
-              // data is only stored on this device.
-              showAppSheet(
+        Row(
+          children: [
+            const SizedBox(width: 40),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              BoldContent(text: "Fahrtstatistiken", context: context),
+              const SizedBox(height: 4),
+              Small(text: "Auf diesem Gerät", context: context),
+            ]),
+            Expanded(child: Container()),
+            SmallIconButton(
+              icon: Icons.info_outline_rounded,
+              fill: Theme.of(context).colorScheme.background,
+              splash: Colors.white,
+              onPressed: () => showDialog(
                 context: context,
-                builder: (context) => Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(child: BoldSubHeader(text: "Information zu Fahrtstatistiken", context: context)),
-                      const SizedBox(height: 4),
-                      BoldContent(text: "auf diesem Gerät", context: context),
-                      const Divider(),
-                      Content(
-                          text:
-                              "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.",
-                          context: context),
-                    ],
+                builder: (context) => AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
                   ),
+                  backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+                  title: BoldContent(text: "Fahrtstatistiken", context: context),
+                  content: Content(
+                      text:
+                          "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet.",
+                      context: context),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("Alles klar"),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-          const SizedBox(width: 40),
-        ]),
+              ),
+            ),
+            const SizedBox(width: 40),
+          ],
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Column(
@@ -122,26 +121,26 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                 title: "${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg",
                 subtitle: "CO2 eingespart",
                 context: context,
-                onPressed: () {
-                  showAppSheet(
-                    context: context,
-                    builder: (context) => Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(child: BoldSubHeader(text: "Information zur CO2-Berechnung", context: context)),
-                          const Divider(),
-                          Content(
-                            text:
-                                "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
-                            context: context,
-                          ),
-                        ],
-                      ),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(24)),
                     ),
-                  );
-                },
+                    backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+                    title: BoldContent(text: "Information zur CO2-Berechnung", context: context),
+                    content: Content(
+                        text:
+                            "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+                        context: context),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("Alles klar"),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const Divider(),
               StatisticsElementView(
