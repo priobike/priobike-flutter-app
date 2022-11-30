@@ -25,11 +25,11 @@ class Statistics with ChangeNotifier {
 
   /// The total amount of saved co2 in kg.
   double? get totalSavedCO2Kg {
-    if (totalDistanceMeters == null || totalDurationSeconds == null) {
+    if (totalDistanceMeters == null) {
       return null;
     }
     const co2PerKm = 0.1187; // Data according to statista.com
-    return (totalDistanceMeters! / 1000) * (totalDurationSeconds! / 3600) * co2PerKm;
+    return (totalDistanceMeters! / 1000) * co2PerKm;
   }
 
   /// Get the average speed of all rides in km/h.
