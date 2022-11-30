@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-// import 'package:latlong2/latlong.dart' as LatLng2;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/layers.dart';
@@ -18,35 +17,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
-
-/// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
-/// Taken from +-60 Latitude since it only needs to be approximate and its closer to 53 than +-40.
-/// Its also to small in worst case.
-final Map<int, double> zoomToGeographicalDistance = {
-  0: 39135.742,
-  1: 19567.871,
-  2: 9783.936,
-  3: 4891.968,
-  4: 2445.984,
-  5: 1222.992,
-  6: 611.496,
-  7: 305.748,
-  8: 152.874,
-  9: 76.437,
-  10: 38.218,
-  11: 19.109,
-  12: 9.555,
-  13: 4.777,
-  14: 2.389,
-  15: 1.194,
-  16: 0.597,
-  17: 0.299,
-  18: 0.149,
-  19: 0.075,
-  20: 0.047,
-  21: 0.019,
-  22: 0.009
-};
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -200,117 +170,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
 /*
-  Future<void> onRoutingUpdate() async {
-    await loadAllRouteLayers();
-    await loadSelectedRouteLayer();
-    await loadRouteLabels();
-    await loadTrafficLightMarkers();
-    await loadOfflineCrossingMarkers();
-    await loadWaypointMarkers();
-    await moveMap();
-  }
-
-  Future<void> onDiscomfortsUpdate() async {
-    await loadDiscomforts();
-  }
-
-  Future<void> onPositioningUpdate() async {
-    await showUserLocation();
-  }
-
-  Future<void> onLayersUpdate() async {
-    await loadLayers();
-  }
-
-  /// Load the route layer routing.
-  Future<void> loadAllRouteLayers() async {
-    // If we have no map controller, we cannot load the layer routing.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldRoutes = allRoutes;
-    // Add the new layers, if they exist.
-    allRoutes = [];
-    for (r.Route altRoute in routing.allRoutes ?? []) {
-      allRoutes!.add(await mapboxMapController!.addLine(
-        RouteBackgroundLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-        altRoute.toJson(),
-      ));
-      // Make it easier to click the alt route layer.
-      allRoutes!.add(await mapboxMapController!.addLine(
-        RouteBackgroundClickLayer(points: altRoute.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-        altRoute.toJson(),
-      ));
-    }
-    // Remove the old layer routing.
-    await mapboxMapController?.removeLines(oldRoutes ?? []);
-  }
-
-  /// Load the current route layer.
-  Future<void> loadSelectedRouteLayer() async {
-    // If we have no map controller, we cannot load the route layer.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldRoute = route;
-    if (routing.selectedRoute != null) {
-      // Add the new route layer.
-      route = await mapboxMapController!.addLine(
-        RouteLayer(points: routing.selectedRoute!.route.map((e) => LatLng(e.lat, e.lon)).toList()),
-        routing.selectedRoute!.toJson(),
-      );
-    }
-    if (oldRoute != null) await mapboxMapController?.removeLine(oldRoute);
-  }
-
-  /// Load the discomforts.
-  Future<void> loadDiscomforts() async {
-    // If we have no map controller, we cannot load the layerouting.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldDiscomfortLocations = discomfortLocations;
-    final oldDiscomfortSections = discomfortSections;
-    // Add the new layerouting.
-    discomfortLocations = [];
-    discomfortSections = [];
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 4;
-    for (MapEntry<int, DiscomfortSegment> e in discomforts.foundDiscomforts?.asMap().entries ?? []) {
-      if (e.value.coordinates.isEmpty) continue;
-      if (e.value.coordinates.length == 1) {
-        // A single location.
-        final location = e.value.coordinates.first;
-        discomfortLocations!.add(await mapboxMapController!.addSymbol(
-          DiscomfortLocationMarker(
-              geo: location,
-              number: e.key + 1,
-              zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
-              iconSize: discomforts.selectedDiscomfort == e.value ? iconSize * 1.33 : iconSize),
-          e.value.toJson(),
-        ));
-      } else {
-        // A section of the route.
-        discomfortLocations!.add(await mapboxMapController!.addSymbol(
-          DiscomfortLocationMarker(
-              geo: e.value.coordinates.first,
-              number: e.key + 1,
-              zIndex: discomforts.selectedDiscomfort == e.value ? 2 : 1,
-              iconSize: discomforts.selectedDiscomfort == e.value ? iconSize * 1.33 : iconSize),
-          e.value.toJson(),
-        ));
-        discomfortSections!.add(await mapboxMapController!.addLine(
-          DiscomfortSectionLayer(points: e.value.coordinates),
-          e.value.toJson(),
-        ));
-        // Make it easier to click the discomfort section layer.
-        discomfortSections!.add(await mapboxMapController!.addLine(
-          DiscomfortSectionClickLayer(points: e.value.coordinates),
-          e.value.toJson(),
-        ));
-      }
-    }
-    // Remove the old layerouting.
-    await mapboxMapController?.removeSymbols(oldDiscomfortLocations ?? []);
-    await mapboxMapController?.removeLines(oldDiscomfortSections ?? []);
-  }
-
   /// Load the Route labels.
   Future<void> loadRouteLabels() async {
     // If we have no map controller, we cannot load the routing labels.
@@ -450,135 +309,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Remove the old labels.
     await mapboxMapController?.removeSymbols(oldRouteLabelLocations ?? []);
   }
-
-  /// Load the current traffic lights.
-  Future<void> loadTrafficLightMarkers() async {
-    // If we have no map controller, we cannot load the traffic lights.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldTrafficLights = trafficLights;
-    // Create a new traffic light marker for each traffic light.
-    trafficLights = [];
-    final settings = Provider.of<Settings>(context, listen: false);
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
-    for (Sg sg in routingNew.selectedRoute?.signalGroups ?? []) {
-      final status = statusProvider.cache[sg.id];
-      if (status == null) {
-        trafficLights!.add(await mapboxMapController!.addSymbol(
-            OfflineMarker(
-              iconSize: iconSize,
-              geo: LatLng(sg.position.lat, sg.position.lon),
-              label: willShowLabels ? sg.label : null,
-            ),
-            {"trafficLightMarker": true}));
-      } else if (status.predictionState == SGPredictionState.offline) {
-        trafficLights!.add(await mapboxMapController!.addSymbol(
-            OfflineMarker(
-              iconSize: iconSize,
-              geo: LatLng(sg.position.lat, sg.position.lon),
-              label: willShowLabels ? sg.label : null,
-            ),
-            {"trafficLightMarker": true}));
-      } else if (status.predictionState == SGPredictionState.bad) {
-        trafficLights!.add(await mapboxMapController!.addSymbol(
-            BadSignalMarker(
-              iconSize: iconSize,
-              geo: LatLng(sg.position.lat, sg.position.lon),
-              label: willShowLabels ? sg.label : null,
-            ),
-            {"trafficLightMarker": true}));
-      } else {
-        trafficLights!.add(await mapboxMapController!.addSymbol(
-            OnlineMarker(
-              iconSize: iconSize,
-              geo: LatLng(sg.position.lat, sg.position.lon),
-              label: willShowLabels ? sg.label : null,
-            ),
-            {"trafficLightMarker": true}));
-      }
-    }
-    // Remove the old traffic lights.
-    await mapboxMapController?.removeSymbols(oldTrafficLights ?? []);
-  }
-
-  /// Load the current crossings.
-  Future<void> loadOfflineCrossingMarkers() async {
-    // If we have no map controller, we cannot load the crossings.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldCrossings = offlineCrossings;
-    // Create a new crossing marker for each crossing.
-    offlineCrossings = [];
-    final settings = Provider.of<Settings>(context, listen: false);
-    final willShowLabels = settings.sgLabelsMode == SGLabelsMode.enabled;
-    // Check the prediction status of the traffic light.
-    final iconSize = MediaQuery.of(context).devicePixelRatio / 3;
-    for (Crossing crossing in routingNew.selectedRoute?.crossings ?? []) {
-      if (crossing.connected) continue;
-      offlineCrossings!.add(await mapboxMapController!.addSymbol(
-          DisconnectedMarker(
-            iconSize: iconSize,
-            geo: LatLng(crossing.position.lat, crossing.position.lon),
-            label: willShowLabels ? crossing.name : null,
-          ),
-          {"trafficLightMarker": true}));
-    }
-    // Remove the old crossings.
-    await mapboxMapController?.removeSymbols(oldCrossings ?? []);
-  }
-
-  /// Load the current waypoint markerouting.
-  Future<void> loadWaypointMarkers() async {
-    // If we have no map controller, we cannot load the waypoint layer.
-    if (mapboxMapController == null) return;
-    // Cache the old annotations to remove them later. This avoids flickering.
-    final oldWaypoints = waypoints;
-    waypoints = [];
-    // Create a new waypoint marker for each waypoint.
-    for (MapEntry<int, Waypoint> entry in routingNew.selectedWaypoints?.asMap().entries ?? []) {
-      if (entry.key == 0) {
-        waypoints!.add(await mapboxMapController!.addSymbol(
-          StartMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
-          entry.value.toJSON(),
-        ));
-      } else if (entry.key == routingNew.selectedWaypoints!.length - 1) {
-        waypoints!.add(await mapboxMapController!.addSymbol(
-          DestinationMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
-          entry.value.toJSON(),
-        ));
-      } else {
-        waypoints!.add(await mapboxMapController!.addSymbol(
-          WaypointMarker(geo: LatLng(entry.value.lat, entry.value.lon)),
-          entry.value.toJSON(),
-        ));
-      }
-    }
-    // Remove the old waypoints.
-    await mapboxMapController?.removeSymbols(oldWaypoints ?? []);
-  }
-
-  /// Adapt the map controller.
-  Future<void> moveMap() async {
-    if (mapboxMapController == null) return;
-    if (routingNew.selectedRoute != null && !mapboxMapController!.isCameraMoving) {
-      // The delay is necessary, otherwise sometimes the camera won't move.
-      await Future.delayed(const Duration(milliseconds: 500));
-      await mapboxMapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(routingNew.selectedRoute!.paddedBounds),
-        duration: const Duration(milliseconds: 1000),
-      );
-    }
-  }
-
-  /// Show the user location on the map.
-  Future<void> showUserLocation() async {
-    if (mapboxMapController == null) return;
-    if (positioning.lastPosition == null) return;
-
-    await mapboxMapController?.updateUserLocation(
 */
 
   /// Fit the camera to the current route.
@@ -652,6 +382,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await DiscomfortsLayer(context).update(layerController!);
     await TrafficLightsLayer(context).update(layerController!);
     await OfflineCrossingsLayer(context).update(layerController!);
+    await RouteLabelLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -677,6 +408,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else if (id.startsWith("traffic-light")) {
       discomforts.selectTrafficLight();
       discomforts.unselectDiscomfort();
+    } else if (id.startsWith("routeLabel")) {
+      final routeLabelIdx = int.tryParse(id.split("-")[1]);
+      if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+        return;
+      }
+      routing.switchToRoute(context, routeLabelIdx);
     }
   }
 
@@ -774,6 +511,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       layerController!,
       below: selectedRoute,
     );
+    await RouteLabelLayer(context).install(layerController!, iconSize: ppi / 3);
 
     await loadRouteMapLayers();
     await fitCameraToRouteBounds();
@@ -783,7 +521,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the map was longclicked.
   onMapLongClick(BuildContext context, double x, double y) async {
-    if (mapController == null) return;
+    if (mapboxMapController == null) return;
     // Convert x and y into a lat/lon.
     final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.

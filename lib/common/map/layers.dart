@@ -6,15 +6,48 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routing/models/discomfort.dart';
+import 'package:priobike/routingNew/messages/graphhopper.dart';
 import 'package:priobike/routingNew/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
+import 'package:latlong2/latlong.dart' as LatLng2;
+import 'package:priobike/routingNew/models/route.dart' as r;
+
+/// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
+/// Taken from +-60 Latitude since it only needs to be approximate and its closer to 53 than +-40.
+/// Its also to small in worst case.
+final Map<int, double> zoomToGeographicalDistance = {
+  0: 39135.742,
+  1: 19567.871,
+  2: 9783.936,
+  3: 4891.968,
+  4: 2445.984,
+  5: 1222.992,
+  6: 611.496,
+  7: 305.748,
+  8: 152.874,
+  9: 76.437,
+  10: 38.218,
+  11: 19.109,
+  12: 9.555,
+  13: 4.777,
+  14: 2.389,
+  15: 1.194,
+  16: 0.597,
+  17: 0.299,
+  18: 0.149,
+  19: 0.075,
+  20: 0.047,
+  21: 0.019,
+  22: 0.009
+};
 
 /// Fade a layer out before a specific zoom level.
 dynamic showAfter({required int zoom, double opacity = 1.0}) {
@@ -167,6 +200,161 @@ class SelectedRouteLayer {
   update(LayerController layerController, {String? below}) async {
     await layerController.updateGeoJsonSource(
       "route",
+      {"type": "FeatureCollection", "features": features},
+    );
+  }
+}
+
+class RouteLabelLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  RouteLabelLayer(BuildContext context) {
+    final routing = Provider.of<Routing>(context, listen: false);
+    final mapController = Provider.of<MapController>(context, listen: false);
+    // Conditions for having route labels.
+    if (mapController.controller!.cameraPosition != null &&
+        routing.allRoutes != null &&
+        routing.allRoutes!.length == 2 &&
+        routing.selectedRoute != null) {
+      var distance = const LatLng2.Distance();
+
+      double width = MediaQuery.of(context).size.width;
+      double height = MediaQuery.of(context).size.height;
+      double meterPerPixel = zoomToGeographicalDistance[mapController.controller!.cameraPosition!.zoom.toInt()] ?? 0;
+      double cameraPosLat = mapController.controller!.cameraPosition!.target.latitude;
+      double cameraPosLong = mapController.controller!.cameraPosition!.target.longitude;
+
+      // Cast to LatLng2 format.
+      LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
+
+      // Getting the bounds north, east, south, west.
+      // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
+      LatLng2.LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+      LatLng2.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
+      LatLng2.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
+      LatLng2.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+
+      // Search appropriate Point in Route
+      for (r.Route route in routing.allRoutes!) {
+        GHCoordinate? chosenCoordinate;
+        List<GHCoordinate> uniqueInBounceCoordinates = [];
+
+        // go through all coordinates.
+        for (GHCoordinate coordinate in route.path.points.coordinates) {
+          // Check if the coordinate is unique and not on the same line.
+          bool unique = true;
+          // Loop through all route coordinates.
+          for (r.Route routeToBeChecked in routing.allRoutes!) {
+            // Would always be not unique without this check.
+            if (routeToBeChecked.id != route.id) {
+              // Compare coordinate to all coordinates in other route.
+              for (GHCoordinate coordinateToBeChecked in routeToBeChecked.path.points.coordinates) {
+                if (!unique) {
+                  break;
+                }
+                if (coordinateToBeChecked.lon == coordinate.lon && coordinateToBeChecked.lat == coordinate.lat) {
+                  unique = false;
+                }
+              }
+            }
+          }
+
+          if (unique) {
+            // Check bounds, no check for side of earth needed since in Hamburg.
+            if (coordinate.lat > south.latitude &&
+                coordinate.lat < north.latitude &&
+                coordinate.lon > west.longitude &&
+                coordinate.lon < east.longitude) {
+              uniqueInBounceCoordinates.add(coordinate);
+            }
+          }
+        }
+
+        // Determine which coordinate to use.
+        if (uniqueInBounceCoordinates.isNotEmpty) {
+          // Use the middlest coordinate.
+          chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
+        }
+
+        if (chosenCoordinate != null) {
+          // Found coordinate and add Label with time.
+          features.add(
+            {
+              "id": "routeLabel-${route.id}", // Required for click listener.
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
+              },
+              "properties": {
+                "isPrimary": routing.selectedRoute!.id == route.id,
+                "text": "${((route.path.time * 0.001) * 0.016).round()} min"
+              },
+            },
+          );
+        }
+      }
+    }
+  }
+
+  /// Install the overlay on the layer controller.
+  Future<String> install(
+    LayerController layerController, {
+    iconSize = 0.75,
+    String? below,
+  }) async {
+    await layerController.addGeoJsonSource(
+      "routeLabels",
+      {"type": "FeatureCollection", "features": features},
+    );
+    // Make it easier to click on the route.
+    await layerController.addLayer(
+      "routeLabels",
+      "routeLabels-clicklayer",
+      SymbolLayerProperties(
+        // iconAnchor: "bottom",
+        // textAnchor: "bottom",
+        iconImage: [
+          "case",
+          ["get", "isPrimary"],
+          "route-label-pmm",
+          "route-label-smm"
+        ],
+        iconSize: iconSize,
+        iconOpacity: showAfter(zoom: 10),
+        iconOffset: [
+          Expressions.literal,
+          [0, -10]
+        ],
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        textField: ["get", "text"],
+        textOffset: [
+          Expressions.literal,
+          [0, -1.25]
+        ],
+        textColor: [
+          "case",
+          ["get", "isPrimary"],
+          "#ffffff",
+          "#000000"
+        ],
+        textSize: 12,
+        textOpacity: showAfter(zoom: 10),
+        textAllowOverlap: true,
+        textIgnorePlacement: true,
+      ),
+      enableInteraction: true,
+      belowLayerId: below,
+    );
+    return "routeLabels-layer";
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "routeLabels",
       {"type": "FeatureCollection", "features": features},
     );
   }
