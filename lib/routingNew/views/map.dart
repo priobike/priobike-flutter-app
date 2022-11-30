@@ -551,10 +551,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is executed when the camera movement of the user stopped.
-  void onCameraIdle() {
+  Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting) {
-      // FIXME loadRouteLabels();
+      //FIXME check if necessary
+      await RouteLabelLayer(context).update(layerController!);
     }
   }
 
