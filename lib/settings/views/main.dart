@@ -416,6 +416,15 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
                         ),
                       ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Preferierte Fahransicht zurücksetzen (benötigt Neustart)",
+                          icon: Icons.recycling,
+                          callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
+                        ),
+                      ),
                     if (feature.canEnableBetaFeatures)
                       const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                     if (feature.canEnableBetaFeatures)
