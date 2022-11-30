@@ -109,13 +109,13 @@ class RideSelectionViewState extends State<RideSelectionView> {
         )
         .toList();
 
-    // Make sure to shuffle the elements to avoid bias.
-    if (seed != null) {
-      elements.shuffle(Random(seed));
-    } else {
-      // If the seed is not yet loaded, don't show the elements.
-      elements.clear();
-    }
+    // // Make sure to shuffle the elements to avoid bias.
+    // if (seed != null) {
+    //   elements.shuffle(Random(seed));
+    // } else {
+    //   // If the seed is not yet loaded, don't show the elements.
+    //   elements.clear();
+    // }
 
     return Scaffold(
       body: SafeArea(
