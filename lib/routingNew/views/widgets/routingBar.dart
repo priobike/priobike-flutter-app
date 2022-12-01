@@ -210,9 +210,9 @@ class RoutingBarState extends State<RoutingBar> {
             onPressed: () async {
               if (index < max - 1) {
                 if (index == 0 && max == 2) {
-                  swapWaypoints(context);
+                  swapWaypoints();
                 } else {
-                  onRemoveWaypoint(context, index, max);
+                  onRemoveWaypoint(index, max);
                 }
               } else {
                 if (widget.fromRoutingSearch) {
@@ -232,17 +232,17 @@ class RoutingBarState extends State<RoutingBar> {
   }
 
   /// A function which swaps the waypoints if exactly 2 are selected and the swap button is pressed.
-  void swapWaypoints(BuildContext context) {
+  void swapWaypoints() {
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.length != 2) return;
 
     final waypointsSwapped = [routing.selectedWaypoints![1], routing.selectedWaypoints![0]];
 
     routing.selectWaypoints(waypointsSwapped);
-    routing.loadRoutes(context);
+    routing.loadRoutes(widget.context);
   }
 
   /// A function which removes the selected waypoint.
-  void onRemoveWaypoint(BuildContext context, int index, int max) {
+  void onRemoveWaypoint(int index, int max) {
     if (widget.fromRoutingSearch) {
       if (index != 0 && routing.routingItems.length > 2) {
         setState(() {
