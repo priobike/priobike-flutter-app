@@ -377,7 +377,7 @@ class RoutingBarState extends State<RoutingBar> {
                         reorderedWaypoints.insert(newIndex, waypoint);
 
                         routing.selectWaypoints(reorderedWaypoints);
-                        routing.loadRoutes(context);
+                        routing.loadRoutes(widget.context);
                       } else {
                         // on reorder when in SearchRoutingView
                         // Catch out of range. ReorderableList sets newIndex to list.length() + 1 if its way below
