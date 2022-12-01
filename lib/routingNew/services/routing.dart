@@ -195,14 +195,12 @@ class Routing with ChangeNotifier {
   }
 
   /// Load a SG-Selector response.
-  Future<SGSelectorResponse?> loadSGSelectorResponse(
-      BuildContext context, GHRouteResponsePath path) async {
+  Future<SGSelectorResponse?> loadSGSelectorResponse(BuildContext context, GHRouteResponsePath path) async {
     try {
       final settings = Provider.of<Settings>(context, listen: false);
 
       final baseUrl = settings.backend.path;
-      final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select";
+      final sgSelectorUrl = "https://$baseUrl/sg-selector-backend/routing/select";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -214,15 +212,13 @@ class Routing with ChangeNotifier {
                     alt: e.elevation ?? 0.0,
                   ))
               .toList());
-      final response =
-          await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
 
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
         return SGSelectorResponse.fromJson(json.decode(response.body));
       } else {
-        log.e(
-            "Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
+        log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
         return null;
       }
     } catch (e, stack) {
@@ -281,8 +277,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Load a GraphHopper response.
-  Future<GHRouteResponse?> loadGHRouteResponse(
-      BuildContext context, List<Waypoint> waypoints) async {
+  Future<GHRouteResponse?> loadGHRouteResponse(BuildContext context, List<Waypoint> waypoints) async {
     try {
       final settings = Provider.of<Settings>(context, listen: false);
       final baseUrl = settings.backend.path;
@@ -292,8 +287,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&locale=de";
       ghUrl += "&elevation=true";
       ghUrl += "&points_encoded=false";
-      ghUrl +=
-          "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
+      ghUrl += "&profile=${selectedProfile?.ghConfigName ?? RoutingProfile.bike2Default.ghConfigName}";
       // Add the supported details. This must be specified in the GraphHopper config.
       ghUrl += "&details=surface";
       ghUrl += "&details=max_speed";
@@ -313,11 +307,9 @@ class Routing with ChangeNotifier {
       final response = await Http.get(ghEndpoint);
       if (response.statusCode == 200) {
         log.i("Loaded GraphHopper response from $ghUrl");
-        return GHRouteResponse.fromJson(
-            json.decode(utf8.decode(response.bodyBytes)));
+        return GHRouteResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
-        log.e(
-            "Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
+        log.e("Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
         return null;
       }
     } catch (e, stacktrace) {
@@ -415,8 +407,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, routes.first.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(
-        context, routes.first.signalGroups, routes.first.crossings);
+    await status.fetch(context, routes.first.signalGroups, routes.first.crossings);
 
     notifyListeners();
     return routes;

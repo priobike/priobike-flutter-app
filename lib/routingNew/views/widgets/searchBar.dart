@@ -16,8 +16,7 @@ class SearchBar extends StatefulWidget {
   final Function startSearch;
   final TextEditingController? locationSearchController;
 
-  const SearchBar(
-      {Key? key, required this.fromClicked, required this.startSearch, this.locationSearchController})
+  const SearchBar({Key? key, required this.fromClicked, required this.startSearch, this.locationSearchController})
       : super(key: key);
 
   @override

@@ -6,9 +6,7 @@ class ZoomInAndOutButton extends StatelessWidget {
   final Function zoomIn;
   final Function zoomOut;
 
-  const ZoomInAndOutButton(
-      {Key? key, required this.zoomIn, required this.zoomOut})
-      : super(key: key);
+  const ZoomInAndOutButton({Key? key, required this.zoomIn, required this.zoomOut}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,20 +32,15 @@ class ZoomInAndOutButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child:
-                    SmallIconButton(icon: Icons.add, onPressed: () => zoomIn(), withBorder: false),
+                child: SmallIconButton(icon: Icons.add, onPressed: () => zoomIn(), withBorder: false),
               ),
               Container(
                 width: 40,
                 height: 1,
-                color:
-                    Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                color: Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black,
               ),
               Expanded(
-                child: SmallIconButton(
-                    icon: Icons.remove, onPressed: () => zoomOut(), withBorder: false),
+                child: SmallIconButton(icon: Icons.remove, onPressed: () => zoomOut(), withBorder: false),
               ),
             ],
           ),

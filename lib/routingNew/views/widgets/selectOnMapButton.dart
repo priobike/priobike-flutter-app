@@ -4,6 +4,7 @@ import 'package:priobike/common/layout/text.dart';
 /// Widget for last search results
 class SelectOnMapButton extends StatelessWidget {
   final Function onPressed;
+
   const SelectOnMapButton({Key? key, required this.onPressed}) : super(key: key);
 
   @override
@@ -16,8 +17,7 @@ class SelectOnMapButton extends StatelessWidget {
         onTap: () => onPressed(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child:
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Icon(Icons.map),
             Content(text: "Auf Karte auswählen", context: context),
           ]),

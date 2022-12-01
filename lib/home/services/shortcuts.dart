@@ -27,7 +27,7 @@ class Shortcuts with ChangeNotifier {
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
 
-    final bottomSheetState =  Provider.of<BottomSheetState>(context, listen: false);
+    final bottomSheetState = Provider.of<BottomSheetState>(context, listen: false);
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation

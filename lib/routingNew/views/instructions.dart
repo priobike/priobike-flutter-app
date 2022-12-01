@@ -31,8 +31,7 @@ class InstructionsViewState extends State<InstructionsView> {
   }
 
   /// The widget that displays an instruction.
-  _instructionItem(
-      BuildContext context, GHInstruction ghInstruction, MediaQueryData frame) {
+  _instructionItem(BuildContext context, GHInstruction ghInstruction, MediaQueryData frame) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -48,9 +47,7 @@ class InstructionsViewState extends State<InstructionsView> {
                   width: 50,
                 ),
                 const SizedBox(width: 20),
-                Content(
-                    text: ghInstruction.distance.toStringAsFixed(0) + " m",
-                    context: context),
+                Content(text: ghInstruction.distance.toStringAsFixed(0) + " m", context: context),
                 const SizedBox(width: 20),
               ],
             ),
@@ -70,17 +67,14 @@ class InstructionsViewState extends State<InstructionsView> {
 
     List<Widget> instructionItems = [];
     if (routing.selectedRoute != null) {
-      for (GHInstruction ghInstruction
-          in routing.selectedRoute!.path.instructions) {
+      for (GHInstruction ghInstruction in routing.selectedRoute!.path.instructions) {
         instructionItems.add(_instructionItem(context, ghInstruction, frame));
       }
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: SafeArea(
           top: true,

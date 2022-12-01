@@ -119,21 +119,20 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Settings({
-    this.enableBetaFeatures = false,
-    this.enableInternalFeatures = false,
-    this.enablePerformanceOverlay = false,
-    this.backend = Backend.production,
-    this.positioningMode = PositioningMode.gnss,
-    this.rerouting = Rerouting.enabled,
-    this.routingEndpoint = RoutingEndpoint.graphhopper,
-    this.sgLabelsMode = SGLabelsMode.disabled,
-    this.ridePreference,
-    this.speedMode = SpeedMode.max30kmh,
-    this.colorMode = ColorMode.system,
-    this.datastreamMode = DatastreamMode.disabled,
-    this.routingView = RoutingViewOption.stable
-  });
+  Settings(
+      {this.enableBetaFeatures = false,
+      this.enableInternalFeatures = false,
+      this.enablePerformanceOverlay = false,
+      this.backend = Backend.production,
+      this.positioningMode = PositioningMode.gnss,
+      this.rerouting = Rerouting.enabled,
+      this.routingEndpoint = RoutingEndpoint.graphhopper,
+      this.sgLabelsMode = SGLabelsMode.disabled,
+      this.ridePreference,
+      this.speedMode = SpeedMode.max30kmh,
+      this.colorMode = ColorMode.system,
+      this.datastreamMode = DatastreamMode.disabled,
+      this.routingView = RoutingViewOption.stable});
 
   /// Load the backend from the shared
   /// preferences, for the initial view build.

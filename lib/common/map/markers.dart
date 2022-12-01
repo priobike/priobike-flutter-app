@@ -65,14 +65,14 @@ class DiscomfortLocationMarker extends SymbolOptions {
     required int number,
     double iconSize = 0.5,
     int zIndex = 1,
-  }): super(
-    geometry: geo,
-    iconImage: "alert",
-    iconSize: iconSize,
-    textField: "$number",
-    textSize: 12,
-    zIndex: zIndex,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: "alert",
+          iconSize: iconSize,
+          textField: "$number",
+          textSize: 12,
+          zIndex: zIndex,
+        );
 }
 
 /// A map layer which is a label for the Route with time.
@@ -83,17 +83,17 @@ class RouteLabel extends SymbolOptions {
     required int number,
     double iconSize = 0.5,
     required bool primary,
-  }): super(
-    geometry: geo,
-    iconImage: primary ? "routeLabelPMM" : "routeLabelSMM",
-    iconSize: iconSize,
-    iconOffset: const Offset(0, -10),
-    textField: "$number min",
-    textOffset: const Offset(0, -1.25),
-    textSize: 12,
-    textColor: primary ? "#ffffff" : "#000000",
-    zIndex: primary ? 7 : 6,
-  );
+  }) : super(
+          geometry: geo,
+          iconImage: primary ? "routeLabelPMM" : "routeLabelSMM",
+          iconSize: iconSize,
+          iconOffset: const Offset(0, -10),
+          textField: "$number min",
+          textOffset: const Offset(0, -1.25),
+          textSize: 12,
+          textColor: primary ? "#ffffff" : "#000000",
+          zIndex: primary ? 7 : 6,
+        );
 }
 
 /// A map layer which marks a traffic light on the map.

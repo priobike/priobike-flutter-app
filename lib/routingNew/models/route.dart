@@ -36,20 +36,20 @@ class Route {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'path': path.toJson(),
-    'route': route.map((e) => e.toJson()).toList(),
-    'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
-    'crossings': crossings.map((e) => e.toJson()).toList(),
-  };
+        'id': id,
+        'path': path.toJson(),
+        'route': route.map((e) => e.toJson()).toList(),
+        'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
+        'crossings': crossings.map((e) => e.toJson()).toList(),
+      };
 
   factory Route.fromJson(dynamic json) => Route(
-    id: json["id"],
-    path: GHRouteResponsePath.fromJson(json['path']),
-    route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-    signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
-    crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
-  );
+        id: json["id"],
+        path: GHRouteResponsePath.fromJson(json['path']),
+        route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
+        signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
+        crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
+      );
 
   /// The route, connected to the start and end point.
   Route connected(Waypoint startpoint, Waypoint endpoint) {

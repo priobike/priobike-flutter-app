@@ -250,10 +250,10 @@ class SearchViewState extends State<SearchView> {
                     SelectOnMapButton(onPressed: _selectOnMapOnPressed),
                     _locationSearchController.text == ""
                         ? LastSearchRequests(
-                      onCompleteSearch: onCompleteSearch,
-                      onWaypointTapped: onWaypointTapped,
-                      fromRouteSearch: false,
-                    )
+                            onCompleteSearch: onCompleteSearch,
+                            onWaypointTapped: onWaypointTapped,
+                            fromRouteSearch: false,
+                          )
                         : Container(),
                     Column(children: [
                       const SmallVSpace(),

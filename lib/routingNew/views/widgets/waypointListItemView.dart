@@ -94,21 +94,23 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 context: context,
                 color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
               ),
-        trailing: !widget.fromRouteSearch ? IconButton(
-          icon: Transform.rotate(
-            angle: -45 * math.pi / 180,
-            child: Icon(
-              Icons.arrow_upward_sharp,
-              color: Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black,
-            ),
-          ),
-          onPressed: () {
-            if (widget.waypoint != null) {
-              widget.onCompleteSearch(widget.waypoint!);
-            }
-          },
-          splashRadius: 20,
-        ) : null,
+        trailing: !widget.fromRouteSearch
+            ? IconButton(
+                icon: Transform.rotate(
+                  angle: -45 * math.pi / 180,
+                  child: Icon(
+                    Icons.arrow_upward_sharp,
+                    color: Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  if (widget.waypoint != null) {
+                    widget.onCompleteSearch(widget.waypoint!);
+                  }
+                },
+                splashRadius: 20,
+              )
+            : null,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         tileColor:

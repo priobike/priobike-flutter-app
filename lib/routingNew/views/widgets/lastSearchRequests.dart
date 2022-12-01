@@ -49,7 +49,8 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
           WaypointListItemView(
               waypoint: waypoint,
               onTap: (waypoint) => widget.onWaypointTapped(waypoint),
-              onCompleteSearch: (waypoint) => widget.onCompleteSearch(waypoint), fromRouteSearch: widget.fromRouteSearch),
+              onCompleteSearch: (waypoint) => widget.onCompleteSearch(waypoint),
+              fromRouteSearch: widget.fromRouteSearch),
         ]
       ]
     ]);

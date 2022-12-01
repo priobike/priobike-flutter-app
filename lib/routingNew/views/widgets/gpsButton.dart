@@ -7,9 +7,7 @@ class GPSButton extends StatelessWidget {
   final MyLocationTrackingMode? myLocationTrackingMode;
   final Function gpsCentralization;
 
-  const GPSButton(
-      {Key? key, this.myLocationTrackingMode, required this.gpsCentralization})
-      : super(key: key);
+  const GPSButton({Key? key, this.myLocationTrackingMode, required this.gpsCentralization}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +15,7 @@ class GPSButton extends StatelessWidget {
       elevation: 5,
       borderRadius: const BorderRadius.all(Radius.circular(24.0)),
       child: SmallIconButton(
-        icon: myLocationTrackingMode != null &&
-                myLocationTrackingMode == MyLocationTrackingMode.Tracking
+        icon: myLocationTrackingMode != null && myLocationTrackingMode == MyLocationTrackingMode.Tracking
             ? Icons.gps_fixed
             : Icons.gps_not_fixed,
         color: Theme.of(context).colorScheme.primary,

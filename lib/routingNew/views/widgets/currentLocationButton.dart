@@ -5,8 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 class CurrentLocationButton extends StatelessWidget {
   final Function onPressed;
 
-  const CurrentLocationButton({Key? key, required this.onPressed})
-      : super(key: key);
+  const CurrentLocationButton({Key? key, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +13,11 @@ class CurrentLocationButton extends StatelessWidget {
 
     return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
       GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => onPressed(),
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onPressed(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Icon(Icons.gps_fixed_outlined),
             Content(text: "Aktueller Standort", context: context),
           ]),

@@ -17,7 +17,7 @@ class Place {
   }
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'waypoint': waypoint.toJSON(),
-  };
+        'name': name,
+        'waypoint': waypoint.toJSON(),
+      };
 }

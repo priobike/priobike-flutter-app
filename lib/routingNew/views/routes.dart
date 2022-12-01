@@ -68,8 +68,7 @@ class RoutesViewState extends State<RoutesView> {
 
   /// The widget that displays a shortcut row.
   Widget _shortcutRowItem(Shortcut shortcut) {
-    List<Widget> waypoints =
-        shortcut.waypoints.map((entry) => _waypointItem(entry)).toList();
+    List<Widget> waypoints = shortcut.waypoints.map((entry) => _waypointItem(entry)).toList();
 
     for (int i = 1; i < waypoints.length; i += 2) {
       waypoints.insert(i, _itemDivider());
@@ -110,15 +109,12 @@ class RoutesViewState extends State<RoutesView> {
     final frame = MediaQuery.of(context);
     List<Widget> shortcutsList = [];
     if (shortcuts.shortcuts != null) {
-      shortcutsList =
-          shortcuts.shortcuts!.map((entry) => _shortcutRowItem(entry)).toList();
+      shortcutsList = shortcuts.shortcuts!.map((entry) => _shortcutRowItem(entry)).toList();
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: SafeArea(
           top: true,

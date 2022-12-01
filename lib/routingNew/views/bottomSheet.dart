@@ -148,8 +148,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// A callback that is fired when the ride is started.
   Future<void> _onStartRide() async {
-    void startRide() =>
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+    void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           // Avoid navigation back, only allow stop button to be pressed.
           // Note: Don't use pushReplacement since this will call
           // the result handler of the RouteView's host.
@@ -160,8 +159,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         }));
 
     final preferences = await SharedPreferences.getInstance();
-    final didViewWarning =
-        preferences.getBool("priobike.routingOLD.warning") ?? false;
+    final didViewWarning = preferences.getBool("priobike.routingOLD.warning") ?? false;
     if (didViewWarning) {
       startRide();
     } else {
@@ -184,10 +182,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 preferences.setBool("priobike.routingOLD.warning", true);
                 startRide();
               },
-              child: BoldContent(
-                  text: 'OK',
-                  color: Theme.of(context).colorScheme.primary,
-                  context: context),
+              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
             ),
           ],
         ),
@@ -199,31 +194,26 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   _changeDetailView(double topSnapRatio) {
     if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
         bottomSheetState.draggableScrollableController.size <= 0.65) {
-      bottomSheetState.draggableScrollableController.animateTo(0.66,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic);
+      bottomSheetState.draggableScrollableController
+          .animateTo(0.66, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
       return;
     }
     if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
-        bottomSheetState.draggableScrollableController.size <=
-            topSnapRatio - 0.05) {
-      bottomSheetState.draggableScrollableController.animateTo(topSnapRatio,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic);
+        bottomSheetState.draggableScrollableController.size <= topSnapRatio - 0.05) {
+      bottomSheetState.draggableScrollableController
+          .animateTo(topSnapRatio, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
       return;
     }
 
     if (bottomSheetState.listController != null) {
       bottomSheetState.listController!.jumpTo(0);
     }
-    bottomSheetState.draggableScrollableController.animateTo(0.15,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic);
+    bottomSheetState.draggableScrollableController
+        .animateTo(0.15, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
   }
 
   /// The widget that displays a detail row in the bar.
-  _detailRow(BuildContext context, String key, double value,
-      Map<String, Color> colorTranslation) {
+  _detailRow(BuildContext context, String key, double value, Map<String, Color> colorTranslation) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.5),
       child: Row(
@@ -232,17 +222,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             height: 20,
             width: 20,
             decoration: BoxDecoration(
-                color: colorTranslation[key],
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black)),
+                color: colorTranslation[key], shape: BoxShape.circle, border: Border.all(color: Colors.black)),
           ),
           const SizedBox(width: 10),
           Content(text: key, context: context),
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
-              child: Content(
-                  text: value.toStringAsFixed(2) + "%", context: context),
+              child: Content(text: value.toStringAsFixed(2) + "%", context: context),
             ),
           ),
         ],
@@ -251,12 +238,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   /// The widget that displays a bar with details.
-  _barWithDetails(
-      BuildContext context,
-      Map<String, int> map,
-      int max,
-      MediaQueryData frame,
-      bool expanded,
+  _barWithDetails(BuildContext context, Map<String, int> map, int max, MediaQueryData frame, bool expanded,
       Map<String, Color> colorTranslation) {
     // Width - Padding.
     final double width = frame.size.width - 40;
@@ -274,16 +256,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       if (mapIndex == 0) {
         decoration = BoxDecoration(
           border: Border.all(color: Colors.black),
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
           color: colorTranslation[entry.key],
         );
       }
       if (mapIndex == map.length - 1) {
         decoration = BoxDecoration(
           border: Border.all(color: Colors.black),
-          borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
+          borderRadius: const BorderRadius.only(topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
           color: colorTranslation[entry.key],
         );
       }
@@ -302,8 +282,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         width: width * (entry.value / max),
         decoration: decoration,
       ));
-      detailsList.add(_detailRow(
-          context, entry.key, (entry.value / max) * 100, colorTranslation));
+      detailsList.add(_detailRow(context, entry.key, (entry.value / max) * 100, colorTranslation));
     }
 
     return Column(
@@ -321,8 +300,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             ),
           ),
           secondChild: Container(),
-          crossFadeState:
-              expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          crossFadeState: expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
         ),
       ],
     );
@@ -403,8 +381,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               ),
               child: TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                    hintText: "Name", border: InputBorder.none),
+                decoration: const InputDecoration(hintText: "Name", border: InputBorder.none),
               ),
             ),
           ),
@@ -423,38 +400,28 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
     // Getting all roadClass elements.
     if (routing.selectedRoute != null) {
-      for (GHSegment element
-          in routing.selectedRoute!.path.details.roadClass) {
-        if (element.value != null &&
-            roadClassTranslation[element.value!] != null) {
+      for (GHSegment element in routing.selectedRoute!.path.details.roadClass) {
+        if (element.value != null && roadClassTranslation[element.value!] != null) {
           if (roadClassMap[roadClassTranslation[element.value!]!] != null) {
             roadClassMap[roadClassTranslation[element.value!]!] =
-                roadClassMap[roadClassTranslation[element.value!]!]! +
-                    element.to -
-                    element.from;
+                roadClassMap[roadClassTranslation[element.value!]!]! + element.to - element.from;
             roadClassMax += element.to - element.from;
           } else {
-            roadClassMap[roadClassTranslation[element.value!]!] =
-                element.to - element.from;
+            roadClassMap[roadClassTranslation[element.value!]!] = element.to - element.from;
             roadClassMax += element.to - element.from;
           }
         }
       }
 
       // Getting all surface elements.
-      for (GHSegment element
-          in routing.selectedRoute!.path.details.surface) {
-        if (element.value != null &&
-            surfaceTranslation[element.value!] != null) {
+      for (GHSegment element in routing.selectedRoute!.path.details.surface) {
+        if (element.value != null && surfaceTranslation[element.value!] != null) {
           if (surfaceMap[surfaceTranslation[element.value!]!] != null) {
             surfaceMap[surfaceTranslation[element.value!]!] =
-                surfaceMap[surfaceTranslation[element.value!]!]! +
-                    element.to -
-                    element.from;
+                surfaceMap[surfaceTranslation[element.value!]!]! + element.to - element.from;
             surfaceMax += element.to - element.from;
           } else {
-            surfaceMap[surfaceTranslation[element.value!]!] =
-                element.to - element.from;
+            surfaceMap[surfaceTranslation[element.value!]!] = element.to - element.from;
             surfaceMax += element.to - element.from;
           }
         }
@@ -467,8 +434,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null &&
-                    routing.selectedWaypoints!.last.address != null
+            routing.selectedWaypoints != null && routing.selectedWaypoints!.last.address != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
@@ -486,25 +452,18 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Content(
-                          text: ((routing.selectedRoute!.path.time * 0.001) *
-                                      0.016)
-                                  .round()
-                                  .toString() +
-                              " min",
+                          text: ((routing.selectedRoute!.path.time * 0.001) * 0.016).round().toString() + " min",
                           context: context,
                           color: Colors.grey),
                       const SizedBox(width: 10),
                       Container(
                         height: 3,
                         width: 3,
-                        decoration: const BoxDecoration(
-                            color: Colors.grey, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
                       ),
                       const SizedBox(width: 10),
                       Content(
-                          text: (routing.selectedRoute!.path.distance * 0.001)
-                                  .toStringAsFixed(2) +
-                              " km",
+                          text: (routing.selectedRoute!.path.distance * 0.001).toStringAsFixed(2) + " km",
                           context: context,
                           color: Colors.grey)
                     ],
@@ -512,9 +471,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 25),
             // If in saving mode.
-            bottomSheetState.showSaving
-                ? _saveField(context, nameController)
-                : Container(),
+            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
             // Route Environment
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Wegtypen", context: context),
@@ -532,29 +489,22 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   ),
                   const SizedBox(width: 5),
                   showRoadClassDetails
-                      ? Icon(Icons.keyboard_arrow_down_sharp,
-                          color: Theme.of(context).colorScheme.primary)
-                      : Icon(Icons.keyboard_arrow_up_sharp,
-                          color: Theme.of(context).colorScheme.primary)
+                      ? Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
+                      : Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
                 ]),
               ),
             ]),
             const SizedBox(height: 5),
-            _barWithDetails(context, roadClassMap, roadClassMax, frame,
-                showRoadClassDetails, roadClassColor),
+            _barWithDetails(context, roadClassMap, roadClassMax, frame, showRoadClassDetails, roadClassColor),
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                Icon(Icons.security,
-                    color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 5),
                 Content(text: "n.A.", context: context),
                 const SizedBox(width: 10),
                 const Icon(Icons.traffic),
-                Content(
-                    text: routing.selectedRoute!.signalGroups.length
-                        .toStringAsFixed(0),
-                    context: context),
+                Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -610,23 +560,19 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             AnimatedCrossFade(
               duration: const Duration(milliseconds: 300),
               firstChild: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(
-                        color: Theme.of(context).colorScheme.brightness ==
-                                Brightness.dark
-                            ? Colors.white
-                            : Colors.black),
+                        color:
+                            Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black),
                   ),
                   width: frame.size.width,
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -636,8 +582,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -647,13 +592,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            BoldContent(
-                                text: "Gefahrenstellen", context: context),
+                            BoldContent(text: "Gefahrenstellen", context: context),
                             _dotRow(context),
                           ],
                         ),
@@ -663,9 +606,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 ),
               ),
               secondChild: Container(),
-              crossFadeState: showSafetyDetails
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
+              crossFadeState: showSafetyDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             ),
             const SizedBox(height: 20),
             // Route height profile
@@ -702,8 +643,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               ),
             ]),
             const SizedBox(height: 5),
-            _barWithDetails(context, surfaceMap, surfaceMax, frame,
-                showSurfaceDetails, surfaceColor),
+            _barWithDetails(context, surfaceMap, surfaceMax, frame, showSurfaceDetails, surfaceColor),
             const SizedBox(height: 10),
             // Route instructions
             GestureDetector(
@@ -736,8 +676,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null &&
-                    routing.selectedWaypoints!.last.address != null
+            routing.selectedWaypoints != null && routing.selectedWaypoints!.last.address != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
@@ -750,9 +689,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 : Container(),
             const SizedBox(height: 35),
             // If in saving mode.
-            bottomSheetState.showSaving
-                ? _saveField(context, nameController)
-                : Container(),
+            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
             const SizedBox(height: 35),
             Content(
               context: context,
@@ -848,8 +785,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
     // Calculation: (height - 2 * Padding - appBackButtonHeight - systemBar) / Height.
-    final double topSnapRatio =
-        (frame.size.height - 25 - 64 - frame.padding.top) / frame.size.height;
+    final double topSnapRatio = (frame.size.height - 25 - 64 - frame.padding.top) / frame.size.height;
 
     return SizedBox(
       height: frame.size.height,
@@ -861,13 +797,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           snap: true,
           snapSizes: const [0.66],
           controller: bottomSheetState.draggableScrollableController,
-          builder:
-              (BuildContext buildContext, ScrollController scrollController) {
-            final bool isTop =
-                bottomSheetState.draggableScrollableController.size <=
-                        topSnapRatio + 0.05 &&
-                    bottomSheetState.draggableScrollableController.size >=
-                        topSnapRatio - 0.05;
+          builder: (BuildContext buildContext, ScrollController scrollController) {
+            final bool isTop = bottomSheetState.draggableScrollableController.size <= topSnapRatio + 0.05 &&
+                bottomSheetState.draggableScrollableController.size >= topSnapRatio - 0.05;
             // Set the listController once
             bottomSheetState.listController ??= scrollController;
 
@@ -875,9 +807,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
                 borderRadius: BorderRadius.vertical(
-                  top: isTop
-                      ? const Radius.circular(0)
-                      : const Radius.circular(20),
+                  top: isTop ? const Radius.circular(0) : const Radius.circular(20),
                 ),
               ),
               duration: const Duration(milliseconds: 250),
@@ -893,9 +823,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                           width: 40,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: isTop
-                                ? Theme.of(context).colorScheme.background
-                                : Colors.grey,
+                            color: isTop ? Theme.of(context).colorScheme.background : Colors.grey,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(20),
                             ),
@@ -904,17 +832,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                         ),
                       ),
                     ),
-                    ...routing.selectedRoute != null
-                        ? _details(context, frame)
-                        : _lessDetails(context, frame),
+                    ...routing.selectedRoute != null ? _details(context, frame) : _lessDetails(context, frame),
                   ],
                 ),
                 Positioned(
                   bottom: 0,
                   left: 0,
                   child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.background,
                         border: const Border(

@@ -6,9 +6,7 @@ class RouteTypeButton extends StatelessWidget {
   final String routeType;
   final Function changeRouteType;
 
-  const RouteTypeButton(
-      {Key? key, required this.routeType, required this.changeRouteType})
-      : super(key: key);
+  const RouteTypeButton({Key? key, required this.routeType, required this.changeRouteType}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

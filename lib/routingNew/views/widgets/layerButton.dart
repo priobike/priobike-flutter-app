@@ -4,7 +4,6 @@ import 'package:priobike/routingNew/views/layers.dart';
 
 /// The layer button.
 class LayerButton extends StatelessWidget {
-
   const LayerButton({Key? key}) : super(key: key);
 
   /// A callback that is fired when the user wants to select the displayed layers.
@@ -14,8 +13,7 @@ class LayerButton extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      backgroundColor:
-      Theme.of(context).colorScheme.background.withOpacity(0.95),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
       builder: (_) => const LayerSelectionView(),
     );
   }

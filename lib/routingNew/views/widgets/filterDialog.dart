@@ -9,8 +9,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, StateSetter setState) {
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: Padding(
@@ -37,11 +36,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Content(text: "Fahrradart", context: context),
-                              BoldContent(
-                                  text:
-                                      profileService?.bikeType?.description() ??
-                                          "",
-                                  context: context),
+                              BoldContent(text: profileService?.bikeType?.description() ?? "", context: context),
                             ],
                           ),
                           Container(height: 5),
@@ -59,26 +54,19 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                   style: TextButton.styleFrom(
                                     backgroundColor: profileService?.bikeType == null
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(15),
-                                          bottomLeft: Radius.circular(15)),
+                                          topLeft: Radius.circular(15), bottomLeft: Radius.circular(15)),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.pedal_bike,
                                         color: profileService?.bikeType == null
                                             ? Colors.white
-                                            : Theme.of(context)
-                                                        .colorScheme
-                                                        .brightness ==
-                                                    Brightness.dark
+                                            : Theme.of(context).colorScheme.brightness == Brightness.dark
                                                 ? Colors.white
                                                 : Colors.black),
                                   ),
@@ -93,30 +81,22 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService?.bikeType ==
-                                            BikeType.ebike
+                                    backgroundColor: profileService?.bikeType == BikeType.ebike
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(0),
                                       ),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.electric_bike,
-                                        color: profileService?.bikeType ==
-                                                BikeType.ebike
+                                        color: profileService?.bikeType == BikeType.ebike
                                             ? Colors.white
-                                            : Theme.of(context)
-                                                        .colorScheme
-                                                        .brightness ==
-                                                    Brightness.dark
+                                            : Theme.of(context).colorScheme.brightness == Brightness.dark
                                                 ? Colors.white
                                                 : Colors.black),
                                   ),
@@ -126,36 +106,27 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.bikeType =
-                                          BikeType.racingbike;
+                                      profileService?.bikeType = BikeType.racingbike;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService?.bikeType ==
-                                            BikeType.racingbike
+                                    backgroundColor: profileService?.bikeType == BikeType.racingbike
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(0),
                                       ),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.pedal_bike,
-                                        color: profileService?.bikeType ==
-                                                BikeType.racingbike
+                                        color: profileService?.bikeType == BikeType.racingbike
                                             ? Colors.white
-                                            : Theme.of(context)
-                                                        .colorScheme
-                                                        .brightness ==
-                                                    Brightness.dark
+                                            : Theme.of(context).colorScheme.brightness == Brightness.dark
                                                 ? Colors.white
                                                 : Colors.black),
                                   ),
@@ -165,36 +136,27 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.bikeType =
-                                          BikeType.mountainbike;
+                                      profileService?.bikeType = BikeType.mountainbike;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService?.bikeType ==
-                                            BikeType.mountainbike
+                                    backgroundColor: profileService?.bikeType == BikeType.mountainbike
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(0),
                                       ),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.directions_bike_sharp,
-                                        color: profileService?.bikeType ==
-                                                BikeType.mountainbike
+                                        color: profileService?.bikeType == BikeType.mountainbike
                                             ? Colors.white
-                                            : Theme.of(context)
-                                                        .colorScheme
-                                                        .brightness ==
-                                                    Brightness.dark
+                                            : Theme.of(context).colorScheme.brightness == Brightness.dark
                                                 ? Colors.white
                                                 : Colors.black),
                                   ),
@@ -204,36 +166,26 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.bikeType =
-                                          BikeType.cargobike;
+                                      profileService?.bikeType = BikeType.cargobike;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService?.bikeType ==
-                                            BikeType.cargobike
+                                    backgroundColor: profileService?.bikeType == BikeType.cargobike
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(15),
-                                          bottomRight: Radius.circular(15)),
+                                          topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(Icons.pedal_bike,
-                                        color: profileService?.bikeType ==
-                                                BikeType.cargobike
+                                        color: profileService?.bikeType == BikeType.cargobike
                                             ? Colors.white
-                                            : Theme.of(context)
-                                                        .colorScheme
-                                                        .brightness ==
-                                                    Brightness.dark
+                                            : Theme.of(context).colorScheme.brightness == Brightness.dark
                                                 ? Colors.white
                                                 : Colors.black),
                                   ),
@@ -244,9 +196,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                           Container(height: 25),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Content(
-                                text: "Bevorzugter Streckentyp",
-                                context: context),
+                            child: Content(text: "Bevorzugter Streckentyp", context: context),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -255,34 +205,26 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.preferenceType =
-                                          PreferenceType.fast;
+                                      profileService?.preferenceType = PreferenceType.fast;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService
-                                                ?.preferenceType ==
-                                            PreferenceType.fast
+                                    backgroundColor: profileService?.preferenceType == PreferenceType.fast
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(15),
-                                          bottomLeft: Radius.circular(15)),
+                                          topLeft: Radius.circular(15), bottomLeft: Radius.circular(15)),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Content(
                                         text: "Schnell",
                                         context: context,
-                                        color: profileService?.preferenceType ==
-                                                PreferenceType.fast
+                                        color: profileService?.preferenceType == PreferenceType.fast
                                             ? Colors.white
                                             : null),
                                   ),
@@ -292,34 +234,27 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.preferenceType =
-                                          PreferenceType.short;
+                                      profileService?.preferenceType = PreferenceType.short;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService
-                                                ?.preferenceType ==
-                                            PreferenceType.short
+                                    backgroundColor: profileService?.preferenceType == PreferenceType.short
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(0),
                                       ),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Content(
                                         text: "Kurz",
                                         context: context,
-                                        color: profileService?.preferenceType ==
-                                                PreferenceType.short
+                                        color: profileService?.preferenceType == PreferenceType.short
                                             ? Colors.white
                                             : null),
                                   ),
@@ -329,34 +264,26 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                                 child: TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      profileService?.preferenceType =
-                                          PreferenceType.comfortible;
+                                      profileService?.preferenceType = PreferenceType.comfortible;
                                       profileService?.store();
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    backgroundColor: profileService
-                                                ?.preferenceType ==
-                                            PreferenceType.comfortible
+                                    backgroundColor: profileService?.preferenceType == PreferenceType.comfortible
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .background,
+                                        : Theme.of(context).colorScheme.background,
                                     shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(15),
-                                          bottomRight: Radius.circular(15)),
+                                          topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
                                     ),
-                                    side: const BorderSide(
-                                        width: 1, color: Colors.black),
+                                    side: const BorderSide(width: 1, color: Colors.black),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Content(
                                         text: "Bequem",
                                         context: context,
-                                        color: profileService?.preferenceType ==
-                                                PreferenceType.comfortible
+                                        color: profileService?.preferenceType == PreferenceType.comfortible
                                             ? Colors.white
                                             : null),
                                   ),
@@ -387,8 +314,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                             children: [
                               Content(text: "Ampeln meiden", context: context),
                               Switch(
-                                value:
-                                    profileService?.avoidTrafficLights ?? false,
+                                value: profileService?.avoidTrafficLights ?? false,
                                 onChanged: (value) {
                                   setState(() {
                                     profileService?.avoidTrafficLights = value;
@@ -401,8 +327,7 @@ showFilterDialog(BuildContext context, Profile? profileService) {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Content(
-                                  text: "Anstiege meiden", context: context),
+                              Content(text: "Anstiege meiden", context: context),
                               Switch(
                                 value: profileService?.avoidAscents ?? false,
                                 onChanged: (value) {

@@ -52,7 +52,7 @@ class Discomforts with ChangeNotifier {
     notifyListeners();
   }
 
-   /// Unselect a discomfort.
+  /// Unselect a discomfort.
   unselectDiscomfort() {
     selectedDiscomfort = null;
     notifyListeners();
@@ -64,7 +64,7 @@ class Discomforts with ChangeNotifier {
     notifyListeners();
   }
 
-   /// Unselect a signalGroup.
+  /// Unselect a signalGroup.
   unselectTrafficLight() {
     trafficLightClicked = false;
     notifyListeners();

@@ -35,8 +35,7 @@ class ShortCutsRowState extends State<ShortCutsRow> {
   }
 
   /// Widget that displays a shortcut row.
-  Widget _shortcutItem(
-      BuildContext context, String name, Function onPressed, bool isShortCut) {
+  Widget _shortcutItem(BuildContext context, String name, Function onPressed, bool isShortCut) {
     return Padding(
       padding: const EdgeInsets.only(left: 5, right: 5, bottom: 10, top: 10),
       child: Material(
@@ -62,18 +61,22 @@ class ShortCutsRowState extends State<ShortCutsRow> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> shortCutItems = shortcuts.shortcuts != null ? shortcuts.shortcuts!.map((entry) {
-      return _shortcutItem(context, entry.name, () async {
-        widget.onPressed(entry.waypoints);
-        if (widget.close) Navigator.of(context).pop();
-      }, true);
-    }).toList() : [];
-    final List<Widget> placesItems = places.places != null ? places.places!.map((entry) {
-      return _shortcutItem(context, entry.name, () async {
-        widget.onPressed([entry.waypoint]);
-        if (widget.close) Navigator.of(context).pop();
-      }, false);
-    }).toList() : [];
+    final List<Widget> shortCutItems = shortcuts.shortcuts != null
+        ? shortcuts.shortcuts!.map((entry) {
+            return _shortcutItem(context, entry.name, () async {
+              widget.onPressed(entry.waypoints);
+              if (widget.close) Navigator.of(context).pop();
+            }, true);
+          }).toList()
+        : [];
+    final List<Widget> placesItems = places.places != null
+        ? places.places!.map((entry) {
+            return _shortcutItem(context, entry.name, () async {
+              widget.onPressed([entry.waypoint]);
+              if (widget.close) Navigator.of(context).pop();
+            }, false);
+          }).toList()
+        : [];
     return SizedBox(
       /// 32 + 2*10 padding
       height: 52,

@@ -91,9 +91,7 @@ class PlacesViewState extends State<PlacesView> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: SafeArea(
           top: true,
@@ -133,16 +131,13 @@ class PlacesViewState extends State<PlacesView> {
                   ),
                 ),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Row(children: [
                     Expanded(
                       child: BigButton(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const SelectOnMapView(withName: true)),
+                            MaterialPageRoute(builder: (_) => const SelectOnMapView(withName: true)),
                           );
                         },
                         label: 'Ort Hinzufügen',
