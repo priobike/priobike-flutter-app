@@ -128,8 +128,11 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// The routeType.
+  /// The route type.
   String routeType = "Schnell";
+
+  /// The route label coords.
+  List<GHCoordinate> routeLabelCoords = [];
 
   Routing({
     this.fetchedWaypoints,
@@ -145,6 +148,18 @@ class Routing with ChangeNotifier {
     } else {
       selectedWaypoints = selectedWaypoints! + [waypoint];
     }
+    notifyListeners();
+  }
+
+  /// Add new route label coords.
+  void addRouteLabelCoords(GHCoordinate coordinate) {
+    routeLabelCoords.add(coordinate);
+    notifyListeners();
+  }
+
+  /// Add new route label coords.
+  void resetRouteLabelCoords() {
+    routeLabelCoords = [];
     notifyListeners();
   }
 

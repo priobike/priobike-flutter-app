@@ -212,10 +212,11 @@ class RouteLabelLayer {
   RouteLabelLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
     final mapController = Provider.of<MapController>(context, listen: false);
+
     // Conditions for having route labels.
     if (mapController.controller!.cameraPosition != null &&
         routing.allRoutes != null &&
-        routing.allRoutes!.length == 2 &&
+        routing.allRoutes!.length >= 2 &&
         routing.selectedRoute != null) {
       var distance = const LatLng2.Distance();
 
@@ -234,6 +235,46 @@ class RouteLabelLayer {
       LatLng2.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
       LatLng2.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
       LatLng2.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+
+      bool allInBounds = true;
+      // Check if current route labels are in bounds still.
+      if (routing.routeLabelCoords.isNotEmpty) {
+        for (GHCoordinate ghCoordinate in routing.routeLabelCoords) {
+          // Check out of new bounds.
+          if (ghCoordinate.lat < south.latitude ||
+              ghCoordinate.lat > north.latitude ||
+              ghCoordinate.lon < west.longitude ||
+              ghCoordinate.lon > east.longitude) {
+            // Not in new bounds.
+            allInBounds = false;
+          }
+        }
+      }
+
+      // If all in bounds then we don't have to calculate new positions.
+      // But update route labels in case the selected route changed.
+      if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoords.length) {
+        for (var i = 0; i < routing.allRoutes!.length; i++) {
+          features.add(
+            {
+              "id": "routeLabel-${routing.allRoutes![i].id}", // Required for click listener.
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [routing.routeLabelCoords[i].lon, routing.routeLabelCoords[i].lat],
+              },
+              "properties": {
+                "isPrimary": routing.selectedRoute!.id == routing.allRoutes![i].id,
+                "text": "${((routing.allRoutes![i].path.time * 0.001) * 0.016).round()} min"
+              },
+            },
+          );
+        }
+        return;
+      }
+
+      // Reset the old coords before adding the new ones.
+      routing.resetRouteLabelCoords();
 
       // Search appropriate Point in Route
       for (r.Route route in routing.allRoutes!) {
@@ -293,6 +334,8 @@ class RouteLabelLayer {
               },
             },
           );
+          // Add to routing coords.
+          routing.addRouteLabelCoords(GHCoordinate(lon: chosenCoordinate.lon, lat: chosenCoordinate.lat));
         }
       }
     }
