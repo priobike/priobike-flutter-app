@@ -49,6 +49,9 @@ class Settings with ChangeNotifier {
   /// The selected datastream mode.
   DatastreamMode datastreamMode;
 
+  /// The counter of connection error in a row.
+  int connectionErrorCounter;
+
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
     await store();
@@ -109,6 +112,16 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> incrementConnectionErrorCounter() async {
+    connectionErrorCounter += 1;
+    await store();
+  }
+
+  Future<void> resetConnectionErrorCounter() async {
+    connectionErrorCounter = 0;
+    await store();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
@@ -122,6 +135,7 @@ class Settings with ChangeNotifier {
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
+    this.connectionErrorCounter = 0,
   });
 
   /// Load the backend from the shared
@@ -183,6 +197,7 @@ class Settings with ChangeNotifier {
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
+    final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
 
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
@@ -194,6 +209,9 @@ class Settings with ChangeNotifier {
     }
     if (speedModeStr != null) {
       speedMode = SpeedMode.values.byName(speedModeStr);
+    }
+    if (connectionErrorCounterValue != null) {
+      connectionErrorCounter = connectionErrorCounterValue;
     }
 
     hasLoaded = true;
@@ -215,6 +233,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
     await storage.setString("priobike.settings.speedMode", speedMode.name);
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
+    await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -239,5 +258,6 @@ class Settings with ChangeNotifier {
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
+        "connectionErrorCounter": connectionErrorCounter
       };
 }
