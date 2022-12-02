@@ -12,6 +12,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -21,6 +22,7 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loader extends StatefulWidget {
   const Loader({Key? key}) : super(key: key);
@@ -112,6 +114,48 @@ class LoaderState extends State<Loader> {
     super.didChangeDependencies();
   }
 
+  _resetData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
+  }
+
+  _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
+          content: Content(
+              text:
+                  "Sind sie sich sicher, dass sie ihre persönlichen Daten zurücksetzen wollen? Nach dem Bestätigen werden ihre Daten unwiderruflich verworfen. Dazu gehören unter Anderem ihre erstellten Routen.",
+              context: context),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            TextButton(
+              onPressed: ()  async {
+                await _resetData();
+                ToastMessage.showSuccess("Daten zurück gesetzt!");
+                Navigator.of(context).pop();
+              },
+              child: Content(
+                text: "Zurücksetzen",
+                context: context,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Content(
+                text: "Abbrechen",
+                context: context,
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -186,6 +230,10 @@ class LoaderState extends State<Loader> {
                               ? BigButton(
                                   label: "Logs teilen",
                                   onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
+                              : Container(),
+                          settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
+                          settings.connectionErrorCounter >= 3
+                              ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
                           BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
