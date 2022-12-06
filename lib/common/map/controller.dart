@@ -30,7 +30,7 @@ class LayerController {
     layersBySource.clear();
   }
 
-
+  /// Add external geojson source to the map.
   addExternalGeoJsonSource(String sourceId, GeojsonSourceProperties properties) async {
     if (sources.containsKey(sourceId)) {
       if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
