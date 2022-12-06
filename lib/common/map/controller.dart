@@ -30,6 +30,29 @@ class LayerController {
     layersBySource.clear();
   }
 
+
+  addExternalGeoJsonSource(String sourceId, GeojsonSourceProperties properties) async {
+    if (sources.containsKey(sourceId)) {
+      if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
+        log.i("Source $sourceId is already added with the same properties.");
+        return;
+      }
+      for (final layer in layersBySource[sourceId] ?? {}) {
+        log.i("---- Removing layer $layer");
+        await mapController.removeLayer(layer);
+        layers.remove(layer);
+      }
+      log.i("-- Removing source $sourceId");
+      await mapController.removeSource(sourceId);
+      sources.remove(sourceId);
+      layersBySource.remove(sourceId);
+    }
+    log.i("Adding source $sourceId");
+    await mapController.addSource(sourceId, properties);
+    sources[sourceId] = properties;
+    layersBySource[sourceId] = {};
+  }
+
   /// Add a source to the map.
   addGeoJsonSource(String sourceId, Map<String, dynamic> properties) async {
     if (sources.containsKey(sourceId)) {
