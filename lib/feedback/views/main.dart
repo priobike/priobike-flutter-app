@@ -129,7 +129,7 @@ class FeedbackViewState extends State<FeedbackView> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Container(
             padding: const EdgeInsets.all(paddingText),
             child: BoldContent(
@@ -139,8 +139,13 @@ class FeedbackViewState extends State<FeedbackView> {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Table(
+            columnWidths: const {
+              // make the left column wider than the right column
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(1),
+            },
             children: [
               TableRow(
                 children: [
