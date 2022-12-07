@@ -91,6 +91,133 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Widget renderSummary() {
+    const _paddingtext = 4.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(_paddingtext),
+          child: BoldContent(
+            text: "Zusammenfassung deiner Fahrt",
+            context: context,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Fahrzeit:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: "666 Minuten",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Gefahrene Strecke:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: "666,66 Kilometer",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Durchschnittsgeschwindigkeit:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: "666,66s km/h",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "CO2 gespart:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(_paddingtext),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: "666,66 KG",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
+      ],
+    );
+  }
+
+  Widget renderSaveRoute() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Small(text: "Hat dir die Route gefallen?", context: context),
+        ),
+        const SmallVSpace(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: BigButton(label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
+        ),
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback || tracking.isSendingTrack) {
@@ -125,19 +252,8 @@ class FeedbackViewState extends State<FeedbackView> {
                       if (!widget.isolatedViewUsage)
                         Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 32),
-                              child: Small(text: "Hat dir die Route gefallen?", context: context),
-                            ),
-                            const SmallVSpace(),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 32),
-                              child: BigButton(
-                                  label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
-                            ),
-                            const VSpace(),
-                            const Divider(),
-                            const VSpace(),
+                            renderSummary(),
+                            renderSaveRoute(),
                           ],
                         ),
                       const Padding(
