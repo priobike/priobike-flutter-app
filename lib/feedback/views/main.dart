@@ -92,16 +92,19 @@ class FeedbackViewState extends State<FeedbackView> {
   }
 
   Widget renderSummary() {
-    const paddingtext = 4.0;
+    const paddingText = 4.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: BoldContent(
-            text: "Zusammenfassung deiner Fahrt",
-            context: context,
+          child: Container(
+            padding: const EdgeInsets.all(paddingText),
+            child: BoldContent(
+              text: "Zusammenfassung deiner Fahrt",
+              context: context,
+            ),
           ),
         ),
         Container(
@@ -111,7 +114,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Fahrzeit:",
@@ -119,7 +122,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
                       text: "666 Minuten",
@@ -131,7 +134,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Gefahrene Strecke:",
@@ -139,7 +142,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
                       text: "666,66 km",
@@ -151,7 +154,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Durchschnittsgeschwindigkeit:",
@@ -159,7 +162,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
                       text: "666,66 km/h",
@@ -171,7 +174,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "CO2 gespart:",
@@ -179,7 +182,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingtext),
+                    padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
                       text: "666,66 kg",
