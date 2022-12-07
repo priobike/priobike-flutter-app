@@ -218,6 +218,48 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Widget renderFeedback() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: const [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: StarRatingView(text: "Feedback zur App"),
+        ),
+        VSpace(),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: TextFeedbackView(text: "Was können wir verbessern?"),
+        ),
+        VSpace(),
+        Divider(),
+        VSpace(),
+      ],
+    );
+  }
+
+  Widget renderSendTracking() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: const SendTrackingView(),
+        ),
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
+        BigButton(
+          iconColor: Colors.white,
+          icon:
+              feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? Icons.send : Icons.check,
+          label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? "Senden" : "Fertig",
+          onPressed: () => submit(context),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback || tracking.isSendingTrack) {
@@ -244,47 +286,20 @@ class FeedbackViewState extends State<FeedbackView> {
                             AppBackButton(onPressed: () => Navigator.pop(context)),
                             const HSpace(),
                             SubHeader(text: "Feedback", context: context),
+                            const VSpace(),
+                            const Divider(),
                           ],
                         ),
                       const VSpace(),
-                      const Divider(),
-                      const VSpace(),
+                      renderSummary(),
                       if (!widget.isolatedViewUsage)
                         Column(
                           children: [
-                            renderSummary(),
                             renderSaveRoute(),
                           ],
                         ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: StarRatingView(text: "Feedback zur App"),
-                      ),
-                      const VSpace(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: TextFeedbackView(text: "Was können wir verbessern?"),
-                      ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: SendTrackingView(),
-                      ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
-                      BigButton(
-                        iconColor: Colors.white,
-                        icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                            ? Icons.send
-                            : Icons.check,
-                        label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                            ? "Senden"
-                            : "Fertig",
-                        onPressed: () => submit(context),
-                      ),
+                      renderFeedback(),
+                      renderSendTracking(),
                       const SizedBox(height: 128),
                     ],
                   ),
