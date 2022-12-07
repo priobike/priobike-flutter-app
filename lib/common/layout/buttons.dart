@@ -162,7 +162,7 @@ class BigButton extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                // for some reason Android needs height 1.6 to center the text vertical, but on iOS it is centered by default.
+                // Android needs height 1.6 to center the text vertical, but on iOS it is centered by default.
                 style: Platform.isAndroid
                     ? const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, height: 1.6)
                     : const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
