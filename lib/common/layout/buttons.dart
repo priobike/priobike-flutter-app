@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// A small icon button.
@@ -160,7 +162,10 @@ class BigButton extends StatelessWidget {
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, height: 1.6),
+                // for some reason Android needs height 1.6 to center the text vertical, but on iOS it is centered by default.
+                style: Platform.isAndroid
+                    ? const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, height: 1.6)
+                    : const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(width: 32),
