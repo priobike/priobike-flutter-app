@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/statistics/models/summary.dart';
+import 'dart:convert';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -10,6 +12,7 @@ import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -91,7 +94,35 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  double? distanceMeters;
+  double? durationSeconds;
+  double? speedKmh;
+  double? co2Gramm;
+  List<String>? summaries;
+  bool loadedLastRide = false;
+
+  /// Load the statistics from the local storage.
+  Future<void> loadLastRide() async {
+    if (loadedLastRide) return;
+
+    final storage = await SharedPreferences.getInstance();
+    summaries = (storage.getStringList("priobike.statistics.summaries"));
+
+    if (summaries != null) {
+      setState(() {
+        distanceMeters = Summary.fromJson(jsonDecode(summaries!.last)).distanceMeters;
+        durationSeconds = Summary.fromJson(jsonDecode(summaries!.last)).durationSeconds;
+
+        const co2PerKm = 0.1187; // Data according to statista.com in KG
+        co2Gramm = (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
+        speedKmh = distanceMeters! / durationSeconds! * 3.6;
+        loadedLastRide = true;
+      });
+    }
+  }
+
   Widget renderSummary() {
+    loadLastRide();
     const paddingText = 4.0;
 
     return Column(
@@ -125,7 +156,9 @@ class FeedbackViewState extends State<FeedbackView> {
                     padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: "666 Minuten",
+                      text: (durationSeconds ?? 0.0) >= 60
+                          ? "${(durationSeconds! / 60).toStringAsFixed(2)} Minuten"
+                          : "${(durationSeconds!).toStringAsFixed(0)} Sekunden",
                       context: context,
                     ),
                   ),
@@ -145,7 +178,9 @@ class FeedbackViewState extends State<FeedbackView> {
                     padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: "666,66 km",
+                      text: (distanceMeters ?? 0.0) >= 1000
+                          ? "${(distanceMeters! / 1000).toStringAsFixed(2)} Kilometer"
+                          : "${(distanceMeters!).toStringAsFixed(0)} Meter",
                       context: context,
                     ),
                   ),
@@ -165,7 +200,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: "666,66 km/h",
+                      text: "${(speedKmh ?? 0.00).toStringAsFixed(2)} km/h",
                       context: context,
                     ),
                   ),
@@ -185,7 +220,9 @@ class FeedbackViewState extends State<FeedbackView> {
                     padding: const EdgeInsets.all(paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: "666,66 kg",
+                      text: (co2Gramm ?? 0.0) >= 1000
+                          ? "${(co2Gramm! / 1000).toStringAsFixed(2)} kg"
+                          : "${(co2Gramm!).toStringAsFixed(2)} g",
                       context: context,
                     ),
                   ),
