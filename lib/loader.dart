@@ -164,8 +164,8 @@ class LoaderState extends State<Loader> {
                           ),
                           const SmallVSpace(),
                           Content(
-                            text:
-                                "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. Prüfe deine Verbindung und versuche es später erneut.",
+                            text: """Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. 
+                                Prüfe deine Verbindung und versuche es später erneut.""",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
