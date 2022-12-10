@@ -163,15 +163,12 @@ class BigButton extends StatelessWidget {
                 ],
               ),
             Container(
-              width: 120,
               height: 24,
               alignment: Alignment.center,
               child: Text(
                 label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-
-                // Android needs height 1.6 to center the text vertical, but on iOS it is centered by default.
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
