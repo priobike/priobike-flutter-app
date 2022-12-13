@@ -4,51 +4,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';
 
-class StatisticsElementView extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final void Function()? onPressed;
-
-  const StatisticsElementView({
-    Key? key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onPressed,
-    required BuildContext context,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(4),
-      onTap: onPressed,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BoldSmall(text: title, maxLines: 1, context: context),
-                const SizedBox(height: 4),
-                Small(text: subtitle, context: context),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Icon(icon, size: 32),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class TotalStatisticsView extends StatefulWidget {
   const TotalStatisticsView({Key? key}) : super(key: key);
 
