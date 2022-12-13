@@ -553,15 +553,14 @@ class ParkingStationsLayer {
   /// BuildContext of the widget
   final BuildContext context;
 
-  ParkingStationsLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/bicycle_parking.geojson");
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_parking.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "parking-stations",
@@ -591,15 +590,14 @@ class RentalStationsLayer {
   /// BuildContext of the widget
   final BuildContext context;
 
-  RentalStationsLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/bicycle_rental.geojson");
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_rental.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "rental-stations",
@@ -652,19 +650,15 @@ class BikeShopLayer {
   /// BuildContext of the widget
   final BuildContext context;
 
-  BikeShopLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/bicycle_shop.geojson");
-    await layerController.addExternalGeoJsonSource(
-        "bike-shop",
-        properties
-    );
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_shop.geojson");
+    await layerController.addExternalGeoJsonSource("bike-shop", properties);
     await layerController.addLayer(
       "bike-shop",
       "bike-shop-icons",
@@ -716,15 +710,14 @@ class BikeAirStationLayer {
 
   final BuildContext context;
 
-  BikeAirStationLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/bike_air_station.geojson");
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bike_air_station.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "bike-air-station",
@@ -777,15 +770,14 @@ class ConstructionSitesLayer {
   /// BuildContext of the widget
   final BuildContext context;
 
-  ConstructionSitesLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/construction_sites.geojson");
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/construction_sites.geojson");
     await layerController.addExternalGeoJsonSource(
       "construction-sites",
       properties,
@@ -827,15 +819,14 @@ class AccidentHotspotsLayer {
   /// Build context of the widget
   final BuildContext context;
 
-  AccidentHotspotsLayer(this.context)
-      : isDark = Theme.of(context).brightness == Brightness.dark;
+  AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(
-        data: "https://$baseUrl/map-data/accident_hot_spots.geojson");
+    final GeojsonSourceProperties properties =
+        GeojsonSourceProperties(data: "https://$baseUrl/map-data/accident_hot_spots.geojson");
     await layerController.addExternalGeoJsonSource(
       "accident-hotspots",
       properties,
