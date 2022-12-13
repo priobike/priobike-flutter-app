@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/statistics/models/summary.dart';
-import 'dart:convert';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
@@ -9,10 +7,10 @@ import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -34,6 +32,9 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
+
+  /// The associated statistics service, which is injected by the provider.
+  late Statistics statistics;
 
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
@@ -63,6 +64,7 @@ class FeedbackViewState extends State<FeedbackView> {
   void didChangeDependencies() {
     tracking = Provider.of<Tracking>(context);
     feedback = Provider.of<Feedback>(context);
+    statistics = Provider.of<Statistics>(context);
     super.didChangeDependencies();
   }
 
@@ -94,35 +96,7 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
-  double? distanceMeters;
-  double? durationSeconds;
-  double? speedKmh;
-  double? co2Gramm;
-  List<String>? summaries;
-  bool loadedLastRide = false;
-
-  /// Load the statistics from the local storage.
-  Future<void> loadLastRide() async {
-    if (loadedLastRide) return;
-
-    final storage = await SharedPreferences.getInstance();
-    summaries = (storage.getStringList("priobike.statistics.summaries"));
-
-    if (summaries != null) {
-      setState(() {
-        distanceMeters = Summary.fromJson(jsonDecode(summaries!.last)).distanceMeters;
-        durationSeconds = Summary.fromJson(jsonDecode(summaries!.last)).durationSeconds;
-
-        const co2PerKm = 0.1187; // Data according to statista.com in KG
-        co2Gramm = (distanceMeters! / 1000) * (durationSeconds! / 3600) * co2PerKm * 1000;
-        speedKmh = distanceMeters! / durationSeconds! * 3.6;
-        loadedLastRide = true;
-      });
-    }
-  }
-
   Widget renderSummary() {
-    loadLastRide();
     const paddingText = 4.0;
 
     return Column(
@@ -138,8 +112,9 @@ class FeedbackViewState extends State<FeedbackView> {
             ),
           ),
         ),
+        const SmallVSpace(),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Table(
             columnWidths: const {
               // make the left column wider than the right column
@@ -150,7 +125,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Fahrzeit:",
@@ -158,12 +133,12 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: (durationSeconds ?? 0.0) >= 60
-                          ? "${(durationSeconds! / 60).toStringAsFixed(2)} Minuten"
-                          : "${(durationSeconds!).toStringAsFixed(0)} Sekunden",
+                      text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
+                          ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} Minuten"
+                          : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} Sekunden",
                       context: context,
                     ),
                   ),
@@ -172,7 +147,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Gefahrene Strecke:",
@@ -180,12 +155,12 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: (distanceMeters ?? 0.0) >= 1000
-                          ? "${(distanceMeters! / 1000).toStringAsFixed(2)} Kilometer"
-                          : "${(distanceMeters!).toStringAsFixed(0)} Meter",
+                      text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
+                          ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} Kilometer"
+                          : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} Meter",
                       context: context,
                     ),
                   ),
@@ -194,7 +169,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "Durchschnittsgeschwindigkeit:",
@@ -202,10 +177,10 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: "${(speedKmh ?? 0.00).toStringAsFixed(2)} km/h",
+                      text: "${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
                       context: context,
                     ),
                   ),
@@ -214,7 +189,7 @@ class FeedbackViewState extends State<FeedbackView> {
               TableRow(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.left,
                       text: "CO2 gespart:",
@@ -222,12 +197,12 @@ class FeedbackViewState extends State<FeedbackView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(paddingText),
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
                     child: Content(
                       textAlign: TextAlign.right,
-                      text: (co2Gramm ?? 0.0) >= 1000
-                          ? "${(co2Gramm! / 1000).toStringAsFixed(2)} kg"
-                          : "${(co2Gramm!).toStringAsFixed(2)} g",
+                      text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
+                          ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
+                          : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
                       context: context,
                     ),
                   ),
@@ -236,9 +211,7 @@ class FeedbackViewState extends State<FeedbackView> {
             ],
           ),
         ),
-        const VSpace(),
-        const Divider(),
-        const VSpace(),
+        const SmallVSpace(),
       ],
     );
   }
@@ -286,14 +259,22 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderSendTracking() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Padding(
+      children: const [
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 32),
           child: SendTrackingView(),
         ),
-        const VSpace(),
-        const Divider(),
-        const VSpace(),
+        VSpace(),
+        Divider(),
+        VSpace(),
+      ],
+    );
+  }
+
+  Widget renderSendButton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
         BigButton(
           iconColor: Colors.white,
           icon:
@@ -301,6 +282,9 @@ class FeedbackViewState extends State<FeedbackView> {
           label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? "Senden" : "Fertig",
           onPressed: () => submit(context),
         ),
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
       ],
     );
   }
@@ -335,16 +319,14 @@ class FeedbackViewState extends State<FeedbackView> {
                             const Divider(),
                           ],
                         ),
-                      const VSpace(),
-                      renderSummary(),
-                      if (!widget.isolatedViewUsage)
-                        Column(
-                          children: [
-                            renderSaveRoute(),
-                          ],
-                        ),
+                      const SizedBox(height: 24),
                       renderFeedback(),
-                      renderSendTracking(),
+                      if (!widget.isolatedViewUsage) ...[
+                        renderSummary(),
+                        renderSendTracking(),
+                        renderSaveRoute(),
+                      ],
+                      renderSendButton(),
                       const SizedBox(height: 128),
                     ],
                   ),
