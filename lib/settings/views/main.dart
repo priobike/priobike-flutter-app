@@ -295,8 +295,6 @@ class SettingsViewState extends State<SettingsView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (feature.canEnableInternalFeatures)
-                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                    if (feature.canEnableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
                         child: Content(text: "Interne Testfeatures", context: context),
@@ -420,7 +418,7 @@ class SettingsViewState extends State<SettingsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
-                          title: "Präferierte Fahrtansicht zurücksetzen (benötigt Neustart)",
+                          title: "Fahrtansicht zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
