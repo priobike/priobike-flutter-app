@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Route;
-import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
