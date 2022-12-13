@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -42,6 +44,18 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   List<double> gaugeStops = [];
 
   @override
+  void initState() {
+    // hide the buttom navigation bar on Android. Will be reenabled in the home screen.
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top],
+      );
+    }
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     // Fetch the maximum speed from the settings service.
     maxSpeed = Provider.of<Settings>(context, listen: false).speedMode.maxSpeed;
@@ -52,6 +66,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       rs.needsLayout[viewId] = false;
       loadGauge(rs, ps);
     }
+
     super.didChangeDependencies();
   }
 
