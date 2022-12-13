@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
@@ -62,18 +60,6 @@ class HomeViewState extends State<HomeView> {
 
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
-
-  @override
-  void initState() {
-    // Reenable the buttom navigation bar on Android after hiding it in Speedometer View
-    if (Platform.isAndroid) {
-      SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
-      );
-    }
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {

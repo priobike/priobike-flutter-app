@@ -45,13 +45,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
 
   @override
   void initState() {
-    // hide the buttom navigation bar on Android. Will be reenabled in the home screen.
-    if (Platform.isAndroid) {
-      SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top],
-      );
-    }
+    hideButtomBar();
     super.initState();
   }
 
@@ -68,6 +62,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
 
     super.didChangeDependencies();
+  }
+
+  /// hide the buttom navigation bar on Android. Will be reenabled in the home screen.
+  void hideButtomBar() {
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top],
+      );
+    }
   }
 
   /// Load the gauge colors and steps.
