@@ -268,9 +268,6 @@ class FeedbackViewState extends State<FeedbackView> {
           label: "Fertig",
           onPressed: () => submit(context),
         ),
-        const VSpace(),
-        const Divider(),
-        const VSpace(),
       ],
     );
   }
