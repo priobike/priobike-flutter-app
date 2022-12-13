@@ -420,7 +420,7 @@ class SettingsViewState extends State<SettingsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
-                          title: "Preferierte Fahransicht zurücksetzen (benötigt Neustart)",
+                          title: "Präferierte Fahrtansicht zurücksetzen (benötigt Neustart)",
                           icon: Icons.recycling,
                           callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
