@@ -132,7 +132,7 @@ class LoaderState extends State<Loader> {
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: [
             TextButton(
-              onPressed: ()  async {
+              onPressed: () async {
                 await _resetData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
                 Navigator.of(context).pop();
