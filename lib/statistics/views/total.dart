@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:provider/provider.dart';
@@ -61,10 +60,24 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   /// The statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// padding for the rows used in the statistics view
+  final _paddingStats = 14.0;
+
   @override
   void didChangeDependencies() {
     statistics = Provider.of<Statistics>(context);
     super.didChangeDependencies();
+  }
+
+  BoxDecoration renderBorder() {
+    return const BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          color: Color.fromARGB(30, 1, 1, 1),
+          width: 0.5,
+        ),
+      ),
+    );
   }
 
   Widget renderCo2DialogBox() {
@@ -107,79 +120,188 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  TableRow renderRideStats() {
+    return TableRow(
+      decoration: renderBorder(),
       children: [
-        Row(
-          children: [
-            const SizedBox(width: 40),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               BoldContent(text: "Fahrtstatistiken", context: context),
               const SizedBox(height: 4),
               Small(text: "Auf diesem Gerät", context: context),
-            ]),
-            Expanded(child: Container()),
-            SmallIconButton(
-              icon: Icons.info_outline_rounded,
-              fill: Theme.of(context).colorScheme.background,
-              splash: Colors.white,
-              onPressed: () => showDialog(
-                context: context,
-                builder: (context) => renderInfoDialogBox(),
-              ),
-            ),
-            const SizedBox(width: 40),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Column(
-            children: [
-              const SmallVSpace(),
-              const Divider(),
-              StatisticsElementView(
-                icon: Icons.co2_rounded,
-                title: (statistics.totalSavedCO2Kg ?? 0) < 1
-                    ? "${(statistics.totalSavedCO2Kg ?? 0) * 1000} g"
-                    : "${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg",
-                subtitle: "CO2 eingespart",
-                context: context,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => renderCo2DialogBox(),
-                ),
-              ),
-              const Divider(),
-              StatisticsElementView(
-                icon: Icons.directions_bike_rounded,
-                title: (statistics.totalDistanceMeters ?? 0) >= 1000
-                    ? "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km"
-                    : "${(statistics.totalDistanceMeters ?? 0).toStringAsFixed(0)} m",
-                subtitle: "Gefahrene Distanz",
-                context: context,
-              ),
-              const Divider(),
-              StatisticsElementView(
-                icon: Icons.timer_outlined,
-                title: (statistics.totalDurationSeconds ?? 0.0) >= 3600
-                    ? "${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first} Std."
-                    : "${((statistics.totalDurationSeconds ?? 0) / 60).toStringAsFixed(0)} Min.",
-                subtitle: "Gefahrene Zeit",
-                context: context,
-              ),
-              const Divider(),
-              StatisticsElementView(
-                icon: Icons.speed_rounded,
-                title: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
-                subtitle: "Durchschnittsgeschwindigkeit",
-                context: context,
-              ),
             ],
           ),
         ),
+        Container(
+          alignment: Alignment.center,
+          child: SmallIconButton(
+            icon: Icons.info_outline_rounded,
+            fill: Theme.of(context).colorScheme.background,
+            splash: Colors.white,
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => renderInfoDialogBox(),
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  TableRow renderCo2Stats() {
+    return TableRow(
+      decoration: renderBorder(),
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldContent(
+                text: (statistics.totalSavedCO2Kg ?? 0) < 1
+                    ? "${(statistics.totalSavedCO2Kg ?? 0) * 1000} g"
+                    : "${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg",
+                context: context,
+              ),
+              const SizedBox(height: 4),
+              Small(text: "CO2 eingesparrt", context: context),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: SmallIconButton(
+            icon: Icons.co2_rounded,
+            fill: Theme.of(context).colorScheme.background,
+            splash: Colors.white,
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => renderCo2DialogBox(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow renderDistanceStats() {
+    return TableRow(
+      decoration: renderBorder(),
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldContent(
+                text: (statistics.totalDistanceMeters ?? 0) >= 1000
+                    ? "${((statistics.totalDistanceMeters ?? 0) / 1000).toStringAsFixed(2)} km"
+                    : "${(statistics.totalDistanceMeters ?? 0).toStringAsFixed(0)} m",
+                context: context,
+              ),
+              const SizedBox(height: 4),
+              Small(text: "Gefahre Distance", context: context),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.directions_bike_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow renderDurationStats() {
+    return TableRow(
+      decoration: renderBorder(),
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldContent(
+                text: (statistics.totalDurationSeconds ?? 0.0) >= 3600
+                    ? "${Duration(seconds: (statistics.totalDurationSeconds ?? 0.0).toInt()).toString().split('.').first} Std."
+                    : "${((statistics.totalDurationSeconds ?? 0) / 60).toStringAsFixed(0)} Min.",
+                context: context,
+              ),
+              const SizedBox(height: 4),
+              Small(text: "Gefahre Zeit", context: context),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.timer_outlined,
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow renderSpeedStats() {
+    return TableRow(
+      decoration: renderBorder(),
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BoldContent(
+                text: "⌀ ${(statistics.averageSpeedKmH?.toInt() ?? 0).round()} km/h",
+                context: context,
+              ),
+              const SizedBox(height: 4),
+              Small(text: "Durchschnittsgeschwindigkeit", context: context),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: const Icon(
+            Icons.speed_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Table(
+        columnWidths: const {
+          0: FlexColumnWidth(0.8),
+          1: FlexColumnWidth(0.2),
+        },
+        // border: TableBorder.all(
+        //   color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
+        //   width: 1,
+        // ),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: [
+          renderRideStats(),
+          renderCo2Stats(),
+          renderDistanceStats(),
+          renderDurationStats(),
+          renderSpeedStats(),
+        ],
+      ),
     );
   }
 }
