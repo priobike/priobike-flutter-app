@@ -659,7 +659,8 @@ class BikeShopLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties = GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_shop.geojson");
+    final GeojsonSourceProperties properties = GeojsonSourceProperties(
+        data: "https://$baseUrl/map-data/bicycle_shop.geojson");
     await layerController.addExternalGeoJsonSource(
         "bike-shop",
         properties
