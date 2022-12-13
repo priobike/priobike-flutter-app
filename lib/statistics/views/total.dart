@@ -61,7 +61,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   late Statistics statistics;
 
   /// padding for the rows used in the statistics view
-  final _paddingStats = 14.0;
+  double paddingStats = 16.0;
 
   @override
   void didChangeDependencies() {
@@ -69,12 +69,12 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     super.didChangeDependencies();
   }
 
-  BoxDecoration renderBorder() {
+  BoxDecoration renderTableBorder() {
     return const BoxDecoration(
       border: Border(
         bottom: BorderSide(
-          color: Color.fromARGB(30, 1, 1, 1),
-          width: 0.5,
+          color: Color.fromARGB(20, 1, 1, 1),
+          width: 1,
         ),
       ),
     );
@@ -122,11 +122,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderRideStats() {
     return TableRow(
-      decoration: renderBorder(),
+      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -154,11 +154,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderCo2Stats() {
     return TableRow(
-      decoration: renderBorder(),
+      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -169,7 +169,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                 context: context,
               ),
               const SizedBox(height: 4),
-              Small(text: "CO2 eingesparrt", context: context),
+              Small(text: "CO2 eingespart", context: context),
             ],
           ),
         ),
@@ -191,11 +191,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderDistanceStats() {
     return TableRow(
-      decoration: renderBorder(),
+      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -206,7 +206,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                 context: context,
               ),
               const SizedBox(height: 4),
-              Small(text: "Gefahre Distance", context: context),
+              Small(text: "Gefahre Distanz", context: context),
             ],
           ),
         ),
@@ -222,11 +222,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderDurationStats() {
     return TableRow(
-      decoration: renderBorder(),
+      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -253,11 +253,11 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderSpeedStats() {
     return TableRow(
-      decoration: renderBorder(),
+      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: _paddingStats, bottom: _paddingStats),
+          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -289,10 +289,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           0: FlexColumnWidth(0.8),
           1: FlexColumnWidth(0.2),
         },
-        // border: TableBorder.all(
-        //   color: Theme.of(context).colorScheme.onBackground.withOpacity(1),
-        //   width: 1,
-        // ),
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
           renderRideStats(),
