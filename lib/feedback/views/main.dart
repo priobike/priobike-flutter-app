@@ -9,7 +9,6 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
 
 class FeedbackView extends StatefulWidget {
@@ -220,6 +219,9 @@ class FeedbackViewState extends State<FeedbackView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Small(text: "Hat dir die Route gefallen?", context: context),
@@ -256,30 +258,14 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
-  Widget renderSendTracking() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          child: SendTrackingView(),
-        ),
-        VSpace(),
-        Divider(),
-        VSpace(),
-      ],
-    );
-  }
-
   Widget renderSendButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         BigButton(
           iconColor: Colors.white,
-          icon:
-              feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? Icons.send : Icons.check,
-          label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? "Senden" : "Fertig",
+          icon: Icons.check,
+          label: "Fertig",
           onPressed: () => submit(context),
         ),
         const VSpace(),
@@ -323,7 +309,6 @@ class FeedbackViewState extends State<FeedbackView> {
                       renderFeedback(),
                       if (!widget.isolatedViewUsage) ...[
                         renderSummary(),
-                        renderSendTracking(),
                         renderSaveRoute(),
                       ],
                       renderSendButton(),
