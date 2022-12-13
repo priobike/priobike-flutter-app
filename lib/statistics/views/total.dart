@@ -123,7 +123,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
             children: [
               BoldContent(
                 text: (statistics.totalSavedCO2Kg ?? 0) < 1
-                    ? "${(statistics.totalSavedCO2Kg ?? 0) * 1000} g"
+                    ? "${((statistics.totalSavedCO2Kg ?? 0) * 1000).toStringAsFixed(1)} g"
                     : "${(statistics.totalSavedCO2Kg)?.toStringAsFixed(1) ?? 0} kg",
                 context: context,
               ),
@@ -239,7 +239,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
                 context: context,
               ),
               const SizedBox(height: 4),
-              Small(text: "Durchschnittsgeschwindigkeit", context: context),
+              Small(text: "Geschwindigkeit", context: context),
             ],
           ),
         ),
