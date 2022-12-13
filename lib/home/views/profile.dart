@@ -341,6 +341,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.bikeType = null;
                     s.store();
+                    toggleBikeSelection();
                   },
                 )
               ],
@@ -408,6 +409,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.preferenceType = null;
                     s.store();
+                    togglePreferenceSelection();
                   },
                 )
               ],
@@ -476,6 +478,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.activityType = null;
                     s.store();
+                    toggleActivitySelection();
                   },
                 )
               ],
