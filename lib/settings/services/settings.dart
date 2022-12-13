@@ -122,6 +122,13 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  /// Delete the ride preference to debug the ride selection view.
+  Future<void> deleteRidePreference() async {
+    final storage = await SharedPreferences.getInstance();
+    await storage.remove("priobike.settings.ridePreference");
+    notifyListeners();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
