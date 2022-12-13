@@ -12,6 +12,18 @@ class Summary {
   /// The total elevation loss of the ride.
   final double elevationLoss;
 
+  /// Calculate the average speed of the ride.
+  double get averageSpeedKmH {
+    if (durationSeconds == 0) return 0;
+    return distanceMeters / durationSeconds * 3.6;
+  }
+
+  /// Calculate the saved CO2 emissions of the ride.
+  double get savedCo2inG {
+    const co2PerKm = 0.1187; // Data according to statista.com in KG
+    return (distanceMeters / 1000) * (durationSeconds / 3600) * co2PerKm * 1000;
+  }
+
   const Summary({
     required this.distanceMeters,
     required this.durationSeconds,
