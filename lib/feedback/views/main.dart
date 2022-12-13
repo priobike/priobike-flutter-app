@@ -257,6 +257,13 @@ class FeedbackViewState extends State<FeedbackView> {
   }
 
   Widget renderSendTracking() {
+    // Originally we had a checkbox here, to enable/disable tracking
+    // but until we release the app to the public we removed the option to disable tracking
+
+    tracking.setWillSendTrack(true);
+    return Container();
+
+    // ignore: dead_code
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: const [
@@ -277,9 +284,10 @@ class FeedbackViewState extends State<FeedbackView> {
       children: [
         BigButton(
           iconColor: Colors.white,
-          icon:
-              feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? Icons.send : Icons.check,
-          label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? "Senden" : "Fertig",
+          icon: Icons.check,
+          //feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? Icons.send : Icons.check,
+          label:
+              "Fertig", //feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack) ? "Senden" : "Fertig",
           onPressed: () => submit(context),
         ),
         const VSpace(),
