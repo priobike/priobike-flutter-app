@@ -25,6 +25,45 @@ class CancelButton extends StatelessWidget {
   /// Create a new cancel button.
   const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
+  Widget askForConfirmation(BuildContext context) {
+    return AlertDialog(
+      //contentPadding: const EdgeInsets.all(30),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+      content: const Text(
+        "Fahrt wirklich beenden?",
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => onTap(context),
+          child: const Text(
+            'Ja',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'Nein',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
     // End the tracking and collect the data.
@@ -106,9 +145,16 @@ class CancelButton extends StatelessWidget {
       child: SizedBox(
         width: 96,
         child: ElevatedButton.icon(
-          icon: const Icon(Icons.done),
-          label: BoldSmall(text: text, context: context, color: Colors.white),
-          onPressed: () => onTap(context),
+          icon: const Icon(Icons.flag),
+          label: BoldSmall(
+            text: text,
+            context: context,
+            color: Colors.white,
+          ),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => askForConfirmation(context),
+          ),
           style: ButtonStyle(
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
