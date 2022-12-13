@@ -59,14 +59,14 @@ class FeedbackViewState extends State<FeedbackView> {
       ToastMessage.showSuccess("Danke für's Testen!");
     }
 
-    showButtonBar();
+    showNavigationBarAndroid();
 
     // Call the callback.
     await widget.onSubmitted(context);
   }
 
   /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
-  void showButtonBar() {
+  void showNavigationBarAndroid() {
     if (Platform.isAndroid) {
       SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.manual,
