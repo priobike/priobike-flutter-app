@@ -32,31 +32,42 @@ class CancelButton extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(24)),
       ),
       backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      content: const Text(
-        "Fahrt wirklich beenden?",
-        style: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-        ),
+      title: SubHeader(
+        text: "Fahrt wirklich beenden?",
+        context: context,
+      ),
+      content: Content(
+        text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+        context: context,
       ),
       actions: [
         TextButton(
           onPressed: () => onTap(context),
-          child: const Text(
-            'Ja',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          child: BoldSubHeader(
+            text: 'Ja',
+            context: context,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
           ),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text(
-            'Nein',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          child: BoldSubHeader(
+            text: 'Nein',
+            context: context,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
           ),
         ),
@@ -142,29 +153,26 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: SizedBox(
-        width: 96,
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.flag),
-          label: BoldSmall(
-            text: text,
-            context: context,
-            color: Colors.white,
-          ),
-          onPressed: () => showDialog(
-            context: context,
-            builder: (context) => askForConfirmation(context),
-          ),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius),
-                side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
-              ),
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.flag_rounded),
+        label: BoldSmall(
+          text: text,
+          context: context,
+          color: Colors.white,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => askForConfirmation(context),
+        ),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
             ),
-            foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
-            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
           ),
+          foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
+          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
         ),
       ),
     );

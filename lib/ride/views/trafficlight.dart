@@ -33,7 +33,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
       ),
       child: const CancelButton(
         borderRadius: 128,
-        text: "Beenden",
+        text: "Fertig",
       ),
     );
 
