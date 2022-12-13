@@ -92,14 +92,18 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ),
         ),
         Container(
-          alignment: Alignment.center,
-          child: SmallIconButton(
-            icon: Icons.info_outline_rounded,
-            fill: Theme.of(context).colorScheme.background,
-            splash: Colors.white,
-            onPressed: () => showDialog(
-              context: context,
-              builder: (context) => renderInfoDialogBox(),
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: SmallIconButton(
+              icon: Icons.info_outline_rounded,
+              fill: Theme.of(context).colorScheme.background,
+              splash: Colors.white,
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => renderInfoDialogBox(),
+              ),
             ),
           ),
         ),
@@ -129,14 +133,21 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ),
         ),
         Container(
-          alignment: Alignment.center,
-          child: SmallIconButton(
-            icon: Icons.co2_rounded,
-            fill: Theme.of(context).colorScheme.background,
-            splash: Colors.white,
-            onPressed: () => showDialog(
-              context: context,
-              builder: (context) => renderCo2DialogBox(),
+          alignment: Alignment.centerRight,
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 48,
+              height: 48,
+              child: SmallIconButton(
+                icon: Icons.co2_rounded,
+                fill: Theme.of(context).colorScheme.background,
+                splash: Colors.white,
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => renderCo2DialogBox(),
+                ),
+              ),
             ),
           ),
         ),
@@ -166,9 +177,13 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ),
         ),
         Container(
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.directions_bike_rounded,
+          alignment: Alignment.centerRight,
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Icon(
+              Icons.directions_bike_rounded,
+            ),
           ),
         ),
       ],
@@ -197,9 +212,13 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ),
         ),
         Container(
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.timer_outlined,
+          alignment: Alignment.centerRight,
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Icon(
+              Icons.timer_outlined,
+            ),
           ),
         ),
       ],
@@ -208,7 +227,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   TableRow renderSpeedStats() {
     return TableRow(
-      decoration: renderTableBorder(),
       children: [
         Container(
           alignment: Alignment.centerLeft,
@@ -226,9 +244,13 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           ),
         ),
         Container(
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.speed_rounded,
+          alignment: Alignment.centerRight,
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Icon(
+              Icons.speed_rounded,
+            ),
           ),
         ),
       ],
@@ -240,10 +262,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(0.8),
-          1: FlexColumnWidth(0.2),
-        },
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
           renderRideStats(),
