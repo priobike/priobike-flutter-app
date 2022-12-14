@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/layout/general_nav.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -56,7 +56,6 @@ class SettingsElement extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
         fill: Theme.of(context).colorScheme.background,
-        onPressed: callback,
         content: Row(
           children: [
             Flexible(
@@ -70,10 +69,10 @@ class SettingsElement extends StatelessWidget {
                   ],
                 ),
                 fit: FlexFit.tight),
-            SizedBox(
-              height: 48,
-              width: 48,
-              child: Icon(icon),
+            SmallIconButton(
+              icon: icon,
+              onPressed: callback,
+              fill: Theme.of(context).colorScheme.surface,
             ),
           ],
         ),
@@ -113,7 +112,6 @@ class SettingsSelection<E> extends StatelessWidget {
               fill: elements[index] == selected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.background,
-              onPressed: () => callback(elements[index]),
               content: Row(
                 children: [
                   Flexible(
@@ -128,10 +126,9 @@ class SettingsSelection<E> extends StatelessWidget {
                   Expanded(
                     child: Container(),
                   ),
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: Icon(elements[index] == selected ? Icons.check : Icons.check_box_outline_blank),
+                  SmallIconButton(
+                    icon: elements[index] == selected ? Icons.check : Icons.check_box_outline_blank,
+                    onPressed: () => callback(elements[index]),
                   ),
                 ],
               ),
@@ -283,17 +280,25 @@ class SettingsViewState extends State<SettingsView> {
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: SafeArea(
-          top: true,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              const GeneralNavBarView(
-                title: "Einstellungen",
-              ),
-              SliverToBoxAdapter(
+        body: Stack(
+          children: [
+            Container(color: Theme.of(context).colorScheme.surface),
+            SingleChildScrollView(
+              child: SafeArea(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                        const HSpace(),
+                        SubHeader(text: "Einstellungen", context: context),
+                      ],
+                    ),
+                    const SmallVSpace(),
+                    if (feature.canEnableInternalFeatures)
+                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                     if (feature.canEnableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
@@ -412,15 +417,6 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Datenschutz zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
-                        ),
-                      ),
-                    if (settings.enableInternalFeatures)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Fahrtansicht zurücksetzen",
-                          icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
                       ),
                     if (feature.canEnableBetaFeatures)
@@ -613,8 +609,8 @@ class SettingsViewState extends State<SettingsView> {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

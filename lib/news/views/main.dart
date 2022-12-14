@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:priobike/common/layout/general_nav.dart';
+import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
 import 'package:provider/provider.dart';
@@ -32,20 +35,29 @@ class NewsViewState extends State<NewsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        body: SafeArea(
-          top: true,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              const GeneralNavBarView(
-                title: "Neuigkeiten",
-              ),
-              SliverToBoxAdapter(
+        body: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: Fade(
+            child: SingleChildScrollView(
+              child: SafeArea(
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Row(
+                          children: [
+                            AppBackButton(
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            const HSpace(),
+                            SubHeader(text: "Neuigkeiten", context: context),
+                          ],
+                        ),
+                      ],
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: !news.hasLoaded
@@ -77,7 +89,7 @@ class NewsViewState extends State<NewsView> {
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
