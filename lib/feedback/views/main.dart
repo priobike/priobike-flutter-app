@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Feedback;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -55,8 +58,20 @@ class FeedbackViewState extends State<FeedbackView> {
       ToastMessage.showSuccess("Danke für's Testen!");
     }
 
+    showNavigationBarAndroid();
+
     // Call the callback.
     await widget.onSubmitted(context);
+  }
+
+  /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
+  void showNavigationBarAndroid() {
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
   }
 
   @override
