@@ -790,11 +790,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   Future<void> _saveShortCut(TextEditingController nameController) async {
     if (routing.selectedWaypoints != null && nameController.text != "") {
       // Save shortcut.
-      if (routing.selectedWaypoints!.length > 1) {
+      if (routing.selectedWaypoints!.length > 1 && routing.selectedWaypoints![0] != null) {
         await shortcuts.saveNewShortcut(nameController.text, context);
       } else {
         // Save place.
-        if (routing.selectedWaypoints!.length == 1) {
+        if (routing.selectedWaypoints!.length == 2) {
           await places.saveNewPlaceFromWaypoint(nameController.text, context);
         }
       }
