@@ -210,7 +210,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     }
     // Case fullscreen => move to closed.
     if (bottomSheetState.listController != null) {
-      print(bottomSheetState.listController!.hasClients);
       bottomSheetState.listController!.jumpTo(0);
     }
     bottomSheetState.draggableScrollableController
