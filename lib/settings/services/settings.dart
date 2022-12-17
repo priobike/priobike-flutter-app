@@ -54,6 +54,10 @@ class Settings with ChangeNotifier {
   /// The selected routingNew view mode.
   RoutingViewOption routingView;
 
+  /// The counter of connection error in a row.
+  int connectionErrorCounter;
+
+
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
     await store();
@@ -119,20 +123,32 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Settings(
-      {this.enableBetaFeatures = false,
-      this.enableInternalFeatures = false,
-      this.enablePerformanceOverlay = false,
-      this.backend = Backend.production,
-      this.positioningMode = PositioningMode.gnss,
-      this.rerouting = Rerouting.enabled,
-      this.routingEndpoint = RoutingEndpoint.graphhopper,
-      this.sgLabelsMode = SGLabelsMode.disabled,
-      this.ridePreference,
-      this.speedMode = SpeedMode.max30kmh,
-      this.colorMode = ColorMode.system,
-      this.datastreamMode = DatastreamMode.disabled,
-      this.routingView = RoutingViewOption.stable});
+  Future<void> incrementConnectionErrorCounter() async {
+    connectionErrorCounter += 1;
+    await store();
+  }
+
+  Future<void> resetConnectionErrorCounter() async {
+    connectionErrorCounter = 0;
+    await store();
+  }
+
+  Settings({
+    this.enableBetaFeatures = false,
+    this.enableInternalFeatures = false,
+    this.enablePerformanceOverlay = false,
+    this.backend = Backend.production,
+    this.positioningMode = PositioningMode.gnss,
+    this.rerouting = Rerouting.enabled,
+    this.routingEndpoint = RoutingEndpoint.graphhopper,
+    this.sgLabelsMode = SGLabelsMode.disabled,
+    this.ridePreference,
+    this.speedMode = SpeedMode.max30kmh,
+    this.colorMode = ColorMode.system,
+    this.datastreamMode = DatastreamMode.disabled,
+    this.connectionErrorCounter = 0,
+    this.routingView = RoutingViewOption.stable
+  });
 
   /// Load the backend from the shared
   /// preferences, for the initial view build.
@@ -197,6 +213,7 @@ class Settings with ChangeNotifier {
     final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
+    final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
 
     if (ridePreferenceStr != null) {
       ridePreference = RidePreference.values.byName(ridePreferenceStr);
@@ -208,6 +225,9 @@ class Settings with ChangeNotifier {
     }
     if (speedModeStr != null) {
       speedMode = SpeedMode.values.byName(speedModeStr);
+    }
+    if (connectionErrorCounterValue != null) {
+      connectionErrorCounter = connectionErrorCounterValue;
     }
 
     hasLoaded = true;
@@ -230,6 +250,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.speedMode", speedMode.name);
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
     await storage.setString("priobike.settings.routingView", routingView.name);
+    await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
 
     if (ridePreference != null) {
       await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
@@ -255,5 +276,6 @@ class Settings with ChangeNotifier {
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
         "routingView": routingView.name,
+        "connectionErrorCounter": connectionErrorCounter
       };
 }

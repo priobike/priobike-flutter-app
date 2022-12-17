@@ -38,7 +38,8 @@ class FCM {
 
     await Firebase.initializeApp();
     await FirebaseMessaging.instance.requestPermission();
-    await FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
+    // Don't use await here since it will wait until an internet connection is established.
+    FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
 
     channel = const AndroidNotificationChannel(
       'fcm-channel',

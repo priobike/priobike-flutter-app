@@ -11,6 +11,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -19,6 +20,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Loader extends StatefulWidget {
   const Loader({Key? key}) : super(key: key);
@@ -40,6 +42,9 @@ class LoaderState extends State<Loader> {
   /// If the home view should be blended in.
   var shouldBlendIn = false;
 
+  /// The associated settings service, which is injected by the provider.
+  late Settings settings;
+
   /// Initialize everything needed before we can show the home view.
   Future<void> init(BuildContext context) async {
     // Init the HTTP client for all services.
@@ -56,7 +61,6 @@ class LoaderState extends State<Loader> {
     final feature = Provider.of<Feature>(context, listen: false);
     await feature.load();
     // Load the settings.
-    final settings = Provider.of<Settings>(context, listen: false);
     await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
     // Load all other services.
@@ -77,6 +81,7 @@ class LoaderState extends State<Loader> {
       await Sentry.captureException(e, stackTrace: stackTrace);
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
+      settings.incrementConnectionErrorCounter();
       return;
     }
 
@@ -84,6 +89,7 @@ class LoaderState extends State<Loader> {
     setState(() {
       shouldMorph = true;
       hasError = false;
+      settings.resetConnectionErrorCounter();
     });
     // After a short delay, we can show the home view.
     await Future.delayed(const Duration(milliseconds: 1000));
@@ -98,6 +104,12 @@ class LoaderState extends State<Loader> {
     super.initState();
     // Init the view once the app is ready.
     SchedulerBinding.instance!.addPostFrameCallback((_) => init(context));
+  }
+
+  @override
+  void didChangeDependencies() {
+    settings = Provider.of<Settings>(context);
+    super.didChangeDependencies();
   }
 
   @override
@@ -169,6 +181,12 @@ class LoaderState extends State<Loader> {
                             context: context,
                             textAlign: TextAlign.center,
                           ),
+                          settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
+                          settings.connectionErrorCounter >= 3
+                              ? BigButton(
+                                  label: "Logs teilen",
+                                  onPressed: () => Share.share(Logger.db.join("\n"), subject: 'Logs PrioBike'))
+                              : Container(),
                           const SizedBox(height: 16),
                           BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
                         ],

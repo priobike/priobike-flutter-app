@@ -36,4 +36,4 @@ jobs:
       - name: Distribute via Fastlane
         run: |
           cd android
-          fastlane internal
+          fastlane closed
