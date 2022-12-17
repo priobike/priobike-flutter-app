@@ -148,15 +148,17 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// A callback that is fired when the ride is started.
   Future<void> _onStartRide() async {
-    void startRide() => Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          // Avoid navigation back, only allow stop button to be pressed.
-          // Note: Don't use pushReplacement since this will call
-          // the result handler of the RouteView's host.
-          return WillPopScope(
-            onWillPop: () async => false,
-            child: const RideSelectionView(),
-          );
-        }));
+    void startRide() => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) {
+            // Avoid navigation back, only allow stop button to be pressed.
+            // Note: Don't use pushReplacement since this will call
+            // the result handler of the RouteView's host.
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: const RideSelectionView(),
+            );
+          }),
+        );
 
     final preferences = await SharedPreferences.getInstance();
     final didViewWarning = preferences.getBool("priobike.routingOLD.warning") ?? false;
@@ -192,20 +194,23 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// The callback that is executed when the detail/map button is pressed.
   _changeDetailView(double topSnapRatio) {
+    // Case details closed => move to 50%.
     if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
         bottomSheetState.draggableScrollableController.size <= 0.65) {
       bottomSheetState.draggableScrollableController
           .animateTo(0.66, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
       return;
     }
+    // Case details 50% => move to fullscreen.
     if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
         bottomSheetState.draggableScrollableController.size <= topSnapRatio - 0.05) {
       bottomSheetState.draggableScrollableController
           .animateTo(topSnapRatio, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
       return;
     }
-
+    // Case fullscreen => move to closed.
     if (bottomSheetState.listController != null) {
+      print(bottomSheetState.listController!.hasClients);
       bottomSheetState.listController!.jumpTo(0);
     }
     bottomSheetState.draggableScrollableController
@@ -638,22 +643,22 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 SubHeader(text: "Oberflächentypen", context: context),
                 Row(children: [
-                    Content(
-                      text: "Details",
-                      context: context,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 5),
-                    showSurfaceDetails
-                        ? Icon(
-                            Icons.keyboard_arrow_down_sharp,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                        : Icon(
-                            Icons.keyboard_arrow_up_sharp,
-                            color: Theme.of(context).colorScheme.primary,
-                          )
-                  ]),
+                  Content(
+                    text: "Details",
+                    context: context,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 5),
+                  showSurfaceDetails
+                      ? Icon(
+                          Icons.keyboard_arrow_down_sharp,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : Icon(
+                          Icons.keyboard_arrow_up_sharp,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                ]),
               ]),
             ),
             const SizedBox(height: 5),
@@ -805,8 +810,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    // Calculation: (height - 2 * Padding - appBackButtonHeight - systemBar) / Height.
-    final double topSnapRatio = (frame.size.height - 25 - 64 - frame.padding.top) / frame.size.height;
+    // Calculation: ((height - 2 * Padding - appBackButtonHeight - systemBar) / Height) + close gap.
+    final double topSnapRatio = ((frame.size.height - 25 - 64 - frame.padding.top) / frame.size.height) + 0.01;
 
     return SizedBox(
       height: frame.size.height,
@@ -821,8 +826,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           builder: (BuildContext buildContext, ScrollController scrollController) {
             final bool isTop = bottomSheetState.draggableScrollableController.size <= topSnapRatio + 0.05 &&
                 bottomSheetState.draggableScrollableController.size >= topSnapRatio - 0.05;
-            // Set the listController once
-            bottomSheetState.listController ??= scrollController;
+
+            bottomSheetState.listController = scrollController;
 
             return AnimatedContainer(
               decoration: BoxDecoration(

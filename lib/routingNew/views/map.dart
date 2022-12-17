@@ -158,6 +158,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         discomforts.needsLayout[viewId] != false ||
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
+      print("2");
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
@@ -174,7 +175,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapboxMapController == null || !mounted) return;
     if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 750));
     await mapboxMapController?.animateCamera(
       CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
       duration: const Duration(milliseconds: 1000),
@@ -372,6 +373,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await RouteLabelLayer(context).install(layerController!, iconSize: ppi / 3);
 
     await loadRouteMapLayers();
+    print("1");
     await fitCameraToRouteBounds();
     await displayCurrentUserLocation();
     await loadGeoLayers();
