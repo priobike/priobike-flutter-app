@@ -473,15 +473,15 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             // If in saving mode.
             bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
             // Route Environment
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Wegtypen", context: context),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showRoadClassDetails = !showRoadClassDetails;
-                  });
-                },
-                child: Row(children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showRoadClassDetails = !showRoadClassDetails;
+                });
+              },
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                SubHeader(text: "Wegtypen", context: context),
+                Row(children: [
                   Content(
                     text: "Details",
                     context: context,
@@ -492,20 +492,34 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       ? Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
                       : Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
                 ]),
-              ),
-            ]),
+              ]),
+            ),
             const SizedBox(height: 5),
-            _barWithDetails(context, roadClassMap, roadClassMax, frame, showRoadClassDetails, roadClassColor),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showRoadClassDetails = !showRoadClassDetails;
+                });
+              },
+              child: _barWithDetails(context, roadClassMap, roadClassMax, frame, showRoadClassDetails, roadClassColor),
+            ),
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 5),
-                Content(text: "n.A.", context: context),
-                const SizedBox(width: 10),
-                const Icon(Icons.traffic),
-                Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
-              ]),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showSafetyDetails = !showSafetyDetails;
+                  });
+                },
+                child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 5),
+                  Content(text: "n.A.", context: context),
+                  const SizedBox(width: 10),
+                  const Icon(Icons.traffic),
+                  Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
+                ]),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -615,35 +629,42 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             ]),
             const RouteHeightChart(),
             // Route surface
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Oberflächentypen", context: context),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showSurfaceDetails = !showSurfaceDetails;
-                  });
-                },
-                child: Row(children: [
-                  Content(
-                    text: "Details",
-                    context: context,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 5),
-                  showSurfaceDetails
-                      ? Icon(
-                          Icons.keyboard_arrow_down_sharp,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : Icon(
-                          Icons.keyboard_arrow_up_sharp,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                ]),
-              ),
-            ]),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showSurfaceDetails = !showSurfaceDetails;
+                });
+              },
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                SubHeader(text: "Oberflächentypen", context: context),
+                Row(children: [
+                    Content(
+                      text: "Details",
+                      context: context,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 5),
+                    showSurfaceDetails
+                        ? Icon(
+                            Icons.keyboard_arrow_down_sharp,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : Icon(
+                            Icons.keyboard_arrow_up_sharp,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                  ]),
+              ]),
+            ),
             const SizedBox(height: 5),
-            _barWithDetails(context, surfaceMap, surfaceMax, frame, showSurfaceDetails, surfaceColor),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showSurfaceDetails = !showSurfaceDetails;
+                });
+              },
+              child: _barWithDetails(context, surfaceMap, surfaceMax, frame, showSurfaceDetails, surfaceColor),
+            ),
             const SizedBox(height: 10),
             // Route instructions
             GestureDetector(

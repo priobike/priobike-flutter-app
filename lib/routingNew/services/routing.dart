@@ -434,7 +434,6 @@ class Routing with ChangeNotifier {
 
   @override
   void notifyListeners() {
-    print("triggerd");
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
   }
