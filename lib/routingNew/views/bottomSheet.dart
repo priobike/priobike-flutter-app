@@ -4,9 +4,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/ride/views/selection.dart';
+import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
 import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/views/charts/height.dart';
 import 'package:priobike/routingNew/views/instructions.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -632,7 +632,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               SubHeader(text: "Höhenprofil", context: context),
             ]),
-            const RouteHeightChart(),
+            const RouteHeightChart(beta: true),
             // Route surface
             GestureDetector(
               onTap: () {

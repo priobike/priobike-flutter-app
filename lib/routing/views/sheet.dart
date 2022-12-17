@@ -432,7 +432,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderSaveRouteButton(context),
                   const VSpace(),
                   const SizedBox(height: 2),
-                  const RouteHeightChart(),
+                  const RouteHeightChart(beta: false),
                   const VSpace(),
                 ],
               ),

@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class RouteHeightChart extends StatefulWidget {
-  const RouteHeightChart({Key? key}) : super(key: key);
+  final bool beta;
+
+  const RouteHeightChart({Key? key, required this.beta}) : super(key: key);
 
   @override
   RouteHeightChartState createState() => RouteHeightChartState();
@@ -85,10 +87,12 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BoldContent(
-            text: "Höhenprofil dieser Route",
-            context: context,
-          ),
+          widget.beta
+              ? Container()
+              : BoldContent(
+                  text: "Höhenprofil dieser Route",
+                  context: context,
+                ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
