@@ -138,7 +138,8 @@ class Tracking with ChangeNotifier {
 
   /// Set the willSend flag.
   void setWillSendTrack(bool willSendTrack) {
-    this.willSendTrack = willSendTrack;
+    // Note: At the moment, this does nothing since the user cannot change this setting.
+    this.willSendTrack = true;
     notifyListeners();
   }
 

@@ -25,6 +25,56 @@ class CancelButton extends StatelessWidget {
   /// Create a new cancel button.
   const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
+  Widget askForConfirmation(BuildContext context) {
+    return AlertDialog(
+      //contentPadding: const EdgeInsets.all(30),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+      title: SubHeader(
+        text: "Fahrt wirklich beenden?",
+        context: context,
+      ),
+      content: Content(
+        text: "Wenn du die Fahrt beendest, musst du erst eine neue Route erstellen, um eine neue Fahrt zu starten.",
+        context: context,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => onTap(context),
+          child: BoldSubHeader(
+            text: 'Ja',
+            context: context,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: BoldSubHeader(
+            text: 'Nein',
+            context: context,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
     // End the tracking and collect the data.
@@ -54,46 +104,49 @@ class CancelButton extends StatelessWidget {
     // Show the feedback dialog.
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => FeedbackView(
-          onSubmitted: (context) async {
-            // Reset the tracking.
-            await tracking.reset();
+        builder: (_) => WillPopScope(
+          onWillPop: () async => false,
+          child: FeedbackView(
+            onSubmitted: (context) async {
+              // Reset the tracking.
+              await tracking.reset();
 
-            // Reset the statistics.
-            await statistics.reset();
+              // Reset the statistics.
+              await statistics.reset();
 
-            // Reset the snapping service.
-            final snapping = Provider.of<Snapping>(context, listen: false);
-            await snapping.reset();
+              // Reset the snapping service.
+              final snapping = Provider.of<Snapping>(context, listen: false);
+              await snapping.reset();
 
-            // Reset the recommendation service.
-            await recommendation.reset();
+              // Reset the recommendation service.
+              await recommendation.reset();
 
-            // Reset the accelerometer service.
-            await accelerometer.reset();
+              // Reset the accelerometer service.
+              await accelerometer.reset();
 
-            // Reset the position service.
-            await position.reset();
+              // Reset the position service.
+              await position.reset();
 
-            // Reset the route service.
-            final routing = Provider.of<Routing>(context, listen: false);
-            await routing.reset();
+              // Reset the route service.
+              final routing = Provider.of<Routing>(context, listen: false);
+              await routing.reset();
 
-            // Stop the session and reset the session service.
-            final session = Provider.of<Session>(context, listen: false);
-            await session.reset();
+              // Stop the session and reset the session service.
+              final session = Provider.of<Session>(context, listen: false);
+              await session.reset();
 
-            // Reset the prediction sg status.
-            final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
-            await predictionSGStatus.reset();
+              // Reset the prediction sg status.
+              final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+              await predictionSGStatus.reset();
 
-            // Reset the dangers.
-            final dangers = Provider.of<Dangers>(context, listen: false);
-            await dangers.reset();
+              // Reset the dangers.
+              final dangers = Provider.of<Dangers>(context, listen: false);
+              await dangers.reset();
 
-            // Leave the feedback view.
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
+              // Leave the feedback view.
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
         ),
       ),
     );
@@ -103,22 +156,26 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: SizedBox(
-        width: 96,
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.done),
-          label: BoldSmall(text: text, context: context, color: Colors.white),
-          onPressed: () => onTap(context),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius),
-                side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
-              ),
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.flag_rounded),
+        label: BoldSmall(
+          text: text,
+          context: context,
+          color: Colors.white,
+        ),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => askForConfirmation(context),
+        ),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
             ),
-            foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
-            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
           ),
+          foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
+          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
         ),
       ),
     );

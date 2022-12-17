@@ -34,6 +34,8 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Die App benötigt den Standort zur Navigation.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Die App benötigt den Standort zur Navigation.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

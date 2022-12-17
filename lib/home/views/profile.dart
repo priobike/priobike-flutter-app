@@ -301,7 +301,7 @@ class ProfileViewState extends State<ProfileView> {
               ),
             ),
             SmallIconButton(
-              icon: Icons.close,
+              icon: Icons.expand_less_rounded,
               onPressed: () {
                 toggleBikeSelection();
               },
@@ -341,6 +341,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.bikeType = null;
                     s.store();
+                    toggleBikeSelection();
                   },
                 )
               ],
@@ -368,7 +369,7 @@ class ProfileViewState extends State<ProfileView> {
             ),
             const SmallHSpace(),
             SmallIconButton(
-              icon: Icons.close_rounded,
+              icon: Icons.expand_less_rounded,
               onPressed: () {
                 togglePreferenceSelection();
               },
@@ -408,6 +409,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.preferenceType = null;
                     s.store();
+                    togglePreferenceSelection();
                   },
                 )
               ],
@@ -436,7 +438,7 @@ class ProfileViewState extends State<ProfileView> {
             ),
             const SmallHSpace(),
             SmallIconButton(
-              icon: Icons.close,
+              icon: Icons.expand_less_rounded,
               onPressed: () {
                 toggleActivitySelection();
               },
@@ -476,6 +478,7 @@ class ProfileViewState extends State<ProfileView> {
                   onPressed: () {
                     s.activityType = null;
                     s.store();
+                    toggleActivitySelection();
                   },
                 )
               ],

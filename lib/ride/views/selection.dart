@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -94,11 +93,33 @@ class RideSelectionViewState extends State<RideSelectionView> {
           (e) => Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Tile(
-                fill: Theme.of(context).colorScheme.background,
-                onPressed: () => onRideSelected(context, e),
-                padding: const EdgeInsets.all(4),
-                content: ClipRRect(borderRadius: BorderRadius.circular(20), child: screenshot(e, context)),
+              Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, left: 2, right: 2, bottom: 2),
+                    child: Tile(
+                      fill: e == RidePreference.speedometerView
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.background,
+                      onPressed: () => onRideSelected(context, e),
+                      padding: const EdgeInsets.all(4),
+                      content: ClipRRect(borderRadius: BorderRadius.circular(20), child: screenshot(e, context)),
+                    ),
+                  ),
+                  if (e == RidePreference.speedometerView)
+                    Positioned(
+                      top: 0,
+                      left: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        child: BoldSmall(text: "Empfohlen", context: context, color: Colors.white),
+                      ),
+                    ),
+                ],
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -108,14 +129,6 @@ class RideSelectionViewState extends State<RideSelectionView> {
           ),
         )
         .toList();
-
-    // Make sure to shuffle the elements to avoid bias.
-    if (seed != null) {
-      elements.shuffle(Random(seed));
-    } else {
-      // If the seed is not yet loaded, don't show the elements.
-      elements.clear();
-    }
 
     return Scaffold(
       body: SafeArea(

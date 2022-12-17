@@ -31,7 +31,10 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         borderRadius: BorderRadius.circular(64),
         border: Border.all(color: Colors.black, width: 2),
       ),
-      child: const CancelButton(borderRadius: 128),
+      child: const CancelButton(
+        borderRadius: 128,
+        text: "Fertig",
+      ),
     );
 
     // Don't show a countdown if...

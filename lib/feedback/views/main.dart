@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Feedback;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -7,8 +10,8 @@ import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/views/send.dart';
 import 'package:provider/provider.dart';
 
 class FeedbackView extends StatefulWidget {
@@ -32,6 +35,9 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated feedback service, which is injected by the provider.
   late Feedback feedback;
 
+  /// The associated statistics service, which is injected by the provider.
+  late Statistics statistics;
+
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
     var didSendSomething = false;
@@ -52,14 +58,27 @@ class FeedbackViewState extends State<FeedbackView> {
       ToastMessage.showSuccess("Danke für's Testen!");
     }
 
+    showNavigationBarAndroid();
+
     // Call the callback.
     await widget.onSubmitted(context);
+  }
+
+  /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
+  void showNavigationBarAndroid() {
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
+      );
+    }
   }
 
   @override
   void didChangeDependencies() {
     tracking = Provider.of<Tracking>(context);
     feedback = Provider.of<Feedback>(context);
+    statistics = Provider.of<Statistics>(context);
     super.didChangeDependencies();
   }
 
@@ -91,6 +110,183 @@ class FeedbackViewState extends State<FeedbackView> {
     );
   }
 
+  Widget renderSummary() {
+    const paddingText = 4.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Container(
+            padding: const EdgeInsets.all(paddingText),
+            child: BoldContent(
+              text: "Zusammenfassung deiner Fahrt",
+              context: context,
+            ),
+          ),
+        ),
+        const SmallVSpace(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Table(
+            columnWidths: const {
+              // make the left column wider than the right column
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(1),
+            },
+            children: [
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Fahrzeit:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
+                          ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} Minuten"
+                          : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} Sekunden",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Gefahrene Strecke:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
+                          ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} Kilometer"
+                          : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} Meter",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "Durchschnittsgeschwindigkeit:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: "${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.left,
+                      text: "CO2 gespart:",
+                      context: context,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: paddingText),
+                    child: Content(
+                      textAlign: TextAlign.right,
+                      text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
+                          ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
+                          : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
+                      context: context,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SmallVSpace(),
+      ],
+    );
+  }
+
+  Widget renderSaveRoute() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Small(text: "Hat dir die Route gefallen?", context: context),
+        ),
+        const SmallVSpace(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: BigButton(label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
+        ),
+        const VSpace(),
+        const Divider(),
+        const VSpace(),
+      ],
+    );
+  }
+
+  Widget renderFeedback() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: const [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: StarRatingView(text: "Feedback zur App"),
+        ),
+        VSpace(),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: TextFeedbackView(text: "Was können wir verbessern?"),
+        ),
+        VSpace(),
+        Divider(),
+        VSpace(),
+      ],
+    );
+  }
+
+  Widget renderSendButton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        BigButton(
+          iconColor: Colors.white,
+          icon: Icons.check,
+          label: "Fertig",
+          onPressed: () => submit(context),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (feedback.isSendingFeedback || tracking.isSendingTrack) {
@@ -117,58 +313,17 @@ class FeedbackViewState extends State<FeedbackView> {
                             AppBackButton(onPressed: () => Navigator.pop(context)),
                             const HSpace(),
                             SubHeader(text: "Feedback", context: context),
-                          ],
-                        ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
-                      if (!widget.isolatedViewUsage)
-                        Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 32),
-                              child: Small(text: "Hat dir die Route gefallen?", context: context),
-                            ),
-                            const SmallVSpace(),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 32),
-                              child: BigButton(
-                                  label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
-                            ),
                             const VSpace(),
                             const Divider(),
-                            const VSpace(),
                           ],
                         ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: StarRatingView(text: "Feedback zur App"),
-                      ),
-                      const VSpace(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: TextFeedbackView(text: "Was können wir verbessern?"),
-                      ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32),
-                        child: SendTrackingView(),
-                      ),
-                      const VSpace(),
-                      const Divider(),
-                      const VSpace(),
-                      BigButton(
-                        iconColor: Colors.white,
-                        icon: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                            ? Icons.send
-                            : Icons.check,
-                        label: feedback.willSendFeedback || (tracking.willSendTrack && tracking.canSendTrack)
-                            ? "Senden"
-                            : "Fertig",
-                        onPressed: () => submit(context),
-                      ),
+                      const SizedBox(height: 24),
+                      renderFeedback(),
+                      if (!widget.isolatedViewUsage) ...[
+                        renderSummary(),
+                        renderSaveRoute(),
+                      ],
+                      renderSendButton(),
                       const SizedBox(height: 128),
                     ],
                   ),

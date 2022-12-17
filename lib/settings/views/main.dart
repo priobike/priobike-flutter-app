@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/fcm.dart';
-import 'package:priobike/common/layout/general_nav.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -298,19 +298,23 @@ class SettingsViewState extends State<SettingsView> {
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: SafeArea(
-          top: true,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              const GeneralNavBarView(
-                title: "Einstellungen",
-              ),
-              SliverToBoxAdapter(
+        body: Stack(
+          children: [
+            Container(color: Theme.of(context).colorScheme.surface),
+            SingleChildScrollView(
+              child: SafeArea(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (feature.canEnableInternalFeatures)
-                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                        const HSpace(),
+                        SubHeader(text: "Einstellungen", context: context),
+                      ],
+                    ),
+                    const SmallVSpace(),
                     if (feature.canEnableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
@@ -429,6 +433,15 @@ class SettingsViewState extends State<SettingsView> {
                           title: "Datenschutz zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Fahrtansicht zurücksetzen",
+                          icon: Icons.recycling,
+                          callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
                       ),
                     if (feature.canEnableBetaFeatures)
@@ -640,8 +653,8 @@ class SettingsViewState extends State<SettingsView> {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
