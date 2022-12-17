@@ -412,7 +412,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting) {
-      //FIXME check if necessary
       await RouteLabelLayer(context).update(layerController!);
     }
   }

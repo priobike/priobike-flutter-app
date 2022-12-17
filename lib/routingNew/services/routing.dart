@@ -154,13 +154,15 @@ class Routing with ChangeNotifier {
   /// Add new route label coords.
   void addRouteLabelCoords(GHCoordinate coordinate) {
     routeLabelCoords.add(coordinate);
-    notifyListeners();
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
   }
 
   /// Add new route label coords.
   void resetRouteLabelCoords() {
     routeLabelCoords = [];
-    notifyListeners();
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
   }
 
   /// Select new waypoints.
@@ -432,6 +434,7 @@ class Routing with ChangeNotifier {
 
   @override
   void notifyListeners() {
+    print("triggerd");
     needsLayout.updateAll((key, value) => true);
     super.notifyListeners();
   }
