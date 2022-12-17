@@ -113,7 +113,12 @@ class SearchViewState extends State<SearchView> {
           waypoint.address != null) {
         newWaypoints = [currentLocationWaypoint!, waypoint];
       } else {
-        newWaypoints = [null, waypoint];
+        // Only set start when no waypoints selected.
+        if(waypoints.isEmpty) {
+          newWaypoints = [null, waypoint];
+        } else {
+          newWaypoints = [...waypoints, waypoint];
+        }
       }
     }
 
