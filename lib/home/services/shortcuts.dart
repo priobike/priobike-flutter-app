@@ -31,15 +31,21 @@ class Shortcuts with ChangeNotifier {
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
-    for (Waypoint waypoint in routing.selectedWaypoints!) {
+    List<Waypoint> selectedWaypoints = [];
+    for (Waypoint? waypoint in routing.selectedWaypoints!) {
+      if (waypoint == null) {
+        return;
+      }
       if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
         final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
       }
+      selectedWaypoints.add(waypoint);
     }
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
+
+    final newShortcut = Shortcut(name: name, waypoints: selectedWaypoints);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;

@@ -323,7 +323,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                             key: Key("$entry.key"),
                             count: s.selectedWaypoints?.length ?? 0,
                             idx: entry.key,
-                            waypoint: entry.value,
+                            // Value is always a waypoint at this point
+                            waypoint: entry.value!,
                           );
                         },
                       ).toList() ??

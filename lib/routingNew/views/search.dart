@@ -95,7 +95,7 @@ class SearchViewState extends State<SearchView> {
     geosearch.clearGeosearch();
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
+    List<Waypoint?> newWaypoints = waypoints.toList();
     List<Waypoint?> newRoutingItems = routing.routingItems;
     if (widget.index != null) {
       // Check if it has to be put in selectedWaypoints or not.
@@ -113,7 +113,7 @@ class SearchViewState extends State<SearchView> {
           waypoint.address != null) {
         newWaypoints = [currentLocationWaypoint!, waypoint];
       } else {
-        newWaypoints = [...waypoints, waypoint];
+        newWaypoints = [null, waypoint];
       }
     }
 
@@ -154,7 +154,7 @@ class SearchViewState extends State<SearchView> {
 
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
+    List<Waypoint?> newWaypoints = waypoints.toList();
 
     if (!widget.fromRouteSearch) {
       if (widget.index != null) {

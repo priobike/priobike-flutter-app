@@ -434,11 +434,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.last.address != null
+            routing.selectedWaypoints != null && routing.selectedWaypoints!.last != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
-                      text: routing.selectedWaypoints!.last.address!,
+                      text: routing.selectedWaypoints!.last!.address!,
                       context: context,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -697,11 +697,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.last.address != null
+            routing.selectedWaypoints != null && routing.selectedWaypoints!.last != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
-                      text: routing.selectedWaypoints!.last.address!,
+                      text: routing.selectedWaypoints!.last!.address!,
                       context: context,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

@@ -47,6 +47,12 @@ class Snapping with ChangeNotifier {
     }
     if (routing.selectedRoute!.route.length < 2 || routing.selectedWaypoints!.length < 2) return;
 
+    final List<Waypoint> selectedWaypoints = [];
+    for (var waypoint in routing.selectedWaypoints!) {
+      if (waypoint == null) return;
+      selectedWaypoints.add(waypoint);
+    }
+
     final p = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     final nodes = routing.selectedRoute!.route;
 
@@ -97,12 +103,11 @@ class Snapping with ChangeNotifier {
     this.distanceToNextTurn = distanceToNextTurn;
 
     // Find the waypoint segment with the shortest distance to our position.
-    final waypoints = routing.selectedWaypoints!;
 
     var shortestWaypointDistance = double.infinity;
     var shortestWaypointToIdx = 0;
-    for (int i = 0; i < (waypoints.length - 1); i++) {
-      final w1 = waypoints[i], w2 = waypoints[i + 1];
+    for (int i = 0; i < (selectedWaypoints.length - 1); i++) {
+      final w1 = selectedWaypoints[i], w2 = selectedWaypoints[i + 1];
       final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
       final s = snap(p, p1, p2);
       final d = vincenty.distance(p, s);
@@ -113,7 +118,7 @@ class Snapping with ChangeNotifier {
     }
 
     remainingWaypoints = [Waypoint(p.latitude, p.longitude, address: "Aktuelle Position")] +
-        routing.selectedWaypoints!.sublist(shortestWaypointToIdx);
+        selectedWaypoints.sublist(shortestWaypointToIdx);
 
     notifyListeners();
   }

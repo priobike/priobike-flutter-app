@@ -114,7 +114,7 @@ class Routing with ChangeNotifier {
   RoutingProfile? selectedProfile;
 
   /// The waypoints of the selected route, if provided.
-  List<Waypoint>? selectedWaypoints;
+  List<Waypoint?>? selectedWaypoints;
 
   /// The list of waypoints for SearchRoutingView
   List<Waypoint?> routingItems = [];
@@ -166,7 +166,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Select new waypoints.
-  Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
+  Future<void> selectWaypoints(List<Waypoint?>? waypoints) async {
     selectedWaypoints = waypoints;
     if ((waypoints?.length ?? 0) < 2) {
       selectedRoute = null;
@@ -337,6 +337,16 @@ class Routing with ChangeNotifier {
       return null;
     }
 
+    // Check if all Waypoints not null.
+    List<Waypoint> selectedWaypointsCasted = [];
+    for (var waypoint in selectedWaypoints!) {
+      if (waypoint == null) {
+        return null;
+      } else {
+        selectedWaypointsCasted.add(waypoint);
+      }
+    }
+
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
     notifyListeners();
@@ -345,7 +355,7 @@ class Routing with ChangeNotifier {
     selectedProfile = await selectProfile(context);
 
     // Load the GraphHopper response.
-    final ghResponse = await loadGHRouteResponse(context, selectedWaypoints!);
+    final ghResponse = await loadGHRouteResponse(context, selectedWaypointsCasted);
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -392,7 +402,7 @@ class Routing with ChangeNotifier {
               crossings: sgSelectorResponse.crossings,
             );
             // Connect the route to the start and end points.
-            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+            route = route.connected(selectedWaypointsCasted.first, selectedWaypointsCasted.last);
             return MapEntry(i, route);
           },
         )
@@ -401,7 +411,7 @@ class Routing with ChangeNotifier {
 
     selectedRoute = routes.first;
     allRoutes = routes;
-    fetchedWaypoints = selectedWaypoints;
+    fetchedWaypoints = selectedWaypointsCasted;
     isFetchingRoute = false;
     routeType = "Schnell";
 
