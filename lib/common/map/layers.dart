@@ -431,6 +431,13 @@ class TrafficLightLayer {
           sgIcon = "trafficlightonlineamberlight";
         }
         break;
+      case Phase.redAmber:
+        if (isDark) {
+          sgIcon = "trafficlightonlineamberdark";
+        } else {
+          sgIcon = "trafficlightonlineamberlight";
+        }
+        break;
       case Phase.red:
         if (isDark) {
           sgIcon = "trafficlightonlinereddark";
