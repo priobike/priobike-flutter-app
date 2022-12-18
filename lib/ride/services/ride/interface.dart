@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Route;
 import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 
@@ -36,6 +37,9 @@ abstract class Ride with ChangeNotifier {
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
+
+  /// The recorded recommendations of the ride.
+  final recommendations = List<Recommendation>.empty(growable: true);
 
   /// Select a new route.
   Future<void> selectRoute(BuildContext context, Route selectedRoute);

@@ -46,9 +46,6 @@ class SessionWrapper extends Ride {
   /// This is used to prevent fast recurring calculations.
   DateTime? calcLastTime;
 
-  /// The recorded recommendations of the ride.
-  final recommendations = List<Recommendation>.empty(growable: true);
-
   SessionWrapper({this.currentRecommendation});
 
   /// Reset the recommendation service.

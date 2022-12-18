@@ -5,6 +5,7 @@ import 'package:priobike/accelerometer/models/acceleration.dart';
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -62,6 +64,9 @@ class Tracking with ChangeNotifier {
 
   /// The positions after the ride.
   List<Position>? positions;
+
+  /// The recommendation after the ride.
+  List<Recommendation>? recommendations;
 
   /// The logs after the ride.
   List<String>? logs;
@@ -123,6 +128,8 @@ class Tracking with ChangeNotifier {
     accelerations = Provider.of<Accelerometer>(context, listen: false).accelerations;
     // Get the current positions.
     positions = Provider.of<Positioning>(context, listen: false).positions;
+    // Get the current recommendations.
+    recommendations = Provider.of<Ride>(context, listen: false).recommendations;
     // Get the current logs.
     logs = Logger.db;
     json = jsonEncode(toJson());
@@ -189,6 +196,7 @@ class Tracking with ChangeNotifier {
     dangers = null;
     accelerations = null;
     positions = null;
+    recommendations = null;
     logs = null;
     tapsTracked = [];
     deviceSize = null;
@@ -203,6 +211,7 @@ class Tracking with ChangeNotifier {
         'debug': debug,
         'route': route?.toJson(),
         'positions': positions?.map((p) => p.toJson()).toList(),
+        'recommendations': recommendations?.map((r) => r.toJson()).toList(),
         'logs': logs,
         'dangers': dangers?.map((d) => d.toJson()).toList(),
         'accelerations': accelerations?.map((d) => d.toJson()).toList(),
