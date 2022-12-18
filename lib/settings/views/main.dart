@@ -10,6 +10,7 @@ import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -522,16 +523,13 @@ class SettingsViewState extends State<SettingsView> {
                     SettingsElement(
                       title: "Fahrtansicht",
                       subtitle: settings.ridePreference?.description,
-                      icon: Icons.expand_more,
-                      callback: () => showAppSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SettingsSelection(
-                              elements: RidePreference.values,
-                              selected: settings.ridePreference,
-                              title: (RidePreference e) => e.description,
-                              callback: onSelectRidePreference);
-                        },
+                      icon: Icons.recycling,
+                      callback: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const RideSelectionView(
+                            isolatedViewUsage: true,
+                          ),
+                        ),
                       ),
                     ),
                     const SmallVSpace(),

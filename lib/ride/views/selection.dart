@@ -12,7 +12,10 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RideSelectionView extends StatefulWidget {
-  const RideSelectionView({Key? key}) : super(key: key);
+  const RideSelectionView({this.isolatedViewUsage = false, Key? key}) : super(key: key);
+
+  /// A boolean indicating if the view is used isolated from settings or before a ride.
+  final bool isolatedViewUsage;
 
   @override
   State<RideSelectionView> createState() => RideSelectionViewState();
@@ -47,6 +50,11 @@ class RideSelectionViewState extends State<RideSelectionView> {
     final settings = Provider.of<Settings>(context, listen: false);
     await settings.selectRidePreference(preference);
 
+    if (widget.isolatedViewUsage) {
+      // Go back to settings
+      Navigator.of(context).pop();
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) {
