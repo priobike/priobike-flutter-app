@@ -76,7 +76,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                       ..color = const Color.fromARGB(255, 0, 0, 0),
                   ),
                 ),
-                offset: const Offset(0, -20)),
+                offset: const Offset(0, -24)),
             Transform.translate(
                 child: Text(
                   countdownLabel,
@@ -87,7 +87,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
                     color: Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
-                offset: const Offset(0, -20)),
+                offset: const Offset(0, -24)),
             Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
           ],
         ),
