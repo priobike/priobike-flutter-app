@@ -19,15 +19,6 @@ import 'package:provider/provider.dart';
 const vincenty = Distance(roundResult: false);
 
 class Predictor extends Ride {
-  /// Get the mqtt prediction topic for a signal group.
-  static String? topic(String? sgId) {
-    if (sgId == null) return null;
-    if (sgId.contains("hamburg/")) {
-      return "prediction/${sgId.substring(8)}";
-    }
-    return "prediction/($sgId)";
-  }
-
   /// Logger for this class.
   final log = Logger("Predictor");
 
@@ -63,7 +54,8 @@ class Predictor extends Ride {
   /// Unsubscribe from a datastream.
   void unsubscribe(String? sgId) {
     if (sgId == null) return;
-    final t = topic(sgId)!;
+    if (!subscriptions.contains(sgId)) return;
+    final t = sgId; // hamburg/...
     client?.unsubscribe(t);
     subscriptions.remove(t);
     notifyListeners();
@@ -72,7 +64,8 @@ class Predictor extends Ride {
   /// Subscribe to a datastream.
   void subscribe(String? sgId) {
     if (sgId == null) return;
-    final t = topic(sgId)!;
+    if (subscriptions.contains(sgId)) return;
+    final t = sgId; // hamburg/...
     client?.subscribe(t, MqttQos.exactlyOnce);
     subscriptions.add(t);
     notifyListeners();
@@ -126,7 +119,7 @@ class Predictor extends Ride {
       final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       final json = jsonDecode(data);
       final prediction = Prediction.fromJson(json);
-      log.i("Received prediction from predictor: $prediction");
+      log.i("Received prediction from predictor: $json");
       this.prediction = prediction;
       calculateRecommendationInfo();
       notifyListeners();

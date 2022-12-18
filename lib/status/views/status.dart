@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -42,6 +44,8 @@ class StatusViewState extends State<StatusView> {
 
     String? problem;
     if (status.mostRecentPredictionTime != null &&
+        status.mostRecentPredictionTime! <
+            status.statusUpdateTime && // Sometimes we may have a prediction "from the future".
         (status.mostRecentPredictionTime! - status.statusUpdateTime).abs() > const Duration(minutes: 5).inSeconds) {
       // Render the most recent prediction time as hh:mm.
       final time = DateTime.fromMillisecondsSinceEpoch(status.mostRecentPredictionTime! * 1000);
@@ -69,7 +73,10 @@ class StatusViewState extends State<StatusView> {
     if (predictionStatusSummary.current == null) return 0.0;
     final status = predictionStatusSummary.current!;
     if (status.mostRecentPredictionTime == null) return 0.0;
-    if (status.mostRecentPredictionTime! - status.statusUpdateTime > const Duration(minutes: 5).inSeconds) return 0.0;
+    if (status.mostRecentPredictionTime! - status.statusUpdateTime > const Duration(minutes: 5).inSeconds) {
+      // Sometimes we may have a prediction "from the future".
+      if (status.mostRecentPredictionTime! < status.statusUpdateTime) return 0.0;
+    }
     if (status.numPredictions == 0) return 0.0;
     return (status.numPredictions - status.numBadPredictions) / status.numPredictions;
   }

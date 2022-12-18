@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
@@ -44,15 +45,16 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
+    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     if (!sourcesInitialized) {
       await mapController?.addSource(
         "sg-locs",
-        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-locations.geojson"),
+        GeojsonSourceProperties(data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
       );
       await mapController?.addSource(
         "sg-lanes",
-        GeojsonSourceProperties(data: "https://$baseUrl/prediction-monitor-nginx/predictions-lanes.geojson"),
+        GeojsonSourceProperties(data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
       );
       sourcesInitialized = true;
     }
