@@ -6,7 +6,7 @@ import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -95,7 +95,7 @@ class RideMapViewState extends State<RideMapView> {
     if (routing.selectedRoute == null) return;
 
     // Get some data that we will need for adaptive camera control.
-    final sgPos = ride.currentRecommendation?.sg?.position;
+    final sgPos = ride.calcCurrentSG?.position;
     final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
     final userSnapPos = snapping.snappedPosition;
     final userSnapHeading = snapping.snappedHeading;

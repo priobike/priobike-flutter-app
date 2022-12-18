@@ -11,6 +11,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -211,6 +212,31 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a predictor mode is selected.
+  Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
+    // Tell the settings service that we selected the new predictor mode.
+    final didChange = await settings.selectPredictionMode(predictionMode);
+
+    Navigator.pop(context);
+
+    // Show an alert that the app needs to be restarted.
+    if (didChange) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Neustart erforderlich'),
+          content: const Text('Diese Änderung wird erst nach einem Neustart wirksam.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   /// A callback that is executed when a sg labels mode is selected.
   Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
     // Tell the settings service that we selected the new sg labels mode.
@@ -338,6 +364,25 @@ class SettingsViewState extends State<SettingsView> {
                                   selected: settings.backend,
                                   title: (Backend e) => e.region,
                                   callback: onSelectBackend);
+                            },
+                          ),
+                        ),
+                      ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Prognosealgorithmus",
+                          subtitle: settings.predictionMode.description,
+                          icon: Icons.expand_more,
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                  elements: PredictionMode.values,
+                                  selected: settings.predictionMode,
+                                  title: (PredictionMode e) => e.description,
+                                  callback: onSelectPredictionMode);
                             },
                           ),
                         ),

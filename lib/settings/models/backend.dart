@@ -18,6 +18,44 @@ extension BackendPath on Backend {
   }
 }
 
+extension BackendPredictorMqtt on Backend {
+  String get predictorMQTTPath {
+    switch (this) {
+      case Backend.production:
+        return "priobike.vkw.tu-dresden.de";
+      case Backend.staging:
+        return "priobike.vkw.tu-dresden.de";
+    }
+  }
+
+  int get predictorMQTTPort {
+    switch (this) {
+      case Backend.production:
+        return 20054;
+      case Backend.staging:
+        return 20035;
+    }
+  }
+
+  String get predictorMQTTUsername {
+    switch (this) {
+      case Backend.production:
+        return "user";
+      case Backend.staging:
+        return "user";
+    }
+  }
+
+  String get predictorMQTTPassword {
+    switch (this) {
+      case Backend.production:
+        return "mqtt@priobike-2022";
+      case Backend.staging:
+        return "mqtt@priobike-2022";
+    }
+  }
+}
+
 extension BackendFROSTMqtt on Backend {
   String get frostMQTTPath {
     switch (this) {

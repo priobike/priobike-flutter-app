@@ -5,7 +5,7 @@ import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -90,8 +90,8 @@ class CancelButton extends StatelessWidget {
     await datastream.disconnect();
 
     // End the recommendations.
-    final recommendation = Provider.of<Ride>(context, listen: false);
-    await recommendation.stopNavigation();
+    final ride = Provider.of<Ride>(context, listen: false);
+    await ride.stopNavigation(context);
 
     // End the accelerometer updates.
     final accelerometer = Provider.of<Accelerometer>(context, listen: false);
@@ -118,8 +118,8 @@ class CancelButton extends StatelessWidget {
               final snapping = Provider.of<Snapping>(context, listen: false);
               await snapping.reset();
 
-              // Reset the recommendation service.
-              await recommendation.reset();
+              // Reset the ride service.
+              await ride.reset();
 
               // Reset the accelerometer service.
               await accelerometer.reset();

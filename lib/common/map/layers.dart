@@ -4,7 +4,8 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/common/map/controller.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -413,12 +414,42 @@ class TrafficLightLayer {
   TrafficLightLayer(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ride = Provider.of<Ride>(context, listen: false);
-    final sgRec = ride.currentRecommendation;
-    final sgIsGreen = ride.calcCurrentSignalIsGreen; // Computed by the app for higher precision.
-    final sgPos = ride.currentRecommendation?.sg?.position;
-    if (sgRec == null || sgIsGreen == null || sgPos == null) return;
-    if (sgRec.error) return;
-    if ((sgRec.quality ?? 0) < Ride.qualityThreshold) return;
+    final sgQuality = ride.calcPredictionQuality;
+    String sgIcon;
+    switch (ride.calcCurrentSignalPhase) {
+      case Phase.green:
+        if (isDark) {
+          sgIcon = "trafficlightonlinegreendark";
+        } else {
+          sgIcon = "trafficlightonlinegreenlight";
+        }
+        break;
+      case Phase.amber:
+        if (isDark) {
+          sgIcon = "trafficlightonlineamberdark";
+        } else {
+          sgIcon = "trafficlightonlineamberlight";
+        }
+        break;
+      case Phase.red:
+        if (isDark) {
+          sgIcon = "trafficlightonlinereddark";
+        } else {
+          sgIcon = "trafficlightonlineredlight";
+        }
+        break;
+      default:
+        if (isDark) {
+          sgIcon = "trafficlightonlinedarkdark";
+        } else {
+          sgIcon = "trafficlightonlinedarklight";
+        }
+        break;
+    }
+    final sgPos = ride.calcCurrentSG?.position;
+    if (sgQuality == null || sgPos == null) return;
+    if (sgQuality < Ride.qualityThreshold) return;
+
     features.add(
       {
         "type": "Feature",
@@ -427,8 +458,7 @@ class TrafficLightLayer {
           "coordinates": [sgPos.lon, sgPos.lat],
         },
         "properties": {
-          "isGreen": sgIsGreen,
-          "isDark": isDark,
+          "sgIcon": sgIcon,
         },
       },
     );
@@ -444,22 +474,7 @@ class TrafficLightLayer {
       "traffic-light",
       "traffic-light-icon",
       SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isGreen"],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightonlinegreendark",
-            "trafficlightonlinegreenlight",
-          ],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightonlinereddark",
-            "trafficlightonlineredlight",
-          ],
-        ],
+        iconImage: ["get", "sgIcon"],
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,

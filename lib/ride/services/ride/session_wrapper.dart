@@ -8,6 +8,8 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/ride/messages/recommendation.dart';
 import 'package:priobike/ride/messages/ride.dart';
@@ -22,20 +24,14 @@ import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-class Ride with ChangeNotifier {
+class SessionWrapper extends Ride {
   final log = Logger("Ride");
-
-  /// The threshold used for showing traffic light colors and speedometer colors
-  static const qualityThreshold = 0.5;
 
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
 
   /// A boolean indicating if the webSocket is connected.
   var connected = false;
-
-  /// An optional callback that is called when a new recommendation is received.
-  void Function(Recommendation)? onRecommendation;
 
   /// The web socket channel to the backend.
   WebSocketChannel? socket;
@@ -46,19 +42,6 @@ class Ride with ChangeNotifier {
   /// The current recommendation from the server.
   Recommendation? currentRecommendation;
 
-  /// The current predicted time of the next phase change, calculated periodically.
-  /// Note: This is currently calculated in the recommendation as well, but
-  /// may lag behind depending on the network latency / server time.
-  DateTime? calcCurrentPhaseChangeTime;
-
-  /// If the signal is currently predicted to be green, calculated periodically.
-  /// Note: This is currently calculated in the recommendation as well, but
-  /// may lag behind depending on the network latency / server time.
-  bool? calcCurrentSignalIsGreen;
-
-  /// The calculated history of the current recommendation.
-  List<int>? calcHistory;
-
   /// A timestamp when the last calculation was performed.
   /// This is used to prevent fast recurring calculations.
   DateTime? calcLastTime;
@@ -66,19 +49,19 @@ class Ride with ChangeNotifier {
   /// The recorded recommendations of the ride.
   final recommendations = List<Recommendation>.empty(growable: true);
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
-  Ride({this.currentRecommendation});
+  SessionWrapper({this.currentRecommendation});
 
   /// Reset the recommendation service.
+  @override
   Future<void> reset() async {
-    await stopNavigation();
+    super.reset();
+    navigationIsActive = false;
+    connected = false;
     socket = null;
     jsonRPCPeer = null;
     currentRecommendation = null;
+    calcLastTime = null;
     recommendations.clear();
-    needsLayout = {};
     notifyListeners();
   }
 
@@ -105,7 +88,7 @@ class Ride with ChangeNotifier {
       currentRecommendation = Recommendation.fromJsonRPC(params);
       recommendations.add(currentRecommendation!);
       calculateRecommendationInfo();
-      onRecommendation?.call(currentRecommendation!);
+      onSelectNextSignalGroup?.call(currentRecommendation?.sg);
     } catch (error, stacktrace) {
       final hint = "Recommendation could not be decoded: $error";
       log.e(hint);
@@ -125,9 +108,13 @@ class Ride with ChangeNotifier {
     // This will be executed if we fail somewhere.
     onFailure(reason) {
       log.w("Failed to calculate recommendation info: $reason");
+      calcPhasesFromNow = null;
+      calcQualitiesFromNow = null;
       calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalIsGreen = null;
-      calcHistory = null;
+      calcCurrentSignalPhase = null;
+      calcPredictionQuality = null;
+      calcCurrentSG = null;
+      calcDistanceToNextSG = null;
       notifyListeners();
     }
 
@@ -154,7 +141,6 @@ class Ride with ChangeNotifier {
     // Calculate the current vector.
     final currentVector = vector.sublist(secondsSinceStart);
     if (currentVector.isEmpty) return onFailure("Current vector is empty.");
-    calcHistory = vector.sublist(0, secondsSinceStart);
     // Calculate the seconds to the next phase change.
     int secondsToPhaseChange = 0;
     bool greenNow = currentVector[0] >= greentimeThreshold;
@@ -163,9 +149,25 @@ class Ride with ChangeNotifier {
       if ((greenNow && !greenThen) || (!greenNow && greenThen)) break;
       secondsToPhaseChange++;
     }
-    // Calculate the predicted time of the next phase change.
+
+    calcPhasesFromNow = currentVector.map(
+      (value) {
+        if (value >= greentimeThreshold) {
+          return Phase.green;
+        } else {
+          return Phase.red;
+        }
+      },
+    ).toList();
+    calcQualitiesFromNow = currentVector.map((_) => (currentRecommendation!.quality ?? 0)).toList();
     calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
-    calcCurrentSignalIsGreen = greenNow;
+    calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
+    calcPredictionQuality = currentRecommendation!.quality ?? 0;
+    calcCurrentSG = currentRecommendation!.sg;
+    calcDistanceToNextSG = currentRecommendation!.distance;
+
+    // Check if everything is calculated.
+    if (!everythingCalculated) return onFailure("Not everything is calculated.");
 
     notifyListeners();
 
@@ -195,7 +197,8 @@ class Ride with ChangeNotifier {
   }
 
   /// Select a new ride.
-  Future<void> selectRide(BuildContext context, r.Route selectedRoute) async {
+  @override
+  Future<void> selectRoute(BuildContext context, r.Route selectedRoute) async {
     // Get the session from the context and verify that it is active.
     final session = Provider.of<Session>(context, listen: false);
     if (!session.isActive()) return;
@@ -243,6 +246,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Connect the websocket and start the navigation.
+  @override
   Future<void> startNavigation(BuildContext context) async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
@@ -257,6 +261,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Update the current user position and send it to the server.
+  @override
   Future<void> updatePosition(BuildContext context) async {
     // Get the session from the context and verify that it is active.
     final session = Provider.of<Session>(context, listen: false);
@@ -280,7 +285,8 @@ class Ride with ChangeNotifier {
   }
 
   /// End the navigation and disconnect the websocket.
-  Future<void> stopNavigation() async {
+  @override
+  Future<void> stopNavigation(BuildContext context) async {
     // Do nothing if the navigation has already been ended.
     if (!navigationIsActive) return;
     // Mark that navigation is inactive.
@@ -293,11 +299,5 @@ class Ride with ChangeNotifier {
       await jsonRPCPeer?.sendRequest('Navigation', req);
       await jsonRPCPeer?.close();
     }
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

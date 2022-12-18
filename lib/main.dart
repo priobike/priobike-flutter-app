@@ -10,7 +10,10 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/datastream.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
+import 'package:priobike/ride/services/ride/predictor.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/logger.dart';
@@ -19,7 +22,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/ride/session_wrapper.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -93,11 +96,22 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Accelerometer()),
         ChangeNotifierProvider(create: (context) => Dangers()),
         ChangeNotifierProvider(create: (context) => Datastream()),
-        ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),
+        // The ride service depends on the settings.
+        // Note that the user needs to restart the app after changing the
+        // prediction mode, as the ride service is otherwise not reset.
+        ChangeNotifierProvider<Ride>(create: (context) {
+          final settings = Provider.of<Settings>(context, listen: false);
+          switch (settings.predictionMode) {
+            case PredictionMode.usePredictor:
+              return Predictor();
+            default:
+              return SessionWrapper();
+          }
+        }),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
