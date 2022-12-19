@@ -523,7 +523,7 @@ class SettingsViewState extends State<SettingsView> {
                     SettingsElement(
                       title: "Fahrtansicht",
                       subtitle: settings.ridePreference?.description,
-                      icon: Icons.recycling,
+                      icon: Icons.pedal_bike,
                       callback: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => const RideSelectionView(
