@@ -14,7 +14,8 @@ import 'package:provider/provider.dart';
 class RideSelectionView extends StatefulWidget {
   const RideSelectionView({this.isolatedViewUsage = false, Key? key}) : super(key: key);
 
-  /// A boolean indicating if the view is used isolated from settings or before a ride.
+  /// If the view is opened outside of the ride screen flow.
+  /// This may happen when the view is opened from the settings.
   final bool isolatedViewUsage;
 
   @override
