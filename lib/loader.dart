@@ -32,6 +32,8 @@ class Loader extends StatefulWidget {
 }
 
 class LoaderState extends State<Loader> {
+  final log = Logger("Loader");
+
   /// If the app is currently loading.
   var isLoading = true;
 
@@ -75,7 +77,7 @@ class LoaderState extends State<Loader> {
       // Load stuff from the server.
       final news = Provider.of<News>(context, listen: false);
       await news.getArticles(context);
-      if (!news.hasLoaded) throw Exception("Could not load news");
+      if (!news.hasLoaded) log.i("Could not load news");
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
