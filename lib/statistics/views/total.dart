@@ -44,7 +44,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
       title: BoldContent(text: "Information zur CO2-Berechnung", context: context),
       content: Content(
           text:
-              "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz und einem durchschnittlichen CO2-Ausstoß von 118,7 g/km (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+              "Bei diesem Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
           context: context),
       actions: [
         TextButton(
