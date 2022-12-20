@@ -229,8 +229,8 @@ class ProfileViewState extends State<ProfileView> {
                       child: s.activityType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
-                              icon: Icons.home_work_rounded,
-                              title: "Aktivität",
+                              icon: Icons.landscape,
+                              title: "Anstieg",
                               color: Theme.of(context).colorScheme.onBackground,
                               backgroundColor: Theme.of(context).colorScheme.background,
                               onPressed: toggleActivitySelection,
