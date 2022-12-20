@@ -126,6 +126,7 @@ class Settings with ChangeNotifier {
   Future<void> deleteRidePreference() async {
     final storage = await SharedPreferences.getInstance();
     await storage.remove("priobike.settings.ridePreference");
+    ridePreference = null;
     notifyListeners();
   }
 
