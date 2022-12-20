@@ -77,7 +77,6 @@ class LoaderState extends State<Loader> {
       await news.getArticles(context);
       if (!news.hasLoaded) throw Exception("Could not load news");
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
-      await predictionStatusSummary.reset();
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
     } catch (e, stackTrace) {
