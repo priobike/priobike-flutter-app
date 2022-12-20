@@ -34,7 +34,9 @@ void showSaveShortcutSheet(context) {
       final nameController = TextEditingController();
       return AlertDialog(
         title: BoldContent(
-            text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.', context: context),
+          text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.',
+          context: context,
+        ),
         content: SizedBox(
           height: 48,
           child: Column(
@@ -53,14 +55,19 @@ void showSaveShortcutSheet(context) {
           TextButton(
             onPressed: () async {
               final name = nameController.text;
-              if (name.isEmpty) {
+              if (name.isEmpty || name.trim().isEmpty) {
                 ToastMessage.showError("Name darf nicht leer sein.");
+              } else {
+                await shortcuts.saveNewShortcut(name, context);
+                ToastMessage.showSuccess("Route gespeichert!");
+                Navigator.pop(context);
               }
-              await shortcuts.saveNewShortcut(name, context);
-              ToastMessage.showSuccess("Route gespeichert!");
-              Navigator.pop(context);
             },
-            child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
+            child: BoldContent(
+              text: 'Speichern',
+              color: Theme.of(context).colorScheme.primary,
+              context: context,
+            ),
           ),
         ],
       );
