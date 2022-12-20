@@ -66,6 +66,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   @override
   Widget build(BuildContext context) {
+    print("Charly - is current position: " + widget.isCurrentPosition.toString());
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
@@ -134,7 +135,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   }
 
   /// Update the waypoint.
-  updateWaypoint() {
+  void updateWaypoint() {
     if (positioning.lastPosition == null) {
       waypoint = null;
       return;
