@@ -13,7 +13,6 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -33,6 +32,8 @@ class Loader extends StatefulWidget {
 }
 
 class LoaderState extends State<Loader> {
+  final log = Logger("Loader");
+
   /// If the app is currently loading.
   var isLoading = true;
 
