@@ -32,6 +32,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/weather/services/weather.dart';
 import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -177,6 +178,9 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated news service, which is injected by the provider.
   late News news;
 
+  /// The associated weather service, which is injected by the provider.
+  late Weather weather;
+
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
@@ -187,6 +191,7 @@ class SettingsViewState extends State<SettingsView> {
     routing = Provider.of<Routing>(context);
     session = Provider.of<Session>(context);
     news = Provider.of<News>(context);
+    weather = Provider.of<Weather>(context);
     super.didChangeDependencies();
   }
 
@@ -209,6 +214,7 @@ class SettingsViewState extends State<SettingsView> {
     await news.getArticles(context);
     await shortcuts.loadShortcuts(context);
     await predictionStatusSummary.fetch(context);
+    await weather.fetchWeather(lat: backend.center.latitude, lon: backend.center.longitude);
 
     Navigator.pop(context);
   }
