@@ -559,12 +559,10 @@ class ParkingStationsLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_parking.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "parking-stations",
-      properties,
+      "https://$baseUrl/map-data/bicycle_parking.geojson",
     );
     await layerController.addLayer(
       "parking-stations",
@@ -596,12 +594,10 @@ class RentalStationsLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_rental.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "rental-stations",
-      properties,
+      "https://$baseUrl/map-data/bicycle_rental.geojson",
     );
     await layerController.addLayer(
       "rental-stations",
@@ -656,9 +652,11 @@ class BikeShopLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bicycle_shop.geojson");
-    await layerController.addExternalGeoJsonSource("bike-shop", properties);
+
+    await layerController.addExternalGeoJsonSource(
+      "bike-shop",
+      "https://$baseUrl/map-data/bicycle_shop.geojson",
+    );
     await layerController.addLayer(
       "bike-shop",
       "bike-shop-icons",
@@ -716,12 +714,10 @@ class BikeAirStationLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/bike_air_station.geojson");
 
     await layerController.addExternalGeoJsonSource(
       "bike-air-station",
-      properties,
+      "https://$baseUrl/map-data/bike_air_station.geojson",
     );
     await layerController.addLayer(
       "bike-air-station",
@@ -776,11 +772,9 @@ class ConstructionSitesLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/construction_sites.geojson");
     await layerController.addExternalGeoJsonSource(
       "construction-sites",
-      properties,
+      "https://$baseUrl/map-data/construction_sites.geojson",
     );
     await layerController.addLayer(
       "construction-sites",
@@ -825,11 +819,9 @@ class AccidentHotspotsLayer {
   install(LayerController layerController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final GeojsonSourceProperties properties =
-        GeojsonSourceProperties(data: "https://$baseUrl/map-data/accident_hot_spots.geojson");
     await layerController.addExternalGeoJsonSource(
       "accident-hotspots",
-      properties,
+      "https://$baseUrl/map-data/accident_hot_spots.geojson",
     );
     await layerController.addLayer(
       "accident-hotspots",
