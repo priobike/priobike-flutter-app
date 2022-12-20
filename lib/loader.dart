@@ -13,6 +13,7 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -75,7 +76,7 @@ class LoaderState extends State<Loader> {
       // Load stuff from the server.
       final news = Provider.of<News>(context, listen: false);
       await news.getArticles(context);
-      if (!news.hasLoaded) throw Exception("Could not load news");
+      if (!news.hasLoaded) log.i("Could not load news");
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
