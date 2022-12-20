@@ -475,6 +475,15 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
                       ),
+                    if (settings.enableInternalFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Sicherheits-Warnung zurücksetzen",
+                          icon: Icons.recycling,
+                          callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
+                        ),
+                      ),
                     if (feature.canEnableBetaFeatures)
                       const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
                     if (feature.canEnableBetaFeatures)

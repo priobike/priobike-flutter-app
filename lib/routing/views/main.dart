@@ -23,7 +23,6 @@ import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Show a sheet to save the current route as a shortcut.
 void showSaveShortcutSheet(context) {
@@ -158,31 +157,34 @@ class RoutingViewState extends State<RoutingView> {
           ),
         );
 
-    final preferences = await SharedPreferences.getInstance();
-    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
-    if (didViewWarning) {
+    final settings = Provider.of<Settings>(context, listen: false);
+    if (settings.didViewWarning) {
       startRide();
     } else {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(24)),
           ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
+          content: BoldContent(
+              text:
+                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
           actions: [
             TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routing.warning", true);
+              onPressed: () async {
+                await settings.setDidViewWarning(true);
                 startRide();
               },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              child: BoldContent(
+                text: 'OK',
+                color: Theme.of(context).colorScheme.primary,
+                context: context,
+              ),
             ),
           ],
         ),
