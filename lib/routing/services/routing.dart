@@ -223,7 +223,7 @@ class Routing with ChangeNotifier {
     }
 
     // Check if the user wants to do sport - if so, ignore elevation.
-    if (profile.activityType == ActivityType.sport) {
+    if (profile.activityType == ActivityType.allowIncline) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.bikeFastest;
       } else if (profile.preferenceType == PreferenceType.short) {
