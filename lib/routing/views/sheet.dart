@@ -211,11 +211,11 @@ class DraggingWaypointItem extends RouteWaypointItem {
 
 class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
-  late Routing s;
+  late Routing routingService;
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<Routing>(context);
+    routingService = Provider.of<Routing>(context);
     super.didChangeDependencies();
   }
 
@@ -225,18 +225,18 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
-    if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
+    if (routingService.selectedWaypoints == null || routingService.selectedWaypoints!.isEmpty) return;
 
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
 
-    final reorderedWaypoints = s.selectedWaypoints!.toList();
+    final reorderedWaypoints = routingService.selectedWaypoints!.toList();
     final waypoint = reorderedWaypoints.removeAt(oldIndex);
     reorderedWaypoints.insert(newIndex, waypoint);
 
-    s.selectWaypoints(reorderedWaypoints);
-    s.loadRoutes(context);
+    routingService.selectWaypoints(reorderedWaypoints);
+    routingService.loadRoutes(context);
   }
 
   /// A callback that is executed when the search page is opened.
@@ -245,22 +245,22 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (result == null) return;
 
     final waypoint = result as Waypoint;
-    final waypoints = s.selectedWaypoints ?? [];
+    final waypoints = routingService.selectedWaypoints ?? [];
     final newWaypoints = [...waypoints, waypoint];
 
-    s.selectWaypoints(newWaypoints);
-    s.loadRoutes(context);
+    routingService.selectWaypoints(newWaypoints);
+    routingService.loadRoutes(context);
   }
 
   /// A callback that is executed when the user removes a waypoint.
   Future<void> onRemoveWaypoint(int index) async {
-    if (s.selectedWaypoints == null || s.selectedWaypoints!.isEmpty) return;
+    if (routingService.selectedWaypoints == null || routingService.selectedWaypoints!.isEmpty) return;
 
-    final removedWaypoints = s.selectedWaypoints!.toList();
+    final removedWaypoints = routingService.selectedWaypoints!.toList();
     removedWaypoints.removeAt(index);
 
-    s.selectWaypoints(removedWaypoints);
-    s.loadRoutes(context);
+    routingService.selectWaypoints(removedWaypoints);
+    routingService.loadRoutes(context);
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -285,7 +285,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         Row(
           children: [
             const SizedBox(width: 12),
-            if (s.fetchedWaypoints != null)
+            if (routingService.fetchedWaypoints != null)
               Column(
                 children: [
                   const SizedBox(height: 36),
@@ -295,11 +295,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                       Container(
                           color: Theme.of(context).colorScheme.surface,
                           width: 16,
-                          height: s.selectedWaypoints!.length * 42),
+                          height: routingService.selectedWaypoints!.length * 42),
                       Container(
                           color: Theme.of(context).colorScheme.primary,
                           width: 8,
-                          height: s.selectedWaypoints!.length * 42),
+                          height: routingService.selectedWaypoints!.length * 42),
                     ],
                   ),
                 ],
@@ -316,12 +316,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   proxyDecorator: (proxyWidget, idx, anim) {
                     return proxyWidget;
                   },
-                  children: s.selectedWaypoints?.asMap().entries.map<Widget>(
+                  children: routingService.selectedWaypoints?.asMap().entries.map<Widget>(
                         (entry) {
                           return RouteWaypointItem(
                             onDelete: () => onRemoveWaypoint(entry.key),
                             key: Key("$entry.key"),
-                            count: s.selectedWaypoints?.length ?? 0,
+                            count: routingService.selectedWaypoints?.length ?? 0,
                             idx: entry.key,
                             waypoint: entry.value,
                           );
@@ -341,9 +341,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
-    if (s.selectedRoute == null) return Container();
-    final distInfo = "${((s.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
-    final seconds = s.selectedRoute!.path.time / 1000;
+    if (routingService.selectedRoute == null) return Container();
+    final distInfo = "${((routingService.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
+    final seconds = routingService.selectedRoute!.path.time / 1000;
     // Get the full hours needed to cover the route.
     final hours = seconds ~/ 3600;
     // Get the remaining minutes.
@@ -353,7 +353,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     return Column(
       children: [
         BoldSmall(
-          text: s.selectedProfile?.explanation ?? "",
+          text: routingService.selectedProfile?.explanation ?? "",
           color: CI.green,
           context: context,
         ),
@@ -368,7 +368,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Render the start ride button.
   Widget renderStartRideButton(BuildContext context) {
-    if (s.selectedRoute == null) return Container();
+    if (routingService.selectedRoute == null) return Container();
     return BigButton(
       icon: Icons.pedal_bike,
       iconColor: Colors.white,
@@ -380,7 +380,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Render the save route button.
   Widget renderSaveRouteButton(BuildContext context) {
-    if (s.selectedRoute == null) return Container();
+    if (routingService.selectedRoute == null) return Container();
     return BigButton(
       icon: Icons.save,
       iconColor: Colors.white,

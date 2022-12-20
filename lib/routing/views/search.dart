@@ -72,7 +72,11 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
         title: widget.waypoint == null
             ? null
             : widget.isCurrentPosition
-                ? BoldSubHeader(text: "Aktueller Standort", context: context, color: Colors.white)
+                ? BoldSubHeader(
+                    text: "Aktueller Standort",
+                    context: context,
+                    color: Colors.white,
+                  )
                 : BoldSmall(
                     text: widget.waypoint!.address!,
                     context: context,
@@ -130,7 +134,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   }
 
   /// Update the waypoint.
-  updateWaypoint() {
+  void updateWaypoint() {
     if (positioning.lastPosition == null) {
       waypoint = null;
       return;
@@ -143,7 +147,11 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
 
   @override
   Widget build(BuildContext context) {
-    return WaypointListItemView(isCurrentPosition: true, waypoint: waypoint, onTap: widget.onTap);
+    return WaypointListItemView(
+      isCurrentPosition: true,
+      waypoint: waypoint,
+      onTap: widget.onTap,
+    );
   }
 }
 
