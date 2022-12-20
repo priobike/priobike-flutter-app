@@ -124,6 +124,10 @@ class LoaderState extends State<Loader> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
           title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
           content: Content(
               text:
