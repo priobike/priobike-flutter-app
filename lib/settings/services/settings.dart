@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/color_mode.dart';
@@ -24,6 +25,9 @@ class Settings with ChangeNotifier {
 
   /// The selected backend.
   Backend backend;
+
+  /// The selected prediction mode.
+  PredictionMode predictionMode;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -70,6 +74,15 @@ class Settings with ChangeNotifier {
   Future<void> selectBackend(Backend backend) async {
     this.backend = backend;
     await store();
+  }
+
+  Future<bool> selectPredictionMode(PredictionMode predictionMode) async {
+    if (this.predictionMode == predictionMode) {
+      return false;
+    }
+    this.predictionMode = predictionMode;
+    await store();
+    return true;
   }
 
   Future<void> selectPositioningMode(PositioningMode positioningMode) async {
@@ -135,6 +148,7 @@ class Settings with ChangeNotifier {
     this.enableInternalFeatures = false,
     this.enablePerformanceOverlay = false,
     this.backend = Backend.production,
+    this.predictionMode = PredictionMode.useSessionWrapper,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,
@@ -168,12 +182,16 @@ class Settings with ChangeNotifier {
       enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
 
       final backendStr = storage.getString("priobike.settings.backend");
+      final predictionModeStr = storage.getString("priobike.settings.predictionMode");
       final positioningModeStr = storage.getString("priobike.settings.positioningMode");
       final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
       final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
 
       if (backendStr != null) {
         backend = Backend.values.byName(backendStr);
+      }
+      if (predictionModeStr != null) {
+        predictionMode = PredictionMode.values.byName(predictionModeStr);
       }
       if (positioningModeStr != null) {
         positioningMode = PositioningMode.values.byName(positioningModeStr);
@@ -234,6 +252,7 @@ class Settings with ChangeNotifier {
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
     await storage.setString("priobike.settings.backend", backend.name);
+    await storage.setString("priobike.settings.predictionMode", predictionMode.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
     await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
@@ -258,6 +277,7 @@ class Settings with ChangeNotifier {
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "backend": backend.name,
+        "predictionMode": predictionMode.name,
         "positioningMode": positioningMode.name,
         "rerouting": rerouting.name,
         "routingEndpoint": routingEndpoint.name,

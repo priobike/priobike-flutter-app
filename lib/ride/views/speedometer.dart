@@ -1,15 +1,14 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/services/ride/interface.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:provider/provider.dart';
 
 class RideSpeedometerView extends StatefulWidget {
@@ -29,10 +28,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   late double maxSpeed;
 
   /// The associated ride service, which is injected by the provider.
-  late Ride rs;
+  late Ride ride;
 
   /// The associated positioning service, which is injected by the provider.
-  late Positioning ps;
+  late Positioning positioning;
 
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(255, 47, 47, 47);
@@ -54,11 +53,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     // Fetch the maximum speed from the settings service.
     maxSpeed = Provider.of<Settings>(context, listen: false).speedMode.maxSpeed;
 
-    rs = Provider.of<Ride>(context);
-    ps = Provider.of<Positioning>(context);
-    if (rs.needsLayout[viewId] != false) {
-      rs.needsLayout[viewId] = false;
-      loadGauge(rs, ps);
+    positioning = Provider.of<Positioning>(context);
+    ride = Provider.of<Ride>(context);
+    if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
+      ride.needsLayout[viewId] = false;
+      positioning.needsLayout[viewId] = false;
+      loadGauge(ride);
     }
 
     super.didChangeDependencies();
@@ -74,93 +74,24 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     }
   }
 
-  /// Load the gauge colors and steps.
-  Future<void> loadGauge(Ride rs, Positioning ps) async {
-    // Check if we have the necessary position data
-    var posTime = ps.lastPosition?.timestamp;
-    var posSpeed = ps.lastPosition?.speed;
-    var posLat = ps.lastPosition?.latitude;
-    var posLon = ps.lastPosition?.longitude;
-    var timeStr = rs.currentRecommendation?.predictionStartTime;
-    var tGreen = rs.currentRecommendation?.predictionGreentimeThreshold;
-    var phases = rs.currentRecommendation?.predictionValue;
-    var dist = rs.currentRecommendation?.distance;
-    var sg = rs.currentRecommendation?.sg;
-    var error = rs.currentRecommendation?.error;
-    var currentQuality = rs.currentRecommendation?.quality;
-
-    // Check if we have all necessary data to display the speedometer
-    if (posTime == null ||
-        posSpeed == null ||
-        posLat == null ||
-        posLon == null ||
-        timeStr == null ||
-        tGreen == null ||
-        phases == null ||
-        dist == null ||
-        sg == null ||
-        error == true ||
-        currentQuality == null) {
+  /// Load the gauge colors and steps, from the predictor.
+  Future<void> loadGauge(Ride ride) async {
+    if (ride.calcPhasesFromNow == null || ride.calcQualitiesFromNow == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor];
       gaugeStops = [];
       return;
     }
 
-    if (currentQuality < Ride.qualityThreshold) {
-      gaugeColors = [defaultGaugeColor];
-      gaugeStops = [];
-      return;
-    }
+    final phases = ride.calcPhasesFromNow!;
+    final qualities = ride.calcQualitiesFromNow!;
 
-    // Make more sanity checks
-    if (posSpeed < 0) posSpeed = 0.0;
-
-    // Chop off [UTC] from the end of the string
-    if (timeStr.endsWith('[UTC]')) {
-      timeStr = timeStr.substring(0, timeStr.length - 5);
+    var colors = <Color>[];
+    for (var i = 0; i < phases.length; i++) {
+      final phase = phases[i];
+      final quality = qualities[i];
+      final opacity = quality;
+      colors.add(phase.color.withOpacity(opacity));
     }
-    var time = DateTime.tryParse(timeStr);
-    if (time == null) {
-      gaugeColors = [defaultGaugeColor];
-      gaugeStops = [];
-      return;
-    }
-
-    // Calculate the elapsed seconds since the prediction and adjust the prediction accordingly
-    var diff = max(0, DateTime.now().difference(time).inSeconds);
-    if (diff > phases.length) {
-      diff = phases.length;
-    }
-    var phasesFromNow = phases.sublist(diff);
-
-    // Compute the max and min value for color interpolation
-    int maxValue = 100;
-    int minValue = 0;
-    if (phasesFromNow.isNotEmpty) {
-      maxValue = phasesFromNow.reduce(max);
-      minValue = phasesFromNow.reduce(min);
-    }
-    if (maxValue == minValue) {
-      gaugeColors = [defaultGaugeColor];
-      gaugeStops = [];
-      return;
-    }
-
-    // Map each second from now to the corresponding predicted signal color
-    var colors = phasesFromNow.map(
-      (phase) {
-        if (phase >= tGreen) {
-          // Map green values between the greentimeThreshold and the maxValue
-          var factor = (phase - tGreen) / (maxValue - tGreen);
-          // Don't use the CI green here.
-          return Color.lerp(defaultGaugeColor, const Color.fromARGB(255, 0, 255, 106), factor)!;
-        } else {
-          // Map red values between the minValue and the greentimeThreshold
-          var factor = (phase - minValue) / (tGreen - minValue);
-          return Color.lerp(CI.red, defaultGaugeColor, factor)!;
-        }
-      },
-    ).toList();
 
     // Since we want the color steps not by second, but by speed, we map the stops accordingly
     var stops = Iterable<double>.generate(
@@ -170,7 +101,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           return double.infinity;
         }
         // Map the second to the needed speed
-        var speedKmh = (dist / second) * 3.6;
+        var speedKmh = (ride.calcDistanceToNextSG! / second) * 3.6;
         // Scale the speed between minSpeed and maxSpeed
         return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
       },
@@ -209,7 +140,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
   Future<void> onTapSpeedometer(double speed) async {
     // Set the selected speed in the positioning service.
     // This is a debug feature and only supported for some types of positioning.
-    ps.setDebugSpeed(speed / 3.6);
+    positioning.setDebugSpeed(speed / 3.6);
   }
 
   @override
@@ -262,7 +193,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
           ],
           pointers: [
             MarkerPointer(
-              value: (ps.lastPosition?.speed ?? 0) * 3.6,
+              value: (positioning.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 24,
               elevation: 0,
@@ -272,7 +203,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
               color: Theme.of(context).colorScheme.onBackground,
             ),
             MarkerPointer(
-              value: (ps.lastPosition?.speed ?? 0) * 3.6,
+              value: (positioning.lastPosition?.speed ?? 0) * 3.6,
               markerType: MarkerType.rectangle,
               markerHeight: 18,
               elevation: 0,
