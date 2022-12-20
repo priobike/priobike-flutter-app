@@ -35,6 +35,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -100,6 +101,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),
+        ChangeNotifierProvider(create: (context) => Weather()),
         // The ride service depends on the settings.
         // Note that the user needs to restart the app after changing the
         // prediction mode, as the ride service is otherwise not reset.
