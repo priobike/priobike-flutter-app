@@ -5,3 +5,5 @@ gradle-wrapper.jar
 /gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
+
+.settings/org.eclipse.buildship.core.prefs
