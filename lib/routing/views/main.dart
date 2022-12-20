@@ -152,30 +152,34 @@ class RoutingViewState extends State<RoutingView> {
         );
 
     final preferences = await SharedPreferences.getInstance();
-    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
-    if (didViewWarning) {
+    if (Provider.of<Settings>(context, listen: false).didViewWarning) {
       startRide();
     } else {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(24)),
           ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+          alignment: AlignmentDirectional.center,
+          actionsAlignment: MainAxisAlignment.center,
+          content: BoldContent(
+              text:
+                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+              context: context),
           actions: [
             TextButton(
               onPressed: () {
                 preferences.setBool("priobike.routing.warning", true);
+                Provider.of<Settings>(context, listen: false).setDidViewWarning(true);
                 startRide();
               },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              child: BoldContent(
+                text: 'OK',
+                color: Theme.of(context).colorScheme.primary,
+                context: context,
+              ),
             ),
           ],
         ),

@@ -22,6 +22,9 @@ class Settings with ChangeNotifier {
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
+  /// Whether the user has seen the warning at the start of the ride.
+  bool didViewWarning;
+
   /// The selected backend.
   Backend backend;
 
@@ -64,6 +67,11 @@ class Settings with ChangeNotifier {
 
   Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay) async {
     this.enablePerformanceOverlay = enablePerformanceOverlay;
+    await store();
+  }
+
+  Future<void> setDidViewWarning(bool didViewWarning) async {
+    this.didViewWarning = didViewWarning;
     await store();
   }
 
@@ -129,10 +137,18 @@ class Settings with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteWarning() async {
+    final storage = await SharedPreferences.getInstance();
+    await storage.setBool("priobike.routing.warning", false);
+    didViewWarning = false;
+    notifyListeners();
+  }
+
   Settings({
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
     this.enablePerformanceOverlay = false,
+    this.didViewWarning = false,
     this.backend = Backend.production,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
@@ -165,6 +181,7 @@ class Settings with ChangeNotifier {
     if (canEnableInternalFeatures) {
       enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
       enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
+      didViewWarning = (storage.getBool("priobike.routing.warning") ?? false);
 
       final backendStr = storage.getString("priobike.settings.backend");
       final positioningModeStr = storage.getString("priobike.settings.positioningMode");
@@ -232,6 +249,7 @@ class Settings with ChangeNotifier {
     await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
+    await storage.setBool("priobike.routing.warning", didViewWarning);
     await storage.setString("priobike.settings.backend", backend.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
@@ -256,6 +274,7 @@ class Settings with ChangeNotifier {
         "enableBetaFeatures": enableBetaFeatures,
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
+        "didViewWarning": didViewWarning,
         "backend": backend.name,
         "positioningMode": positioningMode.name,
         "rerouting": rerouting.name,
