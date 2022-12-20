@@ -55,13 +55,13 @@ void showSaveShortcutSheet(context) {
           TextButton(
             onPressed: () async {
               final name = nameController.text;
-              if (name.isEmpty || name.trim().isEmpty) {
+              if (name.trim().isEmpty) {
                 ToastMessage.showError("Name darf nicht leer sein.");
-              } else {
-                await shortcuts.saveNewShortcut(name, context);
-                ToastMessage.showSuccess("Route gespeichert!");
-                Navigator.pop(context);
+                return;
               }
+              await shortcuts.saveNewShortcut(name, context);
+              ToastMessage.showSuccess("Route gespeichert!");
+              Navigator.pop(context);
             },
             child: BoldContent(
               text: 'Speichern',
