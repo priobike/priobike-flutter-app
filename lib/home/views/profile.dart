@@ -42,14 +42,23 @@ class ProfileElementButton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
-                  const SmallVSpace(),
-                  Small(text: title, color: color ?? theme.colorScheme.onBackground, context: context),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
+                    const SizedBox(height: 2),
+                    Flexible(
+                      child: Small(
+                        text: title,
+                        color: color ?? theme.colorScheme.onBackground,
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

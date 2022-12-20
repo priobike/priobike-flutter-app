@@ -128,9 +128,9 @@ extension ActivityTypeDescription on ActivityType {
   String description() {
     switch (this) {
       case ActivityType.avoidIncline:
-        return "Anstieg\n vermeiden";
+        return "Anstieg vermeiden";
       case ActivityType.allowIncline:
-        return "Anstieg\n erlauben";
+        return "Anstieg erlauben";
     }
   }
 }
