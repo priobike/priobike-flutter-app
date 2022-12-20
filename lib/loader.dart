@@ -229,6 +229,7 @@ class LoaderState extends State<Loader> {
                             context: context,
                             textAlign: TextAlign.center,
                           ),
+                          const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
                               ? BigButton(
