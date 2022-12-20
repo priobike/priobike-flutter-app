@@ -19,6 +19,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -79,6 +80,8 @@ class LoaderState extends State<Loader> {
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
+      final weather = Provider.of<Weather>(context, listen: false);
+      await weather.fetch(context);
     } catch (e, stackTrace) {
       await Sentry.captureException(e, stackTrace: stackTrace);
       HapticFeedback.heavyImpact();

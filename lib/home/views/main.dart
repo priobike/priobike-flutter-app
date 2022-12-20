@@ -27,6 +27,7 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -169,6 +170,7 @@ class HomeViewState extends State<HomeView> {
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+          await Provider.of<Weather>(context, listen: false).fetch(context);
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),

@@ -35,7 +35,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:priobike/weather/services/weather.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 

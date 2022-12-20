@@ -32,7 +32,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:priobike/weather/services/weather.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -214,7 +214,7 @@ class SettingsViewState extends State<SettingsView> {
     await news.getArticles(context);
     await shortcuts.loadShortcuts(context);
     await predictionStatusSummary.fetch(context);
-    await weather.fetchWeather(lat: backend.center.latitude, lon: backend.center.longitude);
+    await weather.fetch(context);
 
     Navigator.pop(context);
   }
