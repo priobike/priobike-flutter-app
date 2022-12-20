@@ -175,7 +175,11 @@ class RoutingViewState extends State<RoutingView> {
                 preferences.setBool("priobike.routing.warning", true);
                 startRide();
               },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              child: BoldContent(
+                text: 'OK',
+                color: Theme.of(context).colorScheme.primary,
+                context: context,
+              ),
             ),
           ],
         ),
@@ -268,7 +272,10 @@ class RoutingViewState extends State<RoutingView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
           title: BoldSubHeader(text: 'Hinweis', context: context),
           content: Content(
             text:
