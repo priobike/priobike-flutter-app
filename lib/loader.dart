@@ -126,6 +126,10 @@ class LoaderState extends State<Loader> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
           title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
           content: Content(
               text:
@@ -222,11 +226,16 @@ class LoaderState extends State<Loader> {
                           ),
                           const SmallVSpace(),
                           Content(
-                            text: """Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. 
-                                Prüfe deine Verbindung und versuche es später erneut.""",
+                            text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
+                          Content(
+                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
                               ? BigButton(

@@ -28,10 +28,10 @@ class PredictionStatusSummary with ChangeNotifier {
 
   /// Fetch the status of the prediction.
   Future<void> fetch(BuildContext context) async {
-    if (isLoading || hadError) return;
-
-    isLoading = true;
     hadError = false;
+
+    if (isLoading) return;
+    isLoading = true;
     notifyListeners();
 
     try {
