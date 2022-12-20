@@ -23,7 +23,6 @@ import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Show a sheet to save the current route as a shortcut.
 void showSaveShortcutSheet(context) {
@@ -151,8 +150,8 @@ class RoutingViewState extends State<RoutingView> {
           ),
         );
 
-    final preferences = await SharedPreferences.getInstance();
-    if (Provider.of<Settings>(context, listen: false).didViewWarning) {
+    final settings = Provider.of<Settings>(context, listen: false);
+    if (settings.didViewWarning) {
       startRide();
     } else {
       showDialog(
@@ -170,9 +169,8 @@ class RoutingViewState extends State<RoutingView> {
               context: context),
           actions: [
             TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routing.warning", true);
-                Provider.of<Settings>(context, listen: false).setDidViewWarning(true);
+              onPressed: () async {
+                await settings.setDidViewWarning(true);
                 startRide();
               },
               child: BoldContent(
