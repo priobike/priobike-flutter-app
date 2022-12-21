@@ -152,7 +152,8 @@ class DatastreamViewState extends State<DatastreamView> {
                 ),
               ),
             ),
-            if (datastream.detectorCar != null || datastream.detectorCyclists != null)
+            if ((datastream.detectorCar != null && datastream.detectorCar!.pct > 0) ||
+                (datastream.detectorCyclists != null && datastream.detectorCyclists!.pct > 0))
               Tile(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 fill: Theme.of(context).colorScheme.background,
