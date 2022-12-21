@@ -18,7 +18,10 @@ class LayerController {
   final Map<String, LayerProperties> layers = {};
 
   /// The sources that are currently added to the map, together with their geojson data.
-  final Map<String, dynamic> sources = {};
+  final Map<String, Map<String, dynamic>> sources = {};
+
+  /// The sources that are currently added to the map, together with their URL.
+  final Map<String, String> externalSources = {};
 
   /// The sources together with their layers.
   final Map<String, Set<String>> layersBySource = {};
@@ -28,6 +31,30 @@ class LayerController {
     layers.clear();
     sources.clear();
     layersBySource.clear();
+  }
+
+  /// Add external geojson source to the map.
+  addExternalGeoJsonSource(String sourceId, String url) async {
+    if (externalSources.containsKey(sourceId)) {
+      // If the URL is the same, we don't need to do anything.
+      if (externalSources[sourceId] == url) {
+        log.i("Source $sourceId is already added with the same URL.");
+        return;
+      }
+      for (final layer in layersBySource[sourceId] ?? {}) {
+        log.i("---- Removing layer $layer");
+        await mapController.removeLayer(layer);
+        layers.remove(layer);
+      }
+      log.i("-- Removing source $sourceId");
+      await mapController.removeSource(sourceId);
+      sources.remove(sourceId);
+      layersBySource.remove(sourceId);
+    }
+    log.i("Adding source $sourceId");
+    await mapController.addSource(sourceId, GeojsonSourceProperties(data: url));
+    externalSources[sourceId] = url;
+    layersBySource[sourceId] = {};
   }
 
   /// Add a source to the map.
@@ -85,7 +112,7 @@ class LayerController {
     double? maxzoom,
     dynamic filter,
   }) async {
-    if (!sources.containsKey(sourceId)) {
+    if (!sources.containsKey(sourceId) && !externalSources.containsKey(sourceId)) {
       log.w("Cannot add layer $layerId to source $sourceId: Source does not exist.");
       return;
     }
@@ -119,9 +146,8 @@ class LayerController {
 
   /// Remove a geojson source from the map, together with all layers that are associated with it.
   removeGeoJsonSourceAndLayers(String sourceId) async {
-    if (!sources.containsKey(sourceId)) {
-      log.w("Cannot remove source $sourceId: Source does not exist.");
-      return;
+    if (!sources.containsKey(sourceId) && !externalSources.containsKey(sourceId)) {
+      return; // Do nothing.
     }
     // Remove all layers that are associated with this source.
     for (final layer in layersBySource[sourceId] ?? {}) {
@@ -132,7 +158,11 @@ class LayerController {
     // Remove the source.
     log.i("-- Removing source $sourceId");
     await mapController.removeSource(sourceId);
-    sources.remove(sourceId);
+    if (sources.containsKey(sourceId)) {
+      sources.remove(sourceId);
+    } else {
+      externalSources.remove(sourceId);
+    }
     layersBySource.remove(sourceId);
   }
 }
