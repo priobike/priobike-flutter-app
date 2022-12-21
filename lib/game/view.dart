@@ -77,27 +77,21 @@ class LevelView extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 100,
-                  child: Flexible(
-                    child: BoldSmall(
-                      text: currentLevel.title,
-                      context: context,
-                      color: Colors.black,
-                    ),
-                    fit: FlexFit.tight,
+                  child: BoldSmall(
+                    text: currentLevel.title,
+                    context: context,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
                   width: 100,
-                  child: Flexible(
-                    child: Small(
-                      text: pointsToNextLevel > 0
-                          ? "${(value * 10).round() / 10}/${nextLevel.value.round()} $unit"
-                          : "Ziel erreicht!",
-                      context: context,
-                      color: Colors.black,
-                    ),
-                    fit: FlexFit.tight,
+                  child: Small(
+                    text: pointsToNextLevel > 0
+                        ? "${(value * 10).round() / 10}/${nextLevel.value.round()} $unit"
+                        : "Ziel erreicht!",
+                    context: context,
+                    color: Colors.black,
                   ),
                 ),
               ],
