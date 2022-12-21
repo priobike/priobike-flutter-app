@@ -355,7 +355,7 @@ class ProfileViewState extends State<ProfileView> {
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }
@@ -423,7 +423,7 @@ class ProfileViewState extends State<ProfileView> {
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }
@@ -492,7 +492,7 @@ class ProfileViewState extends State<ProfileView> {
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }

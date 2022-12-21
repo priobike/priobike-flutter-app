@@ -42,7 +42,7 @@ class Weather with ChangeNotifier {
       }
 
       var decoded = jsonDecode(response.body);
-      log.i("Fetched weather forecast: $decoded");
+      log.i("Fetched weather forecast.");
       forecast = WeatherForecastResponse.fromJson(decoded).weather;
 
       // Fetch the current weather.
@@ -56,7 +56,7 @@ class Weather with ChangeNotifier {
       }
 
       decoded = jsonDecode(response.body);
-      log.i("Fetched current weather: $decoded");
+      log.i("Fetched current weather.");
       current = CurrentWeatherResponse.fromJson(decoded).weather;
     } catch (e, stacktrace) {
       log.e("Failed to fetch weather: $e $stacktrace");

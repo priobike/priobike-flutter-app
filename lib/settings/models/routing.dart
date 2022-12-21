@@ -9,7 +9,7 @@ extension RoutingDescription on RoutingEndpoint {
       case RoutingEndpoint.graphhopper:
         return "Standard";
       case RoutingEndpoint.graphhopperDRN:
-        return "DRN (Experimentell)";
+        return "DRN (Empfohlen)";
     }
   }
 }

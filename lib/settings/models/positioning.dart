@@ -14,9 +14,9 @@ extension PositioningDescription on PositioningMode {
       case PositioningMode.gnss:
         return "GPS";
       case PositioningMode.follow18kmh:
-        return "Durchschnittlicher Radfahrer: Route mit 18 km/h folgen";
+        return "Route mit 18 km/h folgen";
       case PositioningMode.follow40kmh:
-        return "Sehr schneller Radfahrer: Route mit 40 km/h folgen";
+        return "Route mit 40 km/h folgen";
       case PositioningMode.recordedDresden:
         return "Aufgezeichnet (Dresden, Teststrecke POT)";
       case PositioningMode.recordedHamburg:

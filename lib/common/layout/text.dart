@@ -76,8 +76,8 @@ class Content extends Text {
           overflow: overflow,
           maxLines: maxLines,
           textAlign: textAlign,
-          style: Theme.of(context).textTheme.bodyMedium!.merge(
-                TextStyle(color: color),
+          style: Theme.of(context).textTheme.headline2!.merge(
+                TextStyle(color: color, fontWeight: FontWeight.normal),
               ),
         );
 }
