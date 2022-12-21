@@ -244,12 +244,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
-    // Check if symbol is a RouteLabel.
-    // if (symbol.data != null && symbol.data!["isRouteLabel"] != null && symbol.data!["isRouteLabel"]) {
-    //   r.Route selectedRoute = r.Route.fromJson(symbol.data!["data"]);
-    //   routing.switchToRoute(context, selectedRoute);
-    // }
-
     if (id is! String) return;
     // Map the ids of the layers to the corresponding feature.
     if (id.startsWith("route-")) {
