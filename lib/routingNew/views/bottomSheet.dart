@@ -521,7 +521,10 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   Content(text: "n.A.", context: context),
                   const SizedBox(width: 10),
                   const Icon(Icons.traffic),
-                  Content(text: routing.selectedRoute!.signalGroups.length.toStringAsFixed(0), context: context),
+                  Content(
+                      text: (routing.selectedRoute!.crossings.length)
+                          .toStringAsFixed(0),
+                      context: context),
                 ]),
               ),
               Row(
@@ -838,7 +841,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               duration: const Duration(milliseconds: 250),
               child: Stack(children: [
                 ListView(
-                  addAutomaticKeepAlives: true,
                   padding: const EdgeInsets.all(0),
                   controller: scrollController,
                   children: [

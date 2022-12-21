@@ -214,7 +214,8 @@ class RouteLabelLayer {
     final mapController = Provider.of<MapController>(context, listen: false);
 
     // Conditions for having route labels.
-    if (mapController.controller!.cameraPosition != null &&
+    if (mapController.controller != null &&
+        mapController.controller!.cameraPosition != null &&
         routing.allRoutes != null &&
         routing.allRoutes!.length >= 2 &&
         routing.selectedRoute != null) {
@@ -253,7 +254,6 @@ class RouteLabelLayer {
 
       // If all in bounds then we don't have to calculate new positions.
       // But update route labels in case the selected route changed.
-      print(routing.routeLabelCoords.length);
       if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoords.length) {
         for (var i = 0; i < routing.allRoutes!.length; i++) {
           features.add(

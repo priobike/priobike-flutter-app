@@ -235,8 +235,6 @@ class RoutingBarState extends State<RoutingBar> {
   void swapWaypoints() {
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.length != 2) return;
 
-
-
     final waypointsSwapped = [routing.selectedWaypoints![1], routing.selectedWaypoints![0]];
 
     routing.selectWaypoints(waypointsSwapped);

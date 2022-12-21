@@ -159,9 +159,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
       fitCameraToRouteBounds();
-      if (layerController != null) {
-        RouteLabelLayer(context).update(layerController!);
-      }
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
       status.needsLayout[viewId] = false;
@@ -413,7 +410,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
-    if (widget.withRouting) {
+    if (widget.withRouting && layerController != null) {
       await RouteLabelLayer(context).update(layerController!);
     }
   }
