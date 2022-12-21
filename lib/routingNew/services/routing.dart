@@ -422,6 +422,8 @@ class Routing with ChangeNotifier {
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
     await status.fetch(context, routes.first.signalGroups, routes.first.crossings);
 
+    // Force new route label coords.
+    routeLabelCoords = [];
     notifyListeners();
     return routes;
   }
