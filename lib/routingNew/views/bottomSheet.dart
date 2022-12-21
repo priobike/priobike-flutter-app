@@ -838,6 +838,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               duration: const Duration(milliseconds: 250),
               child: Stack(children: [
                 ListView(
+                  addAutomaticKeepAlives: true,
                   padding: const EdgeInsets.all(0),
                   controller: scrollController,
                   children: [

@@ -158,8 +158,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         discomforts.needsLayout[viewId] != false ||
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
-      print("2");
       fitCameraToRouteBounds();
+      if (layerController != null) {
+        RouteLabelLayer(context).update(layerController!);
+      }
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
       status.needsLayout[viewId] = false;
@@ -241,7 +243,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await DiscomfortsLayer(context).update(layerController!);
     await TrafficLightsLayer(context).update(layerController!);
     await OfflineCrossingsLayer(context).update(layerController!);
-    await RouteLabelLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -371,10 +372,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       below: selectedRoute,
     );
     await RouteLabelLayer(context).install(layerController!, iconSize: ppi / 3);
-
     await loadRouteMapLayers();
-    print("1");
     await fitCameraToRouteBounds();
+    await RouteLabelLayer(context).update(layerController!);
     await displayCurrentUserLocation();
     await loadGeoLayers();
   }

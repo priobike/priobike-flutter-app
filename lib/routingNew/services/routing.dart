@@ -193,6 +193,7 @@ class Routing with ChangeNotifier {
     nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
+    routeLabelCoords = [];
     notifyListeners();
   }
 
