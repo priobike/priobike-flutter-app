@@ -333,12 +333,11 @@ class SettingsViewState extends State<SettingsView> {
                       ],
                     ),
                     const SmallVSpace(),
-                    if (feature.canEnableInternalFeatures)
+                    if (feature.canEnableInternalFeatures) ...[
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
                         child: Content(text: "Interne Testfeatures", context: context),
                       ),
-                    if (feature.canEnableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -347,7 +346,8 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
+                    ],
+                    if (settings.enableInternalFeatures) ...[
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -356,7 +356,6 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -375,7 +374,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -394,7 +392,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -414,7 +411,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -434,7 +430,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -454,7 +449,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -463,7 +457,6 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -472,7 +465,6 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -481,7 +473,6 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
                         ),
                       ),
-                    if (settings.enableInternalFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -490,14 +481,13 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
                         ),
                       ),
-                    if (feature.canEnableBetaFeatures)
+                    ],
+                    if (feature.canEnableBetaFeatures) ...[
                       const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                    if (feature.canEnableBetaFeatures)
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
                         child: Content(text: "Beta Testfeatures", context: context),
                       ),
-                    if (feature.canEnableBetaFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -506,7 +496,8 @@ class SettingsViewState extends State<SettingsView> {
                           callback: () => settings.setEnableBetaFeatures(!settings.enableBetaFeatures),
                         ),
                       ),
-                    if (settings.enableBetaFeatures)
+                    ],
+                    if (settings.enableBetaFeatures) ...[
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -526,7 +517,14 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableBetaFeatures)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                        child: Small(
+                          text:
+                              "Innerhalb von Hamburg kannst du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
+                          context: context,
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -545,7 +543,6 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableBetaFeatures)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
@@ -554,6 +551,15 @@ class SettingsViewState extends State<SettingsView> {
                             callback: () =>
                                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                        child: Small(
+                          text:
+                              "Wenn du Probleme mit der App hast, kannst du uns gerne die Logs schicken. Dann können wir genau sehen, was bei dir kaputt ist.",
+                          context: context,
+                        ),
+                      ),
+                    ],
                     const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
                     const SmallVSpace(),
                     Padding(
@@ -592,6 +598,14 @@ class SettingsViewState extends State<SettingsView> {
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                      child: Small(
+                        text:
+                            "Aus Sicherheitsgründen ist die Fahrtansicht nur einstellbar, wenn du die App nicht während der Fahrt nutzt.",
+                        context: context,
+                      ),
+                    ),
                     const SmallVSpace(),
                     SettingsElement(
                       title: "Tacho-Spanne",
@@ -606,6 +620,14 @@ class SettingsViewState extends State<SettingsView> {
                               title: (SpeedMode e) => e.description,
                               callback: onSelectSpeedMode);
                         },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                      child: Small(
+                        text:
+                            "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
+                        context: context,
                       ),
                     ),
                     const SmallVSpace(),
@@ -624,6 +646,13 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         );
                       },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                      child: Small(
+                        text: "Feedback ist jederzeit auch möglich an: 📧 priobike@tu-dresden.de",
+                        context: context,
+                      ),
                     ),
                     const SmallVSpace(),
                     const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
@@ -669,7 +698,7 @@ class SettingsViewState extends State<SettingsView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: Small(
-                          text: "PrioBike v${feature.appVersion} ${feature.gitHead}",
+                          text: "Info für Nerds: PrioBike v${feature.appVersion} ${feature.gitHead}",
                           color: Colors.grey,
                           context: context),
                     ),

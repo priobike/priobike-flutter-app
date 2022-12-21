@@ -7,9 +7,9 @@ extension PredictionModeDescription on PredictionMode {
   String get description {
     switch (this) {
       case PredictionMode.useSessionWrapper:
-        return "Sitzungsbasiertes, statistisches Verfahren (Empfohlen)";
+        return "Session Wrapper (Standard)";
       case PredictionMode.usePredictor:
-        return "Clustering-Verfahren (Experimentell)";
+        return "Predictor (Experimentell)";
     }
   }
 
