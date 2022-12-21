@@ -2,6 +2,9 @@
 
 # See: https://docs.flutter.dev/deployment/cd#post-clone-script
 
+# print commands before executing them
+set -x
+
 # Fail on any error.
 set -e
 
@@ -26,6 +29,6 @@ flutter pub get
 brew install cocoapods
 
 # Install CocoaPods dependencies.
-cd ios && pod install --allow-root # run `pod install` in the `ios` directory.
+cd ios && pod install # run `pod install` in the `ios` directory.
 
 exit 0
