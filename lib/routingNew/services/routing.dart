@@ -146,7 +146,7 @@ class Routing with ChangeNotifier {
     if (selectedWaypoints == null) {
       selectedWaypoints = [waypoint];
     } else {
-      selectedWaypoints = selectedWaypoints! + [waypoint];
+      selectedWaypoints!.add(waypoint);
     }
     notifyListeners();
   }
