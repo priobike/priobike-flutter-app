@@ -172,7 +172,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
     if (mapboxMapController == null || !mounted) return;
-    if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
+    // FIXME with changenotifier at some point this condition needs to be adapted.
+    // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
+    if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 750));
     await mapboxMapController?.animateCamera(
@@ -404,7 +406,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
-    if (widget.withRouting && layerController != null) {
+    if (widget.withRouting &&
+        layerController != null &&
+        mapboxMapController != null &&
+        !mapboxMapController!.isCameraMoving) {
       await RouteLabelLayer(context).update(layerController!);
     }
   }
