@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routingNew/services/bottomSheetState.dart';
 import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';

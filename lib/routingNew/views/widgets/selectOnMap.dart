@@ -50,7 +50,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
-  /// The text controller for the name textfield.
+  /// The text controller for the name textField.
   final TextEditingController nameController = TextEditingController();
 
   @override
