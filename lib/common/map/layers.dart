@@ -4,7 +4,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/services/ride/interface.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';

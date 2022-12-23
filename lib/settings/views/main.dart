@@ -222,26 +222,9 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a predictor mode is selected.
   Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
     // Tell the settings service that we selected the new predictor mode.
-    final didChange = await settings.selectPredictionMode(predictionMode);
+    await settings.selectPredictionMode(predictionMode);
 
     Navigator.pop(context);
-
-    // Show an alert that the app needs to be restarted.
-    if (didChange) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Neustart erforderlich'),
-          content: const Text('Diese Änderung wird erst nach einem Neustart wirksam.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
   }
 
   /// A callback that is executed when a sg labels mode is selected.

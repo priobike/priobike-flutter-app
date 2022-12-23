@@ -6,7 +6,7 @@ import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
-import 'package:priobike/ride/services/ride/interface.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';

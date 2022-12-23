@@ -84,13 +84,9 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Future<bool> selectPredictionMode(PredictionMode predictionMode) async {
-    if (this.predictionMode == predictionMode) {
-      return false;
-    }
+  Future<void> selectPredictionMode(PredictionMode predictionMode) async {
     this.predictionMode = predictionMode;
     await store();
-    return true;
   }
 
   Future<void> selectPositioningMode(PositioningMode positioningMode) async {
@@ -164,7 +160,7 @@ class Settings with ChangeNotifier {
     this.enablePerformanceOverlay = false,
     this.didViewWarning = false,
     this.backend = Backend.production,
-    this.predictionMode = PredictionMode.useSessionWrapper,
+    this.predictionMode = PredictionMode.usePredictionService,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,

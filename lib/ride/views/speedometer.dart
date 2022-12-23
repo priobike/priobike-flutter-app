@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/services/ride/interface.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -88,9 +89,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
     var colors = <Color>[];
     for (var i = 0; i < phases.length; i++) {
       final phase = phases[i];
-      final quality = qualities[i];
+      final quality = max(0, qualities[i]);
       final opacity = quality;
-      colors.add(phase.color.withOpacity(opacity));
+      colors.add(Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ?? defaultGaugeColor);
     }
 
     // Since we want the color steps not by second, but by speed, we map the stops accordingly
