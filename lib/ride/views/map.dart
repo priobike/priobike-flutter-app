@@ -86,8 +86,15 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
-    await adaptToChangedPosition(); // React to changes in the selected traffic light.
     await TrafficLightLayer(context).update(layerController!);
+
+    if (ride.userSelectedSG != null) {
+      // The camera target is the selected SG.
+      final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
+      await mapController!.animateCamera(
+        CameraUpdate.newLatLng(cameraTarget),
+      );
+    }
   }
 
   /// Adapt the map controller to a changed position.
@@ -138,21 +145,7 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = userSnapHeading; // Look into the direction of the user.
     }
 
-    if (ride.userSelectedSG != null) {
-      // The camera target is the selected SG.
-      final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
-      await mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            bearing: cameraHeading,
-            target: cameraTarget,
-            zoom: zoom,
-            tilt: 60,
-          ),
-        ),
-        duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */),
-      );
-    } else {
+    if (ride.userSelectedSG == null) {
       // The camera target is the estimated user position.
       final cameraTarget = LatLng(userSnapPosLatLng.latitude, userSnapPosLatLng.longitude);
       await mapController!.animateCamera(
