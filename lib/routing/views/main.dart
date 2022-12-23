@@ -12,7 +12,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -140,9 +139,6 @@ class RoutingViewState extends State<RoutingView> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    // Show the ride view directly if the user has selected his preferred ride view.
-    final preferredRideView = Provider.of<Settings>(context, listen: false).ridePreference;
-
     void startRide() => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) {
@@ -151,7 +147,7 @@ class RoutingViewState extends State<RoutingView> {
               // the result handler of the RouteView's host.
               return WillPopScope(
                 onWillPop: () async => false,
-                child: preferredRideView == null ? const RideSelectionView() : const RideView(),
+                child: const RideView(),
               );
             },
           ),

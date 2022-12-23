@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/services/ride/interface.dart';
-import 'package:priobike/ride/views/button.dart';
+import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/cancel_button.dart';
 import 'package:provider/provider.dart';
 
 class RideTrafficLightView extends StatefulWidget {

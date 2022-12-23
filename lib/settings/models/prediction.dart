@@ -1,21 +1,21 @@
 enum PredictionMode {
-  useSessionWrapper,
+  usePredictionService,
   usePredictor,
 }
 
 extension PredictionModeDescription on PredictionMode {
   String get description {
     switch (this) {
-      case PredictionMode.useSessionWrapper:
-        return "Session Wrapper (Standard)";
+      case PredictionMode.usePredictionService:
+        return "Standard";
       case PredictionMode.usePredictor:
-        return "Predictor (Experimentell)";
+        return "Experimentell";
     }
   }
 
   String get statusProviderSubPath {
     switch (this) {
-      case PredictionMode.useSessionWrapper:
+      case PredictionMode.usePredictionService:
         return "prediction-monitor-nginx";
       case PredictionMode.usePredictor:
         return "predictor-nginx/status";

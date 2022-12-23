@@ -4,7 +4,6 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
@@ -44,9 +43,6 @@ class Settings with ChangeNotifier {
   /// The signal group labels mode.
   SGLabelsMode sgLabelsMode;
 
-  /// The ride views preference.
-  RidePreference? ridePreference;
-
   /// The colorMode preference
   ColorMode colorMode;
 
@@ -84,13 +80,9 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Future<bool> selectPredictionMode(PredictionMode predictionMode) async {
-    if (this.predictionMode == predictionMode) {
-      return false;
-    }
+  Future<void> selectPredictionMode(PredictionMode predictionMode) async {
     this.predictionMode = predictionMode;
     await store();
-    return true;
   }
 
   Future<void> selectPositioningMode(PositioningMode positioningMode) async {
@@ -110,11 +102,6 @@ class Settings with ChangeNotifier {
 
   Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode) async {
     this.sgLabelsMode = sgLabelsMode;
-    await store();
-  }
-
-  Future<void> selectRidePreference(RidePreference ridePreference) async {
-    this.ridePreference = ridePreference;
     await store();
   }
 
@@ -143,14 +130,6 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  /// Delete the ride preference to debug the ride selection view.
-  Future<void> deleteRidePreference() async {
-    final storage = await SharedPreferences.getInstance();
-    await storage.remove("priobike.settings.ridePreference");
-    ridePreference = null;
-    notifyListeners();
-  }
-
   Future<void> deleteWarning() async {
     final storage = await SharedPreferences.getInstance();
     await storage.setBool("priobike.routing.warning", false);
@@ -164,12 +143,11 @@ class Settings with ChangeNotifier {
     this.enablePerformanceOverlay = false,
     this.didViewWarning = false,
     this.backend = Backend.production,
-    this.predictionMode = PredictionMode.useSessionWrapper,
+    this.predictionMode = PredictionMode.usePredictionService,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,
     this.sgLabelsMode = SGLabelsMode.disabled,
-    this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
@@ -237,16 +215,10 @@ class Settings with ChangeNotifier {
     }
 
     // All remaining settings.
-    final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
     final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
 
-    if (ridePreferenceStr != null) {
-      ridePreference = RidePreference.values.byName(ridePreferenceStr);
-    } else {
-      ridePreference = null;
-    }
     if (colorModeStr != null) {
       colorMode = ColorMode.values.byName(colorModeStr);
     }
@@ -280,12 +252,6 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
     await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
 
-    if (ridePreference != null) {
-      await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
-    } else {
-      await storage.remove("priobike.settings.ridePreference");
-    }
-
     notifyListeners();
   }
 
@@ -301,7 +267,6 @@ class Settings with ChangeNotifier {
         "rerouting": rerouting.name,
         "routingEndpoint": routingEndpoint.name,
         "sgLabelsMode": sgLabelsMode.name,
-        "ridePreference": ridePreference?.name,
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,

@@ -10,7 +10,6 @@ import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
-import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -26,7 +25,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -222,26 +220,9 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a predictor mode is selected.
   Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
     // Tell the settings service that we selected the new predictor mode.
-    final didChange = await settings.selectPredictionMode(predictionMode);
+    await settings.selectPredictionMode(predictionMode);
 
     Navigator.pop(context);
-
-    // Show an alert that the app needs to be restarted.
-    if (didChange) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Neustart erforderlich'),
-          content: const Text('Diese Änderung wird erst nach einem Neustart wirksam.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -274,14 +255,6 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
     await settings.selectRerouting(rerouting);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a ride views preference is selected.
-  Future<void> onSelectRidePreference(RidePreference ridePreference) async {
-    // Tell the settings service that we selected the new ridePreference.
-    await settings.selectRidePreference(ridePreference);
 
     Navigator.pop(context);
   }
@@ -468,14 +441,6 @@ class SettingsViewState extends State<SettingsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
-                          title: "Fahrtansicht zurücksetzen",
-                          icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).deleteRidePreference(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
                           callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
@@ -583,27 +548,6 @@ class SettingsViewState extends State<SettingsView> {
                                 callback: onChangeColorMode);
                           },
                         ),
-                      ),
-                    ),
-                    const SmallVSpace(),
-                    SettingsElement(
-                      title: "Fahrtansicht",
-                      subtitle: settings.ridePreference?.description,
-                      icon: Icons.pedal_bike,
-                      callback: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const RideSelectionView(
-                            isolatedViewUsage: true,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                      child: Small(
-                        text:
-                            "Aus Sicherheitsgründen ist die Fahrtansicht nur einstellbar, wenn du die App nicht während der Fahrt nutzt.",
-                        context: context,
                       ),
                     ),
                     const SmallVSpace(),

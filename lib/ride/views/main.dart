@@ -5,17 +5,17 @@ import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride/interface.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
+import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -110,10 +110,9 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    Widget? view;
-    switch (settings.ridePreference) {
-      case RidePreference.speedometerView:
-        view = Stack(
+    return Scaffold(
+      body: ScreenTrackingView(
+        child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: const [
@@ -121,15 +120,10 @@ class RideViewState extends State<RideView> {
             RideSpeedometerView(),
             DangerButton(),
             DatastreamView(),
+            RideSGButton(),
           ],
-        );
-        break;
-      default:
-        view = Container();
-    }
-
-    return Scaffold(
-      body: ScreenTrackingView(child: view),
+        ),
+      ),
     );
   }
 }
