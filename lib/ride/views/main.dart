@@ -16,7 +16,6 @@ import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -111,10 +110,9 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    Widget? view;
-    switch (settings.ridePreference) {
-      case RidePreference.speedometerView:
-        view = Stack(
+    return Scaffold(
+      body: ScreenTrackingView(
+        child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: const [
@@ -124,14 +122,8 @@ class RideViewState extends State<RideView> {
             DatastreamView(),
             RideSGButton(),
           ],
-        );
-        break;
-      default:
-        view = Container();
-    }
-
-    return Scaffold(
-      body: ScreenTrackingView(child: view),
+        ),
+      ),
     );
   }
 }
