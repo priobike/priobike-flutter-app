@@ -83,6 +83,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> {
       return;
     }
 
+    // Don't display the gauge if the user has overridden the signal group.
+    // This is to prevent users from adapting to something else then the upcoming signal.
+    // Additionally, the distance is currently only calculated based on the upcoming signal group.
+    // Therefore the gauge would show incorrect values if the user has overridden the signal group.
+    if (ride.userSelectedSG != null) {
+      gaugeColors = [defaultGaugeColor];
+      gaugeStops = [];
+      return;
+    }
+
     final phases = ride.calcPhasesFromNow!;
     final qualities = ride.calcQualitiesFromNow!;
 

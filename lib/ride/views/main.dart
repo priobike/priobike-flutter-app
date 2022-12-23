@@ -11,6 +11,7 @@ import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
+import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -121,6 +122,7 @@ class RideViewState extends State<RideView> {
             RideSpeedometerView(),
             DangerButton(),
             DatastreamView(),
+            RideSGButton(),
           ],
         );
         break;

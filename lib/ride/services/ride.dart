@@ -68,6 +68,15 @@ class Ride with ChangeNotifier {
   /// The current signal group, calculated periodically.
   Sg? calcCurrentSG;
 
+  /// The signal group that the user wants to see.
+  Sg? userSelectedSG;
+
+  /// The current signal group index, calculated periodically.
+  int? calcCurrentSGIndex;
+
+  /// The current signal group index, selected by the user.
+  int? userSelectedSGIndex;
+
   /// The calculated distance to the next signal group.
   double? calcDistanceToNextSG;
 
@@ -76,6 +85,68 @@ class Ride with ChangeNotifier {
 
   /// The predictions received during the ride.
   final List<dynamic> predictions = [];
+
+  /// If the user can select the next signal group.
+  bool get userCanSelectNextSG {
+    if (route == null) return false;
+    if (userSelectedSGIndex != null) {
+      return userSelectedSGIndex! < route!.signalGroups.length - 1;
+    }
+    if (calcCurrentSGIndex == null) {
+      return false;
+    }
+    return calcCurrentSGIndex! < route!.signalGroups.length - 1;
+  }
+
+  /// If the user can select the previous signal group.
+  bool get userCanSelectPreviousSG {
+    if (route == null) return false;
+    if (userSelectedSGIndex != null) {
+      return userSelectedSGIndex! > 0;
+    }
+    if (calcCurrentSGIndex == null) {
+      return false;
+    }
+    return calcCurrentSGIndex! > 0;
+  }
+
+  /// Select the next signal group.
+  void selectNextSG() {
+    if (route == null) return;
+    if (!userCanSelectNextSG) return;
+    if (userSelectedSGIndex == null) {
+      userSelectedSGIndex = calcCurrentSGIndex! + 1;
+    } else {
+      userSelectedSGIndex = userSelectedSGIndex! + 1;
+    }
+    userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
+    onSelectNextSignalGroup?.call(userSelectedSG);
+    notifyListeners();
+  }
+
+  /// Select the previous signal group.
+  void selectPreviousSG() {
+    if (route == null) return;
+    if (!userCanSelectPreviousSG) return;
+    if (userSelectedSGIndex == null) {
+      userSelectedSGIndex = calcCurrentSGIndex! - 1;
+    } else {
+      userSelectedSGIndex = userSelectedSGIndex! - 1;
+    }
+    userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
+    onSelectNextSignalGroup?.call(userSelectedSG);
+    notifyListeners();
+  }
+
+  /// Unselect the current signal group.
+  void unselectSG() {
+    if (userSelectedSG == null) return;
+    if (userSelectedSGIndex == null) return;
+    userSelectedSG = null;
+    userSelectedSGIndex = null;
+    onSelectNextSignalGroup?.call(calcCurrentSG);
+    notifyListeners();
+  }
 
   /// Unsubscribe from a datastream.
   void unsubscribe(String? sgId) {
@@ -202,9 +273,12 @@ class Ride with ChangeNotifier {
     // Find the next signal group.
     final nextNavNode = route!.route[shortestDistanceIndex + 1];
     Sg? nextSg;
-    for (final sg in route!.signalGroups) {
+    int? nextSgIndex;
+    for (int i = 0; i < route!.signalGroups.length; i++) {
+      final sg = route!.signalGroups[i];
       if (sg.id == nextNavNode.signalGroupId) {
         nextSg = sg;
+        nextSgIndex = i;
         break;
       }
     }
@@ -212,6 +286,7 @@ class Ride with ChangeNotifier {
       log.i("Unsubscribing from signal group ${calcCurrentSG?.id}");
       unsubscribe(calcCurrentSG?.id);
       calcCurrentSG = nextSg;
+      calcCurrentSGIndex = nextSgIndex;
       onSelectNextSignalGroup?.call(calcCurrentSG);
       // Reset all values.
       prediction = null;
@@ -220,7 +295,6 @@ class Ride with ChangeNotifier {
       calcCurrentPhaseChangeTime = null;
       calcCurrentSignalPhase = null;
       calcPredictionQuality = null;
-      calcDistanceToNextSG = null;
       log.i("Subscribing to signal group ${calcCurrentSG?.id}");
       subscribe(calcCurrentSG?.id);
     }
@@ -247,8 +321,6 @@ class Ride with ChangeNotifier {
       calcCurrentPhaseChangeTime = null;
       calcCurrentSignalPhase = null;
       calcPredictionQuality = null;
-      calcCurrentSG = null;
-      calcDistanceToNextSG = null;
       notifyListeners();
     }
 
@@ -395,6 +467,7 @@ class Ride with ChangeNotifier {
     calcCurrentSignalPhase = null;
     calcPredictionQuality = null;
     calcCurrentSG = null;
+    calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
     predictions.clear();
     needsLayout = {};
