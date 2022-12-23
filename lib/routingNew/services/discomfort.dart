@@ -49,25 +49,25 @@ class Discomforts with ChangeNotifier {
     if (foundDiscomforts == null) return;
     if (idx < 0 || idx >= foundDiscomforts!.length) return;
     selectedDiscomfort = foundDiscomforts![idx];
-    notifyListeners();
+    super.notifyListeners();
   }
 
   /// Unselect a discomfort.
   unselectDiscomfort() {
     selectedDiscomfort = null;
-    notifyListeners();
+    super.notifyListeners();
   }
 
   /// Select a signalGroup.
   selectTrafficLight() {
     trafficLightClicked = true;
-    notifyListeners();
+    super.notifyListeners();
   }
 
   /// Unselect a signalGroup.
   unselectTrafficLight() {
     trafficLightClicked = false;
-    notifyListeners();
+    super.notifyListeners();
   }
 
   /// Get the coordinates for a given segment.

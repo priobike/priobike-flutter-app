@@ -726,6 +726,7 @@ class OfflineCrossingsLayer {
       if (crossing.connected) continue;
       features.add(
         {
+          "id": "traffic-light",
           "type": "Feature",
           "geometry": {
             "type": "Point",
@@ -768,7 +769,7 @@ class OfflineCrossingsLayer {
           ""
         ],
       ),
-      enableInteraction: false,
+      enableInteraction: true,
       belowLayerId: below,
     );
     return "offline-crossings-icons";
