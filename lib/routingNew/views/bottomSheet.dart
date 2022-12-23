@@ -8,6 +8,7 @@ import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/instructions.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,6 +116,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
 
+  /// The associated sg status service, which is injected by the provider.
+  late PredictionSGStatus predictionStatus;
+
   /// The minimum bottom height of the bottomSheet
   static double bottomSnapRatio = 0.175;
 
@@ -143,6 +147,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     routing = Provider.of<Routing>(context);
     places = Provider.of<Places>(context);
     shortcuts = Provider.of<Shortcuts>(context);
+    predictionStatus = Provider.of<PredictionSGStatus>(context);
     super.didChangeDependencies();
   }
 
@@ -522,7 +527,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   const SizedBox(width: 10),
                   const Icon(Icons.traffic),
                   Content(
-                      text: (routing.selectedRoute!.crossings.length)
+                      text: (routing.selectedRoute!.signalGroups.length + predictionStatus.disconnected)
                           .toStringAsFixed(0),
                       context: context),
                 ]),
