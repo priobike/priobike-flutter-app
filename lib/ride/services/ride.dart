@@ -65,6 +65,9 @@ class Ride with ChangeNotifier {
   /// The prediction quality in [0.0, 1.0], calculated periodically.
   double? calcPredictionQuality;
 
+  /// The currently subscribed signal group.
+  Sg? subscribedSG;
+
   /// The current signal group, calculated periodically.
   Sg? calcCurrentSG;
 
@@ -110,6 +113,34 @@ class Ride with ChangeNotifier {
     return calcCurrentSGIndex! > 0;
   }
 
+  /// Subscribe to the signal group.
+  void selectSG(Sg? sg) {
+    if (!navigationIsActive) return;
+
+    if (subscribedSG != null && subscribedSG != sg) {
+      log.i("Unsubscribing from signal group ${subscribedSG?.id}");
+      client?.unsubscribe(subscribedSG!.id);
+
+      // Reset all values that were calculated for the previous signal group.
+      prediction = null;
+      calcPhasesFromNow = null;
+      calcQualitiesFromNow = null;
+      calcCurrentPhaseChangeTime = null;
+      calcCurrentSignalPhase = null;
+      calcPredictionQuality = null;
+      calcDistanceToNextSG = null;
+    }
+
+    if (sg != null && sg != subscribedSG) {
+      log.i("Subscribing to signal group ${sg.id}");
+      client?.subscribe(sg.id, MqttQos.atLeastOnce);
+    }
+
+    subscribedSG = sg;
+
+    onSelectNextSignalGroup?.call(calcCurrentSG);
+  }
+
   /// Select the next signal group.
   void selectNextSG() {
     if (route == null) return;
@@ -120,7 +151,7 @@ class Ride with ChangeNotifier {
       userSelectedSGIndex = userSelectedSGIndex! + 1;
     }
     userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
-    onSelectNextSignalGroup?.call(userSelectedSG);
+    selectSG(userSelectedSG);
     notifyListeners();
   }
 
@@ -135,6 +166,7 @@ class Ride with ChangeNotifier {
     }
     userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
     onSelectNextSignalGroup?.call(userSelectedSG);
+    selectSG(userSelectedSG);
     notifyListeners();
   }
 
@@ -145,28 +177,7 @@ class Ride with ChangeNotifier {
     userSelectedSG = null;
     userSelectedSGIndex = null;
     onSelectNextSignalGroup?.call(calcCurrentSG);
-    notifyListeners();
-  }
-
-  /// Unsubscribe from a datastream.
-  void unsubscribe(String? sgId) {
-    if (!navigationIsActive) return;
-    if (sgId == null) return;
-    if (!subscriptions.contains(sgId)) return;
-    final t = sgId; // hamburg/...
-    client?.unsubscribe(t);
-    subscriptions.remove(t);
-    notifyListeners();
-  }
-
-  /// Subscribe to a datastream.
-  void subscribe(String? sgId) {
-    if (!navigationIsActive) return;
-    if (sgId == null) return;
-    if (subscriptions.contains(sgId)) return;
-    final t = sgId; // hamburg/...
-    client?.subscribe(t, MqttQos.exactlyOnce);
-    subscriptions.add(t);
+    selectSG(calcCurrentSG);
     notifyListeners();
   }
 
@@ -283,20 +294,10 @@ class Ride with ChangeNotifier {
       }
     }
     if (calcCurrentSG != nextSg) {
-      log.i("Unsubscribing from signal group ${calcCurrentSG?.id}");
-      unsubscribe(calcCurrentSG?.id);
       calcCurrentSG = nextSg;
       calcCurrentSGIndex = nextSgIndex;
-      onSelectNextSignalGroup?.call(calcCurrentSG);
-      // Reset all values.
-      prediction = null;
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
-      calcPredictionQuality = null;
-      log.i("Subscribing to signal group ${calcCurrentSG?.id}");
-      subscribe(calcCurrentSG?.id);
+      // If the user didn't override the current sg, select it.
+      if (userSelectedSG == null) selectSG(nextSg);
     }
     // Calculate the distance to the next signal group.
     calcDistanceToNextSG = nextNavNode.distanceToNextSignal != null
@@ -443,12 +444,8 @@ class Ride with ChangeNotifier {
 
   /// Stop the navigation.
   Future<void> stopNavigation(BuildContext context) async {
-    for (final t in subscriptions) {
-      client?.unsubscribe(t);
-    }
     client?.disconnect();
     client = null;
-    subscriptions.clear();
     navigationIsActive = false;
     notifyListeners();
   }
@@ -459,7 +456,6 @@ class Ride with ChangeNotifier {
     navigationIsActive = false;
     client?.disconnect();
     client = null;
-    subscriptions.clear();
     calcLastTime = null;
     calcPhasesFromNow = null;
     calcQualitiesFromNow = null;

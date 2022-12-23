@@ -451,7 +451,7 @@ class TrafficLightLayer {
         }
         break;
     }
-    final sgPos = ride.calcCurrentSG?.position;
+    final sgPos = ride.userSelectedSG?.position ?? ride.calcCurrentSG?.position;
     if (sgQuality == null || sgPos == null) return;
     if (sgQuality < Ride.qualityThreshold) return;
 
