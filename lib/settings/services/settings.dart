@@ -194,7 +194,8 @@ class Settings with ChangeNotifier {
           predictionMode = PredictionMode.values.byName(predictionModeStr);
         } catch (e) {
           // set predictionMode to default value
-          log.i("Invalid predictionModeStr: $predictionModeStr. Setting predictionMode to default value (usePredictionService).")
+          log.i(
+              "Invalid predictionModeStr: $predictionModeStr. Setting predictionMode to default value (usePredictionService).");
           predictionMode = PredictionMode.usePredictionService;
         }
       }
