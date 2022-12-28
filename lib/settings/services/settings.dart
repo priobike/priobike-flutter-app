@@ -9,6 +9,9 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:priobike/logging/logger.dart';
+
+final log = Logger("settings.dart");
 
 class Settings with ChangeNotifier {
   var hasLoaded = false;
@@ -186,8 +189,16 @@ class Settings with ChangeNotifier {
         backend = Backend.values.byName(backendStr);
       }
       if (predictionModeStr != null) {
-        predictionMode = PredictionMode.values.byName(predictionModeStr);
+        // check if predictionModeStr is a valid PredictionMode
+        try {
+          predictionMode = PredictionMode.values.byName(predictionModeStr);
+        } catch (e) {
+          // set predictionMode to default value
+          log.i("Invalid predictionModeStr: $predictionModeStr. Setting predictionMode to default value (usePredictionService).")
+          predictionMode = PredictionMode.usePredictionService;
+        }
       }
+
       if (positioningModeStr != null) {
         positioningMode = PositioningMode.values.byName(positioningModeStr);
       }
