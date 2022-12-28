@@ -202,12 +202,14 @@ class Settings with ChangeNotifier {
         try {
           predictionMode = PredictionMode.values.byName(predictionModeStr);
         } catch (e) {
-          log.i(
-              "Invalid predictionModeStr: $predictionModeStr. Setting predictionMode to default value (usePredictionService).");
+          log.i("Invalid predictionModeStr: " +
+              predictionModeStr.toString() +
+              ". Setting predictionMode to default value" +
+              PredictionMode.usePredictionService.toString() +
+              ".");
           predictionMode = PredictionMode.usePredictionService;
         }
       }
-
       if (positioningModeStr != null) {
         positioningMode = PositioningMode.values.byName(positioningModeStr);
       }
