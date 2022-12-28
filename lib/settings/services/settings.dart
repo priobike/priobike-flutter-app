@@ -194,7 +194,7 @@ class Settings with ChangeNotifier {
         } catch (e) {
           log.i("Invalid predictionModeStr: " +
               predictionModeStr.toString() +
-              ". Setting predictionMode to default value" +
+              ". Setting predictionMode to default value " +
               PredictionMode.usePredictionService.toString() +
               ".");
           predictionMode = PredictionMode.usePredictionService;
