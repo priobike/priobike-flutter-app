@@ -199,11 +199,9 @@ class Settings with ChangeNotifier {
         backend = Backend.values.byName(backendStr);
       }
       if (predictionModeStr != null) {
-        // check if predictionModeStr is a valid PredictionMode
         try {
           predictionMode = PredictionMode.values.byName(predictionModeStr);
         } catch (e) {
-          // set predictionMode to default value
           log.i(
               "Invalid predictionModeStr: $predictionModeStr. Setting predictionMode to default value (usePredictionService).");
           predictionMode = PredictionMode.usePredictionService;
