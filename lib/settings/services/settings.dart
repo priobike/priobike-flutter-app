@@ -177,6 +177,113 @@ class Settings with ChangeNotifier {
     return backend;
   }
 
+  /// Load the beta settings from the shared preferences.
+  Future<void> loadBetaSettings(SharedPreferences storage) async {
+    enableBetaFeatures = (storage.getBool("priobike.settings.enableBetaFeatures") ?? false);
+
+    final reroutingStr = storage.getString("priobike.settings.rerouting");
+    final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
+
+    if (reroutingStr != null) {
+      try {
+        rerouting = Rerouting.values.byName(reroutingStr);
+      } catch (e) {
+        log.i("Invalid reroutingStr: " +
+            reroutingStr.toString() +
+            ". Setting rerouting to default value " +
+            Rerouting.enabled.toString() +
+            ".");
+        rerouting = Rerouting.enabled;
+      }
+    }
+    if (routingEndpointStr != null) {
+      try {
+        routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+      } catch (e) {
+        log.i("Invalid routingEndpointStr: " +
+            routingEndpointStr.toString() +
+            ". Setting routingEndpoint to default value " +
+            RoutingEndpoint.graphhopper.toString() +
+            ".");
+        routingEndpoint = RoutingEndpoint.graphhopper;
+      }
+    }
+  }
+
+  /// Load the internal settings from the shared preferences.
+  Future<void> loadInternalSettings(SharedPreferences storage) async {
+    enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
+    enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
+    didViewWarning = (storage.getBool("priobike.routing.warning") ?? false);
+
+    final backendStr = storage.getString("priobike.settings.backend");
+    final predictionModeStr = storage.getString("priobike.settings.predictionMode");
+    final positioningModeStr = storage.getString("priobike.settings.positioningMode");
+    final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
+    final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
+
+    if (backendStr != null) {
+      try {
+        backend = Backend.values.byName(backendStr);
+      } catch (e) {
+        log.i("Invalid backendStr: " +
+            backendStr.toString() +
+            ". Setting backend to default value " +
+            Backend.production.toString() +
+            ".");
+        backend = Backend.production;
+      }
+    }
+    if (predictionModeStr != null) {
+      try {
+        predictionMode = PredictionMode.values.byName(predictionModeStr);
+      } catch (e) {
+        log.i("Invalid predictionModeStr: " +
+            predictionModeStr.toString() +
+            ". Setting predictionMode to default value " +
+            PredictionMode.usePredictionService.toString() +
+            ".");
+        predictionMode = PredictionMode.usePredictionService;
+      }
+    }
+    if (positioningModeStr != null) {
+      try {
+        positioningMode = PositioningMode.values.byName(positioningModeStr);
+      } catch (e) {
+        log.i("Invalid positioningModeStr: " +
+            positioningModeStr.toString() +
+            ". Setting positioningMode to default value " +
+            PositioningMode.gnss.toString() +
+            ".");
+        positioningMode = PositioningMode.gnss;
+      }
+    }
+    if (sgLabelsModeStr != null) {
+      try {
+        sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
+      } catch (e) {
+        log.i("Invalid sgLabelsModeStr: " +
+            sgLabelsModeStr.toString() +
+            ". Setting sgLabelsMode to default value " +
+            SGLabelsMode.disabled.toString() +
+            ".");
+        sgLabelsMode = SGLabelsMode.disabled;
+      }
+    }
+    if (datastreamModeStr != null) {
+      try {
+        datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
+      } catch (e) {
+        log.i("Invalid datastreamModeStr: " +
+            datastreamModeStr.toString() +
+            ". Setting datastreamMode to default value " +
+            DatastreamMode.disabled.toString() +
+            ".");
+        datastreamMode = DatastreamMode.disabled;
+      }
+    }
+  }
+
   /// Load the stored settings.
   Future<void> loadSettings(bool canEnableInternalFeatures, bool canEnableBetaFeatures) async {
     if (hasLoaded) return;
@@ -184,115 +291,10 @@ class Settings with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     // All internal settings.
-    if (canEnableInternalFeatures) {
-      enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
-      enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
-      didViewWarning = (storage.getBool("priobike.routing.warning") ?? false);
-
-      final backendStr = storage.getString("priobike.settings.backend");
-      final predictionModeStr = storage.getString("priobike.settings.predictionMode");
-      final positioningModeStr = storage.getString("priobike.settings.positioningMode");
-      final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
-      final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
-
-      if (backendStr != null) {
-        try {
-          backend = Backend.values.byName(backendStr);
-        } catch (e) {
-          log.i("Invalid backendStr: " +
-              backendStr.toString() +
-              ". Setting backend to default value " +
-              Backend.production.toString() +
-              ".");
-          backend = Backend.production;
-        }
-      }
-      if (predictionModeStr != null) {
-        try {
-          predictionMode = PredictionMode.values.byName(predictionModeStr);
-        } catch (e) {
-          log.i("Invalid predictionModeStr: " +
-              predictionModeStr.toString() +
-              ". Setting predictionMode to default value " +
-              PredictionMode.usePredictionService.toString() +
-              ".");
-          predictionMode = PredictionMode.usePredictionService;
-        }
-      }
-      if (positioningModeStr != null) {
-        try {
-          positioningMode = PositioningMode.values.byName(positioningModeStr);
-        } catch (e) {
-          log.i("Invalid positioningModeStr: " +
-              positioningModeStr.toString() +
-              ". Setting positioningMode to default value " +
-              PositioningMode.follow18kmh.toString() +
-              ".");
-          positioningMode = PositioningMode.follow18kmh;
-        }
-      }
-      if (sgLabelsModeStr != null) {
-        try {
-          sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
-        } catch (e) {
-          log.i("Invalid sgLabelsModeStr: " +
-              sgLabelsModeStr.toString() +
-              ". Setting sgLabelsMode to default value " +
-              SGLabelsMode.disabled.toString() +
-              ".");
-          sgLabelsMode = SGLabelsMode.disabled;
-        }
-      }
-      if (datastreamModeStr != null) {
-        try {
-          datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
-        } catch (e) {
-          log.i("Invalid datastreamModeStr: " +
-              datastreamModeStr.toString() +
-              ". Setting datastreamMode to default value " +
-              DatastreamMode.disabled.toString() +
-              ".");
-          datastreamMode = DatastreamMode.disabled;
-        }
-      }
-    }
+    if (canEnableInternalFeatures) await loadInternalSettings(storage);
 
     // All beta settings.
-    if (canEnableBetaFeatures) {
-      enableBetaFeatures = (storage.getBool("priobike.settings.enableBetaFeatures") ?? false);
-
-      final reroutingStr = storage.getString("priobike.settings.rerouting");
-      final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
-      final sgSelectorStr = storage.getString("priobike.settings.sgSelector");
-
-      if (reroutingStr != null) {
-        try {
-          rerouting = Rerouting.values.byName(reroutingStr);
-        } catch (e) {
-          log.i("Invalid reroutingStr: " +
-              reroutingStr.toString() +
-              ". Setting rerouting to default value " +
-              Rerouting.enabled.toString() +
-              ".");
-          rerouting = Rerouting.enabled;
-        }
-      }
-      if (routingEndpointStr != null) {
-        try {
-          routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-        } catch (e) {
-          log.i("Invalid routingEndpointStr: " +
-              routingEndpointStr.toString() +
-              ". Setting routingEndpoint to default value " +
-              RoutingEndpoint.graphhopper.toString() +
-              ".");
-          routingEndpoint = RoutingEndpoint.graphhopper;
-        }
-      }
-      if (sgSelectorStr != null) {
-        sgSelector = SGSelector.values.byName(sgSelectorStr);
-      }
-    }
+    if (canEnableBetaFeatures) await loadBetaSettings(storage);
 
     // All remaining settings.
     final colorModeStr = storage.getString("priobike.settings.colorMode");
