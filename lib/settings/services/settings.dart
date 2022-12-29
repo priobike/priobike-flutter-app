@@ -211,9 +211,18 @@ class Settings with ChangeNotifier {
   /// preferences, for the initial view build.
   static Future<Backend> loadBackendFromSharedPreferences() async {
     final storage = await SharedPreferences.getInstance();
-    var backend = Backend.staging;
     final backendStr = storage.getString("priobike.settings.backend");
-    if (backendStr != null) backend = Backend.values.byName(backendStr);
+    Backend backend;
+    try {
+      backend = Backend.values.byName(backendStr!);
+    } catch (e) {
+      log.i("Invalid backendStr: " +
+          backendStr.toString() +
+          ". Setting backend to default value " +
+          Backend.production.toString() +
+          ".");
+      backend = Backend.production;
+    }
     return backend;
   }
 
@@ -343,7 +352,7 @@ class Settings with ChangeNotifier {
       log.i("Invalid speedModeStr: " +
           speedModeStr.toString() +
           ". Setting speedMode to default value " +
-          SpeedMode.max30kmh.toString() +
+          SpeedMode.max30kmh.name +
           ".");
       await setSpeedMode(SpeedMode.max30kmh, storage);
     }
