@@ -352,7 +352,7 @@ class Settings with ChangeNotifier {
       log.i("Invalid speedModeStr: " +
           speedModeStr.toString() +
           ". Setting speedMode to default value " +
-          SpeedMode.max30kmh.name +
+          SpeedMode.max30kmh.toString() +
           ".");
       await setSpeedMode(SpeedMode.max30kmh, storage);
     }
@@ -372,15 +372,15 @@ class Settings with ChangeNotifier {
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
     await storage.setBool("priobike.routing.warning", didViewWarning);
-    await storage.setString("priobike.settings.backend", backend.name);
-    await storage.setString("priobike.settings.predictionMode", predictionMode.name);
-    await storage.setString("priobike.settings.positioningMode", positioningMode.name);
-    await storage.setString("priobike.settings.rerouting", rerouting.name);
-    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
-    await storage.setString("priobike.settings.colorMode", colorMode.name);
-    await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
-    await storage.setString("priobike.settings.speedMode", speedMode.name);
-    await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
+    await storage.setString("priobike.settings.backend", backend.toString());
+    await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
+    await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
+    await storage.setString("priobike.settings.rerouting", rerouting.toString());
+    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
+    await storage.setString("priobike.settings.colorMode", colorMode.toString());
+    await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
+    await storage.setString("priobike.settings.speedMode", speedMode.toString());
+    await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
     await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
     await storage.setString("priobike.settings.sgSelector", sgSelector.name);
 
@@ -393,16 +393,15 @@ class Settings with ChangeNotifier {
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
-        "backend": backend.name,
-        "predictionMode": predictionMode.name,
-        "positioningMode": positioningMode.name,
-        "rerouting": rerouting.name,
-        "routingEndpoint": routingEndpoint.name,
-        "sgLabelsMode": sgLabelsMode.name,
-        "colorMode": colorMode.name,
-        "speedMode": speedMode.name,
-        "datastreamMode": datastreamMode.name,
-        "connectionErrorCounter": connectionErrorCounter,
-        "sgSelector": sgSelector.name
+        "backend": backend.toString(),
+        "predictionMode": predictionMode.toString(),
+        "positioningMode": positioningMode.toString(),
+        "rerouting": rerouting.toString(),
+        "routingEndpoint": routingEndpoint.toString(),
+        "sgLabelsMode": sgLabelsMode.toString(),
+        "colorMode": colorMode.toString(),
+        "speedMode": speedMode.toString(),
+        "datastreamMode": datastreamMode.toString(),
+        "connectionErrorCounter": connectionErrorCounter
       };
 }
