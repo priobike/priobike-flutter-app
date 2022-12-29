@@ -180,10 +180,13 @@ class Settings with ChangeNotifier {
     return sucess;
   }
 
-  Future<void> resetWarning() async {
+  /// Resets the warning for the ride view for internal testing
+  Future<void> deleteWarning() async {
     final storage = await SharedPreferences.getInstance();
-    bool sucess = await setDidViewWarning(false, storage);
-    if (sucess) ToastMessage.showSuccess("Sicherheits-Warnung zurückgesetzt");
+    bool success = await setDidViewWarning(false, storage);
+    (success)
+        ? ToastMessage.showSuccess("Sicherheits-Warnung zurückgesetzt")
+        : ToastMessage.showError("Sicherheits-Warnung konnte nicht zurückgesetzt werden");
   }
 
   Settings({

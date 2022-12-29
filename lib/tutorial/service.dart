@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:priobike/logging/toast.dart';
 
 class Tutorial with ChangeNotifier {
   /// Tutorial ids and if they have been completed.
@@ -34,7 +35,10 @@ class Tutorial with ChangeNotifier {
   /// Delete the completed tutorials from the shared preferences.
   Future<void> deleteCompleted() async {
     final storage = await SharedPreferences.getInstance();
-    await storage.remove("priobike.tutorial.completed");
+    bool success = await storage.remove("priobike.tutorial.completed");
+    (success)
+        ? ToastMessage.showSuccess("Tutorials zurückgesetzt")
+        : ToastMessage.showError("Tutorials konnten nicht zurückgesetzt werden");
     completed = {};
     notifyListeners();
   }

@@ -437,10 +437,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Tutorials zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () {
-                            Provider.of<Tutorial>(context, listen: false).deleteCompleted();
-                            ToastMessage.showSuccess("Tutorials zurückgesetzt");
-                          },
+                          callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
                         ),
                       ),
                       Padding(
@@ -448,10 +445,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Datenschutz zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () {
-                            Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy();
-                            ToastMessage.showSuccess("Datenschutz zurückgesetzt");
-                          },
+                          callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
                         ),
                       ),
                       Padding(
@@ -459,10 +453,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () {
-                            Provider.of<Settings>(context, listen: false).setDidViewWarning(false);
-                            ToastMessage.showSuccess("Sicherheits-Warnung zurückgesetzt");
-                          },
+                          callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
                         ),
                       ),
                     ],
