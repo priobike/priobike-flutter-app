@@ -63,121 +63,121 @@ class Settings with ChangeNotifier {
   Future<bool> setEnableInternalFeatures(bool enableInternalFeatures, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.enableInternalFeatures = enableInternalFeatures;
-    bool sucess = await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    bool success = await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setEnableBetaFeatures(bool enableBetaFeatures, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.enableBetaFeatures = enableBetaFeatures;
-    bool sucess = await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
+    bool success = await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setEnablePerformanceOverlay(bool enablePerformanceOverlay, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.enablePerformanceOverlay = enablePerformanceOverlay;
-    bool sucess = await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
+    bool success = await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setDidViewWarning(bool didViewWarning, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.didViewWarning = didViewWarning;
-    bool sucess = await storage.setBool("priobike.routing.warning", didViewWarning);
+    bool success = await storage.setBool("priobike.routing.warning", didViewWarning);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setBackend(Backend backend, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.backend = backend;
-    bool sucess = await storage.setString("priobike.settings.backend", backend.toString());
+    bool success = await storage.setString("priobike.settings.backend", backend.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.predictionMode = predictionMode;
-    bool sucess = await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
+    bool success = await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setPositioningMode(PositioningMode positioningMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.positioningMode = positioningMode;
-    bool sucess = await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
+    bool success = await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.rerouting = rerouting;
-    bool sucess = await storage.setString("priobike.settings.rerouting", rerouting.toString());
+    bool success = await storage.setString("priobike.settings.rerouting", rerouting.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.routingEndpoint = routingEndpoint;
-    bool sucess = await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
+    bool success = await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setSGLabelsMode(SGLabelsMode sgLabelsMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.sgLabelsMode = sgLabelsMode;
-    bool sucess = await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
+    bool success = await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setColorMode(ColorMode colorMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.colorMode = colorMode;
-    bool sucess = await storage.setString("priobike.settings.colorMode", colorMode.toString());
+    bool success = await storage.setString("priobike.settings.colorMode", colorMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setSpeedMode(SpeedMode speedMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.speedMode = speedMode;
-    bool sucess = await storage.setString("priobike.settings.speedMode", speedMode.toString());
+    bool success = await storage.setString("priobike.settings.speedMode", speedMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> setDatastreamMode(DatastreamMode datastreamMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.datastreamMode = datastreamMode;
-    bool sucess = await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
+    bool success = await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> incrementConnectionErrorCounter([SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter += 1;
-    bool sucess = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    bool success = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   Future<bool> resetConnectionErrorCounter([SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter = 0;
-    bool sucess = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    bool success = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
     notifyListeners();
-    return sucess;
+    return success;
   }
 
   /// Resets the warning for the ride view for internal testing
