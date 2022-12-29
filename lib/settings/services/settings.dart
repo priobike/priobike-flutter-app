@@ -184,29 +184,25 @@ class Settings with ChangeNotifier {
     final reroutingStr = storage.getString("priobike.settings.rerouting");
     final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
 
-    if (reroutingStr != null) {
-      try {
-        rerouting = Rerouting.values.byName(reroutingStr);
-      } catch (e) {
-        log.i("Invalid reroutingStr: " +
-            reroutingStr.toString() +
-            ". Setting rerouting to default value " +
-            Rerouting.enabled.toString() +
-            ".");
-        rerouting = Rerouting.enabled;
-      }
+    try {
+      rerouting = Rerouting.values.byName(reroutingStr!);
+    } catch (e) {
+      log.i("Invalid reroutingStr: " +
+          reroutingStr.toString() +
+          ". Setting rerouting to default value " +
+          Rerouting.enabled.toString() +
+          ".");
+      rerouting = Rerouting.enabled;
     }
-    if (routingEndpointStr != null) {
-      try {
-        routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-      } catch (e) {
-        log.i("Invalid routingEndpointStr: " +
-            routingEndpointStr.toString() +
-            ". Setting routingEndpoint to default value " +
-            RoutingEndpoint.graphhopper.toString() +
-            ".");
-        routingEndpoint = RoutingEndpoint.graphhopper;
-      }
+    try {
+      routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr!);
+    } catch (e) {
+      log.i("Invalid routingEndpointStr: " +
+          routingEndpointStr.toString() +
+          ". Setting routingEndpoint to default value " +
+          RoutingEndpoint.graphhopper.toString() +
+          ".");
+      routingEndpoint = RoutingEndpoint.graphhopper;
     }
   }
 
@@ -222,65 +218,55 @@ class Settings with ChangeNotifier {
     final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
     final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
 
-    if (backendStr != null) {
-      try {
-        backend = Backend.values.byName(backendStr);
-      } catch (e) {
-        log.i("Invalid backendStr: " +
-            backendStr.toString() +
-            ". Setting backend to default value " +
-            Backend.production.toString() +
-            ".");
-        backend = Backend.production;
-      }
+    try {
+      backend = Backend.values.byName(backendStr!);
+    } catch (e) {
+      log.i("Invalid backendStr: " +
+          backendStr.toString() +
+          ". Setting backend to default value " +
+          Backend.production.toString() +
+          ".");
+      backend = Backend.production;
     }
-    if (predictionModeStr != null) {
-      try {
-        predictionMode = PredictionMode.values.byName(predictionModeStr);
-      } catch (e) {
-        log.i("Invalid predictionModeStr: " +
-            predictionModeStr.toString() +
-            ". Setting predictionMode to default value " +
-            PredictionMode.usePredictionService.toString() +
-            ".");
-        predictionMode = PredictionMode.usePredictionService;
-      }
+    try {
+      predictionMode = PredictionMode.values.byName(predictionModeStr!);
+    } catch (e) {
+      log.i("Invalid predictionModeStr: " +
+          predictionModeStr.toString() +
+          ". Setting predictionMode to default value " +
+          PredictionMode.usePredictionService.toString() +
+          ".");
+      predictionMode = PredictionMode.usePredictionService;
     }
-    if (positioningModeStr != null) {
-      try {
-        positioningMode = PositioningMode.values.byName(positioningModeStr);
-      } catch (e) {
-        log.i("Invalid positioningModeStr: " +
-            positioningModeStr.toString() +
-            ". Setting positioningMode to default value " +
-            PositioningMode.gnss.toString() +
-            ".");
-        positioningMode = PositioningMode.gnss;
-      }
+    try {
+      positioningMode = PositioningMode.values.byName(positioningModeStr!);
+    } catch (e) {
+      log.i("Invalid positioningModeStr: " +
+          positioningModeStr.toString() +
+          ". Setting positioningMode to default value " +
+          PositioningMode.gnss.toString() +
+          ".");
+      positioningMode = PositioningMode.gnss;
     }
-    if (sgLabelsModeStr != null) {
-      try {
-        sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
-      } catch (e) {
-        log.i("Invalid sgLabelsModeStr: " +
-            sgLabelsModeStr.toString() +
-            ". Setting sgLabelsMode to default value " +
-            SGLabelsMode.disabled.toString() +
-            ".");
-        sgLabelsMode = SGLabelsMode.disabled;
-      }
+    try {
+      sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr!);
+    } catch (e) {
+      log.i("Invalid sgLabelsModeStr: " +
+          sgLabelsModeStr.toString() +
+          ". Setting sgLabelsMode to default value " +
+          SGLabelsMode.disabled.toString() +
+          ".");
+      sgLabelsMode = SGLabelsMode.disabled;
     }
-    if (datastreamModeStr != null) {
-      try {
-        datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
-      } catch (e) {
-        log.i("Invalid datastreamModeStr: " +
-            datastreamModeStr.toString() +
-            ". Setting datastreamMode to default value " +
-            DatastreamMode.disabled.toString() +
-            ".");
-        datastreamMode = DatastreamMode.disabled;
-      }
+    try {
+      datastreamMode = DatastreamMode.values.byName(datastreamModeStr!);
+    } catch (e) {
+      log.i("Invalid datastreamModeStr: " +
+          datastreamModeStr.toString() +
+          ". Setting datastreamMode to default value " +
+          DatastreamMode.disabled.toString() +
+          ".");
+      datastreamMode = DatastreamMode.disabled;
     }
   }
 
@@ -301,29 +287,25 @@ class Settings with ChangeNotifier {
     final speedModeStr = storage.getString("priobike.settings.speedMode");
     final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
 
-    if (colorModeStr != null) {
-      try {
-        colorMode = ColorMode.values.byName(colorModeStr);
-      } catch (e) {
-        log.i("Invalid colorModeStr: " +
-            colorModeStr.toString() +
-            ". Setting colorMode to default value " +
-            ColorMode.system.toString() +
-            ".");
-        colorMode = ColorMode.system;
-      }
+    try {
+      colorMode = ColorMode.values.byName(colorModeStr!);
+    } catch (e) {
+      log.i("Invalid colorModeStr: " +
+          colorModeStr.toString() +
+          ". Setting colorMode to default value " +
+          ColorMode.system.toString() +
+          ".");
+      colorMode = ColorMode.system;
     }
-    if (speedModeStr != null) {
-      try {
-        speedMode = SpeedMode.values.byName(speedModeStr);
-      } catch (e) {
-        log.i("Invalid speedModeStr: " +
-            speedModeStr.toString() +
-            ". Setting speedMode to default value " +
-            SpeedMode.max30kmh.toString() +
-            ".");
-        speedMode = SpeedMode.max30kmh;
-      }
+    try {
+      speedMode = SpeedMode.values.byName(speedModeStr!);
+    } catch (e) {
+      log.i("Invalid speedModeStr: " +
+          speedModeStr.toString() +
+          ". Setting speedMode to default value " +
+          SpeedMode.max30kmh.toString() +
+          ".");
+      speedMode = SpeedMode.max30kmh;
     }
     if (connectionErrorCounterValue != null) {
       connectionErrorCounter = connectionErrorCounterValue;
