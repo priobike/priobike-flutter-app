@@ -11,7 +11,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
