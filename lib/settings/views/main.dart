@@ -198,7 +198,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a backend is selected.
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectBackend(backend);
+    await settings.setBackend(backend);
 
     // Tell the fcm service that we selected the new backend.
     await FCM.selectBackend(backend);
@@ -222,7 +222,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a predictor mode is selected.
   Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
     // Tell the settings service that we selected the new predictor mode.
-    await settings.selectPredictionMode(predictionMode);
+    await settings.setPredictionMode(predictionMode);
 
     Navigator.pop(context);
   }
@@ -230,7 +230,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a sg labels mode is selected.
   Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
     // Tell the settings service that we selected the new sg labels mode.
-    await settings.selectSGLabelsMode(mode);
+    await settings.setSGLabelsMode(mode);
 
     Navigator.pop(context);
   }
@@ -238,7 +238,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a positioning is selected.
   Future<void> onSelectPositioningMode(PositioningMode positioningMode) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectPositioningMode(positioningMode);
+    await settings.setPositioningMode(positioningMode);
     // Reset the position service since it depends on the positioning.
     await position.reset();
 
@@ -248,7 +248,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a routing endpoint is selected.
   Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectRoutingEndpoint(routingEndpoint);
+    await settings.setRoutingEndpoint(routingEndpoint);
 
     Navigator.pop(context);
   }
@@ -256,7 +256,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a rerouting is selected.
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
-    await settings.selectRerouting(rerouting);
+    await settings.setRerouting(rerouting);
 
     Navigator.pop(context);
   }
@@ -264,7 +264,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when darkMode is changed
   Future<void> onChangeColorMode(ColorMode colorMode) async {
     // Tell the settings service that we selected the new colorModePreference.
-    await settings.selectColorMode(colorMode);
+    await settings.setColorMode(colorMode);
 
     Navigator.pop(context);
   }
@@ -272,7 +272,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a speed mode is selected.
   Future<void> onSelectSpeedMode(SpeedMode speedMode) async {
     // Tell the settings service that we selected the new speed mode.
-    await settings.selectSpeedMode(speedMode);
+    await settings.setSpeedMode(speedMode);
 
     Navigator.pop(context);
   }
@@ -280,7 +280,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a datastream mode is selected.
   Future<void> onSelectDatastreamMode(DatastreamMode datastreamMode) async {
     // Tell the settings service that we selected the new datastream mode.
-    await settings.selectDatastreamMode(datastreamMode);
+    await settings.setDatastreamMode(datastreamMode);
 
     Navigator.pop(context);
   }

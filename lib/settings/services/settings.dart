@@ -87,63 +87,63 @@ class Settings with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> selectBackend(Backend backend, [SharedPreferences? storage]) async {
+  Future<void> setBackend(Backend backend, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.backend = backend;
     await storage.setString("priobike.settings.backend", backend.toString());
     notifyListeners();
   }
 
-  Future<void> selectPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
+  Future<void> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.predictionMode = predictionMode;
     await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
     notifyListeners();
   }
 
-  Future<void> selectPositioningMode(PositioningMode positioningMode, [SharedPreferences? storage]) async {
+  Future<void> setPositioningMode(PositioningMode positioningMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.positioningMode = positioningMode;
     await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
     notifyListeners();
   }
 
-  Future<void> selectRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
+  Future<void> setRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.rerouting = rerouting;
     await storage.setString("priobike.settings.rerouting", rerouting.toString());
     notifyListeners();
   }
 
-  Future<void> selectRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
+  Future<void> setRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.routingEndpoint = routingEndpoint;
     await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
     notifyListeners();
   }
 
-  Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode, [SharedPreferences? storage]) async {
+  Future<void> setSGLabelsMode(SGLabelsMode sgLabelsMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.sgLabelsMode = sgLabelsMode;
     await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
     notifyListeners();
   }
 
-  Future<void> selectColorMode(ColorMode colorMode, [SharedPreferences? storage]) async {
+  Future<void> setColorMode(ColorMode colorMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.colorMode = colorMode;
     await storage.setString("priobike.settings.colorMode", colorMode.toString());
     notifyListeners();
   }
 
-  Future<void> selectSpeedMode(SpeedMode speedMode, [SharedPreferences? storage]) async {
+  Future<void> setSpeedMode(SpeedMode speedMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.speedMode = speedMode;
     await storage.setString("priobike.settings.speedMode", speedMode.toString());
     notifyListeners();
   }
 
-  Future<void> selectDatastreamMode(DatastreamMode datastreamMode, [SharedPreferences? storage]) async {
+  Future<void> setDatastreamMode(DatastreamMode datastreamMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     this.datastreamMode = datastreamMode;
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
@@ -207,7 +207,7 @@ class Settings with ChangeNotifier {
           ". Setting rerouting to default value " +
           Rerouting.enabled.toString() +
           ".");
-      await selectRerouting(Rerouting.enabled, storage);
+      await setRerouting(Rerouting.enabled, storage);
     }
     try {
       routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr!);
@@ -217,7 +217,7 @@ class Settings with ChangeNotifier {
           ". Setting routingEndpoint to default value " +
           RoutingEndpoint.graphhopper.toString() +
           ".");
-      await selectRoutingEndpoint(RoutingEndpoint.graphhopper, storage);
+      await setRoutingEndpoint(RoutingEndpoint.graphhopper, storage);
     }
   }
 
@@ -241,7 +241,7 @@ class Settings with ChangeNotifier {
           ". Setting backend to default value " +
           Backend.production.toString() +
           ".");
-      await selectBackend(Backend.production, storage);
+      await setBackend(Backend.production, storage);
     }
     try {
       predictionMode = PredictionMode.values.byName(predictionModeStr!);
@@ -251,7 +251,7 @@ class Settings with ChangeNotifier {
           ". Setting predictionMode to default value " +
           PredictionMode.usePredictionService.toString() +
           ".");
-      await selectPredictionMode(PredictionMode.usePredictionService, storage);
+      await setPredictionMode(PredictionMode.usePredictionService, storage);
     }
     try {
       positioningMode = PositioningMode.values.byName(positioningModeStr!);
@@ -261,7 +261,7 @@ class Settings with ChangeNotifier {
           ". Setting positioningMode to default value " +
           PositioningMode.gnss.toString() +
           ".");
-      await selectPositioningMode(PositioningMode.gnss, storage);
+      await setPositioningMode(PositioningMode.gnss, storage);
     }
     try {
       sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr!);
@@ -271,7 +271,7 @@ class Settings with ChangeNotifier {
           ". Setting sgLabelsMode to default value " +
           SGLabelsMode.disabled.toString() +
           ".");
-      await selectSGLabelsMode(SGLabelsMode.disabled, storage);
+      await setSGLabelsMode(SGLabelsMode.disabled, storage);
     }
     try {
       datastreamMode = DatastreamMode.values.byName(datastreamModeStr!);
@@ -281,7 +281,7 @@ class Settings with ChangeNotifier {
           ". Setting datastreamMode to default value " +
           DatastreamMode.disabled.toString() +
           ".");
-      await selectDatastreamMode(DatastreamMode.disabled, storage);
+      await setDatastreamMode(DatastreamMode.disabled, storage);
     }
   }
 
@@ -310,7 +310,7 @@ class Settings with ChangeNotifier {
           ". Setting colorMode to default value " +
           ColorMode.system.toString() +
           ".");
-      await selectColorMode(ColorMode.system, storage);
+      await setColorMode(ColorMode.system, storage);
     }
     try {
       speedMode = SpeedMode.values.byName(speedModeStr!);
@@ -320,7 +320,7 @@ class Settings with ChangeNotifier {
           ". Setting speedMode to default value " +
           SpeedMode.max30kmh.toString() +
           ".");
-      await selectSpeedMode(SpeedMode.max30kmh, storage);
+      await setSpeedMode(SpeedMode.max30kmh, storage);
     }
     if (connectionErrorCounterValue != null) {
       connectionErrorCounter = connectionErrorCounterValue;
