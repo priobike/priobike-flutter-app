@@ -11,6 +11,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
@@ -436,7 +437,10 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Tutorials zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
+                          callback: () {
+                            Provider.of<Tutorial>(context, listen: false).deleteCompleted();
+                            ToastMessage.showSuccess("Tutorials zurückgesetzt");
+                          },
                         ),
                       ),
                       Padding(
@@ -444,7 +448,10 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Datenschutz zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
+                          callback: () {
+                            Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy();
+                            ToastMessage.showSuccess("Datenschutz zurückgesetzt");
+                          },
                         ),
                       ),
                       Padding(
@@ -452,7 +459,10 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
+                          callback: () {
+                            Provider.of<Settings>(context, listen: false).setDidViewWarning(false);
+                            ToastMessage.showSuccess("Sicherheits-Warnung zurückgesetzt");
+                          },
                         ),
                       ),
                     ],
