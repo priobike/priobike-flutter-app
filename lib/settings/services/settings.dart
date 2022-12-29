@@ -64,6 +64,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.enableInternalFeatures = enableInternalFeatures;
     bool success = await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    if (!success) log.e("Failed to set enableInternalFeatures to $enableInternalFeatures");
     notifyListeners();
     return success;
   }
@@ -72,6 +73,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.enableBetaFeatures = enableBetaFeatures;
     bool success = await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
+    if (!success) log.e("Failed to set enableBetaFeatures to $enableBetaFeatures");
     notifyListeners();
     return success;
   }
@@ -80,6 +82,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.enablePerformanceOverlay = enablePerformanceOverlay;
     bool success = await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
+    if (!success) log.e("Failed to set enablePerformanceOverlay to $enablePerformanceOverlay");
     notifyListeners();
     return success;
   }
@@ -88,6 +91,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.didViewWarning = didViewWarning;
     bool success = await storage.setBool("priobike.routing.warning", didViewWarning);
+    if (!success) log.e("Failed to set didViewWarning to $didViewWarning");
     notifyListeners();
     return success;
   }
@@ -96,6 +100,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.backend = backend;
     bool success = await storage.setString("priobike.settings.backend", backend.toString());
+    if (!success) log.e("Failed to set backend to $backend");
     notifyListeners();
     return success;
   }
@@ -104,6 +109,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.predictionMode = predictionMode;
     bool success = await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
+    if (!success) log.e("Failed to set predictionMode to $predictionMode");
     notifyListeners();
     return success;
   }
@@ -112,6 +118,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.positioningMode = positioningMode;
     bool success = await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
+    if (!success) log.e("Failed to set positioningMode to $positioningMode");
     notifyListeners();
     return success;
   }
@@ -120,6 +127,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.rerouting = rerouting;
     bool success = await storage.setString("priobike.settings.rerouting", rerouting.toString());
+    if (!success) log.e("Failed to set rerouting to $rerouting");
     notifyListeners();
     return success;
   }
@@ -128,6 +136,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.routingEndpoint = routingEndpoint;
     bool success = await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
+    if (!success) log.e("Failed to set routingEndpoint to $routingEndpoint");
     notifyListeners();
     return success;
   }
@@ -136,6 +145,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.sgLabelsMode = sgLabelsMode;
     bool success = await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
+    if (!success) log.e("Failed to set sgLabelsMode to $sgLabelsMode");
     notifyListeners();
     return success;
   }
@@ -144,6 +154,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.colorMode = colorMode;
     bool success = await storage.setString("priobike.settings.colorMode", colorMode.toString());
+    if (!success) log.e("Failed to set colorMode to $colorMode");
     notifyListeners();
     return success;
   }
@@ -152,6 +163,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.speedMode = speedMode;
     bool success = await storage.setString("priobike.settings.speedMode", speedMode.toString());
+    if (!success) log.e("Failed to set speedMode to $speedMode");
     notifyListeners();
     return success;
   }
@@ -160,6 +172,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     this.datastreamMode = datastreamMode;
     bool success = await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
+    if (!success) log.e("Failed to set datastreamMode to $datastreamMode");
     notifyListeners();
     return success;
   }
@@ -168,6 +181,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter += 1;
     bool success = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    if (!success) log.e("Failed to set connectionErrorCounter to $connectionErrorCounter");
     notifyListeners();
     return success;
   }
@@ -176,6 +190,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter = 0;
     bool success = await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    if (!success) log.e("Failed to set connectionErrorCounter to $connectionErrorCounter");
     notifyListeners();
     return success;
   }
