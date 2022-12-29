@@ -59,93 +59,108 @@ class Settings with ChangeNotifier {
   /// The counter of connection error in a row.
   int connectionErrorCounter;
 
-  /// The selected signal groups selector.
-  SGSelector sgSelector;
-
-  Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
+  Future<void> setEnableInternalFeatures(bool enableInternalFeatures, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.enableInternalFeatures = enableInternalFeatures;
-    await store();
+    await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
+    notifyListeners();
   }
 
-  Future<void> setEnableBetaFeatures(bool enableBetaFeatures) async {
+  Future<void> setEnableBetaFeatures(bool enableBetaFeatures, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.enableBetaFeatures = enableBetaFeatures;
-    await store();
+    await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
+    notifyListeners();
   }
 
-  Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay) async {
+  Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.enablePerformanceOverlay = enablePerformanceOverlay;
-    await store();
+    await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
+    notifyListeners();
   }
 
-  Future<void> setDidViewWarning(bool didViewWarning) async {
+  Future<void> setDidViewWarning(bool didViewWarning, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.didViewWarning = didViewWarning;
-    await store();
+    await storage.setBool("priobike.routing.warning", didViewWarning);
+    notifyListeners();
   }
 
-  Future<void> selectBackend(Backend backend) async {
+  Future<void> selectBackend(Backend backend, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.backend = backend;
-    await store();
+    await storage.setString("priobike.settings.backend", backend.toString());
+    notifyListeners();
   }
 
-  Future<void> selectPredictionMode(PredictionMode predictionMode) async {
+  Future<void> selectPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.predictionMode = predictionMode;
-    await store();
+    await storage.setString("priobike.settings.predictionMode", predictionMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectPositioningMode(PositioningMode positioningMode) async {
+  Future<void> selectPositioningMode(PositioningMode positioningMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.positioningMode = positioningMode;
-    await store();
+    await storage.setString("priobike.settings.positioningMode", positioningMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectRerouting(Rerouting rerouting) async {
+  Future<void> selectRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.rerouting = rerouting;
-    await store();
+    await storage.setString("priobike.settings.rerouting", rerouting.toString());
+    notifyListeners();
   }
 
-  Future<void> selectRoutingEndpoint(RoutingEndpoint routingEndpoint) async {
+  Future<void> selectRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.routingEndpoint = routingEndpoint;
-    await store();
+    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.toString());
+    notifyListeners();
   }
 
-  Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode) async {
+  Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.sgLabelsMode = sgLabelsMode;
-    await store();
+    await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectColorMode(ColorMode colorMode) async {
+  Future<void> selectColorMode(ColorMode colorMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.colorMode = colorMode;
-    await store();
+    await storage.setString("priobike.settings.colorMode", colorMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectSpeedMode(SpeedMode speedMode) async {
+  Future<void> selectSpeedMode(SpeedMode speedMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.speedMode = speedMode;
-    await store();
+    await storage.setString("priobike.settings.speedMode", speedMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectDatastreamMode(DatastreamMode datastreamMode) async {
+  Future<void> selectDatastreamMode(DatastreamMode datastreamMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     this.datastreamMode = datastreamMode;
-    await store();
+    await storage.setString("priobike.settings.datastreamMode", datastreamMode.toString());
+    notifyListeners();
   }
 
-  Future<void> selectSGSelector(SGSelector sgSelector) async {
-    this.sgSelector = sgSelector;
-    await store();
-  }
-
-  Future<void> incrementConnectionErrorCounter() async {
+  Future<void> incrementConnectionErrorCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter += 1;
-    await store();
+    await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    notifyListeners();
   }
 
-  Future<void> resetConnectionErrorCounter() async {
+  Future<void> resetConnectionErrorCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
     connectionErrorCounter = 0;
-    await store();
-  }
-
-  Future<void> deleteWarning() async {
-    final storage = await SharedPreferences.getInstance();
-    await storage.setBool("priobike.routing.warning", false);
-    didViewWarning = false;
+    await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
     notifyListeners();
   }
 
@@ -192,7 +207,7 @@ class Settings with ChangeNotifier {
           ". Setting rerouting to default value " +
           Rerouting.enabled.toString() +
           ".");
-      rerouting = Rerouting.enabled;
+      await selectRerouting(Rerouting.enabled, storage);
     }
     try {
       routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr!);
@@ -202,7 +217,7 @@ class Settings with ChangeNotifier {
           ". Setting routingEndpoint to default value " +
           RoutingEndpoint.graphhopper.toString() +
           ".");
-      routingEndpoint = RoutingEndpoint.graphhopper;
+      await selectRoutingEndpoint(RoutingEndpoint.graphhopper, storage);
     }
   }
 
@@ -226,7 +241,7 @@ class Settings with ChangeNotifier {
           ". Setting backend to default value " +
           Backend.production.toString() +
           ".");
-      backend = Backend.production;
+      await selectBackend(Backend.production, storage);
     }
     try {
       predictionMode = PredictionMode.values.byName(predictionModeStr!);
@@ -236,7 +251,7 @@ class Settings with ChangeNotifier {
           ". Setting predictionMode to default value " +
           PredictionMode.usePredictionService.toString() +
           ".");
-      predictionMode = PredictionMode.usePredictionService;
+      await selectPredictionMode(PredictionMode.usePredictionService, storage);
     }
     try {
       positioningMode = PositioningMode.values.byName(positioningModeStr!);
@@ -246,7 +261,7 @@ class Settings with ChangeNotifier {
           ". Setting positioningMode to default value " +
           PositioningMode.gnss.toString() +
           ".");
-      positioningMode = PositioningMode.gnss;
+      await selectPositioningMode(PositioningMode.gnss, storage);
     }
     try {
       sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr!);
@@ -256,7 +271,7 @@ class Settings with ChangeNotifier {
           ". Setting sgLabelsMode to default value " +
           SGLabelsMode.disabled.toString() +
           ".");
-      sgLabelsMode = SGLabelsMode.disabled;
+      await selectSGLabelsMode(SGLabelsMode.disabled, storage);
     }
     try {
       datastreamMode = DatastreamMode.values.byName(datastreamModeStr!);
@@ -266,7 +281,7 @@ class Settings with ChangeNotifier {
           ". Setting datastreamMode to default value " +
           DatastreamMode.disabled.toString() +
           ".");
-      datastreamMode = DatastreamMode.disabled;
+      await selectDatastreamMode(DatastreamMode.disabled, storage);
     }
   }
 
@@ -295,7 +310,7 @@ class Settings with ChangeNotifier {
           ". Setting colorMode to default value " +
           ColorMode.system.toString() +
           ".");
-      colorMode = ColorMode.system;
+      await selectColorMode(ColorMode.system, storage);
     }
     try {
       speedMode = SpeedMode.values.byName(speedModeStr!);
@@ -305,7 +320,7 @@ class Settings with ChangeNotifier {
           ". Setting speedMode to default value " +
           SpeedMode.max30kmh.toString() +
           ".");
-      speedMode = SpeedMode.max30kmh;
+      await selectSpeedMode(SpeedMode.max30kmh, storage);
     }
     if (connectionErrorCounterValue != null) {
       connectionErrorCounter = connectionErrorCounterValue;

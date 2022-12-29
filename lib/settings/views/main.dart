@@ -452,7 +452,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
+                          callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
                         ),
                       ),
                     ],
