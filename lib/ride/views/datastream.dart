@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -26,9 +25,6 @@ class DatastreamViewState extends State<DatastreamView> {
   /// The settings service which is injected by the provider.
   late Settings settings;
 
-  /// The ride service which is injected by the provider.
-  late Ride ride;
-
   /// The timer used to refresh the view.
   Timer? timer;
 
@@ -39,7 +35,6 @@ class DatastreamViewState extends State<DatastreamView> {
   void didChangeDependencies() {
     datastream = Provider.of<Datastream>(context);
     settings = Provider.of<Settings>(context);
-    ride = Provider.of<Ride>(context);
     refreshTimeDiff();
     super.didChangeDependencies();
   }
@@ -77,25 +72,6 @@ class DatastreamViewState extends State<DatastreamView> {
     if (datastream.subscriptions.isEmpty) return Container();
 
     const comparisonLength = 40; // We want to compare the last 40 seconds of the vector.
-    final predictionHistory = ride.calcHistory?.sublist(
-          max(0, ride.calcHistory!.length - comparisonLength),
-          ride.calcHistory!.length,
-        ) ??
-        [];
-    final predictionVectorSquares = predictionHistory
-        .map(
-          (value) => Container(
-            margin: const EdgeInsets.only(right: 1),
-            height: 6,
-            width: 2,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1),
-              color:
-                  (ride.currentRecommendation?.predictionGreentimeThreshold ?? 0) > value ? Colors.red : Colors.green,
-            ),
-          ),
-        )
-        .toList();
     final datastreamHistory = datastream.primarySignalHistory.sublist(
       max(0, datastream.primarySignalHistory.length - comparisonLength),
       datastream.primarySignalHistory.length,
@@ -137,12 +113,7 @@ class DatastreamViewState extends State<DatastreamView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Small(text: "Prognose vs. Realität", context: context),
-                          const SizedBox(height: 2),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: predictionVectorSquares,
-                          ),
+                          Small(text: "Realität", context: context),
                           const SizedBox(height: 2),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -181,7 +152,8 @@ class DatastreamViewState extends State<DatastreamView> {
                 ),
               ),
             ),
-            if (datastream.detectorCar != null || datastream.detectorCyclists != null)
+            if ((datastream.detectorCar != null && datastream.detectorCar!.pct > 0) ||
+                (datastream.detectorCyclists != null && datastream.detectorCyclists!.pct > 0))
               Tile(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 fill: Theme.of(context).colorScheme.background,

@@ -7,9 +7,9 @@ extension ReroutingDescription on Rerouting {
   String get description {
     switch (this) {
       case Rerouting.enabled:
-        return "Route bei Abweichung neu berechnen (experimentell)";
+        return "Bei Abweichung von Route (Empfohlen)";
       case Rerouting.disabled:
-        return "Keine neue Route während der Fahrt berechnen";
+        return "Keine Neuberechnung";
     }
   }
 }

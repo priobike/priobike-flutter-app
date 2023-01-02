@@ -22,6 +22,10 @@ class SymbolLoader {
     await addImageFromAsset("trafficlightonlinegreenlight", "assets/images/trafficlights/online-green-light.png");
     await addImageFromAsset("trafficlightonlinereddark", "assets/images/trafficlights/online-red-dark.png");
     await addImageFromAsset("trafficlightonlineredlight", "assets/images/trafficlights/online-red-light.png");
+    await addImageFromAsset("trafficlightonlineamberdark", "assets/images/trafficlights/online-amber-dark.png");
+    await addImageFromAsset("trafficlightonlineamberlight", "assets/images/trafficlights/online-amber-light.png");
+    await addImageFromAsset("trafficlightonlinedarkdark", "assets/images/trafficlights/online-dark-dark.png");
+    await addImageFromAsset("trafficlightonlinedarklight", "assets/images/trafficlights/online-dark-light.png");
 
     await addImageFromAsset("alert", "assets/images/alert.drawio.png");
     await addImageFromAsset("start", "assets/images/start.drawio.png");

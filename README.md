@@ -14,6 +14,12 @@ This project uses [flutter_launcher_icons](https://pub.dev/packages/flutter_laun
 
 To provide a splash screen, this project uses [flutter_native_splash](https://pub.dev/packages/flutter_native_splash). To generate the splash screens for Android and iOS, replace `assets/splash.png` and then run: `flutter pub run flutter_native_splash:create`.
 
+## Continuous Delivery
+
+![Flutter App Development](https://user-images.githubusercontent.com/27271818/208384012-5259dae4-abad-4705-9390-ac1bcf007ac7.png)
+
+On push to `dev` or `beta`, a build workflow will be triggered to distribute our app.
+
 ## Documentation for Flutter
 
 For help getting started with Flutter, view the

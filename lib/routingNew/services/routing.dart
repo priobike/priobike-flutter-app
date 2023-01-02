@@ -14,6 +14,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
@@ -203,7 +204,8 @@ class Routing with ChangeNotifier {
       final settings = Provider.of<Settings>(context, listen: false);
 
       final baseUrl = settings.backend.path;
-      final sgSelectorUrl = "https://$baseUrl/sg-selector-backend/routing/select";
+      final sgSelectorUrl =
+          "https://$baseUrl/sg-selector-backend/routing/select${settings.sgSelector.servicePathParameter}";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -260,7 +262,7 @@ class Routing with ChangeNotifier {
     }
 
     // Check if the user wants to do sport - if so, ignore elevation.
-    if (profile.activityType == ActivityType.sport) {
+    if (profile.activityType == ActivityType.allowIncline) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.bikeFastest;
       } else if (profile.preferenceType == PreferenceType.short) {

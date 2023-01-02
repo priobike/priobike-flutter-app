@@ -5,20 +5,17 @@ import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/datastream.dart';
-import 'package:priobike/ride/views/legacy/default.dart';
-import 'package:priobike/ride/views/legacy/minimal_countdown.dart';
-import 'package:priobike/ride/views/legacy/minimal_recommendation.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
+import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +66,6 @@ class RideViewState extends State<RideView> {
         final positioning = Provider.of<Positioning>(context, listen: false);
         final accelerometer = Provider.of<Accelerometer>(context, listen: false);
         final datastream = Provider.of<Datastream>(context, listen: false);
-        final ride = Provider.of<Ride>(context, listen: false);
         final session = Provider.of<Session>(context, listen: false);
         final snapping = Provider.of<Snapping>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
@@ -79,24 +75,23 @@ class RideViewState extends State<RideView> {
         await tracking.start(context);
         // Authenticate a new session.
         await session.openSession(context);
+        final ride = Provider.of<Ride>(context, listen: false);
+        ride.startNavigation(context);
+        ride.selectRoute(context, routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
+        final settings = Provider.of<Settings>(context, listen: false);
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect(context);
           // Link the ride to the datastream.
-          ride.onRecommendation = (r) => datastream.select(sg: r.sg);
+          ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
-        // Select the ride.
-        await ride.selectRide(context, routing.selectedRoute!);
-        // Start navigating.
-        await ride.startNavigation(context);
         // Start fetching accelerometer updates.
         await accelerometer.start();
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           context: context,
           onNewPosition: (pos) async {
-            // Pass new positions to the ride service.
-            await ride.updatePosition(context);
+            ride.updatePosition(context);
             // Notify the snapping service.
             await snapping.updatePosition(context);
             // Notify the accelerometer service.
@@ -111,7 +106,7 @@ class RideViewState extends State<RideView> {
                   await routing.selectWaypoints(snapping.remainingWaypoints);
                   final routes = await routing.loadRoutes(context);
                   if (routes != null && routes.isNotEmpty) {
-                    await ride.selectRide(context, routes.first);
+                    ride.selectRoute(context, routes.first);
                   }
                 },
               );
@@ -133,10 +128,9 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    Widget? view;
-    switch (settings.ridePreference) {
-      case RidePreference.speedometerView:
-        view = Stack(
+    return Scaffold(
+      body: ScreenTrackingView(
+        child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: const [
@@ -144,24 +138,10 @@ class RideViewState extends State<RideView> {
             RideSpeedometerView(),
             DangerButton(),
             DatastreamView(),
+            RideSGButton(),
           ],
-        );
-        break;
-      case RidePreference.defaultCyclingView:
-        view = const SafeArea(child: DefaultCyclingView());
-        break;
-      case RidePreference.minimalRecommendationCyclingView:
-        view = const SafeArea(child: MinimalRecommendationCyclingView());
-        break;
-      case RidePreference.minimalCountdownCyclingView:
-        view = const SafeArea(child: MinimalCountdownCyclingView());
-        break;
-      default:
-        view = Container();
-    }
-
-    return Scaffold(
-      body: ScreenTrackingView(child: view),
+        ),
+      ),
     );
   }
 }

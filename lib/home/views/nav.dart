@@ -4,6 +4,10 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/views/button.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/weather/view.dart';
+import 'package:provider/provider.dart';
 
 class NavBarView extends StatelessWidget {
   /// A callback that is fired when the settings button was pressed.
@@ -24,6 +28,7 @@ class NavBarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<Settings>(context, listen: false);
     return SliverAppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
@@ -61,13 +66,19 @@ class NavBarView extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  BoldContent(
+                    text: "PrioBike",
+                    color: Colors.white,
+                    context: context,
+                  ),
                   Flexible(
-                      child: BoldContent(
-                        text: "PrioBike",
-                        color: Colors.white,
-                        context: context,
-                      ),
-                      fit: FlexFit.tight),
+                    child: Content(
+                      text: settings.backend == Backend.production ? " HH" : " DD",
+                      color: Colors.white,
+                      context: context,
+                    ),
+                    fit: FlexFit.tight,
+                  ),
                   BoldContent(text: greeting, color: Colors.white, context: context),
                 ],
               ),
@@ -80,13 +91,7 @@ class NavBarView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             children: [
-              const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
-              const SmallHSpace(),
-              Flexible(
-                  child: Small(
-                      text: "Wetterinformationen sind aktuell noch nicht verfügbar.",
-                      color: Colors.white,
-                      context: context)),
+              const WeatherView(),
               const SmallHSpace(),
               NewsButton(
                 onPressed: () {

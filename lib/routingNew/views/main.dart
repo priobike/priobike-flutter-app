@@ -16,7 +16,6 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/bottomSheetState.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/ride/views/selection.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -181,9 +180,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    // Show the ride view directly if the user has selected his preferred ride view.
-    final preferredRideView = Provider.of<Settings>(context, listen: false).ridePreference;
-
     void startRide() => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) {
@@ -192,7 +188,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               // the result handler of the RouteView's host.
               return WillPopScope(
                 onWillPop: () async => false,
-                child: preferredRideView == null ? const RideSelectionView() : const RideView(),
+                child: const RideView(),
               );
             },
           ),

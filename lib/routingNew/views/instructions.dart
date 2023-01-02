@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/ride/views/legacy/arrow.dart';
+import 'package:priobike/routingNew/views/widgets/arrow.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:provider/provider.dart';

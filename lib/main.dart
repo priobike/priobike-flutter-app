@@ -12,6 +12,7 @@ import 'package:priobike/routingNew/services/bottomSheetState.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/datastream.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -21,7 +22,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -35,6 +35,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -97,13 +98,14 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Accelerometer()),
         ChangeNotifierProvider(create: (context) => Dangers()),
         ChangeNotifierProvider(create: (context) => Datastream()),
-        ChangeNotifierProvider(create: (context) => Ride()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),
         ChangeNotifierProvider(create: (context) => MapController()),
         ChangeNotifierProvider(create: (context) => BottomSheetState()),
+        ChangeNotifierProvider(create: (context) => Weather()),
+        ChangeNotifierProvider(create: (context) => Ride()),
       ],
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {

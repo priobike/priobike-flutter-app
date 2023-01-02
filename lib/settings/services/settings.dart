@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/ride.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:priobike/logging/logger.dart';
 import '../models/routing_view.dart';
+
+final log = Logger("settings.dart");
 
 class Settings with ChangeNotifier {
   var hasLoaded = false;
@@ -24,8 +27,14 @@ class Settings with ChangeNotifier {
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
+  /// Whether the user has seen the warning at the start of the ride.
+  bool didViewWarning;
+
   /// The selected backend.
   Backend backend;
+
+  /// The selected prediction mode.
+  PredictionMode predictionMode;
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
@@ -38,9 +47,6 @@ class Settings with ChangeNotifier {
 
   /// The signal group labels mode.
   SGLabelsMode sgLabelsMode;
-
-  /// The ride views preference.
-  RidePreference? ridePreference;
 
   /// The colorMode preference
   ColorMode colorMode;
@@ -57,6 +63,8 @@ class Settings with ChangeNotifier {
   /// The counter of connection error in a row.
   int connectionErrorCounter;
 
+  /// The selected signal groups selector.
+  SGSelector sgSelector;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -73,8 +81,18 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> setDidViewWarning(bool didViewWarning) async {
+    this.didViewWarning = didViewWarning;
+    await store();
+  }
+
   Future<void> selectBackend(Backend backend) async {
     this.backend = backend;
+    await store();
+  }
+
+  Future<void> selectPredictionMode(PredictionMode predictionMode) async {
+    this.predictionMode = predictionMode;
     await store();
   }
 
@@ -103,11 +121,6 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  Future<void> selectRidePreference(RidePreference ridePreference) async {
-    this.ridePreference = ridePreference;
-    await store();
-  }
-
   Future<void> selectColorMode(ColorMode colorMode) async {
     this.colorMode = colorMode;
     await store();
@@ -123,6 +136,11 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectSGSelector(SGSelector sgSelector) async {
+    this.sgSelector = sgSelector;
+    await store();
+  }
+
   Future<void> incrementConnectionErrorCounter() async {
     connectionErrorCounter += 1;
     await store();
@@ -133,10 +151,10 @@ class Settings with ChangeNotifier {
     await store();
   }
 
-  /// Delete the ride preference to debug the ride selection view.
-  Future<void> deleteRidePreference() async {
+  Future<void> deleteWarning() async {
     final storage = await SharedPreferences.getInstance();
-    await storage.remove("priobike.settings.ridePreference");
+    await storage.setBool("priobike.routing.warning", false);
+    didViewWarning = false;
     notifyListeners();
   }
 
@@ -144,17 +162,19 @@ class Settings with ChangeNotifier {
     this.enableBetaFeatures = false,
     this.enableInternalFeatures = false,
     this.enablePerformanceOverlay = false,
+    this.didViewWarning = false,
     this.backend = Backend.production,
+    this.predictionMode = PredictionMode.usePredictionService,
     this.positioningMode = PositioningMode.gnss,
     this.rerouting = Rerouting.enabled,
     this.routingEndpoint = RoutingEndpoint.graphhopper,
     this.sgLabelsMode = SGLabelsMode.disabled,
-    this.ridePreference,
     this.speedMode = SpeedMode.max30kmh,
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
     this.connectionErrorCounter = 0,
-    this.routingView = RoutingViewOption.stable
+    this.routingView = RoutingViewOption.stable,
+    this.sgSelector = SGSelector.algorithmic,
   });
 
   /// Load the backend from the shared
@@ -177,14 +197,28 @@ class Settings with ChangeNotifier {
     if (canEnableInternalFeatures) {
       enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
       enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
+      didViewWarning = (storage.getBool("priobike.routing.warning") ?? false);
 
       final backendStr = storage.getString("priobike.settings.backend");
+      final predictionModeStr = storage.getString("priobike.settings.predictionMode");
       final positioningModeStr = storage.getString("priobike.settings.positioningMode");
       final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
       final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
 
       if (backendStr != null) {
         backend = Backend.values.byName(backendStr);
+      }
+      if (predictionModeStr != null) {
+        try {
+          predictionMode = PredictionMode.values.byName(predictionModeStr);
+        } catch (e) {
+          log.i("Invalid predictionModeStr: " +
+              predictionModeStr.toString() +
+              ". Setting predictionMode to default value " +
+              PredictionMode.usePredictionService.toString() +
+              ".");
+          predictionMode = PredictionMode.usePredictionService;
+        }
       }
       if (positioningModeStr != null) {
         positioningMode = PositioningMode.values.byName(positioningModeStr);
@@ -204,6 +238,7 @@ class Settings with ChangeNotifier {
       final reroutingStr = storage.getString("priobike.settings.rerouting");
       final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
       final routingViewStr = storage.getString("priobike.settings.routingView");
+      final sgSelectorStr = storage.getString("priobike.settings.sgSelector");
 
       if (reroutingStr != null) {
         rerouting = Rerouting.values.byName(reroutingStr);
@@ -214,19 +249,16 @@ class Settings with ChangeNotifier {
       if (routingViewStr != null) {
         routingView = RoutingViewOption.values.byName(routingViewStr);
       }
+      if (sgSelectorStr != null) {
+        sgSelector = SGSelector.values.byName(sgSelectorStr);
+      }
     }
 
     // All remaining settings.
-    final ridePreferenceStr = storage.getString("priobike.settings.ridePreference");
     final colorModeStr = storage.getString("priobike.settings.colorMode");
     final speedModeStr = storage.getString("priobike.settings.speedMode");
     final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
 
-    if (ridePreferenceStr != null) {
-      ridePreference = RidePreference.values.byName(ridePreferenceStr);
-    } else {
-      ridePreference = null;
-    }
     if (colorModeStr != null) {
       colorMode = ColorMode.values.byName(colorModeStr);
     }
@@ -248,7 +280,9 @@ class Settings with ChangeNotifier {
     await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
     await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
     await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
+    await storage.setBool("priobike.routing.warning", didViewWarning);
     await storage.setString("priobike.settings.backend", backend.name);
+    await storage.setString("priobike.settings.predictionMode", predictionMode.name);
     await storage.setString("priobike.settings.positioningMode", positioningMode.name);
     await storage.setString("priobike.settings.rerouting", rerouting.name);
     await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
@@ -258,12 +292,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
     await storage.setString("priobike.settings.routingView", routingView.name);
     await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
-
-    if (ridePreference != null) {
-      await storage.setString("priobike.settings.ridePreference", ridePreference!.name);
-    } else {
-      await storage.remove("priobike.settings.ridePreference");
-    }
+    await storage.setString("priobike.settings.sgSelector", sgSelector.name);
 
     notifyListeners();
   }
@@ -273,16 +302,18 @@ class Settings with ChangeNotifier {
         "enableBetaFeatures": enableBetaFeatures,
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
+        "didViewWarning": didViewWarning,
         "backend": backend.name,
+        "predictionMode": predictionMode.name,
         "positioningMode": positioningMode.name,
         "rerouting": rerouting.name,
         "routingEndpoint": routingEndpoint.name,
         "sgLabelsMode": sgLabelsMode.name,
-        "ridePreference": ridePreference?.name,
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
         "routingView": routingView.name,
-        "connectionErrorCounter": connectionErrorCounter
+        "connectionErrorCounter": connectionErrorCounter,
+        "sgSelector": sgSelector.name,
       };
 }

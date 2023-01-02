@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -47,6 +48,7 @@ class PredictionSGStatus with ChangeNotifier {
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
+    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     isLoading = true;
     notifyListeners();
@@ -60,7 +62,7 @@ class PredictionSGStatus with ChangeNotifier {
       }
 
       try {
-        var url = "https://$baseUrl/prediction-monitor-nginx/${sg.id}/status.json";
+        var url = "https://$baseUrl/$statusProviderSubPath/${sg.id}/status.json";
         log.i("Fetching $url");
         final endpoint = Uri.parse(url);
 
@@ -122,6 +124,10 @@ class PredictionSGStatus with ChangeNotifier {
   /// Reset the status.
   Future<void> reset() async {
     cache = {};
+    offline = 0;
+    bad = 0;
+    disconnected = 0;
+    ok = 0;
     isLoading = false;
     notifyListeners();
   }

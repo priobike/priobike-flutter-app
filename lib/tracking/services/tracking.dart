@@ -5,6 +5,7 @@ import 'package:priobike/accelerometer/models/acceleration.dart';
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/http.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -13,8 +14,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/messages/recommendation.dart';
-import 'package:priobike/ride/services/ride/ride.dart';
 import 'package:priobike/routingNew/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -65,8 +64,8 @@ class Tracking with ChangeNotifier {
   /// The positions after the ride.
   List<Position>? positions;
 
-  /// The recommendation after the ride.
-  List<Recommendation>? recommendations;
+  /// The predictions after the ride.
+  List<dynamic>? predictions;
 
   /// The logs after the ride.
   List<String>? logs;
@@ -129,7 +128,7 @@ class Tracking with ChangeNotifier {
     // Get the current positions.
     positions = Provider.of<Positioning>(context, listen: false).positions;
     // Get the current recommendations.
-    recommendations = Provider.of<Ride>(context, listen: false).recommendations;
+    predictions = Provider.of<Ride>(context, listen: false).predictions;
     // Get the current logs.
     logs = Logger.db;
     json = jsonEncode(toJson());
@@ -196,7 +195,7 @@ class Tracking with ChangeNotifier {
     dangers = null;
     accelerations = null;
     positions = null;
-    recommendations = null;
+    predictions = null;
     logs = null;
     tapsTracked = [];
     deviceSize = null;
@@ -206,29 +205,29 @@ class Tracking with ChangeNotifier {
 
   /// Convert the track to a JSON object.
   Map<String, dynamic> toJson() => {
-        'startTime': startTime,
-        'endTime': endTime,
-        'debug': debug,
-        'route': route?.toJson(),
-        'positions': positions?.map((p) => p.toJson()).toList(),
-        'recommendations': recommendations?.map((r) => r.toJson()).toList(),
-        'logs': logs,
-        'dangers': dangers?.map((d) => d.toJson()).toList(),
-        'accelerations': accelerations?.map((d) => d.toJson()).toList(),
-        'settings': settings?.toJson(),
-        'statusSummary': statusSummary?.toJsonCamelCase(),
-        'deviceInfo': {
-          'name': 'unknown', // Default, required by tracking service.
-          ...(deviceInfo?.toMap() ?? {}),
-        },
-        'deviceWidth': deviceSize?.width.round(),
-        'deviceHeight': deviceSize?.height.round(),
-        'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
-        'packageInfo': {
-          'appName': packageInfo?.appName,
-          'packageName': packageInfo?.packageName,
-          'version': packageInfo?.version,
-          'buildNumber': packageInfo?.buildNumber,
-        }
-      };
+    'startTime': startTime,
+    'endTime': endTime,
+    'debug': debug,
+    'route': route?.toJson(),
+    'positions': positions?.map((p) => p.toJson()).toList(),
+    'recommendations': predictions?.map((r) => r.toJson()).toList(),
+    'logs': logs,
+    'dangers': dangers?.map((d) => d.toJson()).toList(),
+    'accelerations': accelerations?.map((d) => d.toJson()).toList(),
+    'settings': settings?.toJson(),
+    'statusSummary': statusSummary?.toJsonCamelCase(),
+    'deviceInfo': {
+      'name': 'unknown', // Default, required by tracking service.
+      ...(deviceInfo?.toMap() ?? {}),
+    },
+    'deviceWidth': deviceSize?.width.round(),
+    'deviceHeight': deviceSize?.height.round(),
+    'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
+    'packageInfo': {
+      'appName': packageInfo?.appName,
+      'packageName': packageInfo?.packageName,
+      'version': packageInfo?.version,
+      'buildNumber': packageInfo?.buildNumber,
+    }
+  };
 }

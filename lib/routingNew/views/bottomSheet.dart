@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/ride/views/selection.dart';
+import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
 import 'package:priobike/routingNew/services/routing.dart';
@@ -160,13 +160,13 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             // the result handler of the RouteView's host.
             return WillPopScope(
               onWillPop: () async => false,
-              child: const RideSelectionView(),
+              child: const RideView(),
             );
           }),
         );
 
     final preferences = await SharedPreferences.getInstance();
-    final didViewWarning = preferences.getBool("priobike.routingOLD.warning") ?? false;
+    final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
     if (didViewWarning) {
       startRide();
     } else {

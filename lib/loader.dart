@@ -20,6 +20,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,6 +34,8 @@ class Loader extends StatefulWidget {
 }
 
 class LoaderState extends State<Loader> {
+  final log = Logger("Loader");
+
   /// If the app is currently loading.
   var isLoading = true;
 
@@ -77,10 +80,12 @@ class LoaderState extends State<Loader> {
       // Load stuff from the server.
       final news = Provider.of<News>(context, listen: false);
       await news.getArticles(context);
-      if (!news.hasLoaded) throw Exception("Could not load news");
+      if (!news.hasLoaded) log.i("Could not load news");
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
+      final weather = Provider.of<Weather>(context, listen: false);
+      await weather.fetch(context);
     } catch (e, stackTrace) {
       await Sentry.captureException(e, stackTrace: stackTrace);
       HapticFeedback.heavyImpact();
@@ -126,6 +131,10 @@ class LoaderState extends State<Loader> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
           title: BoldSubHeader(text: "Persönliche Daten zurücksetzen", context: context),
           content: Content(
               text:
@@ -222,11 +231,16 @@ class LoaderState extends State<Loader> {
                           ),
                           const SmallVSpace(),
                           Content(
-                            text: """Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen. 
-                                Prüfe deine Verbindung und versuche es später erneut.""",
+                            text: "Die App konnte keine Verbindung zu den PrioBike-Diensten aufbauen.",
                             context: context,
                             textAlign: TextAlign.center,
                           ),
+                          Content(
+                            text: "Prüfe deine Verbindung und versuche es später erneut.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SmallVSpace(),
                           settings.connectionErrorCounter >= 3 ? const SizedBox(height: 16) : Container(),
                           settings.connectionErrorCounter >= 3
                               ? BigButton(

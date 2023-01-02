@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/positioning/sources/interface.dart';
@@ -49,14 +50,24 @@ class Positioning with ChangeNotifier {
   }
 
   /// Show a dialog if the location provider was denied.
-  showLocationAccessDeniedDialog(BuildContext context) {
+  void showLocationAccessDeniedDialog(BuildContext context) {
     Widget okButton = TextButton(
       child: const Text("Einstellungen öffnen"),
       onPressed: () => positionSource?.openLocationSettings(),
     );
     AlertDialog alert = AlertDialog(
-      title: const Text("Zugriff auf Standort verweigert."),
-      content: const Text("Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen."),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
+      title: SubHeader(
+        text: "Zugriff auf Standort verweigert.",
+        context: context,
+      ),
+      content: Content(
+        text: "Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen.",
+        context: context,
+      ),
       actions: [okButton],
     );
     showDialog(context: context, builder: (BuildContext context) => alert);

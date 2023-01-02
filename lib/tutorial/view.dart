@@ -110,7 +110,6 @@ class TutorialViewState extends State<TutorialView> {
                   Flexible(
                     child: BoldSmall(
                       text: widget.text,
-                      color: const Color.fromARGB(255, 91, 91, 91),
                       context: context,
                     ),
                   ),
@@ -120,11 +119,9 @@ class TutorialViewState extends State<TutorialView> {
                       icon: _checkmarkIsShown
                           ? const Icon(
                               Icons.check,
-                              color: Color.fromARGB(255, 91, 91, 91),
                             )
                           : const Icon(
                               Icons.close,
-                              color: Color.fromARGB(255, 91, 91, 91),
                             ),
                       // The following call will trigger `notifyListeners()`.
                       onPressed: () => tutorial.complete(widget.id),

@@ -42,14 +42,23 @@ class ProfileElementButton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
-                  const SmallVSpace(),
-                  Small(text: title, color: color ?? theme.colorScheme.onBackground, context: context),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, size: constraints.maxWidth * 0.4, color: color ?? theme.colorScheme.onBackground),
+                    const SizedBox(height: 2),
+                    Flexible(
+                      child: Small(
+                        text: title,
+                        color: color ?? theme.colorScheme.onBackground,
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -69,7 +78,7 @@ class ProfileView extends StatefulWidget {
 
 class ProfileViewState extends State<ProfileView> {
   /// The associated profile service, which is injected by the provider.
-  late Profile s;
+  late Profile profileService;
 
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
@@ -77,7 +86,7 @@ class ProfileViewState extends State<ProfileView> {
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<Profile>(context);
+    profileService = Provider.of<Profile>(context);
     super.didChangeDependencies();
   }
 
@@ -122,7 +131,7 @@ class ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!s.hasLoaded) renderLoadingIndicator();
+    if (!profileService.hasLoaded) renderLoadingIndicator();
     return renderProfileSelection();
   }
 
@@ -179,7 +188,7 @@ class ProfileViewState extends State<ProfileView> {
                       transitionBuilder: (Widget child, Animation<double> animation) {
                         return ScaleTransition(scale: animation, child: child);
                       },
-                      child: s.bikeType == null
+                      child: profileService.bikeType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
                               icon: Icons.electric_bike_rounded,
@@ -188,9 +197,9 @@ class ProfileViewState extends State<ProfileView> {
                               backgroundColor: Theme.of(context).colorScheme.background,
                               onPressed: toggleBikeSelection)
                           : ProfileElementButton(
-                              key: ValueKey<String>(s.bikeType!.description()),
-                              icon: s.bikeType!.icon(),
-                              title: s.bikeType!.description(),
+                              key: ValueKey<String>(profileService.bikeType!.description()),
+                              icon: profileService.bikeType!.icon(),
+                              title: profileService.bikeType!.description(),
                               color: Colors.white,
                               backgroundColor: Theme.of(context).colorScheme.primary,
                               touchColor: Colors.white,
@@ -202,7 +211,7 @@ class ProfileViewState extends State<ProfileView> {
                       transitionBuilder: (Widget child, Animation<double> animation) {
                         return ScaleTransition(scale: animation, child: child);
                       },
-                      child: s.preferenceType == null
+                      child: profileService.preferenceType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
                               icon: Icons.thumbs_up_down_rounded,
@@ -212,9 +221,9 @@ class ProfileViewState extends State<ProfileView> {
                               onPressed: togglePreferenceSelection,
                             )
                           : ProfileElementButton(
-                              key: ValueKey<String>(s.preferenceType!.description()),
-                              icon: s.preferenceType!.icon(),
-                              title: s.preferenceType!.description(),
+                              key: ValueKey<String>(profileService.preferenceType!.description()),
+                              icon: profileService.preferenceType!.icon(),
+                              title: profileService.preferenceType!.description(),
                               color: Colors.white,
                               backgroundColor: Theme.of(context).colorScheme.primary,
                               touchColor: Colors.white,
@@ -226,19 +235,19 @@ class ProfileViewState extends State<ProfileView> {
                       transitionBuilder: (Widget child, Animation<double> animation) {
                         return ScaleTransition(scale: animation, child: child);
                       },
-                      child: s.activityType == null
+                      child: profileService.activityType == null
                           ? ProfileElementButton(
                               key: const ValueKey<String>("None"),
-                              icon: Icons.home_work_rounded,
-                              title: "Aktivität",
+                              icon: Icons.landscape,
+                              title: "Anstieg",
                               color: Theme.of(context).colorScheme.onBackground,
                               backgroundColor: Theme.of(context).colorScheme.background,
                               onPressed: toggleActivitySelection,
                             )
                           : ProfileElementButton(
-                              key: ValueKey<String>(s.activityType!.description()),
-                              icon: s.activityType!.icon(),
-                              title: s.activityType!.description(),
+                              key: ValueKey<String>(profileService.activityType!.description()),
+                              icon: profileService.activityType!.icon(),
+                              title: profileService.activityType!.description(),
                               color: Colors.white,
                               backgroundColor: Theme.of(context).colorScheme.primary,
                               touchColor: Colors.white,
@@ -325,8 +334,8 @@ class ProfileViewState extends State<ProfileView> {
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: () {
-                        s.bikeType = bikeType;
-                        s.store();
+                        profileService.bikeType = bikeType;
+                        profileService.store();
                       },
                     ),
                   )
@@ -339,14 +348,14 @@ class ProfileViewState extends State<ProfileView> {
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   touchColor: Theme.of(context).colorScheme.onBackground,
                   onPressed: () {
-                    s.bikeType = null;
-                    s.store();
+                    profileService.bikeType = null;
+                    profileService.store();
                     toggleBikeSelection();
                   },
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }
@@ -393,8 +402,8 @@ class ProfileViewState extends State<ProfileView> {
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: () {
-                        s.preferenceType = preferenceType;
-                        s.store();
+                        profileService.preferenceType = preferenceType;
+                        profileService.store();
                       },
                     ),
                   )
@@ -407,14 +416,14 @@ class ProfileViewState extends State<ProfileView> {
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   touchColor: Theme.of(context).colorScheme.onBackground,
                   onPressed: () {
-                    s.preferenceType = null;
-                    s.store();
+                    profileService.preferenceType = null;
+                    profileService.store();
                     togglePreferenceSelection();
                   },
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }
@@ -462,8 +471,8 @@ class ProfileViewState extends State<ProfileView> {
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       touchColor: Colors.white,
                       onPressed: () {
-                        s.activityType = activityType;
-                        s.store();
+                        profileService.activityType = activityType;
+                        profileService.store();
                       },
                     ),
                   )
@@ -476,14 +485,14 @@ class ProfileViewState extends State<ProfileView> {
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   touchColor: Theme.of(context).colorScheme.onBackground,
                   onPressed: () {
-                    s.activityType = null;
-                    s.store();
+                    profileService.activityType = null;
+                    profileService.store();
                     toggleActivitySelection();
                   },
                 )
               ],
         ),
-        const VSpace(),
+        const SizedBox(height: 18),
       ],
     );
   }

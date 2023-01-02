@@ -98,16 +98,16 @@ extension PreferenceTypeIcon on PreferenceType {
 }
 
 enum ActivityType {
-  work,
-  sport,
+  avoidIncline,
+  allowIncline,
 }
 
 extension ActivityTypeColor on ActivityType {
   Color color() {
     switch (this) {
-      case ActivityType.work:
+      case ActivityType.avoidIncline:
         return const Color.fromRGBO(6, 82, 221, 1.0);
-      case ActivityType.sport:
+      case ActivityType.allowIncline:
         return const Color.fromRGBO(234, 32, 39, 1.0);
     }
   }
@@ -116,10 +116,10 @@ extension ActivityTypeColor on ActivityType {
 extension ActivityTypeIcon on ActivityType {
   IconData icon() {
     switch (this) {
-      case ActivityType.work:
-        return Icons.work_rounded;
-      case ActivityType.sport:
-        return Icons.speed_rounded;
+      case ActivityType.avoidIncline:
+        return Icons.trending_flat;
+      case ActivityType.allowIncline:
+        return Icons.trending_up;
     }
   }
 }
@@ -127,10 +127,10 @@ extension ActivityTypeIcon on ActivityType {
 extension ActivityTypeDescription on ActivityType {
   String description() {
     switch (this) {
-      case ActivityType.work:
-        return "Arbeit";
-      case ActivityType.sport:
-        return "Sport";
+      case ActivityType.avoidIncline:
+        return "Anstieg vermeiden";
+      case ActivityType.allowIncline:
+        return "Anstieg erlauben";
     }
   }
 }
