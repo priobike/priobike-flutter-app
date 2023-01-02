@@ -556,7 +556,7 @@ class SettingsViewState extends State<SettingsView> {
                         padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(
                           text:
-                              "Für die Berechnung der Geschwindigkeitsempfehlungen ist es notwendig zu wissen, welche Ampeln auf der aktuellen Route befahren werden. Bei PrioBike stehen für die Ermittlung davon zwei Methoden zur Verfügung. Die algorthmische Ermittlung ist der Standard und schon seit längerer Zeit genutzte Ansatz. Beim Machine-Learning-Ansatz handelt es sich um einen neuen experimentellen Ansatz.",
+                              "Wenn du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst du diese Einstellung wechseln.",
                           context: context,
                         ),
                       ),
