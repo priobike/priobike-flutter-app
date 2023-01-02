@@ -159,6 +159,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
       fitCameraToRouteBounds();
+      fitCameraToLatLng();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
       status.needsLayout[viewId] = false;
@@ -181,6 +182,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
       duration: const Duration(milliseconds: 1000),
     );
+  }
+
+  /// Fit the camera to the current waypoint.
+  fitCameraToLatLng() async {
+    if (mapboxMapController == null || !mounted) return;
+    // FIXME with changenotifier at some point this condition needs to be adapted.
+    // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
+    if (routing.selectedWaypoints == null) return;
+    if (routing.selectedWaypoints!.length == 1) {
+      // The delay is necessary, otherwise sometimes the camera won't move.
+      await Future.delayed(const Duration(milliseconds: 750));
+      await mapboxMapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(LatLng(routing.selectedWaypoints![0]!.lat, routing.selectedWaypoints![0]!.lon), 13),
+        duration: const Duration(milliseconds: 1000),
+      );
+    }
   }
 
   /// Show the user location on the map.
