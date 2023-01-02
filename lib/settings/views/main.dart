@@ -536,7 +536,7 @@ class SettingsViewState extends State<SettingsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: SettingsElement(
-                          title: "SG-Selektion",
+                          title: "Auswahl der Ampeln",
                           subtitle: settings.sgSelector.description,
                           icon: Icons.expand_more,
                           callback: () => showAppSheet(
