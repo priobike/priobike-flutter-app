@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routingNew/messages/graphhopper.dart';
@@ -153,6 +154,12 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// A callback that is fired when the ride is started.
   Future<void> _onStartRide() async {
+    // Check at least 2 waypoints.
+    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.length <2) {
+      ToastMessage.showError("Es sind zu wenig Wegpunkte ausgewählt.");
+      return;
+    }
+
     void startRide() => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
             // Avoid navigation back, only allow stop button to be pressed.
@@ -186,7 +193,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           actions: [
             TextButton(
               onPressed: () {
-                preferences.setBool("priobike.routingOLD.warning", true);
+                preferences.setBool("priobike.routing.warning", true);
                 startRide();
               },
               child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
