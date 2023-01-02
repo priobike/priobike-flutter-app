@@ -124,6 +124,10 @@ class PredictionSGStatus with ChangeNotifier {
   /// Reset the status.
   Future<void> reset() async {
     cache = {};
+    offline = 0;
+    bad = 0;
+    disconnected = 0;
+    ok = 0;
     isLoading = false;
     notifyListeners();
   }
