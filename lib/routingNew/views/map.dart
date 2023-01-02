@@ -274,7 +274,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   fitAttributionPosition({double? sheetHeightRelative}) {
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
-        ? 114 + frame.padding.bottom + sheetPadding // Default value.
+        ? frame.padding.bottom + sheetPadding // Default value.
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);

@@ -135,6 +135,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     SchedulerBinding.instance?.addPostFrameCallback(
       (_) async {
         await routing.loadRoutes(context);
+        // To place the mapbox logo correct when shortcut selected in home screen.
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
         await positioning.requestSingleLocation(context);
@@ -353,11 +356,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> _startRoutingSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RouteSearchView(onPressed: _loadShortcutsRoute),
+        builder: (_) => RouteSearchView(
+          onPressed: _loadShortcutsRoute,
+          sheetMovement: sheetMovement,
+        ),
       ),
     );
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
+      // Set the mapbox logo.
+      sheetMovement.add(DraggableScrollableNotification(
+          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
     }
   }
 
@@ -371,6 +380,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
+      // Set the mapbox logo.
+      sheetMovement.add(DraggableScrollableNotification(
+          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
     }
   }
 
@@ -384,6 +396,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
+      // Set the mapbox logo.
+      sheetMovement.add(DraggableScrollableNotification(
+          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
     }
   }
 
@@ -427,6 +442,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   _loadShortcutsRoute(List<Waypoint> waypoints) async {
     await routing.selectWaypoints(waypoints);
     await routing.loadRoutes(context);
+    // Set the mapbox logo.
+    sheetMovement.add(DraggableScrollableNotification(
+        minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
   }
 
   /// Function which switches the Type of a selected Route (prototype).
@@ -497,6 +515,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                   onPressed: _loadShortcutsRoute,
                                   onSearch: onSearch,
                                   context: context,
+                                  sheetMovement: sheetMovement,
                                 ),
                               ),
                               !showRoutingBar
@@ -517,14 +536,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                     )
                                   : Container(),
                               AnimatedPositioned(
-                                // top calculates from padding + systembar
+                                // top calculates from padding + systembar.
                                 top: 20 + frame.padding.top,
                                 left: showRoutingBar ? -64 : 0,
                                 duration: const Duration(milliseconds: 250),
                                 child: AppBackButton(onPressed: _showLessDetails),
                               ),
                               AnimatedPositioned(
-                                // top calculates from padding + systembar
+                                // top calculates from padding + systembar.
                                 top: _calculateRoutingBarHeight(frame) + 10,
                                 left: !showRoutingBar ||
                                         (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)

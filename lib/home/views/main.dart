@@ -31,7 +31,6 @@ import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);

@@ -18,7 +18,9 @@ import 'widgets/currentLocationButton.dart';
 class RouteSearchView extends StatefulWidget {
   final Function onPressed;
 
-  const RouteSearchView({Key? key, required this.onPressed}) : super(key: key);
+  final sheetMovement;
+
+  const RouteSearchView({Key? key, required this.onPressed, required this.sheetMovement}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RouteSearchViewState();
@@ -165,6 +167,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
               checkNextItem: checkNextItem,
               onPressed: widget.onPressed,
               context: context,
+              sheetMovement: widget.sheetMovement,
             ),
             Expanded(
               child: ListView(

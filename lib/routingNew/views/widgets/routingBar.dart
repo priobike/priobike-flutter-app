@@ -20,6 +20,7 @@ class RoutingBar extends StatefulWidget {
   final Function onPressed;
   final Function? onSearch;
   final BuildContext context;
+  final sheetMovement;
 
   const RoutingBar(
       {Key? key,
@@ -28,7 +29,8 @@ class RoutingBar extends StatefulWidget {
       required this.onPressed,
       required this.context,
       this.checkNextItem,
-      this.onSearch})
+      this.onSearch,
+      required this.sheetMovement})
       : super(key: key);
 
   @override
@@ -343,6 +345,8 @@ class RoutingBarState extends State<RoutingBar> {
                         bottomSheetState.resetInitialHeight();
                         bottomSheetState.draggableScrollableController.reset();
                       }
+                      widget.sheetMovement.add(DraggableScrollableNotification(
+                          minExtent: 0, context: context, extent: 0.0, initialExtent: 0.0, maxExtent: 0.0));
                     },
                     elevation: 5),
               ),
