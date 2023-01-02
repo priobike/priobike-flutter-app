@@ -317,7 +317,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         } else {
           attributionMargins = const Point(20, 0);
         }
-        fitCameraToRouteBounds();
       },
     );
   }
