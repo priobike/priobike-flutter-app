@@ -7,6 +7,7 @@ import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/logger.dart';
@@ -57,6 +58,9 @@ class Settings with ChangeNotifier {
 
   /// The counter of connection error in a row.
   int connectionErrorCounter;
+
+  /// The selected signal groups selector.
+  SGSelector sgSelector;
 
   Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
     this.enableInternalFeatures = enableInternalFeatures;
@@ -123,6 +127,11 @@ class Settings with ChangeNotifier {
     await store();
   }
 
+  Future<void> selectSGSelector(SGSelector sgSelector) async {
+    this.sgSelector = sgSelector;
+    await store();
+  }
+
   Future<void> incrementConnectionErrorCounter() async {
     connectionErrorCounter += 1;
     await store();
@@ -155,6 +164,7 @@ class Settings with ChangeNotifier {
     this.colorMode = ColorMode.system,
     this.datastreamMode = DatastreamMode.disabled,
     this.connectionErrorCounter = 0,
+    this.sgSelector = SGSelector.algorithmic,
   });
 
   /// Load the backend from the shared
@@ -217,12 +227,16 @@ class Settings with ChangeNotifier {
 
       final reroutingStr = storage.getString("priobike.settings.rerouting");
       final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
+      final sgSelectorStr = storage.getString("priobike.settings.sgSelector");
 
       if (reroutingStr != null) {
         rerouting = Rerouting.values.byName(reroutingStr);
       }
       if (routingEndpointStr != null) {
         routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
+      }
+      if (sgSelectorStr != null) {
+        sgSelector = SGSelector.values.byName(sgSelectorStr);
       }
     }
 
@@ -263,6 +277,7 @@ class Settings with ChangeNotifier {
     await storage.setString("priobike.settings.speedMode", speedMode.name);
     await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
     await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
+    await storage.setString("priobike.settings.sgSelector", sgSelector.name);
 
     notifyListeners();
   }
@@ -282,6 +297,7 @@ class Settings with ChangeNotifier {
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
-        "connectionErrorCounter": connectionErrorCounter
+        "connectionErrorCounter": connectionErrorCounter,
+        "sgSelector": sgSelector.name
       };
 }

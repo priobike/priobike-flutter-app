@@ -13,6 +13,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/logging/views.dart';
@@ -283,6 +284,14 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a sg-selector is selected.
+  Future<void> onSelectSGSelector(SGSelector sgSelector) async {
+    // Tell the settings service that we selected the new sg-selector.
+    await settings.selectSGSelector(sgSelector);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -521,6 +530,33 @@ class SettingsViewState extends State<SettingsView> {
                         child: Small(
                           text:
                               "Wenn du Probleme mit der App hast, kannst du uns gerne die Logs schicken. Dann können wir genau sehen, was bei dir kaputt ist.",
+                          context: context,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: SettingsElement(
+                          title: "Auswahl der Ampeln",
+                          subtitle: settings.sgSelector.description,
+                          icon: Icons.expand_more,
+                          callback: () => showAppSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SettingsSelection(
+                                elements: SGSelector.values,
+                                selected: settings.sgSelector,
+                                title: (SGSelector e) => e.description,
+                                callback: onSelectSGSelector,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                        child: Small(
+                          text:
+                              "Wenn du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst du diese Einstellung wechseln.",
                           context: context,
                         ),
                       ),
