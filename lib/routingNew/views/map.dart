@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
@@ -103,6 +104,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The margins of the attribution.
   Point? attributionMargins;
+
+  /// The debouncer for the search.
+  final debouncer = Debouncer(milliseconds: 1000);
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
@@ -313,6 +317,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         } else {
           attributionMargins = const Point(20, 0);
         }
+        fitCameraToRouteBounds();
       },
     );
   }
@@ -423,12 +428,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
-    if (widget.withRouting &&
-        layerController != null &&
-        mapboxMapController != null &&
-        !mapboxMapController!.isCameraMoving) {
-      await RouteLabelLayer(context).update(layerController!);
-    }
+    debouncer.run(() async {
+      if (widget.withRouting &&
+          layerController != null &&
+          mapboxMapController != null &&
+          !mapboxMapController!.isCameraMoving) {
+        await RouteLabelLayer(context).update(layerController!);
+      }
+    });
   }
 
   @override
