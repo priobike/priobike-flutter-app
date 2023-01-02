@@ -227,10 +227,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// A callback that is fired when the user wants to select the displayed layers.
-  void onLayerSelection() {
-    showAppSheet(
+  void onLayerSelection(BuildContext context) {
+    showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
       builder: (_) => const LayerSelectionView(),
     );
   }
@@ -565,7 +568,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                             const SizedBox(height: 10),
                                             ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
                                             const SizedBox(height: 10),
-                                            FilterButton(profileService: profile),
+                                            const FilterButton(),
                                             const SizedBox(height: 10),
                                             const LayerButton(),
                                           ]),
@@ -602,7 +605,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 const SizedBox(height: 10),
                                 ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
                                 const SizedBox(height: 10),
-                                FilterButton(profileService: profile),
+                                const FilterButton(),
                                 const SizedBox(height: 10),
                                 const LayerButton(),
                               ]),
