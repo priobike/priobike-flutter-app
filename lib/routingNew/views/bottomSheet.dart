@@ -155,7 +155,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// A callback that is fired when the ride is started.
   Future<void> _onStartRide() async {
     // Check at least 2 waypoints.
-    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.length <2) {
+    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.length < 2) {
       ToastMessage.showError("Es sind zu wenig Wegpunkte ausgewählt.");
       return;
     }
