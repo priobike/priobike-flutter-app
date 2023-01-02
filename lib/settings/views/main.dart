@@ -287,7 +287,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a sg-selector is selected.
   Future<void> onSelectSGSelector(SGSelector sgSelector) async {
     // Tell the settings service that we selected the new sg-selector.
-    await settings.selectSGSelector(sgSelector);
+    await settings.setSGSelector(sgSelector);
 
     Navigator.pop(context);
   }
@@ -452,7 +452,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
+                          callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
                         ),
                       ),
                     ],
