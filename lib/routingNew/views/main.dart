@@ -126,6 +126,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The attribute which holds the state of which the RoutingBar has to be displayed.
   bool showRoutingBar = true;
 
+  /// The attribute which holds the state of which the route was centered top.
+  bool fitCameraTop = false;
+
   @override
   void initState() {
     super.initState();
@@ -470,16 +473,26 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
             sheetMovement.add(notification);
-            if (notification.extent <= 0.2 && showRoutingBar == false) {
+            if (notification.extent <= 0.2) {
               setState(() {
                 showRoutingBar = true;
               });
-              // Trigger center route in top part of screen.
-              mapController.fitCameraToRouteBounds(routing, false);
+              if (fitCameraTop == true) {
+                // Trigger center route in top part of screen.
+                mapController.fitCameraToRouteBounds(routing, false);
+                setState(() {
+                  fitCameraTop = false;
+                });
+              }
             } else {
               if (notification.extent >= 0.6 && notification.extent <= 0.7) {
                 // Trigger center route in top part of screen.
-                mapController.fitCameraToRouteBounds(routing, true);
+                if (fitCameraTop == false) {
+                  mapController.fitCameraToRouteBounds(routing, true);
+                  setState(() {
+                    fitCameraTop = true;
+                  });
+                }
               }
               setState(() {
                 showRoutingBar = false;
