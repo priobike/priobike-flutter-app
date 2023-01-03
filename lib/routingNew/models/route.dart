@@ -108,10 +108,12 @@ class Route {
     final bounds = this.bounds;
     // Padding is approximately 111m (Approximately 0.001 degrees).
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
-    const pad = 0.001;
+    const padLon = 0.001;
+    // To fit north and south with detailSheet and routingBar.
+    const padLat = 0.015;
     return LatLngBounds(
-      southwest: LatLng(bounds.southwest.latitude - pad, bounds.southwest.longitude - pad),
-      northeast: LatLng(bounds.northeast.latitude + pad, bounds.northeast.longitude + pad),
+      southwest: LatLng(bounds.southwest.latitude - padLat, bounds.southwest.longitude - padLon),
+      northeast: LatLng(bounds.northeast.latitude + padLat, bounds.northeast.longitude + padLon),
     );
   }
 
