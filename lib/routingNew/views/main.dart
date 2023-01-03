@@ -473,6 +473,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
             sheetMovement.add(notification);
+            // Show routingBar when sheet is at the bottom.
             if (notification.extent <= 0.2) {
               setState(() {
                 showRoutingBar = true;
@@ -485,6 +486,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 });
               }
             } else {
+              // Hide routingBar when sheet is 60% or more.
               if (notification.extent >= 0.6 && notification.extent <= 0.7) {
                 // Trigger center route in top part of screen.
                 if (fitCameraTop == false) {

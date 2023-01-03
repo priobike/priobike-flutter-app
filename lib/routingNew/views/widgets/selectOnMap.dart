@@ -19,6 +19,7 @@ import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routingNew/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
+import 'package:priobike/routingNew/views/widgets/selectOnMapName.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
@@ -49,9 +50,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
-
-  /// The text controller for the name textField.
-  final TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
@@ -124,16 +122,18 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
     final waypoint = Waypoint(lat, lon, address: address);
 
     if (widget.withName) {
-      Place newPlace = Place(waypoint: waypoint, name: nameController.text);
-      places.saveNewPlace(newPlace, context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => SelectOnMapNameView(waypoint: waypoint),
+        ),
+      );
+    } else {
+      if (waypoint.address != null && profile.saveSearchHistory) {
+        profile.saveNewSearch(waypoint);
+      }
+      Navigator.of(context).pop(waypoint);
     }
-
-    if (waypoint.address != null && profile.saveSearchHistory) {
-      profile.saveNewSearch(waypoint);
-    }
-
-    // pop till routingScreen
-    Navigator.of(context).pop(waypoint);
   }
 
   @override
@@ -162,27 +162,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context), elevation: 5),
                       ),
                       const SizedBox(width: 16),
-                      widget.withName
-                          ? Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.only(left: 20, right: 5),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(25),
-                                    bottomLeft: Radius.circular(25),
-                                  ),
-                                  border: Border.all(color: Colors.grey),
-                                ),
-                                child: TextField(
-                                  controller: nameController,
-                                  decoration: const InputDecoration(hintText: "Name", border: InputBorder.none),
-                                ),
-                              ),
-                            )
-                          : Center(
-                              child: BoldContent(text: "Standort auf Karte wählen", context: context),
-                            ),
+                      Center(
+                        child: BoldContent(text: "Standort auf Karte wählen", context: context),
+                      ),
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
@@ -193,12 +175,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                           ),
                         ),
                         onPressed: () {
-                          if (widget.withName) {
-                            if (nameController.text == "") {
-                              ToastMessage.showError("Name darf nicht leer sein!");
-                              return;
-                            }
-                          }
                           if (mapController.getCameraPosition(ControllerType.selectOnMap) != null) {
                             onComplete(context, mapController.getCameraPosition(ControllerType.selectOnMap)!.latitude,
                                 mapController.getCameraPosition(ControllerType.selectOnMap)!.longitude);
