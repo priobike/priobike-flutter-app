@@ -98,8 +98,6 @@ final surfaceColor = {
 };
 
 class BottomSheetDetail extends StatefulWidget {
-  /// A callback that is executed when a shortcut should be saved.
-  // final void Function() onSelectSaveButton;
 
   const BottomSheetDetail({Key? key}) : super(key: key);
 
