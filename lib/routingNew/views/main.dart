@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';

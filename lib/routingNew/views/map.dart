@@ -105,9 +105,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The margins of the attribution.
   Point? attributionMargins;
 
-  /// The debouncer for the search.
-  final debouncer = Debouncer(milliseconds: 1000);
-
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
@@ -163,6 +160,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
       fitCameraToRouteBounds();
+      print("triggred");
       fitCameraToLatLng();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;
@@ -190,7 +188,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Fit the camera to the current waypoint.
   fitCameraToLatLng() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapboxMapController == null || mapboxMapController!.cameraPosition == null || !mounted) return;
     // FIXME with changenotifier at some point this condition needs to be adapted.
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedWaypoints == null) return;
@@ -198,7 +196,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // The delay is necessary, otherwise sometimes the camera won't move.
       await Future.delayed(const Duration(milliseconds: 750));
       await mapboxMapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(LatLng(routing.selectedWaypoints![0]!.lat, routing.selectedWaypoints![0]!.lon), 13),
+        CameraUpdate.newLatLngZoom(LatLng(routing.selectedWaypoints![0]!.lat, routing.selectedWaypoints![0]!.lon),
+            mapboxMapController!.cameraPosition!.zoom),
         duration: const Duration(milliseconds: 1000),
       );
     }
@@ -427,14 +426,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
-    debouncer.run(() async {
-      if (widget.withRouting &&
-          layerController != null &&
-          mapboxMapController != null &&
-          !mapboxMapController!.isCameraMoving) {
-        await RouteLabelLayer(context).update(layerController!);
-      }
-    });
+    if (widget.withRouting &&
+        layerController != null &&
+        mapboxMapController != null &&
+        !mapboxMapController!.isCameraMoving) {
+      await RouteLabelLayer(context).update(layerController!);
+    }
   }
 
   @override
