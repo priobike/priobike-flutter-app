@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/routingNew/services/routing.dart';
 
 enum ControllerType {
   main,
@@ -109,5 +110,19 @@ class MapController with ChangeNotifier {
       case ControllerType.selectOnMap:
         return controllerSelectOnMap?.cameraPosition?.target;
     }
+  }
+
+  /// Fit the camera to the current route.
+  fitCameraToRouteBounds(Routing routing, bool isTop) async {
+    if (controller == null) return;
+    // FIXME with changenotifier at some point this condition needs to be adapted.
+    // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
+    if (routing.selectedRoute == null) return;
+    // The delay is necessary, otherwise sometimes the camera won't move.
+    await Future.delayed(const Duration(milliseconds: 750));
+    await controller?.animateCamera(
+      CameraUpdate.newLatLngBounds(isTop ? routing.selectedRoute!.paddedBoundsTop : routing.selectedRoute!.paddedBounds),
+      duration: const Duration(milliseconds: 1000),
+    );
   }
 }

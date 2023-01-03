@@ -470,11 +470,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         body: NotificationListener<DraggableScrollableNotification>(
           onNotification: (notification) {
             sheetMovement.add(notification);
-            if (notification.extent <= 0.2) {
+            if (notification.extent <= 0.2 && showRoutingBar == false) {
               setState(() {
                 showRoutingBar = true;
               });
+              // Trigger center route in top part of screen.
+              mapController.fitCameraToRouteBounds(routing, false);
             } else {
+              if (notification.extent >= 0.6 && notification.extent <= 0.7) {
+                // Trigger center route in top part of screen.
+                mapController.fitCameraToRouteBounds(routing, true);
+              }
               setState(() {
                 showRoutingBar = false;
               });
@@ -530,6 +536,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                         color: Theme.of(context).colorScheme.background,
                                         width: frame.size.width,
                                         height: frame.padding.top + 25 + 64,
+                                      ),
+                                    )
+                                  : Container(),
+                              !showRoutingBar
+                                  ? Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      child: Container(
+                                        width: frame.size.width,
+                                        height: frame.size.height * 0.36,
+                                        color: Colors.transparent,
                                       ),
                                     )
                                   : Container(),

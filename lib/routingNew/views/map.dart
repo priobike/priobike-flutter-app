@@ -160,7 +160,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         status.needsLayout[viewId] != false) {
       loadRouteMapLayers();
       fitCameraToRouteBounds();
-      print("triggred");
       fitCameraToLatLng();
       routing.needsLayout[viewId] = false;
       discomforts.needsLayout[viewId] = false;

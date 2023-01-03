@@ -117,6 +117,21 @@ class Route {
     );
   }
 
+  /// Calculate the padded bounds of this route for the top part of the screen.
+  LatLngBounds get paddedBoundsTop {
+    final bounds = this.bounds;
+    // Padding is approximately 111m (Approximately 0.001 degrees).
+    // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
+    // FIXME => adapted values with each route (to fit the window).
+    const padNorth = 0.001;
+    const padSide = 0.003;
+    const padSouth = 0.02;
+    return LatLngBounds(
+      southwest: LatLng(bounds.southwest.latitude - padSouth, bounds.southwest.longitude - padSide),
+      northeast: LatLng(bounds.northeast.latitude + padNorth, bounds.northeast.longitude + padSide),
+    );
+  }
+
   /// Calculate a camera position for this route.
   CameraPosition get cameraPosition {
     final bounds = this.bounds;
