@@ -13,9 +13,6 @@ class BottomSheetState with ChangeNotifier {
   /// The draggableScrollableController used for DraggableScrollView and ListView in BottomSheet.
   ScrollController? listController;
 
-  /// The state of saving route or place.
-  bool showSaving = false;
-
   BottomSheetState();
 
   /// Function which sets the showRoutingBar.

@@ -98,6 +98,9 @@ final surfaceColor = {
 };
 
 class BottomSheetDetail extends StatefulWidget {
+  /// A callback that is executed when a shortcut should be saved.
+  // final void Function() onSelectSaveButton;
+
   const BottomSheetDetail({Key? key}) : super(key: key);
 
   @override
@@ -134,8 +137,59 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
-  /// The name controller for saving a route or place.
-  TextEditingController nameController = TextEditingController();
+  /// Show a sheet to save the current route as a shortcut.
+  void showSaveShortcutSheet() {
+    final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: (_) {
+        final nameController = TextEditingController();
+        return AlertDialog(
+          title: BoldContent(
+              text:
+                  'Bitte gib einen Namen an, unter dem ${routing.selectedWaypoints!.length == 1 ? "der Ort" : "die Strecke"} gespeichert werden soll.',
+              context: context),
+          content: SizedBox(
+            height: 48,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
+                ),
+              ],
+            ),
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                final name = nameController.text;
+                if (name.isEmpty) {
+                  ToastMessage.showError("Name darf nicht leer sein.");
+                }
+                if (routing.selectedWaypoints != null) {
+                  // Save shortcut.
+                  if (routing.selectedWaypoints!.length > 1 && routing.selectedWaypoints![0] != null) {
+                    await shortcuts.saveNewShortcut(nameController.text, context);
+                  } else {
+                    // Save place.
+                    if (routing.selectedWaypoints!.length == 1) {
+                      await places.saveNewPlaceFromWaypoint(nameController.text, context);
+                    }
+                  }
+                }
+                Navigator.pop(context);
+              },
+              child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -374,38 +428,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     );
   }
 
-  // The saveField widget used in details.
-  _saveField(BuildContext context, TextEditingController nameController) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: BoldContent(context: context, text: 'Name'),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.only(left: 20, right: 5),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  bottomLeft: Radius.circular(25),
-                ),
-                border: Border.all(color: Colors.grey),
-              ),
-              child: TextField(
-                controller: nameController,
-                decoration: const InputDecoration(hintText: "Name", border: InputBorder.none),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// The widget that displays the details.
   _details(BuildContext context, MediaQueryData frame) {
     // The roadClassMap, surfaceMap, roadClassMax and surfaceMax needed to display the surface- and roadClass bars.
@@ -486,8 +508,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   )
                 : Container(),
             const SizedBox(height: 25),
-            // If in saving mode.
-            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
             // Route Environment
             GestureDetector(
               onTap: () {
@@ -728,9 +748,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   )
                 : Container(),
             const SizedBox(height: 35),
-            // If in saving mode.
-            bottomSheetState.showSaving ? _saveField(context, nameController) : Container(),
-            const SizedBox(height: 35),
             Content(
               context: context,
               text:
@@ -754,10 +771,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           iconColor: Colors.white,
         ),
         IconTextButton(
-            onPressed: () {
-              bottomSheetState.animateController(0.66);
-              bottomSheetState.showSaving = true;
-            },
+            onPressed: showSaveShortcutSheet,
             label: 'Speichern',
             icon: Icons.save,
             textColor: Theme.of(context).colorScheme.primary,
@@ -774,51 +788,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             fillColor: Theme.of(context).colorScheme.background)
       ],
     );
-  }
-
-  /// The widget that displays the bottom buttons when in saving state.
-  _bottomButtonsSaving(TextEditingController nameController) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconTextButton(
-          onPressed: () async {
-            await _saveShortCut(nameController);
-          },
-          label: 'Speichern',
-          icon: Icons.save,
-          iconColor: Colors.white,
-        ),
-        IconTextButton(
-            onPressed: () {
-              bottomSheetState.showSaving = false;
-              nameController.text = "";
-              bottomSheetState.animateController(0.175);
-            },
-            label: 'Abbrechen',
-            icon: Icons.cancel,
-            borderColor: Theme.of(context).colorScheme.primary,
-            textColor: Theme.of(context).colorScheme.primary,
-            iconColor: Theme.of(context).colorScheme.primary,
-            fillColor: Theme.of(context).colorScheme.background)
-      ],
-    );
-  }
-
-  /// The callback that is executed when a shortcut is saved.
-  Future<void> _saveShortCut(TextEditingController nameController) async {
-    if (routing.selectedWaypoints != null && nameController.text != "") {
-      // Save shortcut.
-      if (routing.selectedWaypoints!.length > 1 && routing.selectedWaypoints![0] != null) {
-        await shortcuts.saveNewShortcut(nameController.text, context);
-      } else {
-        // Save place.
-        if (routing.selectedWaypoints!.length == 2) {
-          await places.saveNewPlaceFromWaypoint(nameController.text, context);
-        }
-      }
-      bottomSheetState.showSaving = false;
-    }
   }
 
   @override
@@ -879,18 +848,17 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   bottom: 0,
                   left: 0,
                   child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.background,
-                        border: const Border(
-                          top: BorderSide(width: 1, color: Colors.grey),
-                        ),
+                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      border: const Border(
+                        top: BorderSide(width: 1, color: Colors.grey),
                       ),
-                      width: frame.size.width,
-                      height: 50,
-                      child: bottomSheetState.showSaving
-                          ? _bottomButtonsSaving(nameController)
-                          : _bottomButtons(isTop, topSnapRatio)),
+                    ),
+                    width: frame.size.width,
+                    height: 50,
+                    child: _bottomButtons(isTop, topSnapRatio),
+                  ),
                 ),
               ]),
             );
