@@ -43,7 +43,7 @@ Search for:
 - `IPHONEOS_DEPLOYMENT_TARGET = 8.0;`
 - `IPHONEOS_DEPLOYMENT_TARGET = 9.0;`
 - `IPHONEOS_DEPLOYMENT_TARGET = 10.0;`
-And replace them all with:
+<br> And replace them all with:
 `IPHONEOS_DEPLOYMENT_TARGET = 11.0;`
 
 
