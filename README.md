@@ -38,12 +38,14 @@ The easiest fix is to change `PrioBike/priobike-flutter-app/ios/Pods/Pods.xcodep
 Replace <br> `VALID_ARCHS[sdk=iphonesimulator*] = "$(ARCHS_STANDARD)";` <br> everywhere with <br>
 `VALID_ARCHS[sdk=iphonesimulator*] = x86_64;`
 
-Also, if there is a problem with the IPhoneOS-Deployment-Target, change it to 11.0 in the same file.
+Also, if there is a problem with the iPhoneOS-Deployment-Target, change it to 11.0 in the same file.
+
 Search for:
-- `IPHONEOS_DEPLOYMENT_TARGET = 8.0;`
-- `IPHONEOS_DEPLOYMENT_TARGET = 9.0;`
-- `IPHONEOS_DEPLOYMENT_TARGET = 10.0;`
-<br> And replace them all with:
+
+`IPHONEOS_DEPLOYMENT_TARGET = 8.0;`<br>
+`IPHONEOS_DEPLOYMENT_TARGET = 9.0;`<br>
+`IPHONEOS_DEPLOYMENT_TARGET = 10.0;`
+
+And replace them all with:
+
 `IPHONEOS_DEPLOYMENT_TARGET = 11.0;`
-
-
