@@ -25,6 +25,7 @@ import 'package:priobike/routingNew/views/routeSearch.dart';
 import 'package:priobike/routingNew/views/search.dart';
 import 'package:priobike/routingNew/views/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routingNew/views/widgets/alerts.dart';
+import 'package:priobike/routingNew/views/widgets/calculateRoutingBarHeight.dart';
 import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/filterButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
@@ -322,6 +323,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
+      // Minimize view when coming from extra search page.
+      routing.switchMinimized();
       // Set the mapbox logo.
       sheetMovement.add(DraggableScrollableNotification(
           minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
@@ -363,23 +366,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
     mapController.centerNorth(ControllerType.main);
-  }
-
-  /// Function which calculates the RoutingBar height.
-  _calculateRoutingBarHeight(MediaQueryData frame) {
-    // case Items between 2 and 5.
-    if (routing.selectedWaypoints!.length >= 2 && routing.selectedWaypoints!.length <= 5) {
-      // routingBar items * 40 + Padding + SystemBar.
-      return routing.selectedWaypoints!.length * 40 + 20 + frame.viewPadding.top;
-    }
-    // case 1 item
-    if (routing.selectedWaypoints!.length == 1) {
-      // 2 routingBar items (40 + 40) + Padding + SystemBar.
-      return 80 + 20 + frame.viewPadding.top;
-    }
-    // case more then 5 items.
-    // Max RoutingBarHeight + Padding + SystemBar.
-    return frame.size.height * 0.25 + 20 + frame.viewPadding.top;
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
@@ -519,15 +505,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                     )
                                   : Container(),
                               AnimatedPositioned(
-                                // top calculates from padding + systembar.
+                                // top calculates from padding + systemBar.
                                 top: 20 + frame.padding.top,
                                 left: showRoutingBar ? -64 : 0,
                                 duration: const Duration(milliseconds: 250),
                                 child: AppBackButton(onPressed: _showLessDetails),
                               ),
                               AnimatedPositioned(
-                                // top calculates from padding + systembar.
-                                top: _calculateRoutingBarHeight(frame) + 10,
+                                // top calculates from padding + systemBar.
+                                top: calculateRoutingBarHeight(
+                                        frame, routing.selectedWaypoints!.length, true, routing.minimized) +
+                                    10,
                                 left: !showRoutingBar ||
                                         (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)
                                     ? -frame.size.width * 0.75
@@ -539,10 +527,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                 ),
                               ),
                               showRoutingBar
-                                  ? Positioned(
-                                      // top calculates from padding + systembar
-                                      top: _calculateRoutingBarHeight(frame),
+                                  ? AnimatedPositioned(
+                                      // top calculates from padding + systemBar.
+                                      top: calculateRoutingBarHeight(
+                                          frame, routing.selectedWaypoints!.length, true, routing.minimized),
                                       right: 0,
+                                      duration: const Duration(milliseconds: 500),
+                                      curve: Curves.easeInCubic,
                                       child: Padding(
                                         /// Align with FAB
                                         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

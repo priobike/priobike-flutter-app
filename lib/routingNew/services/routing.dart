@@ -135,6 +135,9 @@ class Routing with ChangeNotifier {
   /// The route label coords.
   List<GHCoordinate> routeLabelCoords = [];
 
+  /// Variable that holds the state of which the item should be minimized to max 3 items.
+  bool minimized = false;
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -195,6 +198,7 @@ class Routing with ChangeNotifier {
     selectedRoute = null;
     allRoutes = null;
     routeLabelCoords = [];
+    minimized = false;
     notifyListeners();
   }
 
@@ -445,6 +449,11 @@ class Routing with ChangeNotifier {
     await status.fetch(context, selectedRoute!.signalGroups, selectedRoute!.crossings);
 
     notifyListeners();
+  }
+
+  void switchMinimized () {
+    minimized = !minimized;
+    super.notifyListeners();
   }
 
   @override

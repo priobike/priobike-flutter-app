@@ -9,6 +9,7 @@ import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routingNew/views/search.dart';
+import 'package:priobike/routingNew/views/widgets/calculateRoutingBarHeight.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
@@ -22,15 +23,14 @@ class RoutingBar extends StatefulWidget {
   final BuildContext context;
   final sheetMovement;
 
-  const RoutingBar(
-      {Key? key,
-      this.locationSearchController,
-      required this.fromRoutingSearch,
-      required this.onPressed,
-      required this.context,
-      this.checkNextItem,
-      this.onSearch,
-      required this.sheetMovement})
+  const RoutingBar({Key? key,
+    this.locationSearchController,
+    required this.fromRoutingSearch,
+    required this.onPressed,
+    required this.context,
+    this.checkNextItem,
+    this.onSearch,
+    required this.sheetMovement})
       : super(key: key);
 
   @override
@@ -139,25 +139,27 @@ class RoutingBarState extends State<RoutingBar> {
               leadingIcon != null
                   ? Icon(leadingIcon)
                   : Container(
-                      width: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                      ),
-                      child: Center(
-                        child: Content(text: index.toString(), context: context),
-                      ),
-                    ),
+                width: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Theme
+                          .of(context)
+                          .brightness == Brightness.dark ? Colors.white : Colors.black),
+                ),
+                child: Center(
+                  child: Content(text: index.toString(), context: context),
+                ),
+              ),
               index < max - 1
                   ? Positioned(
-                      left: 3,
-                      top: index == 0 ? 23 : 20,
-                      child: const Icon(
-                        Icons.more_vert,
-                        size: 18,
-                      ),
-                    )
+                left: 3,
+                top: index == 0 ? 23 : 20,
+                child: const Icon(
+                  Icons.more_vert,
+                  size: 18,
+                ),
+              )
                   : Container(),
             ],
           ),
@@ -178,23 +180,29 @@ class RoutingBarState extends State<RoutingBar> {
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .background,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
                     ),
-                    border: Border.all(color: nextItem == index ? Theme.of(context).colorScheme.primary : Colors.grey),
+                    border: Border.all(color: nextItem == index ? Theme
+                        .of(context)
+                        .colorScheme
+                        .primary : Colors.grey),
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Content(
                         text: waypoint != null
                             ? waypoint.address != null
-                                ? waypoint.address!.toString()
-                                : "Aktueller Standort"
+                            ? waypoint.address!.toString()
+                            : "Aktueller Standort"
                             : index > 0
-                                ? "Ziel auswählen"
-                                : "Start auswählen",
+                            ? "Ziel auswählen"
+                            : "Start auswählen",
                         context: context,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -321,44 +329,75 @@ class RoutingBarState extends State<RoutingBar> {
     return Material(
       elevation: 5,
       child: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme
+            .of(context)
+            .colorScheme
+            .background,
         width: frame.size.width,
         child: SafeArea(
           top: true,
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Hero(
-                tag: 'appBackButton',
-                child: AppBackButton(
-                    icon: Icons.chevron_left_rounded,
-                    onPressed: () {
-                      // Reset everything.
-                      routing.reset();
-                      discomforts.reset();
+            AnimatedContainer(
+              height: calculateRoutingBarHeight(
+                  frame, widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
+                  false, routing.minimized),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInCubic,
+              child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Hero(
+                    tag: 'appBackButton',
+                    child: AppBackButton(
+                        icon: Icons.chevron_left_rounded,
+                        onPressed: () {
+                          // Reset everything.
+                          routing.reset();
+                          discomforts.reset();
 
-                      // Only in SearchRoutingView.
-                      if (widget.fromRoutingSearch) {
-                        Navigator.of(context).pop();
-                      } else {
-                        bottomSheetState.listController = null;
-                        bottomSheetState.resetInitialHeight();
-                        bottomSheetState.draggableScrollableController.reset();
-                      }
-                      widget.sheetMovement.add(DraggableScrollableNotification(
-                          minExtent: 0, context: context, extent: 0.0, initialExtent: 0.0, maxExtent: 0.0));
-                    },
-                    elevation: 5),
-              ),
+                          // Only in SearchRoutingView.
+                          if (widget.fromRoutingSearch) {
+                            Navigator.of(context).pop();
+                          } else {
+                            bottomSheetState.listController = null;
+                            bottomSheetState.resetInitialHeight();
+                            bottomSheetState.draggableScrollableController.reset();
+                          }
+                          widget.sheetMovement.add(DraggableScrollableNotification(
+                              minExtent: 0,
+                              context: context,
+                              extent: 0.0,
+                              initialExtent: 0.0,
+                              maxExtent: 0.0));
+                        },
+                        elevation: 5),
+                  ),
+                ),
+                !widget.fromRoutingSearch && routing.selectedWaypoints != null && routing.selectedWaypoints!.length >= 4
+                    ? IconButton(
+                  icon: routing.minimized
+                      ? const Icon(Icons.keyboard_arrow_down)
+                      : const Icon(Icons.keyboard_arrow_up),
+                  onPressed: () {
+                    routing.switchMinimized();
+                  },
+                )
+                    : Container(),
+                // Expanded(child: Container(color: Colors.red,))
+              ]),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: frame.size.height * 0.25,
-                  ),
+              child: AnimatedContainer(
+                height: calculateRoutingBarHeight(
+                    frame,
+                    widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
+                    false,
+                    routing.minimized),
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInCubic,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: ReorderableListView(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
