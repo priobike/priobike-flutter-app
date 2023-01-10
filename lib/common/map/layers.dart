@@ -16,7 +16,7 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
-import 'package:latlong2/latlong.dart' as LatLng2;
+import 'package:latlong2/latlong.dart' as latlng;
 import 'package:priobike/routingNew/models/route.dart' as r;
 
 /// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
@@ -218,7 +218,7 @@ class RouteLabelLayer {
         routing.allRoutes != null &&
         routing.allRoutes!.length >= 2 &&
         routing.selectedRoute != null) {
-      var distance = const LatLng2.Distance();
+      var distance = const latlng.Distance();
 
       double width = MediaQuery.of(context).size.width;
       double height = MediaQuery.of(context).size.height;
@@ -227,14 +227,14 @@ class RouteLabelLayer {
       double cameraPosLong = mapController.controller!.cameraPosition!.target.longitude;
 
       // Cast to LatLng2 format.
-      LatLng2.LatLng cameraPos = LatLng2.LatLng(cameraPosLat, cameraPosLong);
+      latlng.LatLng cameraPos = latlng.LatLng(cameraPosLat, cameraPosLong);
 
       // Getting the bounds north, east, south, west.
       // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      LatLng2.LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-      LatLng2.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-      LatLng2.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-      LatLng2.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      latlng.LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+      latlng.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
+      latlng.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
+      latlng.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
