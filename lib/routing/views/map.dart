@@ -147,7 +147,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   displayCurrentUserLocation() async {
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
-    await mapController?.updateUserLocation(
+    // NOTE: Don't await this function, it will hang forever.
+    // This is a bug in our mapbox fork.
+    mapController?.updateUserLocation(
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
@@ -159,48 +161,71 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
-    if (mapController == null || !mounted) return;
+    if (layerController == null) return;
     // Load the map features.
     if (layers.showAirStations) {
-      BikeAirStationLayer(context).install(layerController!);
+      if (!mounted) return;
+      await BikeAirStationLayer(context).install(layerController!);
     } else {
-      BikeAirStationLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await BikeAirStationLayer.removeFrom(layerController!);
     }
     if (layers.showConstructionSites) {
-      ConstructionSitesLayer(context).install(layerController!);
+      if (!mounted) return;
+      await ConstructionSitesLayer(context).install(layerController!);
     } else {
-      ConstructionSitesLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await ConstructionSitesLayer.removeFrom(layerController!);
     }
     if (layers.showParkingStations) {
-      ParkingStationsLayer(context).install(layerController!);
+      if (!mounted) return;
+      await ParkingStationsLayer(context).install(layerController!);
     } else {
-      ParkingStationsLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await ParkingStationsLayer.removeFrom(layerController!);
     }
     if (layers.showRentalStations) {
-      RentalStationsLayer(context).install(layerController!);
+      if (!mounted) return;
+      await RentalStationsLayer(context).install(layerController!);
     } else {
-      RentalStationsLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await RentalStationsLayer.removeFrom(layerController!);
     }
     if (layers.showRepairStations) {
-      BikeShopLayer(context).install(layerController!);
+      if (!mounted) return;
+      await BikeShopLayer(context).install(layerController!);
     } else {
-      BikeShopLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await BikeShopLayer.removeFrom(layerController!);
     }
     if (layers.showAccidentHotspots) {
-      AccidentHotspotsLayer(context).install(layerController!);
+      if (!mounted) return;
+      await AccidentHotspotsLayer(context).install(layerController!);
     } else {
-      AccidentHotspotsLayer.removeFrom(layerController!);
+      if (!mounted) return;
+      await AccidentHotspotsLayer.removeFrom(layerController!);
     }
   }
 
   /// Load the map layers for the route.
   loadRouteMapLayers() async {
     if (layerController == null) return;
+    if (!mounted) return;
     await AllRoutesLayer(context).update(layerController!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await SelectedRouteLayer(context).update(layerController!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await WaypointsLayer(context).update(layerController!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await DiscomfortsLayer(context).update(layerController!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await TrafficLightsLayer(context).update(layerController!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await OfflineCrossingsLayer(context).update(layerController!);
   }
 
@@ -265,7 +290,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(BuildContext context) async {
-    if (mapController == null || !mounted) return;
+    if (mapController == null || layerController == null || !mounted) return;
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -277,38 +302,49 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     layerController?.notifyStyleLoaded();
     // Trigger an update of the map layers.
     final ppi = MediaQuery.of(context).devicePixelRatio;
+
+    fitCameraToRouteBounds();
+    displayCurrentUserLocation();
+    loadGeoLayers();
+
+    if (!mounted) return;
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       layerController!,
       iconSize: ppi / 2.5,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(context).install(
       layerController!,
       iconSize: ppi / 2.5,
       below: offlineCrossings,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     final discomforts = await DiscomfortsLayer(context).install(
       layerController!,
       iconSize: ppi / 4,
       below: trafficLights,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     final waypoints = await WaypointsLayer(context).install(
       layerController!,
       iconSize: ppi / 4,
       below: discomforts,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     final selectedRoute = await SelectedRouteLayer(context).install(
       layerController!,
       below: waypoints,
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
     await AllRoutesLayer(context).install(
       layerController!,
       below: selectedRoute,
     );
-
-    await loadRouteMapLayers();
-    await fitCameraToRouteBounds();
-    await displayCurrentUserLocation();
-    await loadGeoLayers();
   }
 
   /// A callback that is executed when the map was longclicked.
