@@ -29,23 +29,19 @@ samples, guidance on mobile development, and a full API reference.
 ## Troubleshooting
 
 ### IOS-Simulator doesn't work on M1-Macs
-Currently (Nov. 2022) XCode still has legacy applications that don't fully work on Apple's M1-Chips. One such application is the iOS-Simulator. 
 
-There are [several options](https://blog.sudeium.com/2021/06/18/build-for-x86-simulator-on-apple-silicon-macs/) to fix this.
+Currently (Nov. 2022) XCode still has legacy applications that don't fully work on Apple's M1-Chips. One such application is the iOS-Simulator. There are [several options](https://blog.sudeium.com/2021/06/18/build-for-x86-simulator-on-apple-silicon-macs/) to fix this.
 
-The easiest fix is to change `PrioBike/priobike-flutter-app/ios/Pods/Pods.xcodeproj/project.pbxproj`
+The easiest fix is to change `PrioBike/priobike-flutter-app/ios/Pods/Pods.xcodeproj/project.pbxproj`:
+```diff
+- VALID_ARCHS[sdk=iphonesimulator*] = "$(ARCHS_STANDARD)";
++ VALID_ARCHS[sdk=iphonesimulator*] = x86_64;
+```
 
-Replace <br> `VALID_ARCHS[sdk=iphonesimulator*] = "$(ARCHS_STANDARD)";` <br> everywhere with <br>
-`VALID_ARCHS[sdk=iphonesimulator*] = x86_64;`
-
-Also, if there is a problem with the iPhoneOS-Deployment-Target, change it to 11.0 in the same file.
-
-Search for:
-
-`IPHONEOS_DEPLOYMENT_TARGET = 8.0;`<br>
-`IPHONEOS_DEPLOYMENT_TARGET = 9.0;`<br>
-`IPHONEOS_DEPLOYMENT_TARGET = 10.0;`
-
-And replace them all with:
-
-`IPHONEOS_DEPLOYMENT_TARGET = 11.0;`
+Also, if there is a problem with the iPhoneOS-Deployment-Target, change it to 11.0 in the same file:
+```diff
+- IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+- IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+- IPHONEOS_DEPLOYMENT_TARGET = 10.0;
++ IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+```
