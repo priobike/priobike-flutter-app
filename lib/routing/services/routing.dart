@@ -169,8 +169,14 @@ class Routing with ChangeNotifier {
       final settings = Provider.of<Settings>(context, listen: false);
 
       final baseUrl = settings.backend.path;
+      String usedRoutingParameter;
+      if (settings.routingEndpoint == RoutingEndpoint.graphhopperDRN) {
+        usedRoutingParameter = "drn";
+      } else {
+        usedRoutingParameter = "osm";
+      }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select${settings.sgSelector.servicePathParameter}";
+          "https://$baseUrl/sg-selector-backend/routing/select?matcher${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 

@@ -18,9 +18,9 @@ extension SGSelectorServicePathParameter on SGSelector {
   String get servicePathParameter {
     switch (this) {
       case SGSelector.algorithmic:
-        return "?matcher=legacy";
+        return "legacy";
       case SGSelector.ml:
-        return "?matcher=ml";
+        return "ml";
     }
   }
 }
