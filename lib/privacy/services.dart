@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:priobike/logging/toast.dart';
 
 class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
@@ -35,7 +36,10 @@ class PrivacyPolicy with ChangeNotifier {
   /// Delete the stored privacy policy for debugging purposes.
   Future<void> deleteStoredPolicy() async {
     final storage = await SharedPreferences.getInstance();
-    await storage.remove(key);
+    bool success = await storage.remove(key);
+    (success)
+        ? ToastMessage.showSuccess("Datenschutz zurückgesetzt")
+        : ToastMessage.showError("Datenschutz konnte nicht zurückgesetzt werden");
     isConfirmed = false;
     hasChanged = true;
     notifyListeners();

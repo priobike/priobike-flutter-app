@@ -12,10 +12,10 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/logger.dart';
 
-final log = Logger("settings.dart");
-
 class Settings with ChangeNotifier {
   var hasLoaded = false;
+
+  static final log = Logger("Settings");
 
   /// Whether internal test features should be enabled.
   bool enableInternalFeatures;
@@ -56,125 +56,334 @@ class Settings with ChangeNotifier {
   /// The selected datastream mode.
   DatastreamMode datastreamMode;
 
+  /// The selected signal group selector mode.
+  SGSelector sgSelector;
+
   /// The counter of connection error in a row.
   int connectionErrorCounter;
 
-  /// The selected signal groups selector.
-  SGSelector sgSelector;
-
-  Future<void> setEnableInternalFeatures(bool enableInternalFeatures) async {
+  static const enableInternalFeaturesKey = "priobike.settings.enableInternalFeatures";
+  static const defaultEnableInternalFeatures = false;
+  Future<bool> setEnableInternalFeatures(bool enableInternalFeatures, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableInternalFeatures;
     this.enableInternalFeatures = enableInternalFeatures;
-    await store();
+    bool success = await storage.setBool(enableInternalFeaturesKey, enableInternalFeatures);
+    if (!success) {
+      log.e("Failed to set enableInternalFeatures to $enableInternalFeatures");
+      this.enableInternalFeatures = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> setEnableBetaFeatures(bool enableBetaFeatures) async {
+  static const enableBetaFeaturesKey = "priobike.settings.enableBetaFeatures";
+  static const defaultEnableBetaFeatures = false;
+  Future<bool> setEnableBetaFeatures(bool enableBetaFeatures, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableBetaFeatures;
     this.enableBetaFeatures = enableBetaFeatures;
-    await store();
+    bool success = await storage.setBool(enableBetaFeaturesKey, enableBetaFeatures);
+    if (!success) {
+      log.e("Failed to set enableBetaFeatures to $enableBetaFeatures");
+      this.enableBetaFeatures = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> setEnablePerformanceOverlay(bool enablePerformanceOverlay) async {
+  static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
+  static const defaultEnablePerformanceOverlay = false;
+  Future<bool> setEnablePerformanceOverlay(bool enablePerformanceOverlay, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enablePerformanceOverlay;
     this.enablePerformanceOverlay = enablePerformanceOverlay;
-    await store();
+    bool success = await storage.setBool(enablePerformanceOverlayKey, enablePerformanceOverlay);
+    if (!success) {
+      log.e("Failed to set enablePerformanceOverlay to $enablePerformanceOverlay");
+      this.enablePerformanceOverlay = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> setDidViewWarning(bool didViewWarning) async {
+  static const didViewWarningKey = "priobike.routing.warning";
+  static const defaultDidViewWarning = false;
+  Future<bool> setDidViewWarning(bool didViewWarning, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.didViewWarning;
     this.didViewWarning = didViewWarning;
-    await store();
+    bool success = await storage.setBool(didViewWarningKey, didViewWarning);
+    if (!success) {
+      log.e("Failed to set didViewWarning to $didViewWarning");
+      this.didViewWarning = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectBackend(Backend backend) async {
+  static const backendKey = "priobike.settings.backend";
+  static const defaultBackend = Backend.production;
+  Future<bool> setBackend(Backend backend, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.backend;
     this.backend = backend;
-    await store();
+    bool success = await storage.setString(backendKey, backend.toString());
+    if (!success) {
+      log.e("Failed to set backend to $backend");
+      this.backend = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectPredictionMode(PredictionMode predictionMode) async {
+  static const predictionModeKey = "priobike.settings.predictionMode";
+  static const defaultPredictionMode = PredictionMode.usePredictionService;
+  Future<bool> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.predictionMode;
     this.predictionMode = predictionMode;
-    await store();
+    bool success = await storage.setString(predictionModeKey, predictionMode.toString());
+    if (!success) {
+      log.e("Failed to set predictionMode to $predictionMode");
+      this.predictionMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectPositioningMode(PositioningMode positioningMode) async {
+  static const positioningModeKey = "priobike.settings.positioningMode";
+  static const defaultPositioningMode = PositioningMode.gnss;
+  Future<bool> setPositioningMode(PositioningMode positioningMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.positioningMode;
     this.positioningMode = positioningMode;
-    await store();
+    bool success = await storage.setString(positioningModeKey, positioningMode.toString());
+    if (!success) {
+      log.e("Failed to set positioningMode to $positioningMode");
+      this.positioningMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectRerouting(Rerouting rerouting) async {
+  static const reroutingKey = "priobike.settings.rerouting";
+  static const defaultRerouting = Rerouting.enabled;
+  Future<bool> setRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.rerouting;
     this.rerouting = rerouting;
-    await store();
+    bool success = await storage.setString(reroutingKey, rerouting.toString());
+    if (!success) {
+      log.e("Failed to set rerouting to $rerouting");
+      this.rerouting = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectRoutingEndpoint(RoutingEndpoint routingEndpoint) async {
+  static const routingEndpointKey = "priobike.settings.routingEndpoint";
+  static const defaultRoutingEndpoint = RoutingEndpoint.graphhopperDRN;
+  Future<bool> setRoutingEndpoint(RoutingEndpoint routingEndpoint, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.routingEndpoint;
     this.routingEndpoint = routingEndpoint;
-    await store();
+    bool success = await storage.setString(routingEndpointKey, routingEndpoint.toString());
+    if (!success) {
+      log.e("Failed to set routingEndpoint to $routingEndpoint");
+      this.routingEndpoint = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectSGLabelsMode(SGLabelsMode sgLabelsMode) async {
+  static const sgLabelsModeKey = "priobike.settings.sgLabelsMode";
+  static const defaultSGLabelsMode = SGLabelsMode.disabled;
+  Future<bool> setSGLabelsMode(SGLabelsMode sgLabelsMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgLabelsMode;
     this.sgLabelsMode = sgLabelsMode;
-    await store();
+    bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.toString());
+    if (!success) {
+      log.e("Failed to set sgLabelsMode to $sgLabelsMode");
+      this.sgLabelsMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectColorMode(ColorMode colorMode) async {
+  static const colorModeKey = "priobike.settings.colorMode";
+  static const defaultColorMode = ColorMode.system;
+  Future<bool> setColorMode(ColorMode colorMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.colorMode;
     this.colorMode = colorMode;
-    await store();
+    bool success = await storage.setString(colorModeKey, colorMode.toString());
+    if (!success) {
+      log.e("Failed to set colorMode to $colorMode");
+      this.colorMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectSpeedMode(SpeedMode speedMode) async {
+  static const speedModeKey = "priobike.settings.speedMode";
+  static const defaultSpeedMode = SpeedMode.max30kmh;
+  Future<bool> setSpeedMode(SpeedMode speedMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.speedMode;
     this.speedMode = speedMode;
-    await store();
+    bool success = await storage.setString(speedModeKey, speedMode.toString());
+    if (!success) {
+      log.e("Failed to set speedMode to $speedMode");
+      this.speedMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectDatastreamMode(DatastreamMode datastreamMode) async {
+  static const datastreamModeKey = "priobike.settings.datastreamMode";
+  static const defaultDatastreamMode = DatastreamMode.disabled;
+  Future<bool> setDatastreamMode(DatastreamMode datastreamMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.datastreamMode;
     this.datastreamMode = datastreamMode;
-    await store();
+    bool success = await storage.setString(datastreamModeKey, datastreamMode.toString());
+    if (!success) {
+      log.e("Failed to set datastreamMode to $datastreamMode");
+      this.datastreamMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> selectSGSelector(SGSelector sgSelector) async {
-    this.sgSelector = sgSelector;
-    await store();
-  }
-
-  Future<void> incrementConnectionErrorCounter() async {
+  static const connectionErrorCounterKey = "priobike.settings.connectionErrorCounter";
+  static const defaultConnectionErrorCounter = 0;
+  Future<bool> incrementConnectionErrorCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = connectionErrorCounter;
     connectionErrorCounter += 1;
-    await store();
+    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    if (!success) {
+      log.e("Failed to increment connectionErrorCounter to $connectionErrorCounter");
+      connectionErrorCounter = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> resetConnectionErrorCounter() async {
-    connectionErrorCounter = 0;
-    await store();
+  Future<bool> resetConnectionErrorCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = connectionErrorCounter;
+    connectionErrorCounter = defaultConnectionErrorCounter;
+    bool success = await storage.setInt(connectionErrorCounterKey, connectionErrorCounter);
+    if (!success) {
+      log.e("Failed to reset connectionErrorCounter to $connectionErrorCounter");
+      connectionErrorCounter = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
-  Future<void> deleteWarning() async {
-    final storage = await SharedPreferences.getInstance();
-    await storage.setBool("priobike.routing.warning", false);
-    didViewWarning = false;
-    notifyListeners();
+  static const sgSelectorKey = "priobike.settings.sgSelector";
+  static const defaultSGSelector = SGSelector.algorithmic;
+  Future<bool> setSGSelector(SGSelector sgSelector, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgSelector;
+    this.sgSelector = sgSelector;
+    bool success = await storage.setString(sgSelectorKey, sgSelector.toString());
+    if (!success) {
+      log.e("Failed to set sgSelector to $sgSelector");
+      this.sgSelector = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
   }
 
   Settings({
-    this.enableBetaFeatures = false,
-    this.enableInternalFeatures = false,
-    this.enablePerformanceOverlay = false,
-    this.didViewWarning = false,
-    this.backend = Backend.production,
-    this.predictionMode = PredictionMode.usePredictionService,
-    this.positioningMode = PositioningMode.gnss,
-    this.rerouting = Rerouting.enabled,
-    this.routingEndpoint = RoutingEndpoint.graphhopper,
-    this.sgLabelsMode = SGLabelsMode.disabled,
-    this.speedMode = SpeedMode.max30kmh,
-    this.colorMode = ColorMode.system,
-    this.datastreamMode = DatastreamMode.disabled,
-    this.connectionErrorCounter = 0,
-    this.sgSelector = SGSelector.algorithmic,
+    this.enableBetaFeatures = defaultEnableBetaFeatures,
+    this.enableInternalFeatures = defaultEnableInternalFeatures,
+    this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
+    this.didViewWarning = defaultDidViewWarning,
+    this.backend = defaultBackend,
+    this.predictionMode = defaultPredictionMode,
+    this.positioningMode = defaultPositioningMode,
+    this.rerouting = defaultRerouting,
+    this.routingEndpoint = defaultRoutingEndpoint,
+    this.sgLabelsMode = defaultSGLabelsMode,
+    this.speedMode = defaultSpeedMode,
+    this.colorMode = defaultColorMode,
+    this.datastreamMode = defaultDatastreamMode,
+    this.connectionErrorCounter = defaultConnectionErrorCounter,
+    this.sgSelector = defaultSGSelector,
   });
 
   /// Load the backend from the shared
   /// preferences, for the initial view build.
   static Future<Backend> loadBackendFromSharedPreferences() async {
     final storage = await SharedPreferences.getInstance();
-    var backend = Backend.staging;
-    final backendStr = storage.getString("priobike.settings.backend");
-    if (backendStr != null) backend = Backend.values.byName(backendStr);
+    final backendStr = storage.getString(backendKey);
+    Backend backend;
+    try {
+      backend = Backend.values.byName(backendStr!);
+    } catch (e) {
+      backend = defaultBackend;
+    }
     return backend;
+  }
+
+  /// Load the beta settings from the shared preferences.
+  Future<void> loadBetaSettings(SharedPreferences storage) async {
+    enableBetaFeatures = storage.getBool(enableBetaFeaturesKey) ?? defaultEnableBetaFeatures;
+
+    try {
+      rerouting = Rerouting.values.byName(storage.getString(reroutingKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+  }
+
+  /// Load the internal settings from the shared preferences.
+  Future<void> loadInternalSettings(SharedPreferences storage) async {
+    enableInternalFeatures = storage.getBool(enableInternalFeaturesKey) ?? defaultEnableInternalFeatures;
+    enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
+    didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
+
+    try {
+      backend = Backend.values.byName(storage.getString(backendKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      predictionMode = PredictionMode.values.byName(storage.getString(predictionModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      positioningMode = PositioningMode.values.byName(storage.getString(positioningModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      sgLabelsMode = SGLabelsMode.values.byName(storage.getString(sgLabelsModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      datastreamMode = DatastreamMode.values.byName(storage.getString(datastreamModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      sgSelector = SGSelector.values.byName(storage.getString(sgSelectorKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
   }
 
   /// Load the stored settings.
@@ -183,102 +392,22 @@ class Settings with ChangeNotifier {
 
     final storage = await SharedPreferences.getInstance();
 
-    // All internal settings.
-    if (canEnableInternalFeatures) {
-      enableInternalFeatures = (storage.getBool("priobike.settings.enableInternalFeatures") ?? false);
-      enablePerformanceOverlay = (storage.getBool("priobike.settings.enablePerformanceOverlay") ?? false);
-      didViewWarning = (storage.getBool("priobike.routing.warning") ?? false);
+    // All internal settings - use the default values if internal features are disabled.
+    if (canEnableInternalFeatures) await loadInternalSettings(storage);
 
-      final backendStr = storage.getString("priobike.settings.backend");
-      final predictionModeStr = storage.getString("priobike.settings.predictionMode");
-      final positioningModeStr = storage.getString("priobike.settings.positioningMode");
-      final sgLabelsModeStr = storage.getString("priobike.settings.sgLabelsMode");
-      final datastreamModeStr = storage.getString("priobike.settings.datastreamMode");
-
-      if (backendStr != null) {
-        backend = Backend.values.byName(backendStr);
-      }
-      if (predictionModeStr != null) {
-        try {
-          predictionMode = PredictionMode.values.byName(predictionModeStr);
-        } catch (e) {
-          log.i("Invalid predictionModeStr: " +
-              predictionModeStr.toString() +
-              ". Setting predictionMode to default value " +
-              PredictionMode.usePredictionService.toString() +
-              ".");
-          predictionMode = PredictionMode.usePredictionService;
-        }
-      }
-      if (positioningModeStr != null) {
-        positioningMode = PositioningMode.values.byName(positioningModeStr);
-      }
-      if (sgLabelsModeStr != null) {
-        sgLabelsMode = SGLabelsMode.values.byName(sgLabelsModeStr);
-      }
-      if (datastreamModeStr != null) {
-        datastreamMode = DatastreamMode.values.byName(datastreamModeStr);
-      }
-    }
-
-    // All beta settings.
-    if (canEnableBetaFeatures) {
-      enableBetaFeatures = (storage.getBool("priobike.settings.enableBetaFeatures") ?? false);
-
-      final reroutingStr = storage.getString("priobike.settings.rerouting");
-      final routingEndpointStr = storage.getString("priobike.settings.routingEndpoint");
-      final sgSelectorStr = storage.getString("priobike.settings.sgSelector");
-
-      if (reroutingStr != null) {
-        rerouting = Rerouting.values.byName(reroutingStr);
-      }
-      if (routingEndpointStr != null) {
-        routingEndpoint = RoutingEndpoint.values.byName(routingEndpointStr);
-      }
-      if (sgSelectorStr != null) {
-        sgSelector = SGSelector.values.byName(sgSelectorStr);
-      }
-    }
+    // All beta settings - use the default values if beta features are disabled.
+    if (canEnableBetaFeatures) await loadBetaSettings(storage);
 
     // All remaining settings.
-    final colorModeStr = storage.getString("priobike.settings.colorMode");
-    final speedModeStr = storage.getString("priobike.settings.speedMode");
-    final connectionErrorCounterValue = storage.getInt("priobike.settings.connectionErrorCounter");
-
-    if (colorModeStr != null) {
-      colorMode = ColorMode.values.byName(colorModeStr);
-    }
-    if (speedModeStr != null) {
-      speedMode = SpeedMode.values.byName(speedModeStr);
-    }
-    if (connectionErrorCounterValue != null) {
-      connectionErrorCounter = connectionErrorCounterValue;
-    }
+    connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
+    try {
+      colorMode = ColorMode.values.byName(storage.getString(colorModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      speedMode = SpeedMode.values.byName(storage.getString(speedModeKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
 
     hasLoaded = true;
-    notifyListeners();
-  }
-
-  /// Store the profile.
-  Future<void> store() async {
-    final storage = await SharedPreferences.getInstance();
-
-    await storage.setBool("priobike.settings.enableBetaFeatures", enableBetaFeatures);
-    await storage.setBool("priobike.settings.enableInternalFeatures", enableInternalFeatures);
-    await storage.setBool("priobike.settings.enablePerformanceOverlay", enablePerformanceOverlay);
-    await storage.setBool("priobike.routing.warning", didViewWarning);
-    await storage.setString("priobike.settings.backend", backend.name);
-    await storage.setString("priobike.settings.predictionMode", predictionMode.name);
-    await storage.setString("priobike.settings.positioningMode", positioningMode.name);
-    await storage.setString("priobike.settings.rerouting", rerouting.name);
-    await storage.setString("priobike.settings.routingEndpoint", routingEndpoint.name);
-    await storage.setString("priobike.settings.colorMode", colorMode.name);
-    await storage.setString("priobike.settings.sgLabelsMode", sgLabelsMode.name);
-    await storage.setString("priobike.settings.speedMode", speedMode.name);
-    await storage.setString("priobike.settings.datastreamMode", datastreamMode.name);
-    await storage.setInt("priobike.settings.connectionErrorCounter", connectionErrorCounter);
-    await storage.setString("priobike.settings.sgSelector", sgSelector.name);
-
     notifyListeners();
   }
 
@@ -288,16 +417,16 @@ class Settings with ChangeNotifier {
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
-        "backend": backend.name,
-        "predictionMode": predictionMode.name,
-        "positioningMode": positioningMode.name,
-        "rerouting": rerouting.name,
-        "routingEndpoint": routingEndpoint.name,
-        "sgLabelsMode": sgLabelsMode.name,
-        "colorMode": colorMode.name,
-        "speedMode": speedMode.name,
-        "datastreamMode": datastreamMode.name,
+        "backend": backend.toString(),
+        "predictionMode": predictionMode.toString(),
+        "positioningMode": positioningMode.toString(),
+        "rerouting": rerouting.toString(),
+        "routingEndpoint": routingEndpoint.toString(),
+        "sgLabelsMode": sgLabelsMode.toString(),
+        "colorMode": colorMode.toString(),
+        "speedMode": speedMode.toString(),
+        "datastreamMode": datastreamMode.toString(),
         "connectionErrorCounter": connectionErrorCounter,
-        "sgSelector": sgSelector.name
+        "sgSelector": sgSelector.toString(),
       };
 }
