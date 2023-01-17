@@ -4,6 +4,7 @@ enum PositioningMode {
   follow40kmh,
   recordedDresden,
   recordedHamburg,
+  hamburgStatic1,
   dresdenStatic1,
   dresdenStatic2,
 }
@@ -21,6 +22,8 @@ extension PositioningDescription on PositioningMode {
         return "Aufgezeichnet (Dresden, Teststrecke POT)";
       case PositioningMode.recordedHamburg:
         return "Aufgezeichnet (Hamburg, TS2 West -> Ost)";
+      case PositioningMode.hamburgStatic1:
+        return "Statisch (Hamburg, Hauptbahnhof)";
       case PositioningMode.dresdenStatic1:
         return "Statisch (Dresden, POT vor Ampel 1)";
       case PositioningMode.dresdenStatic2:
