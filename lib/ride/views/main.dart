@@ -53,8 +53,8 @@ class RideViewState extends State<RideView> {
         if (routing.selectedRoute == null) return;
         // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
-        ride.startNavigation(context); // Sets `sessionId` to a random new value.
-        ride.selectRoute(context, routing.selectedRoute!);
+        await ride.startNavigation(context); // Sets `sessionId` to a random new value.
+        await ride.selectRoute(context, routing.selectedRoute!);
         // Start tracking once the `sessionId` is set.
         await tracking.start(context);
         // Connect the datastream mqtt client, if the user enabled real-time data.
