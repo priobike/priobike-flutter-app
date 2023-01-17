@@ -142,7 +142,7 @@ class Positioning with ChangeNotifier {
     } else if (settings.positioningMode == PositioningMode.hamburgStatic1) {
       positionSource = StaticMockPositionSource(position: const mapbox.LatLng(53.5529283, 10.004511), heading: 270);
       log.i("Using mocked position source for Hamburg main station.");
-    }else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
+    } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
       positionSource = StaticMockPositionSource(position: const mapbox.LatLng(51.030077, 13.729404), heading: 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
