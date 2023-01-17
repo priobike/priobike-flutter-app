@@ -278,6 +278,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    displayCurrentUserLocation();
+
     // Wrap the map controller in a layer controller for safer layer access.
     layerController = LayerController(mapController: controller);
 
