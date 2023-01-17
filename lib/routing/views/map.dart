@@ -368,6 +368,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
+      await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
+    }
     await routing.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
     await routing.loadRoutes(context);
   }
