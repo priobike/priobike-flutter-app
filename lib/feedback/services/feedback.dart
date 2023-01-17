@@ -8,7 +8,7 @@ import 'package:priobike/feedback/models/question.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/ride/services/session.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -61,7 +61,7 @@ class Feedback with ChangeNotifier {
     }
 
     final appVersion = Provider.of<Feature>(context, listen: false).appVersion;
-    final sessionId = Provider.of<Session>(context, listen: false).sessionId;
+    final sessionId = Provider.of<Ride>(context, listen: false).sessionId;
 
     // Send all of the answered questions to the backend.
     final settings = Provider.of<Settings>(context, listen: false);

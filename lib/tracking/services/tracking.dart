@@ -31,6 +31,9 @@ class Tracking with ChangeNotifier {
   /// If the track was recorded in the debug mode.
   bool debug = kDebugMode;
 
+  /// The session id.
+  String? sessionId;
+
   /// The device info.
   BaseDeviceInfo? deviceInfo;
 
@@ -113,6 +116,8 @@ class Tracking with ChangeNotifier {
     settings = Provider.of<Settings>(context, listen: false);
     // Get the current status summary.
     statusSummary = Provider.of<PredictionStatusSummary>(context, listen: false).current;
+    // Get the session id.
+    sessionId = Provider.of<Ride>(context, listen: false).sessionId;
     notifyListeners();
   }
 
@@ -204,7 +209,11 @@ class Tracking with ChangeNotifier {
   }
 
   /// Convert the track to a JSON object.
+  /// WARNING: Don't freely change the structure of this object.
+  /// We extract information from this data in the backend.
+  /// Please make sure that any changes are double-checked.
   Map<String, dynamic> toJson() => {
+        'sessionId': sessionId,
         'startTime': startTime,
         'endTime': endTime,
         'debug': debug,
