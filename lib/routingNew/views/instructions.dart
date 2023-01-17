@@ -38,7 +38,7 @@ class InstructionsViewState extends State<InstructionsView> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Flexible(
-            flex: 2,
+            flex: 4,
             child: Row(
               children: [
                 const SizedBox(width: 10),
@@ -53,7 +53,7 @@ class InstructionsViewState extends State<InstructionsView> {
             ),
           ),
           Flexible(
-            flex: 3,
+            flex: 5,
             child: Content(text: ghInstruction.text, context: context),
           ),
         ],

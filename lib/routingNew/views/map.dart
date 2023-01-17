@@ -297,15 +297,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);
-    mapboxMapController?.updateContentInsets(
-      EdgeInsets.fromLTRB(
-        defaultMapInsets.left,
-        defaultMapInsets.top,
-        defaultMapInsets.left,
-        newBottomInset,
-      ),
-      false,
-    );
     setState(
       () {
         bottomSheetOffset = newBottomInset;
