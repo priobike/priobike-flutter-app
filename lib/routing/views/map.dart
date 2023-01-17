@@ -278,6 +278,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapCreated(MapboxMapController controller) async {
     mapController = controller;
 
+    // Added this here additionally to the onStyleLoaded- and didChangeDependencies-callback,
+    // because when using a mocked GPS-position (for testing) only calling it
+    // in those callbacks somehow results in the use of the real GPS-position,
+    // although not being set on our end (seems like a bug in the mapbox-framework).
+    displayCurrentUserLocation();
+
     // Wrap the map controller in a layer controller for safer layer access.
     layerController = LayerController(mapController: controller);
 
