@@ -21,7 +21,6 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -171,9 +170,6 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated session service, which is injected by the provider.
-  late Session session;
-
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -188,7 +184,6 @@ class SettingsViewState extends State<SettingsView> {
     shortcuts = Provider.of<Shortcuts>(context);
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
-    session = Provider.of<Session>(context);
     news = Provider.of<News>(context);
     weather = Provider.of<Weather>(context);
     super.didChangeDependencies();
@@ -206,7 +201,6 @@ class SettingsViewState extends State<SettingsView> {
     await predictionStatusSummary.reset();
     await shortcuts.reset();
     await routing.reset();
-    await session.reset();
     await news.reset();
 
     // Load stuff for the new backend.
