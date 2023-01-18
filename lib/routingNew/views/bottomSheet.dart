@@ -98,7 +98,6 @@ final surfaceColor = {
 };
 
 class BottomSheetDetail extends StatefulWidget {
-
   const BottomSheetDetail({Key? key}) : super(key: key);
 
   @override
@@ -261,23 +260,16 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     // Case details closed => move to 50%.
     if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
         bottomSheetState.draggableScrollableController.size <= 0.65) {
-      bottomSheetState.draggableScrollableController
-          .animateTo(0.66, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+      bottomSheetState.animateController(0.66);
       return;
     }
     // Case details 50% => move to fullscreen.
     if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
         bottomSheetState.draggableScrollableController.size <= topSnapRatio - 0.05) {
-      bottomSheetState.draggableScrollableController
-          .animateTo(topSnapRatio, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+      bottomSheetState.animateController(topSnapRatio);
       return;
     }
-    // Case fullscreen => move to closed.
-    if (bottomSheetState.listController != null) {
-      bottomSheetState.listController!.jumpTo(0);
-    }
-    bottomSheetState.draggableScrollableController
-        .animateTo(0.15, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+    bottomSheetState.animateController(0.175);
   }
 
   /// The widget that displays a detail row in the bar.

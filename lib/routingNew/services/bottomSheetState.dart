@@ -32,7 +32,7 @@ class BottomSheetState with ChangeNotifier {
     draggableScrollableController.animateTo(value,
         duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
     initialHeight = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
   /// Resets the initial height. Has to be called, when the bottomSheet will be disposed.
