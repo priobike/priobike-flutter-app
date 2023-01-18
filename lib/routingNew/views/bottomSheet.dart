@@ -270,6 +270,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       return;
     }
     bottomSheetState.animateController(0.175);
+
+    // Reset the second list.
+    if (bottomSheetState.listController != null) {
+      bottomSheetState.listController!.jumpTo(0);
+    }
   }
 
   /// The widget that displays a detail row in the bar.

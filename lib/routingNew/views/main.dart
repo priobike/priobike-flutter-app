@@ -370,8 +370,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
   _showLessDetails() {
-    bottomSheetState.draggableScrollableController
-        .animateTo(0.15, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+    bottomSheetState.animateController(0.175);
 
     if (bottomSheetState.listController != null) {
       bottomSheetState.listController!.jumpTo(0);
