@@ -132,7 +132,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.backend;
     this.backend = backend;
-    bool success = await storage.setString(backendKey, backend.toString());
+    bool success = await storage.setString(backendKey, backend.name);
     if (!success) {
       log.e("Failed to set backend to $backend");
       this.backend = prev;
@@ -148,7 +148,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.predictionMode;
     this.predictionMode = predictionMode;
-    bool success = await storage.setString(predictionModeKey, predictionMode.toString());
+    bool success = await storage.setString(predictionModeKey, predictionMode.name);
     if (!success) {
       log.e("Failed to set predictionMode to $predictionMode");
       this.predictionMode = prev;
@@ -164,7 +164,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.positioningMode;
     this.positioningMode = positioningMode;
-    bool success = await storage.setString(positioningModeKey, positioningMode.toString());
+    bool success = await storage.setString(positioningModeKey, positioningMode.name);
     if (!success) {
       log.e("Failed to set positioningMode to $positioningMode");
       this.positioningMode = prev;
@@ -180,7 +180,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.rerouting;
     this.rerouting = rerouting;
-    bool success = await storage.setString(reroutingKey, rerouting.toString());
+    bool success = await storage.setString(reroutingKey, rerouting.name);
     if (!success) {
       log.e("Failed to set rerouting to $rerouting");
       this.rerouting = prev;
@@ -196,7 +196,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.routingEndpoint;
     this.routingEndpoint = routingEndpoint;
-    bool success = await storage.setString(routingEndpointKey, routingEndpoint.toString());
+    bool success = await storage.setString(routingEndpointKey, routingEndpoint.name);
     if (!success) {
       log.e("Failed to set routingEndpoint to $routingEndpoint");
       this.routingEndpoint = prev;
@@ -212,7 +212,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgLabelsMode;
     this.sgLabelsMode = sgLabelsMode;
-    bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.toString());
+    bool success = await storage.setString(sgLabelsModeKey, sgLabelsMode.name);
     if (!success) {
       log.e("Failed to set sgLabelsMode to $sgLabelsMode");
       this.sgLabelsMode = prev;
@@ -228,7 +228,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.colorMode;
     this.colorMode = colorMode;
-    bool success = await storage.setString(colorModeKey, colorMode.toString());
+    bool success = await storage.setString(colorModeKey, colorMode.name);
     if (!success) {
       log.e("Failed to set colorMode to $colorMode");
       this.colorMode = prev;
@@ -244,7 +244,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.speedMode;
     this.speedMode = speedMode;
-    bool success = await storage.setString(speedModeKey, speedMode.toString());
+    bool success = await storage.setString(speedModeKey, speedMode.name);
     if (!success) {
       log.e("Failed to set speedMode to $speedMode");
       this.speedMode = prev;
@@ -260,7 +260,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.datastreamMode;
     this.datastreamMode = datastreamMode;
-    bool success = await storage.setString(datastreamModeKey, datastreamMode.toString());
+    bool success = await storage.setString(datastreamModeKey, datastreamMode.name);
     if (!success) {
       log.e("Failed to set datastreamMode to $datastreamMode");
       this.datastreamMode = prev;
@@ -306,7 +306,7 @@ class Settings with ChangeNotifier {
     storage ??= await SharedPreferences.getInstance();
     final prev = this.sgSelector;
     this.sgSelector = sgSelector;
-    bool success = await storage.setString(sgSelectorKey, sgSelector.toString());
+    bool success = await storage.setString(sgSelectorKey, sgSelector.name);
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.sgSelector = prev;
@@ -417,16 +417,16 @@ class Settings with ChangeNotifier {
         "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
-        "backend": backend.toString(),
-        "predictionMode": predictionMode.toString(),
-        "positioningMode": positioningMode.toString(),
-        "rerouting": rerouting.toString(),
-        "routingEndpoint": routingEndpoint.toString(),
-        "sgLabelsMode": sgLabelsMode.toString(),
-        "colorMode": colorMode.toString(),
-        "speedMode": speedMode.toString(),
-        "datastreamMode": datastreamMode.toString(),
+        "backend": backend.name,
+        "predictionMode": predictionMode.name,
+        "positioningMode": positioningMode.name,
+        "rerouting": rerouting.name,
+        "routingEndpoint": routingEndpoint.name,
+        "sgLabelsMode": sgLabelsMode.name,
+        "colorMode": colorMode.name,
+        "speedMode": speedMode.name,
+        "datastreamMode": datastreamMode.name,
         "connectionErrorCounter": connectionErrorCounter,
-        "sgSelector": sgSelector.toString(),
+        "sgSelector": sgSelector.name,
       };
 }
