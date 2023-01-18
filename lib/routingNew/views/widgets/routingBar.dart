@@ -23,14 +23,15 @@ class RoutingBar extends StatefulWidget {
   final BuildContext context;
   final sheetMovement;
 
-  const RoutingBar({Key? key,
-    this.locationSearchController,
-    required this.fromRoutingSearch,
-    required this.onPressed,
-    required this.context,
-    this.checkNextItem,
-    this.onSearch,
-    required this.sheetMovement})
+  const RoutingBar(
+      {Key? key,
+      this.locationSearchController,
+      required this.fromRoutingSearch,
+      required this.onPressed,
+      required this.context,
+      this.checkNextItem,
+      this.onSearch,
+      required this.sheetMovement})
       : super(key: key);
 
   @override
@@ -139,27 +140,29 @@ class RoutingBarState extends State<RoutingBar> {
               leadingIcon != null
                   ? Icon(leadingIcon)
                   : Container(
-                width: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: Theme
-                          .of(context)
-                          .brightness == Brightness.dark ? Colors.white : Colors.black),
-                ),
-                child: Center(
-                  child: Content(text: index.toString(), context: context),
-                ),
-              ),
+                      width: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          // Since new Font there has to be top padding. FIXME
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Content(text: index.toString(), context: context),
+                        ),
+                      ),
+                    ),
               index < max - 1
                   ? Positioned(
-                left: 3,
-                top: index == 0 ? 23 : 20,
-                child: const Icon(
-                  Icons.more_vert,
-                  size: 18,
-                ),
-              )
+                      left: 3,
+                      top: index == 0 ? 23 : 20,
+                      child: const Icon(
+                        Icons.more_vert,
+                        size: 18,
+                      ),
+                    )
                   : Container(),
             ],
           ),
@@ -180,31 +183,29 @@ class RoutingBarState extends State<RoutingBar> {
                 child: Container(
                   padding: const EdgeInsets.only(left: 20, right: 5),
                   decoration: BoxDecoration(
-                    color: Theme
-                        .of(context)
-                        .colorScheme
-                        .background,
+                    color: Theme.of(context).colorScheme.background,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
                     ),
-                    border: Border.all(color: nextItem == index ? Theme
-                        .of(context)
-                        .colorScheme
-                        .primary : Colors.grey),
+                    border: Border.all(color: nextItem == index ? Theme.of(context).colorScheme.primary : Colors.grey),
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Content(
-                        text: waypoint != null
-                            ? waypoint.address != null
-                            ? waypoint.address!.toString()
-                            : "Aktueller Standort"
-                            : index > 0
-                            ? "Ziel auswählen"
-                            : "Start auswählen",
-                        context: context,
-                        overflow: TextOverflow.ellipsis),
+                    child: Padding(
+                      // Since new Font there has to be top padding. FIXME
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Content(
+                          text: waypoint != null
+                              ? waypoint.address != null
+                                  ? waypoint.address!.toString()
+                                  : "Aktueller Standort"
+                              : index > 0
+                                  ? "Ziel auswählen"
+                                  : "Start auswählen",
+                          context: context,
+                          overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                 ),
               ),
@@ -329,18 +330,17 @@ class RoutingBarState extends State<RoutingBar> {
     return Material(
       elevation: 5,
       child: Container(
-        color: Theme
-            .of(context)
-            .colorScheme
-            .background,
+        color: Theme.of(context).colorScheme.background,
         width: frame.size.width,
         child: SafeArea(
           top: true,
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             AnimatedContainer(
               height: calculateRoutingBarHeight(
-                  frame, widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
-                  false, routing.minimized),
+                  frame,
+                  widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
+                  false,
+                  routing.minimized),
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInCubic,
               child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -364,24 +364,20 @@ class RoutingBarState extends State<RoutingBar> {
                             bottomSheetState.draggableScrollableController.reset();
                           }
                           widget.sheetMovement.add(DraggableScrollableNotification(
-                              minExtent: 0,
-                              context: context,
-                              extent: 0.0,
-                              initialExtent: 0.0,
-                              maxExtent: 0.0));
+                              minExtent: 0, context: context, extent: 0.0, initialExtent: 0.0, maxExtent: 0.0));
                         },
                         elevation: 5),
                   ),
                 ),
                 !widget.fromRoutingSearch && routing.selectedWaypoints != null && routing.selectedWaypoints!.length >= 4
                     ? IconButton(
-                  icon: routing.minimized
-                      ? const Icon(Icons.keyboard_arrow_down)
-                      : const Icon(Icons.keyboard_arrow_up),
-                  onPressed: () {
-                    routing.switchMinimized();
-                  },
-                )
+                        icon: routing.minimized
+                            ? const Icon(Icons.keyboard_arrow_down)
+                            : const Icon(Icons.keyboard_arrow_up),
+                        onPressed: () {
+                          routing.switchMinimized();
+                        },
+                      )
                     : Container(),
                 // Expanded(child: Container(color: Colors.red,))
               ]),
