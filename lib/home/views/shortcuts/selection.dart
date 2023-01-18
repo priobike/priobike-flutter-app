@@ -91,16 +91,20 @@ class ShortcutView extends StatelessWidget {
                             ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
                             : ShortcutPictogram(shortcut: shortcut!, height: 48, width: width, color: CI.blue),
                         Expanded(child: Container()),
-                        Content(
-                          text: shortcut == null ? 'Freies Routing starten' : shortcut!.name,
-                          color: shortcut == null
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.brightness == Brightness.dark
-                                  ? Colors.grey
-                                  : Colors.black,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          context: context,
+                        FittedBox(
+                          // Scale the text to fit the width.
+                          fit: BoxFit.fitWidth,
+                          child: Content(
+                            text: shortcut == null ? 'Freies Routing\nstarten' : shortcut!.linebreakedName,
+                            color: shortcut == null
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.brightness == Brightness.dark
+                                    ? Colors.grey
+                                    : Colors.black,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            context: context,
+                          ),
                         ),
                       ],
               ),
