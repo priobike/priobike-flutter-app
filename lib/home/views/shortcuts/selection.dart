@@ -7,31 +7,28 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:provider/provider.dart';
 
 class ShortcutView extends StatelessWidget {
-  final bool isHighlighted;
   final bool isLoading;
+  final Shortcut? shortcut;
   final void Function() onPressed;
-  final IconData icon;
-  final String title;
   final double width;
   final double height;
   final double rightPad;
 
-  const ShortcutView(
-      {Key? key,
-      this.isHighlighted = false,
-      this.isLoading = false,
-      required this.onPressed,
-      required this.icon,
-      required this.title,
-      required this.width,
-      required this.height,
-      required this.rightPad,
-      required BuildContext context})
-      : super(key: key);
+  const ShortcutView({
+    Key? key,
+    this.isLoading = false,
+    this.shortcut,
+    required this.onPressed,
+    required this.width,
+    required this.height,
+    required this.rightPad,
+    required BuildContext context,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,42 +38,81 @@ class ShortcutView extends StatelessWidget {
       padding: EdgeInsets.only(right: rightPad, bottom: 24),
       child: Tile(
         onPressed: onPressed,
-        shadow: isHighlighted ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
-        shadowIntensity: isHighlighted ? 0.3 : 0.08,
-        padding: const EdgeInsets.all(16),
-        content: SizedBox(
-          height: height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: isLoading
-                ? [const Expanded(child: Center(child: CircularProgressIndicator()))]
-                : [
-                    Icon(
-                      icon,
-                      size: 64,
-                      color: isHighlighted
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.brightness == Brightness.dark
-                              ? Colors.grey
-                              : Colors.black,
-                    ),
-                    Expanded(child: Container()),
-                    Content(
-                      text: title,
-                      color: isHighlighted
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.brightness == Brightness.dark
-                              ? Colors.grey
-                              : Colors.black,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      context: context,
-                    ),
-                  ],
+        shadow: shortcut == null ? CI.blue : const Color.fromARGB(255, 0, 0, 0),
+        shadowIntensity: shortcut == null ? 0.3 : 0.08,
+        padding: const EdgeInsets.all(4),
+        content: Stack(children: [
+          if (shortcut != null)
+            Positioned.fill(
+              child: Container(
+                foregroundDecoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? [
+                            Theme.of(context).colorScheme.background,
+                            Theme.of(context).colorScheme.background,
+                            Theme.of(context).colorScheme.background.withOpacity(0.9),
+                            Theme.of(context).colorScheme.background.withOpacity(0.8),
+                            Theme.of(context).colorScheme.background.withOpacity(0.7),
+                          ]
+                        : [
+                            Theme.of(context).colorScheme.background,
+                            Theme.of(context).colorScheme.background,
+                            Theme.of(context).colorScheme.background.withOpacity(0.6),
+                            Theme.of(context).colorScheme.background.withOpacity(0.5),
+                            Theme.of(context).colorScheme.background.withOpacity(0.3),
+                          ],
+                  ),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Image(
+                    image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? const AssetImage('assets/images/map-dark.png')
+                        : const AssetImage('assets/images/map-light.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
+              height: height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: isLoading
+                    ? [const Expanded(child: Center(child: CircularProgressIndicator()))]
+                    : [
+                        shortcut == null
+                            ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
+                            : ShortcutPictogram(shortcut: shortcut!, height: 48, width: width, color: CI.blue),
+                        Expanded(child: Container()),
+                        FittedBox(
+                          // Scale the text to fit the width.
+                          fit: BoxFit.fitWidth,
+                          child: Content(
+                            text: shortcut == null ? 'Freies Routing\nstarten' : shortcut!.linebreakedName,
+                            color: shortcut == null
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.brightness == Brightness.dark
+                                    ? Colors.grey
+                                    : Colors.black,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            context: context,
+                          ),
+                        ),
+                      ],
+              ),
+            ),
           ),
-        ),
-        fill: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-        splash: isHighlighted ? Colors.white : Colors.black,
+        ]),
+        fill: shortcut == null ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
+        splash: shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -163,9 +199,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
         onPressed: () {
           if (!rs.isFetchingRoute) widget.onStartFreeRouting();
         },
-        isHighlighted: true,
-        icon: Icons.map_rounded,
-        title: "Freies Routing starten",
         width: shortcutWidth,
         height: shortcutHeight,
         rightPad: shortcutRightPad,
@@ -181,8 +214,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
                   if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
                 },
                 isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
-                icon: Icons.route_outlined,
-                title: shortcut.name,
+                shortcut: shortcut,
                 width: shortcutWidth,
                 height: shortcutHeight,
                 rightPad: shortcutRightPad,
