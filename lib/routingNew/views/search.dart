@@ -185,7 +185,26 @@ class SearchViewState extends State<SearchView> {
   /// The callback that is executed when the current location button is pressed.
   _currentLocationPressed() async {
     if (currentLocationWaypoint != null) {
-      Navigator.of(context).pop(currentLocationWaypoint);
+      final waypoints = routing.selectedWaypoints ?? [];
+      // exchange with new waypoint
+      List<Waypoint?> newWaypoints = waypoints.toList();
+
+      if (!widget.fromRouteSearch) {
+        if (widget.index != null) {
+          newWaypoints[widget.index!] = currentLocationWaypoint;
+        } else {
+          // Insert current location as first waypoint if option is set
+          if (profile.setLocationAsStart &&
+              currentLocationWaypoint != null &&
+              waypoints.isEmpty) {
+            newWaypoints = [currentLocationWaypoint!, currentLocationWaypoint];
+          } else {
+            newWaypoints = [...waypoints, currentLocationWaypoint];
+          }
+        }
+      }
+      await routing.selectWaypoints(newWaypoints);
+      Navigator.of(context).pop();
     }
   }
 

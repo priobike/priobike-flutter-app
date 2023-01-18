@@ -456,6 +456,11 @@ class Routing with ChangeNotifier {
     super.notifyListeners();
   }
 
+  void setMinimized () {
+    minimized = false;
+    super.notifyListeners();
+  }
+
   @override
   void notifyListeners() {
     needsLayout.updateAll((key, value) => true);

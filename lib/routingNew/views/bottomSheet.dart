@@ -471,7 +471,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
-                      text: routing.selectedWaypoints!.last!.address!,
+                      text: routing.selectedWaypoints!.last!.address ?? "Aktueller Standort",
                       context: context,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -742,12 +742,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     ),
                   )
                 : Container(),
-            const SizedBox(height: 35),
-            Content(
-              context: context,
-              text:
-                  "Hier Könnten noch einzelne Informationen zu einzelnen Wegpunkten angezeigt werden. Ist so im Konzept erstmal noch nicht vorgesehen.",
-            )
           ],
         ),
       ),
@@ -797,9 +791,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           key: _bottomSheetKey,
           initialChildSize: bottomSheetState.initialHeight,
           minChildSize: bottomSnapRatio,
-          maxChildSize: topSnapRatio,
+          maxChildSize: routing.selectedRoute != null ? topSnapRatio : bottomSnapRatio,
           snap: true,
-          snapSizes: const [0.66],
+          snapSizes: routing.selectedRoute != null ? [0.66] : [],
           controller: bottomSheetState.draggableScrollableController,
           builder: (BuildContext buildContext, ScrollController scrollController) {
             final bool isTop = bottomSheetState.draggableScrollableController.size <= topSnapRatio + 0.05 &&

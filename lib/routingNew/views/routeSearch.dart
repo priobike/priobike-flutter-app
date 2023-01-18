@@ -119,7 +119,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
 
   /// The callback that is executed when the current location button is pressed.
   _currentLocationPressed() async {
-    if (routing.nextItem > 0 && currentLocationWaypoint != null) {
+    if (currentLocationWaypoint != null) {
       routing.routingItems[routing.nextItem] = currentLocationWaypoint;
       routing.notifyListeners();
     }

@@ -324,7 +324,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes(context);
       // Minimize view when coming from extra search page.
-      routing.switchMinimized();
+      routing.setMinimized();
       // Set the mapbox logo.
       sheetMovement.add(DraggableScrollableNotification(
           minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
@@ -464,8 +464,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                             height: frame.size.height,
                             child: Stack(clipBehavior: Clip.none, children: [
                               AnimatedPositioned(
-                                // top calculates from maxHeight RoutingBar + padding + systemBar.
-                                top: showRoutingBar ? 0 : -(frame.size.height * 0.25 + 20 + frame.viewPadding.top),
+                                top: showRoutingBar
+                                    ? 0
+                                    : -calculateRoutingBarHeight(
+                                        frame, routing.selectedWaypoints!.length, true, routing.minimized),
                                 duration: const Duration(milliseconds: 250),
                                 child: RoutingBar(
                                   fromRoutingSearch: false,
