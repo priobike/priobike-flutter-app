@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Function which calculates the RoutingBar height.
 double calculateRoutingBarHeight(MediaQueryData frame, int items, bool withSystemBar, bool minimized) {
-  if (minimized) {
+  if (minimized && items >= 3) {
     // routingBar items set to 3 * 40 + Padding + SystemBar.
     return 3 * 40 + 20 + (withSystemBar ? frame.viewPadding.top : 0);
   }
