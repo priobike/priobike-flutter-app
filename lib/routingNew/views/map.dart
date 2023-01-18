@@ -261,6 +261,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await DiscomfortsLayer(context).update(layerController!);
     await TrafficLightsLayer(context).update(layerController!);
     await OfflineCrossingsLayer(context).update(layerController!);
+    await RouteLabelLayer(context).update(layerController!);
   }
 
   /// A callback that is called when the user taps a feature.
