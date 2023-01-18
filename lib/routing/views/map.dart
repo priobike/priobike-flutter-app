@@ -116,15 +116,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Check if route-related stuff has changed.
     routing = Provider.of<Routing>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    status = Provider.of<PredictionSGStatus>(context);
-    if (routing.needsLayout[viewId] != false ||
-        discomforts.needsLayout[viewId] != false ||
-        status.needsLayout[viewId] != false) {
-      loadRouteMapLayers();
+    if (routing.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
+    }
+
+    // Check if the discomforts have changed.
+    discomforts = Provider.of<Discomforts>(context);
+    if (discomforts.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
+    }
+
+    // Check if the status has changed.
+    status = Provider.of<PredictionSGStatus>(context);
+    if (status.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
 
@@ -207,26 +215,44 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
-  /// Load the map layers for the route.
+  /// Update all map layers.
   loadRouteMapLayers() async {
     if (layerController == null) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+
     if (!mounted) return;
-    await AllRoutesLayer(context).update(layerController!);
-    await Future.delayed(const Duration(milliseconds: 100));
+    final offlineCrossings = await OfflineCrossingsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 2.5,
+    );
     if (!mounted) return;
-    await SelectedRouteLayer(context).update(layerController!);
-    await Future.delayed(const Duration(milliseconds: 100));
+    final trafficLights = await TrafficLightsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 2.5,
+      below: offlineCrossings,
+    );
     if (!mounted) return;
-    await WaypointsLayer(context).update(layerController!);
-    await Future.delayed(const Duration(milliseconds: 100));
+    final discomforts = await DiscomfortsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 4,
+      below: trafficLights,
+    );
     if (!mounted) return;
-    await DiscomfortsLayer(context).update(layerController!);
-    await Future.delayed(const Duration(milliseconds: 100));
+    final waypoints = await WaypointsLayer(context).install(
+      layerController!,
+      iconSize: ppi / 4,
+      below: discomforts,
+    );
     if (!mounted) return;
-    await TrafficLightsLayer(context).update(layerController!);
-    await Future.delayed(const Duration(milliseconds: 100));
+    final selectedRoute = await SelectedRouteLayer(context).install(
+      layerController!,
+      below: waypoints,
+    );
     if (!mounted) return;
-    await OfflineCrossingsLayer(context).update(layerController!);
+    await AllRoutesLayer(context).install(
+      layerController!,
+      below: selectedRoute,
+    );
   }
 
   /// A callback that is called when the user taps a feature.
@@ -306,51 +332,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Clear all layers and sources from the layer controller.
     layerController?.notifyStyleLoaded();
-    // Trigger an update of the map layers.
-    final ppi = MediaQuery.of(context).devicePixelRatio;
 
     fitCameraToRouteBounds();
     displayCurrentUserLocation();
     loadGeoLayers();
-
-    if (!mounted) return;
-    final offlineCrossings = await OfflineCrossingsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 2.5,
-    );
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
-    final trafficLights = await TrafficLightsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 2.5,
-      below: offlineCrossings,
-    );
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
-    final discomforts = await DiscomfortsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 4,
-      below: trafficLights,
-    );
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
-    final waypoints = await WaypointsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 4,
-      below: discomforts,
-    );
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
-    final selectedRoute = await SelectedRouteLayer(context).install(
-      layerController!,
-      below: waypoints,
-    );
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!mounted) return;
-    await AllRoutesLayer(context).install(
-      layerController!,
-      below: selectedRoute,
-    );
+    loadRouteMapLayers();
   }
 
   /// A callback that is executed when the map was longclicked.
