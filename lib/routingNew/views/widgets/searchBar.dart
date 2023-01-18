@@ -148,10 +148,14 @@ class SearchBarState extends State<SearchBar> {
                                         : null),
                                 autofocus: widget.fromClicked,
                               )
-                            : SubHeader(
-                                text: "Hier suchen",
-                                context: context,
-                                color: Colors.grey,
+                            : Padding(
+                                // Since new Font. FIXME
+                                padding: const EdgeInsets.only(top: 5),
+                                child: SubHeader(
+                                  text: "Hier suchen",
+                                  context: context,
+                                  color: Colors.grey,
+                                ),
                               ),
                       ),
                     ),
