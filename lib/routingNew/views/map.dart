@@ -206,7 +206,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   displayCurrentUserLocation() async {
     if (mapboxMapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
-    await mapboxMapController?.updateUserLocation(
+    mapboxMapController?.updateUserLocation(
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,

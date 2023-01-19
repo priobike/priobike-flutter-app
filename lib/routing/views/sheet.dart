@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
@@ -213,9 +214,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated routing service, which is injected by the provider.
   late Routing routingService;
 
+  /// The associated position service, which is injected by the provider.
+  late Positioning positioning;
+
   @override
   void didChangeDependencies() {
     routingService = Provider.of<Routing>(context);
+    positioning = Provider.of<Positioning>(context);
     super.didChangeDependencies();
   }
 
@@ -241,11 +246,21 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
-    final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RouteSearch()));
+    final bool showOwnLocationInSearch = routingService.selectedWaypoints != null ? true : false;
+    final result = await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
     if (result == null) return;
 
     final waypoint = result as Waypoint;
     final waypoints = routingService.selectedWaypoints ?? [];
+
+    // Add the own location as a start point to the route, if the waypoint selected in the search is the
+    // first waypoint of the route. Thus making it the destination of the route.
+    if (waypoints.isEmpty) {
+      if (positioning.lastPosition != null) {
+        waypoints.add(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
+      }
+    }
     final newWaypoints = [...waypoints, waypoint];
 
     routingService.selectWaypoints(newWaypoints);

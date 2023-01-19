@@ -23,7 +23,6 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -176,9 +175,6 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated routingOLD service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated session service, which is injected by the provider.
-  late Session session;
-
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -194,7 +190,6 @@ class SettingsViewState extends State<SettingsView> {
     places = Provider.of<Places>(context);
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
-    session = Provider.of<Session>(context);
     news = Provider.of<News>(context);
     weather = Provider.of<Weather>(context);
     super.didChangeDependencies();
@@ -203,7 +198,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a backend is selected.
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectBackend(backend);
+    await settings.setBackend(backend);
 
     // Tell the fcm service that we selected the new backend.
     await FCM.selectBackend(backend);
@@ -212,7 +207,6 @@ class SettingsViewState extends State<SettingsView> {
     await predictionStatusSummary.reset();
     await shortcuts.reset();
     await routing.reset();
-    await session.reset();
     await news.reset();
 
     // Load stuff for the new backend.
@@ -228,7 +222,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a predictor mode is selected.
   Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
     // Tell the settings service that we selected the new predictor mode.
-    await settings.selectPredictionMode(predictionMode);
+    await settings.setPredictionMode(predictionMode);
 
     Navigator.pop(context);
   }
@@ -236,7 +230,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a sg labels mode is selected.
   Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
     // Tell the settings service that we selected the new sg labels mode.
-    await settings.selectSGLabelsMode(mode);
+    await settings.setSGLabelsMode(mode);
 
     Navigator.pop(context);
   }
@@ -244,7 +238,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a positioning is selected.
   Future<void> onSelectPositioningMode(PositioningMode positioningMode) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectPositioningMode(positioningMode);
+    await settings.setPositioningMode(positioningMode);
     // Reset the position service since it depends on the positioning.
     await position.reset();
 
@@ -254,7 +248,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a routingOLD endpoint is selected.
   Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
     // Tell the settings service that we selected the new backend.
-    await settings.selectRoutingEndpoint(routingEndpoint);
+    await settings.setRoutingEndpoint(routingEndpoint);
 
     Navigator.pop(context);
   }
@@ -262,7 +256,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a rerouting is selected.
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
-    await settings.selectRerouting(rerouting);
+    await settings.setRerouting(rerouting);
 
     Navigator.pop(context);
   }
@@ -278,7 +272,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when darkMode is changed
   Future<void> onChangeColorMode(ColorMode colorMode) async {
     // Tell the settings service that we selected the new colorModePreference.
-    await settings.selectColorMode(colorMode);
+    await settings.setColorMode(colorMode);
 
     Navigator.pop(context);
   }
@@ -286,7 +280,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a speed mode is selected.
   Future<void> onSelectSpeedMode(SpeedMode speedMode) async {
     // Tell the settings service that we selected the new speed mode.
-    await settings.selectSpeedMode(speedMode);
+    await settings.setSpeedMode(speedMode);
 
     Navigator.pop(context);
   }
@@ -294,7 +288,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a datastream mode is selected.
   Future<void> onSelectDatastreamMode(DatastreamMode datastreamMode) async {
     // Tell the settings service that we selected the new datastream mode.
-    await settings.selectDatastreamMode(datastreamMode);
+    await settings.setDatastreamMode(datastreamMode);
 
     Navigator.pop(context);
   }
@@ -302,7 +296,7 @@ class SettingsViewState extends State<SettingsView> {
   /// A callback that is executed when a sg-selector is selected.
   Future<void> onSelectSGSelector(SGSelector sgSelector) async {
     // Tell the settings service that we selected the new sg-selector.
-    await settings.selectSGSelector(sgSelector);
+    await settings.setSGSelector(sgSelector);
 
     Navigator.pop(context);
   }
@@ -467,7 +461,7 @@ class SettingsViewState extends State<SettingsView> {
                         child: SettingsElement(
                           title: "Sicherheits-Warnung zurücksetzen",
                           icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).deleteWarning(),
+                          callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
                         ),
                       ),
                     ],

@@ -6,7 +6,6 @@ import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -130,10 +129,6 @@ class CancelButton extends StatelessWidget {
               // Reset the route service.
               final routing = Provider.of<Routing>(context, listen: false);
               await routing.reset();
-
-              // Stop the session and reset the session service.
-              final session = Provider.of<Session>(context, listen: false);
-              await session.reset();
 
               // Reset the prediction sg status.
               final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);

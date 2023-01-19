@@ -6,7 +6,6 @@ import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/services/session.dart';
 import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -41,9 +40,6 @@ class RideViewState extends State<RideView> {
   /// The associated recommendation service, which is injected by the provider.
   Ride? ride;
 
-  /// The associated session service, which is injected by the provider.
-  Session? session;
-
   /// The associated snapping service, which is injected by the provider.
   Snapping? snapping;
 
@@ -66,18 +62,16 @@ class RideViewState extends State<RideView> {
         final positioning = Provider.of<Positioning>(context, listen: false);
         final accelerometer = Provider.of<Accelerometer>(context, listen: false);
         final datastream = Provider.of<Datastream>(context, listen: false);
-        final session = Provider.of<Session>(context, listen: false);
         final snapping = Provider.of<Snapping>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
 
         if (routing.selectedRoute == null) return;
-        // Start tracking.
-        await tracking.start(context);
-        // Authenticate a new session.
-        await session.openSession(context);
+        // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
-        ride.startNavigation(context);
-        ride.selectRoute(context, routing.selectedRoute!);
+        await ride.startNavigation(context); // Sets `sessionId` to a random new value.
+        await ride.selectRoute(context, routing.selectedRoute!);
+        // Start tracking once the `sessionId` is set.
+        await tracking.start(context);
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = Provider.of<Settings>(context, listen: false);
         if (settings.datastreamMode == DatastreamMode.enabled) {

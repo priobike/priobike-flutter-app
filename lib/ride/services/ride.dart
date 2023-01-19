@@ -89,6 +89,9 @@ class Ride with ChangeNotifier {
   /// The predictions received during the ride.
   final List<dynamic> predictions = [];
 
+  /// The session id, set randomly by `startNavigation`.
+  String? sessionId;
+
   /// If the user can select the next signal group.
   bool get userCanSelectNextSG {
     if (route == null) return false;
@@ -231,6 +234,7 @@ class Ride with ChangeNotifier {
     );
     client!.updates?.listen(onData);
     // Mark that navigation is now active.
+    sessionId = UniqueKey().toString();
     navigationIsActive = true;
   }
 

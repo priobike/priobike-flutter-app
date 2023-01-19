@@ -133,36 +133,22 @@ class AllRoutesLayer {
 
 class SelectedRouteLayer {
   /// The features to display.
-  final List<dynamic> features = List.filled(1, null, growable: false); // For optmization.
+  final List<dynamic> features = List.empty(growable: true);
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
     final route = routing.selectedRoute?.route ?? [];
-    final waypoints = routing.selectedWaypoints ?? [];
     final coordinates = route.map((e) => [e.lon, e.lat]).toList();
-    if (waypoints.length > 1) {
-      final geometry = {
-        "type": "LineString",
-        "coordinates": coordinates,
-      };
-      features[0] = {
-        "id": "selected-route",
-        "type": "Feature",
-        "properties": {},
-        "geometry": geometry,
-      };
-    } else {
-      final geometry = {
-        "type": "MultiPoint",
-        "coordinates": coordinates,
-      };
-      features[0] = {
-        "id": "selected-route",
-        "type": "Feature",
-        "properties": {},
-        "geometry": geometry,
-      };
-    }
+    final geometry = {
+      "type": "LineString",
+      "coordinates": coordinates,
+    };
+    features.add({
+      "id": "selected-route",
+      "type": "Feature",
+      "properties": {},
+      "geometry": geometry,
+    });
   }
 
   /// Install the overlay on the layer controller.
@@ -1041,7 +1027,7 @@ class ConstructionSitesLayer {
         iconImage: isDark ? "constructiondark" : "constructionlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 14),
+        iconOpacity: showAfter(zoom: 13),
         textHaloColor: isDark ? "#000000" : "#ffffff",
         textHaloWidth: 1,
         textOffset: [
@@ -1053,7 +1039,8 @@ class ConstructionSitesLayer {
         textSize: 12,
         textAnchor: "center",
         textColor: "#e67e22",
-        textOpacity: showAfter(zoom: 15),
+        textOpacity: showAfter(zoom: 13),
+        textAllowOverlap: true,
       ),
     );
   }
@@ -1095,12 +1082,13 @@ class AccidentHotspotsLayer {
           Expressions.literal,
           [0, 1]
         ],
-        textField: "Unfallschwerpunkt",
+        textField: "Unfall-\nschwerpunkt",
         textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
         textSize: 12,
         textAnchor: "center",
         textColor: "#ff4757",
-        textOpacity: showAfter(zoom: 14),
+        textOpacity: showAfter(zoom: 13),
+        textAllowOverlap: true,
       ),
     );
   }

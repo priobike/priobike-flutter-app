@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/weather/messages.dart';
@@ -201,7 +202,25 @@ class WeatherViewState extends State<WeatherView> {
     return Expanded(
       child: Row(
         children: [
-          icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+          Stack(
+            children: [
+              icon ?? const Icon(Icons.cloudy_snowing, size: 32, color: Colors.white),
+              if (warning)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: const BoxDecoration(
+                      color: CI.red,
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                    ),
+                    child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),
+                  ),
+                ),
+            ],
+          ),
           const SmallHSpace(),
           Flexible(
             child: Small(

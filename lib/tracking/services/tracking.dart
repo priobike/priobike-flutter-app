@@ -31,6 +31,9 @@ class Tracking with ChangeNotifier {
   /// If the track was recorded in the debug mode.
   bool debug = kDebugMode;
 
+  /// The session id.
+  String? sessionId;
+
   /// The device info.
   BaseDeviceInfo? deviceInfo;
 
@@ -113,6 +116,8 @@ class Tracking with ChangeNotifier {
     settings = Provider.of<Settings>(context, listen: false);
     // Get the current status summary.
     statusSummary = Provider.of<PredictionStatusSummary>(context, listen: false).current;
+    // Get the session id.
+    sessionId = Provider.of<Ride>(context, listen: false).sessionId;
     notifyListeners();
   }
 
@@ -204,30 +209,34 @@ class Tracking with ChangeNotifier {
   }
 
   /// Convert the track to a JSON object.
+  /// WARNING: Don't freely change the structure of this object.
+  /// We extract information from this data in the backend.
+  /// Please make sure that any changes are double-checked.
   Map<String, dynamic> toJson() => {
-    'startTime': startTime,
-    'endTime': endTime,
-    'debug': debug,
-    'route': route?.toJson(),
-    'positions': positions?.map((p) => p.toJson()).toList(),
-    'recommendations': predictions?.map((r) => r.toJson()).toList(),
-    'logs': logs,
-    'dangers': dangers?.map((d) => d.toJson()).toList(),
-    'accelerations': accelerations?.map((d) => d.toJson()).toList(),
-    'settings': settings?.toJson(),
-    'statusSummary': statusSummary?.toJsonCamelCase(),
-    'deviceInfo': {
-      'name': 'unknown', // Default, required by tracking service.
-      ...(deviceInfo?.toMap() ?? {}),
-    },
-    'deviceWidth': deviceSize?.width.round(),
-    'deviceHeight': deviceSize?.height.round(),
-    'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
-    'packageInfo': {
-      'appName': packageInfo?.appName,
-      'packageName': packageInfo?.packageName,
-      'version': packageInfo?.version,
-      'buildNumber': packageInfo?.buildNumber,
-    }
-  };
+        'sessionId': sessionId,
+        'startTime': startTime,
+        'endTime': endTime,
+        'debug': debug,
+        'route': route?.toJson(),
+        'positions': positions?.map((p) => p.toJson()).toList(),
+        'recommendations': predictions?.map((r) => r.toJson()).toList(),
+        'logs': logs,
+        'dangers': dangers?.map((d) => d.toJson()).toList(),
+        'accelerations': accelerations?.map((d) => d.toJson()).toList(),
+        'settings': settings?.toJson(),
+        'statusSummary': statusSummary?.toJsonCamelCase(),
+        'deviceInfo': {
+          'name': 'unknown', // Default, required by tracking service.
+          ...(deviceInfo?.toMap() ?? {}),
+        },
+        'deviceWidth': deviceSize?.width.round(),
+        'deviceHeight': deviceSize?.height.round(),
+        'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
+        'packageInfo': {
+          'appName': packageInfo?.appName,
+          'packageName': packageInfo?.packageName,
+          'version': packageInfo?.version,
+          'buildNumber': packageInfo?.buildNumber,
+        }
+      };
 }

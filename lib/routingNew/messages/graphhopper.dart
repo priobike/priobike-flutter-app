@@ -212,7 +212,7 @@ class GHInstruction {
 
   /// Only available for roundabout instructions (sign is 6). The radian of the route within
   /// the roundabout 0 < r < 2*PI for clockwise and -2*PI < r < 0 for counterclockwise turns.
-  final String? turnAngle;
+  final double? turnAngle;
 
   const GHInstruction({
     required this.text,
