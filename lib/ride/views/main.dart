@@ -6,7 +6,6 @@ import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
@@ -47,10 +46,10 @@ class RideViewState extends State<RideView> {
         final positioning = Provider.of<Positioning>(context, listen: false);
         final accelerometer = Provider.of<Accelerometer>(context, listen: false);
         final datastream = Provider.of<Datastream>(context, listen: false);
-        final snapping = Provider.of<Snapping>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
 
         if (routing.selectedRoute == null) return;
+        await positioning.selectRoute(routing.selectedRoute);
         // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
         await ride.startNavigation(context); // Sets `sessionId` to a random new value.
@@ -69,26 +68,21 @@ class RideViewState extends State<RideView> {
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           context: context,
-          onNewPosition: (pos) async {
-            ride.updatePosition(context);
-            // Notify the snapping service.
-            await snapping.updatePosition(context);
+          onNewPosition: () async {
+            await ride.updatePosition(context);
             // Notify the accelerometer service.
             await accelerometer.updatePosition(context);
             // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
-            if (settings.rerouting == Rerouting.enabled &&
-                (snapping.distance ?? 0) > rerouteDistance &&
-                (snapping.remainingWaypoints?.isNotEmpty ?? false)) {
+            if (settings.rerouting == Rerouting.enabled && (positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
-              lock.run(
-                () async {
-                  await routing.selectWaypoints(snapping.remainingWaypoints);
-                  final routes = await routing.loadRoutes(context);
-                  if (routes != null && routes.isNotEmpty) {
-                    ride.selectRoute(context, routes.first);
-                  }
-                },
-              );
+              lock.run(() async {
+                await routing.selectRemainingWaypoints(context);
+                final routes = await routing.loadRoutes(context);
+                if (routes != null && routes.isNotEmpty) {
+                  await ride.selectRoute(context, routes.first);
+                  await positioning.selectRoute(routing.selectedRoute);
+                }
+              });
             }
           },
         );
@@ -115,9 +109,9 @@ class RideViewState extends State<RideView> {
           children: const [
             RideMapView(),
             RideSpeedometerView(),
-            DangerButton(),
             DatastreamView(),
             RideSGButton(),
+            DangerButton(),
           ],
         ),
       ),

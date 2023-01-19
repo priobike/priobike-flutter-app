@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/positioning/algorithm/snapper.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
@@ -149,6 +152,30 @@ class Routing with ChangeNotifier {
       fetchedWaypoints = null;
     }
     notifyListeners();
+  }
+
+  /// Select the remaining waypoints.
+  Future<void> selectRemainingWaypoints(BuildContext context) async {
+    final userPos = Provider.of<Positioning>(context, listen: false).lastPosition;
+    if (userPos == null) return;
+    final userPosLatLng = LatLng(userPos.latitude, userPos.longitude);
+    if (selectedWaypoints == null) return;
+    // Find the waypoint segment with the shortest distance to our position.
+    var shortestWaypointDistance = double.infinity;
+    var shortestWaypointToIdx = 0;
+    for (int i = 0; i < (selectedWaypoints!.length - 1); i++) {
+      final w1 = selectedWaypoints![i], w2 = selectedWaypoints![i + 1];
+      final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
+      final n = Snapper.calcNearestPoint(userPosLatLng, p1, p2);
+      final d = Snapper.vincenty.distance(userPosLatLng, n);
+      if (d < shortestWaypointDistance) {
+        shortestWaypointDistance = d;
+        shortestWaypointToIdx = i + 1;
+      }
+    }
+    final remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")] +
+        selectedWaypoints!.sublist(shortestWaypointToIdx);
+    return await selectWaypoints(remaining);
   }
 
   // Reset the routing service.
@@ -344,28 +371,46 @@ class Routing with ChangeNotifier {
     // Create the routes.
     final routes = ghResponse.paths
         .asMap()
-        .map(
-          (i, path) {
-            final sgSelectorResponse = sgSelectorResponses[i]!;
-            final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-            for (final waypoint in sgSelectorResponse.route) {
-              if (waypoint.signalGroupId == null) continue;
-              final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-              if (sg == null) continue;
-              if (sgsInOrderOfRoute.contains(sg)) continue;
-              sgsInOrderOfRoute.add(sg);
-            }
-            var route = r.Route(
-              path: path,
-              route: sgSelectorResponse.route,
-              signalGroups: sgsInOrderOfRoute,
-              crossings: sgSelectorResponse.crossings,
-            );
-            // Connect the route to the start and end points.
-            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-            return MapEntry(i, route);
-          },
-        )
+        .map((i, path) {
+          final sgSelectorResponse = sgSelectorResponses[i]!;
+          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+          for (final waypoint in sgSelectorResponse.route) {
+            if (waypoint.signalGroupId == null) continue;
+            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+            if (sg == null) continue;
+            if (sgsInOrderOfRoute.contains(sg)) continue;
+            sgsInOrderOfRoute.add(sg);
+          }
+          // Snap each signal group to the route and calculate the distance.
+          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+          for (final sg in sgsInOrderOfRoute) {
+            final snappedSgPos = Snapper(
+              position: LatLng(sg.position.lat, sg.position.lon),
+              nodes: sgSelectorResponse.route,
+            ).snap();
+            signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+          }
+          // Snap each crossing to the route and calculate the distance.
+          final crossingsDistancesOnRoute = List<double>.empty(growable: true);
+          for (final crossing in sgSelectorResponse.crossings) {
+            final snappedCrossingPos = Snapper(
+              position: LatLng(crossing.position.lat, crossing.position.lon),
+              nodes: sgSelectorResponse.route,
+            ).snap();
+            crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
+          }
+          var route = r.Route(
+            path: path,
+            route: sgSelectorResponse.route,
+            signalGroups: sgsInOrderOfRoute,
+            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+            crossings: sgSelectorResponse.crossings,
+            crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+          );
+          // Connect the route to the start and end points.
+          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+          return MapEntry(i, route);
+        })
         .values
         .toList();
 

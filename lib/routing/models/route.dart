@@ -21,28 +21,40 @@ class Route {
   /// A list of signal groups in the order of the route.
   final List<Sg> signalGroups;
 
+  /// A list of sg distances on the route, in the order of `signalGroups`.
+  final List<double> signalGroupsDistancesOnRoute;
+
   /// A list of crossings.
   final List<Crossing> crossings;
+
+  /// A list of crossing distances on the route, in the order of `crossings`.
+  final List<double> crossingsDistancesOnRoute;
 
   const Route({
     required this.path,
     required this.route,
     required this.signalGroups,
+    required this.signalGroupsDistancesOnRoute,
     required this.crossings,
+    required this.crossingsDistancesOnRoute,
   });
 
   Map<String, dynamic> toJson() => {
         'path': path.toJson(),
         'route': route.map((e) => e.toJson()).toList(),
         'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
+        'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
+        'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
       };
 
   factory Route.fromJson(dynamic json) => Route(
         path: GHRouteResponsePath.fromJson(json['path']),
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
         signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
+        signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
+        crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
       );
 
   /// The route, connected to the start and end point.
@@ -59,6 +71,7 @@ class Route {
     return Route(
       path: path,
       signalGroups: signalGroups,
+      signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
       route: [
         NavigationNode(
           lon: startpoint.lon,
@@ -78,6 +91,7 @@ class Route {
         ),
       ],
       crossings: crossings,
+      crossingsDistancesOnRoute: crossingsDistancesOnRoute,
     );
   }
 
