@@ -173,7 +173,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   void didChangeDependencies() {
     ss = Provider.of<Shortcuts>(context);
     rs = Provider.of<Routing>(context);
-    WidgetsBinding.instance!.addPostFrameCallback((_) => triggerAnimations());
+    WidgetsBinding.instance.addPostFrameCallback((_) => triggerAnimations());
     super.didChangeDependencies();
   }
 
