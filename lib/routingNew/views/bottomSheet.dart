@@ -129,9 +129,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of surface.
   bool showSurfaceDetails = false;
 
-  /// The details state of safety.
-  bool showSafetyDetails = false;
-
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
   /// Show a sheet to save the current route as a shortcut.
@@ -533,128 +530,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 });
               },
               child: _barWithDetails(context, roadClassMap, roadClassMax, frame, showRoadClassDetails, roadClassColor),
-            ),
-            const SizedBox(height: 10),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    showSafetyDetails = !showSafetyDetails;
-                  });
-                },
-                child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 5),
-                  Content(text: "n.A.", context: context),
-                  const SizedBox(width: 10),
-                  const Icon(Icons.traffic),
-                  Content(
-                      text: (routing.selectedRoute!.signalGroups.length + predictionStatus.disconnected)
-                          .toStringAsFixed(0),
-                      context: context),
-                ]),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.info_outline),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Safety Score"),
-                          content: const Text(
-                              "Die Werte des Safety Scores werden noch nicht erstellt und dienen nur der Optik."),
-                          actions: [
-                            TextButton(
-                              child: const Text("Okay"),
-                              onPressed: () => Navigator.of(context).pop(),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showSafetyDetails = !showSafetyDetails;
-                      });
-                    },
-                    child: Row(children: [
-                      Content(
-                        text: "Details",
-                        context: context,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 5),
-                      showSafetyDetails
-                          ? Icon(
-                              Icons.keyboard_arrow_down_sharp,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : Icon(
-                              Icons.keyboard_arrow_up_sharp,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                    ]),
-                  ),
-                ],
-              )
-            ]),
-            const SizedBox(height: 5),
-            AnimatedCrossFade(
-              duration: const Duration(milliseconds: 300),
-              firstChild: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                        color:
-                            Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white : Colors.black),
-                  ),
-                  width: frame.size.width,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            BoldContent(text: "Verkehr", context: context),
-                            _dotRow(context),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            BoldContent(text: "Steigung", context: context),
-                            _dotRow(context),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            BoldContent(text: "Gefahrenstellen", context: context),
-                            _dotRow(context),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              secondChild: Container(),
-              crossFadeState: showSafetyDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             ),
             const SizedBox(height: 20),
             // Route height profile

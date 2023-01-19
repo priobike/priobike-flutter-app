@@ -277,30 +277,6 @@ class FilterSelectionViewState extends State<FilterSelectionView> {
             ),
           ]),
           const SmallVSpace(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Content(text: "Anstiege meiden", context: context),
-              Switch(
-                value: profile.avoidAscents ?? false,
-                onChanged: (value) {
-                  profile.avoidAscents = value;
-                  profile.store();
-                },
-              ),
-            ],
-          ),
-          const SmallVSpace(),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Content(text: "KFZs meiden", context: context),
-            Switch(
-              value: profile.avoidTraffic ?? false,
-              onChanged: (value) {
-                profile.avoidTraffic = value;
-                profile.store();
-              },
-            ),
-          ]),
         ]),
       ),
     );

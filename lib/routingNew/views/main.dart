@@ -386,15 +386,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
   }
 
-  /// Function which switches the Type of a selected Route (prototype).
-  _switchRouteType() {
-    if (routing.allRoutes != null && routing.selectedRoute != null && routing.allRoutes!.length == 2) {
-      routing.routeType = routing.selectedRoute!.id == 0 ? "Bequem" : "Schnell";
-
-      routing.switchToRoute(context, routing.selectedRoute!.id == 0 ? 1 : 0);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (routing.hadErrorDuringFetch) return renderTryAgainButton();
@@ -596,18 +587,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 ? Positioned(
                     bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
                     right: 0,
-                    width: frame.size.width,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          routing.allRoutes != null && routing.allRoutes!.length == 2
-                              ? RouteTypeButton(routeType: routing.routeType, changeRouteType: _switchRouteType)
-                              : Container(),
-                          GPSButton(gpsCentralization: _gpsCentralization),
-                        ],
-                      ),
+                      child: GPSButton(gpsCentralization: _gpsCentralization),
                     ),
                   )
                 : Container(),
