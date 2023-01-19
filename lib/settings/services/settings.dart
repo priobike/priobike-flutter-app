@@ -17,12 +17,6 @@ class Settings with ChangeNotifier {
 
   static final log = Logger("Settings");
 
-  /// Whether internal test features should be enabled.
-  bool enableInternalFeatures;
-
-  /// Whether beta features should be enabled.
-  bool enableBetaFeatures;
-
   /// Whether the performance overlay should be enabled.
   bool enablePerformanceOverlay;
 
@@ -61,38 +55,6 @@ class Settings with ChangeNotifier {
 
   /// The counter of connection error in a row.
   int connectionErrorCounter;
-
-  static const enableInternalFeaturesKey = "priobike.settings.enableInternalFeatures";
-  static const defaultEnableInternalFeatures = false;
-  Future<bool> setEnableInternalFeatures(bool enableInternalFeatures, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableInternalFeatures;
-    this.enableInternalFeatures = enableInternalFeatures;
-    bool success = await storage.setBool(enableInternalFeaturesKey, enableInternalFeatures);
-    if (!success) {
-      log.e("Failed to set enableInternalFeatures to $enableInternalFeatures");
-      this.enableInternalFeatures = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
-  static const enableBetaFeaturesKey = "priobike.settings.enableBetaFeatures";
-  static const defaultEnableBetaFeatures = false;
-  Future<bool> setEnableBetaFeatures(bool enableBetaFeatures, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.enableBetaFeatures;
-    this.enableBetaFeatures = enableBetaFeatures;
-    bool success = await storage.setBool(enableBetaFeaturesKey, enableBetaFeatures);
-    if (!success) {
-      log.e("Failed to set enableBetaFeatures to $enableBetaFeatures");
-      this.enableBetaFeatures = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -317,8 +279,6 @@ class Settings with ChangeNotifier {
   }
 
   Settings({
-    this.enableBetaFeatures = defaultEnableBetaFeatures,
-    this.enableInternalFeatures = defaultEnableInternalFeatures,
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
     this.backend = defaultBackend,
@@ -350,8 +310,6 @@ class Settings with ChangeNotifier {
 
   /// Load the beta settings from the shared preferences.
   Future<void> loadBetaSettings(SharedPreferences storage) async {
-    enableBetaFeatures = storage.getBool(enableBetaFeaturesKey) ?? defaultEnableBetaFeatures;
-
     try {
       rerouting = Rerouting.values.byName(storage.getString(reroutingKey)!);
     } catch (e) {/* Do nothing and use the default value given by the constructor. */}
@@ -362,7 +320,6 @@ class Settings with ChangeNotifier {
 
   /// Load the internal settings from the shared preferences.
   Future<void> loadInternalSettings(SharedPreferences storage) async {
-    enableInternalFeatures = storage.getBool(enableInternalFeaturesKey) ?? defaultEnableInternalFeatures;
     enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
 
@@ -413,8 +370,6 @@ class Settings with ChangeNotifier {
 
   /// Convert the settings to a json object.
   Map<String, dynamic> toJson() => {
-        "enableBetaFeatures": enableBetaFeatures,
-        "enableInternalFeatures": enableInternalFeatures,
         "enablePerformanceOverlay": enablePerformanceOverlay,
         "didViewWarning": didViewWarning,
         "backend": backend.name,
