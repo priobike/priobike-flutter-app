@@ -48,12 +48,14 @@ class BoldSubHeader extends Text {
       TextOverflow? overflow,
       int? maxLines,
       Color? color,
+      TextAlign? textAlign,
       required BuildContext context})
       : super(
           text,
           key: key,
           overflow: overflow,
           maxLines: maxLines,
+          textAlign: textAlign,
           style: Theme.of(context).textTheme.subtitle2!.merge(
                 TextStyle(color: color),
               ),

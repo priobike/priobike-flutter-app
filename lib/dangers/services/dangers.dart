@@ -1,42 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/positioning/services/snapping.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/positioning/models/snap.dart';
 
 class Dangers with ChangeNotifier {
   final log = Logger("Dangers");
 
-  /// The list of reported dangers during the ride.
+  /// An indicator if the data of this notifier changed.
+  Map<String, bool> needsLayout = {};
+
+  /// The list of dangers along the route.
   List<Danger> dangers = List.empty(growable: true);
 
+  /// The distances of dangers along the route.
+  List<double> dangersDistancesOnRoute = List.empty(growable: true);
+
   /// Report a new danger.
-  Future<void> reportDanger(BuildContext context) async {
+  Future<void> submitNew(Snap? snap, String category) async {
+    if (snap == null) {
+      log.w("Cannot report a danger without a position.");
+      return;
+    }
     log.i("Reporting a new danger.");
-    // Get the current position.
-    final positioning = Provider.of<Positioning>(context, listen: false);
-    if (positioning.lastPosition == null) {
-      log.w("Cannot report a danger without a current position.");
-      return;
-    }
-    // Get the current snapped position.
-    final snapping = Provider.of<Snapping>(context, listen: false);
-    if (snapping.snappedPosition == null) {
-      log.w("Cannot report a danger without a current snapped position.");
-      return;
-    }
     // Create the danger.
     final danger = Danger(
-      lat: positioning.lastPosition!.latitude,
-      lng: positioning.lastPosition!.longitude,
-      sLat: snapping.snappedPosition!.latitude,
-      sLng: snapping.snappedPosition!.longitude,
-      acc: positioning.lastPosition!.accuracy,
-      time: DateTime.now().millisecondsSinceEpoch,
+      lat: snap.position.latitude,
+      lon: snap.position.longitude,
+      category: category,
     );
+    // NOTE: Here we will send the danger to the server.
     // Add the danger to the list.
     dangers.add(danger);
+    dangersDistancesOnRoute.add(snap.distanceOnRoute);
     notifyListeners();
   }
 
@@ -50,5 +45,11 @@ class Dangers with ChangeNotifier {
   Future<void> reset() async {
     dangers = List.empty(growable: true);
     notifyListeners();
+  }
+
+  @override
+  void notifyListeners() {
+    needsLayout.updateAll((key, value) => true);
+    super.notifyListeners();
   }
 }

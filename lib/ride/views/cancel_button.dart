@@ -6,7 +6,6 @@ import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -112,10 +111,6 @@ class CancelButton extends StatelessWidget {
 
               // Reset the statistics.
               await statistics.reset();
-
-              // Reset the snapping service.
-              final snapping = Provider.of<Snapping>(context, listen: false);
-              await snapping.reset();
 
               // Reset the ride service.
               await ride.reset();

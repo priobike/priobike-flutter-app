@@ -38,7 +38,6 @@ class LayerController {
     if (externalSources.containsKey(sourceId)) {
       // If the URL is the same, we don't need to do anything.
       if (externalSources[sourceId] == url) {
-        log.i("Source $sourceId is already added with the same URL.");
         return;
       }
       for (final layer in layersBySource[sourceId] ?? {}) {
@@ -62,7 +61,6 @@ class LayerController {
     if (sources.containsKey(sourceId)) {
       // If the properties are the same, we don't need to do anything.
       if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
-        log.i("Source $sourceId is already added with the same properties.");
         return;
       }
       // Remove all layers that are associated with this source.
@@ -88,7 +86,6 @@ class LayerController {
     if (sources.containsKey(sourceId)) {
       // If the properties are the same, we don't need to do anything.
       if (const DeepCollectionEquality().equals(sources[sourceId], properties)) {
-        log.i("Source $sourceId is already up to date.");
         return;
       }
       log.i("Updating source $sourceId");
