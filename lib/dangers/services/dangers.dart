@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Route;
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +25,38 @@ class Dangers with ChangeNotifier {
 
   /// The distances of dangers along the route.
   List<double> dangersDistancesOnRoute = List.empty(growable: true);
+
+  /// Load dangers along a route.
+  Future<void> fetch(Route route, BuildContext context) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
+    final request = {
+      "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
+    };
+    try {
+      final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e("Error fetching dangers from $endpoint: ${response.body}");
+      } else {
+        log.i("Fetched dangers from $endpoint");
+        final decoded = json.decode(response.body);
+        dangers = (decoded["dangers"] as List).map<Danger>((e) => Danger.fromJson(e)).toList();
+        // Compute the distances of the dangers along the route.
+        dangersDistancesOnRoute = dangers
+            .map(
+              (d) => Snapper(
+                position: LatLng(d.lat, d.lon),
+                nodes: route.route,
+              ).snap().distanceOnRoute,
+            )
+            .toList();
+        notifyListeners();
+      }
+    } catch (error) {
+      log.e("Error fetching dangers from $endpoint: $error");
+    }
+  }
 
   /// Report a new danger.
   Future<void> submitNew(BuildContext context, Snap? snap, String category) async {
@@ -62,12 +97,14 @@ class Dangers with ChangeNotifier {
   /// The list of reported dangers during the ride.
   Future<void> clearDangers() async {
     dangers.clear();
+    dangersDistancesOnRoute.clear();
     notifyListeners();
   }
 
   /// Reset the list of reported dangers.
   Future<void> reset() async {
     dangers = List.empty(growable: true);
+    dangersDistancesOnRoute = List.empty(growable: true);
     notifyListeners();
   }
 
