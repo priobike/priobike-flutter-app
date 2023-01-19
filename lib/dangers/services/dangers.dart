@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -28,8 +29,23 @@ class Dangers with ChangeNotifier {
   /// The distances of dangers along the route.
   List<double> dangersDistancesOnRoute = List.empty(growable: true);
 
+  /// The upcoming danger, that should be shown to the user.
+  Danger? upcomingDangerToDisplay;
+
+  /// The distance to the upcoming danger, that should be shown to the user.
+  double? distanceToUpcomingDangerToDisplay;
+
+  /// The previous danger to vote for.
+  Danger? previousDangerToVoteFor;
+
+  /// The distance to the previous danger, that should be shown to the user.
+  double? distanceToPreviousDangerToVoteFor;
+
+  /// The distance threshold for computations.
+  static const distanceThreshold = 100.0;
+
   /// The submitted votes for the dangers, by the pk of the danger.
-  Map<String, bool> votes = {};
+  Map<int, int> votes = {};
 
   /// Load dangers along a route.
   Future<void> fetch(Route route, BuildContext context) async {
@@ -101,10 +117,78 @@ class Dangers with ChangeNotifier {
   }
 
   /// Update the position.
-  Future<void> updatePosition(BuildContext context) async {
+  Future<void> calculateUpcomingAndPreviousDangers(BuildContext context) async {
     final snap = Provider.of<Positioning>(context, listen: false).snap;
     final route = Provider.of<Routing>(context, listen: false).selectedRoute;
     if (snap == null || route == null) return;
+    // First, go backwards and find a danger that the user should vote for.
+    previousDangerToVoteFor = null;
+    distanceToPreviousDangerToVoteFor = null;
+    for (var i = dangers.length - 1; i >= 0; i--) {
+      // Don't vote for dangers that were just reported.
+      if (dangers[i].pk == null) continue;
+      final danger = dangers[i];
+      final distance = dangersDistancesOnRoute[i];
+      // If we passed this danger, check if we already voted for it, and if not, show it to the user.
+      if (distance < snap.distanceOnRoute && !votes.containsKey(danger.pk!)) {
+        // Check if the danger is < 100m away.
+        final dDist = (distance - snap.distanceOnRoute).abs();
+        if (dDist < distanceThreshold) {
+          previousDangerToVoteFor = danger;
+          distanceToPreviousDangerToVoteFor = dDist;
+          break;
+        }
+      }
+    }
+    // Now, go forwards and find a danger that we should show to the user.
+    upcomingDangerToDisplay = null;
+    distanceToUpcomingDangerToDisplay = null;
+    for (var i = 0; i < dangers.length; i++) {
+      final danger = dangers[i];
+      final distance = dangersDistancesOnRoute[i];
+      // If we did not pass this danger yet, show it to the user.
+      if (distance > snap.distanceOnRoute) {
+        // Check if the danger is < 100m away.
+        final dDist = (distance - snap.distanceOnRoute).abs();
+        if (dDist < distanceThreshold) {
+          upcomingDangerToDisplay = danger;
+          distanceToUpcomingDangerToDisplay = dDist;
+          break;
+        }
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Vote for a danger.
+  Future<void> vote(BuildContext context, Danger danger, int vote) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/vote/');
+    final request = {
+      "pk": danger.pk,
+      "value": vote,
+    };
+    try {
+      final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e("Error voting for danger $danger: ${response.body}");
+      } else {
+        log.i("Voted for danger $danger");
+      }
+    } on TimeoutException catch (error) {
+      log.w("Timeout voting for danger $danger: $error");
+    } on SocketException catch (error) {
+      log.w("Error voting for danger $danger: $error");
+    }
+    if (vote == 1) {
+      ToastMessage.showSuccess("Gefahr bestätigt!");
+    } else {
+      ToastMessage.showSuccess("Meldung gespeichert!");
+    }
+    // Add the vote to the list.
+    votes[danger.pk!] = vote;
+    await calculateUpcomingAndPreviousDangers(context);
   }
 
   /// The list of reported dangers during the ride.

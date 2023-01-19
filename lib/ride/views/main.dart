@@ -72,7 +72,7 @@ class RideViewState extends State<RideView> {
         await positioning.startGeolocation(
           context: context,
           onNewPosition: () async {
-            await dangers.updatePosition(context);
+            await dangers.calculateUpcomingAndPreviousDangers(context);
             await ride.updatePosition(context);
             // Notify the accelerometer service.
             await accelerometer.updatePosition(context);

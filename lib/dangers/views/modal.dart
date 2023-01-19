@@ -67,7 +67,6 @@ class DangerModalState extends State<DangerModal> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 4),
                 SubHeader(text: "Gefahr melden", context: context),
                 const SmallVSpace(),
                 Tile(
