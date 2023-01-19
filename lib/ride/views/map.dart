@@ -144,14 +144,14 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = l.Distance(roundResult: false);
 
-    // Calculate the distance to the next traffic light.
-    double? sgDistance = sgPosLatLng == null ? null : vincenty.distance(userPosSnap.position, sgPosLatLng);
-
     // Calculate the bearing to the next traffic light.
     double? sgBearing = sgPosLatLng == null ? null : vincenty.bearing(userPosSnap.position, sgPosLatLng);
 
     // Adapt the focus dynamically to the next interesting feature.
-    final distanceOfInterest = sgDistance ?? 1000;
+    final distanceOfInterest = min(
+      ride.calcDistanceToNextTurn ?? double.infinity,
+      ride.calcDistanceToNextSG ?? double.infinity,
+    );
     // Scale the zoom level with the distance of interest.
     // Between 0 meters: zoom 18 and 500 meters: zoom 18.
     double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
@@ -162,7 +162,10 @@ class RideMapViewState extends State<RideMapView> {
     //                without this threshold the camera would orient away from the route
     //                when it's close to the SG.
     double? cameraHeading;
-    if (sgDistance != null && sgBearing != null && sgDistance < 500 && sgDistance > 10) {
+    if (ride.calcDistanceToNextSG != null &&
+        sgBearing != null &&
+        ride.calcDistanceToNextSG! < 500 &&
+        ride.calcDistanceToNextSG! > 10) {
       cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
     }
     // Avoid looking too far away from the route.

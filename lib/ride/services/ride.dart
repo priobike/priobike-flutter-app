@@ -83,6 +83,9 @@ class Ride with ChangeNotifier {
   /// The calculated distance to the next signal group.
   double? calcDistanceToNextSG;
 
+  /// The calculated distance to the next turn.
+  double? calcDistanceToNextTurn;
+
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
@@ -264,7 +267,20 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
 
     final snap = Provider.of<Positioning>(context, listen: false).snap;
-    if (snap == null) return;
+    if (snap == null || route == null) return;
+
+    // Calculate the distance to the next turn.
+    // Traverse the segments and find the next turn, i.e. where the bearing changes > <x>°.
+    const bearingThreshold = 15;
+    var calcDistanceToNextTurn = 0.0;
+    for (int i = snap.metadata.shortestDistanceIndex; i < route!.route.length - 1; i++) {
+      final n1 = route!.route[i], n2 = route!.route[i + 1];
+      final p1 = LatLng(n1.lat, n1.lon), p2 = LatLng(n2.lat, n2.lon);
+      final b = vincenty.bearing(p1, p2); // [-180°, 180°]
+      calcDistanceToNextTurn += vincenty.distance(p1, p2);
+      if ((b - snap.bearing).abs() > bearingThreshold) break;
+    }
+    this.calcDistanceToNextTurn = calcDistanceToNextTurn;
 
     // Find the next signal group.
     Sg? nextSg;
