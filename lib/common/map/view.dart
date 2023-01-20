@@ -133,6 +133,7 @@ class AppMapState extends State<AppMap> {
       // Both are usually at the same height on different sides of the map.
       logoViewMargins: widget.logoViewMargins,
       attributionButtonMargins: widget.attributionButtonMargins,
+      useDelayedDisposal: true,
     );
   }
 
