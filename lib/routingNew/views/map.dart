@@ -271,6 +271,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
+    if (!widget.withRouting) return;
     if (id is! String) return;
     // Map the ids of the layers to the corresponding feature.
     if (id.startsWith("route-")) {
@@ -376,20 +377,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       layerController!,
       below: waypoints,
     );
-    await AllRoutesLayer(context).install(
-      layerController!,
-      below: selectedRoute,
-    );
-    await RouteLabelLayer(context).install(layerController!, iconSize: ppi / 3);
-    await loadRouteMapLayers();
+    if (widget.withRouting) {
+      await AllRoutesLayer(context).install(
+        layerController!,
+        below: selectedRoute,
+      );
+      await RouteLabelLayer(context).install(layerController!, iconSize: ppi / 3);
+      await loadRouteMapLayers();
+      await RouteLabelLayer(context).update(layerController!);
+    }
     await fitCameraToRouteBounds();
-    await RouteLabelLayer(context).update(layerController!);
     await displayCurrentUserLocation();
     await loadGeoLayers();
   }
 
   /// A callback that is executed when the map was longclicked.
   onMapLongClick(BuildContext context, double x, double y) async {
+    if (!widget.withRouting) return;
     if (mapboxMapController == null) return;
     // Convert x and y into a lat/lon.
     final ppi = MediaQuery.of(context).devicePixelRatio;
@@ -409,6 +413,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the map was clicked.
   void onMapClick(Point<double> point, LatLng coord) {
+    if (!widget.withRouting) return;
     if (discomforts.selectedDiscomfort != null) {
       discomforts.unselectDiscomfort();
     }
