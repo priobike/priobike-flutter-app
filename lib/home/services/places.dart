@@ -48,9 +48,7 @@ class Places with ChangeNotifier {
     places = [newPlace] + places!;
     await storePlaces(context);
 
-    bottomSheetState.resetInitialHeight();
-    bottomSheetState.draggableScrollableController.jumpTo(bottomSheetState.initialHeight);
-    bottomSheetState.listController = null;
+    bottomSheetState.reset();
     routing.reset();
     ToastMessage.showSuccess("Ort gespeichert!");
     notifyListeners();

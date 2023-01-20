@@ -51,9 +51,7 @@ class Shortcuts with ChangeNotifier {
     shortcuts = [newShortcut] + shortcuts!;
     await storeShortcuts(context);
 
-    bottomSheetState.resetInitialHeight();
-    bottomSheetState.draggableScrollableController.jumpTo(bottomSheetState.initialHeight);
-    bottomSheetState.listController = null;
+    bottomSheetState.reset();
     routing.reset();
     ToastMessage.showSuccess("Route gespeichert!");
     notifyListeners();

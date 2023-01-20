@@ -120,7 +120,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionStatus;
 
-  /// The minimum bottom height of the bottomSheet
+  /// The minimum bottom height of the bottomSheet.
   static double bottomSnapRatio = 0.175;
 
   /// The details state of road class.
@@ -130,6 +130,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   bool showSurfaceDetails = false;
 
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
+
+  DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet() {
@@ -255,14 +257,14 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The callback that is executed when the detail/map button is pressed.
   _changeDetailView(double topSnapRatio) {
     // Case details closed => move to 50%.
-    if (bottomSheetState.draggableScrollableController.size >= 0.14 &&
-        bottomSheetState.draggableScrollableController.size <= 0.65) {
+    if (draggableScrollableController.size >= 0.14 &&
+        draggableScrollableController.size <= 0.65) {
       bottomSheetState.animateController(0.66);
       return;
     }
     // Case details 50% => move to fullscreen.
-    if (bottomSheetState.draggableScrollableController.size >= 0.65 &&
-        bottomSheetState.draggableScrollableController.size <= topSnapRatio - 0.05) {
+    if (draggableScrollableController.size >= 0.65 &&
+        draggableScrollableController.size <= topSnapRatio - 0.05) {
       bottomSheetState.animateController(topSnapRatio);
       return;
     }
@@ -363,58 +365,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           ),
           secondChild: Container(),
           crossFadeState: expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-        ),
-      ],
-    );
-  }
-
-  /// The widget that displays the dot rows in the safety score.
-  _dotRow(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          height: 10,
-          width: 10,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Container(
-          height: 10,
-          width: 10,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Container(
-          height: 10,
-          width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Container(
-          height: 10,
-          width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Container(
-          height: 10,
-          width: 10,
-          decoration: const BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
-          ),
         ),
       ],
     );
@@ -669,11 +619,12 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           maxChildSize: routing.selectedRoute != null ? topSnapRatio : bottomSnapRatio,
           snap: true,
           snapSizes: routing.selectedRoute != null ? [0.66] : [],
-          controller: bottomSheetState.draggableScrollableController,
+          controller: draggableScrollableController,
           builder: (BuildContext buildContext, ScrollController scrollController) {
-            final bool isTop = bottomSheetState.draggableScrollableController.size <= topSnapRatio + 0.05 &&
-                bottomSheetState.draggableScrollableController.size >= topSnapRatio - 0.05;
+            final bool isTop = draggableScrollableController.size <= topSnapRatio + 0.05 &&
+                draggableScrollableController.size >= topSnapRatio - 0.05;
 
+            bottomSheetState.draggableScrollableController = draggableScrollableController;
             bottomSheetState.listController = scrollController;
 
             return AnimatedContainer(

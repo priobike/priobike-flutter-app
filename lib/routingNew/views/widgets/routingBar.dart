@@ -359,9 +359,7 @@ class RoutingBarState extends State<RoutingBar> {
                           if (widget.fromRoutingSearch) {
                             Navigator.of(context).pop();
                           } else {
-                            bottomSheetState.listController = null;
-                            bottomSheetState.resetInitialHeight();
-                            bottomSheetState.draggableScrollableController.reset();
+                            bottomSheetState.reset();
                           }
                           widget.sheetMovement.add(DraggableScrollableNotification(
                               minExtent: 0, context: context, extent: 0.0, initialExtent: 0.0, maxExtent: 0.0));

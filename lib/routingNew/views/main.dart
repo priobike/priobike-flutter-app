@@ -9,7 +9,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routingNew/services/bottomSheetState.dart';
@@ -30,7 +29,6 @@ import 'package:priobike/routingNew/views/widgets/compassButton.dart';
 import 'package:priobike/routingNew/views/widgets/filterButton.dart';
 import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
 import 'package:priobike/routingNew/views/widgets/layerButton.dart';
-import 'package:priobike/routingNew/views/widgets/routeTypeButton.dart';
 import 'package:priobike/routingNew/views/widgets/routingBar.dart';
 import 'package:priobike/routingNew/views/widgets/searchBar.dart';
 import 'package:priobike/routingNew/views/widgets/shortcuts.dart';
@@ -470,8 +468,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                               ),
                               !showRoutingBar
                                   ? AnimatedPositioned(
-                                      top: bottomSheetState.draggableScrollableController.size <= 1 &&
-                                              bottomSheetState.draggableScrollableController.size >= 0.7
+                                      top: bottomSheetState.draggableScrollableController != null &&
+                                              bottomSheetState.draggableScrollableController!.size <= 1 &&
+                                              bottomSheetState.draggableScrollableController!.size >= 0.7
                                           ? 0
                                           : -(40 + 64 + frame.padding.top),
                                       left: 0,
