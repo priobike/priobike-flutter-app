@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/lock.dart';
+import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -47,9 +48,11 @@ class RideViewState extends State<RideView> {
         final accelerometer = Provider.of<Accelerometer>(context, listen: false);
         final datastream = Provider.of<Datastream>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
+        final dangers = Provider.of<Dangers>(context, listen: false);
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
+        await dangers.fetch(routing.selectedRoute!, context);
         // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
         await ride.startNavigation(context); // Sets `sessionId` to a random new value.
@@ -69,6 +72,7 @@ class RideViewState extends State<RideView> {
         await positioning.startGeolocation(
           context: context,
           onNewPosition: () async {
+            await dangers.calculateUpcomingAndPreviousDangers(context);
             await ride.updatePosition(context);
             // Notify the accelerometer service.
             await accelerometer.updatePosition(context);
@@ -80,7 +84,8 @@ class RideViewState extends State<RideView> {
                 final routes = await routing.loadRoutes(context);
                 if (routes != null && routes.isNotEmpty) {
                   await ride.selectRoute(context, routes.first);
-                  await positioning.selectRoute(routing.selectedRoute);
+                  await positioning.selectRoute(routes.first);
+                  await dangers.fetch(routes.first, context);
                 }
               });
             }

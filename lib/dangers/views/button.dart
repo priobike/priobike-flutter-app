@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/models/snap.dart';
@@ -19,36 +22,19 @@ class DangerButton extends StatefulWidget {
 class DangerButtonState extends State<DangerButton> {
   final log = Logger("DangerButtonState");
 
-  /// If the hint is currently shown.
-  bool showHint = true;
-
   /// If the modal is currently shown.
   bool showModal = false;
 
   /// The snapped danger position for the modal.
   Snap? dangerPosition;
 
-  @override
-  initState() {
-    super.initState();
+  /// The danger service, which is injected by the provider.
+  late Dangers dangers;
 
-    // Hide the hint after a few seconds.
-    WidgetsBinding.instance!.addPostFrameCallback(
-      (_) {
-        Future.delayed(
-          const Duration(seconds: 5),
-          () {
-            if (mounted) {
-              setState(
-                () {
-                  showHint = false;
-                },
-              );
-            }
-          },
-        );
-      },
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    dangers = Provider.of<Dangers>(context);
   }
 
   /// A callback that is called when the button is tapped.
@@ -63,13 +49,11 @@ class DangerButtonState extends State<DangerButton> {
         return;
       }
       setState(() {
-        showHint = false;
         dangerPosition = snap;
         showModal = true;
       });
     } else {
       setState(() {
-        showHint = false;
         dangerPosition = null;
         showModal = false;
       });
@@ -101,44 +85,108 @@ class DangerButtonState extends State<DangerButton> {
           top: 48, // Below the MapBox attribution.
           left: 0,
           child: SafeArea(
-            child: RawMaterialButton(
-              elevation: 0, // Hide ugly material shadows.
-              fillColor: Theme.of(context).colorScheme.background,
-              splashColor: Theme.of(context).colorScheme.surface,
-              constraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-              child: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 500),
-                firstCurve: Curves.easeInOutCubic,
-                secondCurve: Curves.easeInOutCubic,
-                sizeCurve: Curves.easeInOutCubic,
-                firstChild: SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: Icon(
-                    Icons.warning_rounded,
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                secondChild: SizedBox(
-                  height: 64,
-                  width: 200,
-                  child: Row(
-                    children: [
-                      const HSpace(),
-                      Icon(
-                        Icons.warning_rounded,
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
-                      const SmallHSpace(),
-                      Flexible(child: BoldContent(text: "Gefahr melden", context: context, maxLines: 1)),
-                    ],
-                  ),
-                ),
-                crossFadeState: showHint ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              ),
+            child: Tile(
               onPressed: onTap,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              ),
+              padding: const EdgeInsets.all(4),
+              fill: Theme.of(context).colorScheme.background,
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (dangers.previousDangerToVoteFor != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 8, top: 12, bottom: 12),
+                      child: Image.asset(
+                        dangers.previousDangerToVoteFor!.icon,
+                        width: 32,
+                        height: 32,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, 1),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: CI.green,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 42,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, -1),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: CI.red,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white,
+                          size: 42,
+                        ),
+                      ),
+                    ),
+                    const SmallHSpace(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Small(
+                          text: dangers.previousDangerToVoteFor!.description,
+                          context: context,
+                        ),
+                        Small(
+                          text: "gesehen?",
+                          context: context,
+                        ),
+                      ],
+                    ),
+                    const SmallHSpace(),
+                  ] else if (dangers.upcomingDangerToDisplay != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
+                      child: Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+                            child: Image.asset(
+                              dangers.upcomingDangerToDisplay!.icon,
+                              width: 32,
+                              height: 32,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 48,
+                            width: 48,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 4,
+                              value: dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold,
+                              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onBackground),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+                      child: Icon(
+                        Icons.warning_rounded,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),

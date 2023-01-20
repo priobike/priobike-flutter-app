@@ -67,13 +67,12 @@ class DangerModalState extends State<DangerModal> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 4),
                 SubHeader(text: "Gefahr melden", context: context),
                 const SmallVSpace(),
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(widget.position, "potholes");
+                    dangers.submitNew(context, widget.position, "potholes");
                     ToastMessage.showSuccess("Schlechte Straße gemeldet!");
                     widget.onExit();
                   },
@@ -94,7 +93,7 @@ class DangerModalState extends State<DangerModal> {
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(widget.position, "obstacle");
+                    dangers.submitNew(context, widget.position, "obstacle");
                     ToastMessage.showSuccess("Hindernis gemeldet!");
                     widget.onExit();
                   },
@@ -115,7 +114,7 @@ class DangerModalState extends State<DangerModal> {
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(widget.position, "dangerspot");
+                    dangers.submitNew(context, widget.position, "dangerspot");
                     ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
                     widget.onExit();
                   },
