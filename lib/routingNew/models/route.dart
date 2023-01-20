@@ -108,46 +108,12 @@ class Route {
     final bounds = this.bounds;
     // Padding is approximately 111m (Approximately 0.001 degrees).
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
-    const padLon = 0.001;
+    const padLon = 0.003;
     // To fit north and south with detailSheet and routingBar.
-    const padLat = 0.015;
+    const padLat = 0.003;
     return LatLngBounds(
       southwest: LatLng(bounds.southwest.latitude - padLat, bounds.southwest.longitude - padLon),
       northeast: LatLng(bounds.northeast.latitude + padLat, bounds.northeast.longitude + padLon),
-    );
-  }
-
-  /// Calculate the padded bounds of this route for the top part of the screen.
-  LatLngBounds get paddedBoundsTop {
-    final bounds = this.bounds;
-    // Padding is approximately 111m (Approximately 0.001 degrees).
-    // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
-    // FIXME => adapted values with each route (to fit the window).
-    const distance = latlng.Distance();
-    final width = distance.distance(latlng.LatLng(bounds.northeast.latitude, bounds.southwest.longitude),
-        latlng.LatLng(bounds.northeast.latitude, bounds.northeast.longitude));
-    final height = distance.distance(latlng.LatLng(bounds.southwest.latitude, bounds.southwest.longitude),
-        latlng.LatLng(bounds.northeast.latitude, bounds.southwest.longitude));
-
-    // print("----------------------------height-------------------------------");
-    // print(distance.distance(latlng.LatLng(bounds.southwest.latitude, bounds.southwest.longitude),
-    //     latlng.LatLng(bounds.northeast.latitude, bounds.southwest.longitude)));
-    // print("----------------------------height---------------------------------------");
-    //
-    // print("----------------------------width-------------------------------");
-    // print(distance.distance(latlng.LatLng(bounds.northeast.latitude, bounds.southwest.longitude),
-    //     latlng.LatLng(bounds.northeast.latitude, bounds.northeast.longitude)));
-    // print("----------------------------width---------------------------------------");
-
-    // This formula was created by taking 3 unique routes and taking the width as x and height as y. Calculating a plane and transforming this to the value z (south padding).
-    final padSouth = -0.000000013039693348139471 * (-174693 - 764.66 * width - 1442.03 * height);
-
-    const padNorth = 0.003;
-    const padSide = 0.003;
-
-    return LatLngBounds(
-      southwest: LatLng(bounds.southwest.latitude - padSouth, bounds.southwest.longitude - padSide),
-      northeast: LatLng(bounds.northeast.latitude + padNorth, bounds.northeast.longitude + padSide),
     );
   }
 

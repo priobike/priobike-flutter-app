@@ -407,7 +407,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               });
               if (fitCameraTop == true) {
                 // Trigger center route in top part of screen.
-                mapController.fitCameraToRouteBounds(routing, false);
+                mapController.fitCameraToRouteBounds(routing, frame);
                 setState(() {
                   fitCameraTop = false;
                 });
@@ -417,7 +417,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               if (notification.extent >= 0.6 && notification.extent <= 0.7) {
                 // Trigger center route in top part of screen.
                 if (fitCameraTop == false) {
-                  mapController.fitCameraToRouteBounds(routing, true);
+                  mapController.fitCameraToRouteBoundsTop(routing, frame);
                   setState(() {
                     fitCameraTop = true;
                   });

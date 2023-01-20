@@ -16,6 +16,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routingNew/services/mapcontroller.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routingNew/views/widgets/calculateRoutingBarHeight.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -178,9 +179,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
+    final frame = MediaQuery.of(context);
     await Future.delayed(const Duration(milliseconds: 750));
     await mapboxMapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
+      // Bottom and top to not hide route below UI components.
+      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds,
+          bottom: 0.175 * frame.size.height,
+          top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized)),
       duration: const Duration(milliseconds: 1000),
     );
   }
