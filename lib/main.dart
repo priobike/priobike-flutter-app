@@ -164,7 +164,7 @@ class App extends StatelessWidget {
                   color: Color(0xFF000000),
                 ),
               ),
-              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+              useMaterial3: true,
             ),
             darkTheme: ThemeData(
               dialogBackgroundColor: const Color(0xFF232323),
@@ -220,7 +220,7 @@ class App extends StatelessWidget {
                   color: Color(0xFFFFFFFF),
                 ),
               ),
-              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+              useMaterial3: true,
             ),
             themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light

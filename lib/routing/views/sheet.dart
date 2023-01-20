@@ -76,6 +76,8 @@ class SearchWaypointItem extends StatelessWidget {
               elevation: 0,
               fillColor: Theme.of(context).colorScheme.surface,
               splashColor: Colors.black,
+              onPressed: onSelect,
+              shape: const CircleBorder(),
               child: const Padding(
                 padding: EdgeInsets.all(4),
                 child: Icon(
@@ -83,8 +85,6 @@ class SearchWaypointItem extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
-              onPressed: onSelect,
-              shape: const CircleBorder(),
             ),
           )
         ],
@@ -166,6 +166,8 @@ class RouteWaypointItem extends StatelessWidget {
                 elevation: 0,
                 fillColor: Theme.of(context).colorScheme.surface,
                 splashColor: Colors.black,
+                onPressed: onDelete,
+                shape: const CircleBorder(),
                 child: const Padding(
                   padding: EdgeInsets.all(4),
                   child: Icon(
@@ -173,8 +175,6 @@ class RouteWaypointItem extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                onPressed: onDelete,
-                shape: const CircleBorder(),
               ),
             ),
         ],
@@ -335,6 +335,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   proxyDecorator: (proxyWidget, idx, anim) {
                     return proxyWidget;
                   },
+                  onReorder: onChangeWaypointOrder,
                   children: routingService.selectedWaypoints?.asMap().entries.map<Widget>(
                         (entry) {
                           return RouteWaypointItem(
@@ -348,7 +349,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                         },
                       ).toList() ??
                       [],
-                  onReorder: onChangeWaypointOrder,
                 );
               }),
             ),

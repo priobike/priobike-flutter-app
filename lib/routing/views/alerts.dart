@@ -85,13 +85,13 @@ class AlertsViewState extends State<AlertsView> {
                   alignment: AlignmentDirectional.topStart,
                   children: [
                     PageView(
-                      children: alerts,
                       controller: controller,
                       onPageChanged: (index) => setState(
                         () {
                           currentPage = index;
                         },
                       ),
+                      children: alerts,
                     ),
                   ],
                 ),

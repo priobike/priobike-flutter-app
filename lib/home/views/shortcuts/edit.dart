@@ -6,10 +6,10 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/routing_view_wrapper.dart';
-import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/status/services/sg.dart';
+import 'package:provider/provider.dart';
 
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({Key? key}) : super(key: key);
@@ -101,6 +101,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   proxyDecorator: (proxyWidget, idx, anim) {
                     return proxyWidget;
                   },
+                  onReorder: onChangeShortcutOrder,
                   children: shortcuts.shortcuts!.asMap().entries.map<Widget>(
                     (entry) {
                       return Container(
@@ -207,7 +208,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                       );
                     },
                   ).toList(),
-                  onReorder: onChangeShortcutOrder,
                 ),
                 const SizedBox(height: 128),
               ],

@@ -82,38 +82,38 @@ class WeatherViewState extends State<WeatherView> {
     summary = "";
     final temp = weather.current?.temperature ?? 0;
     if (temp > 40) {
-      summary = summary! + "Achtung vor extremer Hitze! ";
+      summary = "${summary!}Achtung vor extremer Hitze! ";
       warning = true;
     } else if (temp > 30) {
-      summary = summary! + "Achtung vor starker Hitze! ";
+      summary = "${summary!}Achtung vor starker Hitze! ";
       warning = true;
     } else if (temp > 0) {
       // Do nothing.
     } else if (temp > -10) {
-      summary = summary! + "Kältewarnung! ";
+      summary = "${summary!}Kältewarnung! ";
       warning = true;
     } else {
-      summary = summary! + "Achtung vor extremer Kälte! ";
+      summary = "${summary!}Achtung vor extremer Kälte! ";
       warning = true;
     }
     switch (weather.current?.icon) {
       case "clear-day":
-        summary = summary! + "Es ist sonnig";
+        summary = "${summary!}Es ist sonnig";
         break;
       case "clear-night":
-        summary = summary! + "Es ist klar";
+        summary = "${summary!}Es ist klar";
         break;
       case "partly-cloudy-day":
-        summary = summary! + "Es ist teilweise bewölkt";
+        summary = "${summary!}Es ist teilweise bewölkt";
         break;
       case "partly-cloudy-night":
-        summary = summary! + "Es ist teilweise bewölkt";
+        summary = "${summary!}Es ist teilweise bewölkt";
         break;
       case "cloudy":
-        summary = summary! + "Es ist bewölkt";
+        summary = "${summary!}Es ist bewölkt";
         break;
       case "fog":
-        summary = summary! + "Es ist neblig";
+        summary = "${summary!}Es ist neblig";
         break;
       case "wind":
         summary = "Es ist windig";
@@ -140,7 +140,7 @@ class WeatherViewState extends State<WeatherView> {
         warning = true;
         break;
     }
-    summary = summary! + " bei ${temp.toStringAsFixed(1)}°C.";
+    summary = "${summary!} bei ${temp.toStringAsFixed(1)}°C.";
 
     // Check if the icon changes in the forecast.
     for (final forecast in weather.forecast ?? <WeatherForecast>[]) {
@@ -151,45 +151,45 @@ class WeatherViewState extends State<WeatherView> {
         summary = summary! + "${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr wird es";
         switch (forecast.icon) {
           case "clear-day":
-            summary = summary! + " sonnig.";
+            summary = "${summary!} sonnig.";
             break;
           case "clear-night":
-            summary = summary! + " klar.";
+            summary = "${summary!} klar.";
             break;
           case "partly-cloudy-day":
-            summary = summary! + " teilweise bewölkt.";
+            summary = "${summary!} teilweise bewölkt.";
             break;
           case "partly-cloudy-night":
-            summary = summary! + " teilweise bewölkt.";
+            summary = "${summary!} teilweise bewölkt.";
             break;
           case "cloudy":
-            summary = summary! + " bewölkt.";
+            summary = "${summary!} bewölkt.";
             break;
           case "fog":
-            summary = summary! + " neblig.";
+            summary = "${summary!} neblig.";
             break;
           case "wind":
-            summary = summary! + " windig.";
+            summary = "${summary!} windig.";
             warning = true;
             break;
           case "rain":
-            summary = summary! + " regnerisch.";
+            summary = "${summary!} regnerisch.";
             warning = true;
             break;
           case "sleet":
-            summary = summary! + " schneien.";
+            summary = "${summary!} schneien.";
             warning = true;
             break;
           case "snow":
-            summary = summary! + " schneien.";
+            summary = "${summary!} schneien.";
             warning = true;
             break;
           case "hail":
-            summary = summary! + " hageln.";
+            summary = "${summary!} hageln.";
             warning = true;
             break;
           case "thunderstorm":
-            summary = summary! + " gewittern.";
+            summary = "${summary!} gewittern.";
             warning = true;
             break;
         }
