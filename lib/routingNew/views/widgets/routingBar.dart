@@ -148,8 +148,8 @@ class RoutingBarState extends State<RoutingBar> {
                       ),
                       child: Center(
                         child: Padding(
-                          // Since new Font there has to be top padding. FIXME
-                          padding: const EdgeInsets.only(top: 3),
+                          // Since new Font there has to be top padding.
+                          padding: const EdgeInsets.only(top: 1),
                           child: Content(text: index.toString(), context: context),
                         ),
                       ),

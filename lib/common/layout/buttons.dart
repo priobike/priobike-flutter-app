@@ -265,11 +265,14 @@ class IconTextButton extends StatelessWidget {
             SizedBox(width: icon != null ? 5 : 0),
             Flexible(
               child: Center(
-                child: Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
+                  ),
                 ),
               ),
             ),
