@@ -421,7 +421,7 @@ class Ride with ChangeNotifier {
     }
 
     calcPhasesFromNow = currentVector.map(
-          (value) {
+      (value) {
         if (value >= prediction.greentimeThreshold) {
           return Phase.green;
         } else {

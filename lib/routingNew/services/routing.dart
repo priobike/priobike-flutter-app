@@ -457,12 +457,12 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  void switchMinimized () {
+  void switchMinimized() {
     minimized = !minimized;
     super.notifyListeners();
   }
 
-  void setMinimized () {
+  void setMinimized() {
     minimized = false;
     super.notifyListeners();
   }

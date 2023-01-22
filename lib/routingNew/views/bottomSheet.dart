@@ -257,14 +257,12 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The callback that is executed when the detail/map button is pressed.
   _changeDetailView(double topSnapRatio) {
     // Case details closed => move to 50%.
-    if (draggableScrollableController.size >= 0.14 &&
-        draggableScrollableController.size <= 0.65) {
+    if (draggableScrollableController.size >= 0.14 && draggableScrollableController.size <= 0.65) {
       bottomSheetState.animateController(0.66);
       return;
     }
     // Case details 50% => move to fullscreen.
-    if (draggableScrollableController.size >= 0.65 &&
-        draggableScrollableController.size <= topSnapRatio - 0.05) {
+    if (draggableScrollableController.size >= 0.65 && draggableScrollableController.size <= topSnapRatio - 0.05) {
       bottomSheetState.animateController(topSnapRatio);
       return;
     }

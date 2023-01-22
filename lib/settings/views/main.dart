@@ -544,15 +544,15 @@ class SettingsViewState extends State<SettingsView> {
                           ),
                         ),
                       ),
-                    if (settings.enableBetaFeatures)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                            title: "Logs",
-                            icon: Icons.list,
-                            callback: () =>
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
-                      ),
+                      if (settings.enableBetaFeatures)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: SettingsElement(
+                              title: "Logs",
+                              icon: Icons.list,
+                              callback: () =>
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
+                        ),
                       Padding(
                         padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
                         child: Small(

@@ -114,7 +114,7 @@ class SearchViewState extends State<SearchView> {
         newWaypoints = [currentLocationWaypoint!, waypoint];
       } else {
         // Only set start when no waypoints selected.
-        if(waypoints.isEmpty) {
+        if (waypoints.isEmpty) {
           newWaypoints = [null, waypoint];
         } else {
           newWaypoints = [...waypoints, waypoint];
@@ -194,9 +194,7 @@ class SearchViewState extends State<SearchView> {
           newWaypoints[widget.index!] = currentLocationWaypoint;
         } else {
           // Insert current location as first waypoint if option is set
-          if (profile.setLocationAsStart &&
-              currentLocationWaypoint != null &&
-              waypoints.isEmpty) {
+          if (profile.setLocationAsStart && currentLocationWaypoint != null && waypoints.isEmpty) {
             newWaypoints = [currentLocationWaypoint!, currentLocationWaypoint];
           } else {
             newWaypoints = [...waypoints, currentLocationWaypoint];
