@@ -5,12 +5,12 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/views/widgets/lastSearchRequests.dart';
-import 'package:priobike/routingNew/views/widgets/routingBar.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMap.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMapButton.dart';
+import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
+import 'package:priobike/routing_new/views/widgets/lastSearchRequests.dart';
+import 'package:priobike/routing_new/views/widgets/routingBar.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMap.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMapButton.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/currentLocationButton.dart';

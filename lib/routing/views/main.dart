@@ -14,7 +14,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing_new/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';

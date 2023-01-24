@@ -6,7 +6,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/routingNew/messages/graphhopper.dart';
+import 'package:priobike/routing_new/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:provider/provider.dart';
 

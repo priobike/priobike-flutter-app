@@ -9,14 +9,14 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/views/widgets/lastSearchRequests.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMap.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMapButton.dart';
-import 'package:priobike/routingNew/views/widgets/searchBar.dart';
-import 'package:priobike/routingNew/views/widgets/shortcuts.dart';
-import 'package:priobike/routingNew/views/widgets/waypointListItemView.dart';
+import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
+import 'package:priobike/routing_new/views/widgets/lastSearchRequests.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMap.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMapButton.dart';
+import 'package:priobike/routing_new/views/widgets/searchBar.dart';
+import 'package:priobike/routing_new/views/widgets/shortcuts.dart';
+import 'package:priobike/routing_new/views/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/currentLocationButton.dart';
@@ -113,7 +113,7 @@ class SearchViewState extends State<SearchView> {
           waypoint.address != null) {
         newWaypoints = [currentLocationWaypoint!, waypoint];
       } else {
-        // Only set start when no waypoints selected.
+        // Only set destination when no waypoints selected.
         if (waypoints.isEmpty) {
           newWaypoints = [null, waypoint];
         } else {

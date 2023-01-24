@@ -10,11 +10,11 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routing_new/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
+import 'package:priobike/routing_new/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 

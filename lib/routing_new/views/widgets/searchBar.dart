@@ -7,7 +7,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routingNew/views/settings.dart';
+import 'package:priobike/routing_new/views/settings.dart';
 import 'package:provider/provider.dart';
 
 /// A view that displays the search bar.

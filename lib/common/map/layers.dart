@@ -10,18 +10,18 @@ import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/discomfort.dart';
-import 'package:priobike/routingNew/messages/graphhopper.dart';
-import 'package:priobike/routingNew/models/route.dart';
+import 'package:priobike/routing_new/messages/graphhopper.dart';
+import 'package:priobike/routing_new/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routingNew/services/discomfort.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing_new/services/discomfort.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
+import 'package:priobike/routing_new/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart' as latlng;
-import 'package:priobike/routingNew/models/route.dart' as r;
+import 'package:priobike/routing_new/models/route.dart' as r;
 
 /// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
 /// Taken from +-60 Latitude since it only needs to be approximate and its closer to 53 than +-40.

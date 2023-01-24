@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routingNew/views/widgets/filter.dart';
+import 'package:priobike/routing_new/views/widgets/filter.dart';
 
 /// The filter button.
 class FilterButton extends StatelessWidget {

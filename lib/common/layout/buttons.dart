@@ -47,8 +47,7 @@ class SmallIconButton extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(24)),
       ),
       child: RawMaterialButton(
-        elevation: 0,
-        // Hide ugly material shadows.
+        elevation: 0, // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
         child: Padding(

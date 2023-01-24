@@ -6,9 +6,9 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routingNew/views/places.dart';
-import 'package:priobike/routingNew/views/routes.dart';
-import 'package:priobike/routingNew/views/widgets/deleteDialog.dart';
+import 'package:priobike/routing_new/views/places.dart';
+import 'package:priobike/routing_new/views/routes.dart';
+import 'package:priobike/routing_new/views/widgets/deleteDialog.dart';
 import 'package:provider/provider.dart';
 
 class SettingsView extends StatefulWidget {

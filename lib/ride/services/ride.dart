@@ -8,7 +8,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/routingNew/models/route.dart';
+import 'package:priobike/routing_new/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';

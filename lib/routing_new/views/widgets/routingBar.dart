@@ -4,12 +4,12 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routingNew/services/bottomSheetState.dart';
-import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routing_new/services/bottomSheetState.dart';
+import 'package:priobike/routing_new/services/discomfort.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/views/search.dart';
-import 'package:priobike/routingNew/views/widgets/calculateRoutingBarHeight.dart';
+import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing_new/views/search.dart';
+import 'package:priobike/routing_new/views/widgets/calculateRoutingBarHeight.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 

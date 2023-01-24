@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMap.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMap.dart';
 import 'package:provider/provider.dart';
 
 class PlacesView extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routingNew/views/layers.dart';
+import 'package:priobike/routing_new/views/layers.dart';
 
 /// The layer button.
 class LayerButton extends StatelessWidget {

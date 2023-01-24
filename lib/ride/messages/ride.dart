@@ -1,4 +1,4 @@
-import 'package:priobike/routingNew/messages/graphhopper.dart';
+import 'package:priobike/routing_new/messages/graphhopper.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 

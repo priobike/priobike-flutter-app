@@ -4,19 +4,18 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routingNew/services/discomfort.dart';
+import 'package:priobike/routing_new/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/views/widgets/calculateRoutingBarHeight.dart';
+import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing_new/views/widgets/calculateRoutingBarHeight.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 

@@ -7,19 +7,17 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routingNew/services/routing.dart';
-import 'package:priobike/routingNew/views/map.dart';
-import 'package:priobike/routingNew/services/mapcontroller.dart';
-import 'package:priobike/routingNew/views/widgets/ZoomInAndOutButton.dart';
-import 'package:priobike/routingNew/views/widgets/compassButton.dart';
-import 'package:priobike/routingNew/views/widgets/gpsButton.dart';
-import 'package:priobike/routingNew/views/widgets/selectOnMapName.dart';
+import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing_new/views/map.dart';
+import 'package:priobike/routing_new/services/mapcontroller.dart';
+import 'package:priobike/routing_new/views/widgets/ZoomInAndOutButton.dart';
+import 'package:priobike/routing_new/views/widgets/compassButton.dart';
+import 'package:priobike/routing_new/views/widgets/gpsButton.dart';
+import 'package:priobike/routing_new/views/widgets/selectOnMapName.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {

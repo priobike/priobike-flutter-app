@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routing_new/services/routing.dart';
 import 'package:provider/provider.dart';
 
 /// Displays the shortcut row.
