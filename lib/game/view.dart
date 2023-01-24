@@ -38,7 +38,7 @@ class LevelViewState extends State<LevelView> {
   bool animating = false;
 
   /// The percentage of the circular progress that hides the level circle.
-  double circleCoverPct = 1;
+  double circleCoverPct = 0;
 
   /// The current level.
   Level getCurrentLevel() {
@@ -105,10 +105,6 @@ class LevelViewState extends State<LevelView> {
       HSLColor.fromColor(currentLevel.color).withLightness(0.9).toColor(),
       HSLColor.fromColor(currentLevel.color).withLightness(0.8).toColor(),
     ];
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      runAnimation(delay: 2000);
-    });
   }
 
   @override
