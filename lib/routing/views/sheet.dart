@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -10,6 +9,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routing/views/search.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:provider/provider.dart';
@@ -217,10 +217,14 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
+  /// The associated status service, which is injected by the provider.
+  late PredictionSGStatus status;
+
   @override
   void didChangeDependencies() {
     routingService = Provider.of<Routing>(context);
     positioning = Provider.of<Positioning>(context);
+    status = Provider.of<PredictionSGStatus>(context);
     super.didChangeDependencies();
   }
 
@@ -365,12 +369,20 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final minutes = (seconds - hours * 3600) ~/ 60;
     // Calculate the time when the user will reach the destination.
     final arrivalTime = DateTime.now().add(Duration(seconds: seconds.toInt()));
+    var text = "Zum Ziel";
+    if (routingService.selectedProfile?.explanation != null) {
+      text = routingService.selectedProfile!.explanation;
+    }
+    text += " - Grüne Welle auf ${(status.okPercentage * 100).toInt()}% der Strecke";
     return Column(
       children: [
         BoldSmall(
-          text: routingService.selectedProfile?.explanation ?? "",
-          color: CI.green,
+          text: text,
+          color: Theme.of(context).colorScheme.brightness == Brightness.dark
+              ? const Color.fromARGB(255, 0, 255, 106)
+              : const Color.fromARGB(255, 0, 220, 92),
           context: context,
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 2),
         Content(
