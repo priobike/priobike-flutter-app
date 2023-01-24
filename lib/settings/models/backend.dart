@@ -213,9 +213,3 @@ extension BackendShortcuts on Backend {
     }
   }
 }
-
-extension BackendPlaces on Backend {
-  List<Place> get defaultPlaces {
-    return [];
-  }
-}

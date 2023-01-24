@@ -1,5 +1,6 @@
 import 'package:priobike/routing/models/waypoint.dart';
 
+/// The shortcut represents a saved route with a name.
 class Shortcut {
   /// The name of the shortcut.
   final String name;

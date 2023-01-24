@@ -1,5 +1,6 @@
 import 'package:priobike/routing/models/waypoint.dart';
 
+/// The place represents a saved waypoint with a name.
 class Place {
   /// The name of the place.
   final String name;

@@ -40,18 +40,19 @@ class Profile with ChangeNotifier {
 
   List<Waypoint>? searchHistory;
 
-  Profile(
-      {this.bikeType,
-      this.preferenceType,
-      this.activityType,
-      this.showTrafficLights,
-      this.avoidTrafficLights,
-      this.avoidAscents,
-      this.avoidTraffic,
-      this.showGeneralPOIs = true,
-      this.setLocationAsStart = true,
-      this.saveSearchHistory = true,
-      this.searchHistory});
+  Profile({
+    this.bikeType,
+    this.preferenceType,
+    this.activityType,
+    this.showTrafficLights,
+    this.avoidTrafficLights,
+    this.avoidAscents,
+    this.avoidTraffic,
+    this.showGeneralPOIs = true,
+    this.setLocationAsStart = true,
+    this.saveSearchHistory = true,
+    this.searchHistory,
+  });
 
   /// Load the stored profile.
   Future<void> loadProfile() async {

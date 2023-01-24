@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/home/models/place.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing_new/services/bottomSheetState.dart';
 import 'package:priobike/routing_new/services/routing.dart';
@@ -9,8 +10,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../models/place.dart';
 
 class Places with ChangeNotifier {
   /// All available places.
@@ -99,7 +98,7 @@ class Places with ChangeNotifier {
     }
 
     if (jsonStr == null) {
-      places = backend.defaultPlaces;
+      places = [];
     } else {
       places = (jsonDecode(jsonStr) as List).map((e) => Place.fromJson(e)).toList();
     }
