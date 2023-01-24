@@ -437,10 +437,11 @@ class ProfileViewState extends State<ProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Content(text: "Aktivität", context: context),
+                  Content(text: "Anstieg", context: context),
                   const SmallVSpace(),
                   Small(
-                      text: "Wir können dafür sorgen, dass du nach deiner Fahrt duschen musst, oder nicht.",
+                      text:
+                          "Vermeide Anstiege oder fahre lieber bergauf? Wähle die Option, die am besten zu dir passt.",
                       context: context),
                 ],
               ),

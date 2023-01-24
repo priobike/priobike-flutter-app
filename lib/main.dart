@@ -22,7 +22,6 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/positioning/services/snapping.dart';
 import 'package:priobike/routingNew/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -98,7 +97,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Datastream()),
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
-        ChangeNotifierProvider(create: (context) => Snapping()),
         ChangeNotifierProvider(create: (context) => Feedback()),
         ChangeNotifierProvider(create: (context) => MapController()),
         ChangeNotifierProvider(create: (context) => BottomSheetState()),

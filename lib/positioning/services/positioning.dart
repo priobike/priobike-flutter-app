@@ -2,13 +2,18 @@ import 'dart:async';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Route;
+import 'package:priobike/positioning/algorithm/snapper.dart';
+import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/mock.dart';
+import 'package:priobike/routingNew/services/routing.dart';
+import 'package:priobike/routingNew/models/route.dart';
 import 'package:priobike/routingNew/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
@@ -34,6 +39,12 @@ class Positioning with ChangeNotifier {
   /// The current measured position (1 Hz).
   Position? lastPosition;
 
+  /// The current route, for snapping.
+  Route? route;
+
+  /// The current position snapped to the route.
+  Snap? snap;
+
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
@@ -47,6 +58,15 @@ class Positioning with ChangeNotifier {
     positionSubscription = null;
     positions.clear();
     lastPosition = null;
+    route = null;
+    snap = null;
+  }
+
+  /// Notify the positioning that a new route was loaded.
+  Future<void> selectRoute(Route? route) async {
+    this.route = route;
+    snap = null;
+    notifyListeners();
   }
 
   /// Show a dialog if the location provider was denied.
@@ -172,7 +192,7 @@ class Positioning with ChangeNotifier {
 
   Future<void> startGeolocation({
     required BuildContext context,
-    required void Function(Position pos) onNewPosition,
+    required void Function() onNewPosition,
   }) async {
     if (isGeolocating) return;
     isGeolocating = true;
@@ -206,7 +226,14 @@ class Positioning with ChangeNotifier {
         if (!isGeolocating) return;
         lastPosition = position;
         positions.add(position);
-        onNewPosition(position);
+        // Snap the position to the route.
+        if (route != null && route!.route.length > 2) {
+          snap = Snapper(
+            position: LatLng(position.latitude, position.longitude),
+            nodes: route!.route,
+          ).snap();
+        }
+        onNewPosition();
         notifyListeners();
       },
     );
