@@ -39,8 +39,6 @@ dependencies:
   cupertino_icons: ^1.0.2 # Icons package
   provider: ^6.0.0 # State management
   geolocator: ^8.1.1 # GPS tracking
-  web_socket_channel: ^2.1.0 # WebSocket communication
-  json_rpc_2: ^3.0.1 # JSON RPC support for WebSocket communication
   mapbox_gl: # Customized mapbox map framework
     git:
       url: https://github.com/priobike/priobike-flutter-mapbox
