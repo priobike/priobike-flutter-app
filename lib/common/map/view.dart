@@ -51,7 +51,7 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
-  /// A callback that is executed when the map is longclicked.
+  /// A callback that is executed when the map is clicked.
   final void Function(Point<double>, LatLng)? onMapClick;
 
   /// The attribution button position.
