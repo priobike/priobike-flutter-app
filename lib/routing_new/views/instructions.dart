@@ -19,11 +19,6 @@ class InstructionsViewState extends State<InstructionsView> {
   late Routing routing;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
 
@@ -119,10 +114,5 @@ class InstructionsViewState extends State<InstructionsView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

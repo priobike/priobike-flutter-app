@@ -104,9 +104,4 @@ class SelectOnMapNameViewState extends State<SelectOnMapNameView> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

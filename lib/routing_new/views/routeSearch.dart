@@ -52,11 +52,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
   Waypoint? currentLocationWaypoint;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
@@ -191,10 +186,5 @@ class RouteSearchViewState extends State<RouteSearchView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

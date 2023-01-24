@@ -19,11 +19,6 @@ class PlacesViewState extends State<PlacesView> {
   late Places places;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     places = Provider.of<Places>(context);
 
@@ -151,10 +146,5 @@ class PlacesViewState extends State<PlacesView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

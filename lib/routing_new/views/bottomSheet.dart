@@ -188,11 +188,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     bottomSheetState = Provider.of<BottomSheetState>(context);
     routing = Provider.of<Routing>(context);
@@ -677,10 +672,5 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             );
           }),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

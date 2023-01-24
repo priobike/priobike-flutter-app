@@ -29,11 +29,6 @@ class SettingsViewState extends State<SettingsView> {
   late Shortcuts shortcuts;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     profile = Provider.of<Profile>(context);
     places = Provider.of<Places>(context);
@@ -104,26 +99,6 @@ class SettingsViewState extends State<SettingsView> {
                 Expanded(
                   child: ListView(
                     children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       horizontal: 20, vertical: 10),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       BoldContent(
-                      //           text: "Allgemeine POIs anzeigen",
-                      //           context: context),
-                      //       Switch(
-                      //           value: profile.showGeneralPOIs,
-                      //           onChanged: (value) {
-                      //             setState(() {
-                      //               profile.showGeneralPOIs = value;
-                      //               profile.store();
-                      //             });
-                      //           }),
-                      //     ],
-                      //   ),
-                      // ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: Row(
@@ -220,10 +195,5 @@ class SettingsViewState extends State<SettingsView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

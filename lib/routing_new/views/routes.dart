@@ -19,11 +19,6 @@ class RoutesViewState extends State<RoutesView> {
   late Shortcuts shortcuts;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     shortcuts = Provider.of<Shortcuts>(context);
 
@@ -159,10 +154,5 @@ class RoutesViewState extends State<RoutesView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

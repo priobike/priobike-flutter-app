@@ -31,46 +31,40 @@ class AlertsViewState extends State<AlertsView> {
   int currentPage = 0;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     predictionStatus = Provider.of<PredictionSGStatus>(context);
     discomforts = Provider.of<Discomforts>(context);
     routing = Provider.of<Routing>(context);
 
     // Scroll to a discomfort if one was selected.
-    if (discomforts.selectedDiscomfort != null) {
-      final found = discomforts.foundDiscomforts;
-      if (found != null && found.isNotEmpty) {
-        for (int i = 0; i < found.length; i++) {
-          if (found[i] == discomforts.selectedDiscomfort) {
-            // Add offset if prediction error is displayed.
-            if (predictionStatus.bad != 0 || predictionStatus.offline != 0 || predictionStatus.disconnected != 0) {
-              i += 1;
-            }
-            if (controller.hasClients) {
-              controller.jumpToPage(i);
-            }
-            setState(() {
-              currentPage = i;
-            });
-            break;
+    if (discomforts.selectedDiscomfort != null &&
+        discomforts.foundDiscomforts != null &&
+        discomforts.foundDiscomforts!.isNotEmpty) {
+      for (int i = 0; i < discomforts.foundDiscomforts!.length; i++) {
+        if (discomforts.foundDiscomforts![i] == discomforts.selectedDiscomfort) {
+          // Add offset if prediction error is displayed.
+          if (predictionStatus.bad != 0 || predictionStatus.offline != 0 || predictionStatus.disconnected != 0) {
+            i += 1;
           }
+          if (controller.hasClients) {
+            controller.jumpToPage(i);
+          }
+          setState(() {
+            currentPage = i;
+          });
+          break;
         }
       }
-    } else {
-      // Case trafficLightClicked when alerts open.
-      if (discomforts.trafficLightClicked) {
-        if (controller.hasClients) {
-          controller.jumpToPage(0);
-        }
-        setState(() {
-          currentPage = 0;
-        });
+    }
+
+    // Case trafficLightClicked when alerts open.
+    if (discomforts.trafficLightClicked) {
+      if (controller.hasClients) {
+        controller.jumpToPage(0);
       }
+      setState(() {
+        currentPage = 0;
+      });
     }
 
     super.didChangeDependencies();
