@@ -956,7 +956,7 @@ class ConstructionSitesLayer {
         iconImage: isDark ? "constructiondark" : "constructionlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 13),
+        iconOpacity: showAfter(zoom: 12),
         textHaloColor: isDark ? "#000000" : "#ffffff",
         textHaloWidth: 1,
         textOffset: [
@@ -968,7 +968,7 @@ class ConstructionSitesLayer {
         textSize: 12,
         textAnchor: "center",
         textColor: "#e67e22",
-        textOpacity: showAfter(zoom: 13),
+        textOpacity: showAfter(zoom: 15),
         textAllowOverlap: true,
       ),
     );
@@ -1004,7 +1004,7 @@ class AccidentHotspotsLayer {
         iconImage: isDark ? "accidentdark" : "accidentlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 13),
+        iconOpacity: showAfter(zoom: 11),
         textHaloColor: isDark ? "#000000" : "#ffffff",
         textHaloWidth: 1,
         textOffset: [
@@ -1016,7 +1016,7 @@ class AccidentHotspotsLayer {
         textSize: 12,
         textAnchor: "center",
         textColor: "#ff4757",
-        textOpacity: showAfter(zoom: 13),
+        textOpacity: showAfter(zoom: 15),
         textAllowOverlap: true,
       ),
     );
