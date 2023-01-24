@@ -117,7 +117,6 @@ class Profile with ChangeNotifier {
       searchHistory = [waypoint];
     }
 
-    await store();
     notifyListeners();
   }
 }

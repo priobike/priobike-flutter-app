@@ -36,7 +36,7 @@ class Settings with ChangeNotifier {
   /// The rerouting strategy.
   Rerouting rerouting;
 
-  /// The routingOLD endpoint.
+  /// The routing endpoint.
   RoutingEndpoint routingEndpoint;
 
   /// The signal group labels mode.

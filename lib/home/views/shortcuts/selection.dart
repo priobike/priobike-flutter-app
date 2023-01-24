@@ -122,7 +122,7 @@ class ShortcutsView extends StatefulWidget {
   /// A callback that will be executed when the shortcut was selected.
   final void Function(Shortcut shortcut) onSelectShortcut;
 
-  /// A callback that will be executed when free routingOLD is started.
+  /// A callback that will be executed when free routing is started.
   final void Function() onStartFreeRouting;
 
   const ShortcutsView({
@@ -139,7 +139,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts ss;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing rs;
 
   /// The left padding.

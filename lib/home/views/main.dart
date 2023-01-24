@@ -56,7 +56,7 @@ class HomeViewState extends State<HomeView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Places places;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated discomfort service, which is injected by the provider.
@@ -122,7 +122,7 @@ class HomeViewState extends State<HomeView> {
     );
   }
 
-  /// A callback that is fired when free routingOLD was selected.
+  /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     Navigator.of(context)
         .push(MaterialPageRoute(

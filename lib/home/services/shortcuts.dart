@@ -31,9 +31,9 @@ class Shortcuts with ChangeNotifier {
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
-    List<Waypoint> selectedWaypoints = [];
     for (Waypoint? waypoint in routing.selectedWaypoints!) {
       if (waypoint == null) {
+        ToastMessage.showError("Nicht genug Wegpunkte gesetzt!");
         return;
       }
       if (waypoint.address == null) {
@@ -42,10 +42,9 @@ class Shortcuts with ChangeNotifier {
         if (address == null) return;
         waypoint.address = address;
       }
-      selectedWaypoints.add(waypoint);
     }
 
-    final newShortcut = Shortcut(name: name, waypoints: selectedWaypoints);
+    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints as List<Waypoint>);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;

@@ -6,7 +6,7 @@ import 'package:priobike/routing_new/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
-/// A view that displays alerts in the routingOLD context.
+/// A view that displays alerts in the routing context.
 class AlertsView extends StatefulWidget {
   const AlertsView({Key? key}) : super(key: key);
 
@@ -21,7 +21,7 @@ class AlertsViewState extends State<AlertsView> {
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
 
-  /// The associated routingOLD service, which is injected by the provider.
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The controller for the carousel.

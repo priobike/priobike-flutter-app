@@ -120,10 +120,10 @@ class Routing with ChangeNotifier {
   /// The waypoints of the selected route, if provided.
   List<Waypoint?>? selectedWaypoints;
 
-  /// The list of waypoints for SearchRoutingView
+  /// The list of waypoints for SearchRoutingView.
   List<Waypoint?> routingItems = [];
 
-  /// The index which routingBarItem gets filled next
+  /// The index which routingBarItem gets highlighted next.
   int nextItem = -1;
 
   /// The currently selected route, if one fetched.
@@ -131,9 +131,6 @@ class Routing with ChangeNotifier {
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
-
-  /// The route type.
-  String routeType = "Schnell";
 
   /// The route label coords.
   List<GHCoordinate> routeLabelCoords = [];
@@ -471,7 +468,6 @@ class Routing with ChangeNotifier {
     allRoutes = routes;
     fetchedWaypoints = selectedWaypointsCasted;
     isFetchingRoute = false;
-    routeType = "Schnell";
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
     await discomforts.findDiscomforts(context, routes.first.path);
@@ -489,8 +485,6 @@ class Routing with ChangeNotifier {
   Future<void> switchToRoute(BuildContext context, int idx) async {
     if (idx < 0 || idx >= allRoutes!.length) return;
 
-    routeType = selectedRoute!.id == 0 ? "Bequem" : "Schnell";
-
     selectedRoute = allRoutes![idx];
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
@@ -504,11 +498,13 @@ class Routing with ChangeNotifier {
 
   void switchMinimized() {
     minimized = !minimized;
+    // Use original notifyListeners to prevent setting camera to route bounds.
     super.notifyListeners();
   }
 
   void setMinimized() {
     minimized = false;
+    // Use original notifyListeners to prevent setting camera to route bounds.
     super.notifyListeners();
   }
 
