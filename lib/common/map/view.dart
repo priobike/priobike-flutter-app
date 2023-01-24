@@ -46,6 +46,7 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
+  /// A callback that is executed when the map is dismissed from camera tracking.
   final void Function()? onCameraTrackingDismissed;
 
   /// A callback that is executed when the map is longclicked.
@@ -120,6 +121,7 @@ class AppMapState extends State<AppMap> {
       onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
       attributionButtonPosition: widget.attributionButtonPosition,
       myLocationEnabled: true,
+      // Only used in new routing view.
       myLocationTrackingMode: widget.myLocationTrackingMode ?? MyLocationTrackingMode.None,
       myLocationRenderMode: MyLocationRenderMode.GPS,
       // Use a custom foreground image for the location puck.
