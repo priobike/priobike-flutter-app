@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/map.dart';
+import 'package:priobike/status/views/map_new.dart';
 import 'package:provider/provider.dart';
 
 class StatusView extends StatefulWidget {

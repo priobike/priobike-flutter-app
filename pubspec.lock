@@ -162,6 +162,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.0.0"
+  enum_to_string:
+    dependency: transitive
+    description:
+      name: enum_to_string
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   event_bus:
     dependency: transitive
     description:
@@ -279,6 +286,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.16"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -442,6 +456,13 @@ packages:
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"
+  mapbox_maps_flutter:
+    dependency: "direct main"
+    description:
+      name: mapbox_maps_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   matcher:
     dependency: transitive
     description:
@@ -748,6 +769,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.0"
+  turf:
+    dependency: "direct main"
+    description:
+      name: turf
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.7"
+  turf_equality:
+    dependency: transitive
+    description:
+      name: turf_equality
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   typed_data:
     dependency: transitive
     description:
