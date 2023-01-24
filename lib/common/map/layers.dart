@@ -117,7 +117,7 @@ class SelectedRouteLayer {
       String color;
       final q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
       // Interpolate between green and blue, by the prediction quality.
-      color = "rgb(${(2 * q + 0 * (1 - q)).round()}, ${250 * q + 115 * (1 - q)}, ${35 * q + 255 * (1 - q)})";
+      color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
       if (currentFeature == null || currentFeature["color"] != color) {
         if (currentFeature != null) {
           currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
