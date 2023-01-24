@@ -15,7 +15,6 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
-import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -108,18 +107,38 @@ class SelectedRouteLayer {
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
-    final route = routing.selectedRoute?.route ?? [];
-    final coordinates = route.map((e) => [e.lon, e.lat]).toList();
-    final geometry = {
-      "type": "LineString",
-      "coordinates": coordinates,
-    };
-    features.add({
-      "id": "selected-route",
-      "type": "Feature",
-      "properties": {},
-      "geometry": geometry,
-    });
+    final navNodes = routing.selectedRoute?.route ?? [];
+
+    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    Map<String, dynamic>? currentFeature;
+    for (int i = navNodes.length - 1; i >= 0; i--) {
+      final navNode = navNodes[i];
+      final sgStatus = status.cache[navNode.signalGroupId];
+      String color;
+      final q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+      // Interpolate between green and blue, by the prediction quality.
+      color = "rgb(${(2 * q + 0 * (1 - q)).round()}, ${250 * q + 115 * (1 - q)}, ${35 * q + 255 * (1 - q)})";
+      if (currentFeature == null || currentFeature["color"] != color) {
+        if (currentFeature != null) {
+          currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+          features.add(currentFeature);
+        }
+        currentFeature = {
+          "type": "Feature",
+          "properties": {
+            "color": color,
+          },
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [navNode.lon, navNode.lat]
+            ],
+          },
+        };
+      } else {
+        currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+      }
+    }
   }
 
   /// Install the overlay on the layer controller.
@@ -135,6 +154,7 @@ class SelectedRouteLayer {
         lineWidth: bgLineWidth,
         lineColor: "#C6C6C6",
         lineJoin: "round",
+        lineCap: "round",
       ),
       enableInteraction: false,
       belowLayerId: below,
@@ -144,8 +164,9 @@ class SelectedRouteLayer {
       "route-layer",
       LineLayerProperties(
         lineWidth: fgLineWidth,
-        lineColor: "#0073ff",
+        lineColor: ["get", "color"],
         lineJoin: "round",
+        lineCap: "round",
       ),
       enableInteraction: false,
       belowLayerId: below,
@@ -315,10 +336,12 @@ class TrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayer(BuildContext context, {bool hideBehindPosition = false}) {
+  /// If the layer should be hidden behind the user position.
+  final bool hideBehindPosition;
+
+  TrafficLightsLayer(BuildContext context, {this.hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     final routing = Provider.of<Routing>(context, listen: false);
     final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
     if (routing.selectedRoute == null) return;
@@ -327,10 +350,6 @@ class TrafficLightsLayer {
       final sgDistanceOnRoute = routing.selectedRoute!.signalGroupsDistancesOnRoute[i];
       // Clamp the value to not unnecessarily update the source.
       final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
-      final status = statusProvider.cache[sg.id];
-      final isOffline = status == null ||
-          status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad;
       features.add(
         {
           "type": "Feature",
@@ -340,11 +359,9 @@ class TrafficLightsLayer {
           },
           "properties": {
             "id": sg.id,
-            "isOffline": isOffline,
             "isDark": isDark,
             "showLabels": showLabels,
             "distanceToSgOnRoute": distanceToSgOnRoute,
-            "hideBehindPosition": hideBehindPosition,
           },
         },
       );
@@ -363,47 +380,34 @@ class TrafficLightsLayer {
       SymbolLayerProperties(
         iconImage: [
           "case",
-          ["get", "isOffline"],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightofflinedark",
-            "trafficlightofflinelight",
-          ],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightonlinedark",
-            "trafficlightonlinelight",
-          ],
+          ["get", "isDark"],
+          "trafficlightonlinedarknocheck",
+          "trafficlightonlinelightnocheck",
         ],
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: [
-          "case",
-          ["get", "hideBehindPosition"],
-          [
-            "case",
-            [
-              "<",
-              ["get", "distanceToSgOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-            ],
-            0,
-            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-            [
-              "interpolate",
-              ["linear"],
-              ["get", "distanceToSgOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-              0,
-              0,
-              1
-            ],
-          ],
-          1,
-        ],
+        iconOpacity: hideBehindPosition
+            ? [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ]
+            : showAfter(zoom: 16),
         textField: [
           "case",
           ["get", "showLabels"],
@@ -524,7 +528,10 @@ class OfflineCrossingsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  OfflineCrossingsLayer(BuildContext context, {bool hideBehindPosition = false}) {
+  /// If the layer should be hidden behind the user position.
+  final bool hideBehindPosition;
+
+  OfflineCrossingsLayer(BuildContext context, {this.hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final routing = Provider.of<Routing>(context, listen: false);
@@ -548,7 +555,6 @@ class OfflineCrossingsLayer {
             "isDark": isDark,
             "showLabels": showLabels,
             "distanceToCrossingOnRoute": distanceToCrossingOnRoute,
-            "hideBehindPosition": hideBehindPosition,
           },
         },
       );
@@ -574,30 +580,27 @@ class OfflineCrossingsLayer {
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: [
-          "case",
-          ["get", "hideBehindPosition"],
-          [
-            "case",
-            [
-              "<",
-              ["get", "distanceToCrossingOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-            ],
-            0,
-            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-            [
-              "interpolate",
-              ["linear"],
-              ["get", "distanceToCrossingOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-              0,
-              0,
-              1
-            ],
-          ],
-          1,
-        ],
+        iconOpacity: hideBehindPosition
+            ? [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ]
+            : showAfter(zoom: 16),
         textField: [
           "case",
           ["get", "showLabels"],
