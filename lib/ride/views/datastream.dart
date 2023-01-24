@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -71,25 +70,6 @@ class DatastreamViewState extends State<DatastreamView> {
     if (settings.datastreamMode == DatastreamMode.disabled) return Container();
     if (datastream.subscriptions.isEmpty) return Container();
 
-    const comparisonLength = 40; // We want to compare the last 40 seconds of the vector.
-    final datastreamHistory = datastream.primarySignalHistory.sublist(
-      max(0, datastream.primarySignalHistory.length - comparisonLength),
-      datastream.primarySignalHistory.length,
-    );
-    final datastreamHistorySquares = datastreamHistory
-        .map<Widget>(
-          (value) => Container(
-            margin: const EdgeInsets.only(right: 1),
-            height: 6,
-            width: 2,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1),
-              color: value?.state.color ?? Colors.grey,
-            ),
-          ),
-        )
-        .toList();
-
     return Positioned(
       top: 48, // Below the MapBox attribution.
       right: 0,
@@ -107,22 +87,6 @@ class DatastreamViewState extends State<DatastreamView> {
                 ),
                 content: Row(
                   children: [
-                    SizedBox(
-                      width: comparisonLength * 3.0,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Small(text: "Realität", context: context),
-                          const SizedBox(height: 2),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: datastreamHistorySquares,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SmallHSpace(),
                     Container(
                       width: 32,
                       height: 32,
