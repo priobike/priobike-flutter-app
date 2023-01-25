@@ -6,9 +6,9 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/charts/height.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
@@ -447,7 +447,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderSaveRouteButton(context),
                   const VSpace(),
                   const SizedBox(height: 2),
-                  const RouteHeightChart(beta: false),
+                  const RouteHeightChart(),
                   const VSpace(),
                 ],
               ),
