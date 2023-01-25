@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
-import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -74,7 +73,6 @@ class LoaderState extends State<Loader> {
       // Load local stuff.
       await Provider.of<Profile>(context, listen: false).loadProfile();
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
-      await Provider.of<Places>(context, listen: false).loadPlaces(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
       await Provider.of<Layers>(context, listen: false).loadPreferences();
       // Load stuff from the server.

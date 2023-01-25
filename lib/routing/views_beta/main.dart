@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -92,6 +93,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     SchedulerBinding.instance?.addPostFrameCallback(
       (_) async {
         await routing.loadRoutes(context);
+        await Provider.of<Places>(context, listen: false).loadPlaces(context);
         // To place the mapbox logo correct when shortcut selected in home screen.
         sheetMovement.add(DraggableScrollableNotification(
             minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));

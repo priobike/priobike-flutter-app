@@ -5,7 +5,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -51,9 +50,6 @@ class HomeViewState extends State<HomeView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
 
-  /// The associated shortcuts service, which is injected by the provider.
-  late Places places;
-
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -72,7 +68,6 @@ class HomeViewState extends State<HomeView> {
     profile = Provider.of<Profile>(context);
     settings = Provider.of<Settings>(context);
     shortcuts = Provider.of<Shortcuts>(context);
-    places = Provider.of<Places>(context);
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
