@@ -373,7 +373,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routingService.selectedProfile?.explanation != null) {
       text = routingService.selectedProfile!.explanation;
     }
-    text += " - Grüne Welle auf ${(status.okPercentage * 100).toInt()}% der Strecke";
+    text += " - Grüne Welle auf ${(status.okPercentage * 100).toInt()}% der Strecke möglich";
     return Column(
       children: [
         BoldSmall(
