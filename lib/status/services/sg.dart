@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Route;
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
-import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
@@ -37,14 +37,17 @@ class PredictionSGStatus with ChangeNotifier {
   /// The number of disconnected sgs.
   int disconnected = 0;
 
+  /// The percentage of the route that is ok.
+  double okPercentage = 0;
+
   PredictionSGStatus();
 
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route.
-  Future<void> fetch(BuildContext context, List<Sg> sgs, List<Crossing> crossings) async {
+  Future<void> fetch(BuildContext context, Route? route) async {
     if (isLoading) return;
 
-    log.i("Fetching sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
@@ -54,7 +57,7 @@ class PredictionSGStatus with ChangeNotifier {
     notifyListeners();
 
     final pending = List<Future>.empty(growable: true);
-    for (final sg in sgs) {
+    for (final sg in route?.signalGroups ?? []) {
       if (cache.containsKey(sg.id)) {
         final now = DateTime.now().millisecondsSinceEpoch / 1000;
         final lastFetched = cache[sg.id]!.statusUpdateTime;
@@ -95,7 +98,7 @@ class PredictionSGStatus with ChangeNotifier {
     ok = 0;
     offline = 0;
     bad = 0;
-    for (final sg in sgs) {
+    for (final sg in route?.signalGroups ?? []) {
       if (!cache.containsKey(sg.id)) {
         offline++;
         continue;
@@ -114,9 +117,26 @@ class PredictionSGStatus with ChangeNotifier {
       }
     }
 
-    disconnected = crossings.where((c) => !c.connected).length;
+    disconnected = route?.crossings.where((c) => !c.connected).length ?? 0;
 
-    log.i("Fetched sg status for ${sgs.length} sgs and ${crossings.length} crossings.");
+    // Calculate the percentage of the route that is ok.
+    final navNodes = route?.route;
+    const vincenty = Distance(roundResult: false);
+    var distanceOk = 0.0;
+    for (var i = 0; i < navNodes!.length - 1; i++) {
+      final n1 = navNodes[i];
+      final n2 = navNodes[i + 1];
+      if (cache[n1.signalGroupId]?.predictionState == SGPredictionState.ok) {
+        distanceOk += vincenty.distance(LatLng(n1.lat, n1.lon), LatLng(n2.lat, n2.lon));
+      }
+    }
+    if (route?.path.distance != null && route?.path.distance != 0) {
+      okPercentage = distanceOk / route!.path.distance;
+    } else {
+      okPercentage = 0;
+    }
+
+    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
     isLoading = false;
     notifyListeners();
   }
@@ -129,6 +149,7 @@ class PredictionSGStatus with ChangeNotifier {
     disconnected = 0;
     ok = 0;
     isLoading = false;
+    okPercentage = 0;
     notifyListeners();
   }
 

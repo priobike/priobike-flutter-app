@@ -423,7 +423,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, routes.first.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, routes.first.signalGroups, routes.first.crossings);
+    await status.fetch(context, routes.first);
 
     notifyListeners();
     return routes;
@@ -438,7 +438,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(context, selectedRoute!.path);
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, selectedRoute!.signalGroups, selectedRoute!.crossings);
+    await status.fetch(context, selectedRoute!);
 
     notifyListeners();
   }
