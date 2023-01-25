@@ -14,7 +14,8 @@ This project uses [flutter_launcher_icons](https://pub.dev/packages/flutter_laun
 
 To provide a splash screen, this project uses [flutter_native_splash](https://pub.dev/packages/flutter_native_splash). To generate the splash screens for Android and iOS, replace `assets/splash.png` and then run: `flutter pub run flutter_native_splash:create`.
 
-**Note: Android 12 Splash Screen Support:** Since Android 12 implements its own splash screen, a solution must be found for this version, since otherwise there will be two different splash screens. It was decided to keep the Android 12 splash screen (since this one can't be deactivated) and replace the second unwanted splash screen with a uniform color. For this purpose, a separate "launch_background" drawable file was created for Android v31. More information can be found [here](https://pub.dev/packages/flutter_native_splash#android-12-support).
+### Note: Android 12 Splash Screen Support
+Since Android 12 implements its own splash screen, a solution must be found for this version, since otherwise there will be two different splash screens. It was decided to keep the Android 12 splash screen (since this one can't be deactivated) and replace the second unwanted splash screen with a uniform color. For this purpose, a separate `launch_background` drawable file was created for Android v31. More information can be found [here](https://pub.dev/packages/flutter_native_splash#android-12-support).
 
 ```diff
 + android/app/src/main/res/drawable-night-v31/launch_background;
