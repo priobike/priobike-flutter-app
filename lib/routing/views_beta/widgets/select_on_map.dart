@@ -160,8 +160,13 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context), elevation: 5),
                       ),
                       const SizedBox(width: 16),
-                      Center(
-                        child: BoldContent(text: "Standort auf Karte wählen", context: context),
+                      Flexible(
+                        child: Center(
+                          child: BoldContent(
+                            text: "Standort auf Karte wählen",
+                            context: context,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 5),
                       TextButton(
