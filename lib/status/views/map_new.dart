@@ -111,7 +111,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       ["get", "thing_properties_lanetype"],
     ];
 
-    await mapController?.style.styleLayerExists("sg-lanes").then((value) async {
+    await mapController?.style.styleLayerExists("sg-lines-bg").then((value) async {
       if (!value) {
         await mapController?.style.addLayer(
           mapbox.LineLayer(
@@ -175,7 +175,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       }
     });
 
-    await mapController?.style.styleLayerExists("sg-lanes").then((value) async {
+    await mapController?.style.styleLayerExists("sg-circles").then((value) async {
       if (!value) {
         await mapController?.style.addLayer(
           mapbox.CircleLayer(

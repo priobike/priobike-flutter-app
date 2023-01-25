@@ -115,7 +115,7 @@ class AppMapState extends State<AppMap> {
       // Setting the line (textureView) to false results in a spam of the message (only effects Android):
       // "[SurfaceTexture-0-26276-3](id:66a40000000b,api:1,p:627,c:26276) dequeueBuffer: BufferQueue has been abandoned"
       // Other effects were not yet observed.
-      textureView: true,
+      // textureView: false,
       cameraOptions: mapbox.CameraOptions(
         center: turf.Point(
             coordinates: turf.Position(
