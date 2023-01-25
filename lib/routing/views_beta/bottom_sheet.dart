@@ -577,6 +577,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           icon: Icons.navigation,
           iconColor: Colors.white,
         ),
+        const SizedBox(width: 10),
         IconTextButton(
             onPressed: showSaveShortcutSheet,
             label: 'Speichern',
@@ -585,6 +586,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             iconColor: Theme.of(context).colorScheme.primary,
             borderColor: Theme.of(context).colorScheme.primary,
             fillColor: Theme.of(context).colorScheme.background),
+        const SizedBox(width: 10),
         IconTextButton(
             onPressed: () => _changeDetailView(topSnapRatio),
             label: isTop ? 'Karte' : 'Details',
@@ -592,7 +594,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             borderColor: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
-            fillColor: Theme.of(context).colorScheme.background)
+            fillColor: Theme.of(context).colorScheme.background),
       ],
     );
   }

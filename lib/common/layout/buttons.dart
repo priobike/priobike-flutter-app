@@ -255,27 +255,27 @@ class IconTextButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(width: 5),
+            const SizedBox(width: 2),
             if (icon != null)
               Icon(
                 icon,
                 color: iconColor,
               ),
-            SizedBox(width: icon != null ? 5 : 0),
+            SizedBox(width: icon != null ? 2 : 0),
             Flexible(
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     label,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 5),
+            const SizedBox(width: 2),
           ],
         ),
       ),
