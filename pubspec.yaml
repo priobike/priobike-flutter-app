@@ -53,8 +53,8 @@ dependencies:
   battery_plus: ^2.1.4+1 # Fetch info about the battery state
   charts_flutter: ^0.12.0 # Display minimalistic charts
   share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
-  firebase_core: ^2.3.0 # Used to initialize the connection to Firebase
-  firebase_messaging: ^14.1.2 # Used to receive push notifications of news service
+  firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
+  firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
   flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: ^2.0.0 # Used to get accelerometer data
   mqtt_client: ^9.6.8
@@ -114,7 +114,7 @@ flutter:
     - assets/offline/
 
     # Files needed to get git info within the app, e.g. current branch or tag.
-    # Please make sure that the repository is cloned by the branch name, and 
+    # Please make sure that the repository is cloned by the branch name, and
     # not by the commit hash (as is the default for Jenkins CI pipelines).
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 
@@ -128,6 +128,7 @@ flutter:
     # Map symbols & Navigation icons
     - assets/images/
     - assets/images/trafficlights/
+
 
     # Screenshots
     - assets/images/screenshots/
