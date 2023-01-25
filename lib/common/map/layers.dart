@@ -15,6 +15,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -115,7 +116,9 @@ class SelectedRouteLayer {
       final navNode = navNodes[i];
       final sgStatus = status.cache[navNode.signalGroupId];
       String color;
-      final q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+      var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+      // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+      if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
       // Interpolate between green and blue, by the prediction quality.
       color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
       if (currentFeature == null || currentFeature["color"] != color) {
