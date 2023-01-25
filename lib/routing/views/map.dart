@@ -13,7 +13,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
@@ -47,10 +47,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   late PredictionSGStatus status;
 
   /// The associated mapController service, which is injected by the provider.
-  late MapController mapController;
+  late MapSettings mapSettings;
 
   /// A map controller for the map.
-  MapboxMapController? mapboxMapController;
+  MapboxMapController? mapController;
 
   /// A layer controller to safe add and remove layers.
   LayerController? layerController;
@@ -140,18 +140,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       status.needsLayout[viewId] = false;
     }
 
-    mapController = Provider.of<MapController>(context);
+    mapSettings = Provider.of<MapSettings>(context);
 
     super.didChangeDependencies();
   }
 
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
-    if (mapboxMapController == null || !mounted) return;
-    if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
+    if (mapController == null || !mounted) return;
+    if (routing.selectedRoute == null || mapController?.isCameraMoving != false) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 500));
-    await mapboxMapController?.animateCamera(
+    await mapController?.animateCamera(
       CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
       duration: const Duration(milliseconds: 1000),
     );
@@ -159,12 +159,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Show the user location on the map.
   displayCurrentUserLocation() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
 
     // NOTE: Don't await this function, it will hang forever.
     // This is a bug in our mapbox fork.
-    mapboxMapController?.updateUserLocation(
+    mapController?.updateUserLocation(
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
@@ -176,7 +176,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
     if (layerController == null) return;
     // Load the map features.
     if (layers.showAirStations) {
@@ -286,7 +286,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);
-    mapboxMapController?.updateContentInsets(
+    mapController?.updateContentInsets(
       EdgeInsets.fromLTRB(
         defaultMapInsets.left,
         defaultMapInsets.top,
@@ -310,7 +310,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMapController controller) async {
-    mapboxMapController = controller;
+    mapController = controller;
 
     // Added this here additionally to the onStyleLoaded- and didChangeDependencies-callback,
     // because when using a mocked GPS-position (for testing) only calling it
@@ -330,11 +330,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(BuildContext context) async {
-    if (mapboxMapController == null || !mounted) return;
-    if (mapController == null || layerController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
+    if (mapSettings == null || layerController == null || !mounted) return;
 
     // Load all symbols that will be displayed on the map.
-    await SymbolLoader(mapboxMapController!).loadSymbols();
+    await SymbolLoader(mapController!).loadSymbols();
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
@@ -350,7 +350,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the map was longclicked.
   onMapLongClick(BuildContext context, double x, double y) async {
-    if (mapboxMapController == null) return;
+    if (mapController == null) return;
     // Convert x and y into a lat/lon.
     final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.
@@ -359,7 +359,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       y *= ppi;
     }
     final point = Point(x, y);
-    final coord = await mapboxMapController!.toLatLng(point);
+    final coord = await mapController!.toLatLng(point);
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;

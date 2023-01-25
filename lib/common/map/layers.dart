@@ -14,7 +14,7 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/status/messages/sg.dart';
@@ -200,7 +200,7 @@ class RouteLabelLayer {
 
   RouteLabelLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
-    final mapController = Provider.of<MapController>(context, listen: false);
+    final mapController = Provider.of<MapSettings>(context, listen: false);
 
     // Conditions for having route labels.
     if (mapController.controller != null &&

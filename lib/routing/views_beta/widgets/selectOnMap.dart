@@ -13,7 +13,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/map.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/views_beta/widgets/ZoomInAndOutButton.dart';
 import 'package:priobike/routing/views_beta/widgets/compassButton.dart';
 import 'package:priobike/routing/views_beta/widgets/gpsButton.dart';
@@ -35,7 +35,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   late Routing routing;
 
   /// The associated mapController service, which is injected by the provider.
-  late MapController mapController;
+  late MapSettings mapController;
 
   /// The associated geocoding service, which is injected by the provider.
   late Geocoding geocoding;
@@ -61,7 +61,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
-    mapController = Provider.of<MapController>(context);
+    mapController = Provider.of<MapSettings>(context);
     geocoding = Provider.of<Geocoding>(context);
     profile = Provider.of<Profile>(context);
     places = Provider.of<Places>(context);

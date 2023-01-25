@@ -9,7 +9,7 @@ enum ControllerType {
   selectOnMap,
 }
 
-class MapController with ChangeNotifier {
+class MapSettings with ChangeNotifier {
   /// MapboxMapController for routingView
   MapboxMapController? controller;
 
@@ -23,10 +23,10 @@ class MapController with ChangeNotifier {
   MyLocationTrackingMode myLocationTrackingModeSelectOnMapView = MyLocationTrackingMode.None;
 
   /// The logger for this service.
-  final Logger log = Logger("MapControllerService");
+  final Logger log = Logger("MapSettingsService");
 
-  MapController() {
-    log.i("MapControllerService started.");
+  MapSettings() {
+    log.i("MapSettingsService started.");
   }
 
   /// Function which unsets the controller by type.

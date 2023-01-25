@@ -12,7 +12,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculateRoutingBarHeight.dart';
@@ -52,13 +52,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   late Layers layers;
 
   /// The associated settings service, which is injected by the provider.
-  late MapController mapController;
+  late MapSettings mapSettings;
 
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
   /// A map controller for the map.
-  MapboxMapController? mapboxMapController;
+  MapboxMapController? mapController;
 
   /// All routes that are displayed, if they were fetched.
   List<Line>? allRoutes;
@@ -166,21 +166,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       status.needsLayout[viewId] = false;
     }
 
-    mapController = Provider.of<MapController>(context);
+    mapSettings = Provider.of<MapSettings>(context);
 
     super.didChangeDependencies();
   }
 
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
     // FIXME with changenotifier at some point this condition needs to be adapted.
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     final frame = MediaQuery.of(context);
     await Future.delayed(const Duration(milliseconds: 750));
-    await mapboxMapController?.animateCamera(
+    await mapController?.animateCamera(
       // Bottom and top to not hide route below UI components.
       CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds,
           bottom: 0.175 * frame.size.height,
@@ -191,16 +191,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Fit the camera to the current waypoint.
   fitCameraToLatLng() async {
-    if (mapboxMapController == null || mapboxMapController!.cameraPosition == null || !mounted) return;
+    if (mapController == null || mapController!.cameraPosition == null || !mounted) return;
     // FIXME with changenotifier at some point this condition needs to be adapted.
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedWaypoints == null) return;
     if (routing.selectedWaypoints!.length == 1) {
       // The delay is necessary, otherwise sometimes the camera won't move.
       await Future.delayed(const Duration(milliseconds: 750));
-      await mapboxMapController?.animateCamera(
+      await mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(LatLng(routing.selectedWaypoints![0]!.lat, routing.selectedWaypoints![0]!.lon),
-            mapboxMapController!.cameraPosition!.zoom),
+            mapController!.cameraPosition!.zoom),
         duration: const Duration(milliseconds: 1000),
       );
     }
@@ -208,9 +208,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Show the user location on the map.
   displayCurrentUserLocation() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
-    mapboxMapController?.updateUserLocation(
+    mapController?.updateUserLocation(
       lat: positioning.lastPosition!.latitude,
       lon: positioning.lastPosition!.longitude,
       alt: positioning.lastPosition!.altitude,
@@ -222,7 +222,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
-    if (mapboxMapController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
     // Load the map features.
     if (layers.showAirStations) {
       BikeAirStationLayer(context).install(layerController!);
@@ -320,14 +320,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   Future<void> onMapCreated(MapboxMapController controller) async {
     switch (widget.controllerType) {
       case ControllerType.main:
-        mapController.controller = controller;
+        mapSettings.controller = controller;
         break;
       case ControllerType.selectOnMap:
-        mapController.controllerSelectOnMap = controller;
+        mapSettings.controllerSelectOnMap = controller;
         break;
     }
 
-    mapboxMapController = controller;
+    mapController = controller;
 
     // Wrap the map controller in a layer controller for safer layer access.
     layerController = LayerController(mapController: controller);
@@ -341,10 +341,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(BuildContext context) async {
-    if (mapboxMapController == null) return;
+    if (mapController == null) return;
 
     // Load all symbols that will be displayed on the map.
-    await SymbolLoader(mapboxMapController!).loadSymbols();
+    await SymbolLoader(mapController!).loadSymbols();
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
@@ -393,7 +393,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the map was longclicked.
   onMapLongClick(BuildContext context, double x, double y) async {
     if (!widget.withRouting) return;
-    if (mapboxMapController == null) return;
+    if (mapController == null) return;
     // Convert x and y into a lat/lon.
     final ppi = MediaQuery.of(context).devicePixelRatio;
     // On android, we need to multiply by the ppi.
@@ -402,7 +402,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       y *= ppi;
     }
     final point = Point(x, y);
-    final coord = await mapboxMapController!.toLatLng(point);
+    final coord = await mapController!.toLatLng(point);
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
@@ -420,7 +420,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   void onCameraTrackingDismissed() {
-    mapController.setMyLocationTrackingModeNone(widget.controllerType);
+    mapSettings.setMyLocationTrackingModeNone(widget.controllerType);
   }
 
   /// A callback that is executed when the camera movement of the user stopped.
@@ -428,8 +428,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting &&
         layerController != null &&
-        mapboxMapController != null &&
-        !mapboxMapController!.isCameraMoving) {
+        mapController != null &&
+        !mapController!.isCameraMoving) {
       await RouteLabelLayer(context).update(layerController!);
     }
   }
@@ -470,8 +470,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapClick: onMapClick,
             onCameraIdle: () => onCameraIdle(),
             myLocationTrackingMode: ControllerType.main == widget.controllerType
-                ? mapController.myLocationTrackingMode
-                : mapController.myLocationTrackingModeSelectOnMapView,
+                ? mapSettings.myLocationTrackingMode
+                : mapSettings.myLocationTrackingModeSelectOnMapView,
             onStyleLoaded: () => onStyleLoaded(context),
             onCameraTrackingDismissed: onCameraTrackingDismissed,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by

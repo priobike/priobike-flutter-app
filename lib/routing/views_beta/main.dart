@@ -20,7 +20,7 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/bottomSheet.dart';
 import 'package:priobike/routing/views_beta/map.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/views_beta/routeSearch.dart';
 import 'package:priobike/routing/views_beta/search.dart';
 import 'package:priobike/routing/views_beta/widgets/ZoomInAndOutButton.dart';
@@ -60,7 +60,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapController mapController;
+  late MapSettings mapController;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Profile profile;
@@ -114,7 +114,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     geocoding = Provider.of<Geocoding>(context);
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
-    mapController = Provider.of<MapController>(context);
+    mapController = Provider.of<MapSettings>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);

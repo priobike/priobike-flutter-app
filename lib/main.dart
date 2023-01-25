@@ -26,7 +26,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -98,7 +98,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Feedback()),
-        ChangeNotifierProvider(create: (context) => MapController()),
+        ChangeNotifierProvider(create: (context) => MapSettings()),
         ChangeNotifierProvider(create: (context) => BottomSheetState()),
         ChangeNotifierProvider(create: (context) => Weather()),
         ChangeNotifierProvider(create: (context) => Ride()),

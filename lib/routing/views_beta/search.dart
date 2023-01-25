@@ -10,7 +10,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/views_beta/widgets/lastSearchRequests.dart';
 import 'package:priobike/routing/views_beta/widgets/selectOnMap.dart';
 import 'package:priobike/routing/views_beta/widgets/selectOnMapButton.dart';
@@ -46,7 +46,7 @@ class SearchViewState extends State<SearchView> {
   late Positioning positioning;
 
   /// The associated mapController service, which is injected by the provider.
-  late MapController mapController;
+  late MapSettings mapController;
 
   /// The associated profile service, which is injected by the provider.
   late Profile profile;
@@ -61,7 +61,7 @@ class SearchViewState extends State<SearchView> {
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
-    mapController = Provider.of<MapController>(context);
+    mapController = Provider.of<MapSettings>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     geosearch = Provider.of<Geosearch>(context);
