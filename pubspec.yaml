@@ -80,8 +80,10 @@ flutter_native_splash:
   color: "#0073ff" # Color in light mode
   color_dark: "#0073ff" # Color in dark mode
   image: assets/splash.png # Icon to display in the center
+  image_dark: assets/splash.png # be default this should be equal to 'image' ... but for some reason it's not.
   android_12: 
-    image: assets/splash.png
+    image: assets/splash_android_12.png # Icon to display in the center
+    image_dark: assets/splash_android_12.png # be default this should be equal to 'image' ... but for some reason it's not.
 
 # Configuration of the app icons.
 flutter_icons:
