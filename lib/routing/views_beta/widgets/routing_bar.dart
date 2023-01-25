@@ -1,15 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/search.dart';
-import 'package:priobike/routing/views_beta/widgets/calculateRoutingBarHeight.dart';
+import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:provider/provider.dart';
 
@@ -21,18 +23,18 @@ class RoutingBar extends StatefulWidget {
   final Function onPressed;
   final Function? onSearch;
   final BuildContext context;
-  final sheetMovement;
+  final StreamController<DraggableScrollableNotification> sheetMovement;
 
-  const RoutingBar(
-      {Key? key,
-      this.locationSearchController,
-      required this.fromRoutingSearch,
-      required this.onPressed,
-      required this.context,
-      this.checkNextItem,
-      this.onSearch,
-      required this.sheetMovement})
-      : super(key: key);
+  const RoutingBar({
+    Key? key,
+    this.locationSearchController,
+    required this.fromRoutingSearch,
+    required this.onPressed,
+    required this.context,
+    this.checkNextItem,
+    this.onSearch,
+    required this.sheetMovement,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingBarState();

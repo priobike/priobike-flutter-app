@@ -6,7 +6,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
 class RoutingViewWrapper extends StatefulWidget {
-
   const RoutingViewWrapper({Key? key}) : super(key: key);
 
   @override
@@ -14,7 +13,6 @@ class RoutingViewWrapper extends StatefulWidget {
 }
 
 class RoutingViewWrapperState extends State<RoutingViewWrapper> {
-
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 

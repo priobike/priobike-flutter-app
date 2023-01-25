@@ -11,15 +11,15 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/map_settings.dart';
-import 'package:priobike/routing/views_beta/widgets/lastSearchRequests.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMap.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMapButton.dart';
-import 'package:priobike/routing/views_beta/widgets/searchBar.dart';
+import 'package:priobike/routing/views_beta/widgets/last_search_requests.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map_button.dart';
+import 'package:priobike/routing/views_beta/widgets/search_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/shortcuts.dart';
-import 'package:priobike/routing/views_beta/widgets/waypointListItemView.dart';
+import 'package:priobike/routing/views_beta/widgets/waypoint_list_item_view.dart';
 import 'package:provider/provider.dart';
 
-import 'widgets/currentLocationButton.dart';
+import 'widgets/current_location_button.dart';
 
 class SearchView extends StatefulWidget {
   final int? index;

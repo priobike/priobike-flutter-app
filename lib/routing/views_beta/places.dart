@@ -4,7 +4,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMap.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
 import 'package:provider/provider.dart';
 
 class PlacesView extends StatefulWidget {
@@ -77,8 +77,6 @@ class PlacesViewState extends State<PlacesView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
-
     List<Widget> placesList = [];
     if (places.places != null) {
       placesList = places.places!.map((entry) => _placeRowItem(entry)).toList();

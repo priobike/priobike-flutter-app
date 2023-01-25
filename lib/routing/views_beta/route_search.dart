@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -7,18 +9,18 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/map_settings.dart';
-import 'package:priobike/routing/views_beta/widgets/lastSearchRequests.dart';
-import 'package:priobike/routing/views_beta/widgets/routingBar.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMap.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMapButton.dart';
+import 'package:priobike/routing/views_beta/widgets/last_search_requests.dart';
+import 'package:priobike/routing/views_beta/widgets/routing_bar.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map_button.dart';
 import 'package:provider/provider.dart';
 
-import 'widgets/currentLocationButton.dart';
+import 'widgets/current_location_button.dart';
 
 class RouteSearchView extends StatefulWidget {
   final Function onPressed;
 
-  final sheetMovement;
+  final StreamController<DraggableScrollableNotification> sheetMovement;
 
   const RouteSearchView({Key? key, required this.onPressed, required this.sheetMovement}) : super(key: key);
 

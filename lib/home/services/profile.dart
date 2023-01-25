@@ -74,8 +74,9 @@ class Profile with ChangeNotifier {
     if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
     if (preferenceTypeStr != null) preferenceType = PreferenceType.values.byName(preferenceTypeStr);
     if (activityTypeStr != null) activityType = ActivityType.values.byName(activityTypeStr);
-    if (searchHistoryStr != null)
+    if (searchHistoryStr != null) {
       searchHistory = (jsonDecode(searchHistoryStr) as List).map((e) => Waypoint.fromJson(e)).toList();
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -89,14 +90,14 @@ class Profile with ChangeNotifier {
     if (preferenceType != null) await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
     if (activityType != null) await storage.setString("priobike.home.profile.activity", activityType!.name);
     if (showTrafficLights != null) await storage.setBool("priobike.home.profile.showTrafficLights", showTrafficLights!);
-    if (avoidTrafficLights != null)
+    if (avoidTrafficLights != null) {
       await storage.setBool("priobike.home.profile.avoidTrafficLights", avoidTrafficLights!);
+    }
     if (avoidAscents != null) await storage.setBool("priobike.home.profile.avoidAscents", avoidAscents!);
     if (avoidTraffic != null) await storage.setBool("priobike.home.profile.avoidTraffic", avoidTraffic!);
-    if (showGeneralPOIs != null) await storage.setBool("priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
-    if (setLocationAsStart != null)
-      await storage.setBool("priobike.home.profile.setLocationAsStart", setLocationAsStart);
-    if (saveSearchHistory != null) await storage.setBool("priobike.home.profile.avoidTraffic", saveSearchHistory);
+    await storage.setBool("priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
+    await storage.setBool("priobike.home.profile.setLocationAsStart", setLocationAsStart);
+    await storage.setBool("priobike.home.profile.avoidTraffic", saveSearchHistory);
     if (searchHistory != null) {
       final jsonStr = jsonEncode(searchHistory!.map((e) => e.toJSON()).toList());
       storage.setString("priobike.home.profile.searchHistory", jsonStr);

@@ -8,7 +8,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
-import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/datastream.dart';

@@ -42,7 +42,7 @@ class RideViewState extends State<RideView> {
     super.initState();
 
     SchedulerBinding.instance?.addPostFrameCallback(
-          (_) async {
+      (_) async {
         final tracking = Provider.of<Tracking>(context, listen: false);
         final positioning = Provider.of<Positioning>(context, listen: false);
         final accelerometer = Provider.of<Accelerometer>(context, listen: false);

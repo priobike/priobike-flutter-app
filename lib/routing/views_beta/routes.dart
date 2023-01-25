@@ -101,7 +101,6 @@ class RoutesViewState extends State<RoutesView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
     List<Widget> shortcutsList = [];
     if (shortcuts.shortcuts != null) {
       shortcutsList = shortcuts.shortcuts!.map((entry) => _shortcutRowItem(entry)).toList();

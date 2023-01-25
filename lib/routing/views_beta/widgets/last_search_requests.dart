@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/views_beta/widgets/waypointListItemView.dart';
+import 'package:priobike/routing/views_beta/widgets/waypoint_list_item_view.dart';
 import 'package:provider/provider.dart';
 
 /// Widget for last search results
@@ -35,7 +35,6 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
     return Column(mainAxisAlignment: MainAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

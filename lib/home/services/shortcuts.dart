@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routing/services/bottomSheetState.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';

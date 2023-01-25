@@ -13,7 +13,7 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../routing/services/bottomSheetState.dart';
+import '../../routing/services/bottom_sheet_state.dart';
 
 /// The translation from of the road class.
 final roadClassTranslation = {

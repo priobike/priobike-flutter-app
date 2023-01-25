@@ -102,9 +102,7 @@ class HomeViewState extends State<HomeView> {
 
     routing.selectWaypoints(shortcut.waypoints);
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
-        .then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
       (_) {
         routing.reset();
         discomforts.reset();
@@ -115,9 +113,7 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
-        .then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
       (_) {
         routing.reset();
         discomforts.reset();

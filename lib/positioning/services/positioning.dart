@@ -14,7 +14,6 @@ import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';

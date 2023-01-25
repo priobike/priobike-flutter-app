@@ -331,7 +331,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(BuildContext context) async {
     if (mapController == null || !mounted) return;
-    if (mapSettings == null || layerController == null || !mounted) return;
+    if (layerController == null || !mounted) return;
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();

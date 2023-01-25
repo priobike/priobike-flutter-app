@@ -15,7 +15,7 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views_beta/widgets/calculateRoutingBarHeight.dart';
+import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -426,10 +426,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle() async {
     // Check if the route labels have to be positionally adjusted.
-    if (widget.withRouting &&
-        layerController != null &&
-        mapController != null &&
-        !mapController!.isCameraMoving) {
+    if (widget.withRouting && layerController != null && mapController != null && !mapController!.isCameraMoving) {
       await RouteLabelLayer(context).update(layerController!);
     }
   }

@@ -14,10 +14,10 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/map.dart';
 import 'package:priobike/routing/services/map_settings.dart';
-import 'package:priobike/routing/views_beta/widgets/ZoomInAndOutButton.dart';
-import 'package:priobike/routing/views_beta/widgets/compassButton.dart';
-import 'package:priobike/routing/views_beta/widgets/gpsButton.dart';
-import 'package:priobike/routing/views_beta/widgets/selectOnMapName.dart';
+import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
+import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
+import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
+import 'package:priobike/routing/views_beta/widgets/select_on_map_name.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
