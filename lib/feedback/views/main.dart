@@ -1,15 +1,19 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/feedback/views/stars.dart';
-import 'package:priobike/feedback/views/text.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -18,17 +22,16 @@ class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
   final Future<void> Function(BuildContext context) onSubmitted;
 
-  /// A boolean indicating if the view is used isolated or after a ride.
-  /// This determines whether a back button should be shown and also whether the option to save a route should be shown.
-  final bool isolatedViewUsage;
-
-  const FeedbackView({required this.onSubmitted, this.isolatedViewUsage = false, Key? key}) : super(key: key);
+  const FeedbackView({required this.onSubmitted, Key? key}) : super(key: key);
 
   @override
   FeedbackViewState createState() => FeedbackViewState();
 }
 
 class FeedbackViewState extends State<FeedbackView> {
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
@@ -76,6 +79,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   void didChangeDependencies() {
+    routing = Provider.of<Routing>(context);
     tracking = Provider.of<Tracking>(context);
     feedback = Provider.of<Feedback>(context);
     statistics = Provider.of<Statistics>(context);
@@ -113,177 +117,103 @@ class FeedbackViewState extends State<FeedbackView> {
   Widget renderSummary() {
     const paddingText = 4.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Container(
-            padding: const EdgeInsets.all(paddingText),
-            child: BoldContent(
-              text: "Zusammenfassung deiner Fahrt",
-              context: context,
-            ),
-          ),
-        ),
-        const SmallVSpace(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Table(
-            columnWidths: const {
-              // make the left column wider than the right column
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(1),
-            },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Table(
+        columnWidths: const {
+          // make the left column wider than the right column
+          0: FlexColumnWidth(2),
+          1: FlexColumnWidth(1),
+        },
+        children: [
+          TableRow(
             children: [
-              TableRow(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.left,
-                      text: "Fahrzeit:",
-                      context: context,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.right,
-                      text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
-                          ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} Minuten"
-                          : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} Sekunden",
-                      context: context,
-                    ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.left,
+                  text: "Fahrtzeit",
+                  context: context,
+                ),
               ),
-              TableRow(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.left,
-                      text: "Gefahrene Strecke:",
-                      context: context,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.right,
-                      text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
-                          ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} Kilometer"
-                          : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} Meter",
-                      context: context,
-                    ),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.left,
-                      text: "Durchschnittsgeschwindigkeit:",
-                      context: context,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.right,
-                      text: "${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
-                      context: context,
-                    ),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.left,
-                      text: "CO2 gespart:",
-                      context: context,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: paddingText),
-                    child: Content(
-                      textAlign: TextAlign.right,
-                      text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
-                          ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
-                          : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
-                      context: context,
-                    ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.right,
+                  text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
+                      ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} min"
+                      : "${(statistics.currentSummary?.durationSeconds ?? 0).toStringAsFixed(0)} s",
+                  context: context,
+                ),
               ),
             ],
           ),
-        ),
-        const SmallVSpace(),
-      ],
-    );
-  }
-
-  Widget renderSaveRoute() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const VSpace(),
-        const Divider(),
-        const VSpace(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Small(text: "Hat dir die Route gefallen?", context: context),
-        ),
-        const SmallVSpace(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: BigButton(label: "Strecke speichern", onPressed: () => showSaveShortcutSheet(context)),
-        ),
-        const VSpace(),
-        const Divider(),
-        const VSpace(),
-      ],
-    );
-  }
-
-  Widget renderFeedback() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          child: StarRatingView(text: "Feedback zur App"),
-        ),
-        VSpace(),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
-          child: TextFeedbackView(text: "Was können wir verbessern?"),
-        ),
-        VSpace(),
-        Divider(),
-        VSpace(),
-      ],
-    );
-  }
-
-  Widget renderSendButton() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        BigButton(
-          iconColor: Colors.white,
-          icon: Icons.check,
-          label: "Fertig",
-          onPressed: () => submit(context),
-        ),
-      ],
+          TableRow(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.left,
+                  text: "Distanz",
+                  context: context,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.right,
+                  text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
+                      ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} km"
+                      : "${(statistics.currentSummary?.distanceMeters ?? 0.0).toStringAsFixed(0)} m",
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+          TableRow(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.left,
+                  text: "Pace",
+                  context: context,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.right,
+                  text: "${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+          TableRow(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.left,
+                  text: "CO2 gespart",
+                  context: context,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: paddingText),
+                child: Content(
+                  textAlign: TextAlign.right,
+                  text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
+                      ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
+                      : "${(statistics.currentSummary?.savedCo2inG ?? 0.0).toStringAsFixed(2)} g",
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -293,41 +223,142 @@ class FeedbackViewState extends State<FeedbackView> {
       return renderLoadingIndicator();
     }
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Container(
-              color: Theme.of(context).colorScheme.surface,
-              height: MediaQuery.of(context).size.height,
-              child: SingleChildScrollView(
-                child: SafeArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (widget.isolatedViewUsage)
-                        Row(
-                          children: [
-                            AppBackButton(onPressed: () => Navigator.pop(context)),
-                            const HSpace(),
-                            SubHeader(text: "Feedback", context: context),
-                            const VSpace(),
-                            const Divider(),
-                          ],
+    return Scaffold(
+      body: Container(
+        color: Theme.of(context).colorScheme.primary,
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              automaticallyImplyLeading: false, // Hide back indicator.
+              backgroundColor: Theme.of(context).colorScheme.brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
+              foregroundColor: Theme.of(context).colorScheme.secondary,
+              pinned: true,
+              snap: false,
+              floating: false,
+              shadowColor: const Color.fromARGB(26, 0, 37, 100),
+              expandedHeight: MediaQuery.of(context).size.height - 196 - MediaQuery.of(context).padding.bottom,
+              collapsedHeight: 64,
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.blurBackground],
+                collapseMode: CollapseMode.parallax,
+                expandedTitleScale: 1,
+                titlePadding: const EdgeInsets.only(top: 24, bottom: 12),
+                background: Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Positioned.fill(
+                      child: Container(
+                        foregroundDecoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+                                ? [
+                                    Theme.of(context).colorScheme.background,
+                                    Theme.of(context).colorScheme.background,
+                                    Theme.of(context).colorScheme.background.withOpacity(0.9),
+                                    Theme.of(context).colorScheme.background.withOpacity(0.8),
+                                    Theme.of(context).colorScheme.background.withOpacity(0.7),
+                                  ]
+                                : [
+                                    Theme.of(context).colorScheme.background,
+                                    Theme.of(context).colorScheme.background,
+                                    Theme.of(context).colorScheme.background.withOpacity(0.7),
+                                    Theme.of(context).colorScheme.background.withOpacity(0.6),
+                                    Theme.of(context).colorScheme.background.withOpacity(0.5),
+                                  ],
+                          ),
                         ),
-                      const SizedBox(height: 24),
-                      renderFeedback(),
-                      if (!widget.isolatedViewUsage) ...[
-                        renderSummary(),
-                        renderSaveRoute(),
-                      ],
-                      renderSendButton(),
-                      const SizedBox(height: 128),
-                    ],
-                  ),
+                        child: ClipRRect(
+                          child: Image(
+                            image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                                ? const AssetImage('assets/images/map-dark.png')
+                                : const AssetImage('assets/images/map-light.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    BlendIn(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          top: MediaQuery.of(context).padding.top + 208,
+                          bottom: 24,
+                        ),
+                        child: TrackPictogram(
+                          track: Provider.of<Positioning>(context, listen: false).positions,
+                          minSpeedColor: CI.blue,
+                          maxSpeedColor: CI.lightBlue,
+                        ),
+                      ),
+                    ),
+                    BlendIn(
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(12, MediaQuery.of(context).padding.top + 48, 12, 12),
+                        child: renderSummary(),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              title: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: BoldContent(
+                  text: () {
+                    final start = routing.selectedWaypoints?.first;
+                    final end = routing.selectedWaypoints?.last;
+                    if (start == null || end == null) {
+                      return "Fahrt";
+                    }
+                    var startStr = start.address?.substring(0, min(12, start.address?.length ?? 0));
+                    startStr = startStr ?? "Start";
+                    var endStr = end.address?.substring(0, min(12, end.address?.length ?? 0));
+                    endStr = endStr ?? "Ziel";
+                    return "$startStr... nach $endStr...";
+                  }(),
+                  context: context,
+                  textAlign: TextAlign.center,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const SmallVSpace(),
+                  Container(
+                    alignment: AlignmentDirectional.center,
+                    width: 32,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.2),
+                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                    ),
+                  ),
+                  const SmallVSpace(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32),
+                    child: StarRatingView(text: "Dein Feedback zur App"),
+                  ),
+                  const SmallVSpace(),
+                  BigButton(
+                    iconColor: Colors.white,
+                    icon: Icons.check,
+                    fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                    label: "Fertig",
+                    onPressed: () => submit(context),
+                  ),
+                  const VSpace(),
+                ],
               ),
             ),
           ],
