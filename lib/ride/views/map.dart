@@ -9,7 +9,7 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 

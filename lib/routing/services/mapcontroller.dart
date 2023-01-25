@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/routing_new/services/routing.dart';
-import 'package:priobike/routing_new/views/widgets/calculateRoutingBarHeight.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views_beta/widgets/calculateRoutingBarHeight.dart';
 
 enum ControllerType {
   main,

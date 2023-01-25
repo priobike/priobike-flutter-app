@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/routing_new/views/layers.dart';
+import 'package:priobike/routing/views_beta/widgets/filter.dart';
 
-/// The layer button.
-class LayerButton extends StatelessWidget {
-  const LayerButton({Key? key}) : super(key: key);
+/// The filter button.
+class FilterButton extends StatelessWidget {
+  const FilterButton({Key? key}) : super(key: key);
 
-  /// A callback that is fired when the user wants to select the displayed layers.
-  void onLayerSelection(BuildContext context) {
+  /// A callback that is fired when the user wants to select the filter settings.
+  void onFilterSelection(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      builder: (_) => const LayerSelectionView(),
+      builder: (_) => const FilterSelectionView(),
     );
   }
 
@@ -24,8 +24,8 @@ class LayerButton extends StatelessWidget {
       elevation: 5,
       borderRadius: const BorderRadius.all(Radius.circular(24.0)),
       child: SmallIconButton(
-        icon: Icons.layers,
-        onPressed: () => onLayerSelection(context),
+        icon: Icons.filter_alt_rounded,
+        onPressed: () => onFilterSelection(context),
       ),
     );
   }

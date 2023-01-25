@@ -3,8 +3,8 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing_new/services/discomfort.dart';
-import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 

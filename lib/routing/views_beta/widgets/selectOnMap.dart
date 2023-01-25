@@ -11,13 +11,13 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routing_new/services/routing.dart';
-import 'package:priobike/routing_new/views/map.dart';
-import 'package:priobike/routing_new/services/mapcontroller.dart';
-import 'package:priobike/routing_new/views/widgets/ZoomInAndOutButton.dart';
-import 'package:priobike/routing_new/views/widgets/compassButton.dart';
-import 'package:priobike/routing_new/views/widgets/gpsButton.dart';
-import 'package:priobike/routing_new/views/widgets/selectOnMapName.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views_beta/map.dart';
+import 'package:priobike/routing/services/mapcontroller.dart';
+import 'package:priobike/routing/views_beta/widgets/ZoomInAndOutButton.dart';
+import 'package:priobike/routing/views_beta/widgets/compassButton.dart';
+import 'package:priobike/routing/views_beta/widgets/gpsButton.dart';
+import 'package:priobike/routing/views_beta/widgets/selectOnMapName.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {

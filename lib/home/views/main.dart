@@ -10,8 +10,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
-import 'package:priobike/routing_new/views/main.dart';
-import 'package:priobike/settings/models/routing_view.dart';
+import 'package:priobike/routing/routing_view_wrapper.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -20,9 +19,8 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
-import 'package:priobike/routing_new/services/discomfort.dart';
-import 'package:priobike/routing_new/services/routing.dart';
-import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -110,9 +108,7 @@ class HomeViewState extends State<HomeView> {
     routing.selectWaypoints(shortcut.waypoints);
 
     Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+        .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
         .then(
       (_) {
         routing.reset();
@@ -125,9 +121,7 @@ class HomeViewState extends State<HomeView> {
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+        .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
         .then(
       (_) {
         routing.reset();

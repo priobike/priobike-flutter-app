@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing_new/views/widgets/waypointListItemView.dart';
+import 'package:priobike/routing/views_beta/widgets/waypointListItemView.dart';
 import 'package:provider/provider.dart';
 
 /// Widget for last search results

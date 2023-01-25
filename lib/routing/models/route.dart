@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:latlong2/latlong.dart' as latlng;
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/routing_new/messages/graphhopper.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';

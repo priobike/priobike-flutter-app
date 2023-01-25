@@ -13,7 +13,7 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/sg_labels.dart';

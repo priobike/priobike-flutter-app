@@ -7,7 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routing_new/services/routing.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:provider/provider.dart';
 
