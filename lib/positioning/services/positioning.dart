@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mapbox_gl/mapbox_gl.dart' as mapbox;
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:flutter/material.dart' hide Route;
@@ -139,7 +138,7 @@ class Positioning with ChangeNotifier {
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
       final routing = Provider.of<Routing>(context, listen: false);
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
-              .map((e) => mapbox.LatLng(e.lat, e.lon))
+              .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
           [settings.backend.center];
       positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
@@ -147,7 +146,7 @@ class Positioning with ChangeNotifier {
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
       final routing = Provider.of<Routing>(context, listen: false);
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
-              .map((e) => mapbox.LatLng(e.lat, e.lon))
+              .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
           [settings.backend.center];
       positionSource = PathMockPositionSource(speed: 40 / 3.6, positions: positions);
@@ -159,13 +158,13 @@ class Positioning with ChangeNotifier {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
     } else if (settings.positioningMode == PositioningMode.hamburgStatic1) {
-      positionSource = StaticMockPositionSource(position: const mapbox.LatLng(53.5529283, 10.004511), heading: 270);
+      positionSource = StaticMockPositionSource(position: LatLng(53.5529283, 10.004511), heading: 270);
       log.i("Using mocked position source for Hamburg main station.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
-      positionSource = StaticMockPositionSource(position: const mapbox.LatLng(51.030077, 13.729404), heading: 270);
+      positionSource = StaticMockPositionSource(position: LatLng(51.030077, 13.729404), heading: 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
-      positionSource = StaticMockPositionSource(position: const mapbox.LatLng(51.030241, 13.728205), heading: 1);
+      positionSource = StaticMockPositionSource(position: LatLng(51.030241, 13.728205), heading: 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
     } else {
       throw Exception("Unknown position source.");

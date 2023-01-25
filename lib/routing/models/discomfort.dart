@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 
 class DiscomfortSegment {

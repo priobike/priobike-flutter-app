@@ -1,12 +1,13 @@
 import 'dart:math';
 
-import 'package:latlong2/latlong.dart' as latlng;
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
-import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/navigation.dart';
+import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:turf/helpers.dart' as turf;
 
 class Route {
   /// The route id.
@@ -65,15 +66,13 @@ class Route {
 
   /// The route, connected to the start and end point.
   Route connected(Waypoint startpoint, Waypoint endpoint) {
-    const vincenty = latlng.Distance();
+    const vincenty = Distance();
     final first = route.isNotEmpty ? route.first : null;
-    final distToFirst = first == null
-        ? null
-        : vincenty.distance(latlng.LatLng(startpoint.lat, startpoint.lon), latlng.LatLng(first.lat, first.lon));
+    final distToFirst =
+        first == null ? null : vincenty.distance(LatLng(startpoint.lat, startpoint.lon), LatLng(first.lat, first.lon));
     final last = route.isNotEmpty ? route.last : null;
-    final distToLast = last == null
-        ? null
-        : vincenty.distance(latlng.LatLng(last.lat, last.lon), latlng.LatLng(endpoint.lat, endpoint.lon));
+    final distToLast =
+        last == null ? null : vincenty.distance(LatLng(last.lat, last.lon), LatLng(endpoint.lat, endpoint.lon));
     return Route(
       id: id,
       path: path,
@@ -103,7 +102,7 @@ class Route {
   }
 
   /// Calculate the bounds of this route.
-  LatLngBounds get bounds {
+  CoordinateBounds get bounds {
     assert(route.isNotEmpty);
     var first = route.first;
     var s = first.lat, n = first.lat, w = first.lon, e = first.lon;
@@ -114,34 +113,70 @@ class Route {
       w = min(w, node.lon);
       e = max(e, node.lon);
     }
-    return LatLngBounds(southwest: LatLng(s, w), northeast: LatLng(n, e));
+    return CoordinateBounds(
+        southwest: turf.Point(
+            coordinates: turf.Position(
+          s,
+          w,
+        )).toJson(),
+        northeast: turf.Point(
+            coordinates: turf.Position(
+          n,
+          e,
+        )).toJson(),
+        infiniteBounds: false);
   }
 
   /// Calculate the padded bounds of this route.
-  LatLngBounds get paddedBounds {
+  CoordinateBounds get paddedBounds {
     final bounds = this.bounds;
     // Padding is approximately 111m (Approximately 0.001 degrees).
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
-    const padLon = 0.003;
-    // To fit north and south with detailSheet and routingBar.
-    const padLat = 0.003;
-    return LatLngBounds(
-      southwest: LatLng(bounds.southwest.latitude - padLat, bounds.southwest.longitude - padLon),
-      northeast: LatLng(bounds.northeast.latitude + padLat, bounds.northeast.longitude + padLon),
-    );
+    const pad = 0.003;
+    final geometrySouthwest = bounds.southwest["geometry"] as Map;
+    final coordinatesSouthwest = geometrySouthwest["coordinates"] as List;
+    final s = coordinatesSouthwest[0] as double;
+    final w = coordinatesSouthwest[1] as double;
+    final geometryNortheast = bounds.northeast["geometry"] as Map;
+    final coordinatesNortheast = geometryNortheast["coordinates"] as List;
+    final n = coordinatesNortheast[0] as double;
+    final e = coordinatesNortheast[1] as double;
+    return CoordinateBounds(
+        southwest: turf.Point(
+            coordinates: turf.Position(
+          s - pad,
+          w - pad,
+        )).toJson(),
+        northeast: turf.Point(
+            coordinates: turf.Position(
+          n + pad,
+          e + pad,
+        )).toJson(),
+        infiniteBounds: false);
   }
 
   /// Calculate a camera position for this route.
-  CameraPosition get cameraPosition {
+  CameraOptions get cameraOptions {
     final bounds = this.bounds;
+    final geometrySouthwest = bounds.southwest["geometry"] as Map;
+    final coordinatesSouthwest = geometrySouthwest["coordinates"] as List;
+    final s = coordinatesSouthwest[0] as double;
+    final w = coordinatesSouthwest[1] as double;
+    final geometryNortheast = bounds.northeast["geometry"] as Map;
+    final coordinatesNortheast = geometryNortheast["coordinates"] as List;
+    final n = coordinatesNortheast[0] as double;
+    final e = coordinatesNortheast[1] as double;
     // Calculate the center.
-    final center = latlng.LatLng((bounds.southwest.latitude + bounds.northeast.latitude) / 2,
-        (bounds.southwest.longitude + bounds.northeast.longitude) / 2);
-    return CameraPosition(
-      target: LatLng(center.latitude, center.longitude),
+    final center = LatLng((s + n) / 2, (w + e) / 2);
+    return CameraOptions(
+      center: turf.Point(
+          coordinates: turf.Position(
+        center.longitude,
+        center.latitude,
+      )).toJson(),
       zoom: 12.0,
       bearing: 0.0,
-      tilt: 0.0,
+      pitch: 0.0,
     );
   }
 }

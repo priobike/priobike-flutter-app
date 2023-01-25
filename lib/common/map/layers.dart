@@ -1,27 +1,27 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart' as latlng;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/common/map/controller.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
-import 'package:latlong2/latlong.dart' as latlng;
-import 'package:priobike/routing/models/route.dart' as r;
 
 /// The zoomToGeographicalDistance map includes all zoom level and maps it to the distance in meter per pixel.
 /// Taken from +-60 Latitude since it only needs to be approximate and its closer to 53 than +-40.
@@ -88,30 +88,50 @@ class AllRoutesLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
+  /// Install the overlay on the map controller.
   Future<String> install(
-    LayerController layerController, {
+    mapbox.MapboxMap mapController, {
     lineWidth = 9.0,
     clickLineWidth = 25.0,
     String? below,
   }) async {
-    await layerController.addGeoJsonSource(
-      "routes",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "routes",
-      "routes-layer",
-      LineLayerProperties(
-        lineWidth: lineWidth,
-        lineColor: "#C6C6C6",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
+    await mapController.style.styleSourceExists("routes").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "routes", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("routes-layer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "routes",
+              id: "routes-layer",
+              lineColor: const Color(0xFFC6C6C6).value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineWidth: lineWidth,
+            ),
+            mapbox.LayerPosition(below: below));
+      }
+    });
+    await mapController.style.styleLayerExists("routes-layer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "routes",
+              id: "routes-layer",
+              lineColor: const Color(0xFFC6C6C6).value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineWidth: lineWidth,
+            ),
+            mapbox.LayerPosition(below: below));
+      }
+    });
+
     // Make it easier to click on the route.
-    await layerController.addLayer(
+    // TODO maybe add if needed (for interaction)
+    /*await layerController.addLayer(
       "routes",
       "routes-clicklayer",
       LineLayerProperties(
@@ -122,16 +142,19 @@ class AllRoutesLayer {
       ),
       enableInteraction: true,
       belowLayerId: below,
-    );
+    );*/
     return "routes-layer";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "routes",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("routes").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("routes");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -177,44 +200,55 @@ class SelectedRouteLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "route",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "route",
-      "route-background-layer",
-      LineLayerProperties(
-        lineWidth: bgLineWidth,
-        lineColor: "#C6C6C6",
-        lineJoin: "round",
-        lineCap: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
-    await layerController.addLayer(
-      "route",
-      "route-layer",
-      LineLayerProperties(
-        lineWidth: fgLineWidth,
-        lineColor: ["get", "color"],
-        lineJoin: "round",
-        lineCap: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
+    await mapController.style.styleSourceExists("route").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "route", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("route-background-layer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "routes",
+              id: "route-background-layer",
+              lineColor: const Color(0xFFC6C6C6).value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineCap: mapbox.LineCap.ROUND,
+              lineWidth: bgLineWidth,
+            ),
+            mapbox.LayerPosition(below: below));
+      }
+    });
+    await mapController.style.styleLayerExists("route-layer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "routes",
+              id: "route-layer",
+              lineColor: const Color(0xFFC6C6C6).value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineCap: mapbox.LineCap.ROUND,
+              lineWidth: fgLineWidth,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty("route-layer", 'line-color', json.encode(["get", "color"]));
+      }
+    });
     return "route-layer";
   }
 
-  update(LayerController layerController, {String? below}) async {
-    await layerController.updateGeoJsonSource(
-      "route",
-      {"type": "FeatureCollection", "features": features},
-    );
+  update(mapbox.MapboxMap mapController, {String? below}) async {
+    await mapController.style.styleSourceExists("route").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("route");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -445,29 +479,37 @@ class DiscomfortsLayer {
 
   /// Install the overlay on the layer controller.
   Future<String> install(
-    LayerController layerController, {
+    mapbox.MapboxMap mapController, {
     iconSize = 0.25,
     lineWidth = 7.0,
     clickWidth = 35.0,
     String? below,
   }) async {
-    await layerController.addGeoJsonSource(
-      "discomforts",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "discomforts",
-      "discomforts-layer",
-      LineLayerProperties(
-        lineWidth: lineWidth,
-        lineColor: "#e63328",
-        lineCap: "round",
-        lineJoin: "round",
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
-    await layerController.addLayer(
+    await mapController.style.styleSourceExists("discomforts").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "discomforts", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("discomforts-layer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "discomforts",
+              id: "discomforts-layer",
+              lineColor: const Color(0xFFE63328).value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineCap: mapbox.LineCap.ROUND,
+              lineWidth: lineWidth,
+            ),
+            mapbox.LayerPosition(below: below));
+      }
+    });
+
+    // TODO look if neceissary
+    /*await layerController.addLayer(
       "discomforts",
       "discomforts-clicklayer",
       LineLayerProperties(
@@ -479,30 +521,37 @@ class DiscomfortsLayer {
       ),
       enableInteraction: true,
       belowLayerId: below,
-    );
-    await layerController.addLayer(
-      "discomforts",
-      "discomforts-markers",
-      SymbolLayerProperties(
-        iconImage: "alert",
-        iconSize: iconSize,
-        textField: ["get", "number"],
-        textSize: 12,
-        textAllowOverlap: true,
-        textIgnorePlacement: true,
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );
+    );*/
+
+    await mapController.style.styleLayerExists("discomforts-markers").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "discomforts",
+              id: "discomforts-markers",
+              iconImage: "alert",
+              iconSize: iconSize,
+              textSize: 12,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style
+            .setStyleLayerProperty("discomforts-markers", 'text-field', json.encode(["get", "number"]));
+      }
+    });
     return "discomforts-layer";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "discomforts",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("discomforts").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("discomforts");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -532,40 +581,52 @@ class WaypointsLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {iconSize = 0.75, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "waypoints",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "waypoints",
-      "waypoints-icons",
-      SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isFirst"],
-          "start",
-          ["get", "isLast"],
-          "destination",
-          "waypoint",
-        ],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, String? below}) async {
+    await mapController.style.styleSourceExists("waypoints").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "waypoints", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("waypoints-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "waypoints",
+              id: "waypoints-icons",
+              iconSize: iconSize,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty(
+            "waypoints-icons",
+            'icon-image',
+            json.encode([
+              "case",
+              ["get", "isFirst"],
+              "start",
+              ["get", "isLast"],
+              "destination",
+              "waypoint",
+            ]));
+      }
+    });
+
     return "waypoints-icons";
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "waypoints",
-      {"type": "FeatureCollection", "features": features},
-    );
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("waypoints").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("waypoints");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -604,68 +665,89 @@ class TrafficLightsLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "traffic-lights",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "traffic-lights",
-      "traffic-lights-icons",
-      SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isDark"],
-          "trafficlightonlinedarknocheck",
-          "trafficlightonlinelightnocheck",
-        ],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconOpacity: showAfter(zoom: 16, opacity: [
-          "case",
-          ["get", "hideBehindPosition"],
-          [
-            "case",
-            [
-              "<",
-              ["get", "distanceToSgOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-            ],
-            0,
-            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-            [
-              "interpolate",
-              ["linear"],
-              ["get", "distanceToSgOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-              0,
-              0,
-              1
-            ],
-          ],
-          1
-        ]),
-        textField: [
-          "case",
-          ["get", "showLabels"],
-          ["get", "id"],
-          ""
-        ],
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    await mapController.style.styleSourceExists("traffic-lights").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "traffic-lights", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("traffic-lights-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "traffic-lights",
+              id: "traffic-lights-icons",
+              iconSize: iconSize,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty(
+            "traffic-lights-icons",
+            'icon-image',
+            json.encode([
+              "case",
+              ["get", "isDark"],
+              "trafficlightonlinedarknocheck",
+              "trafficlightonlinelightnocheck",
+            ]));
+        await mapController.style.setStyleLayerProperty(
+            "traffic-lights-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 16, opacity: [
+                "case",
+                ["get", "hideBehindPosition"],
+                [
+                  "case",
+                  [
+                    "<",
+                    ["get", "distanceToSgOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                  ],
+                  0,
+                  // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                  [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "distanceToSgOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                    0,
+                    0,
+                    1
+                  ],
+                ],
+                1
+              ]),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "traffic-lights-icons",
+            'text-field',
+            json.encode([
+              "case",
+              ["get", "showLabels"],
+              ["get", "id"],
+              ""
+            ]));
+      }
+    });
     return "traffic-lights-icons";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "traffic-lights",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("traffic-lights").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("traffic-lights");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -733,33 +815,45 @@ class TrafficLightLayer {
     );
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "traffic-light",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "traffic-light",
-      "traffic-light-icon",
-      SymbolLayerProperties(
-        iconImage: ["get", "sgIcon"],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    await mapController.style.styleSourceExists("traffic-light").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "traffic-light", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("traffic-light-icon").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "traffic-light",
+              id: "traffic-light-icon",
+              iconSize: iconSize,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style
+            .setStyleLayerProperty("traffic-light-icon", 'icon-image', json.encode(["get", "sgIcon"]));
+      }
+    });
+
     return "traffic-light-icon";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "traffic-light",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("traffic-light").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("traffic-light");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -799,68 +893,90 @@ class OfflineCrossingsLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "offline-crossings",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "offline-crossings",
-      "offline-crossings-icons",
-      SymbolLayerProperties(
-        iconImage: [
-          "case",
-          ["get", "isDark"],
-          "trafficlightdisconnecteddark",
-          "trafficlightdisconnectedlight",
-        ],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconOpacity: showAfter(zoom: 16, opacity: [
-          "case",
-          ["get", "hideBehindPosition"],
-          [
-            "case",
-            [
-              "<",
-              ["get", "distanceToCrossingOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-            ],
-            0,
-            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-            [
-              "interpolate",
-              ["linear"],
-              ["get", "distanceToCrossingOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-              0,
-              0,
-              1
-            ],
-          ],
-          1
-        ]),
-        textField: [
-          "case",
-          ["get", "showLabels"],
-          ["get", "name"],
-          ""
-        ],
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    await mapController.style.styleSourceExists("offline-crossings").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "offline-crossings", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("offline-crossings-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "offline-crossings",
+              id: "offline-crossings-icons",
+              iconSize: iconSize,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty(
+            "offline-crossings-icons",
+            'icon-image',
+            json.encode([
+              "case",
+              ["get", "isDark"],
+              "trafficlightdisconnecteddark",
+              "trafficlightdisconnectedlight",
+            ]));
+        await mapController.style.setStyleLayerProperty(
+            "offline-crossings-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 16, opacity: [
+                "case",
+                ["get", "hideBehindPosition"],
+                [
+                  "case",
+                  [
+                    "<",
+                    ["get", "distanceToCrossingOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                  ],
+                  0,
+                  // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                  [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "distanceToCrossingOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                    0,
+                    0,
+                    1
+                  ],
+                ],
+                1
+              ]),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "offline-crossings-icons",
+            'text-field',
+            json.encode([
+              "case",
+              ["get", "showLabels"],
+              ["get", "name"],
+              ""
+            ]));
+      }
+    });
+
     return "offline-crossings-icons";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "offline-crossings",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("offline-crossings").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("offline-crossings");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -909,57 +1025,72 @@ class DangersLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
-    await layerController.addGeoJsonSource(
-      "dangers",
-      {"type": "FeatureCollection", "features": features},
-    );
-    await layerController.addLayer(
-      "dangers",
-      "dangers-icons",
-      SymbolLayerProperties(
-        iconImage: ["get", "icon"],
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        iconOpacity: showAfter(zoom: 16, opacity: [
-          "case",
-          ["get", "hideBehindPosition"],
-          [
-            "case",
-            [
-              "<",
-              ["get", "distanceToDangerOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-            ],
-            0,
-            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-            [
-              "interpolate",
-              ["linear"],
-              ["get", "distanceToDangerOnRoute"],
-              -5, // See above - this is clamped to [-5, 0]
-              0,
-              0,
-              1
-            ],
-          ],
-          1
-        ]),
-      ),
-      enableInteraction: false,
-      belowLayerId: below,
-    );
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    await mapController.style.styleSourceExists("dangers").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "dangers", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("dangers-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "dangers",
+              id: "dangers-icons",
+              iconSize: iconSize,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty("dangers-icons", 'icon-image', json.encode(["get", "icon"]));
+        await mapController.style.setStyleLayerProperty(
+            "dangers-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 16, opacity: [
+                "case",
+                ["get", "hideBehindPosition"],
+                [
+                  "case",
+                  [
+                    "<",
+                    ["get", "distanceToDangerOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                  ],
+                  0,
+                  // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                  [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "distanceToDangerOnRoute"],
+                    -5, // See above - this is clamped to [-5, 0]
+                    0,
+                    0,
+                    1
+                  ],
+                ],
+                1
+              ]),
+            ));
+      }
+    });
+
     return "dangers-icons";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "dangers",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("dangers").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("dangers");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 
@@ -973,28 +1104,48 @@ class ParkingStationsLayer {
   ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
-    await layerController.addExternalGeoJsonSource(
-      "parking-stations",
-      "https://$baseUrl/map-data/bicycle_parking.geojson",
-    );
-    await layerController.addLayer(
-      "parking-stations",
-      "parking-stations-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "parkdark" : "parklight",
-        iconSize: iconSize,
-        iconOpacity: showAfter(zoom: 15),
-      ),
-    );
+    await mapController.style.styleSourceExists("parking-stations").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "parking-stations", data: "https://$baseUrl/map-data/bicycle_parking.geojson"),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("parking-stations-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+          sourceId: "parking-stations",
+          id: "parking-stations-icons",
+          iconImage: isDark ? "parkdark" : "parklight",
+          iconSize: iconSize,
+        ));
+        await mapController.style.setStyleLayerProperty(
+            "parking-stations-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 15),
+            ));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("parking-stations");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("parking-stations-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("parking-stations-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("parking-stations").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("parking-stations");
+      }
+    });
   }
 }
 
@@ -1007,52 +1158,81 @@ class RentalStationsLayer {
 
   RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  /// Install the overlay on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
-    await layerController.addExternalGeoJsonSource(
-      "rental-stations",
-      "https://$baseUrl/map-data/bicycle_rental.geojson",
-    );
-    await layerController.addLayer(
-      "rental-stations",
-      "rental-stations-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "rentdark" : "rentlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 15),
-        textHaloColor: isDark ? "#000000" : "#ffffff",
-        textHaloWidth: 1,
-        textOffset: [
-          Expressions.literal,
-          [0, 2]
-        ],
-        textField: [
-          "case",
-          ["has", "name"],
-          [
-            // Concatenate "Ausleihstation" with the name of the station.
-            "concat",
-            "Fahrradleihe ",
-            ["get", "name"]
-          ],
-          "Fahrradleihe "
-        ],
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: "center",
-        textColor: "#0075FF",
-        textOpacity: showAfter(zoom: 17),
-      ),
-    );
+    await mapController.style.styleSourceExists("rental-stations").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "rental-stations", data: "https://$baseUrl/map-data/bicycle_rental.geojson"),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("rental-stations-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+          sourceId: "rental-stations",
+          id: "rental-stations-icons",
+          iconImage: isDark ? "rentdark" : "rentlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+        ));
+        await mapController.style.setStyleLayerProperty(
+            "rental-stations-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 15),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "rental-stations-icons",
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 2]
+              ],
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "rental-stations-icons",
+            'text-field',
+            json.encode([
+              "case",
+              ["has", "name"],
+              [
+                // Concatenate "Ausleihstation" with the name of the station.
+                "concat",
+                "Fahrradleihe ",
+                ["get", "name"]
+              ],
+              "Fahrradleihe "
+            ]));
+        await mapController.style
+            .setStyleLayerProperty("rental-stations-icons", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("rental-stations");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("rental-stations-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("rental-stations-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("rental-stations").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("rental-stations");
+      }
+    });
   }
 }
 
@@ -1065,57 +1245,86 @@ class BikeShopLayer {
 
   BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  /// Install the overlay on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
-    await layerController.addExternalGeoJsonSource(
-      "bike-shop",
-      "https://$baseUrl/map-data/bicycle_shop.geojson",
-    );
-    await layerController.addLayer(
-      "bike-shop",
-      "bike-shop-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "repairdark" : "repairlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 15),
-        textHaloColor: isDark ? "#000000" : "#ffffff",
-        textHaloWidth: 1,
-        textOffset: [
-          Expressions.literal,
-          [0, 2]
-        ],
-        textField: [
-          "case",
-          ["has", "name"],
-          [
-            // Check if name is empty and display "Fahrradladen" if it is.
-            "case",
-            [
-              "==",
-              ["get", "name"],
-              " "
-            ],
-            "Fahrradladen",
-            ["get", "name"]
-          ],
-          "Fahrradladen"
-        ],
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: "center",
-        textColor: "#0075FF",
-        textOpacity: showAfter(zoom: 17),
-      ),
-    );
+    await mapController.style.styleSourceExists("bike-shop").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "bike-shop", data: "https://$baseUrl/map-data/bicycle_shop.geojson"),
+        );
+      }
+    });
+
+    await mapController.style.styleLayerExists("bike-shop-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+          sourceId: "bike-shop",
+          id: "bike-shop-icons",
+          iconImage: isDark ? "repairdark" : "repairlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+        ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-shop-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 15),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-shop-icons",
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 2]
+              ],
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-shop-icons",
+            'text-field',
+            json.encode([
+              "case",
+              ["has", "name"],
+              [
+                // Check if name is empty and display "Fahrradladen" if it is.
+                "case",
+                [
+                  "==",
+                  ["get", "name"],
+                  " "
+                ],
+                "Fahrradladen",
+                ["get", "name"]
+              ],
+              "Fahrradladen"
+            ]));
+        await mapController.style
+            .setStyleLayerProperty("rental-stations-icons", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("bike-shop");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("bike-shop-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("bike-shop-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("bike-shop").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("bike-shop");
+      }
+    });
   }
 }
 
@@ -1127,52 +1336,80 @@ class BikeAirStationLayer {
 
   BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  /// Install the overlay on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
-    await layerController.addExternalGeoJsonSource(
-      "bike-air-station",
-      "https://$baseUrl/map-data/bike_air_station.geojson",
-    );
-    await layerController.addLayer(
-      "bike-air-station",
-      "bike-air-station-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "airdark" : "airlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 15),
-        textHaloColor: isDark ? "#000000" : "#ffffff",
-        textHaloWidth: 1,
-        textOffset: [
-          Expressions.literal,
-          [0, 1]
-        ],
-        textField: [
-          "case",
-          ["has", "anmerkungen"],
-          [
-            // Concate "Luftstation" and the anmerkungen.
-            "concat",
-            "Luftstation ",
-            ["get", "anmerkungen"]
-          ],
-          "Luftstation"
-        ],
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: "center",
-        textColor: "#0075FF",
-        textOpacity: showAfter(zoom: 17),
-      ),
-    );
+    await mapController.style.styleSourceExists("bike-air-station").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "bike-air-station", data: "https://$baseUrl/map-data/bike_air_station.geojson"),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("bike-air-station-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+          sourceId: "bike-air-station",
+          id: "bike-air-station-icons",
+          iconImage: isDark ? "airdark" : "airlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+        ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-air-station-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 15),
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-air-station-icons",
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 2]
+              ],
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "bike-air-station-icons",
+            'text-field',
+            json.encode([
+              "case",
+              ["has", "anmerkungen"],
+              [
+                // Concate "Luftstation" and the anmerkungen.
+                "concat",
+                "Luftstation ",
+                ["get", "anmerkungen"]
+              ],
+              "Luftstation"
+            ]));
+        await mapController.style
+            .setStyleLayerProperty("bike-air-station-icons", 'text-opacity', json.encode(showAfter(zoom: 17)));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("bike-air-station");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("bike-air-station-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("bike-air-station-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("bike-air-station").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("bike-air-station");
+      }
+    });
   }
 }
 
@@ -1185,42 +1422,67 @@ class ConstructionSitesLayer {
 
   ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  /// Install the overlay on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    await layerController.addExternalGeoJsonSource(
-      "construction-sites",
-      "https://$baseUrl/map-data/construction_sites.geojson",
-    );
-    await layerController.addLayer(
-      "construction-sites",
-      "construction-sites-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "constructiondark" : "constructionlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 12),
-        textHaloColor: isDark ? "#000000" : "#ffffff",
-        textHaloWidth: 1,
-        textOffset: [
-          Expressions.literal,
-          [0, 1]
-        ],
-        textField: "Baustelle",
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: "center",
-        textColor: "#e67e22",
-        textOpacity: showAfter(zoom: 15),
-        textAllowOverlap: true,
-      ),
-    );
+    await mapController.style.styleSourceExists("construction-sites").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "construction-sites", data: "https://$baseUrl/map-data/construction_sites.geojson"),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("construction-sites-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+          sourceId: "construction-sites",
+          id: "construction-sites-icons",
+          iconImage: isDark ? "constructiondark" : "constructionlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFFE67E22).value,
+          textAllowOverlap: true,
+        ));
+        await mapController.style.setStyleLayerProperty(
+            "construction-sites-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 12),
+            ));
+        await mapController.style.setStyleLayerProperty("construction-sites-icons", 'text-field', 'Baustelle');
+        await mapController.style.setStyleLayerProperty(
+            "construction-sites-icons",
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 1]
+              ],
+            ));
+        await mapController.style
+            .setStyleLayerProperty("construction-sites-icons", 'text-opacity', json.encode(showAfter(zoom: 15)));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("construction-sites");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("construction-sites-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("construction-sites-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("construction-sites").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("construction-sites");
+      }
+    });
   }
 }
 
@@ -1233,41 +1495,66 @@ class AccidentHotspotsLayer {
 
   AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
-  /// Install the overlay on the layer controller.
-  install(LayerController layerController, {iconSize = 1.0}) async {
+  /// Install the overlay on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    await layerController.addExternalGeoJsonSource(
-      "accident-hotspots",
-      "https://$baseUrl/map-data/accident_hot_spots.geojson",
-    );
-    await layerController.addLayer(
-      "accident-hotspots",
-      "accident-hotspots-icons",
-      SymbolLayerProperties(
-        iconImage: isDark ? "accidentdark" : "accidentlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 11),
-        textHaloColor: isDark ? "#000000" : "#ffffff",
-        textHaloWidth: 1,
-        textOffset: [
-          Expressions.literal,
-          [0, 1]
-        ],
-        textField: "Unfall-\nschwerpunkt",
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: "center",
-        textColor: "#ff4757",
-        textOpacity: showAfter(zoom: 15),
-        textAllowOverlap: true,
-      ),
-    );
+    await mapController.style.styleSourceExists("accident-hotspots").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(id: "accident-hotspots", data: "https://$baseUrl/map-data/accident_hot_spots.geojson"),
+        );
+      }
+    });
+    await mapController.style.styleLayerExists("accident-hotspots-icons").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayer(mapbox.SymbolLayer(
+            sourceId: "accident-hotspots",
+            id: "accident-hotspots-icons",
+            iconImage: isDark ? "accidentdark" : "accidentlight",
+            iconSize: iconSize,
+            iconAllowOverlap: true,
+            textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+            textHaloWidth: 1,
+            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            textSize: 12,
+            textAnchor: mapbox.TextAnchor.CENTER,
+            textColor: const Color(0xFFFF4757).value,
+            textAllowOverlap: true));
+        await mapController.style.setStyleLayerProperty(
+            "accident-hotspots-icons",
+            'icon-opacity',
+            json.encode(
+              showAfter(zoom: 11),
+            ));
+        await mapController.style
+            .setStyleLayerProperty("accident-hotspots-icons", 'text-field', 'Unfall-\nschwerpunkt');
+        await mapController.style.setStyleLayerProperty(
+            "accident-hotspots-icons",
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 1]
+              ],
+            ));
+        await mapController.style
+            .setStyleLayerProperty("accident-hotspots-icons", 'text-opacity', json.encode(showAfter(zoom: 15)));
+      }
+    });
   }
 
-  /// Remove the overlay from the layer controller.
-  static removeFrom(LayerController layerController) async {
-    await layerController.removeGeoJsonSourceAndLayers("accident-hotspots");
+  /// Remove the overlay from the map controller.
+  static removeFrom(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleLayerExists("accident-hotspots-icons").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleLayer("accident-hotspots-icons");
+      }
+    });
+    await mapController.style.styleSourceExists("accident-hotspots").then((exists) async {
+      if (exists) {
+        await mapController.style.removeStyleSource("accident-hotspots");
+      }
+    });
   }
 }

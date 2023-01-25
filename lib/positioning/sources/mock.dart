@@ -4,11 +4,11 @@ import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 
 // l is an alias to not clash with MapBox's dependency.
 // We cannot use MapBox's LatLng since MapBox doesn't import Distance.
 import 'package:latlong2/latlong.dart' as l;
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 
 /// Unwrap a double from a json source safely.
@@ -20,7 +20,7 @@ double checkDouble(dynamic value) {
   }
 }
 
-const examplePosition = LatLng(53.564292, 9.902202);
+final examplePosition = LatLng(53.564292, 9.902202);
 
 const exampleHeading = 140.0;
 
@@ -35,7 +35,8 @@ class StaticMockPositionSource extends PositionSource {
   /// The calculation timer.
   Timer? timer;
 
-  StaticMockPositionSource({this.position = examplePosition, this.heading = exampleHeading});
+  StaticMockPositionSource({required LatLng position, required double heading})
+      : position = examplePosition, heading = exampleHeading;
 
   /// Check if location services are enabled.
   /// With the mock client, this only returns true.

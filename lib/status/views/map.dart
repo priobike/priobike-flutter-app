@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -29,35 +30,38 @@ class SGStatusMapView extends StatefulWidget {
 
 class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
-  MapboxMapController? mapController;
-
-  /// Bool to save if sources have been initialized.
-  bool sourcesInitialized = false;
+  mapbox.MapboxMap? mapController;
 
   /// A callback which is executed when the map was created.
-  Future<void> onMapCreated(MapboxMapController controller) async {
+  Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
   }
 
   /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded(BuildContext context) async {
+  Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
-    if (!sourcesInitialized) {
-      await mapController?.addSource(
-        "sg-locs",
-        GeojsonSourceProperties(data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
-      );
-      await mapController?.addSource(
-        "sg-lanes",
-        GeojsonSourceProperties(data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
-      );
-      sourcesInitialized = true;
-    }
+    await mapController?.style.styleSourceExists("sg-locs").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "sg-locs", data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
+        );
+      }
+    });
+
+    await mapController?.style.styleSourceExists("sg-lanes").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "sg-lanes", data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
+        );
+      }
+    });
 
     // Define the color scheme for the layers.
     final color = [
@@ -107,17 +111,20 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       ["get", "thing_properties_lanetype"],
     ];
 
-    await mapController?.removeLayer("sg-lines-bg");
-    await mapController?.addLayer(
-      "sg-lanes",
-      "sg-lines-bg",
-      const LineLayerProperties(
-        lineColor: "#000000",
-        lineCap: "round",
-        lineJoin: "round",
-        lineWidth: 4,
-      ),
-    );
+    await mapController?.style.styleLayerExists("sg-lines-bg").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addLayer(
+          mapbox.LineLayer(
+            sourceId: "sg-lanes",
+            id: "sg-lines-bg",
+            lineColor: Colors.black.value,
+            lineCap: mapbox.LineCap.ROUND,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineWidth: 4,
+          ),
+        );
+      }
+    });
 
     // Define the label that will be displayed below.
     final subtitle = [
@@ -152,87 +159,120 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       ]
     ];
 
-    await mapController?.removeLayer("sg-lines");
-    await mapController?.addLayer(
-      "sg-lanes",
-      "sg-lines",
-      LineLayerProperties(
-        lineColor: color,
-        lineCap: "round",
-        lineJoin: "round",
-        lineWidth: 2,
-      ),
-    );
+    await mapController?.style.styleLayerExists("sg-lines").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addLayer(
+          mapbox.LineLayer(
+            sourceId: "sg-lanes",
+            id: "sg-lines",
+            lineCap: mapbox.LineCap.ROUND,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineWidth: 2,
+          ),
+        );
 
-    await mapController?.removeLayer("sg-circles");
-    await mapController?.addLayer(
-      "sg-locs",
-      "sg-circles",
-      CircleLayerProperties(
-        circleColor: color,
-        circleRadius: 3,
-        circleStrokeWidth: 2,
-        circleStrokeColor: "#000000",
-      ),
-    );
+        await mapController?.style.setStyleLayerProperty('sg-lines', 'line-color', jsonEncode(color));
+      }
+    });
 
-    await mapController?.removeLayer("sg-first-labels");
-    await mapController?.addLayer(
-      "sg-locs",
-      "sg-first-labels",
-      SymbolLayerProperties(
-        textField: title,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 14,
-        textOffset: [
-          Expressions.literal,
-          [0, 1]
-        ],
-        textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
-        // Hide after zoom level 15.
-        textOpacity: [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0,
-          0,
-          16,
-          0,
-          17,
-          0.75,
-        ],
-        textAllowOverlap: true,
-      ),
-    );
+    await mapController?.style.styleLayerExists("sg-circles").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addLayer(
+          mapbox.CircleLayer(
+            sourceId: "sg-locs",
+            id: "sg-circles",
+            circleColor: Colors.white.value,
+            circleRadius: 3,
+            circleStrokeWidth: 2,
+            circleStrokeColor: Colors.black.value,
+          ),
+        );
 
-    await mapController?.removeLayer("sg-second-labels");
-    await mapController?.addLayer(
-      "sg-locs",
-      "sg-second-labels",
-      SymbolLayerProperties(
-        textField: subtitle,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textOffset: [
-          Expressions.literal,
-          [0, 2.5]
-        ],
-        textColor: Theme.of(context).colorScheme.brightness == Brightness.dark ? "#ffffff" : "#000000",
-        // Hide after zoom level 15.
-        textOpacity: [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0,
-          0,
-          16,
-          0,
-          17,
-          0.75,
-        ],
-        textAllowOverlap: true,
-      ),
-    );
+        await mapController?.style.setStyleLayerProperty('sg-circles', 'circle-color', jsonEncode(color));
+      }
+    });
+
+    await mapController?.style.styleLayerExists("sg-first-labels").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addLayer(
+          mapbox.SymbolLayer(
+            sourceId: "sg-locs",
+            id: "sg-first-labels",
+            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            textSize: 14,
+            textColor:
+                Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+            textAllowOverlap: true,
+          ),
+        );
+
+        await mapController?.style.setStyleLayerProperty(
+            'sg-first-labels',
+            'text-offset',
+            jsonEncode([
+              "literal",
+              [0, 1]
+            ]));
+        await mapController?.style.setStyleLayerProperty('sg-first-labels', 'text-field', jsonEncode(title));
+        await mapController?.style.setStyleLayerProperty(
+            'sg-first-labels',
+            'text-opacity',
+            jsonEncode(
+              [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                0,
+                0,
+                16,
+                0,
+                17,
+                0.75,
+              ],
+            ));
+      }
+    });
+
+    await mapController?.style.styleLayerExists("sg-second-labels").then((exists) async {
+      if (!exists) {
+        await mapController?.style.addLayer(
+          mapbox.SymbolLayer(
+            sourceId: "sg-locs",
+            id: "sg-second-labels",
+            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            textSize: 12,
+            textColor:
+                Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+            textAllowOverlap: true,
+          ),
+        );
+
+        await mapController?.style.setStyleLayerProperty(
+            'sg-second-labels',
+            'text-offset',
+            jsonEncode([
+              "literal",
+              [0, 2.5]
+            ]));
+        await mapController?.style.setStyleLayerProperty('sg-second-labels', 'text-field', jsonEncode(subtitle));
+        await mapController?.style.setStyleLayerProperty(
+            'sg-second-labels',
+            'text-opacity',
+            jsonEncode(
+              [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                0,
+                0,
+                16,
+                0,
+                17,
+                0.75,
+              ],
+            ));
+      }
+    });
   }
 
   @override
@@ -251,11 +291,10 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           children: [
             AppMap(
               // Logo is on the button left, attribution is on the button right.
-              logoViewMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
-              attributionButtonMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
-              dragEnabled: true,
+              logoViewMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
+              attributionButtonMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
               onMapCreated: onMapCreated,
-              onStyleLoaded: () => onStyleLoaded(context),
+              onStyleLoaded: onStyleLoaded,
             ),
             SafeArea(
               minimum: const EdgeInsets.only(top: 8),
