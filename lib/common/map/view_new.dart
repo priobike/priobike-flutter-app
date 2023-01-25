@@ -131,9 +131,11 @@ class AppMapState extends State<AppMap> {
   /// In this callback we configure the default settings.
   /// For example, we set the MapBox telemetry to disabled.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
-    // controller.setTelemetryEnabled(false);
+    // TODO find implementation/API to apply this in the new Mapbox plugin: "controller.setTelemetryEnabled(false);"
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
     controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
+    controller.attribution.updateSettings(mapbox.AttributionSettings(clickable: true, position: mapbox.OrnamentPosition.BOTTOM_RIGHT, marginBottom: widget.attributionButtonMargins?.y.toDouble(), marginRight: widget.attributionButtonMargins?.x.toDouble()));
+    controller.logo.updateSettings(mapbox.LogoSettings(position: mapbox.OrnamentPosition.BOTTOM_LEFT, marginBottom: widget.logoViewMargins?.y.toDouble(), marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);
   }
 }

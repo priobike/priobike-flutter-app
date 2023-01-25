@@ -291,8 +291,8 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           children: [
             AppMap(
               // Logo is on the button left, attribution is on the button right.
-              logoViewMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
-              attributionButtonMargins: Point(26, 118 + MediaQuery.of(context).padding.bottom),
+              logoViewMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
+              attributionButtonMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
               dragEnabled: true,
               onMapCreated: onMapCreated,
               onStyleLoaded: onStyleLoaded,
