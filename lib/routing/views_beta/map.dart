@@ -479,7 +479,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         ),
 
         // Show an animation when the user taps the map.
-        if (tapPosition != null)
+        if (tapPosition != null && widget.withRouting)
           IgnorePointer(
             child: Stack(
               children: [
