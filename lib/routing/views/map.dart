@@ -13,6 +13,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +45,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
+
+  /// The associated mapController service, which is injected by the provider.
+  late MapSettings mapSettings;
 
   /// A map controller for the map.
   MapboxMapController? mapController;
@@ -136,6 +140,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       status.needsLayout[viewId] = false;
     }
 
+    mapSettings = Provider.of<MapSettings>(context);
+
     super.didChangeDependencies();
   }
 
@@ -155,6 +161,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   displayCurrentUserLocation() async {
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
+
     // NOTE: Don't await this function, it will hang forever.
     // This is a bug in our mapbox fork.
     mapController?.updateUserLocation(
@@ -169,6 +176,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Load the map layers.
   loadGeoLayers() async {
+    if (mapController == null || !mounted) return;
     if (layerController == null) return;
     // Load the map features.
     if (layers.showAirStations) {
@@ -322,7 +330,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(BuildContext context) async {
-    if (mapController == null || layerController == null || !mounted) return;
+    if (mapController == null || !mounted) return;
+    if (layerController == null || !mounted) return;
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();

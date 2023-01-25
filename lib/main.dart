@@ -7,6 +7,8 @@ import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/home/services/places.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -24,6 +26,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -82,6 +85,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Profile()),
         ChangeNotifierProvider(create: (context) => News()),
         ChangeNotifierProvider(create: (context) => Shortcuts()),
+        ChangeNotifierProvider(create: (context) => Places()),
         ChangeNotifierProvider(create: (context) => Discomforts()),
         ChangeNotifierProvider(create: (context) => Geocoding()),
         ChangeNotifierProvider(create: (context) => Geosearch()),
@@ -94,6 +98,8 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Tracking()),
         ChangeNotifierProvider(create: (context) => Statistics()),
         ChangeNotifierProvider(create: (context) => Feedback()),
+        ChangeNotifierProvider(create: (context) => MapSettings()),
+        ChangeNotifierProvider(create: (context) => BottomSheetState()),
         ChangeNotifierProvider(create: (context) => Weather()),
         ChangeNotifierProvider(create: (context) => Ride()),
       ],
@@ -105,6 +111,7 @@ class App extends StatelessWidget {
             title: 'PrioBike',
             showPerformanceOverlay: settings.enablePerformanceOverlay,
             theme: ThemeData(
+              dialogBackgroundColor: const Color(0xFFFFFFFF),
               fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.light(
                 background: Color(0xFFFFFFFF),
@@ -160,6 +167,7 @@ class App extends StatelessWidget {
               androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
             ),
             darkTheme: ThemeData(
+              dialogBackgroundColor: const Color(0xFF232323),
               fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.dark(
                 background: Color(0xFF232323),

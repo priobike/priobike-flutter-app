@@ -7,9 +7,9 @@ import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
@@ -118,13 +118,25 @@ class Routing with ChangeNotifier {
   RoutingProfile? selectedProfile;
 
   /// The waypoints of the selected route, if provided.
-  List<Waypoint>? selectedWaypoints;
+  List<Waypoint?>? selectedWaypoints;
 
-  /// The currently selected route, if one wetched.
+  /// The list of waypoints for SearchRoutingView.
+  List<Waypoint?> routingItems = [];
+
+  /// The index which routingBarItem gets highlighted next.
+  int nextItem = -1;
+
+  /// The currently selected route, if one fetched.
   r.Route? selectedRoute;
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
+
+  /// The route label coords.
+  List<GHCoordinate> routeLabelCoords = [];
+
+  /// Variable that holds the state of which the item should be minimized to max 3 items.
+  bool minimized = false;
 
   Routing({
     this.fetchedWaypoints,
@@ -138,19 +150,39 @@ class Routing with ChangeNotifier {
     if (selectedWaypoints == null) {
       selectedWaypoints = [waypoint];
     } else {
-      selectedWaypoints = selectedWaypoints! + [waypoint];
+      selectedWaypoints!.add(waypoint);
     }
     notifyListeners();
   }
 
+  /// Add new route label coords.
+  void addRouteLabelCoords(GHCoordinate coordinate) {
+    routeLabelCoords.add(coordinate);
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
+  }
+
+  /// Add new route label coords.
+  void resetRouteLabelCoords() {
+    routeLabelCoords = [];
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
+  }
+
   /// Select new waypoints.
-  Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
+  Future<void> selectWaypoints(List<Waypoint?>? waypoints) async {
     selectedWaypoints = waypoints;
     if ((waypoints?.length ?? 0) < 2) {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
     }
+    notifyListeners();
+  }
+
+  /// Select new waypoints.
+  Future<void> selectRoutingItems(List<Waypoint?> waypoints) async {
+    routingItems = waypoints;
     notifyListeners();
   }
 
@@ -165,7 +197,7 @@ class Routing with ChangeNotifier {
     var shortestWaypointToIdx = 0;
     for (int i = 0; i < (selectedWaypoints!.length - 1); i++) {
       final w1 = selectedWaypoints![i], w2 = selectedWaypoints![i + 1];
-      final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
+      final p1 = LatLng(w1!.lat, w1.lon), p2 = LatLng(w2!.lat, w2.lon);
       final n = Snapper.calcNearestPoint(userPosLatLng, p1, p2);
       final d = Snapper.vincenty.distance(userPosLatLng, n);
       if (d < shortestWaypointDistance) {
@@ -173,8 +205,8 @@ class Routing with ChangeNotifier {
         shortestWaypointToIdx = i + 1;
       }
     }
-    final remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")] +
-        selectedWaypoints!.sublist(shortestWaypointToIdx);
+    final List<Waypoint?> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
+    remaining + selectedWaypoints!.sublist(shortestWaypointToIdx);
     return await selectWaypoints(remaining);
   }
 
@@ -185,8 +217,12 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
+    routingItems = [];
+    nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
+    routeLabelCoords = [];
+    minimized = false;
     notifyListeners();
   }
 
@@ -216,6 +252,7 @@ class Routing with ChangeNotifier {
                   ))
               .toList());
       final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
         return SGSelectorResponse.fromJson(json.decode(response.body));
@@ -226,6 +263,7 @@ class Routing with ChangeNotifier {
     } catch (e, stack) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
+
       if (!kDebugMode) {
         await Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
@@ -294,6 +332,7 @@ class Routing with ChangeNotifier {
       ghUrl += "&details=max_speed";
       ghUrl += "&details=smoothness";
       ghUrl += "&details=lanes";
+      ghUrl += "&details=road_class";
       if (waypoints.length == 2) {
         ghUrl += "&algorithm=alternative_route";
         ghUrl += "&ch.disable=true";
@@ -335,6 +374,16 @@ class Routing with ChangeNotifier {
       return null;
     }
 
+    // Check if all Waypoints not null.
+    List<Waypoint> selectedWaypointsCasted = [];
+    for (var waypoint in selectedWaypoints!) {
+      if (waypoint == null) {
+        return null;
+      } else {
+        selectedWaypointsCasted.add(waypoint);
+      }
+    }
+
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
     notifyListeners();
@@ -343,7 +392,7 @@ class Routing with ChangeNotifier {
     selectedProfile = await selectProfile(context);
 
     // Load the GraphHopper response.
-    final ghResponse = await loadGHRouteResponse(context, selectedWaypoints!);
+    final ghResponse = await loadGHRouteResponse(context, selectedWaypointsCasted);
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -400,6 +449,7 @@ class Routing with ChangeNotifier {
             crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
           }
           var route = r.Route(
+            id: i,
             path: path,
             route: sgSelectorResponse.route,
             signalGroups: sgsInOrderOfRoute,
@@ -408,7 +458,7 @@ class Routing with ChangeNotifier {
             crossingsDistancesOnRoute: crossingsDistancesOnRoute,
           );
           // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+          route = route.connected(selectedWaypoints!.first!, selectedWaypoints!.last!);
           return MapEntry(i, route);
         })
         .values
@@ -416,7 +466,7 @@ class Routing with ChangeNotifier {
 
     selectedRoute = routes.first;
     allRoutes = routes;
-    fetchedWaypoints = selectedWaypoints;
+    fetchedWaypoints = selectedWaypointsCasted;
     isFetchingRoute = false;
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
@@ -425,6 +475,8 @@ class Routing with ChangeNotifier {
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
     await status.fetch(context, routes.first);
 
+    // Force new route label coords.
+    routeLabelCoords = [];
     notifyListeners();
     return routes;
   }
@@ -432,6 +484,7 @@ class Routing with ChangeNotifier {
   /// Select a route.
   Future<void> switchToRoute(BuildContext context, int idx) async {
     if (idx < 0 || idx >= allRoutes!.length) return;
+
     selectedRoute = allRoutes![idx];
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);
@@ -441,6 +494,18 @@ class Routing with ChangeNotifier {
     await status.fetch(context, selectedRoute!);
 
     notifyListeners();
+  }
+
+  void switchMinimized() {
+    minimized = !minimized;
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
+  }
+
+  void setMinimized() {
+    minimized = false;
+    // Use original notifyListeners to prevent setting camera to route bounds.
+    super.notifyListeners();
   }
 
   @override

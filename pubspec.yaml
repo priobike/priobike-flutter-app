@@ -51,7 +51,7 @@ dependencies:
   device_info_plus: ^3.2.4 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
   package_info_plus: ^1.4.2 # Fetch info about the package
   battery_plus: ^2.1.4+1 # Fetch info about the battery state
-  charts_flutter: ^0.12.0 # Display minimalistic charts 
+  charts_flutter: ^0.12.0 # Display minimalistic charts
   share_plus: ^4.4.0 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^1.24.0 # Used to initialize the connection to Firebase
   firebase_messaging: ^13.0.4 # Used to receive push notifications of news service
@@ -114,7 +114,7 @@ flutter:
     - assets/offline/
 
     # Files needed to get git info within the app, e.g. current branch or tag.
-    # Please make sure that the repository is cloned by the branch name, and 
+    # Please make sure that the repository is cloned by the branch name, and
     # not by the commit hash (as is the default for Jenkins CI pipelines).
     - .git/HEAD # Branch/Tag Name for dev/beta feature unlocking
 

@@ -11,6 +11,7 @@ import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/logger.dart';
+import '../models/routing_view.dart';
 
 class Settings with ChangeNotifier {
   var hasLoaded = false;
@@ -49,6 +50,9 @@ class Settings with ChangeNotifier {
 
   /// The selected datastream mode.
   DatastreamMode datastreamMode;
+
+  /// The selected routingNew view mode.
+  RoutingViewOption routingView;
 
   /// The selected signal group selector mode.
   SGSelector sgSelector;
@@ -152,6 +156,22 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set rerouting to $rerouting");
       this.rerouting = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const routingViewKey = "priobike.settings.routingView";
+  static const defaultRoutingView = RoutingViewOption.stable;
+  Future<bool> selectRoutingView(RoutingViewOption routingView, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.routingView;
+    this.routingView = routingView;
+    bool success = await storage.setString(routingViewKey, routingView.name);
+    if (!success) {
+      log.e("Failed to set routing view to $rerouting");
+      this.routingView = prev;
     } else {
       notifyListeners();
     }
@@ -305,6 +325,7 @@ class Settings with ChangeNotifier {
     this.datastreamMode = defaultDatastreamMode,
     this.connectionErrorCounter = defaultConnectionErrorCounter,
     this.sgSelector = defaultSGSelector,
+    this.routingView = defaultRoutingView,
   });
 
   /// Load the backend from the shared
@@ -330,9 +351,10 @@ class Settings with ChangeNotifier {
     }
     try {
       routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    try {
+      routingView = RoutingViewOption.values.byName(storage.getString(routingViewKey)!);
+    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
   }
 
   /// Load the internal settings from the shared preferences.
@@ -414,6 +436,7 @@ class Settings with ChangeNotifier {
         "colorMode": colorMode.name,
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
+        "routingView": routingView.name,
         "connectionErrorCounter": connectionErrorCounter,
         "sgSelector": sgSelector.name,
       };

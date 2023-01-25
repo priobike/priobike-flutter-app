@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/logging/toast.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -24,11 +26,16 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name, BuildContext context) async {
     final routing = Provider.of<Routing>(context, listen: false);
-    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
-      return;
-    }
+
+    final bottomSheetState = Provider.of<BottomSheetState>(context, listen: false);
+
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
     // Check if waypoint contains "Standort" as address and change it to geolocation
-    for (Waypoint waypoint in routing.selectedWaypoints!) {
+    for (Waypoint? waypoint in routing.selectedWaypoints!) {
+      if (waypoint == null) {
+        ToastMessage.showError("Nicht genug Wegpunkte gesetzt!");
+        return;
+      }
       if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
         final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
@@ -36,11 +43,16 @@ class Shortcuts with ChangeNotifier {
         waypoint.address = address;
       }
     }
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!);
+
+    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints as List<Waypoint>);
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;
     await storeShortcuts(context);
+
+    bottomSheetState.reset();
+    routing.reset();
+    ToastMessage.showSuccess("Route gespeichert!");
     notifyListeners();
   }
 

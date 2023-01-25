@@ -9,6 +9,9 @@ import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 class Route {
+  /// The route id.
+  final int id;
+
   /// The GraphHopper route response path.
   final GHRouteResponsePath path;
 
@@ -31,6 +34,7 @@ class Route {
   final List<double> crossingsDistancesOnRoute;
 
   const Route({
+    required this.id,
     required this.path,
     required this.route,
     required this.signalGroups,
@@ -40,6 +44,7 @@ class Route {
   });
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'path': path.toJson(),
         'route': route.map((e) => e.toJson()).toList(),
         'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
@@ -49,6 +54,7 @@ class Route {
       };
 
   factory Route.fromJson(dynamic json) => Route(
+        id: json["id"],
         path: GHRouteResponsePath.fromJson(json['path']),
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
         signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
@@ -69,6 +75,7 @@ class Route {
         ? null
         : vincenty.distance(latlng.LatLng(last.lat, last.lon), latlng.LatLng(endpoint.lat, endpoint.lon));
     return Route(
+      id: id,
       path: path,
       signalGroups: signalGroups,
       signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
@@ -115,10 +122,12 @@ class Route {
     final bounds = this.bounds;
     // Padding is approximately 111m (Approximately 0.001 degrees).
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
-    const pad = 0.001;
+    const padLon = 0.003;
+    // To fit north and south with detailSheet and routingBar.
+    const padLat = 0.003;
     return LatLngBounds(
-      southwest: LatLng(bounds.southwest.latitude - pad, bounds.southwest.longitude - pad),
-      northeast: LatLng(bounds.northeast.latitude + pad, bounds.northeast.longitude + pad),
+      southwest: LatLng(bounds.southwest.latitude - padLat, bounds.southwest.longitude - padLon),
+      northeast: LatLng(bounds.northeast.latitude + padLat, bounds.northeast.longitude + padLon),
     );
   }
 

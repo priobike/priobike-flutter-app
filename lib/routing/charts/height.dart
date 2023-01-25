@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/routing_view.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -21,7 +23,10 @@ class HeightData {
 
 class RouteHeightChartState extends State<RouteHeightChart> {
   /// The associated routing service, which is injected by the provider.
-  late Routing s;
+  late Routing routing;
+
+  /// The associated routing service, which is injected by the provider.
+  late Settings settings;
 
   /// The processed route data, which is injected by the provider.
   charts.Series<HeightData, double>? series;
@@ -34,18 +39,19 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   void didChangeDependencies() {
-    s = Provider.of<Routing>(context);
+    routing = Provider.of<Routing>(context);
+    settings = Provider.of<Settings>(context);
     processRouteData();
     super.didChangeDependencies();
   }
 
   /// Process the route data and create the chart series.
   Future<void> processRouteData() async {
-    if (s.selectedRoute == null) return;
+    if (routing.selectedRoute == null) return;
 
     // Aggregate the distance along the route.
     const vincenty = Distance(roundResult: false);
-    final latlngCoords = s.selectedRoute!.path.points.coordinates;
+    final latlngCoords = routing.selectedRoute!.path.points.coordinates;
     final data = List<HeightData>.empty(growable: true);
     var prevDist = 0.0;
     for (var i = 0; i < latlngCoords.length - 1; i++) {
@@ -76,7 +82,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (s.selectedRoute == null || series == null) return Container();
+    if (routing.selectedRoute == null || series == null) return Container();
 
     processRouteData();
 
@@ -85,10 +91,12 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BoldContent(
-            text: "Höhenprofil dieser Route",
-            context: context,
-          ),
+          settings.routingView == RoutingViewOption.beta
+              ? Container()
+              : BoldContent(
+                  text: "Höhenprofil dieser Route",
+                  context: context,
+                ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

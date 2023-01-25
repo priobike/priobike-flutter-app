@@ -27,6 +27,9 @@ class Discomforts with ChangeNotifier {
   /// The currently selected discomfort.
   DiscomfortSegment? selectedDiscomfort;
 
+  /// The signal group clicked.
+  bool trafficLightClicked = false;
+
   Discomforts({
     this.foundDiscomforts,
     this.selectedDiscomfort,
@@ -37,6 +40,7 @@ class Discomforts with ChangeNotifier {
     needsLayout = {};
     foundDiscomforts = null;
     selectedDiscomfort = null;
+    trafficLightClicked = false;
     notifyListeners();
   }
 
@@ -45,7 +49,25 @@ class Discomforts with ChangeNotifier {
     if (foundDiscomforts == null) return;
     if (idx < 0 || idx >= foundDiscomforts!.length) return;
     selectedDiscomfort = foundDiscomforts![idx];
-    notifyListeners();
+    super.notifyListeners();
+  }
+
+  /// Unselect a discomfort.
+  unselectDiscomfort() {
+    selectedDiscomfort = null;
+    super.notifyListeners();
+  }
+
+  /// Select a signalGroup.
+  selectTrafficLight() {
+    trafficLightClicked = true;
+    super.notifyListeners();
+  }
+
+  /// Unselect a signalGroup.
+  unselectTrafficLight() {
+    trafficLightClicked = false;
+    super.notifyListeners();
   }
 
   /// Get the coordinates for a given segment.

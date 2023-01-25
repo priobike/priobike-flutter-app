@@ -5,9 +5,9 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/charts/height.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/charts/height.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -342,7 +342,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                             key: Key("$entry.key"),
                             count: routingService.selectedWaypoints?.length ?? 0,
                             idx: entry.key,
-                            waypoint: entry.value,
+                            // Value is always a waypoint at this point
+                            waypoint: entry.value!,
                           );
                         },
                       ).toList() ??

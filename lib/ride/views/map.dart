@@ -23,7 +23,6 @@ class RideMapView extends StatefulWidget {
 class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
 
-  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated positioning service, which is injected by the provider.

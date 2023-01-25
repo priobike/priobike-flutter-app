@@ -85,4 +85,9 @@ class Geosearch with ChangeNotifier {
       throw Exception(hint);
     }
   }
+
+  void clearGeosearch() {
+    results = [];
+    notifyListeners();
+  }
 }

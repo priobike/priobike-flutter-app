@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/logging/views.dart';
@@ -41,6 +42,14 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   Future<void> onSelectRerouting(Rerouting rerouting) async {
     // Tell the settings service that we selected the new rerouting.
     await settings.setRerouting(rerouting);
+
+    Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a rerouting is selected.
+  Future<void> onSelectRoutingView(RoutingViewOption routingView) async {
+    // Tell the settings service that we selected the new rerouting.
+    await settings.selectRoutingView(routingView);
 
     Navigator.pop(context);
   }
@@ -114,6 +123,24 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                             selected: settings.rerouting,
                             title: (Rerouting e) => e.description,
                             callback: onSelectRerouting);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Routenansicht",
+                    subtitle: settings.routingView.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: RoutingViewOption.values,
+                            selected: settings.routingView,
+                            title: (RoutingViewOption e) => e.description,
+                            callback: onSelectRoutingView);
                       },
                     ),
                   ),

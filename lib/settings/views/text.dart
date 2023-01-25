@@ -36,16 +36,12 @@ class AssetTextView extends StatelessWidget {
                   ),
                 ),
                 SafeArea(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          AppBackButton(onPressed: () => Navigator.pop(context)),
-                        ],
-                      ),
-                    ],
-                  ),
+                  child: Column(children: [
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      AppBackButton(onPressed: () => Navigator.pop(context), icon: Icons.chevron_left),
+                    ]),
+                  ]),
                 ),
               ],
             ),

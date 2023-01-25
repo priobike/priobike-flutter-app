@@ -9,6 +9,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/routing/routing_view_wrapper.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -19,7 +20,6 @@ import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -68,7 +68,6 @@ class HomeViewState extends State<HomeView> {
     profile = Provider.of<Profile>(context);
     settings = Provider.of<Settings>(context);
     shortcuts = Provider.of<Shortcuts>(context);
-
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
@@ -103,7 +102,7 @@ class HomeViewState extends State<HomeView> {
 
     routing.selectWaypoints(shortcut.waypoints);
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
       (_) {
         routing.reset();
         discomforts.reset();
@@ -114,7 +113,7 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
       (_) {
         routing.reset();
         discomforts.reset();

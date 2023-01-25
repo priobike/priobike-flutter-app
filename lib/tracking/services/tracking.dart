@@ -47,7 +47,7 @@ class Tracking with ChangeNotifier {
   Route? route;
 
   /// The selected waypoints of the route.
-  List<Waypoint>? selectedWaypoints;
+  List<Waypoint?>? selectedWaypoints;
 
   /// The settings before the ride.
   Settings? settings;

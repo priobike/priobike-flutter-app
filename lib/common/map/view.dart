@@ -46,11 +46,20 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
+  /// A callback that is executed when the map is dismissed from camera tracking.
+  final void Function()? onCameraTrackingDismissed;
+
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
+  /// A callback that is executed when the map is clicked.
+  final void Function(Point<double>, LatLng)? onMapClick;
+
   /// The attribution button position.
   final AttributionButtonPosition attributionButtonPosition;
+
+  /// The myLocationTrackingMode
+  final MyLocationTrackingMode? myLocationTrackingMode;
 
   final Point<num>? logoViewMargins;
   final Point<num>? attributionButtonMargins;
@@ -62,10 +71,13 @@ class AppMap extends StatefulWidget {
       this.onMapCreated,
       this.onStyleLoaded,
       this.onCameraIdle,
+      this.onMapClick,
       this.onMapLongClick,
       this.logoViewMargins,
       this.attributionButtonMargins,
       this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
+      this.onCameraTrackingDismissed,
+      this.myLocationTrackingMode,
       Key? key})
       : super(key: key);
 
@@ -84,6 +96,7 @@ class AppMapState extends State<AppMap> {
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
     layers = Provider.of<Layers>(context);
+
     super.didChangeDependencies();
   }
 
@@ -99,17 +112,21 @@ class AppMapState extends State<AppMap> {
       accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: onMapCreated,
       onStyleLoadedCallback: widget.onStyleLoaded,
+      trackCameraPosition: true,
       compassEnabled: false,
       dragEnabled: widget.dragEnabled,
       onCameraIdle: widget.onCameraIdle,
+      onMapClick: widget.onMapClick,
       onMapLongClick: widget.onMapLongClick,
+      onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
+      attributionButtonPosition: widget.attributionButtonPosition,
       myLocationEnabled: true,
-      myLocationRenderMode: MyLocationRenderMode.COMPASS,
-      myLocationTrackingMode: MyLocationTrackingMode.None,
+      // Only used in new routing view.
+      myLocationTrackingMode: widget.myLocationTrackingMode ?? MyLocationTrackingMode.None,
+      myLocationRenderMode: MyLocationRenderMode.GPS,
       // Use a custom foreground image for the location puck.
       puckImage: widget.puckImage,
       puckSize: widget.puckSize,
-      attributionButtonPosition: widget.attributionButtonPosition,
       // Point on the test location center, which is Dresden or Hamburg.
       initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
       // The position of the logo and the attribution button.
