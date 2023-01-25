@@ -171,17 +171,17 @@ class StatusViewState extends State<StatusView> {
                         strokeWidth: 6,
                         backgroundColor: isProblem
                             ? const Color.fromARGB(255, 161, 35, 28)
-                            : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                            : const Color.fromARGB(255, 0, 255, 106).withOpacity(0.2),
                         valueColor: isProblem
                             ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                            : AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                            : const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 0, 255, 106)),
                       ),
                     ),
                     Opacity(
                       opacity: 0.2,
                       child: Icon(
                         Icons.chevron_right_rounded,
-                        color: isProblem ? Colors.white : Theme.of(context).colorScheme.primary,
+                        color: isProblem ? Colors.white : const Color.fromARGB(255, 0, 255, 106),
                         size: 42,
                       ),
                     ),

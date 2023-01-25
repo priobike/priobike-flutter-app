@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/accelerometer/models/acceleration.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/positioning/services/snapping.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
@@ -50,13 +49,8 @@ class Accelerometer with ChangeNotifier {
 
     // Get the necessary data.
     final positioning = Provider.of<Positioning>(context, listen: false);
-    if (positioning.lastPosition == null) {
+    if (positioning.lastPosition == null || positioning.snap == null) {
       log.w("Cannot calculate without a current position.");
-      return;
-    }
-    final snapping = Provider.of<Snapping>(context, listen: false);
-    if (snapping.snappedPosition == null) {
-      log.w("Cannot calculate without a current snapped position.");
       return;
     }
     if (aXYZ.length < 2) {
@@ -81,8 +75,8 @@ class Accelerometer with ChangeNotifier {
     final acceleration = Acceleration(
       lat: positioning.lastPosition!.latitude,
       lng: positioning.lastPosition!.longitude,
-      sLat: snapping.snappedPosition!.latitude,
-      sLng: snapping.snappedPosition!.longitude,
+      sLat: positioning.snap!.position.latitude,
+      sLng: positioning.snap!.position.longitude,
       acc: positioning.lastPosition!.accuracy,
       speed: positioning.lastPosition!.speed,
       sTime: windowStart,

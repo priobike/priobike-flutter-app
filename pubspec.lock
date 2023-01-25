@@ -321,13 +321,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.0.0"
-  flutter_map:
-    dependency: "direct main"
-    description:
-      name: flutter_map
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.2.0"
   flutter_native_splash:
     dependency: "direct main"
     description:
@@ -436,13 +429,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.6.0"
-  json_rpc_2:
-    dependency: "direct main"
-    description:
-      name: json_rpc_2
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.1"
   latlong2:
     dependency: "direct main"
     description:
@@ -464,13 +450,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
-  lists:
-    dependency: transitive
-    description:
-      name: lists
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   logging:
     dependency: transitive
     description:
@@ -483,7 +462,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
+      resolved-ref: "7657d41d4cfb8940ba6dbd147f9553d467729f6d"
       url: "https://github.com/priobike/priobike-flutter-mapbox"
     source: git
     version: "0.16.0"
@@ -499,7 +478,7 @@ packages:
     description:
       path: mapbox_gl_platform_interface
       ref: HEAD
-      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
+      resolved-ref: "7657d41d4cfb8940ba6dbd147f9553d467729f6d"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"
@@ -508,7 +487,7 @@ packages:
     description:
       path: mapbox_gl_web
       ref: HEAD
-      resolved-ref: "4968b4abe9340ffe4753df43f74b076c46ebda03"
+      resolved-ref: "7657d41d4cfb8940ba6dbd147f9553d467729f6d"
       url: "https://github.com/PrioBike-App/maps"
     source: git
     version: "0.16.0"
@@ -533,13 +512,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  mgrs_dart:
-    dependency: transitive
-    description:
-      name: mgrs_dart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   mime:
     dependency: transitive
     description:
@@ -652,20 +624,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
-  polylabel:
-    dependency: transitive
-    description:
-      name: polylabel
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
-  positioned_tap_detector_2:
-    dependency: transitive
-    description:
-      name: positioned_tap_detector_2
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
   process:
     dependency: transitive
     description:
@@ -673,13 +631,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
-  proj4dart:
-    dependency: transitive
-    description:
-      name: proj4dart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   provider:
     dependency: "direct main"
     description:
@@ -687,13 +638,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.0.2"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.1.0"
   sensors_plus:
     dependency: "direct main"
     description:
@@ -895,13 +839,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.0"
-  tuple:
-    dependency: transitive
-    description:
-      name: tuple
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   typed_data:
     dependency: transitive
     description:
@@ -909,13 +846,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
-  unicode:
-    dependency: transitive
-    description:
-      name: unicode
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1"
   universal_io:
     dependency: transitive
     description:
@@ -1035,13 +965,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
-  web_socket_channel:
-    dependency: "direct main"
-    description:
-      name: web_socket_channel
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   win32:
     dependency: transitive
     description:
@@ -1049,13 +972,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.3.11"
-  wkt_parser:
-    dependency: transitive
-    description:
-      name: wkt_parser
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   xdg_directories:
     dependency: transitive
     description:

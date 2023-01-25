@@ -44,10 +44,10 @@ class AlertsViewState extends State<AlertsView> {
       if (found != null && found.isNotEmpty) {
         for (int i = 0; i < found.length; i++) {
           if (found[i] == discomforts.selectedDiscomfort) {
-            controller.jumpToPage(i + 1);
+            controller.jumpToPage(i);
             setState(
               () {
-                currentPage = i + 1;
+                currentPage = i;
               },
             );
             break;
@@ -64,7 +64,6 @@ class AlertsViewState extends State<AlertsView> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final alerts = [
-          ...renderSignalAlerts(context, constraints),
           ...renderComfortAlerts(context, constraints),
         ];
         if (alerts.isEmpty) return Container();
@@ -127,92 +126,6 @@ class AlertsViewState extends State<AlertsView> {
         );
       },
     );
-  }
-
-  /// Render signal alerts.
-  List<Widget> renderSignalAlerts(BuildContext context, BoxConstraints constraints) {
-    if (routing.isFetchingRoute || predictionStatus.isLoading) return [];
-    if (predictionStatus.bad == 0 && predictionStatus.offline == 0 && predictionStatus.disconnected == 0) return [];
-    final sum = predictionStatus.bad + predictionStatus.offline + predictionStatus.disconnected;
-    return [
-      Padding(
-        padding: const EdgeInsets.only(left: 16, top: 2, bottom: 2, right: 16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: constraints.maxWidth - 32,
-              height: constraints.maxHeight,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: Theme.of(context).textTheme.headline4,
-                      children: [
-                        const TextSpan(text: "Diese Route enthält "),
-                        if (predictionStatus.offline > 0 || predictionStatus.bad > 0) ...[
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: Container(
-                              padding: const EdgeInsets.all(1),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const OfflineIcon(
-                                height: 8,
-                                width: 8,
-                              ),
-                            ),
-                          ),
-                          TextSpan(
-                            text: " ${predictionStatus.offline + predictionStatus.bad} aktuell nicht",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4!
-                                .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                        if ((predictionStatus.offline > 0 || predictionStatus.bad > 0) &&
-                            predictionStatus.disconnected > 0)
-                          const TextSpan(text: " und "),
-                        if (predictionStatus.disconnected > 0) ...[
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.middle,
-                            child: Container(
-                              padding: const EdgeInsets.all(1),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const DisconnectedIcon(
-                                height: 8,
-                                width: 8,
-                              ),
-                            ),
-                          ),
-                          TextSpan(
-                            text: " ${predictionStatus.disconnected} gar nicht",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline4!
-                                .merge(const TextStyle(fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                        const TextSpan(text: " vorhersagbare "),
-                        if (sum == 1) const TextSpan(text: "Ampel."),
-                        if (sum > 1) const TextSpan(text: "Ampeln."),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      )
-    ];
   }
 
   /// Render comfort alerts
