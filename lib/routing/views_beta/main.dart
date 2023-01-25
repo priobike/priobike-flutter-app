@@ -60,7 +60,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   late Positioning positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late MapSettings mapController;
+  late MapSettings mapSettings;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Profile profile;
@@ -114,7 +114,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     geocoding = Provider.of<Geocoding>(context);
     routing = Provider.of<Routing>(context);
     shortcuts = Provider.of<Shortcuts>(context);
-    mapController = Provider.of<MapSettings>(context);
+    mapSettings = Provider.of<MapSettings>(context);
     profile = Provider.of<Profile>(context);
     positioning = Provider.of<Positioning>(context);
     bottomSheetState = Provider.of<BottomSheetState>(context);
@@ -129,10 +129,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Function which checks if the RoutingBar needs to be shown.
   _checkRoutingBarShown() {
     // This seems not to work somehow
-    if (routing.selectedWaypoints != null &&
-        routing.selectedWaypoints!.isNotEmpty &&
-        mapController.controller != null) {
-      mapController.controller!.updateContentInsets(const EdgeInsets.only(top: 150), true);
+    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty && mapSettings.controller != null) {
+      mapSettings.controller!.updateContentInsets(const EdgeInsets.only(top: 150), true);
     }
   }
 
@@ -298,17 +296,17 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapController.zoomIn(ControllerType.main);
+    mapSettings.zoomIn(ControllerType.main);
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapController.zoomOut(ControllerType.main);
+    mapSettings.zoomOut(ControllerType.main);
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapController.setMyLocationTrackingModeTracking(ControllerType.main);
+    mapSettings.setMyLocationTrackingModeTracking(ControllerType.main);
   }
 
   /// Private Function which is executed when FAB is pressed.
@@ -365,7 +363,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapController.centerNorth(ControllerType.main);
+    mapSettings.centerNorth(ControllerType.main);
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
@@ -409,7 +407,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               });
               if (fitCameraTop == true) {
                 // Trigger center route in top part of screen.
-                mapController.fitCameraToRouteBounds(routing, frame);
+                mapSettings.fitCameraToRouteBounds(routing, frame);
                 setState(() {
                   fitCameraTop = false;
                 });
@@ -419,7 +417,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
               if (notification.extent >= 0.6 && notification.extent <= 0.7) {
                 // Trigger center route in top part of screen.
                 if (fitCameraTop == false) {
-                  mapController.fitCameraToRouteBoundsTop(routing, frame);
+                  mapSettings.fitCameraToRouteBoundsTop(routing, frame);
                   setState(() {
                     fitCameraTop = true;
                   });
@@ -590,7 +588,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     right: 0,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: GPSButton(gpsCentralization: _gpsCentralization),
+                      child: GPSButton(
+                        gpsCentralization: _gpsCentralization,
+                        myLocationTrackingMode: mapSettings.myLocationTrackingMode,
+                      ),
                     ),
                   )
                 : Container(),
@@ -602,7 +603,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GPSButton(
-                      myLocationTrackingMode: mapController.myLocationTrackingMode,
+                      myLocationTrackingMode: mapSettings.myLocationTrackingMode,
                       gpsCentralization: _gpsCentralization),
                   const SizedBox(
                     height: 15,
