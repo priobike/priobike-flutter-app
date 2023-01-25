@@ -83,6 +83,9 @@ class Ride with ChangeNotifier {
   /// The calculated distance to the next signal group.
   double? calcDistanceToNextSG;
 
+  /// The calculated distance to the next turn.
+  double? calcDistanceToNextTurn;
+
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
@@ -263,40 +266,51 @@ class Ride with ChangeNotifier {
   Future<void> updatePosition(BuildContext context) async {
     if (!navigationIsActive) return;
 
-    final positioning = Provider.of<Positioning>(context, listen: false);
-    if (positioning.lastPosition == null) return;
-    final p = positioning.lastPosition!;
-    if (route == null) return;
-    if (route!.route.length < 2) return;
-    // Draw snapping lines to all route segments.
-    var shortestDistance = double.infinity;
-    var shortestDistanceIndex = 0;
-    var shortestDistanceP2 = LatLng(0, 0);
-    var shortestDistancePSnapped = LatLng(0, 0);
-    for (int i = 0; i < route!.route.length - 1; i++) {
+    final snap = Provider.of<Positioning>(context, listen: false).snap;
+    if (snap == null || route == null) return;
+
+    // Calculate the distance to the next turn.
+    // Traverse the segments and find the next turn, i.e. where the bearing changes > <x>°.
+    const bearingThreshold = 15;
+    var calcDistanceToNextTurn = 0.0;
+    for (int i = snap.metadata.shortestDistanceIndex; i < route!.route.length - 1; i++) {
       final n1 = route!.route[i], n2 = route!.route[i + 1];
       final p1 = LatLng(n1.lat, n1.lon), p2 = LatLng(n2.lat, n2.lon);
-      final s = snap(LatLng(p.latitude, p.longitude), p1, p2);
-      final d = vincenty.distance(LatLng(p.latitude, p.longitude), s);
-      if (d < shortestDistance) {
-        shortestDistance = d;
-        shortestDistanceIndex = i;
-        shortestDistanceP2 = p2;
-        shortestDistancePSnapped = s;
-      }
+      final b = vincenty.bearing(p1, p2); // [-180°, 180°]
+      calcDistanceToNextTurn += vincenty.distance(p1, p2);
+      if ((b - snap.bearing).abs() > bearingThreshold) break;
     }
+    this.calcDistanceToNextTurn = calcDistanceToNextTurn;
+
     // Find the next signal group.
-    final nextNavNode = route!.route[shortestDistanceIndex + 1];
     Sg? nextSg;
     int? nextSgIndex;
+    double routeDistanceOfNextSg = double.infinity;
     for (int i = 0; i < route!.signalGroups.length; i++) {
-      final sg = route!.signalGroups[i];
-      if (sg.id == nextNavNode.signalGroupId) {
-        nextSg = sg;
+      if (route!.signalGroupsDistancesOnRoute[i] > snap.distanceOnRoute) {
+        nextSg = route!.signalGroups[i];
         nextSgIndex = i;
+        routeDistanceOfNextSg = route!.signalGroupsDistancesOnRoute[i];
         break;
       }
     }
+
+    // Find the next crossing that is not connected on the route.
+    double routeDistanceOfDisconnectedCrossing = double.infinity;
+    for (int i = 0; i < route!.crossings.length; i++) {
+      if (route!.crossingsDistancesOnRoute[i] > snap.distanceOnRoute) {
+        if (route!.crossings[i].connected) continue;
+        // The crossing is not connected, so we can use it.
+        routeDistanceOfDisconnectedCrossing = route!.crossingsDistancesOnRoute[i];
+        break;
+      }
+    }
+    // If the next disconnected crossing is closer, don't select the next sg just yet.
+    if (routeDistanceOfDisconnectedCrossing < routeDistanceOfNextSg) {
+      nextSg = null;
+      nextSgIndex = null;
+    }
+
     if (calcCurrentSG != nextSg) {
       calcCurrentSG = nextSg;
       calcCurrentSGIndex = nextSgIndex;
@@ -304,9 +318,11 @@ class Ride with ChangeNotifier {
       if (userSelectedSG == null) selectSG(nextSg);
     }
     // Calculate the distance to the next signal group.
-    calcDistanceToNextSG = nextNavNode.distanceToNextSignal != null
-        ? nextNavNode.distanceToNextSignal! + vincenty.distance(shortestDistancePSnapped, shortestDistanceP2)
-        : null;
+    if (calcCurrentSGIndex != null) {
+      calcDistanceToNextSG = route!.signalGroupsDistancesOnRoute[calcCurrentSGIndex!] - snap.distanceOnRoute;
+    } else {
+      calcDistanceToNextSG = null;
+    }
 
     notifyListeners();
   }

@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/models.dart';
 
-class LevelView extends StatelessWidget {
+class LevelView extends StatefulWidget {
   /// The levels to display.
   final List<Level> levels;
 
@@ -17,6 +18,9 @@ class LevelView extends StatelessWidget {
   /// The unit of the value.
   final String unit;
 
+  @override
+  LevelViewState createState() => LevelViewState();
+
   const LevelView({
     Key? key,
     required this.levels,
@@ -24,89 +28,179 @@ class LevelView extends StatelessWidget {
     required this.icon,
     required this.unit,
   }) : super(key: key);
+}
 
-  @override
-  Widget build(BuildContext context) {
-    if (levels.isEmpty) {
-      return Container();
-    }
-    var currentLevel = levels.first;
-    for (var level in levels) {
-      if (level.value <= value) {
+class LevelViewState extends State<LevelView> {
+  /// The color gradient of the level bar.
+  late List<Color> colors;
+
+  /// If the view is currently animating.
+  bool animating = false;
+
+  /// The percentage of the circular progress that hides the level circle.
+  double circleCoverPct = 0;
+
+  /// The current level.
+  Level getCurrentLevel() {
+    var currentLevel = widget.levels.first;
+    for (var level in widget.levels) {
+      if (level.value <= widget.value) {
         currentLevel = level;
       } else {
         break;
       }
     }
-    var nextLevel = levels.last;
-    for (var level in levels.reversed) {
-      if (level.value > value) {
+    return currentLevel;
+  }
+
+  /// The next level.
+  Level getNextLevel() {
+    var nextLevel = widget.levels.last;
+    for (var level in widget.levels.reversed) {
+      if (level.value > widget.value) {
         nextLevel = level;
       } else {
         break;
       }
     }
-    final pointsToNextLevel = nextLevel.value - value;
-    return Container(
-      padding: const EdgeInsets.only(left: 2, right: 2, top: 2, bottom: 2),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomLeft,
-          end: Alignment.topCenter,
-          colors: [
-            HSLColor.fromColor(currentLevel.color).withLightness(0.8).toColor(),
-            HSLColor.fromColor(currentLevel.color).withLightness(0.9).toColor(),
-            HSLColor.fromColor(currentLevel.color).withLightness(0.7).toColor(),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: HSLColor.fromColor(currentLevel.color).withLightness(0.5).withAlpha(0.2).toColor(),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    return nextLevel;
+  }
+
+  /// Run the bling animation.
+  Future<void> runAnimation({delay = 0}) async {
+    if (animating) return;
+    animating = true;
+    await Future.delayed(Duration(milliseconds: delay));
+    final currentLevel = getCurrentLevel();
+    // Animate the circle cover.
+    setState(() {
+      circleCoverPct = 1;
+    });
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      setState(() {
+        circleCoverPct = 0;
+      });
+    });
+    // Make a nice "bling" gradient animation.
+    for (var i = 0.0; i <= pi * 2; i += pi / 4) {
+      await Future.delayed(const Duration(milliseconds: 200), () {
+        setState(() {
+          colors = [
+            HSLColor.fromColor(currentLevel.color).withLightness(max(0, min(1, 0.9 + 0.1 * cos(i + pi)))).toColor(),
+            HSLColor.fromColor(currentLevel.color).withLightness(max(0, min(1, 0.8 + 0.1 * sin(i + pi / 3)))).toColor(),
+            HSLColor.fromColor(currentLevel.color).withLightness(max(0, min(1, 0.7 + 0.1 * cos(i + pi / 4)))).toColor(),
+          ];
+        });
+      });
+    }
+    animating = false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final currentLevel = getCurrentLevel();
+    colors = [
+      HSLColor.fromColor(currentLevel.color).withLightness(0.7).toColor(),
+      HSLColor.fromColor(currentLevel.color).withLightness(0.9).toColor(),
+      HSLColor.fromColor(currentLevel.color).withLightness(0.8).toColor(),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.levels.isEmpty) return Container();
+    final currentLevel = getCurrentLevel();
+    final nextLevel = getNextLevel();
+    final pointsToNextLevel = nextLevel.value - widget.value;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        runAnimation();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.linear,
+        padding: const EdgeInsets.only(left: 2, right: 2, top: 2, bottom: 2),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topCenter,
+            colors: colors,
           ),
-        ],
-        borderRadius: const BorderRadius.all(Radius.circular(32)),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 18, right: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 100,
-                  child: BoldSmall(
-                    text: currentLevel.title,
-                    context: context,
-                    color: Colors.black,
+          boxShadow: [
+            BoxShadow(
+              color: HSLColor.fromColor(currentLevel.color).withLightness(0.5).withAlpha(0.2).toColor(),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          borderRadius: const BorderRadius.all(Radius.circular(32)),
+        ),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 18, right: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: BoldSmall(
+                      text: currentLevel.title,
+                      context: context,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  width: 100,
-                  child: Small(
-                    text: pointsToNextLevel > 0
-                        ? "${(value * 10).round() / 10}/${nextLevel.value.round()} $unit"
-                        : "Ziel erreicht!",
-                    context: context,
-                    color: Colors.black,
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: 100,
+                    child: Small(
+                      text: pointsToNextLevel > 0
+                          ? "${(widget.value * 10).round() / 10}/${nextLevel.value.round()} ${widget.unit}"
+                          : "Ziel erreicht!",
+                      context: context,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                LevelRing(levels: widget.levels, value: widget.value, color: currentLevel.color, icon: widget.icon),
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 1000),
+                  curve: Curves.easeInOutCubicEmphasized,
+                  tween: Tween<double>(
+                    begin: 0,
+                    end: circleCoverPct,
+                  ),
+                  builder: (context, value, _) => Transform(
+                    // Rotate by 180° to make the animation start at the bottom.
+                    // Flip the animation by multiplying with -1.
+                    transform: Matrix4.diagonal3Values(1, -1, 1),
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 8,
+                      value: value,
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.background),
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          LevelRing(levels: levels, value: value, color: currentLevel.color, icon: icon),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 /// A ring with n_levels segments and a space inbetween.
-class LevelRing extends StatelessWidget {
+class LevelRing extends StatefulWidget {
   /// The levels to display.
   final List<Level> levels;
 
@@ -127,6 +221,11 @@ class LevelRing extends StatelessWidget {
     required this.icon,
   }) : super(key: key);
 
+  @override
+  LevelRingState createState() => LevelRingState();
+}
+
+class LevelRingState extends State<LevelRing> {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -149,7 +248,7 @@ class LevelRing extends StatelessWidget {
               // will draw inside a container with width == height
               aspectRatio: 1.0,
               child: CustomPaint(
-                painter: RingPainter(levels: levels, value: value, brightness: brightness),
+                painter: RingPainter(levels: widget.levels, value: widget.value, brightness: brightness),
               ),
             ),
           ),
@@ -157,10 +256,10 @@ class LevelRing extends StatelessWidget {
             width: 42,
             height: 42,
             child: Icon(
-              icon,
+              widget.icon,
               color: brightness == Brightness.light
-                  ? HSLColor.fromColor(color).withLightness(0.5).toColor()
-                  : HSLColor.fromColor(color).withLightness(0.7).toColor(),
+                  ? HSLColor.fromColor(widget.color).withLightness(0.5).toColor()
+                  : HSLColor.fromColor(widget.color).withLightness(0.7).toColor(),
             ),
           ),
         ]),

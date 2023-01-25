@@ -14,8 +14,8 @@ class SymbolLoader {
   Future<void> loadSymbols() async {
     await addImageFromAsset("trafficlightdisconnecteddark", "assets/images/trafficlights/disconnected-dark.png");
     await addImageFromAsset("trafficlightdisconnectedlight", "assets/images/trafficlights/disconnected-light.png");
-    await addImageFromAsset("trafficlightofflinedark", "assets/images/trafficlights/offline-dark.png");
-    await addImageFromAsset("trafficlightofflinelight", "assets/images/trafficlights/offline-light.png");
+    await addImageFromAsset("trafficlightonlinedarknocheck", "assets/images/trafficlights/online-dark-no-check.png");
+    await addImageFromAsset("trafficlightonlinelightnocheck", "assets/images/trafficlights/online-light-no-check.png");
     await addImageFromAsset("trafficlightonlinedark", "assets/images/trafficlights/online-dark.png");
     await addImageFromAsset("trafficlightonlinelight", "assets/images/trafficlights/online-light.png");
     await addImageFromAsset("trafficlightonlinegreendark", "assets/images/trafficlights/online-green-dark.png");
@@ -46,6 +46,10 @@ class SymbolLoader {
     await addImageFromAsset("repairlight", "assets/images/repair-light.png");
     await addImageFromAsset("accidentdark", "assets/images/accident-dark.png");
     await addImageFromAsset("accidentlight", "assets/images/accident-light.png");
+
+    await addImageFromAsset("potholes", "assets/images/potholes-map.png");
+    await addImageFromAsset("obstacle", "assets/images/obstacle-map.png");
+    await addImageFromAsset("dangerspot", "assets/images/dangerspot-map.png");
   }
 
   /// Adds an asset image to the currently displayed style

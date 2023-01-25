@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/common/map/controller.dart';
@@ -104,18 +108,40 @@ class SelectedRouteLayer {
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
-    final route = routing.selectedRoute?.route ?? [];
-    final coordinates = route.map((e) => [e.lon, e.lat]).toList();
-    final geometry = {
-      "type": "LineString",
-      "coordinates": coordinates,
-    };
-    features.add({
-      "id": "selected-route",
-      "type": "Feature",
-      "properties": {},
-      "geometry": geometry,
-    });
+    final navNodes = routing.selectedRoute?.route ?? [];
+
+    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    Map<String, dynamic>? currentFeature;
+    for (int i = navNodes.length - 1; i >= 0; i--) {
+      final navNode = navNodes[i];
+      final sgStatus = status.cache[navNode.signalGroupId];
+      String color;
+      var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+      // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+      if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+      // Interpolate between green and blue, by the prediction quality.
+      color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
+      if (currentFeature == null || currentFeature["color"] != color) {
+        if (currentFeature != null) {
+          currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+          features.add(currentFeature);
+        }
+        currentFeature = {
+          "type": "Feature",
+          "properties": {
+            "color": color,
+          },
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [navNode.lon, navNode.lat]
+            ],
+          },
+        };
+      } else {
+        currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+      }
+    }
   }
 
   /// Install the overlay on the layer controller.
@@ -131,6 +157,7 @@ class SelectedRouteLayer {
         lineWidth: bgLineWidth,
         lineColor: "#C6C6C6",
         lineJoin: "round",
+        lineCap: "round",
       ),
       enableInteraction: false,
       belowLayerId: below,
@@ -140,8 +167,9 @@ class SelectedRouteLayer {
       "route-layer",
       LineLayerProperties(
         lineWidth: fgLineWidth,
-        lineColor: "#0073ff",
+        lineColor: ["get", "color"],
         lineJoin: "round",
+        lineCap: "round",
       ),
       enableInteraction: false,
       belowLayerId: below,
@@ -311,16 +339,20 @@ class TrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayer(BuildContext context) {
+  /// If the layer should be hidden behind the user position.
+  final bool hideBehindPosition;
+
+  TrafficLightsLayer(BuildContext context, {this.hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
-    final statusProvider = Provider.of<PredictionSGStatus>(context, listen: false);
     final routing = Provider.of<Routing>(context, listen: false);
-    for (final sg in routing.selectedRoute?.signalGroups ?? []) {
-      final status = statusProvider.cache[sg.id];
-      final isOffline = status == null ||
-          status.predictionState == SGPredictionState.offline ||
-          status.predictionState == SGPredictionState.bad;
+    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    if (routing.selectedRoute == null) return;
+    for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
+      final sg = routing.selectedRoute!.signalGroups[i];
+      final sgDistanceOnRoute = routing.selectedRoute!.signalGroupsDistancesOnRoute[i];
+      // Clamp the value to not unnecessarily update the source.
+      final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
       features.add(
         {
           "type": "Feature",
@@ -330,9 +362,9 @@ class TrafficLightsLayer {
           },
           "properties": {
             "id": sg.id,
-            "isOffline": isOffline,
             "isDark": isDark,
             "showLabels": showLabels,
+            "distanceToSgOnRoute": distanceToSgOnRoute,
           },
         },
       );
@@ -351,24 +383,34 @@ class TrafficLightsLayer {
       SymbolLayerProperties(
         iconImage: [
           "case",
-          ["get", "isOffline"],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightofflinedark",
-            "trafficlightofflinelight",
-          ],
-          [
-            "case",
-            ["get", "isDark"],
-            "trafficlightonlinedark",
-            "trafficlightonlinelight",
-          ],
+          ["get", "isDark"],
+          "trafficlightonlinedarknocheck",
+          "trafficlightonlinelightnocheck",
         ],
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: showAfter(zoom: 12),
+        iconOpacity: hideBehindPosition
+            ? [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ]
+            : showAfter(zoom: 16),
         textField: [
           "case",
           ["get", "showLabels"],
@@ -489,12 +531,21 @@ class OfflineCrossingsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  OfflineCrossingsLayer(BuildContext context) {
+  /// If the layer should be hidden behind the user position.
+  final bool hideBehindPosition;
+
+  OfflineCrossingsLayer(BuildContext context, {this.hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final routing = Provider.of<Routing>(context, listen: false);
-    for (final crossing in routing.selectedRoute?.crossings ?? []) {
+    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    if (routing.selectedRoute == null) return;
+    for (int i = 0; i < routing.selectedRoute!.crossings.length; i++) {
+      final crossing = routing.selectedRoute!.crossings[i];
+      final crossingDistanceOnRoute = routing.selectedRoute!.crossingsDistancesOnRoute[i];
       if (crossing.connected) continue;
+      // Clamp the value to not unnecessarily update the source.
+      final distanceToCrossingOnRoute = max(-5, min(0, crossingDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
       features.add(
         {
           "type": "Feature",
@@ -506,6 +557,7 @@ class OfflineCrossingsLayer {
             "name": crossing.name,
             "isDark": isDark,
             "showLabels": showLabels,
+            "distanceToCrossingOnRoute": distanceToCrossingOnRoute,
           },
         },
       );
@@ -531,7 +583,27 @@ class OfflineCrossingsLayer {
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: showAfter(zoom: 12),
+        iconOpacity: hideBehindPosition
+            ? [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ]
+            : showAfter(zoom: 16),
         textField: [
           "case",
           ["get", "showLabels"],
@@ -549,6 +621,105 @@ class OfflineCrossingsLayer {
   update(LayerController layerController) async {
     await layerController.updateGeoJsonSource(
       "offline-crossings",
+      {"type": "FeatureCollection", "features": features},
+    );
+  }
+}
+
+class DangersLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  DangersLayer(BuildContext context, {bool hideBehindPosition = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dangers = Provider.of<Dangers>(context, listen: false);
+    final routing = Provider.of<Routing>(context, listen: false);
+    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    if (routing.selectedRoute == null) return;
+    for (int i = 0; i < dangers.dangers.length; i++) {
+      final danger = dangers.dangers[i];
+      final dangerDistanceOnRoute = dangers.dangersDistancesOnRoute[i];
+      // Clamp the value to not unnecessarily update the source.
+      final distanceToDangerOnRoute = max(-5, min(0, dangerDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
+      String icon;
+      switch (danger.category) {
+        case "obstacle":
+          icon = "obstacle";
+          break;
+        case "potholes":
+          icon = "potholes";
+          break;
+        default:
+          icon = "dangerspot";
+          break;
+      }
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [danger.lon, danger.lat],
+          },
+          "properties": {
+            "icon": icon,
+            "isDark": isDark,
+            "distanceToDangerOnRoute": distanceToDangerOnRoute,
+            "hideBehindPosition": hideBehindPosition,
+          },
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the layer controller.
+  Future<String> install(LayerController layerController, {iconSize = 1.0, String? below}) async {
+    await layerController.addGeoJsonSource(
+      "dangers",
+      {"type": "FeatureCollection", "features": features},
+    );
+    await layerController.addLayer(
+      "dangers",
+      "dangers-icons",
+      SymbolLayerProperties(
+        iconImage: ["get", "icon"],
+        iconSize: iconSize,
+        iconAllowOverlap: true,
+        iconIgnorePlacement: true,
+        iconOpacity: [
+          "case",
+          ["get", "hideBehindPosition"],
+          [
+            "case",
+            [
+              "<",
+              ["get", "distanceToDangerOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+            ],
+            0,
+            // Interpolate between -5 (opacity=0.5) and 0 (opacity=1) meters
+            [
+              "interpolate",
+              ["linear"],
+              ["get", "distanceToDangerOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+              0.5,
+              0,
+              1
+            ],
+          ],
+          1,
+        ],
+      ),
+      enableInteraction: false,
+      belowLayerId: below,
+    );
+    return "dangers-icons";
+  }
+
+  /// Update the overlay on the layer controller (without updating the layers).
+  update(LayerController layerController) async {
+    await layerController.updateGeoJsonSource(
+      "dangers",
       {"type": "FeatureCollection", "features": features},
     );
   }
@@ -791,7 +962,7 @@ class ConstructionSitesLayer {
         iconImage: isDark ? "constructiondark" : "constructionlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 13),
+        iconOpacity: showAfter(zoom: 12),
         textHaloColor: isDark ? "#000000" : "#ffffff",
         textHaloWidth: 1,
         textOffset: [
@@ -803,7 +974,7 @@ class ConstructionSitesLayer {
         textSize: 12,
         textAnchor: "center",
         textColor: "#e67e22",
-        textOpacity: showAfter(zoom: 13),
+        textOpacity: showAfter(zoom: 15),
         textAllowOverlap: true,
       ),
     );
@@ -839,7 +1010,7 @@ class AccidentHotspotsLayer {
         iconImage: isDark ? "accidentdark" : "accidentlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
-        iconOpacity: showAfter(zoom: 13),
+        iconOpacity: showAfter(zoom: 11),
         textHaloColor: isDark ? "#000000" : "#ffffff",
         textHaloWidth: 1,
         textOffset: [
@@ -851,7 +1022,7 @@ class AccidentHotspotsLayer {
         textSize: 12,
         textAnchor: "center",
         textColor: "#ff4757",
-        textOpacity: showAfter(zoom: 13),
+        textOpacity: showAfter(zoom: 15),
         textAllowOverlap: true,
       ),
     );

@@ -39,13 +39,10 @@ dependencies:
   cupertino_icons: ^1.0.2 # Icons package
   provider: ^6.0.0 # State management
   geolocator: ^8.1.1 # GPS tracking
-  web_socket_channel: ^2.1.0 # WebSocket communication
-  json_rpc_2: ^3.0.1 # JSON RPC support for WebSocket communication
   mapbox_gl: # Customized mapbox map framework
     git:
       url: https://github.com/priobike/priobike-flutter-mapbox
       ref: master
-  flutter_map: ^2.2.0 # Map framework (outdated)
   shared_preferences: ^2.0.15 # Access to shared preferences or user defaults (iOS)
   latlong2: ^0.8.1 # Distance calculations and more
   flutter_native_splash: ^2.1.6 # Generated splash screen, see below

@@ -1,36 +1,20 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/feedback/views/main.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/licenses/views.dart';
-import 'package:priobike/privacy/services.dart';
-import 'package:priobike/settings/models/datastream.dart';
-import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/models/routing.dart';
-import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
-import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/logging/views.dart';
-import 'package:priobike/news/services/news.dart';
+import 'package:priobike/settings/views/beta.dart';
+import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
-import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/rerouting.dart';
-import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
-import 'package:priobike/tutorial/service.dart';
-import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -158,100 +142,11 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts shortcuts;
-
-  /// The associated prediction status service, which is injected by the provider.
-  late PredictionStatusSummary predictionStatusSummary;
-
-  /// The associated shortcuts service, which is injected by the provider.
-  late Positioning position;
-
-  /// The associated routing service, which is injected by the provider.
-  late Routing routing;
-
-  /// The associated news service, which is injected by the provider.
-  late News news;
-
-  /// The associated weather service, which is injected by the provider.
-  late Weather weather;
-
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
     settings = Provider.of<Settings>(context);
-    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    position = Provider.of<Positioning>(context);
-    routing = Provider.of<Routing>(context);
-    news = Provider.of<News>(context);
-    weather = Provider.of<Weather>(context);
     super.didChangeDependencies();
-  }
-
-  /// A callback that is executed when a backend is selected.
-  Future<void> onSelectBackend(Backend backend) async {
-    // Tell the settings service that we selected the new backend.
-    await settings.setBackend(backend);
-
-    // Tell the fcm service that we selected the new backend.
-    await FCM.selectBackend(backend);
-
-    // Reset the associated services.
-    await predictionStatusSummary.reset();
-    await shortcuts.reset();
-    await routing.reset();
-    await news.reset();
-
-    // Load stuff for the new backend.
-    await news.getArticles(context);
-    await shortcuts.loadShortcuts(context);
-    await predictionStatusSummary.fetch(context);
-    await weather.fetch(context);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a predictor mode is selected.
-  Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
-    // Tell the settings service that we selected the new predictor mode.
-    await settings.setPredictionMode(predictionMode);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a sg labels mode is selected.
-  Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
-    // Tell the settings service that we selected the new sg labels mode.
-    await settings.setSGLabelsMode(mode);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a positioning is selected.
-  Future<void> onSelectPositioningMode(PositioningMode positioningMode) async {
-    // Tell the settings service that we selected the new backend.
-    await settings.setPositioningMode(positioningMode);
-    // Reset the position service since it depends on the positioning.
-    await position.reset();
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a routing endpoint is selected.
-  Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
-    // Tell the settings service that we selected the new backend.
-    await settings.setRoutingEndpoint(routingEndpoint);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a rerouting is selected.
-  Future<void> onSelectRerouting(Rerouting rerouting) async {
-    // Tell the settings service that we selected the new rerouting.
-    await settings.setRerouting(rerouting);
-
-    Navigator.pop(context);
   }
 
   /// A callback that is executed when darkMode is changed
@@ -270,418 +165,176 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
-  /// A callback that is executed when a datastream mode is selected.
-  Future<void> onSelectDatastreamMode(DatastreamMode datastreamMode) async {
-    // Tell the settings service that we selected the new datastream mode.
-    await settings.setDatastreamMode(datastreamMode);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a sg-selector is selected.
-  Future<void> onSelectSGSelector(SGSelector sgSelector) async {
-    // Tell the settings service that we selected the new sg-selector.
-    await settings.setSGSelector(sgSelector);
-
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: Stack(
-          children: [
-            Container(color: Theme.of(context).colorScheme.surface),
-            SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Row(
                   children: [
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        AppBackButton(onPressed: () => Navigator.pop(context)),
-                        const HSpace(),
-                        SubHeader(text: "Einstellungen", context: context),
-                      ],
-                    ),
-                    const SmallVSpace(),
-                    if (feature.canEnableInternalFeatures) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(left: 32, top: 8),
-                        child: Content(text: "Interne Testfeatures", context: context),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Interne Features",
-                          icon: settings.enableInternalFeatures ? Icons.check_box : Icons.check_box_outline_blank,
-                          callback: () => settings.setEnableInternalFeatures(!settings.enableInternalFeatures),
-                        ),
-                      ),
-                    ],
-                    if (settings.enableInternalFeatures) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Performance-Overlay",
-                          icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
-                          callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Testort",
-                          subtitle: settings.backend.region,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                  elements: Backend.values,
-                                  selected: settings.backend,
-                                  title: (Backend e) => e.region,
-                                  callback: onSelectBackend);
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Prognosealgorithmus",
-                          subtitle: settings.predictionMode.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                  elements: PredictionMode.values,
-                                  selected: settings.predictionMode,
-                                  title: (PredictionMode e) => e.description,
-                                  callback: onSelectPredictionMode);
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Ortung",
-                          subtitle: settings.positioningMode.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                elements: PositioningMode.values,
-                                selected: settings.positioningMode,
-                                title: (PositioningMode e) => e.description,
-                                callback: onSelectPositioningMode,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "SG-Info",
-                          subtitle: settings.sgLabelsMode.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                elements: SGLabelsMode.values,
-                                selected: settings.sgLabelsMode,
-                                title: (SGLabelsMode e) => e.description,
-                                callback: onSelectSGLabelsMode,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Echtzeitdaten",
-                          subtitle: settings.datastreamMode.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                elements: DatastreamMode.values,
-                                selected: settings.datastreamMode,
-                                title: (DatastreamMode e) => e.description,
-                                callback: onSelectDatastreamMode,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Tutorials zurücksetzen",
-                          icon: Icons.recycling,
-                          callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Datenschutz zurücksetzen",
-                          icon: Icons.recycling,
-                          callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Sicherheits-Warnung zurücksetzen",
-                          icon: Icons.recycling,
-                          callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
-                        ),
-                      ),
-                    ],
-                    if (feature.canEnableBetaFeatures) ...[
-                      const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 32, top: 8),
-                        child: Content(text: "Beta Testfeatures", context: context),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Beta Features",
-                          icon: settings.enableBetaFeatures ? Icons.check_box : Icons.check_box_outline_blank,
-                          callback: () => settings.setEnableBetaFeatures(!settings.enableBetaFeatures),
-                        ),
-                      ),
-                    ],
-                    if (settings.enableBetaFeatures) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Routing",
-                          subtitle: settings.routingEndpoint.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                elements: RoutingEndpoint.values,
-                                selected: settings.routingEndpoint,
-                                title: (RoutingEndpoint e) => e.description,
-                                callback: onSelectRoutingMode,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                        child: Small(
-                          text:
-                              "Innerhalb von Hamburg kannst du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
-                          context: context,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Routenneuberechnung",
-                          subtitle: settings.rerouting.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                  elements: Rerouting.values,
-                                  selected: settings.rerouting,
-                                  title: (Rerouting e) => e.description,
-                                  callback: onSelectRerouting);
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                            title: "Logs",
-                            icon: Icons.list,
-                            callback: () =>
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                        child: Small(
-                          text:
-                              "Wenn du Probleme mit der App hast, kannst du uns gerne die Logs schicken. Dann können wir genau sehen, was bei dir kaputt ist.",
-                          context: context,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: SettingsElement(
-                          title: "Auswahl der Ampeln",
-                          subtitle: settings.sgSelector.description,
-                          icon: Icons.expand_more,
-                          callback: () => showAppSheet(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SettingsSelection(
-                                elements: SGSelector.values,
-                                selected: settings.sgSelector,
-                                title: (SGSelector e) => e.description,
-                                callback: onSelectSGSelector,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                        child: Small(
-                          text:
-                              "Wenn du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst du diese Einstellung wechseln.",
-                          context: context,
-                        ),
-                      ),
-                    ],
-                    const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
-                    const SmallVSpace(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: Content(text: "Nutzbarkeit", context: context),
-                    ),
-                    const SmallVSpace(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: SettingsElement(
-                        title: "Farbmodus",
-                        subtitle: settings.colorMode.description,
-                        icon: Icons.expand_more,
-                        callback: () => showAppSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SettingsSelection(
-                                elements: ColorMode.values,
-                                selected: settings.colorMode,
-                                title: (ColorMode e) => e.description,
-                                callback: onChangeColorMode);
-                          },
-                        ),
-                      ),
-                    ),
-                    const SmallVSpace(),
-                    SettingsElement(
-                      title: "Tacho-Spanne",
-                      subtitle: settings.speedMode.description,
-                      icon: Icons.expand_more,
-                      callback: () => showAppSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SettingsSelection(
-                              elements: SpeedMode.values,
-                              selected: settings.speedMode,
-                              title: (SpeedMode e) => e.description,
-                              callback: onSelectSpeedMode);
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                      child: Small(
-                        text:
-                            "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
-                        context: context,
-                      ),
-                    ),
-                    const SmallVSpace(),
-                    SettingsElement(
-                      title: "Feedback geben",
-                      icon: Icons.email,
-                      callback: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => FeedbackView(
-                              onSubmitted: (context) async {
-                                Navigator.pop(context);
-                              },
-                              isolatedViewUsage: true,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                      child: Small(
-                        text: "Feedback ist jederzeit auch möglich an: 📧 priobike@tu-dresden.de",
-                        context: context,
-                      ),
-                    ),
-                    const SmallVSpace(),
-                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                    const SmallVSpace(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: Content(text: "Weitere Informationen", context: context),
-                    ),
-                    const VSpace(),
-                    SettingsElement(
-                      title: "Datenschutz",
-                      icon: Icons.info_outline_rounded,
-                      callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
-                      },
-                    ),
-                    const SmallVSpace(),
-                    SettingsElement(
-                      title: "Lizenzen",
-                      icon: Icons.info_outline_rounded,
-                      callback: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
-                      },
-                    ),
-                    const SmallVSpace(),
-                    SettingsElement(
-                      title: "Danksagung",
-                      icon: Icons.info_outline_rounded,
-                      callback: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) {
-                              return const AssetTextView(asset: "assets/text/thanks.txt");
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                    const SmallVSpace(),
-                    const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                    const SmallVSpace(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Small(
-                          text: "Info für Nerds: PrioBike v${feature.appVersion} ${feature.gitHead}",
-                          color: Colors.grey,
-                          context: context),
-                    ),
-                    const SizedBox(height: 128),
+                    AppBackButton(onPressed: () => Navigator.pop(context)),
+                    const HSpace(),
+                    SubHeader(text: "Einstellungen", context: context),
                   ],
                 ),
-              ),
+                if (feature.canEnableInternalFeatures) ...[
+                  const SmallVSpace(),
+                  SettingsElement(
+                    title: "Interne Features",
+                    icon: Icons.code,
+                    callback: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const InternalSettingsView()),
+                      );
+                    },
+                  ),
+                ],
+                if (feature.canEnableBetaFeatures) ...[
+                  const SmallVSpace(),
+                  SettingsElement(
+                    title: "Beta Features",
+                    icon: Icons.quiz,
+                    callback: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const BetaSettingsView()),
+                      );
+                    },
+                  ),
+                ],
+                const SmallVSpace(),
+                const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Content(text: "Nutzbarkeit", context: context),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Farbmodus",
+                    subtitle: settings.colorMode.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: ColorMode.values,
+                            selected: settings.colorMode,
+                            title: (ColorMode e) => e.description,
+                            callback: onChangeColorMode);
+                      },
+                    ),
+                  ),
+                ),
+                const SmallVSpace(),
+                SettingsElement(
+                  title: "Tacho-Spanne",
+                  subtitle: settings.speedMode.description,
+                  icon: Icons.expand_more,
+                  callback: () => showAppSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SettingsSelection(
+                          elements: SpeedMode.values,
+                          selected: settings.speedMode,
+                          title: (SpeedMode e) => e.description,
+                          callback: onSelectSpeedMode);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
+                    context: context,
+                  ),
+                ),
+                const SmallVSpace(),
+                SettingsElement(
+                  title: "Feedback geben",
+                  icon: Icons.email,
+                  callback: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => FeedbackView(
+                          onSubmitted: (context) async {
+                            Navigator.pop(context);
+                          },
+                          isolatedViewUsage: true,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text: "Feedback ist jederzeit auch möglich an: 📧 priobike@tu-dresden.de",
+                    context: context,
+                  ),
+                ),
+                const SmallVSpace(),
+                const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Content(text: "Weitere Informationen", context: context),
+                ),
+                const VSpace(),
+                SettingsElement(
+                  title: "Datenschutz",
+                  icon: Icons.info_outline_rounded,
+                  callback: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyView()));
+                  },
+                ),
+                const SmallVSpace(),
+                SettingsElement(
+                  title: "Lizenzen",
+                  icon: Icons.info_outline_rounded,
+                  callback: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => LicenseView(appName: feature.appName, appVersion: feature.appVersion)));
+                  },
+                ),
+                const SmallVSpace(),
+                SettingsElement(
+                  title: "Danksagung",
+                  icon: Icons.info_outline_rounded,
+                  callback: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return const AssetTextView(asset: "assets/text/thanks.txt");
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const SmallVSpace(),
+                const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Small(
+                      text: "Info für Nerds: PrioBike v${feature.appVersion} ${feature.gitHead}",
+                      color: Colors.grey,
+                      context: context),
+                ),
+                const SizedBox(height: 128),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
