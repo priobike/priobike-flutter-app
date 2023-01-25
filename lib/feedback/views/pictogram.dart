@@ -25,7 +25,7 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
   late Animation<double> animation;
   late AnimationController controller;
   double? maxSpeed;
-  double? minSpeed;
+  double minSpeed = 0.0;
 
   @override
   void initState() {
@@ -42,9 +42,6 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
     // Find the min and max speed
     for (var i = 0; i < widget.track.length; i++) {
       final p = widget.track[i];
-      if (minSpeed == null || p.speed < minSpeed!) {
-        minSpeed = p.speed;
-      }
       if (maxSpeed == null || p.speed > maxSpeed!) {
         maxSpeed = p.speed;
       }
@@ -57,13 +54,60 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
       fit: StackFit.expand,
       alignment: Alignment.center,
       children: [
+        // Glow
+        Opacity(
+          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0,
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: CustomPaint(
+              painter: TrackPainter(
+                fraction: fraction,
+                track: widget.track,
+                blurRadius: 10,
+                minSpeedColor: widget.minSpeedColor,
+                maxSpeedColor: widget.maxSpeedColor,
+                maxSpeed: maxSpeed,
+                minSpeed: minSpeed,
+              ),
+            ),
+          ),
+        ),
+        // Shadow
+        Opacity(
+          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0 : 0.4,
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: CustomPaint(
+              painter: TrackPainter(
+                fraction: fraction,
+                track: widget.track,
+                blurRadius: 5,
+                minSpeedColor: HSLColor.fromColor(widget.minSpeedColor).withLightness(0.4).toColor(),
+                maxSpeedColor: HSLColor.fromColor(widget.maxSpeedColor).withLightness(0.4).toColor(),
+                maxSpeed: maxSpeed,
+                minSpeed: minSpeed,
+              ),
+            ),
+          ),
+        ),
+        AspectRatio(
+          aspectRatio: 1,
+          child: CustomPaint(
+            painter: TrackPainter(
+              fraction: fraction,
+              track: widget.track,
+              blurRadius: 0,
+              minSpeedColor: widget.minSpeedColor,
+              maxSpeedColor: widget.maxSpeedColor,
+              maxSpeed: maxSpeed,
+              minSpeed: minSpeed,
+            ),
+          ),
+        ),
         Positioned(
           bottom: 0,
-          left: 0,
           child: Row(
             children: [
-              Small(text: '${((minSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
-              const SmallHSpace(),
               Container(
                 width: 32,
                 height: 8,
@@ -77,45 +121,8 @@ class TrackPictogramState extends State<TrackPictogram> with SingleTickerProvide
                 ),
               ),
               const SmallHSpace(),
-              Small(text: '${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
+              Content(text: '0 - ${((maxSpeed ?? 0) * 3.6).toInt()} km/h', context: context),
             ],
-          ),
-        ),
-        Opacity(
-          opacity: Theme.of(context).colorScheme.brightness == Brightness.dark ? 0.5 : 0.3,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 36),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: CustomPaint(
-                painter: TrackPainter(
-                  fraction: fraction,
-                  track: widget.track,
-                  blurRadius: 10,
-                  minSpeedColor: widget.minSpeedColor,
-                  maxSpeedColor: widget.maxSpeedColor,
-                  maxSpeed: maxSpeed,
-                  minSpeed: minSpeed,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 36),
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: CustomPaint(
-              painter: TrackPainter(
-                fraction: fraction,
-                track: widget.track,
-                blurRadius: 0,
-                minSpeedColor: widget.minSpeedColor,
-                maxSpeedColor: widget.maxSpeedColor,
-                maxSpeed: maxSpeed,
-                minSpeed: minSpeed,
-              ),
-            ),
           ),
         ),
       ],

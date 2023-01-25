@@ -14,6 +14,7 @@ import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -121,12 +122,19 @@ class FeedbackViewState extends State<FeedbackView> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Table(
         columnWidths: const {
-          // make the left column wider than the right column
-          0: FlexColumnWidth(2),
+          0: FlexColumnWidth(1),
           1: FlexColumnWidth(1),
         },
         children: [
           TableRow(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
+                  width: 2,
+                ),
+              ),
+            ),
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
@@ -138,7 +146,7 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
+                child: BoldContent(
                   textAlign: TextAlign.right,
                   text: (statistics.currentSummary?.durationSeconds ?? 0.0) >= 60
                       ? "${((statistics.currentSummary?.durationSeconds ?? 0) / 60).toStringAsFixed(2)} min"
@@ -149,6 +157,14 @@ class FeedbackViewState extends State<FeedbackView> {
             ],
           ),
           TableRow(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
+                  width: 2,
+                ),
+              ),
+            ),
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
@@ -160,7 +176,7 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
+                child: BoldContent(
                   textAlign: TextAlign.right,
                   text: (statistics.currentSummary?.distanceMeters ?? 0.0) >= 1000
                       ? "${((statistics.currentSummary?.distanceMeters ?? 0.0) / 1000).toStringAsFixed(2)} km"
@@ -171,6 +187,14 @@ class FeedbackViewState extends State<FeedbackView> {
             ],
           ),
           TableRow(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.025),
+                  width: 2,
+                ),
+              ),
+            ),
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
@@ -182,9 +206,9 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
+                child: BoldContent(
                   textAlign: TextAlign.right,
-                  text: "${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
+                  text: "Ø ${(statistics.currentSummary?.averageSpeedKmH ?? 0.00).toStringAsFixed(2)} km/h",
                   context: context,
                 ),
               ),
@@ -202,7 +226,7 @@ class FeedbackViewState extends State<FeedbackView> {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
-                child: Content(
+                child: BoldContent(
                   textAlign: TextAlign.right,
                   text: (statistics.currentSummary?.savedCo2inG ?? 0.0) >= 1000
                       ? "${((statistics.currentSummary?.savedCo2inG ?? 0.0) / 1000).toStringAsFixed(2)} kg"
@@ -238,7 +262,7 @@ class FeedbackViewState extends State<FeedbackView> {
               snap: false,
               floating: false,
               shadowColor: const Color.fromARGB(26, 0, 37, 100),
-              expandedHeight: MediaQuery.of(context).size.height - 196 - MediaQuery.of(context).padding.bottom,
+              expandedHeight: MediaQuery.of(context).size.height - 226 - MediaQuery.of(context).padding.bottom,
               collapsedHeight: 64,
               flexibleSpace: FlexibleSpaceBar(
                 stretchModes: const [StretchMode.blurBackground],
@@ -286,19 +310,19 @@ class FeedbackViewState extends State<FeedbackView> {
                         padding: EdgeInsets.only(
                           left: 24,
                           right: 24,
-                          top: MediaQuery.of(context).padding.top + 208,
+                          top: MediaQuery.of(context).padding.top + 24,
                           bottom: 24,
                         ),
                         child: TrackPictogram(
                           track: Provider.of<Positioning>(context, listen: false).positions,
                           minSpeedColor: CI.blue,
-                          maxSpeedColor: CI.lightBlue,
+                          maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
                         ),
                       ),
                     ),
                     BlendIn(
                       child: Container(
-                        padding: EdgeInsets.fromLTRB(12, MediaQuery.of(context).padding.top + 48, 12, 12),
+                        padding: EdgeInsets.fromLTRB(12, MediaQuery.of(context).padding.top + 64, 12, 12),
                         child: renderSummary(),
                       ),
                     ),
@@ -308,10 +332,6 @@ class FeedbackViewState extends State<FeedbackView> {
               title: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: BoldContent(
                   text: () {
                     final start = routing.selectedWaypoints?.first;
@@ -327,7 +347,6 @@ class FeedbackViewState extends State<FeedbackView> {
                   }(),
                   context: context,
                   textAlign: TextAlign.center,
-                  color: Colors.white,
                 ),
               ),
             ),
@@ -349,13 +368,21 @@ class FeedbackViewState extends State<FeedbackView> {
                     padding: EdgeInsets.symmetric(horizontal: 32),
                     child: StarRatingView(text: "Dein Feedback zur App"),
                   ),
-                  const SmallVSpace(),
                   BigButton(
                     iconColor: Colors.white,
                     icon: Icons.check,
                     fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                     label: "Fertig",
                     onPressed: () => submit(context),
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
+                  ),
+                  BigButton(
+                    iconColor: Colors.white,
+                    icon: Icons.save_rounded,
+                    fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
+                    label: "Strecke speichern",
+                    onPressed: () => showSaveShortcutSheet(context),
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   const VSpace(),
                 ],
