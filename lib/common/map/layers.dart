@@ -594,6 +594,7 @@ class WaypointsLayer {
               iconSize: iconSize,
               textAllowOverlap: true,
               textIgnorePlacement: true,
+              iconAllowOverlap: true
             ),
             mapbox.LayerPosition(below: below));
         await mapController.style.setStyleLayerProperty(
@@ -682,6 +683,7 @@ class TrafficLightsLayer {
               iconSize: iconSize,
               textAllowOverlap: true,
               textIgnorePlacement: true,
+              iconOpacity: 0,
             ),
             mapbox.LayerPosition(below: below));
         await mapController.style.setStyleLayerProperty(
