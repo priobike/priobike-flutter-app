@@ -22,6 +22,7 @@ import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
+import 'package:priobike/user.dart';
 import 'package:provider/provider.dart';
 
 /// A track of a bicycle ride.
@@ -31,11 +32,14 @@ class Tracking with ChangeNotifier {
   /// If the track was recorded in the debug mode.
   bool debug = kDebugMode;
 
+  /// The user id.
+  String? userId;
+
   /// The session id.
   String? sessionId;
 
-  /// The device info.
-  BaseDeviceInfo? deviceInfo;
+  /// The device type.
+  String? deviceType;
 
   /// The package info.
   PackageInfo? packageInfo;
@@ -76,9 +80,6 @@ class Tracking with ChangeNotifier {
   /// The final json string of this track, after it was ended
   String? json;
 
-  /// If the user will send the track.
-  bool willSendTrack = true;
-
   /// If the track is currently being sent.
   bool isSendingTrack = false;
 
@@ -96,12 +97,13 @@ class Tracking with ChangeNotifier {
   /// Start a new track.
   Future<void> start(BuildContext context) async {
     log.i("Starting a new track.");
+    userId = await User.getOrCreateId();
     // Get some session- and device-specific data.
     final deviceInfoPlugin = DeviceInfoPlugin();
     if (Platform.isIOS) {
-      deviceInfo = await deviceInfoPlugin.iosInfo;
+      deviceType = (await deviceInfoPlugin.iosInfo).name;
     } else if (Platform.isAndroid) {
-      deviceInfo = await deviceInfoPlugin.androidInfo;
+      deviceType = (await deviceInfoPlugin.androidInfo).model;
     } else {
       throw Exception("Unsupported platform");
     }
@@ -140,13 +142,6 @@ class Tracking with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set the willSend flag.
-  void setWillSendTrack(bool willSendTrack) {
-    // Note: At the moment, this does nothing since the user cannot change this setting.
-    this.willSendTrack = true;
-    notifyListeners();
-  }
-
   /// Send the track to the server.
   Future<bool> send(BuildContext context) async {
     if (json == null) {
@@ -155,10 +150,6 @@ class Tracking with ChangeNotifier {
     }
     if (isSendingTrack) {
       log.w("Cannot send track, because it is already being sent.");
-      return false;
-    }
-    if (!willSendTrack) {
-      log.w("Cannot send track, because the user does not want to send it.");
       return false;
     }
     log.i("Sending track to the server.");
@@ -191,6 +182,10 @@ class Tracking with ChangeNotifier {
 
   /// Reset the current track.
   Future<void> reset() async {
+    userId = null;
+    sessionId = null;
+    deviceType = null;
+    packageInfo = null;
     startTime = null;
     route = null;
     selectedWaypoints = null;
@@ -213,10 +208,16 @@ class Tracking with ChangeNotifier {
   /// We extract information from this data in the backend.
   /// Please make sure that any changes are double-checked.
   Map<String, dynamic> toJson() => {
-        'sessionId': sessionId,
+        // Model fields for querying.
         'startTime': startTime,
         'endTime': endTime,
         'debug': debug,
+        'backend': settings?.backend.name ?? "unknown",
+        'positioningMode': settings?.positioningMode.name ?? "unknown",
+        'userId': userId,
+        'sessionId': sessionId,
+        'deviceType': deviceType,
+        // Fields stored as JSON.
         'route': route?.toJson(),
         'positions': positions?.map((p) => p.toJson()).toList(),
         'recommendations': predictions?.map((r) => r.toJson()).toList(),
@@ -225,18 +226,12 @@ class Tracking with ChangeNotifier {
         'accelerations': accelerations?.map((d) => d.toJson()).toList(),
         'settings': settings?.toJson(),
         'statusSummary': statusSummary?.toJsonCamelCase(),
-        'deviceInfo': {
-          'name': 'unknown', // Default, required by tracking service.
-          ...(deviceInfo?.toMap() ?? {}),
-        },
         'deviceWidth': deviceSize?.width.round(),
         'deviceHeight': deviceSize?.height.round(),
         'screenTracks': tapsTracked.map((p) => p.toJson()).toList(),
-        'packageInfo': {
-          'appName': packageInfo?.appName,
-          'packageName': packageInfo?.packageName,
-          'version': packageInfo?.version,
-          'buildNumber': packageInfo?.buildNumber,
-        }
+        'appName': packageInfo?.appName,
+        'packageName': packageInfo?.packageName,
+        'version': packageInfo?.version,
+        'buildNumber': packageInfo?.buildNumber,
       };
 }

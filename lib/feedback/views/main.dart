@@ -44,13 +44,15 @@ class FeedbackViewState extends State<FeedbackView> {
 
     // Send the feedback and reset the feedback service.
     if (feedback.willSendFeedback) {
-      didSendSomething = didSendSomething || await feedback.send(context);
+      var didSend = await feedback.send(context);
+      didSendSomething = didSendSomething || didSend;
     }
     await feedback.reset();
 
     // Send the tracking data and reset the tracking service.
-    if (tracking.willSendTrack && tracking.canSendTrack) {
-      didSendSomething = didSendSomething || await tracking.send(context);
+    if (tracking.canSendTrack) {
+      var didSend = await tracking.send(context);
+      didSendSomething = didSendSomething || didSend;
     }
     await tracking.reset();
 
