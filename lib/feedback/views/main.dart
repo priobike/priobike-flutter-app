@@ -120,6 +120,16 @@ class FeedbackViewState extends State<FeedbackView> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.background.withOpacity(0.75),
+            spreadRadius: 0,
+            blurRadius: 24,
+          ),
+        ],
+      ),
       child: Table(
         columnWidths: const {
           0: FlexColumnWidth(1),
@@ -200,7 +210,7 @@ class FeedbackViewState extends State<FeedbackView> {
                 padding: const EdgeInsets.symmetric(vertical: paddingText),
                 child: Content(
                   textAlign: TextAlign.left,
-                  text: "Pace",
+                  text: "Geschwindigkeit",
                   context: context,
                 ),
               ),
