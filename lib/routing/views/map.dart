@@ -171,8 +171,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
 
-    // NOTE: Don't await this function, it will hang forever.
-    // This is a bug in our mapbox fork.
     await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
       if (!value) {
         await mapController!.style.addLayer(

@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:battery_plus/battery_plus.dart';
+import 'package:flutter/material.dart' hide Route;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
-import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
+import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -158,13 +158,13 @@ class Positioning with ChangeNotifier {
       positionSource = RecordedMockPositionSource.mockHamburg;
       log.i("Using mocked positioning source for Hamburg.");
     } else if (settings.positioningMode == PositioningMode.hamburgStatic1) {
-      positionSource = StaticMockPositionSource(position: LatLng(53.5529283, 10.004511), heading: 270);
+      positionSource = StaticMockPositionSource(LatLng(53.5529283, 10.004511), 270);
       log.i("Using mocked position source for Hamburg main station.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic1) {
-      positionSource = StaticMockPositionSource(position: LatLng(51.030077, 13.729404), heading: 270);
+      positionSource = StaticMockPositionSource(LatLng(51.030077, 13.729404), 270);
       log.i("Using mocked position source for traffic light 1 in Dresden.");
     } else if (settings.positioningMode == PositioningMode.dresdenStatic2) {
-      positionSource = StaticMockPositionSource(position: LatLng(51.030241, 13.728205), heading: 1);
+      positionSource = StaticMockPositionSource(LatLng(51.030241, 13.728205), 1);
       log.i("Using mocked position source for traffic light 2 in Dresden.");
     } else {
       throw Exception("Unknown position source.");
