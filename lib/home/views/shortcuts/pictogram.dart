@@ -26,8 +26,11 @@ class ShortcutPictogram extends StatelessWidget {
       child: SizedBox(
         width: width,
         height: height,
-        child: CustomPaint(
-          painter: ShortcutPainter(shortcut: shortcut, color: color),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: CustomPaint(
+            painter: ShortcutPainter(shortcut: shortcut, color: color),
+          ),
         ),
       ),
     );
@@ -77,6 +80,19 @@ class ShortcutPainter extends CustomPainter {
     }
     if (maxLat == minLat || maxLon == minLon) {
       return;
+    }
+
+    // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
+    final dLat = maxLat - minLat;
+    final dLon = maxLon - minLon;
+    if (dLat > dLon) {
+      final d = (dLat - dLon) / 2;
+      minLon -= d;
+      maxLon += d;
+    } else {
+      final d = (dLon - dLat) / 2;
+      minLat -= d;
+      maxLat += d;
     }
 
     // Draw the lines between the waypoints

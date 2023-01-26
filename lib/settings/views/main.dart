@@ -5,7 +5,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/views/beta.dart';
@@ -256,30 +255,6 @@ class SettingsViewState extends State<SettingsView> {
                   child: Small(
                     text:
                         "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
-                    context: context,
-                  ),
-                ),
-                const SmallVSpace(),
-                SettingsElement(
-                  title: "Feedback geben",
-                  icon: Icons.email,
-                  callback: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => FeedbackView(
-                          onSubmitted: (context) async {
-                            Navigator.pop(context);
-                          },
-                          isolatedViewUsage: true,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
-                  child: Small(
-                    text: "Feedback ist jederzeit auch möglich an: 📧 priobike@tu-dresden.de",
                     context: context,
                   ),
                 ),

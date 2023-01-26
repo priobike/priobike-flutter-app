@@ -59,6 +59,7 @@ dependencies:
   sensors_plus: ^2.0.0 # Used to get accelerometer data
   mqtt_client: ^9.6.8
   system_info_plus: ^0.0.5 # Used to check the RAM of user device
+  confetti: ^0.6.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0 # Generate app icons
