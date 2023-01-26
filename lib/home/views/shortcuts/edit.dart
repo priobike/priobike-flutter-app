@@ -5,7 +5,11 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/routing/routing_view_wrapper.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
+import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({Key? key}) : super(key: key);
@@ -17,10 +21,16 @@ class ShortcutsEditView extends StatefulWidget {
 class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
+  late Routing routing;
+  late Discomforts discomforts;
+  late PredictionSGStatus predictionSGStatus;
 
   @override
   void didChangeDependencies() {
     shortcuts = Provider.of<Shortcuts>(context);
+    routing = Provider.of<Routing>(context, listen: false);
+    discomforts = Provider.of<Discomforts>(context, listen: false);
+    predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     super.didChangeDependencies();
   }
 
@@ -99,6 +109,17 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ),
                               ],
                             ),
+                            onPressed: () {
+                              routing.selectWaypoints(entry.value.waypoints);
+
+                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
+                                    (_) {
+                                  routing.reset();
+                                  discomforts.reset();
+                                  predictionSGStatus.reset();
+                                },
+                              );
+                            },
                           ),
                         ),
                       );
