@@ -279,21 +279,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       below: offlineCrossings,
     );
     if (!mounted) return;
-    final discomforts = await DiscomfortsLayer(context).install(
-      mapController!,
-      iconSize: ppi / 4,
-      below: trafficLights,
-    );
-    if (!mounted) return;
     final waypoints = await WaypointsLayer(context).install(
       mapController!,
       iconSize: ppi / 8,
-      below: discomforts,
+      below: trafficLights,
+    );
+    if (!mounted) return;
+    final discomforts = await DiscomfortsLayer(context).install(
+      mapController!,
+      iconSize: ppi / 8,
+      below: waypoints,
     );
     if (!mounted) return;
     final selectedRoute = await SelectedRouteLayer(context).install(
       mapController!,
-      below: waypoints,
+      below: discomforts,
     );
     if (!mounted) return;
     await AllRoutesLayer(context).install(

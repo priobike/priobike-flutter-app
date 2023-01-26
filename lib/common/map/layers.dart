@@ -486,6 +486,20 @@ class DiscomfortsLayer {
         await update(mapController);
       }
     });
+    await mapController.style.styleLayerExists("discomforts-clicklayer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.LineLayer(
+              sourceId: "discomforts",
+              id: "discomforts-clicklayer",
+              lineColor: Colors.pink.value,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineWidth: clickWidth,
+              lineOpacity: 0.001,
+            ),
+            mapbox.LayerPosition(below: below));
+      }
+    });
     await mapController.style.styleLayerExists("discomforts-layer").then((exists) async {
       if (!exists) {
         await mapController.style.addLayerAt(
@@ -500,22 +514,6 @@ class DiscomfortsLayer {
             mapbox.LayerPosition(below: below));
       }
     });
-
-    // TODO look if neceissary
-    /*await layerController.addLayer(
-      "discomforts",
-      "discomforts-clicklayer",
-      LineLayerProperties(
-        lineWidth: clickWidth,
-        lineColor: "#000000",
-        lineCap: "round",
-        lineJoin: "round",
-        lineOpacity: 0.001, // Not 0 to make the click listener work.
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );*/
-
     await mapController.style.styleLayerExists("discomforts-markers").then((exists) async {
       if (!exists) {
         await mapController.style.addLayerAt(
