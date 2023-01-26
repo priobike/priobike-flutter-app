@@ -171,18 +171,22 @@ class RideMapViewState extends State<RideMapView> {
     if (ride.userSelectedSG == null) {
       // The camera target is the estimated user position (Convert from LatLng to Mapbox/LatLng).
       final cameraTarget = LatLng(userPosSnap.position.latitude, userPosSnap.position.longitude);
-      mapController!.flyTo(
+      // TODO Set duration in dependence of the speed (difference between current and last coordinate)
+      mapController!.easeTo(
           mapbox.CameraOptions(
             center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
           ),
-          mapbox.MapAnimationOptions(duration: 1000));
+          mapbox.MapAnimationOptions(duration: 1500));
     }
 
     await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
       if (value) {
+        // TODO Set duration in dependence of the speed (difference between current and last coordinate)
+        await mapController!.style
+            .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
         mapController!.style.updateLayer(
           mapbox.LocationIndicatorLayer(
             id: "user-location-puck",
@@ -210,7 +214,7 @@ class RideMapViewState extends State<RideMapView> {
           ),
         );
         await mapController!.style
-            .setStyleTransition(mapbox.TransitionOptions(duration: 1000, enablePlacementTransitions: false));
+            .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
       }
     });
 

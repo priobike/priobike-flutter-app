@@ -70,6 +70,6 @@ class SymbolLoader {
     final bytes = await rootBundle.load(assetName);
     final bytesArr = bytes.buffer.asUint8List();
     return mapController.style
-        .addStyleImage(name, 1.0, MbxImage(width: width, height: height, data: bytesArr), true, [], [], null);
+        .addStyleImage(name, 1, MbxImage(width: width, height: height, data: bytesArr), false, [], [], null);
   }
 }

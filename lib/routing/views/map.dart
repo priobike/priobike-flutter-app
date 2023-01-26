@@ -105,39 +105,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   void didChangeDependencies() {
     // Check if the selected map layers have changed.
     layers = Provider.of<Layers>(context);
-    /*if (layers.needsLayout[viewId] != false) {
+    if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
       layers.needsLayout[viewId] = false;
-    }*/
+    }
 
     // Check if the position has changed.
     positioning = Provider.of<Positioning>(context);
-    /*if (positioning.needsLayout[viewId] != false) {
+    if (positioning.needsLayout[viewId] != false) {
+      // TODO this causes currently on the initial map load that the map tries to create two LocationIndicatorLayers
+      // because the first one is not yet finished loading and thus the function to check whether it exists returns false
+      // but when trying to create it there already exists something with the ID.
       displayCurrentUserLocation();
       positioning.needsLayout[viewId] = false;
-    }*/
+    }
 
     // Check if route-related stuff has changed.
     routing = Provider.of<Routing>(context);
-    /*if (routing.needsLayout[viewId] != false) {
+    if (routing.needsLayout[viewId] != false) {
+      print("sawefoaiuwefoiawef");
       loadRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
-    }*/
+    }
 
     // Check if the discomforts have changed.
     discomforts = Provider.of<Discomforts>(context);
-    /*if (discomforts.needsLayout[viewId] != false) {
+    if (discomforts.needsLayout[viewId] != false) {
       loadRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
-    }*/
+    }
 
     // Check if the status has changed.
     status = Provider.of<PredictionSGStatus>(context);
-    /*if (status.needsLayout[viewId] != false) {
+    if (status.needsLayout[viewId] != false) {
       loadRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
-    }*/
+    }
 
     mapSettings = Provider.of<MapSettings>(context);
 
@@ -150,10 +154,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.selectedRoute == null || await mapController?.isUserAnimationInProgress() != false) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 500));
-    /*await mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
-      duration: const Duration(milliseconds: 1000),
-    );*/
+    final currentCameraOptions = await mapController?.getCameraState();
+    if (currentCameraOptions == null) return;
+    final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
+      routing.selectedRoute!.paddedBounds,
+      currentCameraOptions.padding,
+      currentCameraOptions.bearing,
+      currentCameraOptions.pitch,
+    );
+    if (cameraOptionsForBounds == null) return;
+    await mapController?.flyTo(
+      cameraOptionsForBounds,
+      MapAnimationOptions(duration: 1000),
+    );
   }
 
   /// Show the user location on the map.
@@ -171,6 +184,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             bearingImage:
                 Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
             bearingImageSize: 0.2,
+            accuracyRadiusColor: const Color(0x00000000).value,
+            accuracyRadiusBorderColor: const Color(0x00000000).value,
             bearing: positioning.lastPosition!.heading,
             location: [
               positioning.lastPosition!.latitude,
@@ -310,15 +325,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);
-    // TODO
-    /*mapController?.updateContentInsets(
-      EdgeInsets.fromLTRB(
-        defaultMapInsets.left,
-        defaultMapInsets.top,
-        defaultMapInsets.left,
-        newBottomInset,
+    mapController!.setCamera(
+      CameraOptions(
+        padding: MbxEdgeInsets(
+            bottom: newBottomInset,
+            left: defaultMapInsets.left,
+            top: defaultMapInsets.top,
+            right: defaultMapInsets.left),
       ),
-      false,
     );
     setState(
       () {
@@ -330,26 +344,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           attributionMargins = const Point(20, 0);
         }
       },
-    );*/
+    );
   }
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
     mapController = controller;
-
-    // Added this here additionally to the onStyleLoaded- and didChangeDependencies-callback,
-    // because when using a mocked GPS-position (for testing) only calling it
-    // in those callbacks somehow results in the use of the real GPS-position,
-    // although not being set on our end (seems like a bug in the mapbox-framework).
-    displayCurrentUserLocation();
-
-    // Dont call any line/symbol/... removal/add operations here.
-    // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+
+    displayCurrentUserLocation();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -362,10 +369,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     loadRouteMapLayers();
   }
 
+  /// A callback which is executed when a tap on the map is registered.
+  /// This also resolves if a certain feature is being tapped on. This function
+  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
+  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
   Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
 
-    final ScreenCoordinate conv = await mapController!.pixelForCoordinate(
+    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
+    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
+    // fixed in an upcoming version we need to remove this conversion.
+    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
       turf.Point(
         coordinates: turf.Position(
           screenCoordinate.y,
@@ -376,7 +390,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     final List<QueriedFeature?> features = await mapController!.queryRenderedFeatures(
       RenderedQueryGeometry(
-        value: json.encode(conv.encode()),
+        value: json.encode(actualScreenCoordinate.encode()),
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(

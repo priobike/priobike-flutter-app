@@ -133,14 +133,12 @@ class Route {
     // Padding is approximately 111m (Approximately 0.001 degrees).
     // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
     const pad = 0.003;
-    final geometrySouthwest = bounds.southwest["geometry"] as Map;
-    final coordinatesSouthwest = geometrySouthwest["coordinates"] as List;
-    final s = coordinatesSouthwest[0] as double;
-    final w = coordinatesSouthwest[1] as double;
-    final geometryNortheast = bounds.northeast["geometry"] as Map;
-    final coordinatesNortheast = geometryNortheast["coordinates"] as List;
-    final n = coordinatesNortheast[0] as double;
-    final e = coordinatesNortheast[1] as double;
+    final coordinatesSouthwest = bounds.southwest["coordinates"] as List;
+    final s = coordinatesSouthwest[1] as double;
+    final w = coordinatesSouthwest[0] as double;
+    final coordinatesNortheast = bounds.northeast["coordinates"] as List;
+    final n = coordinatesNortheast[1] as double;
+    final e = coordinatesNortheast[0] as double;
     return CoordinateBounds(
         southwest: turf.Point(
             coordinates: turf.Position(

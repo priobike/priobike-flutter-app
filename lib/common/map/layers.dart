@@ -100,17 +100,20 @@ class AllRoutesLayer {
         await mapController.style.addSource(
           mapbox.GeoJsonSource(id: "routes", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
-    await mapController.style.styleLayerExists("routes-layer").then((exists) async {
+    await mapController.style.styleLayerExists("routes-clicklayer").then((exists) async {
       if (!exists) {
         await mapController.style.addLayerAt(
             mapbox.LineLayer(
               sourceId: "routes",
-              id: "routes-layer",
-              lineColor: const Color(0xFFC6C6C6).value,
+              id: "routes-clicklayer",
+              lineColor: Colors.pink.value,
               lineJoin: mapbox.LineJoin.ROUND,
-              lineWidth: lineWidth,
+              lineWidth: clickLineWidth,
+              lineOpacity: 0.001,
             ),
             mapbox.LayerPosition(below: below));
       }
@@ -125,24 +128,10 @@ class AllRoutesLayer {
               lineJoin: mapbox.LineJoin.ROUND,
               lineWidth: lineWidth,
             ),
-            mapbox.LayerPosition(below: below));
+            mapbox.LayerPosition(below: "routes-clicklayer"));
       }
     });
 
-    // Make it easier to click on the route.
-    // TODO maybe add if needed (for interaction)
-    /*await layerController.addLayer(
-      "routes",
-      "routes-clicklayer",
-      LineLayerProperties(
-        lineWidth: clickLineWidth,
-        lineColor: "#000000",
-        lineJoin: "round",
-        lineOpacity: 0.001, // Not 0 to make the click listener work.
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );*/
     return "routes-layer";
   }
 
@@ -207,13 +196,15 @@ class SelectedRouteLayer {
         await mapController.style.addSource(
           mapbox.GeoJsonSource(id: "route", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
     await mapController.style.styleLayerExists("route-background-layer").then((exists) async {
       if (!exists) {
         await mapController.style.addLayerAt(
             mapbox.LineLayer(
-              sourceId: "routes",
+              sourceId: "route",
               id: "route-background-layer",
               lineColor: const Color(0xFFC6C6C6).value,
               lineJoin: mapbox.LineJoin.ROUND,
@@ -227,7 +218,7 @@ class SelectedRouteLayer {
       if (!exists) {
         await mapController.style.addLayerAt(
             mapbox.LineLayer(
-              sourceId: "routes",
+              sourceId: "route",
               id: "route-layer",
               lineColor: const Color(0xFFC6C6C6).value,
               lineJoin: mapbox.LineJoin.ROUND,
@@ -491,6 +482,8 @@ class DiscomfortsLayer {
           mapbox.GeoJsonSource(
               id: "discomforts", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
     await mapController.style.styleLayerExists("discomforts-layer").then((exists) async {
@@ -588,6 +581,8 @@ class WaypointsLayer {
         await mapController.style.addSource(
           mapbox.GeoJsonSource(id: "waypoints", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
     await mapController.style.styleLayerExists("waypoints-icons").then((exists) async {
@@ -673,6 +668,8 @@ class TrafficLightsLayer {
           mapbox.GeoJsonSource(
               id: "traffic-lights", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
 
@@ -823,6 +820,8 @@ class TrafficLightLayer {
           mapbox.GeoJsonSource(
               id: "traffic-light", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
 
@@ -901,6 +900,8 @@ class OfflineCrossingsLayer {
           mapbox.GeoJsonSource(
               id: "offline-crossings", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
 
@@ -1032,6 +1033,8 @@ class DangersLayer {
         await mapController.style.addSource(
           mapbox.GeoJsonSource(id: "dangers", data: json.encode({"type": "FeatureCollection", "features": features})),
         );
+      } else {
+        await update(mapController);
       }
     });
 
@@ -1104,7 +1107,7 @@ class ParkingStationsLayer {
   ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the layer controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
@@ -1123,6 +1126,8 @@ class ParkingStationsLayer {
           id: "parking-stations-icons",
           iconImage: isDark ? "parkdark" : "parklight",
           iconSize: iconSize,
+          iconOpacity: 0,
+          iconAllowOverlap: true,
         ));
         await mapController.style.setStyleLayerProperty(
             "parking-stations-icons",
@@ -1159,7 +1164,7 @@ class RentalStationsLayer {
   RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
@@ -1179,12 +1184,15 @@ class RentalStationsLayer {
           iconImage: isDark ? "rentdark" : "rentlight",
           iconSize: iconSize,
           iconAllowOverlap: true,
+          iconOpacity: 0,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
           textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
         ));
         await mapController.style.setStyleLayerProperty(
             "rental-stations-icons",
@@ -1246,7 +1254,7 @@ class BikeShopLayer {
   BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
@@ -1266,12 +1274,15 @@ class BikeShopLayer {
           iconImage: isDark ? "repairdark" : "repairlight",
           iconSize: iconSize,
           iconAllowOverlap: true,
+          iconOpacity: 0,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
           textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
         ));
         await mapController.style.setStyleLayerProperty(
             "bike-shop-icons",
@@ -1308,7 +1319,7 @@ class BikeShopLayer {
               "Fahrradladen"
             ]));
         await mapController.style
-            .setStyleLayerProperty("rental-stations-icons", 'text-opacity', json.encode(showAfter(zoom: 17)));
+            .setStyleLayerProperty("bike-shop-icons", 'text-opacity', json.encode(showAfter(zoom: 17)));
       }
     });
   }
@@ -1337,7 +1348,7 @@ class BikeAirStationLayer {
   BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
 
@@ -1356,12 +1367,15 @@ class BikeAirStationLayer {
           iconImage: isDark ? "airdark" : "airlight",
           iconSize: iconSize,
           iconAllowOverlap: true,
+          iconOpacity: 0,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
           textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
         ));
         await mapController.style.setStyleLayerProperty(
             "bike-air-station-icons",
@@ -1423,7 +1437,7 @@ class ConstructionSitesLayer {
   ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     await mapController.style.styleSourceExists("construction-sites").then((exists) async {
@@ -1441,6 +1455,7 @@ class ConstructionSitesLayer {
           iconImage: isDark ? "constructiondark" : "constructionlight",
           iconSize: iconSize,
           iconAllowOverlap: true,
+          iconOpacity: 0,
           textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
           textHaloWidth: 1,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -1448,6 +1463,7 @@ class ConstructionSitesLayer {
           textAnchor: mapbox.TextAnchor.CENTER,
           textColor: const Color(0xFFE67E22).value,
           textAllowOverlap: true,
+          textOpacity: 0,
         ));
         await mapController.style.setStyleLayerProperty(
             "construction-sites-icons",
@@ -1496,7 +1512,7 @@ class AccidentHotspotsLayer {
   AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the overlay on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 1.0}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     await mapController.style.styleSourceExists("accident-hotspots").then((exists) async {
@@ -1509,18 +1525,21 @@ class AccidentHotspotsLayer {
     await mapController.style.styleLayerExists("accident-hotspots-icons").then((exists) async {
       if (!exists) {
         await mapController.style.addLayer(mapbox.SymbolLayer(
-            sourceId: "accident-hotspots",
-            id: "accident-hotspots-icons",
-            iconImage: isDark ? "accidentdark" : "accidentlight",
-            iconSize: iconSize,
-            iconAllowOverlap: true,
-            textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-            textHaloWidth: 1,
-            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            textSize: 12,
-            textAnchor: mapbox.TextAnchor.CENTER,
-            textColor: const Color(0xFFFF4757).value,
-            textAllowOverlap: true));
+          sourceId: "accident-hotspots",
+          id: "accident-hotspots-icons",
+          iconImage: isDark ? "accidentdark" : "accidentlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFFFF4757).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ));
         await mapController.style.setStyleLayerProperty(
             "accident-hotspots-icons",
             'icon-opacity',
