@@ -522,6 +522,7 @@ class DiscomfortsLayer {
               id: "discomforts-markers",
               iconImage: "alert",
               iconSize: iconSize,
+              iconAllowOverlap: true,
               textSize: 12,
               textAllowOverlap: true,
               textIgnorePlacement: true,
@@ -587,13 +588,12 @@ class WaypointsLayer {
       if (!exists) {
         await mapController.style.addLayerAt(
             mapbox.SymbolLayer(
-              sourceId: "waypoints",
-              id: "waypoints-icons",
-              iconSize: iconSize,
-              textAllowOverlap: true,
-              textIgnorePlacement: true,
-              iconAllowOverlap: true
-            ),
+                sourceId: "waypoints",
+                id: "waypoints-icons",
+                iconSize: iconSize,
+                textAllowOverlap: true,
+                textIgnorePlacement: true,
+                iconAllowOverlap: true),
             mapbox.LayerPosition(below: below));
         await mapController.style.setStyleLayerProperty(
             "waypoints-icons",
@@ -679,6 +679,7 @@ class TrafficLightsLayer {
               sourceId: "traffic-lights",
               id: "traffic-lights-icons",
               iconSize: iconSize,
+              iconAllowOverlap: true,
               textAllowOverlap: true,
               textIgnorePlacement: true,
               iconOpacity: 0,
@@ -832,6 +833,7 @@ class TrafficLightLayer {
               sourceId: "traffic-light",
               id: "traffic-light-icon",
               iconSize: iconSize,
+              iconAllowOverlap: true,
               textAllowOverlap: true,
               textIgnorePlacement: true,
             ),
@@ -912,6 +914,7 @@ class OfflineCrossingsLayer {
               sourceId: "offline-crossings",
               id: "offline-crossings-icons",
               iconSize: iconSize,
+              iconAllowOverlap: true,
               textAllowOverlap: true,
               textIgnorePlacement: true,
             ),
@@ -1045,6 +1048,7 @@ class DangersLayer {
               sourceId: "dangers",
               id: "dangers-icons",
               iconSize: iconSize,
+              iconAllowOverlap: true,
               textAllowOverlap: true,
               textIgnorePlacement: true,
             ),

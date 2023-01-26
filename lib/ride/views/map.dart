@@ -1,10 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
-import 'package:priobike/common/map/view.dart';
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
+import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -79,33 +80,33 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
-    /*if (!mounted) return;
-    await SelectedRouteLayer(context).update(layerController!);
     if (!mounted) return;
-    await WaypointsLayer(context).update(layerController!);
+    await SelectedRouteLayer(context).update(mapController!);
+    if (!mounted) return;
+    await WaypointsLayer(context).update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);*/
+    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
-    /*if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await DangersLayer(context, hideBehindPosition: true).update(layerController!);*/
+    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    if (!mounted) return;
+    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
     if (!mounted) return;
-    // await TrafficLightLayer(context).update(layerController!);
+    await TrafficLightLayer(context).update(mapController!);
 
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.
@@ -118,7 +119,7 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onDangersUpdate() async {
     if (!mounted) return;
-    // await DangersLayer(context, hideBehindPosition: true).update(layerController!);
+    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -169,12 +170,12 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     if (ride.userSelectedSG == null) {
-      // The camera target is the estimated user position (Convert from LatLng to Mapbox/LatLng).
-      final cameraTarget = LatLng(userPosSnap.position.latitude, userPosSnap.position.longitude);
       // TODO Set duration in dependence of the speed (difference between current and last coordinate)
       mapController!.easeTo(
           mapbox.CameraOptions(
-            center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+            center:
+                turf.Point(coordinates: turf.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
+                    .toJson(),
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
@@ -189,13 +190,12 @@ class RideMapViewState extends State<RideMapView> {
             .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
         mapController!.style.updateLayer(
           mapbox.LocationIndicatorLayer(
-            id: "user-location-puck",
+            id: "user-ride-location-puck",
             bearing: userPos.heading,
             location: [userPosSnap.position.latitude, userPosSnap.position.longitude, userPos.altitude],
             accuracyRadius: userPos.accuracy,
           ),
         );
-        //await Future.delayed(const Duration(seconds: 1));
       }
     });
   }
@@ -204,11 +204,11 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
 
-    await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
+    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
       if (!value) {
         await mapController!.style.addLayer(
           mapbox.LocationIndicatorLayer(
-            id: "user-location-puck",
+            id: "user-ride-location-puck",
             bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
             bearingImageSize: 0.2,
           ),
@@ -217,45 +217,26 @@ class RideMapViewState extends State<RideMapView> {
             .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
       }
     });
-
-    // Wrap the map controller in a layer controller for safer layer access.
-    // layerController = LayerController(mapController: controller);
-
-    // Dont call any line/symbol/... removal/add operations here.
-    // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
-    // Remove all layers from the map that may still exist.
-    // TODO maybe not needed?
-    /*await mapController?.clearFills();
-    await mapController?.clearCircles();
-    await mapController?.clearLines();
-    await mapController?.clearSymbols();*/
-
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    // Allow overlaps so that important symbols and texts are not hidden.
-    // TODO set on layers itself
-    /*await mapController!.setSymbolIconAllowOverlap(true);
-    await mapController!.setSymbolIconIgnorePlacement(true);
-    await mapController!.setSymbolTextAllowOverlap(true);
-    await mapController!.setSymbolTextIgnorePlacement(true);*/
-
     final ppi = MediaQuery.of(context).devicePixelRatio;
-    await SelectedRouteLayer(context).install(mapController!, bgLineWidth: 20, fgLineWidth: 14);
-    await WaypointsLayer(context).install(mapController!, iconSize: ppi / 4);
+    await SelectedRouteLayer(context)
+        .install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
+    await WaypointsLayer(context).install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
     await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi);
+        .install(mapController!, iconSize: ppi / 4);
     await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi);
-    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 2);
+        .install(mapController!, iconSize: ppi / 4);
+    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 4);
     // The traffic light layer image has a 2x resolution to make it look good on high DPI screens.
-    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 2);
+    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 8);
 
     onRoutingUpdate();
     onPositioningUpdate();
