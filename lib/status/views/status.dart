@@ -114,6 +114,7 @@ class StatusViewState extends State<StatusView> {
       if (status.mostRecentPredictionTime! < status.statusUpdateTime) return 0.0;
     }
     if (status.numPredictions == 0) return 0.0;
+    if (status.numThings == 0) return 0.0;
     return (status.numPredictions - status.numBadPredictions) / status.numThings;
   }
 
