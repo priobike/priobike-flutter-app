@@ -272,7 +272,7 @@ class FeedbackViewState extends State<FeedbackView> {
               snap: false,
               floating: false,
               shadowColor: const Color.fromARGB(26, 0, 37, 100),
-              expandedHeight: MediaQuery.of(context).size.height - 226 - MediaQuery.of(context).padding.bottom,
+              expandedHeight: MediaQuery.of(context).size.height - 232 - MediaQuery.of(context).padding.bottom,
               collapsedHeight: 64,
               flexibleSpace: FlexibleSpaceBar(
                 stretchModes: const [StretchMode.blurBackground],
@@ -395,6 +395,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   const VSpace(),
+                  const SizedBox(height: 128),
                 ],
               ),
             ),
