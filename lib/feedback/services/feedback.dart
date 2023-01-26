@@ -5,13 +5,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:priobike/feedback/messages/answer.dart';
 import 'package:priobike/feedback/models/question.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/user.dart';
 import 'package:provider/provider.dart';
 
 class Feedback with ChangeNotifier {
@@ -46,22 +45,8 @@ class Feedback with ChangeNotifier {
     isSendingFeedback = true;
     notifyListeners();
 
-    // Get some session- and device-specific data.
-    final deviceInfo = DeviceInfoPlugin();
-    var deviceType = "Unknown";
-    var deviceId = "Unknown";
-    if (Platform.isIOS) {
-      final info = await deviceInfo.iosInfo;
-      deviceType = info.utsname.machine ?? "n/a";
-      deviceId = info.identifierForVendor ?? "n/a";
-    } else if (Platform.isAndroid) {
-      final info = (await deviceInfo.androidInfo);
-      deviceType = info.model ?? "n/a";
-      deviceId = info.androidId ?? "n/a";
-    }
-
-    final appVersion = Provider.of<Feature>(context, listen: false).appVersion;
     final sessionId = Provider.of<Ride>(context, listen: false).sessionId;
+    final userId = await User.getOrCreateId();
 
     // Send all of the answered questions to the backend.
     final settings = Provider.of<Settings>(context, listen: false);
@@ -69,9 +54,7 @@ class Feedback with ChangeNotifier {
     final endpoint = Uri.parse('https://$baseUrl/feedback-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAnswerRequest(
-        deviceId: deviceId,
-        deviceType: deviceType,
-        appVersion: appVersion,
+        userId: userId,
         questionText: entry.value.text,
         questionImage: entry.value.imageData != null ? base64Encode(entry.value.imageData!) : null,
         sessionId: sessionId,

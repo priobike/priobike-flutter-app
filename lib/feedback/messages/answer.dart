@@ -1,12 +1,6 @@
 class PostAnswerRequest {
   /// The id of the device. Max length: 100.
-  final String deviceId;
-
-  /// The device type, such as: iPod7,1 or Moto G (4). Max length: 100.
-  final String deviceType;
-
-  /// The version identifier of the app. Max length: 20.
-  final String appVersion;
+  final String userId;
 
   /// The text of the question. Max length: 300.
   final String questionText;
@@ -21,9 +15,7 @@ class PostAnswerRequest {
   final String? value;
 
   const PostAnswerRequest({
-    required this.deviceId,
-    required this.deviceType,
-    required this.appVersion,
+    required this.userId,
     required this.questionText,
     this.questionImage,
     this.sessionId,
@@ -31,9 +23,7 @@ class PostAnswerRequest {
   });
 
   factory PostAnswerRequest.fromJson(Map<String, dynamic> json) => PostAnswerRequest(
-        deviceId: json['deviceId'],
-        deviceType: json['deviceType'],
-        appVersion: json['appVersion'],
+        userId: json['userId'],
         questionText: json['questionText'],
         questionImage: json['questionImage'],
         sessionId: json['sessionId'],
@@ -41,9 +31,7 @@ class PostAnswerRequest {
       );
 
   Map<String, dynamic> toJson() => {
-        'deviceId': deviceId,
-        'deviceType': deviceType,
-        'appVersion': appVersion,
+        'userId': userId,
         'questionText': questionText,
         if (questionImage != null) 'questionImage': questionImage,
         if (sessionId != null) 'sessionId': sessionId,
