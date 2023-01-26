@@ -107,15 +107,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     layers = Provider.of<Layers>(context);
     if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
+      loadMapDesign();
       layers.needsLayout[viewId] = false;
     }
 
     // Check if the position has changed.
     positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false) {
-      // TODO this causes currently on the initial map load that the map tries to create two LocationIndicatorLayers
-      // because the first one is not yet finished loading and thus the function to check whether it exists returns false
-      // but when trying to create it there already exists something with the ID.
       displayCurrentUserLocation();
       positioning.needsLayout[viewId] = false;
     }
@@ -123,7 +121,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check if route-related stuff has changed.
     routing = Provider.of<Routing>(context);
     if (routing.needsLayout[viewId] != false) {
-      print("sawefoaiuwefoiawef");
       loadRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
@@ -212,6 +209,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         );
       }
     });
+  }
+
+  /// Load the map desgin.
+  loadMapDesign() async {
+    if (mapController == null) return;
+
+    await mapController!.style.setStyleURI(
+      Theme.of(context).colorScheme.brightness == Brightness.light
+          ? layers.mapDesign.lightStyle
+          : layers.mapDesign.darkStyle,
+    );
   }
 
   /// Load the map layers.

@@ -120,7 +120,6 @@ class AppMapState extends State<AppMap> {
 
   /// A wrapper for the default onMapCreated callback.
   /// In this callback we configure the default settings.
-  /// For example, we set the MapBox telemetry to disabled.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     // TODO find implementation/API to apply this in the new Mapbox plugin: "controller.setTelemetryEnabled(false);"
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
