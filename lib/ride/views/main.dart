@@ -11,7 +11,7 @@ import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/sg_button.dart';
-import 'package:priobike/ride/views/speedometer.dart';
+import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/rerouting.dart';
@@ -106,18 +106,21 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
-    return Scaffold(
-      body: ScreenTrackingView(
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: const [
-            RideMapView(),
-            RideSpeedometerView(),
-            DatastreamView(),
-            RideSGButton(),
-            DangerButton(),
-          ],
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: ScreenTrackingView(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            children: const [
+              RideMapView(),
+              RideSpeedometerView(),
+              DatastreamView(),
+              RideSGButton(),
+              DangerButton(),
+            ],
+          ),
         ),
       ),
     );
