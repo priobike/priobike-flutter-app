@@ -148,7 +148,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
     if (mapController == null || !mounted) return;
-    if (routing.selectedRoute == null || await mapController?.isUserAnimationInProgress() != false) return;
+    if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 500));
     final currentCameraOptions = await mapController?.getCameraState();
