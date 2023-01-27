@@ -277,6 +277,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       mapController!,
       iconSize: ppi / 5,
+      below: "user-location-puck",
     );
     if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(context).install(
@@ -362,7 +363,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
-    displayCurrentUserLocation();
+    await displayCurrentUserLocation();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();

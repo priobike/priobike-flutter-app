@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/accelerometer/services/accelerometer.dart';
+import 'package:priobike/common/layout/spacing.dart';
+import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
@@ -36,9 +39,20 @@ class RideViewState extends State<RideView> {
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
 
+  /// Indicating whether the widgets can be loaded or the loading screen should be shown.
+  bool ready = false;
+
   @override
   void initState() {
     super.initState();
+
+    // Wait a moment for a clean disposal of the map in the routing view.
+    // Without that at the moment it won't dispose correctly causing some weird bugs.
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      setState(() {
+        ready = true;
+      });
+    });
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -95,6 +109,33 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  /// Render a loading indicator.
+  Widget renderLoadingIndicator() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Tile(
+            fill: Theme.of(context).colorScheme.surface,
+            content: Center(
+              child: SizedBox(
+                height: 86,
+                width: 256,
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    const VSpace(),
+                    BoldContent(text: "Lade...", maxLines: 1, context: context),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
@@ -109,19 +150,21 @@ class RideViewState extends State<RideView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        body: ScreenTrackingView(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            clipBehavior: Clip.none,
-            children: const [
-              RideMapView(),
-              RideSpeedometerView(),
-              DatastreamView(),
-              RideSGButton(),
-              DangerButton(),
-            ],
-          ),
-        ),
+        body: !ready
+            ? renderLoadingIndicator()
+            : ScreenTrackingView(
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  clipBehavior: Clip.none,
+                  children: const [
+                    RideMapView(),
+                    RideSpeedometerView(),
+                    DatastreamView(),
+                    RideSGButton(),
+                    DangerButton(),
+                  ],
+                ),
+              ),
       ),
     );
   }

@@ -111,8 +111,11 @@ class RideMapViewState extends State<RideMapView> {
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
-      await mapController?.setCamera(mapbox.CameraOptions(
-          center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()));
+      await mapController?.flyTo(
+        mapbox.CameraOptions(
+            center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+        mapbox.MapAnimationOptions(duration: 200),
+      );
     }
   }
 
@@ -183,7 +186,7 @@ class RideMapViewState extends State<RideMapView> {
           mapbox.MapAnimationOptions(duration: 1500));
     }
 
-    await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
+    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
       if (value) {
         // TODO Set duration in dependence of the speed (difference between current and last coordinate)
         await mapController!.style
@@ -211,6 +214,8 @@ class RideMapViewState extends State<RideMapView> {
             id: "user-ride-location-puck",
             bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
             bearingImageSize: 0.2,
+            accuracyRadiusColor: const Color(0x00000000).value,
+            accuracyRadiusBorderColor: const Color(0x00000000).value,
           ),
         );
         await mapController!.style
