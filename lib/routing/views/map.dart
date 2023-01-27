@@ -66,9 +66,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The animation for the on-tap animation.
   late Animation<double> animation;
 
-  /// The offset for the draggable bottom sheet.
-  double? bottomSheetOffset;
-
   /// The margins of the attribution.
   Point? attributionMargins;
 
@@ -277,7 +274,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       mapController!,
       iconSize: ppi / 5,
-      below: "user-location-puck",
     );
     if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(context).install(
@@ -343,12 +339,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     setState(
       () {
-        bottomSheetOffset = newBottomInset;
-        // On Android, the bottom inset needs to be added to the attribution margins.
+        final ppi = frame.devicePixelRatio * 1;
         if (Platform.isAndroid) {
-          attributionMargins = Point(20, newBottomInset);
+          attributionMargins = Point(20, newBottomInset + (80 * ppi));
         } else {
-          attributionMargins = const Point(20, 0);
+          attributionMargins = Point(20, newBottomInset + (50 * ppi));
         }
       },
     );
@@ -363,7 +358,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
-    await displayCurrentUserLocation();
+    displayCurrentUserLocation();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -469,7 +464,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,
+            logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonMargins: attributionMargins,
+            attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
           ),
         ),
 

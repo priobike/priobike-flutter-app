@@ -46,8 +46,19 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the map is taped.
   final void Function(mapbox.ScreenCoordinate)? onMapTap;
 
+  /// The margins for the Mapbox logo.
+  /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? logoViewMargins;
+
+  /// The ornament position for the Mapbox logo.
+  final mapbox.OrnamentPosition? logoViewOrnamentPosition;
+
+  /// The margins for the attribution button
+  /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? attributionButtonMargins;
+
+  /// The ornament position for the atrribution button.
+  final mapbox.OrnamentPosition? attributionButtonOrnamentPosition;
 
   const AppMap(
       {this.onMapCreated,
@@ -56,7 +67,9 @@ class AppMap extends StatefulWidget {
       this.onMapLongClick,
       this.onMapTap,
       this.logoViewMargins,
+      this.logoViewOrnamentPosition,
       this.attributionButtonMargins,
+      this.attributionButtonOrnamentPosition,
       Key? key})
       : super(key: key);
 
@@ -126,11 +139,11 @@ class AppMapState extends State<AppMap> {
     controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
     controller.attribution.updateSettings(mapbox.AttributionSettings(
         clickable: true,
-        position: mapbox.OrnamentPosition.BOTTOM_RIGHT,
+        position: widget.attributionButtonOrnamentPosition,
         marginBottom: widget.attributionButtonMargins?.y.toDouble(),
         marginRight: widget.attributionButtonMargins?.x.toDouble()));
     controller.logo.updateSettings(mapbox.LogoSettings(
-        position: mapbox.OrnamentPosition.BOTTOM_LEFT,
+        position: widget.logoViewOrnamentPosition,
         marginBottom: widget.logoViewMargins?.y.toDouble(),
         marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);

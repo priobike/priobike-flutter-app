@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -282,7 +283,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.red),
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
     ];
-
+    final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
@@ -290,9 +291,10 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
         body: Stack(
           children: [
             AppMap(
-              // Logo is on the button left, attribution is on the button right.
-              logoViewMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
-              attributionButtonMargins: Point(50, 350 + MediaQuery.of(context).padding.bottom),
+              logoViewMargins: Point(50, 120 * ppi + MediaQuery.of(context).padding.bottom),
+              logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
+              attributionButtonMargins: Point(50, 120 * ppi + MediaQuery.of(context).padding.bottom),
+              attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
               onMapCreated: onMapCreated,
               onStyleLoaded: onStyleLoaded,
             ),
