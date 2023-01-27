@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -189,8 +190,12 @@ class RideMapViewState extends State<RideMapView> {
     await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
       if (value) {
         // TODO Set duration in dependence of the speed (difference between current and last coordinate)
-        await mapController!.style
-            .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
+        // On iOS, in the current implementation, the puck won't show if we use the style transition to slower the
+        // animation of the puck. Therefore, for now, we need to exclude that from the iOS version.
+        if (Platform.isAndroid) {
+          await mapController!.style
+              .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
+        }
         mapController!.style.updateLayer(
           mapbox.LocationIndicatorLayer(
             id: "user-ride-location-puck",
@@ -218,8 +223,12 @@ class RideMapViewState extends State<RideMapView> {
             accuracyRadiusBorderColor: const Color(0x00000000).value,
           ),
         );
-        await mapController!.style
-            .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
+        // On iOS, in the current implementation, the puck won't show if we use the style transition to slower the
+        // animation of the puck. Therefore, for now, we need to exclude that from the iOS version.
+        if (Platform.isAndroid) {
+          await mapController!.style
+              .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
+        }
       }
     });
   }
