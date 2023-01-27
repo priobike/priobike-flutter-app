@@ -942,6 +942,7 @@ class OfflineCrossingsLayer {
               sourceId: "offline-crossings",
               id: "offline-crossings-icons",
               iconSize: iconSize,
+              iconOpacity: 0.0,
               iconAllowOverlap: true,
               textAllowOverlap: true,
               textIgnorePlacement: true,
