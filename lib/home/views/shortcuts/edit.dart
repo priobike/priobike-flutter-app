@@ -112,8 +112,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             onPressed: () {
                               routing.selectWaypoints(entry.value.waypoints);
 
-                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
-                                  .then((_) {
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
+                                  .then(
+                                (_) {
                                   routing.reset();
                                   discomforts.reset();
                                   predictionSGStatus.reset();
