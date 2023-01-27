@@ -24,12 +24,11 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   @override
   Widget build(BuildContext context) {
     final alternativeView = Container(
-      width: 128,
-      height: 128,
+      width: 148,
+      height: 148,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(64),
-        border: Border.all(color: Colors.black, width: 2),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: const CancelButton(
         borderRadius: 128,
@@ -52,42 +51,42 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     if (ride.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
     final trafficLight = Container(
-      width: 128,
-      height: 128,
+      width: 148,
+      height: 148,
       decoration: BoxDecoration(
-        color: ride.calcCurrentSignalPhase!.color,
+        gradient: RadialGradient(
+          stops: const [0.2, 0.8, 1],
+          colors: [
+            ride.calcCurrentSignalPhase!.color,
+            ride.calcCurrentSignalPhase!.color.withOpacity(0.2),
+            ride.calcCurrentSignalPhase!.color.withOpacity(0),
+          ],
+        ),
         borderRadius: BorderRadius.circular(64),
-        border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
       ),
       child: Center(
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: [
             Transform.translate(
-                child: Text(
-                  countdownLabel,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 64,
-                    fontWeight: FontWeight.bold,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 4
-                      ..color = const Color.fromARGB(255, 0, 0, 0),
-                  ),
+              child: Text(
+                countdownLabel,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 64,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 32,
+                      offset: Offset(0, 0),
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ],
+                  fontWeight: FontWeight.w500,
+                  color: Color.fromARGB(255, 255, 255, 255),
                 ),
-                offset: const Offset(0, -24)),
-            Transform.translate(
-                child: Text(
-                  countdownLabel,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 64,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-                offset: const Offset(0, -24)),
+              ),
+              offset: const Offset(0, -24),
+            ),
             Transform.translate(child: const CancelButton(), offset: const Offset(0, 24)),
           ],
         ),
