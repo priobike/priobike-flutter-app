@@ -1,6 +1,6 @@
 # PrioBike-HH Flutter App
 
-**Required Flutter Version: `3.3.10`**
+**Required Flutter Version: `3.7`**
 
 For getting started with development you need to set up your development environment according to the [guide](https://docs.flutter.dev/get-started/install).
 
