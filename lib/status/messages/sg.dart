@@ -27,7 +27,8 @@ class SGStatusData {
     if (predictionQuality == null || predictionTime == null) {
       return SGPredictionState.offline;
     }
-    if (Duration(seconds: statusUpdateTime - predictionTime!).inMinutes > 5) {
+    // The prediction vector is always 180 seconds long (as of now).
+    if (Duration(seconds: statusUpdateTime - predictionTime!).inMinutes > 3) {
       return SGPredictionState.offline;
     }
     if (predictionQuality! < 0.9) {

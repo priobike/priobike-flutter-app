@@ -166,7 +166,26 @@ class TrackPainter extends CustomPainter {
       paint.maskFilter = MaskFilter.blur(BlurStyle.normal, blurRadius);
     }
 
-    final trackCount = track.length;
+    // If the track is too long, it will slow down the app.
+    // Therefore, we need to reduce the number of points.
+    // If the number of points is > 1000, we reduce it to 1000.
+    // We do this by applying the following pattern:
+    // - If n_points ~ or < 1000, we keep all points
+    // - If n_points < 2000, we keep every second point
+    // - If n_points < 3000, we keep every third point
+    // ...
+    // Note: 1000 points is roughly 1000 seconds, which is 16 minutes of GPS.
+    final trackToDraw = [];
+    if (track.length > 1000) {
+      final step = track.length ~/ 1000;
+      for (var i = 0; i < track.length; i += step) {
+        trackToDraw.add(track[i]);
+      }
+    } else {
+      trackToDraw.addAll(track);
+    }
+
+    final trackCount = trackToDraw.length;
     final trackCountFraction = (trackCount * fraction).round();
 
     double? maxLat;
@@ -176,7 +195,7 @@ class TrackPainter extends CustomPainter {
 
     // Find the bounding box of the waypoints
     for (var i = 0; i < trackCount; i++) {
-      final p = track[i];
+      final p = trackToDraw[i];
       if (maxLat == null || p.latitude > maxLat) {
         maxLat = p.latitude;
       }
@@ -212,8 +231,8 @@ class TrackPainter extends CustomPainter {
 
     // Draw the lines between the coordinates
     for (var i = 0; i < trackCountFraction - 1; i++) {
-      final p1 = track[i];
-      final p2 = track[i + 1];
+      final p1 = trackToDraw[i];
+      final p2 = trackToDraw[i + 1];
 
       final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
       final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
@@ -230,7 +249,7 @@ class TrackPainter extends CustomPainter {
 
     // Draw the circles at the start and end point.
     for (var i = 0; i < trackCount; i++) {
-      final p = track[i];
+      final p = trackToDraw[i];
 
       final x = (p.longitude - minLon) / (maxLon - minLon) * size.width;
       final y = (p.latitude - maxLat) / (minLat - maxLat) * size.height;
