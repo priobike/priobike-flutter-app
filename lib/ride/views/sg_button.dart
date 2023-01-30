@@ -32,11 +32,11 @@ class RideSGButtonState extends State<RideSGButton> {
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(32),
               ),
-              fill: Theme.of(context).colorScheme.background,
+              fill: Theme.of(context).colorScheme.background.withOpacity(0.75),
               onPressed: ride.userCanSelectNextSG ? () => ride.selectNextSG() : null,
               content: SizedBox(
-                width: 32,
-                height: 32,
+                width: 24,
+                height: 24,
                 child: Opacity(
                   opacity: ride.userCanSelectNextSG ? 1 : 0.25,
                   child: Center(
@@ -50,17 +50,17 @@ class RideSGButtonState extends State<RideSGButton> {
             ),
             Tile(
               borderRadius: const BorderRadius.only(),
-              fill: Theme.of(context).colorScheme.background,
+              fill: Theme.of(context).colorScheme.background.withOpacity(0.75),
               onPressed: ride.unselectSG,
               content: SizedBox(
-                width: 32,
-                height: 32,
+                width: 24,
+                height: 24,
                 child: Center(
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       Opacity(
-                        opacity: ride.userSelectedSG == null ? 1 : 0.5,
+                        opacity: ride.userSelectedSG == null ? 1 : 0.2,
                         child: Image(
                           image: AssetImage(
                             Theme.of(context).brightness == Brightness.light
@@ -73,7 +73,7 @@ class RideSGButtonState extends State<RideSGButton> {
                           ? Container()
                           : Icon(
                               Icons.close_rounded,
-                              size: 32,
+                              size: 24,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                     ],
@@ -85,11 +85,11 @@ class RideSGButtonState extends State<RideSGButton> {
               borderRadius: const BorderRadius.only(
                 bottomRight: Radius.circular(32),
               ),
-              fill: Theme.of(context).colorScheme.background,
+              fill: Theme.of(context).colorScheme.background.withOpacity(0.75),
               onPressed: ride.userCanSelectPreviousSG ? () => ride.selectPreviousSG() : null,
               content: SizedBox(
-                width: 32,
-                height: 32,
+                width: 24,
+                height: 24,
                 child: Opacity(
                   opacity: ride.userCanSelectPreviousSG ? 1 : 0.25,
                   child: Center(
