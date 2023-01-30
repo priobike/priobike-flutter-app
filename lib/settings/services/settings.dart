@@ -3,7 +3,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
@@ -32,9 +31,6 @@ class Settings with ChangeNotifier {
 
   /// The selected positioning mode.
   PositioningMode positioningMode;
-
-  /// The rerouting strategy.
-  Rerouting rerouting;
 
   /// The routing endpoint.
   RoutingEndpoint routingEndpoint;
@@ -145,23 +141,6 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const reroutingKey = "priobike.settings.rerouting";
-  static const defaultRerouting = Rerouting.enabled;
-
-  Future<bool> setRerouting(Rerouting rerouting, [SharedPreferences? storage]) async {
-    storage ??= await SharedPreferences.getInstance();
-    final prev = this.rerouting;
-    this.rerouting = rerouting;
-    bool success = await storage.setString(reroutingKey, rerouting.name);
-    if (!success) {
-      log.e("Failed to set rerouting to $rerouting");
-      this.rerouting = prev;
-    } else {
-      notifyListeners();
-    }
-    return success;
-  }
-
   static const routingViewKey = "priobike.settings.routingView";
   static const defaultRoutingView = RoutingViewOption.stable;
   Future<bool> selectRoutingView(RoutingViewOption routingView, [SharedPreferences? storage]) async {
@@ -170,7 +149,7 @@ class Settings with ChangeNotifier {
     this.routingView = routingView;
     bool success = await storage.setString(routingViewKey, routingView.name);
     if (!success) {
-      log.e("Failed to set routing view to $rerouting");
+      log.e("Failed to set routing view to $routingView");
       this.routingView = prev;
     } else {
       notifyListeners();
@@ -317,7 +296,6 @@ class Settings with ChangeNotifier {
     this.backend = defaultBackend,
     this.predictionMode = defaultPredictionMode,
     this.positioningMode = defaultPositioningMode,
-    this.rerouting = defaultRerouting,
     this.routingEndpoint = defaultRoutingEndpoint,
     this.sgLabelsMode = defaultSGLabelsMode,
     this.speedMode = defaultSpeedMode,
@@ -344,11 +322,6 @@ class Settings with ChangeNotifier {
 
   /// Load the beta settings from the shared preferences.
   Future<void> loadBetaSettings(SharedPreferences storage) async {
-    try {
-      rerouting = Rerouting.values.byName(storage.getString(reroutingKey)!);
-    } catch (e) {
-      /* Do nothing and use the default value given by the constructor. */
-    }
     try {
       routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
     } catch (e) {/* Do nothing and use the default value given by the constructor. */}
@@ -430,7 +403,6 @@ class Settings with ChangeNotifier {
         "backend": backend.name,
         "predictionMode": predictionMode.name,
         "positioningMode": positioningMode.name,
-        "rerouting": rerouting.name,
         "routingEndpoint": routingEndpoint.name,
         "sgLabelsMode": sgLabelsMode.name,
         "colorMode": colorMode.name,

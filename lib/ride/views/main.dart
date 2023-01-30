@@ -14,7 +14,6 @@ import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
-import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +33,7 @@ class RideViewState extends State<RideView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// The lock for the rerouting.
+  /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
 
   @override
@@ -76,8 +75,8 @@ class RideViewState extends State<RideView> {
             await ride.updatePosition(context);
             // Notify the accelerometer service.
             await accelerometer.updatePosition(context);
-            // If we are > <x>m from the route and rerouting is enabled, we need to reroute.
-            if (settings.rerouting == Rerouting.enabled && (positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
+            // If we are > <x>m from the route, we need to reroute.
+            if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints(context);

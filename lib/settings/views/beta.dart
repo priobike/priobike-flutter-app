@@ -9,7 +9,6 @@ import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/logging/views.dart';
-import 'package:priobike/settings/models/rerouting.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
@@ -38,17 +37,9 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     Navigator.pop(context);
   }
 
-  /// A callback that is executed when a rerouting is selected.
-  Future<void> onSelectRerouting(Rerouting rerouting) async {
-    // Tell the settings service that we selected the new rerouting.
-    await settings.setRerouting(rerouting);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a rerouting is selected.
+  /// A callback that is executed when a routing is selected.
   Future<void> onSelectRoutingView(RoutingViewOption routingView) async {
-    // Tell the settings service that we selected the new rerouting.
+    // Tell the settings service that we selected the new routing.
     await settings.selectRoutingView(routingView);
 
     Navigator.pop(context);
@@ -107,24 +98,6 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                     text:
                         "Innerhalb von Hamburg kannst du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
                     context: context,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Routenneuberechnung",
-                    subtitle: settings.rerouting.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: Rerouting.values,
-                            selected: settings.rerouting,
-                            title: (Rerouting e) => e.description,
-                            callback: onSelectRerouting);
-                      },
-                    ),
                   ),
                 ),
                 Padding(
