@@ -83,16 +83,15 @@ class ShortcutPainter extends CustomPainter {
     }
 
     // If dLat > dLon, pad the longitude, otherwise pad the latitude to ensure that the aspect ratio is 1.
+    // Don't center the padding, but align the padding to the top left.
     final dLat = maxLat - minLat;
     final dLon = maxLon - minLon;
     if (dLat > dLon) {
-      final d = (dLat - dLon) / 2;
-      minLon -= d;
+      final d = (dLat - dLon);
       maxLon += d;
     } else {
-      final d = (dLon - dLat) / 2;
+      final d = (dLon - dLat);
       minLat -= d;
-      maxLat += d;
     }
 
     // Draw the lines between the waypoints
@@ -118,7 +117,7 @@ class ShortcutPainter extends CustomPainter {
       if (i == 0) {
         canvas.drawCircle(Offset(x, y), 4, paint);
       } else if (i == waypointCount - 1) {
-        canvas.drawCircle(Offset(x, y), 10, paint);
+        canvas.drawCircle(Offset(x, y), 8, paint);
       } else {
         canvas.drawCircle(Offset(x, y), 4, paint);
       }
