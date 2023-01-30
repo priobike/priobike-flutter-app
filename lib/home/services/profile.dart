@@ -60,8 +60,19 @@ class Profile with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final bikeTypeStr = storage.getString("priobike.home.profile.bike");
+    if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
+
     final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
+    if (preferenceTypeStr != null) preferenceType = PreferenceType.values.byName(preferenceTypeStr);
+
     final activityTypeStr = storage.getString("priobike.home.profile.activity");
+    if (activityTypeStr != null) activityType = ActivityType.values.byName(activityTypeStr);
+
+    final searchHistoryStr = storage.getString("priobike.home.profile.searchHistory");
+    if (searchHistoryStr != null) {
+      searchHistory = (jsonDecode(searchHistoryStr) as List).map((e) => Waypoint.fromJson(e)).toList();
+    }
+
     showTrafficLights = storage.getBool("priobike.home.profile.showTrafficLights") ?? false;
     avoidTrafficLights = storage.getBool("priobike.home.profile.avoidTrafficLights") ?? false;
     avoidAscents = storage.getBool("priobike.home.profile.avoidAscents") ?? false;
@@ -69,14 +80,6 @@ class Profile with ChangeNotifier {
     showGeneralPOIs = storage.getBool("priobike.home.profile.showGeneralPOIs") ?? false;
     setLocationAsStart = storage.getBool("priobike.home.profile.setLocationAsStart") ?? true;
     saveSearchHistory = storage.getBool("priobike.home.profile.saveSearchHistory") ?? true;
-    final searchHistoryStr = storage.getString("priobike.home.profile.searchHistory");
-
-    if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
-    if (preferenceTypeStr != null) preferenceType = PreferenceType.values.byName(preferenceTypeStr);
-    if (activityTypeStr != null) activityType = ActivityType.values.byName(activityTypeStr);
-    if (searchHistoryStr != null) {
-      searchHistory = (jsonDecode(searchHistoryStr) as List).map((e) => Waypoint.fromJson(e)).toList();
-    }
 
     hasLoaded = true;
     notifyListeners();
@@ -86,22 +89,51 @@ class Profile with ChangeNotifier {
   Future<void> store() async {
     final storage = await SharedPreferences.getInstance();
 
-    if (bikeType != null) await storage.setString("priobike.home.profile.bike", bikeType!.name);
-    if (preferenceType != null) await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
-    if (activityType != null) await storage.setString("priobike.home.profile.activity", activityType!.name);
-    if (showTrafficLights != null) await storage.setBool("priobike.home.profile.showTrafficLights", showTrafficLights!);
+    if (bikeType != null) {
+      await storage.setString("priobike.home.profile.bike", bikeType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.bike");
+    }
+    if (preferenceType != null) {
+      await storage.setString("priobike.home.profile.preferences", preferenceType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.preferences");
+    }
+    if (activityType != null) {
+      await storage.setString("priobike.home.profile.activity", activityType!.name);
+    } else {
+      await storage.remove("priobike.home.profile.activity");
+    }
+    if (showTrafficLights != null) {
+      await storage.setBool("priobike.home.profile.showTrafficLights", showTrafficLights!);
+    } else {
+      await storage.remove("priobike.home.profile.showTrafficLights");
+    }
     if (avoidTrafficLights != null) {
       await storage.setBool("priobike.home.profile.avoidTrafficLights", avoidTrafficLights!);
+    } else {
+      await storage.remove("priobike.home.profile.avoidTrafficLights");
     }
-    if (avoidAscents != null) await storage.setBool("priobike.home.profile.avoidAscents", avoidAscents!);
-    if (avoidTraffic != null) await storage.setBool("priobike.home.profile.avoidTraffic", avoidTraffic!);
-    await storage.setBool("priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
-    await storage.setBool("priobike.home.profile.setLocationAsStart", setLocationAsStart);
-    await storage.setBool("priobike.home.profile.avoidTraffic", saveSearchHistory);
+    if (avoidAscents != null) {
+      await storage.setBool("priobike.home.profile.avoidAscents", avoidAscents!);
+    } else {
+      await storage.remove("priobike.home.profile.avoidAscents");
+    }
+    if (avoidTraffic != null) {
+      await storage.setBool("priobike.home.profile.avoidTraffic", avoidTraffic!);
+    } else {
+      await storage.remove("priobike.home.profile.avoidTraffic");
+    }
     if (searchHistory != null) {
       final jsonStr = jsonEncode(searchHistory!.map((e) => e.toJSON()).toList());
       storage.setString("priobike.home.profile.searchHistory", jsonStr);
+    } else {
+      await storage.remove("priobike.home.profile.searchHistory");
     }
+
+    await storage.setBool("priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
+    await storage.setBool("priobike.home.profile.setLocationAsStart", setLocationAsStart);
+    await storage.setBool("priobike.home.profile.avoidTraffic", saveSearchHistory);
 
     notifyListeners();
   }
