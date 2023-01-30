@@ -186,7 +186,7 @@ class TrackPainter extends CustomPainter {
     }
 
     final trackCount = trackToDraw.length;
-    final trackCountFraction = (trackCount * fraction).round();
+    final trackCountFraction = trackCount * fraction;
 
     double? maxLat;
     double? minLat;
@@ -243,28 +243,45 @@ class TrackPainter extends CustomPainter {
       if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
         color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
       }
-
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint..color = color);
     }
 
-    // Draw the circles at the start and end point.
-    for (var i = 0; i < trackCount; i++) {
-      final p = trackToDraw[i];
-
-      final x = (p.longitude - minLon) / (maxLon - minLon) * size.width;
-      final y = (p.latitude - maxLat) / (minLat - maxLat) * size.height;
+    // Interpolate the last segment
+    if (trackCountFraction + 1 < trackCount) {
+      final p1 = trackToDraw[trackCountFraction.toInt()];
+      final p2 = trackToDraw[trackCountFraction.toInt() + 1];
+      final pct = trackCountFraction - trackCountFraction.toInt();
+      final x1 = (p1.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y1 = (p1.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x2 = (p2.longitude - minLon) / (maxLon - minLon) * size.width;
+      final y2 = (p2.latitude - maxLat) / (minLat - maxLat) * size.height;
+      final x2i = x1 + (x2 - x1) * pct;
+      final y2i = y1 + (y2 - y1) * pct;
 
       var color = minSpeedColor;
       if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
-        color = Color.lerp(minSpeedColor, maxSpeedColor, (p.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+        color = Color.lerp(minSpeedColor, maxSpeedColor, (p1.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
       }
-
-      if (i == 0) {
-        canvas.drawCircle(Offset(x, y), 4, paint..color = color);
-      } else if (i == trackCount - 1) {
-        canvas.drawCircle(Offset(x, y), 8, paint..color = color);
-      }
+      canvas.drawLine(Offset(x1, y1), Offset(x2i, y2i), paint..color = color);
     }
+
+    // Draw the circles at the start and end point.
+    final pFirst = trackToDraw.first;
+    final xFirst = (pFirst.longitude - minLon) / (maxLon - minLon) * size.width;
+    final yFirst = (pFirst.latitude - maxLat) / (minLat - maxLat) * size.height;
+
+    var color = minSpeedColor;
+    if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
+      color = Color.lerp(minSpeedColor, maxSpeedColor, (pFirst.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+    }
+    canvas.drawCircle(Offset(xFirst, yFirst), 4, paint..color = color);
+    final pLast = trackToDraw.last;
+    final xLast = (pLast.longitude - minLon) / (maxLon - minLon) * size.width;
+    final yLast = (pLast.latitude - maxLat) / (minLat - maxLat) * size.height;
+    if (minSpeed != null && maxSpeed != null && minSpeed != maxSpeed) {
+      color = Color.lerp(minSpeedColor, maxSpeedColor, (pLast.speed - minSpeed!) / (maxSpeed! - minSpeed!))!;
+    }
+    canvas.drawCircle(Offset(xLast, yLast), 8, paint..color = color);
   }
 
   @override
