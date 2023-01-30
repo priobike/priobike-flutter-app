@@ -101,9 +101,13 @@ class Tracking with ChangeNotifier {
     // Get some session- and device-specific data.
     final deviceInfoPlugin = DeviceInfoPlugin();
     if (Platform.isIOS) {
-      deviceType = (await deviceInfoPlugin.iosInfo).name;
+      // UTSName/Machine is e.g. "iPhone12,1" for iPhone 11 Pro and version is e.g. "13.3".
+      final info = (await deviceInfoPlugin.iosInfo);
+      deviceType = "${info.utsname.machine} (iOS ${info.systemVersion})";
     } else if (Platform.isAndroid) {
-      deviceType = (await deviceInfoPlugin.androidInfo).model;
+      // Model is e.g. "Pixel 2" and version.release is e.g. "8.1.0".
+      final info = (await deviceInfoPlugin.androidInfo);
+      deviceType = "${info.model} (Android ${info.version.release})";
     } else {
       throw Exception("Unsupported platform");
     }
