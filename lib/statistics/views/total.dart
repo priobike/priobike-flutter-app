@@ -50,7 +50,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
       title: BoldContent(text: "Fahrtstatistiken", context: context),
       content: Content(
           text:
-              "Die gezeigten Fahrtstatistiken werden nur auf diesem Gerät gespeichert. Sie werden nicht an einen Server gesendet. Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
+              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
           context: context),
       actions: [
         TextButton(

@@ -97,6 +97,8 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when a shortcut was selected.
   void onSelectShortcut(Shortcut shortcut) {
+    HapticFeedback.mediumImpact();
+
     // Tell the tutorial service that the shortcut was selected.
     Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
 
@@ -113,6 +115,8 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
+    HapticFeedback.mediumImpact();
+
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
       (_) {
         routing.reset();
