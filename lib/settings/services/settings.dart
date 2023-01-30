@@ -295,7 +295,7 @@ class Settings with ChangeNotifier {
   }
 
   static const sgSelectorKey = "priobike.settings.sgSelector";
-  static const defaultSGSelector = SGSelector.algorithmic;
+  static const defaultSGSelector = SGSelector.ml;
 
   Future<bool> setSGSelector(SGSelector sgSelector, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();

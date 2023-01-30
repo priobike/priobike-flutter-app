@@ -9,7 +9,7 @@ extension SGSelectorDescription on SGSelector {
       case SGSelector.algorithmic:
         return "Algorithmisch";
       case SGSelector.ml:
-        return "KI (Experimentell)";
+        return "KI (Empfohlen)";
     }
   }
 }
