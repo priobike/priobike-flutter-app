@@ -573,10 +573,7 @@ class TrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  /// If the layer should be hidden behind the user position.
-  final bool hideBehindPosition;
-
-  TrafficLightsLayer(BuildContext context, {this.hideBehindPosition = false}) {
+  TrafficLightsLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final routing = Provider.of<Routing>(context, listen: false);
@@ -770,10 +767,7 @@ class OfflineCrossingsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  /// If the layer should be hidden behind the user position.
-  final bool hideBehindPosition;
-
-  OfflineCrossingsLayer(BuildContext context, {this.hideBehindPosition = false}) {
+  OfflineCrossingsLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
     final routing = Provider.of<Routing>(context, listen: false);
@@ -874,7 +868,7 @@ class DangersLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  DangersLayer(BuildContext context, {bool hideBehindPosition = false}) {
+  DangersLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dangers = Provider.of<Dangers>(context, listen: false);
     final routing = Provider.of<Routing>(context, listen: false);
