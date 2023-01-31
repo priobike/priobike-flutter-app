@@ -9,6 +9,7 @@ import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
+import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
@@ -276,6 +277,12 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                     ),
                   ),
                   CustomPaint(painter: SpeedometerCoverPainter()),
+                  CustomPaint(
+                    painter: SpeedometerLabelsPainter(
+                      minSpeed: minSpeed,
+                      maxSpeed: maxSpeed,
+                    ),
+                  ),
                   const Center(child: RideTrafficLightView())
                 ],
               ),
