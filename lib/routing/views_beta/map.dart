@@ -393,21 +393,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final ppi = MediaQuery.of(context).devicePixelRatio;
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       mapController!,
-      iconSize: ppi / 2.5,
+      iconSize: ppi / 5,
     );
     final trafficLights = await TrafficLightsLayer(context).install(
       mapController!,
-      iconSize: ppi / 2.5,
+      iconSize: ppi / 5,
       below: offlineCrossings,
     );
     final discomforts = await DiscomfortsLayer(context).install(
       mapController!,
-      iconSize: ppi / 4,
+      iconSize: ppi / 8,
       below: trafficLights,
     );
     final waypoints = await WaypointsLayer(context).install(
       mapController!,
-      iconSize: ppi / 4,
+      iconSize: ppi / 8,
       below: discomforts,
     );
     final selectedRoute = await SelectedRouteLayer(context).install(
@@ -419,7 +419,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         mapController!,
         below: selectedRoute,
       );
-      await (await RouteLabelLayer.create(context)).install(mapController!, iconSize: ppi / 3);
+      await (await RouteLabelLayer.create(context)).install(mapController!, iconSize: ppi / 6);
       await loadRouteMapLayers();
       await (await RouteLabelLayer.create(context)).update(mapController!);
     }

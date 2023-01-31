@@ -410,6 +410,8 @@ class RouteLabelLayer {
               sourceId: "routeLabels",
               id: "routeLabels-clicklayer",
               iconSize: iconSize,
+              iconOpacity: 0,
+              textOpacity: 0,
               iconAllowOverlap: true,
               iconIgnorePlacement: true,
               textSize: 12,
@@ -444,16 +446,6 @@ class RouteLabelLayer {
               "literal",
               [0, -1.25]
             ]));
-        await mapController.style.setStyleLayerProperty(
-            "routeLabels-clicklayer",
-            'text-color',
-            json.encode(
-              [
-                "case",
-                ["get", "isPrimary"],
-                "#ffffff",
-              ],
-            ));
         await mapController.style.setStyleLayerProperty(
             "routeLabels-clicklayer",
             'text-opacity',
