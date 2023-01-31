@@ -19,11 +19,13 @@ class ShortcutsEditView extends StatefulWidget {
 }
 
 class ShortcutsEditViewState extends State<ShortcutsEditView> {
-  /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
   late Routing routing;
   late Discomforts discomforts;
   late PredictionSGStatus predictionSGStatus;
+
+  /// If the view is in the state to delete a shortcut.
+  bool deleteMode = false;
 
   @override
   void didChangeDependencies() {
@@ -75,6 +77,22 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
                     SubHeader(text: "Strecken", context: context),
+                    Expanded(child: Container()),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: deleteMode
+                          ? SmallIconButton(
+                              icon: Icons.check_rounded,
+                              onPressed: () => setState(() => deleteMode = false),
+                              fill: Theme.of(context).colorScheme.primary,
+                            )
+                          : SmallIconButton(
+                              icon: Icons.edit_rounded,
+                              onPressed: () => setState(() => deleteMode = true),
+                              fill: Theme.of(context).colorScheme.surface,
+                            ),
+                    ),
+                    const SizedBox(width: 18),
                   ],
                 ),
                 ReorderableListView(
@@ -87,42 +105,104 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     (entry) {
                       return Container(
                         key: Key("$entry.key"),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, top: 8),
-                          child: Tile(
-                            fill: Theme.of(context).colorScheme.background,
-                            borderRadius:
-                                const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                            content: Row(
-                              children: [
-                                Flexible(
-                                    child: BoldContent(
-                                      text: entry.value.name,
-                                      context: context,
-                                    ),
-                                    fit: FlexFit.tight),
-                                const HSpace(),
-                                SmallIconButton(
-                                  icon: Icons.delete,
-                                  onPressed: () => onDeleteShortcut(entry.key),
-                                  fill: Theme.of(context).colorScheme.surface,
+                        padding: const EdgeInsets.only(left: 8, top: 8),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Container(
+                                foregroundDecoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomLeft,
+                                    end: Alignment.topRight,
+                                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+                                        ? [
+                                            Theme.of(context).colorScheme.background,
+                                            Theme.of(context).colorScheme.background,
+                                            Theme.of(context).colorScheme.background.withOpacity(0.9),
+                                            Theme.of(context).colorScheme.background.withOpacity(0.8),
+                                            Theme.of(context).colorScheme.background.withOpacity(0.7),
+                                          ]
+                                        : [
+                                            Theme.of(context).colorScheme.background,
+                                            Theme.of(context).colorScheme.background,
+                                            Theme.of(context).colorScheme.background.withOpacity(0.6),
+                                            Theme.of(context).colorScheme.background.withOpacity(0.5),
+                                            Theme.of(context).colorScheme.background.withOpacity(0.3),
+                                          ],
+                                  ),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(24),
+                                    bottomLeft: Radius.circular(24),
+                                  ),
                                 ),
-                              ],
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(24),
+                                    bottomLeft: Radius.circular(24),
+                                  ),
+                                  child: Image(
+                                    image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                                        ? const AssetImage('assets/images/map-dark.png')
+                                        : const AssetImage('assets/images/map-light.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
                             ),
-                            onPressed: () {
-                              routing.selectWaypoints(entry.value.waypoints);
+                            Tile(
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        BoldContent(
+                                          text: entry.value.name,
+                                          context: context,
+                                        ),
+                                        const SmallVSpace(),
+                                        BoldSmall(
+                                          text: entry.value.waypoints.length.toString() + " Stationen",
+                                          context: context,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const HSpace(),
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: deleteMode
+                                        ? SmallIconButton(
+                                            icon: Icons.delete,
+                                            onPressed: () => setState(() => deleteMode = false),
+                                            fill: Theme.of(context).colorScheme.surface,
+                                          )
+                                        : const Padding(
+                                            padding: EdgeInsets.all(12),
+                                            child: Icon(Icons.list_rounded),
+                                          ),
+                                  ),
+                                ],
+                              ),
+                              onPressed: () {
+                                routing.selectWaypoints(entry.value.waypoints);
 
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
-                                  .then(
-                                (_) {
-                                  routing.reset();
-                                  discomforts.reset();
-                                  predictionSGStatus.reset();
-                                },
-                              );
-                            },
-                          ),
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
+                                    .then(
+                                  (_) {
+                                    routing.reset();
+                                    discomforts.reset();
+                                    predictionSGStatus.reset();
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
