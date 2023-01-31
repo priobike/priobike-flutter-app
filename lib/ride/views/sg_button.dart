@@ -22,6 +22,8 @@ class RideSGButtonState extends State<RideSGButton> {
 
   @override
   Widget build(BuildContext context) {
+    // Display nothing if there are no signal groups.
+    if (ride.route?.signalGroups == null || ride.route!.signalGroups.isEmpty) return Container();
     return Positioned(
       top: 128,
       left: 0,
@@ -33,17 +35,14 @@ class RideSGButtonState extends State<RideSGButton> {
                 topRight: Radius.circular(32),
               ),
               fill: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              onPressed: ride.userCanSelectNextSG ? () => ride.selectNextSG() : null,
+              onPressed: () => ride.jumpToSG(step: 1), // Jump forward.
               content: SizedBox(
                 width: 24,
                 height: 24,
-                child: Opacity(
-                  opacity: ride.userCanSelectNextSG ? 1 : 0.25,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_upward_rounded,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_upward_rounded,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
               ),
@@ -86,17 +85,14 @@ class RideSGButtonState extends State<RideSGButton> {
                 bottomRight: Radius.circular(32),
               ),
               fill: Theme.of(context).colorScheme.background.withOpacity(0.75),
-              onPressed: ride.userCanSelectPreviousSG ? () => ride.selectPreviousSG() : null,
+              onPressed: () => ride.jumpToSG(step: -1), // Jump backward.
               content: SizedBox(
                 width: 24,
                 height: 24,
-                child: Opacity(
-                  opacity: ride.userCanSelectPreviousSG ? 1 : 0.25,
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_downward_rounded,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_downward_rounded,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
               ),
