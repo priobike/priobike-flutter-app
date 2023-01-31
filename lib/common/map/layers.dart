@@ -53,7 +53,7 @@ final Map<int, double> zoomToGeographicalDistance = {
 };
 
 /// Fade a layer out before a specific zoom level.
-dynamic showAfter({required int zoom, double opacity = 1.0}) {
+dynamic showAfter({required int zoom, dynamic opacity = 1.0}) {
   return [
     "interpolate",
     ["linear"],
@@ -600,6 +600,7 @@ class TrafficLightsLayer {
             "isDark": isDark,
             "showLabels": showLabels,
             "distanceToSgOnRoute": distanceToSgOnRoute,
+            "hideBehindPosition": hideBehindPosition,
           },
         },
       );
@@ -625,27 +626,30 @@ class TrafficLightsLayer {
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: hideBehindPosition
-            ? [
-                "case",
-                [
-                  "<",
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
-              ]
-            : showAfter(zoom: 16),
+        iconOpacity: showAfter(zoom: 16, opacity: [
+          "case",
+          ["get", "hideBehindPosition"],
+          [
+            "case",
+            [
+              "<",
+              ["get", "distanceToSgOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+            ],
+            0,
+            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+            [
+              "interpolate",
+              ["linear"],
+              ["get", "distanceToSgOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+              0,
+              0,
+              1
+            ],
+          ],
+          1
+        ]),
         textField: [
           "case",
           ["get", "showLabels"],
@@ -794,6 +798,7 @@ class OfflineCrossingsLayer {
             "isDark": isDark,
             "showLabels": showLabels,
             "distanceToCrossingOnRoute": distanceToCrossingOnRoute,
+            "hideBehindPosition": hideBehindPosition,
           },
         },
       );
@@ -819,27 +824,30 @@ class OfflineCrossingsLayer {
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: hideBehindPosition
-            ? [
-                "case",
-                [
-                  "<",
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToSgOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
-              ]
-            : showAfter(zoom: 16),
+        iconOpacity: showAfter(zoom: 16, opacity: [
+          "case",
+          ["get", "hideBehindPosition"],
+          [
+            "case",
+            [
+              "<",
+              ["get", "distanceToSgOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+            ],
+            0,
+            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+            [
+              "interpolate",
+              ["linear"],
+              ["get", "distanceToSgOnRoute"],
+              -5, // See above - this is clamped to [-5, 0]
+              0,
+              0,
+              1
+            ],
+          ],
+          1
+        ]),
         textField: [
           "case",
           ["get", "showLabels"],
@@ -921,30 +929,30 @@ class DangersLayer {
         iconSize: iconSize,
         iconAllowOverlap: true,
         iconIgnorePlacement: true,
-        iconOpacity: [
+        iconOpacity: showAfter(zoom: 16, opacity: [
           "case",
           ["get", "hideBehindPosition"],
           [
             "case",
             [
               "<",
-              ["get", "distanceToDangerOnRoute"],
+              ["get", "distanceToSgOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
             ],
             0,
-            // Interpolate between -5 (opacity=0.5) and 0 (opacity=1) meters
+            // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
             [
               "interpolate",
               ["linear"],
-              ["get", "distanceToDangerOnRoute"],
+              ["get", "distanceToSgOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
-              0.5,
+              0,
               0,
               1
             ],
           ],
-          1,
-        ],
+          1
+        ]),
       ),
       enableInteraction: false,
       belowLayerId: below,
