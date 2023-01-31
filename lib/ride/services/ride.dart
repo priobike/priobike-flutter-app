@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -31,6 +32,9 @@ class Ride with ChangeNotifier {
   /// A boolean indicating if the navigation is active.
   var navigationIsActive = false;
 
+  /// The timer that is used to periodically calculate the prediction.
+  Timer? calcTimer;
+
   /// The prediction client.
   MqttServerClient? client;
 
@@ -45,10 +49,6 @@ class Ride with ChangeNotifier {
 
   /// The current prediction.
   dynamic prediction;
-
-  /// A timestamp when the last calculation was performed.
-  /// This is used to prevent fast recurring calculations.
-  DateTime? calcLastTime;
 
   /// The current predicted phases.
   List<Phase>? calcPhasesFromNow;
@@ -95,30 +95,6 @@ class Ride with ChangeNotifier {
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
-  /// If the user can select the next signal group.
-  bool get userCanSelectNextSG {
-    if (route == null) return false;
-    if (userSelectedSGIndex != null) {
-      return userSelectedSGIndex! < route!.signalGroups.length - 1;
-    }
-    if (calcCurrentSGIndex == null) {
-      return false;
-    }
-    return calcCurrentSGIndex! < route!.signalGroups.length - 1;
-  }
-
-  /// If the user can select the previous signal group.
-  bool get userCanSelectPreviousSG {
-    if (route == null) return false;
-    if (userSelectedSGIndex != null) {
-      return userSelectedSGIndex! > 0;
-    }
-    if (calcCurrentSGIndex == null) {
-      return false;
-    }
-    return calcCurrentSGIndex! > 0;
-  }
-
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
@@ -148,30 +124,22 @@ class Ride with ChangeNotifier {
   }
 
   /// Select the next signal group.
-  void selectNextSG() {
+  /// Forward is step = 1, backward is step = -1.
+  void jumpToSG({required int step}) {
     if (route == null) return;
-    if (!userCanSelectNextSG) return;
-    if (userSelectedSGIndex == null) {
-      userSelectedSGIndex = calcCurrentSGIndex! + 1;
+    if (route!.signalGroups.isEmpty) return;
+    if (userSelectedSGIndex == null && calcCurrentSGIndex == null) {
+      // If there is no next signal group, select the first one if moving forward.
+      // If moving backward, select the last one.
+      userSelectedSGIndex = step > 0 ? 0 : route!.signalGroups.length - 1;
+    } else if (userSelectedSGIndex == null) {
+      // User did not manually select a signal group yet.
+      userSelectedSGIndex = (calcCurrentSGIndex! + step) % route!.signalGroups.length;
     } else {
-      userSelectedSGIndex = userSelectedSGIndex! + 1;
+      // User manually selected a signal group.
+      userSelectedSGIndex = (userSelectedSGIndex! + step) % route!.signalGroups.length;
     }
     userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
-    selectSG(userSelectedSG);
-    notifyListeners();
-  }
-
-  /// Select the previous signal group.
-  void selectPreviousSG() {
-    if (route == null) return;
-    if (!userCanSelectPreviousSG) return;
-    if (userSelectedSGIndex == null) {
-      userSelectedSGIndex = calcCurrentSGIndex! - 1;
-    } else {
-      userSelectedSGIndex = userSelectedSGIndex! - 1;
-    }
-    userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
-    onSelectNextSignalGroup?.call(userSelectedSG);
     selectSG(userSelectedSG);
     notifyListeners();
   }
@@ -238,6 +206,14 @@ class Ride with ChangeNotifier {
     client!.updates?.listen(onData);
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
+    // Start the timer that updates the prediction once per second.
+    calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (predictionMode == PredictionMode.usePredictionService) {
+        calculateRecommendationFromPredictionService();
+      } else {
+        calculateRecommendationFromPredictor();
+      }
+    });
     navigationIsActive = true;
   }
 
@@ -327,12 +303,8 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateRecommendationFromPredictor({scheduled = false}) async {
+  Future<void> calculateRecommendationFromPredictor() async {
     if (!navigationIsActive) return;
-
-    // Don't do a computation if the last one was recently done.
-    if (calcLastTime != null && calcLastTime!.difference(DateTime.now()).inMilliseconds.abs() < 1000) return;
-    calcLastTime = DateTime.now();
 
     // This will be executed if we fail somewhere.
     onFailure(reason) {
@@ -388,19 +360,10 @@ class Ride with ChangeNotifier {
     calcPredictionQuality = calcQualitiesFromNow![0];
 
     notifyListeners();
-
-    // Schedule another execution. If the current execution is scheduled, we take a delay of 1s.
-    // Otherwise, we take a delay of 1.25s to await the next recommendation from the server.
-    final delay = Duration(milliseconds: scheduled ? 1000 : 1250);
-    await Future.delayed(delay, () => calculateRecommendationFromPredictor(scheduled: true));
   }
 
-  Future<void> calculateRecommendationFromPredictionService({scheduled = false}) async {
+  Future<void> calculateRecommendationFromPredictionService() async {
     if (!navigationIsActive) return;
-
-    // Don't do a computation if the last one was recently done.
-    if (calcLastTime != null && calcLastTime!.difference(DateTime.now()).inMilliseconds.abs() < 1000) return;
-    calcLastTime = DateTime.now();
 
     // This will be executed if we fail somewhere.
     onFailure(reason) {
@@ -455,15 +418,12 @@ class Ride with ChangeNotifier {
     calcPredictionQuality = prediction.predictionQuality;
 
     notifyListeners();
-
-    // Schedule another execution. If the current execution is scheduled, we take a delay of 1s.
-    // Otherwise, we take a delay of 1.25s to await the next recommendation from the server.
-    final delay = Duration(milliseconds: scheduled ? 1000 : 1250);
-    await Future.delayed(delay, () => calculateRecommendationFromPredictionService(scheduled: true));
   }
 
   /// Stop the navigation.
   Future<void> stopNavigation(BuildContext context) async {
+    calcTimer?.cancel();
+    calcTimer = null;
     client?.disconnect();
     client = null;
     navigationIsActive = false;
@@ -476,7 +436,6 @@ class Ride with ChangeNotifier {
     navigationIsActive = false;
     client?.disconnect();
     client = null;
-    calcLastTime = null;
     calcPhasesFromNow = null;
     calcQualitiesFromNow = null;
     calcCurrentPhaseChangeTime = null;
