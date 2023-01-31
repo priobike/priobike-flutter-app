@@ -47,8 +47,8 @@ class Tracking with ChangeNotifier {
   /// The start time of this track, in milliseconds since the epoch.
   int? startTime;
 
-  /// The route of this track before the ride.
-  Route? route;
+  /// The routes of this track by the time they were selected/calculated.
+  Map<DateTime, Route?>? routes;
 
   /// The selected waypoints of the route.
   List<Waypoint?>? selectedWaypoints;
@@ -116,7 +116,8 @@ class Tracking with ChangeNotifier {
     startTime = DateTime.now().millisecondsSinceEpoch;
     // Get the currently selected route.
     final routing = Provider.of<Routing>(context, listen: false);
-    route = routing.selectedRoute;
+    routes = {};
+    routes![DateTime.now()] = routing.selectedRoute;
     selectedWaypoints = routing.selectedWaypoints;
     // Get the current settings.
     settings = Provider.of<Settings>(context, listen: false);
@@ -124,6 +125,14 @@ class Tracking with ChangeNotifier {
     statusSummary = Provider.of<PredictionStatusSummary>(context, listen: false).current;
     // Get the session id.
     sessionId = Provider.of<Ride>(context, listen: false).sessionId;
+    notifyListeners();
+  }
+
+  /// Notify the tracking service that a rerouting has happened.
+  Future<void> notifyOfReroute(Route newRoute) async {
+    routes ??= {};
+    routes![DateTime.now()] = newRoute;
+    log.i("Registered reroute.");
     notifyListeners();
   }
 
@@ -191,7 +200,7 @@ class Tracking with ChangeNotifier {
     deviceType = null;
     packageInfo = null;
     startTime = null;
-    route = null;
+    routes = null;
     selectedWaypoints = null;
     settings = null;
     statusSummary = null;
@@ -222,7 +231,12 @@ class Tracking with ChangeNotifier {
         'sessionId': sessionId,
         'deviceType': deviceType,
         // Fields stored as JSON.
-        'route': route?.toJson(),
+        'routes': routes?.entries
+            .map((e) => {
+                  'time': e.key.millisecondsSinceEpoch,
+                  'route': e.value?.toJson(),
+                })
+            .toList(),
         'positions': positions?.map((p) => p.toJson()).toList(),
         'recommendations': predictions?.map((r) => r.toJson()).toList(),
         'logs': logs,

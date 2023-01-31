@@ -205,8 +205,8 @@ class Routing with ChangeNotifier {
         shortestWaypointToIdx = i + 1;
       }
     }
-    final List<Waypoint?> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
-    remaining + selectedWaypoints!.sublist(shortestWaypointToIdx);
+    List<Waypoint?> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
+    remaining += selectedWaypoints!.sublist(shortestWaypointToIdx);
     return await selectWaypoints(remaining);
   }
 

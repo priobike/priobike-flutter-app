@@ -28,7 +28,7 @@ class RideView extends StatefulWidget {
 
 class RideViewState extends State<RideView> {
   /// The distance in meters at which a new route is requested.
-  static double rerouteDistance = 50;
+  static double rerouteDistance = 20;
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
@@ -85,6 +85,7 @@ class RideViewState extends State<RideView> {
                   await ride.selectRoute(context, routes.first);
                   await positioning.selectRoute(routes.first);
                   await dangers.fetch(routes.first, context);
+                  await tracking.notifyOfReroute(routes.first);
                 }
               });
             }
