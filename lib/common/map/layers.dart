@@ -825,7 +825,7 @@ class OfflineCrossingsLayer {
             "case",
             [
               "<",
-              ["get", "distanceToSgOnRoute"],
+              ["get", "distanceToCrossingOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
             ],
             0,
@@ -833,7 +833,7 @@ class OfflineCrossingsLayer {
             [
               "interpolate",
               ["linear"],
-              ["get", "distanceToSgOnRoute"],
+              ["get", "distanceToCrossingOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
               0,
               0,
@@ -930,7 +930,7 @@ class DangersLayer {
             "case",
             [
               "<",
-              ["get", "distanceToSgOnRoute"],
+              ["get", "distanceToDangerOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
             ],
             0,
@@ -938,7 +938,7 @@ class DangersLayer {
             [
               "interpolate",
               ["linear"],
-              ["get", "distanceToSgOnRoute"],
+              ["get", "distanceToDangerOnRoute"],
               -5, // See above - this is clamped to [-5, 0]
               0,
               0,
