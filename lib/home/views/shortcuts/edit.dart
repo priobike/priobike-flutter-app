@@ -5,9 +5,12 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routing/routing_view_wrapper.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routing/views_beta/main.dart';
+import 'package:priobike/settings/models/routing_view.dart';
+import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +23,21 @@ class ShortcutsEditView extends StatefulWidget {
 
 class ShortcutsEditViewState extends State<ShortcutsEditView> {
   late Shortcuts shortcuts;
+
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
+
+  /// The associated discomforts service, which is injected by the provider.
   late Discomforts discomforts;
+
+  /// The associated predictionSGStatus service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
   /// If the view is in the state to delete a shortcut.
   bool deleteMode = false;
+
+  /// The associcated settings service, which is injected by the provider.
+  late Settings settings;
 
   @override
   void didChangeDependencies() {
@@ -33,6 +45,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     routing = Provider.of<Routing>(context, listen: false);
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+    settings = Provider.of<Settings>(context, listen: false);
     super.didChangeDependencies();
   }
 
@@ -193,7 +206,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 routing.selectWaypoints(entry.value.waypoints);
 
                                 Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper()))
+                                    .push(MaterialPageRoute(
+                                        builder: (_) => settings.routingView == RoutingViewOption.stable
+                                            ? const RoutingView()
+                                            : const RoutingViewNew()))
                                     .then(
                                   (_) {
                                     routing.reset();

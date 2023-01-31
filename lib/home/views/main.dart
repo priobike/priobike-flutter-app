@@ -13,11 +13,13 @@ import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
-import 'package:priobike/routing/routing_view_wrapper.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routing/views_beta/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
+import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -104,7 +106,11 @@ class HomeViewState extends State<HomeView> {
 
     routing.selectWaypoints(shortcut.waypoints);
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (_) =>
+                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+        .then(
       (comingFromRoutingView) {
         if (comingFromRoutingView != null && comingFromRoutingView) {
           routing.reset();
@@ -119,7 +125,11 @@ class HomeViewState extends State<HomeView> {
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingViewWrapper())).then(
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (_) =>
+                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+        .then(
       (comingFromRoutingView) {
         if (comingFromRoutingView != null && comingFromRoutingView) {
           routing.reset();

@@ -143,17 +143,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    void startRide() => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) {
-              // Avoid navigation back, only allow stop button to be pressed.
-              // Note: Don't use pushReplacement since this will call
-              // the result handler of the RouteView's host.
-              return WillPopScope(
-                onWillPop: () async => false,
-                child: const RideView(),
-              );
-            },
+    void startRide() => Navigator.pushReplacement<void, void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const RideView(),
           ),
         );
 
@@ -400,232 +393,242 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: NotificationListener<DraggableScrollableNotification>(
-          onNotification: (notification) {
-            sheetMovement.add(notification);
-            // Show routingBar when sheet is at the bottom.
-            if (notification.extent <= 0.2) {
-              setState(() {
-                showRoutingBar = true;
-              });
-              if (fitCameraTop == true) {
-                // Trigger center route in top part of screen.
-                mapSettings.fitCameraToRouteBounds(routing, frame);
+      child: WillPopScope(
+        onWillPop: () async {
+          final completer = Completer<bool>();
+          completer.complete(true);
+          // The second value in the .pop-method ("true") in that case specifies that we navigate back to
+          // the home view (important for the result handler to do the right things)
+          Navigator.pop(context, true);
+          return completer.future;
+        },
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              sheetMovement.add(notification);
+              // Show routingBar when sheet is at the bottom.
+              if (notification.extent <= 0.2) {
                 setState(() {
-                  fitCameraTop = false;
+                  showRoutingBar = true;
                 });
-              }
-            } else {
-              // Hide routingBar when sheet is 60% or more.
-              if (notification.extent >= 0.6 && notification.extent <= 0.7) {
-                // Trigger center route in top part of screen.
-                if (fitCameraTop == false) {
-                  mapSettings.fitCameraToRouteBoundsTop(routing, frame);
+                if (fitCameraTop == true) {
+                  // Trigger center route in top part of screen.
+                  mapSettings.fitCameraToRouteBounds(routing, frame);
                   setState(() {
-                    fitCameraTop = true;
+                    fitCameraTop = false;
                   });
                 }
+              } else {
+                // Hide routingBar when sheet is 60% or more.
+                if (notification.extent >= 0.6 && notification.extent <= 0.7) {
+                  // Trigger center route in top part of screen.
+                  if (fitCameraTop == false) {
+                    mapSettings.fitCameraToRouteBoundsTop(routing, frame);
+                    setState(() {
+                      fitCameraTop = true;
+                    });
+                  }
+                }
+                setState(() {
+                  showRoutingBar = false;
+                });
               }
-              setState(() {
-                showRoutingBar = false;
-              });
-            }
-            return false;
-          },
-          child: Stack(children: [
-            RoutingMapView(
-              sheetMovement: sheetMovement.stream,
-              controllerType: ControllerType.main,
-              withRouting: true,
-            ),
+              return false;
+            },
+            child: Stack(children: [
+              RoutingMapView(
+                sheetMovement: sheetMovement.stream,
+                controllerType: ControllerType.main,
+                withRouting: true,
+              ),
 
-            if (routing.isFetchingRoute) renderLoadingIndicator(),
-            if (geocoding.isFetchingAddress) renderLoadingIndicator(),
+              if (routing.isFetchingRoute) renderLoadingIndicator(),
+              if (geocoding.isFetchingAddress) renderLoadingIndicator(),
 
-            // Top Bar
-            SafeArea(
-              top: !(waypointsSelected),
-              child: Padding(
-                padding: EdgeInsets.only(top: waypointsSelected ? 0 : 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    waypointsSelected && !routing.isFetchingRoute
-                        ? SizedBox(
-                            // number of Elements * 40 + Padding (2*10) + System navigation bar
-                            height: frame.size.height,
-                            child: Stack(clipBehavior: Clip.none, children: [
-                              AnimatedPositioned(
-                                top: showRoutingBar
-                                    ? 0
-                                    : -calculateRoutingBarHeight(
-                                        frame, routing.selectedWaypoints!.length, true, routing.minimized),
-                                duration: const Duration(milliseconds: 250),
-                                child: RoutingBar(
-                                  fromRoutingSearch: false,
-                                  onPressed: _loadShortcutsRoute,
-                                  onSearch: onSearch,
-                                  context: context,
-                                  sheetMovement: sheetMovement,
-                                ),
-                              ),
-                              !showRoutingBar
-                                  ? AnimatedPositioned(
-                                      top: bottomSheetState.draggableScrollableController != null &&
-                                              bottomSheetState.draggableScrollableController!.size <= 1 &&
-                                              bottomSheetState.draggableScrollableController!.size >= 0.7
-                                          ? 0
-                                          : -(40 + 64 + frame.padding.top),
-                                      left: 0,
-                                      duration: const Duration(milliseconds: 250),
-                                      child: Container(
-                                        alignment: Alignment.centerLeft,
-                                        padding: EdgeInsets.only(top: 20 + frame.padding.top, bottom: 5),
-                                        color: Theme.of(context).colorScheme.background,
-                                        width: frame.size.width,
-                                        height: frame.padding.top + 25 + 64,
-                                      ),
-                                    )
-                                  : Container(),
-                              !showRoutingBar
-                                  ? Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      child: Container(
-                                        width: frame.size.width,
-                                        height: frame.size.height * 0.36,
-                                        color: Colors.transparent,
-                                      ),
-                                    )
-                                  : Container(),
-                              AnimatedPositioned(
-                                // top calculates from padding + systemBar.
-                                top: 20 + frame.padding.top,
-                                left: showRoutingBar ? -64 : 0,
-                                duration: const Duration(milliseconds: 250),
-                                child: AppBackButton(onPressed: _showLessDetails),
-                              ),
-                              AnimatedPositioned(
-                                // top calculates from padding + systemBar.
-                                top: calculateRoutingBarHeight(
-                                        frame, routing.selectedWaypoints!.length, true, routing.minimized) +
-                                    10,
-                                left: !showRoutingBar ||
-                                        (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)
-                                    ? -frame.size.width * 0.75
-                                    : 0,
-                                duration: const Duration(milliseconds: 250),
-                                child: SizedBox(
-                                  child: const AlertsView(),
-                                  width: frame.size.width * 0.75,
-                                ),
-                              ),
-                              showRoutingBar
-                                  ? AnimatedPositioned(
-                                      // top calculates from padding + systemBar.
-                                      top: calculateRoutingBarHeight(
+              // Top Bar
+              SafeArea(
+                top: !(waypointsSelected),
+                child: Padding(
+                  padding: EdgeInsets.only(top: waypointsSelected ? 0 : 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      waypointsSelected && !routing.isFetchingRoute
+                          ? SizedBox(
+                              // number of Elements * 40 + Padding (2*10) + System navigation bar
+                              height: frame.size.height,
+                              child: Stack(clipBehavior: Clip.none, children: [
+                                AnimatedPositioned(
+                                  top: showRoutingBar
+                                      ? 0
+                                      : -calculateRoutingBarHeight(
                                           frame, routing.selectedWaypoints!.length, true, routing.minimized),
-                                      right: 0,
-                                      duration: const Duration(milliseconds: 500),
-                                      curve: Curves.easeInCubic,
-                                      child: Padding(
-                                        /// Align with FAB
-                                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                                          Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-                                            CompassButton(centerNorth: _centerNorth),
-                                            const SizedBox(height: 10),
-                                            ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
-                                            const SizedBox(height: 10),
-                                            const FilterButton(),
-                                            const SizedBox(height: 10),
-                                            const LayerButton(),
+                                  duration: const Duration(milliseconds: 250),
+                                  child: RoutingBar(
+                                    fromRoutingSearch: false,
+                                    onPressed: _loadShortcutsRoute,
+                                    onSearch: onSearch,
+                                    context: context,
+                                    sheetMovement: sheetMovement,
+                                  ),
+                                ),
+                                !showRoutingBar
+                                    ? AnimatedPositioned(
+                                        top: bottomSheetState.draggableScrollableController != null &&
+                                                bottomSheetState.draggableScrollableController!.size <= 1 &&
+                                                bottomSheetState.draggableScrollableController!.size >= 0.7
+                                            ? 0
+                                            : -(40 + 64 + frame.padding.top),
+                                        left: 0,
+                                        duration: const Duration(milliseconds: 250),
+                                        child: Container(
+                                          alignment: Alignment.centerLeft,
+                                          padding: EdgeInsets.only(top: 20 + frame.padding.top, bottom: 5),
+                                          color: Theme.of(context).colorScheme.background,
+                                          width: frame.size.width,
+                                          height: frame.padding.top + 25 + 64,
+                                        ),
+                                      )
+                                    : Container(),
+                                !showRoutingBar
+                                    ? Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        child: Container(
+                                          width: frame.size.width,
+                                          height: frame.size.height * 0.36,
+                                          color: Colors.transparent,
+                                        ),
+                                      )
+                                    : Container(),
+                                AnimatedPositioned(
+                                  // top calculates from padding + systemBar.
+                                  top: 20 + frame.padding.top,
+                                  left: showRoutingBar ? -64 : 0,
+                                  duration: const Duration(milliseconds: 250),
+                                  child: AppBackButton(onPressed: _showLessDetails),
+                                ),
+                                AnimatedPositioned(
+                                  // top calculates from padding + systemBar.
+                                  top: calculateRoutingBarHeight(
+                                          frame, routing.selectedWaypoints!.length, true, routing.minimized) +
+                                      10,
+                                  left: !showRoutingBar ||
+                                          (discomforts.selectedDiscomfort == null && !discomforts.trafficLightClicked)
+                                      ? -frame.size.width * 0.75
+                                      : 0,
+                                  duration: const Duration(milliseconds: 250),
+                                  child: SizedBox(
+                                    child: const AlertsView(),
+                                    width: frame.size.width * 0.75,
+                                  ),
+                                ),
+                                showRoutingBar
+                                    ? AnimatedPositioned(
+                                        // top calculates from padding + systemBar.
+                                        top: calculateRoutingBarHeight(
+                                            frame, routing.selectedWaypoints!.length, true, routing.minimized),
+                                        right: 0,
+                                        duration: const Duration(milliseconds: 500),
+                                        curve: Curves.easeInCubic,
+                                        child: Padding(
+                                          /// Align with FAB
+                                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                                            Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                                              CompassButton(centerNorth: _centerNorth),
+                                              const SizedBox(height: 10),
+                                              ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
+                                              const SizedBox(height: 10),
+                                              const FilterButton(),
+                                              const SizedBox(height: 10),
+                                              const LayerButton(),
+                                            ]),
                                           ]),
-                                        ]),
-                                      ))
-                                  : Container(),
-                            ]),
-                          )
-                        : !routing.isFetchingRoute
-                            ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Hero(
-                                  tag: 'appBackButton',
-                                  child: AppBackButton(
-                                      icon: Icons.chevron_left_rounded,
-                                      onPressed: () => Navigator.pop(context),
-                                      elevation: 5),
-                                ),
-                                const SizedBox(width: 16),
-                                SizedBox(
-                                  // Avoid expansion of alerts view.
-                                  width: frame.size.width - 80,
-                                  child: SearchBar(fromClicked: false, startSearch: _startSearch),
-                                ),
-                              ])
-                            : Container(),
-                    !waypointsSelected ? ShortCutsRow(onPressed: _loadShortcutsRoute, close: false) : Container(),
-                    !waypointsSelected
-                        ? Padding(
-                            /// Align with FAB
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                              Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-                                CompassButton(centerNorth: _centerNorth),
-                                const SizedBox(height: 10),
-                                ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
-                                const SizedBox(height: 10),
-                                const FilterButton(),
-                                const SizedBox(height: 10),
-                                const LayerButton(),
+                                        ))
+                                    : Container(),
                               ]),
-                            ]),
-                          )
-                        : Container(),
-                  ],
+                            )
+                          : !routing.isFetchingRoute
+                              ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Hero(
+                                    tag: 'appBackButton',
+                                    child: AppBackButton(
+                                        icon: Icons.chevron_left_rounded,
+                                        onPressed: () => Navigator.pop(context, true),
+                                        elevation: 5),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  SizedBox(
+                                    // Avoid expansion of alerts view.
+                                    width: frame.size.width - 80,
+                                    child: SearchBar(fromClicked: false, startSearch: _startSearch),
+                                  ),
+                                ])
+                              : Container(),
+                      !waypointsSelected ? ShortCutsRow(onPressed: _loadShortcutsRoute, close: false) : Container(),
+                      !waypointsSelected
+                          ? Padding(
+                              /// Align with FAB
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                                  CompassButton(centerNorth: _centerNorth),
+                                  const SizedBox(height: 10),
+                                  ZoomInAndOutButton(zoomIn: _zoomIn, zoomOut: _zoomOut),
+                                  const SizedBox(height: 10),
+                                  const FilterButton(),
+                                  const SizedBox(height: 10),
+                                  const LayerButton(),
+                                ]),
+                              ]),
+                            )
+                          : Container(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            waypointsSelected && !routing.isFetchingRoute
-                ? Positioned(
-                    bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
-                    right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: GPSButton(
-                        gpsCentralization: _gpsCentralization,
+              waypointsSelected && !routing.isFetchingRoute
+                  ? Positioned(
+                      bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
+                      right: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: GPSButton(
+                          gpsCentralization: _gpsCentralization,
+                        ),
+                      ),
+                    )
+                  : Container(),
+              waypointsSelected && !routing.isFetchingRoute ? const BottomSheetDetail() : Container(),
+            ]),
+          ),
+          floatingActionButton: routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GPSButton(gpsCentralization: _gpsCentralization),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    FloatingActionButton(
+                      onPressed: () => _startRoutingSearch(),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      heroTag: "fab2",
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      child: const Icon(
+                        Icons.directions,
+                        color: Colors.white,
                       ),
                     ),
-                  )
-                : Container(),
-            waypointsSelected && !routing.isFetchingRoute ? const BottomSheetDetail() : Container(),
-          ]),
+                  ],
+                )
+              : Container(),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         ),
-        floatingActionButton: routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GPSButton(gpsCentralization: _gpsCentralization),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  FloatingActionButton(
-                    onPressed: () => _startRoutingSearch(),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    heroTag: "fab2",
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: const Icon(
-                      Icons.directions,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              )
-            : Container(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

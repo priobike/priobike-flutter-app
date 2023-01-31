@@ -299,9 +299,12 @@ class RoutingViewState extends State<RoutingView> {
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: WillPopScope(
         onWillPop: () async {
+          final completer = Completer<bool>();
+          completer.complete(true);
           // The second value in the .pop-method ("true") in that case specifies that we navigate back to
           // the home view (important for the result handler to do the right things)
-          return await Navigator.maybePop(context, true);
+          Navigator.pop(context, true);
+          return completer.future;
         },
         child: Scaffold(
           body: NotificationListener<DraggableScrollableNotification>(
