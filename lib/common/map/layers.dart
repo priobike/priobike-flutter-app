@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
-import 'package:latlong2/latlong.dart' as latlng;
+import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -247,33 +247,37 @@ class RouteLabelLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  RouteLabelLayer(BuildContext context) {
+  RouteLabelLayer._();
+
+  static Future<RouteLabelLayer> create(BuildContext context) async {
+    var routeLabelLayer = RouteLabelLayer._();
+
     final routing = Provider.of<Routing>(context, listen: false);
     final mapController = Provider.of<MapSettings>(context, listen: false);
 
     // Conditions for having route labels.
     if (mapController.controller != null &&
-        mapController.controller!.cameraPosition != null &&
         routing.allRoutes != null &&
         routing.allRoutes!.length >= 2 &&
         routing.selectedRoute != null) {
-      var distance = const latlng.Distance();
+      var distance = const Distance();
 
       double width = MediaQuery.of(context).size.width;
       double height = MediaQuery.of(context).size.height;
-      double meterPerPixel = zoomToGeographicalDistance[mapController.controller!.cameraPosition!.zoom.toInt()] ?? 0;
-      double cameraPosLat = mapController.controller!.cameraPosition!.target.latitude;
-      double cameraPosLong = mapController.controller!.cameraPosition!.target.longitude;
+      double meterPerPixel =
+          zoomToGeographicalDistance[(await mapController.controller!.getCameraState()).zoom.toInt()] ?? 0;
+      double cameraPosLat = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[1];
+      double cameraPosLong = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[0];
 
       // Cast to LatLng2 format.
-      latlng.LatLng cameraPos = latlng.LatLng(cameraPosLat, cameraPosLong);
+      LatLng cameraPos = LatLng(cameraPosLat, cameraPosLong);
 
       // Getting the bounds north, east, south, west.
       // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      latlng.LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-      latlng.LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-      latlng.LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-      latlng.LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
+      LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
+      LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
+      LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
@@ -294,7 +298,7 @@ class RouteLabelLayer {
       // But update route labels in case the selected route changed.
       if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoords.length) {
         for (var i = 0; i < routing.allRoutes!.length; i++) {
-          features.add(
+          routeLabelLayer.features.add(
             {
               "id": "routeLabel-${routing.allRoutes![i].id}", // Required for click listener.
               "type": "Feature",
@@ -309,7 +313,7 @@ class RouteLabelLayer {
             },
           );
         }
-        return;
+        return routeLabelLayer;
       }
 
       // Reset the old coords before adding the new ones.
@@ -359,7 +363,7 @@ class RouteLabelLayer {
 
         if (chosenCoordinate != null) {
           // Found coordinate and add Label with time.
-          features.add(
+          routeLabelLayer.features.add(
             {
               "id": "routeLabel-${route.id}", // Required for click listener.
               "type": "Feature",
@@ -378,67 +382,99 @@ class RouteLabelLayer {
         }
       }
     }
+    return routeLabelLayer;
   }
 
   /// Install the overlay on the layer controller.
   Future<String> install(
-    LayerController layerController, {
+    mapbox.MapboxMap mapController, {
     iconSize = 0.75,
     String? below,
   }) async {
-    await layerController.addGeoJsonSource(
-      "routeLabels",
-      {"type": "FeatureCollection", "features": features},
-    );
+    await mapController.style.styleSourceExists("routeLabels").then((exists) async {
+      if (!exists) {
+        await mapController.style.addSource(
+          mapbox.GeoJsonSource(
+              id: "routeLabels", data: json.encode({"type": "FeatureCollection", "features": features})),
+        );
+      } else {
+        await update(mapController);
+      }
+    });
+
     // Make it easier to click on the route.
-    await layerController.addLayer(
-      "routeLabels",
-      "routeLabels-clicklayer",
-      SymbolLayerProperties(
-        // iconAnchor: "bottom",
-        // textAnchor: "bottom",
-        iconImage: [
-          "case",
-          ["get", "isPrimary"],
-          "route-label-pmm",
-          "route-label-smm"
-        ],
-        iconSize: iconSize,
-        iconOpacity: showAfter(zoom: 10),
-        iconOffset: [
-          Expressions.literal,
-          [0, -10]
-        ],
-        iconAllowOverlap: true,
-        iconIgnorePlacement: true,
-        textField: ["get", "text"],
-        textOffset: [
-          Expressions.literal,
-          [0, -1.25]
-        ],
-        textColor: [
-          "case",
-          ["get", "isPrimary"],
-          "#ffffff",
-          "#000000"
-        ],
-        textSize: 12,
-        textOpacity: showAfter(zoom: 10),
-        textAllowOverlap: true,
-        textIgnorePlacement: true,
-      ),
-      enableInteraction: true,
-      belowLayerId: below,
-    );
+    await mapController.style.styleLayerExists("routeLabels-clicklayer").then((exists) async {
+      if (!exists) {
+        await mapController.style.addLayerAt(
+            mapbox.SymbolLayer(
+              sourceId: "routeLabels",
+              id: "routeLabels-clicklayer",
+              iconSize: iconSize,
+              iconAllowOverlap: true,
+              iconIgnorePlacement: true,
+              textSize: 12,
+              textAllowOverlap: true,
+              textIgnorePlacement: true,
+            ),
+            mapbox.LayerPosition(below: below));
+        await mapController.style.setStyleLayerProperty(
+            "routeLabels-clicklayer",
+            'icon-image',
+            json.encode([
+              "case",
+              ["get", "isPrimary"],
+              "route-label-pmm",
+              "route-label-smm"
+            ]));
+        await mapController.style
+            .setStyleLayerProperty("routeLabels-clicklayer", 'icon-opacity', json.encode(showAfter(zoom: 10)));
+        await mapController.style.setStyleLayerProperty(
+            "routeLabels-clicklayer",
+            'icon-offset',
+            json.encode([
+              "literal",
+              [0, -10]
+            ]));
+        await mapController.style
+            .setStyleLayerProperty("routeLabels-clicklayer", 'text-field', json.encode(["get", "text"]));
+        await mapController.style.setStyleLayerProperty(
+            "routeLabels-clicklayer",
+            'text-offset',
+            json.encode([
+              "literal",
+              [0, -1.25]
+            ]));
+        await mapController.style.setStyleLayerProperty(
+            "routeLabels-clicklayer",
+            'text-color',
+            json.encode(
+              [
+                "case",
+                ["get", "isPrimary"],
+                "#ffffff",
+              ],
+            ));
+        await mapController.style.setStyleLayerProperty(
+            "routeLabels-clicklayer",
+            'text-opacity',
+            json.encode(
+              showAfter(zoom: 10),
+            ));
+      }
+    });
+
     return "routeLabels-layer";
   }
 
-  /// Update the overlay on the layer controller (without updating the layers).
-  update(LayerController layerController) async {
-    await layerController.updateGeoJsonSource(
-      "routeLabels",
-      {"type": "FeatureCollection", "features": features},
-    );
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    await mapController.style.styleSourceExists("routeLabels").then((exists) async {
+      if (exists) {
+        final source = await mapController.style.getSource("routeLabels");
+        (source as mapbox.GeoJsonSource)
+            .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+      }
+    });
   }
 }
 

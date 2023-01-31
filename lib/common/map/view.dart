@@ -37,6 +37,9 @@ class AppMap extends StatefulWidget {
   /// A callback that is executed when the style was loaded.
   final void Function(mapbox.StyleLoadedEventData)? onStyleLoaded;
 
+  /// A callback that is executed when the camera position changes.
+  final void Function(mapbox.CameraChangedEventData)? onCameraChanged;
+
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
@@ -63,6 +66,7 @@ class AppMap extends StatefulWidget {
   const AppMap(
       {this.onMapCreated,
       this.onStyleLoaded,
+      this.onCameraChanged,
       this.onCameraIdle,
       this.onMapLongClick,
       this.onMapTap,
@@ -114,6 +118,7 @@ class AppMapState extends State<AppMap> {
       onMapCreated: onMapCreated,
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
+      onCameraChangeListener: widget.onCameraChanged,
       // Setting the following line (textureView) to true results in a spam of the message (only effects Android):
       // "updateAcquireFence: Did not find frame."
       // Setting the line (textureView) to false results in a spam of the message (only effects Android):

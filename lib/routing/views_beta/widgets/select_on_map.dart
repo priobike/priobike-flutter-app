@@ -11,13 +11,13 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/map.dart';
-import 'package:priobike/routing/services/map_settings.dart';
-import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
 import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map_name.dart';
+import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
@@ -103,7 +103,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapController.setMyLocationTrackingModeTracking(ControllerType.selectOnMap);
+    // TODO
   }
 
   /// Private Center North Function which calls mapControllerService
@@ -177,10 +177,15 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (mapController.getCameraPosition(ControllerType.selectOnMap) != null) {
-                            onComplete(context, mapController.getCameraPosition(ControllerType.selectOnMap)!.latitude,
-                                mapController.getCameraPosition(ControllerType.selectOnMap)!.longitude);
+                            final cameraPosition =
+                                ((await mapController.getCameraPosition(ControllerType.selectOnMap)) as List);
+                            onComplete(
+                              context,
+                              cameraPosition[1],
+                              cameraPosition[0],
+                            );
                           }
                         },
                         child: Content(
@@ -226,9 +231,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            GPSButton(
-                myLocationTrackingMode: mapController.myLocationTrackingModeSelectOnMapView,
-                gpsCentralization: _gpsCentralization),
+            GPSButton(gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
             ),

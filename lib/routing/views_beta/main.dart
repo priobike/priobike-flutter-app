@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -11,19 +12,19 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views_beta/bottom_sheet.dart';
 import 'package:priobike/routing/views_beta/map.dart';
-import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/views_beta/route_search.dart';
 import 'package:priobike/routing/views_beta/search.dart';
-import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:priobike/routing/views_beta/widgets/alerts.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
@@ -33,11 +34,11 @@ import 'package:priobike/routing/views_beta/widgets/layer_button.dart';
 import 'package:priobike/routing/views_beta/widgets/routing_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/search_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/shortcuts.dart';
+import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:priobike/routing/views/layers.dart';
 
 class RoutingViewNew extends StatefulWidget {
   const RoutingViewNew({Key? key}) : super(key: key);
@@ -127,10 +128,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// Function which checks if the RoutingBar needs to be shown.
-  _checkRoutingBarShown() {
+  _checkRoutingBarShown() async {
     // This seems not to work somehow
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty && mapSettings.controller != null) {
-      mapSettings.controller!.updateContentInsets(const EdgeInsets.only(top: 150), true);
+      await mapSettings.controller!.setCamera(
+        mapbox.CameraOptions(
+          padding: mapbox.MbxEdgeInsets(bottom: 120, left: 0, top: 150, right: 0),
+        ),
+      );
     }
   }
 
@@ -306,7 +311,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapSettings.setMyLocationTrackingModeTracking(ControllerType.main);
+    // TODO
   }
 
   /// Private Function which is executed when FAB is pressed.
@@ -590,7 +595,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: GPSButton(
                         gpsCentralization: _gpsCentralization,
-                        myLocationTrackingMode: mapSettings.myLocationTrackingMode,
                       ),
                     ),
                   )
@@ -602,23 +606,21 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  GPSButton(
-                      myLocationTrackingMode: mapSettings.myLocationTrackingMode,
-                      gpsCentralization: _gpsCentralization),
+                  GPSButton(gpsCentralization: _gpsCentralization),
                   const SizedBox(
                     height: 15,
                   ),
                   FloatingActionButton(
                     onPressed: () => _startRoutingSearch(),
-                    child: const Icon(
-                      Icons.directions,
-                      color: Colors.white,
-                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     heroTag: "fab2",
                     backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const Icon(
+                      Icons.directions,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               )
