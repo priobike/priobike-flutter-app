@@ -176,6 +176,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
     final n = coordinatesNortheast[1] as double;
     final e = coordinatesNortheast[0] as double;
+    // TODO needs to be fixed (the old bounds don't work correctly with the new Mapbox plugin). After having
+    // the correct bounds they can be used instead of "routing.selectedRoute!.paddedBounds" at the function
+    // "cameraForCoordinateBounds()"
     final newBounds = CoordinateBounds(
         southwest: turf.Point(
             coordinates: turf.Position(
@@ -191,7 +194,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
-      newBounds,
+      routing.selectedRoute!.paddedBounds,
       currentCameraOptions.padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
