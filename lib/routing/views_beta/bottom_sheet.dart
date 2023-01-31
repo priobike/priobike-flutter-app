@@ -616,8 +616,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           snapSizes: routing.selectedRoute != null ? [0.66] : [],
           controller: draggableScrollableController,
           builder: (BuildContext buildContext, ScrollController scrollController) {
-            final bool isTop = draggableScrollableController.size <= topSnapRatio + 0.05 &&
-                draggableScrollableController.size >= topSnapRatio - 0.05;
+            final size = draggableScrollableController.isAttached ? draggableScrollableController.size : 0;
+            final bool isTop = size <= topSnapRatio + 0.05 && size >= topSnapRatio - 0.05;
 
             bottomSheetState.draggableScrollableController = draggableScrollableController;
             bottomSheetState.listController = scrollController;
