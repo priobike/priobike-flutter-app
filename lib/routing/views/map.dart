@@ -76,7 +76,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
-    bottom: 120,
+    bottom: 130,
   );
 
   /// The extra distance between the bottom sheet and the attribution.
@@ -282,7 +282,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   fitAttributionPosition({double? sheetHeightRelative}) {
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
-        ? 114 + frame.padding.bottom + sheetPadding // Default value.
+        ? 124 + frame.padding.bottom + sheetPadding // Default value.
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);
