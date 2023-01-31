@@ -15,6 +15,7 @@ import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/user.dart';
 import 'package:provider/provider.dart';
 
 class RideSpeedometerView extends StatefulWidget {
@@ -282,11 +283,23 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 22),
+          padding: const EdgeInsets.only(bottom: 26),
           child: BoldSubHeader(
             text: '${speedkmh.toStringAsFixed(0)} km/h',
             context: context,
             color: Colors.white,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: Text(
+            'PrioBike - Work in Progress. ${ride.sessionId} ${User.id}',
+            style: Theme.of(context).textTheme.headline3!.merge(
+                  TextStyle(
+                    color: Colors.white.withOpacity(0.2),
+                    fontSize: 6,
+                  ),
+                ),
           ),
         ),
       ],
