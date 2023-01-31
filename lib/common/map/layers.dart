@@ -746,34 +746,6 @@ class TrafficLightsLayer {
             .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
       }
     });
-    await mapController.style.styleLayerExists("traffic-lights-icons").then((exists) async {
-      if (exists) {
-        await mapController.style.setStyleLayerProperty(
-            "traffic-lights-icons",
-            'icon-opacity',
-            json.encode(hideBehindPosition
-                ? [
-                    "case",
-                    [
-                      "<",
-                      ["get", "distanceToSgOnRoute"],
-                      -5, // See above - this is clamped to [-5, 0]
-                    ],
-                    0,
-                    // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                    [
-                      "interpolate",
-                      ["linear"],
-                      ["get", "distanceToSgOnRoute"],
-                      -5, // See above - this is clamped to [-5, 0]
-                      0,
-                      0,
-                      1
-                    ],
-                  ]
-                : showAfter(zoom: 16)));
-      }
-    });
   }
 }
 
@@ -1008,34 +980,6 @@ class OfflineCrossingsLayer {
         final source = await mapController.style.getSource("offline-crossings");
         (source as mapbox.GeoJsonSource)
             .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-      }
-    });
-    await mapController.style.styleLayerExists("offline-crossings-icons").then((exists) async {
-      if (exists) {
-        await mapController.style.setStyleLayerProperty(
-            "offline-crossings-icons",
-            'icon-opacity',
-            json.encode(hideBehindPosition
-                ? [
-                    "case",
-                    [
-                      "<",
-                      ["get", "distanceToSgOnRoute"],
-                      -5, // See above - this is clamped to [-5, 0]
-                    ],
-                    0,
-                    // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                    [
-                      "interpolate",
-                      ["linear"],
-                      ["get", "distanceToSgOnRoute"],
-                      -5, // See above - this is clamped to [-5, 0]
-                      0,
-                      0,
-                      1
-                    ],
-                  ]
-                : showAfter(zoom: 16)));
       }
     });
   }
