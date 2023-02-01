@@ -210,7 +210,7 @@ class RideMapViewState extends State<RideMapView> {
           mapbox.LocationIndicatorLayer(
             id: "user-ride-location-puck",
             bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
-            bearingImageSize: 0.2,
+            bearingImageSize: 0.35,
             accuracyRadiusColor: const Color(0x00000000).value,
             accuracyRadiusBorderColor: const Color(0x00000000).value,
           ),
