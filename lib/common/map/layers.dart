@@ -104,6 +104,7 @@ class AllRoutesLayer {
         await update(mapController);
       }
     });
+    // Add another layer that makes it easier to click on the route.
     await mapController.style.styleLayerExists("routes-clicklayer").then((exists) async {
       if (!exists) {
         await mapController.style.addLayerAt(
