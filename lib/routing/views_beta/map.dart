@@ -157,8 +157,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
 
     mapSettings = Provider.of<MapSettings>(context);
+    if (mapSettings.centerCameraOnUserLocation) {
+      displayCurrentUserLocation();
+      fitCameraToUserPosition();
+      mapSettings.setCameraCenterOnUserLocation(false);
+    }
 
     super.didChangeDependencies();
+  }
+
+  /// Fit the camera to the current user position.
+  fitCameraToUserPosition() async {
+    if (mapController == null || !mounted) return;
+    await mapController?.flyTo(
+      CameraOptions(
+        center: turf.Point(
+            coordinates: turf.Position(
+          positioning.lastPosition!.longitude,
+          positioning.lastPosition!.latitude,
+        )).toJson(),
+        zoom: 15,
+        pitch: 0,
+        bearing: 0,
+      ),
+      MapAnimationOptions(duration: 1000),
+    );
   }
 
   /// Fit the camera to the current route.

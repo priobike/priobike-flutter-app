@@ -37,6 +37,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The associated mapController service, which is injected by the provider.
   late MapSettings mapController;
 
+  /// The associated shortcuts service, which is injected by the provider.
+  late MapSettings mapSettings;
+
   /// The associated geocoding service, which is injected by the provider.
   late Geocoding geocoding;
 
@@ -62,6 +65,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
     mapController = Provider.of<MapSettings>(context);
+    mapSettings = Provider.of<MapSettings>(context);
     geocoding = Provider.of<Geocoding>(context);
     profile = Provider.of<Profile>(context);
     places = Provider.of<Places>(context);
@@ -103,7 +107,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    // TODO
+    mapSettings.setCameraCenterOnUserLocation(true);
   }
 
   /// Private Center North Function which calls mapControllerService

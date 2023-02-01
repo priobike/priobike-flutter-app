@@ -304,7 +304,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    // TODO
+    mapSettings.setCameraCenterOnUserLocation(true);
   }
 
   /// Private Function which is executed when FAB is pressed.

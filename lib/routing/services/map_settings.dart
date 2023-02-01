@@ -17,11 +17,22 @@ class MapSettings with ChangeNotifier {
   /// MapboxMapController for selectOnMapView
   MapboxMap? controllerSelectOnMap;
 
+  /// A bool specifying whether the camera should be/is centered on the user location.
+  bool centerCameraOnUserLocation = false;
+
   /// The logger for this service.
   final Logger log = Logger("MapSettingsService");
 
   MapSettings() {
     log.i("MapSettingsService started.");
+  }
+
+  /// Change value of centerCameraOnUserLocation (only notify listeners on a change from false to true
+  /// (which means that a centering needs to be performed)).
+  void setCameraCenterOnUserLocation(bool center) {
+    final currentState = centerCameraOnUserLocation;
+    centerCameraOnUserLocation = center;
+    if (!currentState) notifyListeners();
   }
 
   /// Function which unsets the controller by type.
@@ -45,7 +56,7 @@ class MapSettings with ChangeNotifier {
         break;
       case ControllerType.selectOnMap:
         final currentZoom = (await controllerSelectOnMap?.getCameraState())!.zoom;
-        controller?.flyTo(CameraOptions(zoom: (currentZoom + 1)), MapAnimationOptions(duration: 1000));
+        controllerSelectOnMap?.flyTo(CameraOptions(zoom: (currentZoom + 1)), MapAnimationOptions(duration: 1000));
         break;
     }
   }
@@ -59,7 +70,7 @@ class MapSettings with ChangeNotifier {
         break;
       case ControllerType.selectOnMap:
         final currentZoom = (await controllerSelectOnMap?.getCameraState())!.zoom;
-        controller?.flyTo(CameraOptions(zoom: (currentZoom - 1)), MapAnimationOptions(duration: 1000));
+        controllerSelectOnMap?.flyTo(CameraOptions(zoom: (currentZoom - 1)), MapAnimationOptions(duration: 1000));
         break;
     }
   }
