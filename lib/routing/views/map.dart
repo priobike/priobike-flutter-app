@@ -284,7 +284,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     final waypoints = await WaypointsLayer(context).install(
       mapController!,
-      iconSize: ppi / 8,
+      iconSize: 0.2,
       below: trafficLights,
     );
     if (!mounted) return;
