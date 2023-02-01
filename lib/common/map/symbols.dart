@@ -67,13 +67,10 @@ class SymbolLoader {
 
   /// Adds an asset image to the currently displayed style
   Future<void> addImageFromAsset(String name, String assetName, int width, int height) async {
-    if (!(await mapController.style.hasStyleImage(name))) {
-      final bytes = await rootBundle.load(assetName);
-      final bytesArr = bytes.buffer.asUint8List();
-      return mapController.style
-          .addStyleImage(name, 1, MbxImage(width: width, height: height, data: bytesArr), false, [], [], null);
-    } else {
-      return;
-    }
+    if (await mapController.style.hasStyleImage(name)) return;
+    final bytes = await rootBundle.load(assetName);
+    final bytesArr = bytes.buffer.asUint8List();
+    return mapController.style
+        .addStyleImage(name, 1, MbxImage(width: width, height: height, data: bytesArr), false, [], [], null);
   }
 }
