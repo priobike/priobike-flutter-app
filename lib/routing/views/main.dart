@@ -36,7 +36,7 @@ void showSaveShortcutSheet(context) {
           context: context,
         ),
         content: SizedBox(
-          height: 48,
+          height: 54,
           child: Column(
             children: [
               TextFormField(
