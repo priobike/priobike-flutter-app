@@ -239,12 +239,12 @@ class RideMapViewState extends State<RideMapView> {
         .install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
     await WaypointsLayer(context).install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
     await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 4);
+        .install(mapController!, iconSize: ppi / 3);
     await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 4);
-    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 4);
+    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
     // The traffic light layer image has a 2x resolution to make it look good on high DPI screens.
-    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 8);
+    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 6);
 
     onRoutingUpdate();
     onPositioningUpdate();
