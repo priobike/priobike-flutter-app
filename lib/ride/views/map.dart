@@ -174,7 +174,6 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     if (ride.userSelectedSG == null) {
-      // TODO Set duration in dependence of the speed (difference between current and last coordinate)
       mapController!.easeTo(
           mapbox.CameraOptions(
             center:
@@ -189,13 +188,6 @@ class RideMapViewState extends State<RideMapView> {
 
     await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
       if (value) {
-        // TODO Set duration in dependence of the speed (difference between current and last coordinate)
-        // On iOS, in the current implementation, the puck won't show if we use the style transition to slower the
-        // animation of the puck. Therefore, for now, we need to exclude that from the iOS version.
-        if (Platform.isAndroid) {
-          await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
-        }
         mapController!.style.updateLayer(
           mapbox.LocationIndicatorLayer(
             id: "user-ride-location-puck",
@@ -223,11 +215,13 @@ class RideMapViewState extends State<RideMapView> {
             accuracyRadiusBorderColor: const Color(0x00000000).value,
           ),
         );
-        // On iOS, in the current implementation, the puck won't show if we use the style transition to slower the
-        // animation of the puck. Therefore, for now, we need to exclude that from the iOS version.
+        // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
         if (Platform.isAndroid) {
           await mapController!.style
-              .setStyleTransition(mapbox.TransitionOptions(duration: 3000, enablePlacementTransitions: false));
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1500, enablePlacementTransitions: false));
+        } else {
+          await mapController!.style
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1, enablePlacementTransitions: false));
         }
       }
     });
