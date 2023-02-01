@@ -254,14 +254,20 @@ class RideMapViewState extends State<RideMapView> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    final ppi = frame.devicePixelRatio;
+    double margin = frame.padding.top;
+    if (Platform.isAndroid) {
+      final ppi = frame.devicePixelRatio;
+      margin = margin * ppi;
+    } else {
+      margin = margin * 0.7;
+    }
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
-      logoViewMargins: Point(20, ppi * frame.size.height - MediaQuery.of(context).padding.top - 170),
-      logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
-      attributionButtonMargins: Point(10, ppi * frame.size.height - MediaQuery.of(context).padding.top - 170),
-      attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
+      logoViewMargins: Point(20, margin),
+      logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
+      attributionButtonMargins: Point(20, margin),
+      attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
     );
   }
 }
