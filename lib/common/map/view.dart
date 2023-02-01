@@ -97,16 +97,6 @@ class AppMapState extends State<AppMap> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return mapbox.MapWidget(
       resourceOptions: mapbox.ResourceOptions(
