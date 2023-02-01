@@ -4,12 +4,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/settings/models/routing.dart';
-import 'package:priobike/settings/models/routing_view.dart';
-import 'package:priobike/settings/models/sg_selector.dart';
-import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/logging/views.dart';
+import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/main.dart';
 import 'package:provider/provider.dart';
 
 class BetaSettingsView extends StatefulWidget {
@@ -33,14 +32,6 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   Future<void> onSelectRoutingMode(RoutingEndpoint routingEndpoint) async {
     // Tell the settings service that we selected the new backend.
     await settings.setRoutingEndpoint(routingEndpoint);
-
-    Navigator.pop(context);
-  }
-
-  /// A callback that is executed when a routing is selected.
-  Future<void> onSelectRoutingView(RoutingViewOption routingView) async {
-    // Tell the settings service that we selected the new routing.
-    await settings.selectRoutingView(routingView);
 
     Navigator.pop(context);
   }
@@ -98,24 +89,6 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                     text:
                         "Innerhalb von Hamburg kannst du das DRN-Routing auswählen. Im Digitalen Radverkehrsnetz (DRN) sind alle Radwege oder durch das Rad befahrbare Straßen in Hamburg enthalten. Die Routenberechnung ist aber noch in Entwicklung und kann derzeit auch zu falschen Routen führen.",
                     context: context,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Routenansicht",
-                    subtitle: settings.routingView.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: RoutingViewOption.values,
-                            selected: settings.routingView,
-                            title: (RoutingViewOption e) => e.description,
-                            callback: onSelectRoutingView);
-                      },
-                    ),
                   ),
                 ),
                 Padding(
