@@ -148,7 +148,7 @@ class WeatherViewState extends State<WeatherView> {
         // Convert the timestamp to a clock time.
         final clock = "${forecast.timestamp.hour.toString()}:${forecast.timestamp.minute.toString().padLeft(2, '0')}";
         final isTomorrow = forecast.timestamp.day != DateTime.now().day;
-        summary = summary! + "${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr wird es";
+        summary = "${summary!}${isTomorrow ? ' Morgen' : ' Heute'} ab $clock Uhr wird es";
         switch (forecast.icon) {
           case "clear-day":
             summary = "${summary!} sonnig.";

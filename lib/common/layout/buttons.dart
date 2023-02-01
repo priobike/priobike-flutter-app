@@ -249,6 +249,11 @@ class IconTextButton extends StatelessWidget {
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Colors.transparent),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -278,11 +283,6 @@ class IconTextButton extends StatelessWidget {
             const SizedBox(width: 2),
           ],
         ),
-      ),
-      onPressed: onPressed,
-      shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
     );
   }

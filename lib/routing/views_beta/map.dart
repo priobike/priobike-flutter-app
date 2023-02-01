@@ -16,7 +16,6 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:turf/helpers.dart' as turf;
@@ -191,17 +190,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
-    final frame = MediaQuery.of(context);
     await Future.delayed(const Duration(milliseconds: 750));
+    // FIXME needs to be fixed (the old bounds don't work correctly with the new Mapbox plugin). After having
+    // the correct bounds they can be used instead of "routing.selectedRoute!.paddedBounds" at the function
+    // "cameraForCoordinateBounds()"
+    /*final frame = MediaQuery.of(context);
     final coordinatesSouthwest = routing.selectedRoute!.paddedBounds.southwest["coordinates"] as List;
     final s = coordinatesSouthwest[1] as double;
     final w = coordinatesSouthwest[0] as double;
     final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
     final n = coordinatesNortheast[1] as double;
     final e = coordinatesNortheast[0] as double;
-    // FIXME needs to be fixed (the old bounds don't work correctly with the new Mapbox plugin). After having
-    // the correct bounds they can be used instead of "routing.selectedRoute!.paddedBounds" at the function
-    // "cameraForCoordinateBounds()"
     final newBounds = CoordinateBounds(
         southwest: turf.Point(
             coordinates: turf.Position(
@@ -213,7 +212,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           n + calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized),
           e,
         )).toJson(),
-        infiniteBounds: false);
+        infiniteBounds: false);*/
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(

@@ -56,7 +56,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       await routing.loadRoutes(context);
     });
   }
@@ -175,22 +175,20 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).colorScheme.primary,
-                          primary: Theme.of(context).colorScheme.secondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
                         onPressed: () async {
-                          if (mapController.getCameraPosition(ControllerType.selectOnMap) != null) {
-                            final cameraPosition =
-                                ((await mapController.getCameraPosition(ControllerType.selectOnMap)) as List);
-                            onComplete(
-                              context,
-                              cameraPosition[1],
-                              cameraPosition[0],
-                            );
-                          }
+                          final cameraPosition =
+                              ((await mapController.getCameraPosition(ControllerType.selectOnMap)) as List);
+                          onComplete(
+                            context,
+                            cameraPosition[1],
+                            cameraPosition[0],
+                          );
                         },
                         child: Content(
                             text: widget.withName ? "Speichern" : "Fertig", context: context, color: Colors.white),

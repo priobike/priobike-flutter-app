@@ -154,14 +154,6 @@ class LayerSelectionItem extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             padding: const EdgeInsets.all(4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 52),
-                BoldSmall(text: title, context: context),
-              ],
-            ),
-            // Draw a blue border around the selected item.
             decoration: selected
                 ? BoxDecoration(
                     border: Border.all(
@@ -177,6 +169,14 @@ class LayerSelectionItem extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(24),
                   ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 52),
+                BoldSmall(text: title, context: context),
+              ],
+            ),
+            // Draw a blue border around the selected item.
           ),
         ),
         IgnorePointer(

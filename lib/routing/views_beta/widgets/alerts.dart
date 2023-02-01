@@ -134,8 +134,8 @@ class AlertsViewState extends State<AlertsView> {
                     },
                     child: PageView(
                       physics: const NeverScrollableScrollPhysics(),
-                      children: alerts,
                       controller: controller,
+                      children: alerts,
                     ),
                   ),
                 ]),

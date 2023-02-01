@@ -91,7 +91,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback(
+    SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await routing.loadRoutes(context);
         await Provider.of<Places>(context, listen: false).loadPlaces(context);
@@ -520,8 +520,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                       : 0,
                                   duration: const Duration(milliseconds: 250),
                                   child: SizedBox(
-                                    child: const AlertsView(),
                                     width: frame.size.width * 0.75,
+                                    child: const AlertsView(),
                                   ),
                                 ),
                                 showRoutingBar

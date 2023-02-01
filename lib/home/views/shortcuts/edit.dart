@@ -179,7 +179,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                         ),
                                         const SmallVSpace(),
                                         BoldSmall(
-                                          text: entry.value.waypoints.length.toString() + " Stationen",
+                                          text: "${entry.value.waypoints.length} Stationen",
                                           context: context,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),

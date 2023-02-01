@@ -286,7 +286,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
-              child: Content(text: value.toStringAsFixed(2) + "%", context: context),
+              child: Content(text: "${value.toStringAsFixed(2)}%", context: context),
             ),
           ),
         ],
@@ -425,7 +425,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Content(
-                          text: ((routing.selectedRoute!.path.time * 0.001) * 0.016).round().toString() + " min",
+                          text: "${((routing.selectedRoute!.path.time * 0.001) * 0.016).round()} min",
                           context: context,
                           color: Colors.grey),
                       const SizedBox(width: 10),
@@ -436,7 +436,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       ),
                       const SizedBox(width: 10),
                       Content(
-                          text: (routing.selectedRoute!.path.distance * 0.001).toStringAsFixed(2) + " km",
+                          text: "${(routing.selectedRoute!.path.distance * 0.001).toStringAsFixed(2)} km",
                           context: context,
                           color: Colors.grey)
                     ],
