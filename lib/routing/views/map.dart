@@ -340,11 +340,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     setState(
       () {
         final ppi = frame.devicePixelRatio * 1;
-        if (Platform.isAndroid) {
-          attributionMargins = Point(20, newBottomInset + (80 * ppi));
-        } else {
-          attributionMargins = Point(20, newBottomInset + (50 * ppi));
-        }
+        attributionMargins =
+            Point(20, 124 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
       },
     );
   }
