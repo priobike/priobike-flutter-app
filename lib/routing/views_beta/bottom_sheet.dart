@@ -205,6 +205,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       return;
     }
 
+    // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
+    // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
+    // from the routing view to the home view.
     void startRide() => Navigator.pushReplacement<void, bool>(
         context,
         MaterialPageRoute<void>(
