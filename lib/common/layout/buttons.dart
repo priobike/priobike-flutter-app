@@ -233,7 +233,7 @@ class IconTextButton extends StatelessWidget {
     this.fillColor,
     this.splashColor,
     this.iconColor,
-    this.boxConstraints = const BoxConstraints(minWidth: 100.0, minHeight: 10.0),
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
     this.borderColor,
     this.textColor,
   }) : super(key: key);

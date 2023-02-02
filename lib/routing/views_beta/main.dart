@@ -442,6 +442,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
             // Top Bar
             SafeArea(
               top: !(waypointsSelected),
+              right: true,
+              left: true,
+              bottom: true,
               child: Padding(
                 padding: EdgeInsets.only(top: waypointsSelected ? 0 : 20),
                 child: Column(
