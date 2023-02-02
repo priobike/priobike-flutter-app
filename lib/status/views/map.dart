@@ -46,23 +46,20 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
-    await mapController?.style.styleSourceExists("sg-locs").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addSource(
-          mapbox.GeoJsonSource(
-              id: "sg-locs", data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
-        );
-      }
-    });
+    final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
+    if (sourceLocsExists != null && !sourceLocsExists) {
+      await mapController?.style.addSource(
+        mapbox.GeoJsonSource(
+            id: "sg-locs", data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
+      );
+    }
 
-    await mapController?.style.styleSourceExists("sg-lanes").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addSource(
-          mapbox.GeoJsonSource(
-              id: "sg-lanes", data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
-        );
-      }
-    });
+    final sourceSGLanesExists = await mapController?.style.styleSourceExists("sg-lanes");
+    if (sourceSGLanesExists != null && !sourceSGLanesExists) {
+      await mapController?.style.addSource(
+        mapbox.GeoJsonSource(id: "sg-lanes", data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
+      );
+    }
 
     // Define the color scheme for the layers.
     final color = [
@@ -112,20 +109,19 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       ["get", "thing_properties_lanetype"],
     ];
 
-    await mapController?.style.styleLayerExists("sg-lines-bg").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addLayer(
-          mapbox.LineLayer(
-            sourceId: "sg-lanes",
-            id: "sg-lines-bg",
-            lineColor: Colors.black.value,
-            lineCap: mapbox.LineCap.ROUND,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineWidth: 4,
-          ),
-        );
-      }
-    });
+    final sGLinesBGLayerExists = await mapController?.style.styleLayerExists("sg-lines-bg");
+    if (sGLinesBGLayerExists != null && !sGLinesBGLayerExists) {
+      await mapController?.style.addLayer(
+        mapbox.LineLayer(
+          sourceId: "sg-lanes",
+          id: "sg-lines-bg",
+          lineColor: Colors.black.value,
+          lineCap: mapbox.LineCap.ROUND,
+          lineJoin: mapbox.LineJoin.ROUND,
+          lineWidth: 4,
+        ),
+      );
+    }
 
     // Define the label that will be displayed below.
     final subtitle = [
@@ -160,120 +156,116 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
       ]
     ];
 
-    await mapController?.style.styleLayerExists("sg-lines").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addLayer(
-          mapbox.LineLayer(
-            sourceId: "sg-lanes",
-            id: "sg-lines",
-            lineCap: mapbox.LineCap.ROUND,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineWidth: 2,
-          ),
-        );
+    final sGLinesLayerExists = await mapController?.style.styleLayerExists("sg-lines");
+    if (sGLinesLayerExists != null && !sGLinesLayerExists) {
+      await mapController?.style.addLayer(
+        mapbox.LineLayer(
+          sourceId: "sg-lanes",
+          id: "sg-lines",
+          lineCap: mapbox.LineCap.ROUND,
+          lineJoin: mapbox.LineJoin.ROUND,
+          lineWidth: 2,
+        ),
+      );
 
-        await mapController?.style.setStyleLayerProperty('sg-lines', 'line-color', jsonEncode(color));
-      }
-    });
+      await mapController?.style.setStyleLayerProperty('sg-lines', 'line-color', jsonEncode(color));
+    }
 
-    await mapController?.style.styleLayerExists("sg-circles").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addLayer(
-          mapbox.CircleLayer(
-            sourceId: "sg-locs",
-            id: "sg-circles",
-            circleColor: Colors.white.value,
-            circleRadius: 3,
-            circleStrokeWidth: 2,
-            circleStrokeColor: Colors.black.value,
-          ),
-        );
+    final sGCirclesLayerExists = await mapController?.style.styleLayerExists("sg-circles");
+    if (sGCirclesLayerExists != null && !sGCirclesLayerExists) {
+      await mapController?.style.addLayer(
+        mapbox.CircleLayer(
+          sourceId: "sg-locs",
+          id: "sg-circles",
+          circleColor: Colors.white.value,
+          circleRadius: 3,
+          circleStrokeWidth: 2,
+          circleStrokeColor: Colors.black.value,
+        ),
+      );
 
-        await mapController?.style.setStyleLayerProperty('sg-circles', 'circle-color', jsonEncode(color));
-      }
-    });
+      await mapController?.style.setStyleLayerProperty('sg-circles', 'circle-color', jsonEncode(color));
+    }
 
-    await mapController?.style.styleLayerExists("sg-first-labels").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addLayer(
-          mapbox.SymbolLayer(
-            sourceId: "sg-locs",
-            id: "sg-first-labels",
-            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            textSize: 14,
-            textColor:
-                Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
-            textAllowOverlap: true,
-          ),
-        );
+    final sGFirstLabelsLayerExists = await mapController?.style.styleLayerExists("sg-first-labels");
+    if (sGFirstLabelsLayerExists != null && !sGFirstLabelsLayerExists) {
+      await mapController?.style.addLayer(
+        mapbox.SymbolLayer(
+          sourceId: "sg-locs",
+          id: "sg-first-labels",
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 14,
+          textColor:
+              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textAllowOverlap: true,
+        ),
+      );
 
-        await mapController?.style.setStyleLayerProperty(
-            'sg-first-labels',
-            'text-offset',
-            jsonEncode([
-              "literal",
-              [0, 1]
-            ]));
-        await mapController?.style.setStyleLayerProperty('sg-first-labels', 'text-field', jsonEncode(title));
-        await mapController?.style.setStyleLayerProperty(
-            'sg-first-labels',
-            'text-opacity',
-            jsonEncode(
-              [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                0,
-                0,
-                16,
-                0,
-                17,
-                0.75,
-              ],
-            ));
-      }
-    });
+      await mapController?.style.setStyleLayerProperty(
+          'sg-first-labels',
+          'text-offset',
+          jsonEncode([
+            "literal",
+            [0, 1]
+          ]));
+      await mapController?.style.setStyleLayerProperty('sg-first-labels', 'text-field', jsonEncode(title));
+      await mapController?.style.setStyleLayerProperty(
+          'sg-first-labels',
+          'text-opacity',
+          jsonEncode(
+            [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              0,
+              0,
+              16,
+              0,
+              17,
+              0.75,
+            ],
+          ));
+    }
 
-    await mapController?.style.styleLayerExists("sg-second-labels").then((exists) async {
-      if (!exists) {
-        await mapController?.style.addLayer(
-          mapbox.SymbolLayer(
-            sourceId: "sg-locs",
-            id: "sg-second-labels",
-            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            textSize: 12,
-            textColor:
-                Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
-            textAllowOverlap: true,
-          ),
-        );
+    final sGSecondLabelsLayerExists = await mapController?.style.styleLayerExists("sg-second-labels");
+    if (sGSecondLabelsLayerExists != null && !sGSecondLabelsLayerExists) {
+      await mapController?.style.addLayer(
+        mapbox.SymbolLayer(
+          sourceId: "sg-locs",
+          id: "sg-second-labels",
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textColor:
+              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textAllowOverlap: true,
+        ),
+      );
 
-        await mapController?.style.setStyleLayerProperty(
-            'sg-second-labels',
-            'text-offset',
-            jsonEncode([
-              "literal",
-              [0, 2.5]
-            ]));
-        await mapController?.style.setStyleLayerProperty('sg-second-labels', 'text-field', jsonEncode(subtitle));
-        await mapController?.style.setStyleLayerProperty(
-            'sg-second-labels',
-            'text-opacity',
-            jsonEncode(
-              [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                0,
-                0,
-                16,
-                0,
-                17,
-                0.75,
-              ],
-            ));
-      }
-    });
+      await mapController?.style.setStyleLayerProperty(
+          'sg-second-labels',
+          'text-offset',
+          jsonEncode([
+            "literal",
+            [0, 2.5]
+          ]));
+      await mapController?.style.setStyleLayerProperty('sg-second-labels', 'text-field', jsonEncode(subtitle));
+      await mapController?.style.setStyleLayerProperty(
+          'sg-second-labels',
+          'text-opacity',
+          jsonEncode(
+            [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              0,
+              0,
+              16,
+              0,
+              17,
+              0.75,
+            ],
+          ));
+    }
   }
 
   @override
