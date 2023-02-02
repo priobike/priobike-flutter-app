@@ -205,17 +205,12 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       return;
     }
 
-    void startRide() => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) {
-            // Avoid navigation back, only allow stop button to be pressed.
-            // Note: Don't use pushReplacement since this will call
-            // the result handler of the RouteView's host.
-            return WillPopScope(
-              onWillPop: () async => false,
-              child: const RideView(),
-            );
-          }),
-        );
+    void startRide() => Navigator.pushReplacement<void, bool>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        result: true);
 
     final preferences = await SharedPreferences.getInstance();
     final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;

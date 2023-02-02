@@ -139,12 +139,12 @@ class RoutingViewState extends State<RoutingView> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    void startRide() => Navigator.pushReplacement<void, void>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const RideView(),
-          ),
-        );
+    void startRide() => Navigator.pushReplacement<void, bool>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        result: true);
 
     final settings = Provider.of<Settings>(context, listen: false);
     if (settings.didViewWarning) {
@@ -297,81 +297,69 @@ class RoutingViewState extends State<RoutingView> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      child: WillPopScope(
-        onWillPop: () async {
-          final completer = Completer<bool>();
-          completer.complete(true);
-          // The second value in the .pop-method ("true") in that case specifies that we navigate back to
-          // the home view (important for the result handler to do the right things)
-          Navigator.pop(context, true);
-          return completer.future;
-        },
-        child: Scaffold(
-          body: NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              sheetMovement.add(notification);
-              return false;
-            },
-            child: Stack(
-              children: [
-                RoutingMapView(sheetMovement: sheetMovement.stream),
+      child: Scaffold(
+        body: NotificationListener<DraggableScrollableNotification>(
+          onNotification: (notification) {
+            sheetMovement.add(notification);
+            return false;
+          },
+          child: Stack(
+            children: [
+              RoutingMapView(sheetMovement: sheetMovement.stream),
 
-                if (routing!.isFetchingRoute) renderLoadingIndicator(),
-                if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
-                if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+              if (routing!.isFetchingRoute) renderLoadingIndicator(),
+              if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
+              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
-                // Top Bar
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // The second value in the .pop-method ("true") in that case specifies that we navigate back to
-                        // the home view (important for the result handler to do the right things)
-                        AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context, true)),
-                        const SizedBox(width: 16),
-                        SizedBox(
-                          // Avoid expansion of alerts view.
-                          width: frame.size.width - 80,
-                          child: const AlertsView(),
-                        )
-                      ],
-                    ),
+              // Top Bar
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        // Avoid expansion of alerts view.
+                        width: frame.size.width - 80,
+                        child: const AlertsView(),
+                      )
+                    ],
                   ),
                 ),
+              ),
 
-                // Side Bar
-                layers.layersCanBeEnabled
-                    ? SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 80, left: 8),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: 58,
-                                height: 58,
-                                child: Tile(
-                                  fill: Theme.of(context).colorScheme.background,
-                                  onPressed: onLayerSelection,
-                                  content: Icon(
-                                    Icons.layers_rounded,
-                                    color: Theme.of(context).colorScheme.onBackground,
-                                  ),
+              // Side Bar
+              layers.layersCanBeEnabled
+                  ? SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 80, left: 8),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 58,
+                              height: 58,
+                              child: Tile(
+                                fill: Theme.of(context).colorScheme.background,
+                                onPressed: onLayerSelection,
+                                content: Icon(
+                                  Icons.layers_rounded,
+                                  color: Theme.of(context).colorScheme.onBackground,
                                 ),
-                              )
-                            ],
-                          ),
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    : Container(),
+                      ),
+                    )
+                  : Container(),
 
-                RouteDetailsBottomSheet(
-                  onSelectStartButton: onStartRide,
-                  onSelectSaveButton: () => showSaveShortcutSheet(context),
-                ),
-              ],
-            ),
+              RouteDetailsBottomSheet(
+                onSelectStartButton: onStartRide,
+                onSelectSaveButton: () => showSaveShortcutSheet(context),
+              ),
+            ],
           ),
         ),
       ),

@@ -143,12 +143,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    void startRide() => Navigator.pushReplacement<void, void>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const RideView(),
-          ),
-        );
+    void startRide() => Navigator.pushReplacement<void, bool>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        result: true);
 
     final preferences = await SharedPreferences.getInstance();
     final didViewWarning = preferences.getBool("priobike.routingNew.warning") ?? false;

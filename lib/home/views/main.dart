@@ -111,8 +111,8 @@ class HomeViewState extends State<HomeView> {
             builder: (_) =>
                 settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
         .then(
-      (comingFromRoutingView) {
-        if (comingFromRoutingView != null && comingFromRoutingView) {
+      (comingNotFromRoutingView) {
+        if (comingNotFromRoutingView == null) {
           routing.reset();
           discomforts.reset();
           predictionSGStatus.reset();
@@ -130,8 +130,8 @@ class HomeViewState extends State<HomeView> {
             builder: (_) =>
                 settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
         .then(
-      (comingFromRoutingView) {
-        if (comingFromRoutingView != null && comingFromRoutingView) {
+      (comingNotFromRoutingView) {
+        if (comingNotFromRoutingView == null) {
           routing.reset();
           discomforts.reset();
           predictionSGStatus.reset();
