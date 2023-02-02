@@ -205,17 +205,15 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
       return;
     }
 
-    void startRide() => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) {
-            // Avoid navigation back, only allow stop button to be pressed.
-            // Note: Don't use pushReplacement since this will call
-            // the result handler of the RouteView's host.
-            return WillPopScope(
-              onWillPop: () async => false,
-              child: const RideView(),
-            );
-          }),
-        );
+    // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
+    // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
+    // from the routing view to the home view.
+    void startRide() => Navigator.pushReplacement<void, bool>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        result: true);
 
     final preferences = await SharedPreferences.getInstance();
     final didViewWarning = preferences.getBool("priobike.routing.warning") ?? false;
@@ -286,7 +284,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
-              child: Content(text: value.toStringAsFixed(2) + "%", context: context),
+              child: Content(text: "${value.toStringAsFixed(2)}%", context: context),
             ),
           ),
         ],
@@ -425,7 +423,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Content(
-                          text: ((routing.selectedRoute!.path.time * 0.001) * 0.016).round().toString() + " min",
+                          text: "${((routing.selectedRoute!.path.time * 0.001) * 0.016).round()} min",
                           context: context,
                           color: Colors.grey),
                       const SizedBox(width: 10),
@@ -436,7 +434,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                       ),
                       const SizedBox(width: 10),
                       Content(
-                          text: (routing.selectedRoute!.path.distance * 0.001).toStringAsFixed(2) + " km",
+                          text: "${(routing.selectedRoute!.path.distance * 0.001).toStringAsFixed(2)} km",
                           context: context,
                           color: Colors.grey)
                     ],
@@ -616,8 +614,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           snapSizes: routing.selectedRoute != null ? [0.66] : [],
           controller: draggableScrollableController,
           builder: (BuildContext buildContext, ScrollController scrollController) {
-            final bool isTop = draggableScrollableController.size <= topSnapRatio + 0.05 &&
-                draggableScrollableController.size >= topSnapRatio - 0.05;
+            final size = draggableScrollableController.isAttached ? draggableScrollableController.size : 0;
+            final bool isTop = size <= topSnapRatio + 0.05 && size >= topSnapRatio - 0.05;
 
             bottomSheetState.draggableScrollableController = draggableScrollableController;
             bottomSheetState.listController = scrollController;

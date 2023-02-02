@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_info_plus/system_info_plus.dart';
 
@@ -111,8 +111,8 @@ class Layers with ChangeNotifier {
   /// Whether the layers can be enabled.
   bool layersCanBeEnabled;
 
-  /// The memory threshold in mB.
-  // Generally this app uses between 500-1500 (expecting mapbox memory leak to occur).
+  /// The memory threshold in MB.
+  /// Generally this app uses between 500-1500 (expecting mapbox memory leak to occur).
   static const memoryThreshold = 2000;
 
   Future<void> setShowRentalStations(bool showRentalStations) async {

@@ -50,6 +50,8 @@ class SmallIconButton extends StatelessWidget {
         elevation: 0, // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
+        onPressed: onPressed,
+        shape: const CircleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(11),
           child: Icon(
@@ -57,8 +59,6 @@ class SmallIconButton extends StatelessWidget {
             color: color ?? Theme.of(context).colorScheme.onBackground,
           ),
         ),
-        onPressed: onPressed,
-        shape: const CircleBorder(),
       ),
     );
   }
@@ -89,16 +89,16 @@ class AppBackButton extends StatelessWidget {
         elevation: elevation ?? 0,
         fillColor: Theme.of(context).colorScheme.background,
         splashColor: Theme.of(context).colorScheme.surface,
+        onPressed: onPressed,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
+        ),
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 12),
           child: Icon(
             icon,
             size: 32,
           ),
-        ),
-        onPressed: onPressed,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(topRight: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
       ),
     );
@@ -150,6 +150,10 @@ class BigButton extends StatelessWidget {
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      onPressed: onPressed,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -187,10 +191,6 @@ class BigButton extends StatelessWidget {
             const SizedBox(width: 32),
           ],
         ),
-      ),
-      onPressed: onPressed,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
     );
   }
@@ -249,6 +249,11 @@ class IconTextButton extends StatelessWidget {
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Colors.transparent),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -278,11 +283,6 @@ class IconTextButton extends StatelessWidget {
             const SizedBox(width: 2),
           ],
         ),
-      ),
-      onPressed: onPressed,
-      shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
     );
   }

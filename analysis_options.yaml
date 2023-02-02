@@ -25,8 +25,16 @@ linter:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
-    # Don't use the implementation_imports rule
+    # Don't use the following rules.
     implementation_imports: false
+    # At the moment, we use the provider package for state management.
+    # However, this requires that we get view models with the context,
+    # even if we are outside of the build method. Calling objects from
+    # the context requires to check if the context is still mounted.
+    # This is not possible outside of the build method, so we have to
+    # ignore this rule for now. We should refactor the currently unsafe
+    # calls to the context to use another state management solution.
+    use_build_context_synchronously: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

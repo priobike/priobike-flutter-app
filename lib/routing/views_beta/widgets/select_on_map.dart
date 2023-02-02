@@ -11,13 +11,13 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/map.dart';
-import 'package:priobike/routing/services/map_settings.dart';
-import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
 import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map_name.dart';
+import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
@@ -37,6 +37,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The associated mapController service, which is injected by the provider.
   late MapSettings mapController;
 
+  /// The associated shortcuts service, which is injected by the provider.
+  late MapSettings mapSettings;
+
   /// The associated geocoding service, which is injected by the provider.
   late Geocoding geocoding;
 
@@ -53,7 +56,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback((_) async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       await routing.loadRoutes(context);
     });
   }
@@ -62,6 +65,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
     mapController = Provider.of<MapSettings>(context);
+    mapSettings = Provider.of<MapSettings>(context);
     geocoding = Provider.of<Geocoding>(context);
     profile = Provider.of<Profile>(context);
     places = Provider.of<Places>(context);
@@ -103,7 +107,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapController.setMyLocationTrackingModeTracking(ControllerType.selectOnMap);
+    mapSettings.setCameraCenterOnUserLocation(true);
   }
 
   /// Private Center North Function which calls mapControllerService
@@ -171,17 +175,20 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                       const SizedBox(width: 5),
                       TextButton(
                         style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.secondary,
                           backgroundColor: Theme.of(context).colorScheme.primary,
-                          primary: Theme.of(context).colorScheme.secondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        onPressed: () {
-                          if (mapController.getCameraPosition(ControllerType.selectOnMap) != null) {
-                            onComplete(context, mapController.getCameraPosition(ControllerType.selectOnMap)!.latitude,
-                                mapController.getCameraPosition(ControllerType.selectOnMap)!.longitude);
-                          }
+                        onPressed: () async {
+                          final cameraPosition =
+                              ((await mapController.getCameraPosition(ControllerType.selectOnMap)) as List);
+                          onComplete(
+                            context,
+                            cameraPosition[1],
+                            cameraPosition[0],
+                          );
                         },
                         child: Content(
                             text: widget.withName ? "Speichern" : "Fertig", context: context, color: Colors.white),
@@ -226,9 +233,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            GPSButton(
-                myLocationTrackingMode: mapController.myLocationTrackingModeSelectOnMapView,
-                gpsCentralization: _gpsCentralization),
+            GPSButton(gpsCentralization: _gpsCentralization),
             const SizedBox(
               height: 15,
             ),

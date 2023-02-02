@@ -36,7 +36,7 @@ void showSaveShortcutSheet(context) {
           context: context,
         ),
         content: SizedBox(
-          height: 48,
+          height: 54,
           child: Column(
             children: [
               TextFormField(
@@ -110,7 +110,7 @@ class RoutingViewState extends State<RoutingView> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback(
+    SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await routing?.loadRoutes(context);
 
@@ -139,19 +139,15 @@ class RoutingViewState extends State<RoutingView> {
   Future<void> onStartRide() async {
     HapticFeedback.heavyImpact();
 
-    void startRide() => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) {
-              // Avoid navigation back, only allow stop button to be pressed.
-              // Note: Don't use pushReplacement since this will call
-              // the result handler of the RouteView's host.
-              return WillPopScope(
-                onWillPop: () async => false,
-                child: const RideView(),
-              );
-            },
-          ),
-        );
+    // We need to send a result (true) to inform the result handler in the HomeView that we do not want to reset
+    // the services. This is only wanted when we pop the routing view in case of a back navigation (e.g. by back button)
+    // from the routing view to the home view.
+    void startRide() => Navigator.pushReplacement<void, bool>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const RideView(),
+        ),
+        result: true);
 
     final settings = Provider.of<Settings>(context, listen: false);
     if (settings.didViewWarning) {

@@ -72,12 +72,12 @@ class NavBarView extends StatelessWidget {
                     context: context,
                   ),
                   Flexible(
+                    fit: FlexFit.tight,
                     child: Content(
                       text: settings.backend == Backend.production ? " HH" : " DD",
                       color: Colors.white,
                       context: context,
                     ),
-                    fit: FlexFit.tight,
                   ),
                   BoldContent(text: greeting, color: Colors.white, context: context),
                 ],

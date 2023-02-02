@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
+import 'package:turf/helpers.dart' as turf;
 
 enum ControllerType {
   main,
@@ -11,22 +12,27 @@ enum ControllerType {
 
 class MapSettings with ChangeNotifier {
   /// MapboxMapController for routingView
-  MapboxMapController? controller;
+  MapboxMap? controller;
 
   /// MapboxMapController for selectOnMapView
-  MapboxMapController? controllerSelectOnMap;
+  MapboxMap? controllerSelectOnMap;
 
-  /// MyLocationTrackingMode determines tracking of position in RoutingView
-  MyLocationTrackingMode myLocationTrackingMode = MyLocationTrackingMode.None;
-
-  /// MyLocationTrackingMode determines tracking of position in selectOnMapView
-  MyLocationTrackingMode myLocationTrackingModeSelectOnMapView = MyLocationTrackingMode.None;
+  /// A bool specifying whether the camera should be/is centered on the user location.
+  bool centerCameraOnUserLocation = false;
 
   /// The logger for this service.
   final Logger log = Logger("MapSettingsService");
 
   MapSettings() {
     log.i("MapSettingsService started.");
+  }
+
+  /// Change value of centerCameraOnUserLocation (only notify listeners on a change from false to true
+  /// (which means that a centering needs to be performed)).
+  void setCameraCenterOnUserLocation(bool center) {
+    final currentState = centerCameraOnUserLocation;
+    centerCameraOnUserLocation = center;
+    if (!currentState) notifyListeners();
   }
 
   /// Function which unsets the controller by type.
@@ -42,25 +48,29 @@ class MapSettings with ChangeNotifier {
   }
 
   /// Function which zooms in the controller by type.
-  void zoomIn(ControllerType controllerType) {
+  void zoomIn(ControllerType controllerType) async {
     switch (controllerType) {
       case ControllerType.main:
-        controller?.animateCamera(CameraUpdate.zoomIn());
+        final currentZoom = (await controller?.getCameraState())!.zoom;
+        controller?.flyTo(CameraOptions(zoom: (currentZoom + 1)), MapAnimationOptions(duration: 1000));
         break;
       case ControllerType.selectOnMap:
-        controllerSelectOnMap?.animateCamera(CameraUpdate.zoomIn());
+        final currentZoom = (await controllerSelectOnMap?.getCameraState())!.zoom;
+        controllerSelectOnMap?.flyTo(CameraOptions(zoom: (currentZoom + 1)), MapAnimationOptions(duration: 1000));
         break;
     }
   }
 
   /// Function which zooms out the controller by type.
-  void zoomOut(ControllerType controllerType) {
+  void zoomOut(ControllerType controllerType) async {
     switch (controllerType) {
       case ControllerType.main:
-        controller?.animateCamera(CameraUpdate.zoomOut());
+        final currentZoom = (await controller?.getCameraState())!.zoom;
+        controller?.flyTo(CameraOptions(zoom: (currentZoom - 1)), MapAnimationOptions(duration: 1000));
         break;
       case ControllerType.selectOnMap:
-        controllerSelectOnMap?.animateCamera(CameraUpdate.zoomOut());
+        final currentZoom = (await controllerSelectOnMap?.getCameraState())!.zoom;
+        controllerSelectOnMap?.flyTo(CameraOptions(zoom: (currentZoom - 1)), MapAnimationOptions(duration: 1000));
         break;
     }
   }
@@ -69,47 +79,21 @@ class MapSettings with ChangeNotifier {
   void centerNorth(ControllerType controllerType) {
     switch (controllerType) {
       case ControllerType.main:
-        controller?.animateCamera(CameraUpdate.bearingTo(0));
+        controller?.flyTo(CameraOptions(bearing: 0), MapAnimationOptions(duration: 1000));
         break;
       case ControllerType.selectOnMap:
-        controllerSelectOnMap?.animateCamera(CameraUpdate.bearingTo(0));
+        controllerSelectOnMap?.flyTo(CameraOptions(bearing: 0), MapAnimationOptions(duration: 1000));
         break;
     }
-  }
-
-  /// Function which the location tracking mode of the controller by type.
-  void setMyLocationTrackingModeTracking(ControllerType controllerType) {
-    switch (controllerType) {
-      case ControllerType.main:
-        myLocationTrackingMode = MyLocationTrackingMode.Tracking;
-        break;
-      case ControllerType.selectOnMap:
-        myLocationTrackingModeSelectOnMapView = MyLocationTrackingMode.Tracking;
-        break;
-    }
-    notifyListeners();
-  }
-
-  /// Function which the location tracking mode to none of the controller by type.
-  void setMyLocationTrackingModeNone(ControllerType controllerType) {
-    switch (controllerType) {
-      case ControllerType.main:
-        myLocationTrackingMode = MyLocationTrackingMode.None;
-        break;
-      case ControllerType.selectOnMap:
-        myLocationTrackingModeSelectOnMapView = MyLocationTrackingMode.None;
-        break;
-    }
-    notifyListeners();
   }
 
   /// Function which the camera position of the controller by type.
-  LatLng? getCameraPosition(ControllerType controllerType) {
+  Future<Map<String?, Object?>?> getCameraPosition(ControllerType controllerType) async {
     switch (controllerType) {
       case ControllerType.main:
-        return controller?.cameraPosition?.target;
+        return (await controller?.getCameraState())!.center;
       case ControllerType.selectOnMap:
-        return controllerSelectOnMap?.cameraPosition?.target;
+        return (await controllerSelectOnMap?.getCameraState())!.center;
     }
   }
 
@@ -121,12 +105,35 @@ class MapSettings with ChangeNotifier {
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 750));
-    await controller?.animateCamera(
-      // Bottom and top to not hide route below UI components.
-      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds,
-          bottom: 0.175 * frame.size.height,
-          top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized)),
-      duration: const Duration(milliseconds: 1000),
+    final coordinatesSouthwest = routing.selectedRoute!.paddedBounds.southwest["coordinates"] as List;
+    final s = coordinatesSouthwest[1] as double;
+    final w = coordinatesSouthwest[0] as double;
+    final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
+    final n = coordinatesNortheast[1] as double;
+    final e = coordinatesNortheast[0] as double;
+    final newBounds = CoordinateBounds(
+        southwest: turf.Point(
+            coordinates: turf.Position(
+          s + 0.175 * frame.size.height,
+          w,
+        )).toJson(),
+        northeast: turf.Point(
+            coordinates: turf.Position(
+          n + calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized),
+          e,
+        )).toJson(),
+        infiniteBounds: false);
+    final currentCameraOptions = await controller?.getCameraState();
+    if (currentCameraOptions == null) return;
+    final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
+      newBounds,
+      currentCameraOptions.padding,
+      currentCameraOptions.bearing,
+      currentCameraOptions.pitch,
+    );
+    await controller?.flyTo(
+      cameraOptionsForBounds!,
+      MapAnimationOptions(duration: 1000),
     );
   }
 
@@ -138,9 +145,35 @@ class MapSettings with ChangeNotifier {
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 750));
-    await controller?.animateCamera(
-      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds, bottom: 0.66 * frame.size.height),
-      duration: const Duration(milliseconds: 1000),
+    final coordinatesSouthwest = routing.selectedRoute!.paddedBounds.southwest["coordinates"] as List;
+    final s = coordinatesSouthwest[1] as double;
+    final w = coordinatesSouthwest[0] as double;
+    final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
+    final n = coordinatesNortheast[1] as double;
+    final e = coordinatesNortheast[0] as double;
+    final newBounds = CoordinateBounds(
+        southwest: turf.Point(
+            coordinates: turf.Position(
+          s + 0.66 * frame.size.height,
+          w,
+        )).toJson(),
+        northeast: turf.Point(
+            coordinates: turf.Position(
+          n,
+          e,
+        )).toJson(),
+        infiniteBounds: false);
+    final currentCameraOptions = await controller?.getCameraState();
+    if (currentCameraOptions == null) return;
+    final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
+      newBounds,
+      currentCameraOptions.padding,
+      currentCameraOptions.bearing,
+      currentCameraOptions.pitch,
+    );
+    await controller?.flyTo(
+      cameraOptionsForBounds!,
+      MapAnimationOptions(duration: 1000),
     );
   }
 }

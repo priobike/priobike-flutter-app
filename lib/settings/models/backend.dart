@@ -1,4 +1,4 @@
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
@@ -127,9 +127,9 @@ extension BackendRegion on Backend {
   LatLng get center {
     switch (this) {
       case Backend.production:
-        return const LatLng(53.551086, 9.993682);
+        return LatLng(53.551086, 9.993682);
       case Backend.staging:
-        return const LatLng(51.050407, 13.737262);
+        return LatLng(51.050407, 13.737262);
     }
   }
 }

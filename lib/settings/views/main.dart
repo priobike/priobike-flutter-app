@@ -44,16 +44,17 @@ class SettingsElement extends StatelessWidget {
         content: Row(
           children: [
             Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BoldContent(text: title, context: context),
-                    if (subtitle != null) const SmallVSpace(),
-                    if (subtitle != null)
-                      Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
-                  ],
-                ),
-                fit: FlexFit.tight),
+              fit: FlexFit.tight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoldContent(text: title, context: context),
+                  if (subtitle != null) const SmallVSpace(),
+                  if (subtitle != null)
+                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                ],
+              ),
+            ),
             SizedBox(
               height: 48,
               width: 48,
@@ -101,14 +102,15 @@ class SettingsSelection<E> extends StatelessWidget {
               content: Row(
                 children: [
                   Flexible(
-                      child: Content(
-                        text: title(elements[index]),
-                        context: context,
-                        color: elements[index] == selected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onBackground,
-                      ),
-                      fit: FlexFit.tight),
+                    fit: FlexFit.tight,
+                    child: Content(
+                      text: title(elements[index]),
+                      context: context,
+                      color: elements[index] == selected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
                   Expanded(
                     child: Container(),
                   ),

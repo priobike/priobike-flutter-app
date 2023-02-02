@@ -1,8 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart' as l;
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -193,12 +192,12 @@ class Discomforts with ChangeNotifier {
     // Traverse the points and calculate the elevation in degrees.
     final criticalElevationSegments = List<GHSegment>.empty(growable: true);
     GHSegment? currentSegment;
-    const vincenty = l.Distance(roundResult: false);
+    const vincenty = Distance(roundResult: false);
     for (int i = 0; i < path.points.coordinates.length - 1; i++) {
       final c1 = path.points.coordinates[i];
       final c2 = path.points.coordinates[i + 1];
       if (c1.elevation == null || c2.elevation == null) continue;
-      final dist = vincenty.distance(l.LatLng(c1.lat, c1.lon), l.LatLng(c2.lat, c2.lon));
+      final dist = vincenty.distance(LatLng(c1.lat, c1.lon), LatLng(c2.lat, c2.lon));
       if (dist < 50) {
         continue; // Avoid short segments due to floating point inaccuracies.
       }

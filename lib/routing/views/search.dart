@@ -181,7 +181,7 @@ class RouteSearchState extends State<RouteSearch> {
   void initState() {
     super.initState();
 
-    SchedulerBinding.instance?.addPostFrameCallback(
+    SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await positioning.requestSingleLocation(context);
       },

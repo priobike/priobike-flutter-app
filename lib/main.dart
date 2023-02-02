@@ -8,29 +8,29 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
-import 'package:priobike/routing/services/bottom_sheet_state.dart';
-import 'package:priobike/loader.dart';
-import 'package:priobike/news/services/news.dart';
-import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/logging/logger.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/loader.dart';
+import 'package:priobike/logging/logger.dart';
+import 'package:priobike/news/services/news.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/datastream.dart';
+import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_settings.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
+import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
@@ -121,50 +121,50 @@ class App extends StatelessWidget {
                 brightness: Brightness.light,
               ),
               textTheme: const TextTheme(
-                headline1: TextStyle(
+                displayLarge: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                headline2: TextStyle(
+                displayMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                headline3: TextStyle(
+                displaySmall: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
-                headline4: TextStyle(
+                headlineMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
-                bodyText1: TextStyle(
+                bodyLarge: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
-                subtitle1: TextStyle(
+                titleMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFF000000),
                 ),
-                subtitle2: TextStyle(
+                titleSmall: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF000000),
                 ),
               ),
-              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+              useMaterial3: true,
             ),
             darkTheme: ThemeData(
               dialogBackgroundColor: const Color(0xFF232323),
@@ -177,50 +177,50 @@ class App extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               textTheme: const TextTheme(
-                headline1: TextStyle(
+                displayLarge: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 38,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
-                headline2: TextStyle(
+                displayMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
-                headline3: TextStyle(
+                displaySmall: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
-                headline4: TextStyle(
+                headlineMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
-                bodyText1: TextStyle(
+                bodyLarge: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 16,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
-                subtitle1: TextStyle(
+                titleMedium: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w300,
                   color: Color(0xFFFFFFFF),
                 ),
-                subtitle2: TextStyle(
+                titleSmall: TextStyle(
                   fontFamily: 'HamburgSans',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFFFFFFF),
                 ),
               ),
-              androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+              useMaterial3: true,
             ),
             themeMode: settings.colorMode == ColorMode.light
                 ? ThemeMode.light

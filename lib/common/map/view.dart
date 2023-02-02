@@ -1,13 +1,16 @@
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:turf/helpers.dart' as turf;
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -28,56 +31,49 @@ class AppMap extends StatefulWidget {
     }
   }
 
-  /// A custom location puck image.
-  final String? puckImage;
-
-  /// A custom location puck image size.
-  final double puckSize;
-
-  /// If dragging is enabled.
-  final bool dragEnabled;
-
   /// A callback that is executed when the map was created.
-  final void Function(MapboxMapController)? onMapCreated;
+  final void Function(mapbox.MapboxMap)? onMapCreated;
 
   /// A callback that is executed when the style was loaded.
-  final void Function()? onStyleLoaded;
+  final void Function(mapbox.StyleLoadedEventData)? onStyleLoaded;
+
+  /// A callback that is executed when the camera position changes.
+  final void Function(mapbox.CameraChangedEventData)? onCameraChanged;
 
   /// A callback that is executed when the camera is idle.
   final void Function()? onCameraIdle;
 
-  /// A callback that is executed when the map is dismissed from camera tracking.
-  final void Function()? onCameraTrackingDismissed;
-
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
 
-  /// A callback that is executed when the map is clicked.
-  final void Function(Point<double>, LatLng)? onMapClick;
+  /// A callback that is executed when the map is taped.
+  final void Function(mapbox.ScreenCoordinate)? onMapTap;
 
-  /// The attribution button position.
-  final AttributionButtonPosition attributionButtonPosition;
-
-  /// The myLocationTrackingMode
-  final MyLocationTrackingMode? myLocationTrackingMode;
-
+  /// The margins for the Mapbox logo.
+  /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? logoViewMargins;
+
+  /// The ornament position for the Mapbox logo.
+  final mapbox.OrnamentPosition? logoViewOrnamentPosition;
+
+  /// The margins for the attribution button
+  /// (where those margins get applied depends on the corresponding ornament position)
   final Point<num>? attributionButtonMargins;
 
+  /// The ornament position for the atrribution button.
+  final mapbox.OrnamentPosition? attributionButtonOrnamentPosition;
+
   const AppMap(
-      {this.puckImage,
-      this.puckSize = 128,
-      this.dragEnabled = true,
-      this.onMapCreated,
+      {this.onMapCreated,
       this.onStyleLoaded,
+      this.onCameraChanged,
       this.onCameraIdle,
-      this.onMapClick,
       this.onMapLongClick,
+      this.onMapTap,
       this.logoViewMargins,
+      this.logoViewOrnamentPosition,
       this.attributionButtonMargins,
-      this.attributionButtonPosition = AttributionButtonPosition.BottomRight,
-      this.onCameraTrackingDismissed,
-      this.myLocationTrackingMode,
+      this.attributionButtonOrnamentPosition,
       Key? key})
       : super(key: key);
 
@@ -102,45 +98,58 @@ class AppMapState extends State<AppMap> {
 
   @override
   Widget build(BuildContext context) {
-    return MapboxMap(
-      styleString: Theme.of(context).colorScheme.brightness == Brightness.light
+    return mapbox.MapWidget(
+      resourceOptions: mapbox.ResourceOptions(
+          accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
+      key: const ValueKey("mapbox-map"),
+      styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
           ? layers.mapDesign.lightStyle
           : layers.mapDesign.darkStyle,
-      // At the moment, we hard code the map box access token. In the future,
-      // this token will be provided by an environment variable. However, we need
-      // to integrate this in the CI builds and provide a development guide.
-      accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
       onMapCreated: onMapCreated,
-      onStyleLoadedCallback: widget.onStyleLoaded,
-      trackCameraPosition: true,
-      compassEnabled: false,
-      dragEnabled: widget.dragEnabled,
-      onCameraIdle: widget.onCameraIdle,
-      onMapClick: widget.onMapClick,
-      onMapLongClick: widget.onMapLongClick,
-      onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
-      attributionButtonPosition: widget.attributionButtonPosition,
-      myLocationEnabled: true,
-      // Only used in new routing view.
-      myLocationTrackingMode: widget.myLocationTrackingMode ?? MyLocationTrackingMode.None,
-      myLocationRenderMode: MyLocationRenderMode.GPS,
-      // Use a custom foreground image for the location puck.
-      puckImage: widget.puckImage,
-      puckSize: widget.puckSize,
-      // Point on the test location center, which is Dresden or Hamburg.
-      initialCameraPosition: CameraPosition(target: settings.backend.center, tilt: 0, zoom: 12),
-      // The position of the logo and the attribution button.
-      // Both are usually at the same height on different sides of the map.
-      logoViewMargins: widget.logoViewMargins,
-      attributionButtonMargins: widget.attributionButtonMargins,
+      onStyleLoadedListener: widget.onStyleLoaded,
+      onTapListener: widget.onMapTap,
+      onCameraChangeListener: widget.onCameraChanged,
+      // Setting the following line (textureView) to true results in a spam of the message (only effects Android):
+      // "updateAcquireFence: Did not find frame."
+      // Setting the line (textureView) to false results in a spam of the message (only effects Android):
+      // "[SurfaceTexture-0-26276-3](id:66a40000000b,api:1,p:627,c:26276) dequeueBuffer: BufferQueue has been abandoned"
+      // Other effects were not yet observed.
+      // textureView: false,
+      cameraOptions: mapbox.CameraOptions(
+        center: turf.Point(
+            coordinates: turf.Position(
+          settings.backend.center.longitude,
+          settings.backend.center.latitude,
+        )).toJson(),
+        zoom: 12,
+      ),
     );
   }
 
   /// A wrapper for the default onMapCreated callback.
   /// In this callback we configure the default settings.
-  /// For example, we set the MapBox telemetry to disabled.
-  Future<void> onMapCreated(MapboxMapController controller) async {
-    controller.setTelemetryEnabled(false);
+  Future<void> onMapCreated(mapbox.MapboxMap controller) async {
+    controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
+    controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
+    controller.attribution.updateSettings(mapbox.AttributionSettings(
+        clickable: true,
+        position: widget.attributionButtonOrnamentPosition,
+        marginTop: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.TOP_RIGHT
+            ? widget.attributionButtonMargins?.y.toDouble()
+            : 0,
+        marginBottom: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_RIGHT
+            ? widget.attributionButtonMargins?.y.toDouble()
+            : 0,
+        marginRight: widget.attributionButtonMargins?.x.toDouble()));
+    controller.logo.updateSettings(mapbox.LogoSettings(
+        position: widget.logoViewOrnamentPosition,
+        marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT
+            ? widget.logoViewMargins?.y.toDouble()
+            : 0,
+        marginBottom: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_LEFT
+            ? widget.logoViewMargins?.y.toDouble()
+            : 0,
+        marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);
   }
 }

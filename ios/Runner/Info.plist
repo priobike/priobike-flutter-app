@@ -68,6 +68,8 @@
 	<array>
 		<string>mqtt.tcp</string>
 	</array>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
 

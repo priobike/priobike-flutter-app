@@ -8,7 +8,7 @@ showDeleteDialog(BuildContext context, String deleteName, Function onPressed) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           title: BoldContent(
-              text: "Sind sie sich sicher, dass sie alle ihre " + deleteName + " löschen möchten?", context: context),
+              text: "Sind sie sich sicher, dass sie alle ihre $deleteName löschen möchten?", context: context),
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: <Widget>[
             TextButton(

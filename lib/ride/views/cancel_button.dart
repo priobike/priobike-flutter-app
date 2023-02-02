@@ -41,11 +41,21 @@ class CancelButton extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => onTap(context),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
           child: BoldSubHeader(
             text: 'Ja',
             context: context,
             color: Theme.of(context).colorScheme.primary,
           ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
           style: ButtonStyle(
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
@@ -53,20 +63,10 @@ class CancelButton extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
           child: BoldSubHeader(
             text: 'Nein',
             context: context,
             color: Theme.of(context).colorScheme.primary,
-          ),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-            ),
           ),
         ),
       ],

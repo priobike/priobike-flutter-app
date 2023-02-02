@@ -1,17 +1,19 @@
+import 'dart:io';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart' as l;
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/common/map/controller.dart';
-import 'package:priobike/common/map/view.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers.dart';
 import 'package:priobike/common/map/symbols.dart';
+import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:turf/helpers.dart' as turf;
 
 class RideMapView extends StatefulWidget {
   const RideMapView({Key? key}) : super(key: key);
@@ -38,10 +40,7 @@ class RideMapViewState extends State<RideMapView> {
   late Dangers dangers;
 
   /// A map controller for the map.
-  MapboxMapController? mapController;
-
-  /// A layer controller to safe add and remove layers.
-  LayerController? layerController;
+  mapbox.MapboxMap? mapController;
 
   /// The next traffic light that is displayed, if it is known.
   Symbol? upcomingTrafficLight;
@@ -83,38 +82,40 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
     if (!mounted) return;
-    await SelectedRouteLayer(context).update(layerController!);
+    await SelectedRouteLayer(context).update(mapController!);
     if (!mounted) return;
-    await WaypointsLayer(context).update(layerController!);
+    await WaypointsLayer(context).update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(layerController!);
+    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await DangersLayer(context, hideBehindPosition: true).update(layerController!);
+    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
     if (!mounted) return;
-    await TrafficLightLayer(context).update(layerController!);
+    await TrafficLightLayer(context).update(mapController!);
 
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
-      await mapController?.animateCamera(
-        CameraUpdate.newLatLng(cameraTarget),
+      await mapController?.flyTo(
+        mapbox.CameraOptions(
+            center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+        mapbox.MapAnimationOptions(duration: 200),
       );
     }
   }
@@ -122,7 +123,7 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onDangersUpdate() async {
     if (!mounted) return;
-    await DangersLayer(context, hideBehindPosition: true).update(layerController!);
+    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -132,16 +133,16 @@ class RideMapViewState extends State<RideMapView> {
 
     // Get some data that we will need for adaptive camera control.
     final sgPos = ride.calcCurrentSG?.position;
-    final sgPosLatLng = sgPos == null ? null : l.LatLng(sgPos.lat, sgPos.lon);
+    final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
     final userPos = Provider.of<Positioning>(context, listen: false).lastPosition;
     final userPosSnap = positioning.snap;
 
     if (userPos == null || userPosSnap == null) {
-      await mapController?.animateCamera(CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds));
+      await mapController?.setBounds(mapbox.CameraBoundsOptions(bounds: routing.selectedRoute!.paddedBounds));
       return;
     }
 
-    const vincenty = l.Distance(roundResult: false);
+    const vincenty = Distance(roundResult: false);
 
     // Calculate the bearing to the next traffic light.
     double? sgBearing = sgPosLatLng == null ? null : vincenty.bearing(userPosSnap.position, sgPosLatLng);
@@ -173,71 +174,77 @@ class RideMapViewState extends State<RideMapView> {
     }
 
     if (ride.userSelectedSG == null) {
-      // The camera target is the estimated user position (Convert from LatLng to Mapbox/LatLng).
-      final cameraTarget = LatLng(userPosSnap.position.latitude, userPosSnap.position.longitude);
-      await mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
+      mapController!.easeTo(
+          mapbox.CameraOptions(
+            center:
+                turf.Point(coordinates: turf.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
+                    .toJson(),
             bearing: cameraHeading,
-            target: cameraTarget,
             zoom: zoom,
-            tilt: 60,
+            pitch: 60,
           ),
-        ),
-        duration: const Duration(milliseconds: 1000 /* Avg. GPS refresh rate */),
-      );
+          mapbox.MapAnimationOptions(duration: 1500));
     }
 
-    await mapController!.updateUserLocation(
-      lat: userPosSnap.position.latitude,
-      lon: userPosSnap.position.longitude,
-      alt: userPos.altitude,
-      acc: userPos.accuracy,
-      heading: userPos.heading,
-      speed: userPos.speed,
-    );
+    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
+      if (value) {
+        mapController!.style.updateLayer(
+          mapbox.LocationIndicatorLayer(
+            id: "user-ride-location-puck",
+            bearing: userPos.heading,
+            location: [userPosSnap.position.latitude, userPosSnap.position.longitude, userPos.altitude],
+            accuracyRadius: userPos.accuracy,
+          ),
+        );
+      }
+    });
   }
 
   /// A callback which is executed when the map was created.
-  Future<void> onMapCreated(MapboxMapController controller) async {
+  Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
 
-    // Wrap the map controller in a layer controller for safer layer access.
-    layerController = LayerController(mapController: controller);
-
-    // Dont call any line/symbol/... removal/add operations here.
-    // The mapcontroller won't have the necessary line/symbol/...manager.
+    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
+      if (!value) {
+        await mapController!.style.addLayer(
+          mapbox.LocationIndicatorLayer(
+            id: "user-ride-location-puck",
+            bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
+            bearingImageSize: 0.35,
+            accuracyRadiusColor: const Color(0x00000000).value,
+            accuracyRadiusBorderColor: const Color(0x00000000).value,
+          ),
+        );
+        // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
+        if (Platform.isAndroid) {
+          await mapController!.style
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1500, enablePlacementTransitions: false));
+        } else {
+          await mapController!.style
+              .setStyleTransition(mapbox.TransitionOptions(duration: 1, enablePlacementTransitions: false));
+        }
+      }
+    });
   }
 
   /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded(BuildContext context) async {
+  Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
-
-    // Remove all layers from the map that may still exist.
-    await mapController?.clearFills();
-    await mapController?.clearCircles();
-    await mapController?.clearLines();
-    await mapController?.clearSymbols();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    // Allow overlaps so that important symbols and texts are not hidden.
-    await mapController!.setSymbolIconAllowOverlap(true);
-    await mapController!.setSymbolIconIgnorePlacement(true);
-    await mapController!.setSymbolTextAllowOverlap(true);
-    await mapController!.setSymbolTextIgnorePlacement(true);
-
     final ppi = MediaQuery.of(context).devicePixelRatio;
-    await SelectedRouteLayer(context).install(layerController!, bgLineWidth: 20, fgLineWidth: 14);
-    await WaypointsLayer(context).install(layerController!, iconSize: ppi / 4);
+    await SelectedRouteLayer(context)
+        .install(mapController!, bgLineWidth: 20.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
+    await WaypointsLayer(context).install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
     await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(layerController!, iconSize: ppi);
+        .install(mapController!, iconSize: ppi / 3);
     await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(layerController!, iconSize: ppi);
-    await DangersLayer(context, hideBehindPosition: true).install(layerController!, iconSize: ppi / 2);
+        .install(mapController!, iconSize: ppi / 4);
+    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
     // The traffic light layer image has a 2x resolution to make it look good on high DPI screens.
-    await TrafficLightLayer(context).install(layerController!, iconSize: ppi / 2);
+    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 6);
 
     onRoutingUpdate();
     onPositioningUpdate();
@@ -247,15 +254,26 @@ class RideMapViewState extends State<RideMapView> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
+    // On iOS and Android we documented different behaviour regarding the position of the attribution and logo.
+    // If this is fixed in an upcoming version of the Mapbox plugin, we may be able to remove those workaround adjustments
+    // below.
+    double marginYLogo = frame.padding.top;
+    double marginYAttribution = 0.0;
+    if (Platform.isAndroid) {
+      final ppi = frame.devicePixelRatio;
+      marginYLogo = marginYLogo * ppi;
+      marginYAttribution = marginYLogo;
+    } else {
+      marginYLogo = marginYLogo * 0.7;
+      marginYAttribution = marginYLogo - (22 * frame.devicePixelRatio);
+    }
     return AppMap(
-      puckImage: Theme.of(context).brightness == Brightness.dark
-          ? 'assets/images/position-dark.png'
-          : 'assets/images/position-light.png',
-      dragEnabled: false,
       onMapCreated: onMapCreated,
-      onStyleLoaded: () => onStyleLoaded(context),
-      logoViewMargins: Point(10, frame.size.height - MediaQuery.of(context).padding.top - 35),
-      attributionButtonMargins: Point(10, frame.size.height - MediaQuery.of(context).padding.top - 35),
+      onStyleLoaded: onStyleLoaded,
+      logoViewMargins: Point(20, marginYLogo),
+      logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
+      attributionButtonMargins: Point(20, marginYAttribution),
+      attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
     );
   }
 }

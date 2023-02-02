@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/common/map/view.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -54,9 +53,6 @@ class LoaderState extends State<Loader> {
   Future<void> init(BuildContext context) async {
     // Init the HTTP client for all services.
     Http.initClient();
-
-    // Load offline map tiles.
-    await AppMap.loadOfflineTiles();
 
     // Initialize Sentry.
     const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
@@ -110,7 +106,7 @@ class LoaderState extends State<Loader> {
   void initState() {
     super.initState();
     // Init the view once the app is ready.
-    SchedulerBinding.instance!.addPostFrameCallback((_) => init(context));
+    SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
   }
 
   @override
