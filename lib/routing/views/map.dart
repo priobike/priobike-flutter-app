@@ -175,7 +175,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             id: "user-location-puck",
             bearingImage:
                 Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
-            bearingImageSize: 0.2,
+            bearingImageSize: 0.15,
             accuracyRadiusColor: const Color(0x00000000).value,
             accuracyRadiusBorderColor: const Color(0x00000000).value,
             bearing: positioning.lastPosition!.heading,
