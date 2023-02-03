@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
@@ -77,7 +76,7 @@ class CancelButton extends StatelessWidget {
   Future<void> onTap(BuildContext context) async {
     // End the tracking and collect the data.
     final tracking = Provider.of<Tracking>(context, listen: false);
-    await tracking.end(context);
+    await tracking.end(context); // Performs all needed resets.
 
     // Calculate a summary of the ride.
     final statistics = Provider.of<Statistics>(context, listen: false);
@@ -91,10 +90,6 @@ class CancelButton extends StatelessWidget {
     final ride = Provider.of<Ride>(context, listen: false);
     await ride.stopNavigation(context);
 
-    // End the accelerometer updates.
-    final accelerometer = Provider.of<Accelerometer>(context, listen: false);
-    await accelerometer.stop();
-
     // Stop the geolocation.
     final position = Provider.of<Positioning>(context, listen: false);
     await position.stopGeolocation();
@@ -106,17 +101,11 @@ class CancelButton extends StatelessWidget {
           onWillPop: () async => false,
           child: FeedbackView(
             onSubmitted: (context) async {
-              // Reset the tracking.
-              await tracking.reset();
-
               // Reset the statistics.
               await statistics.reset();
 
               // Reset the ride service.
               await ride.reset();
-
-              // Reset the accelerometer service.
-              await accelerometer.reset();
 
               // Reset the position service.
               await position.reset();

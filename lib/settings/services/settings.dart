@@ -8,6 +8,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/tracking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/logger.dart';
 import '../models/routing_view.dart';
@@ -52,6 +53,9 @@ class Settings with ChangeNotifier {
 
   /// The selected signal group selector mode.
   SGSelector sgSelector;
+
+  /// The selected tracking submission policy.
+  TrackingSubmissionPolicy trackingSubmissionPolicy;
 
   /// The counter of connection error in a row.
   int connectionErrorCounter;
@@ -290,6 +294,26 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
+  static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
+
+  Future<bool> setTrackingSubmissionPolicy(
+    TrackingSubmissionPolicy trackingSubmissionPolicy, [
+    SharedPreferences? storage,
+  ]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.trackingSubmissionPolicy;
+    this.trackingSubmissionPolicy = trackingSubmissionPolicy;
+    bool success = await storage.setString(trackingSubmissionPolicyKey, trackingSubmissionPolicy.name);
+    if (!success) {
+      log.e("Failed to set trackingSubmissionPolicy to $trackingSubmissionPolicy");
+      this.trackingSubmissionPolicy = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
@@ -304,6 +328,7 @@ class Settings with ChangeNotifier {
     this.connectionErrorCounter = defaultConnectionErrorCounter,
     this.sgSelector = defaultSGSelector,
     this.routingView = defaultRoutingView,
+    this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
   });
 
   /// Load the backend from the shared
@@ -391,6 +416,12 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      trackingSubmissionPolicy =
+          TrackingSubmissionPolicy.values.byName(storage.getString(trackingSubmissionPolicyKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -411,5 +442,6 @@ class Settings with ChangeNotifier {
         "routingView": routingView.name,
         "connectionErrorCounter": connectionErrorCounter,
         "sgSelector": sgSelector.name,
+        "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
       };
 }

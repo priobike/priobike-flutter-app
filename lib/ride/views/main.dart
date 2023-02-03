@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -58,7 +57,6 @@ class RideViewState extends State<RideView> {
       (_) async {
         final tracking = Provider.of<Tracking>(context, listen: false);
         final positioning = Provider.of<Positioning>(context, listen: false);
-        final accelerometer = Provider.of<Accelerometer>(context, listen: false);
         final datastream = Provider.of<Datastream>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
         final dangers = Provider.of<Dangers>(context, listen: false);
@@ -70,8 +68,6 @@ class RideViewState extends State<RideView> {
         final ride = Provider.of<Ride>(context, listen: false);
         await ride.startNavigation(context); // Sets `sessionId` to a random new value.
         await ride.selectRoute(context, routing.selectedRoute!);
-        // Start tracking once the `sessionId` is set.
-        await tracking.start(context);
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = Provider.of<Settings>(context, listen: false);
         if (settings.datastreamMode == DatastreamMode.enabled) {
@@ -79,16 +75,13 @@ class RideViewState extends State<RideView> {
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
-        // Start fetching accelerometer updates.
-        await accelerometer.start();
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           context: context,
           onNewPosition: () async {
             await dangers.calculateUpcomingAndPreviousDangers(context);
             await ride.updatePosition(context);
-            // Notify the accelerometer service.
-            await accelerometer.updatePosition(context);
+            await tracking.updatePosition(context);
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
@@ -99,12 +92,14 @@ class RideViewState extends State<RideView> {
                   await ride.selectRoute(context, routes.first);
                   await positioning.selectRoute(routes.first);
                   await dangers.fetch(routes.first, context);
-                  await tracking.notifyOfReroute(routes.first);
+                  await tracking.selectRoute(routes.first);
                 }
               });
             }
           },
         );
+        // Start tracking once the `sessionId` is set and the positioning stream is available.
+        await tracking.start(context);
       },
     );
   }

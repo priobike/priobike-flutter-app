@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
-import 'package:priobike/accelerometer/services/accelerometer.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/dangers/services/dangers.dart';
@@ -92,7 +91,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Routing()),
         ChangeNotifierProvider(create: (context) => Layers()),
         ChangeNotifierProvider(create: (context) => Positioning()),
-        ChangeNotifierProvider(create: (context) => Accelerometer()),
         ChangeNotifierProvider(create: (context) => Dangers()),
         ChangeNotifierProvider(create: (context) => Datastream()),
         ChangeNotifierProvider(create: (context) => Tracking()),

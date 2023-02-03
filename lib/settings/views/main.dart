@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/views/beta.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/privacy/views.dart';
@@ -14,6 +15,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -166,6 +168,16 @@ class SettingsViewState extends State<SettingsView> {
     Navigator.pop(context);
   }
 
+  /// A callback that is executed when a tracking submission policy is selected.
+  Future<void> onSelectTrackingSubmissionPolicy(TrackingSubmissionPolicy trackingSubmissionPolicy) async {
+    // Tell the settings service that we selected the new tracking submission policy.
+    await settings.setTrackingSubmissionPolicy(trackingSubmissionPolicy);
+    // Tell the tracking service that we selected the new tracking submission policy.
+    await Provider.of<Tracking>(context, listen: false).setSubmissionPolicy(trackingSubmissionPolicy);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -258,6 +270,25 @@ class SettingsViewState extends State<SettingsView> {
                     text:
                         "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
                     context: context,
+                  ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Telemetriedaten",
+                    subtitle: settings.trackingSubmissionPolicy.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: TrackingSubmissionPolicy.values,
+                            selected: settings.trackingSubmissionPolicy,
+                            title: (TrackingSubmissionPolicy e) => e.description,
+                            callback: onSelectTrackingSubmissionPolicy);
+                      },
+                    ),
                   ),
                 ),
                 const SmallVSpace(),
