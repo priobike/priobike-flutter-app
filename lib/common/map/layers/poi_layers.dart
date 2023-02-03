@@ -7,96 +7,97 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 
-abstract class _POILayer {
+class ParkingStationsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "parking-stations";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "parking-stations-icons";
+
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
   /// BuildContext of the widget
   final BuildContext context;
 
-  String _getSourceId();
-  String _getSourcePath();
-  String _getLayerId();
-
-  _POILayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
-      mapbox.GeoJsonSource(id: _getSourceId(), data: "https://$baseUrl${_getSourcePath()}"),
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking.geojson"),
     );
   }
 
-  /// Remove the layer from the map controller.
-  remove(mapbox.MapboxMap mapController) async {
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
-    if (layerExists) {
-      await mapController.style.removeStyleLayer(_getLayerId());
-    }
-  }
-}
-
-class ParkingStationsLayer extends _POILayer {
-  @override
-  String _getSourceId() => "parking-stations";
-
-  @override
-  String _getSourcePath() => "/map-data/bicycle_parking.geojson";
-
-  @override
-  String _getLayerId() => "parking-stations-icons";
-
-  ParkingStationsLayer(BuildContext context) : super(context);
-
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "parkdark" : "parklight",
         iconSize: iconSize,
         iconOpacity: 0,
         iconAllowOverlap: true,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 15),
           ));
     }
   }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
+    }
+  }
 }
 
-class RentalStationsLayer extends _POILayer {
-  @override
-  String _getSourceId() => "rental-stations";
+class RentalStationsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "rental-stations";
 
-  @override
-  String _getSourcePath() => "/map-data/bicycle_rental.geojson";
+  /// The ID of the Mapbox layer.
+  static const layerId = "rental-stations-icons";
 
-  @override
-  String _getLayerId() => "rental-stations-icons";
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
 
-  RentalStationsLayer(BuildContext context) : super(context);
+  /// BuildContext of the widget
+  final BuildContext context;
+
+  RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    await mapController.style.addSource(
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental.geojson"),
+    );
+  }
 
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "rentdark" : "rentlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
@@ -111,13 +112,13 @@ class RentalStationsLayer extends _POILayer {
         textOpacity: 0,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-offset',
           json.encode(
             [
@@ -126,7 +127,7 @@ class RentalStationsLayer extends _POILayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-field',
           json.encode([
             "case",
@@ -139,33 +140,53 @@ class RentalStationsLayer extends _POILayer {
             ],
             "Fahrradleihe "
           ]));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
     }
   }
 }
 
-class BikeShopLayer extends _POILayer {
-  @override
-  String _getSourceId() => "bike-shop";
+class BikeShopLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "bike-shop";
 
-  @override
-  String _getSourcePath() => "/map-data/bicycle_shop.geojson";
+  /// The ID of the Mapbox layer.
+  static const layerId = "bike-shop-icons";
 
-  @override
-  String _getLayerId() => "bike-shop-icons";
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
 
-  BikeShopLayer(BuildContext context) : super(context);
+  /// BuildContext of the widget
+  final BuildContext context;
+
+  BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    await mapController.style.addSource(
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop.geojson"),
+    );
+  }
 
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "repairdark" : "repairlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
@@ -180,13 +201,13 @@ class BikeShopLayer extends _POILayer {
         textOpacity: 0,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-offset',
           json.encode(
             [
@@ -195,7 +216,7 @@ class BikeShopLayer extends _POILayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-field',
           json.encode([
             "case",
@@ -213,33 +234,53 @@ class BikeShopLayer extends _POILayer {
             ],
             "Fahrradladen"
           ]));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
     }
   }
 }
 
-class BikeAirStationLayer extends _POILayer {
-  @override
-  String _getSourceId() => "bike-air-station";
+class BikeAirStationLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "bike-air-station";
 
-  @override
-  String _getSourcePath() => "/map-data/bike_air_station.geojson";
+  /// The ID of the Mapbox layer.
+  static const layerId = "bike-air-station-icons";
 
-  @override
-  String _getLayerId() => "bike-air-station-icons";
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
 
-  BikeAirStationLayer(BuildContext context) : super(context);
+  /// BuildContext of the widget
+  final BuildContext context;
+
+  BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    await mapController.style.addSource(
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station.geojson"),
+    );
+  }
 
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "airdark" : "airlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
@@ -254,13 +295,13 @@ class BikeAirStationLayer extends _POILayer {
         textOpacity: 0,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 15),
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-offset',
           json.encode(
             [
@@ -269,7 +310,7 @@ class BikeAirStationLayer extends _POILayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-field',
           json.encode([
             "case",
@@ -282,33 +323,53 @@ class BikeAirStationLayer extends _POILayer {
             ],
             "Luftstation"
           ]));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 17)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
     }
   }
 }
 
-class ConstructionSitesLayer extends _POILayer {
-  @override
-  String _getSourceId() => "construction-sites";
+class ConstructionSitesLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "construction-sites";
 
-  @override
-  String _getSourcePath() => "/map-data/construction_sites.geojson";
+  /// The ID of the Mapbox layer.
+  static const layerId = "construction-sites-icons";
 
-  @override
-  String _getLayerId() => "construction-sites-icons";
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
 
-  ConstructionSitesLayer(BuildContext context) : super(context);
+  /// BuildContext of the widget
+  final BuildContext context;
+
+  ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    await mapController.style.addSource(
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites.geojson"),
+    );
+  }
 
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "constructiondark" : "constructionlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
@@ -323,14 +384,14 @@ class ConstructionSitesLayer extends _POILayer {
         textOpacity: 0,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 12),
           ));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-field', 'Baustelle');
+      await mapController.style.setStyleLayerProperty(layerId, 'text-field', 'Baustelle');
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-offset',
           json.encode(
             [
@@ -338,33 +399,53 @@ class ConstructionSitesLayer extends _POILayer {
               [0, 1]
             ],
           ));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-opacity', json.encode(showAfter(zoom: 15)));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 15)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
     }
   }
 }
 
-class AccidentHotspotsLayer extends _POILayer {
-  @override
-  String _getSourceId() => "accident-hotspots";
+class AccidentHotspotsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "accident-hotspots";
 
-  @override
-  String _getSourcePath() => "/map-data/accident_hot_spots.geojson";
+  /// The ID of the Mapbox layer.
+  static const layerId = "accident-hotspots-icons";
 
-  @override
-  String _getLayerId() => "accident-hotspots-icons";
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
 
-  AccidentHotspotsLayer(BuildContext context) : super(context);
+  /// BuildContext of the widget
+  final BuildContext context;
+
+  AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    final settings = Provider.of<Settings>(context, listen: false);
+    final baseUrl = settings.backend.path;
+    await mapController.style.addSource(
+      mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/accident_hot_spots.geojson"),
+    );
+  }
 
   /// Install the layer on the map controller.
   install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
-    final sourceExists = await mapController.style.styleSourceExists(_getSourceId());
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
-    final layerExists = await mapController.style.styleLayerExists(_getLayerId());
+    final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: _getSourceId(),
-        id: _getLayerId(),
+        sourceId: sourceId,
+        id: layerId,
         iconImage: isDark ? "accidentdark" : "accidentlight",
         iconSize: iconSize,
         iconAllowOverlap: true,
@@ -379,14 +460,14 @@ class AccidentHotspotsLayer extends _POILayer {
         textOpacity: 0,
       ));
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 11),
           ));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-field', 'Unfall-\nschwerpunkt');
+      await mapController.style.setStyleLayerProperty(layerId, 'text-field', 'Unfall-\nschwerpunkt');
       await mapController.style.setStyleLayerProperty(
-          _getLayerId(),
+          layerId,
           'text-offset',
           json.encode(
             [
@@ -394,7 +475,15 @@ class AccidentHotspotsLayer extends _POILayer {
               [0, 1]
             ],
           ));
-      await mapController.style.setStyleLayerProperty(_getLayerId(), 'text-opacity', json.encode(showAfter(zoom: 15)));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-opacity', json.encode(showAfter(zoom: 15)));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
     }
   }
 }
