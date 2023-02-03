@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:provider/provider.dart';
 
@@ -16,9 +17,13 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The layers service, which is injected by the provider.
   late Layers layers;
 
+  /// The map designs service, which is injected by the provider.
+  late MapDesigns mapDesigns;
+
   @override
   void didChangeDependencies() {
     layers = Provider.of<Layers>(context);
+    mapDesigns = Provider.of<MapDesigns>(context);
     super.didChangeDependencies();
   }
 
@@ -110,8 +115,8 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                           ? Image.asset(design.lightScreenshot)
                           : Image.asset(design.darkScreenshot),
                       title: design.name,
-                      selected: layers.mapDesign == design,
-                      onTap: () => layers.setMapDesign(design),
+                      selected: mapDesigns.mapDesign == design,
+                      onTap: () => mapDesigns.setMapDesign(design),
                     ),
                   )
                   .toList(),

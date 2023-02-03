@@ -1,85 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_info_plus/system_info_plus.dart';
-
-class MapDesign {
-  /// The name of the map design.
-  final String name;
-
-  /// The style string for the light map.
-  final String lightStyle;
-
-  /// The light screenshot asset path.
-  final String lightScreenshot;
-
-  /// The style string for the dark map.
-  final String darkStyle;
-
-  /// The dark screenshot asset path.
-  final String darkScreenshot;
-
-  const MapDesign({
-    required this.name,
-    required this.lightStyle,
-    required this.lightScreenshot,
-    required this.darkStyle,
-    required this.darkScreenshot,
-  });
-
-  factory MapDesign.fromJson(Map<String, dynamic> json) => MapDesign(
-        name: json['name'],
-        lightStyle: json['lightStyle'],
-        lightScreenshot: json['lightScreenshot'],
-        darkStyle: json['darkStyle'],
-        darkScreenshot: json['darkScreenshot'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'lightStyle': lightStyle,
-        'lightScreenshot': lightScreenshot,
-        'darkStyle': darkStyle,
-        'darkScreenshot': darkScreenshot,
-      };
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is MapDesign && runtimeType == other.runtimeType && name == other.name;
-
-  @override
-  int get hashCode => name.hashCode;
-
-  /// The standard map design.
-  static const standard = MapDesign(
-    name: 'PrioBike',
-    lightStyle: 'mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu',
-    lightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/mapbox/dark-v10',
-    darkScreenshot: 'assets/images/screenshots/standard-dark.png',
-  );
-
-  /// All available map designs.
-  static const designs = [
-    standard,
-    MapDesign(
-      name: 'Verkehr',
-      lightStyle: MapboxStyles.TRAFFIC_DAY,
-      lightScreenshot: 'assets/images/screenshots/traffic-light.png',
-      darkStyle: MapboxStyles.TRAFFIC_NIGHT,
-      darkScreenshot: 'assets/images/screenshots/traffic-dark.png',
-    ),
-    MapDesign(
-      name: 'Satellit',
-      lightStyle: MapboxStyles.SATELLITE_STREETS,
-      lightScreenshot: 'assets/images/screenshots/satellite-streets.png',
-      darkStyle: MapboxStyles.SATELLITE_STREETS,
-      darkScreenshot: 'assets/images/screenshots/satellite-streets.png',
-    ),
-  ];
-}
 
 class Layers with ChangeNotifier {
   var hasLoaded = false;
@@ -104,9 +25,6 @@ class Layers with ChangeNotifier {
 
   /// If accident hotspots are currently visible.
   bool showAccidentHotspots;
-
-  /// The currently selected style of the map.
-  MapDesign mapDesign;
 
   /// Whether the layers can be enabled.
   bool layersCanBeEnabled;
@@ -145,11 +63,6 @@ class Layers with ChangeNotifier {
     await storePreferences();
   }
 
-  Future<void> setMapDesign(MapDesign mapDesign) async {
-    this.mapDesign = mapDesign;
-    await storePreferences();
-  }
-
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
@@ -157,7 +70,6 @@ class Layers with ChangeNotifier {
     this.showAirStations = false,
     this.showRepairStations = false,
     this.showAccidentHotspots = true,
-    this.mapDesign = MapDesign.standard,
     this.layersCanBeEnabled = false,
   });
 
@@ -177,13 +89,6 @@ class Layers with ChangeNotifier {
       showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
       showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
       showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
-
-      final mapDesignStr = storage.getString("priobike.layers.style");
-      if (mapDesignStr != null) {
-        mapDesign = MapDesign.fromJson(jsonDecode(mapDesignStr));
-      } else {
-        mapDesign = MapDesign.standard;
-      }
     }
     notifyListeners();
   }
@@ -198,7 +103,6 @@ class Layers with ChangeNotifier {
     await storage.setBool("priobike.layers.showAirStations", showAirStations);
     await storage.setBool("priobike.layers.showRepairStations", showRepairStations);
     await storage.setBool("priobike.layers.showAccidentHotspots", showAccidentHotspots);
-    await storage.setString("priobike.layers.style", jsonEncode(mapDesign.toJson()));
 
     notifyListeners();
   }
