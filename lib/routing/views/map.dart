@@ -228,42 +228,42 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await BikeAirStationLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeAirStationLayer.removeFrom(mapController!);
+      await BikeAirStationLayer(context).remove(mapController!);
     }
     if (layers.showConstructionSites) {
       if (!mounted) return;
       await ConstructionSitesLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ConstructionSitesLayer.removeFrom(mapController!);
+      await ConstructionSitesLayer(context).remove(mapController!);
     }
     if (layers.showParkingStations) {
       if (!mounted) return;
       await ParkingStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ParkingStationsLayer.removeFrom(mapController!);
+      await ParkingStationsLayer(context).remove(mapController!);
     }
     if (layers.showRentalStations) {
       if (!mounted) return;
       await RentalStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await RentalStationsLayer.removeFrom(mapController!);
+      await RentalStationsLayer(context).remove(mapController!);
     }
     if (layers.showRepairStations) {
       if (!mounted) return;
       await BikeShopLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeShopLayer.removeFrom(mapController!);
+      await BikeShopLayer(context).remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       if (!mounted) return;
       await AccidentHotspotsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await AccidentHotspotsLayer.removeFrom(mapController!);
+      await AccidentHotspotsLayer(context).remove(mapController!);
     }
   }
 

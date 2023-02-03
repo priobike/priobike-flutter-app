@@ -300,32 +300,32 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (layers.showAirStations) {
       BikeAirStationLayer(context).install(mapController!);
     } else {
-      BikeAirStationLayer.removeFrom(mapController!);
+      BikeAirStationLayer(context).remove(mapController!);
     }
     if (layers.showConstructionSites) {
       ConstructionSitesLayer(context).install(mapController!);
     } else {
-      ConstructionSitesLayer.removeFrom(mapController!);
+      ConstructionSitesLayer(context).remove(mapController!);
     }
     if (layers.showParkingStations) {
       ParkingStationsLayer(context).install(mapController!);
     } else {
-      ParkingStationsLayer.removeFrom(mapController!);
+      ParkingStationsLayer(context).remove(mapController!);
     }
     if (layers.showRentalStations) {
       RentalStationsLayer(context).install(mapController!);
     } else {
-      RentalStationsLayer.removeFrom(mapController!);
+      RentalStationsLayer(context).remove(mapController!);
     }
     if (layers.showRepairStations) {
       BikeShopLayer(context).install(mapController!);
     } else {
-      BikeShopLayer.removeFrom(mapController!);
+      BikeShopLayer(context).remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       AccidentHotspotsLayer(context).install(mapController!);
     } else {
-      AccidentHotspotsLayer.removeFrom(mapController!);
+      AccidentHotspotsLayer(context).remove(mapController!);
     }
   }
 
