@@ -307,6 +307,10 @@ class Tracking with ChangeNotifier {
   Future<void> selectRoute(Route newRoute) async {
     log.i("New route selected.");
     track?.routes[DateTime.now().millisecondsSinceEpoch] = newRoute;
+    // Save the change to the shared preferences, in case the app is killed.
+    previousTracks?.removeWhere((t) => t.sessionId == track?.sessionId);
+    previousTracks?.add(track!);
+    await savePreviousTracks();
     notifyListeners();
   }
 
@@ -365,35 +369,55 @@ class Tracking with ChangeNotifier {
     final baseUrl = track.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/tracks/post/');
 
-    log.i("Sending track with id ${track.sessionId}.");
+    log.i("Sending track with id ${track.sessionId} to $endpoint ...");
     try {
       // Send a multipart request to the server, with the track json and the gzipped csv files.
       final metadataBytes = gzip.encode(utf8.encode(jsonEncode(track.toJson())));
       final metadataMF = MultipartFile.fromBytes('metadata.json.gz', metadataBytes, filename: 'metadata.json.gz');
 
+      // Data statistics: 10 minutes ~ 20 KB (gzipped), 50 KB (uncompressed).
       final gpsBytes = gzip.encode(await (await track.gpsCSVFile).readAsBytes());
       final gpsMF = MultipartFile.fromBytes('gps.csv.gz', gpsBytes, filename: 'gps.csv.gz');
 
+      // Data statistics: 10 minutes ~ 500-1000 KB (gzipped), 5 MB (uncompressed).
       final accBytes = gzip.encode(await (await track.accelerometerCSVFile).readAsBytes());
       final accMF = MultipartFile.fromBytes('accelerometer.csv.gz', accBytes, filename: 'accelerometer.csv.gz');
 
+      // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
       final gyrBytes = gzip.encode(await (await track.gyroscopeCSVFile).readAsBytes());
       final gyrMF = MultipartFile.fromBytes('gyroscope.csv.gz', gyrBytes, filename: 'gyroscope.csv.gz');
 
+      // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
       final magBytes = gzip.encode(await (await track.magnetometerCSVFile).readAsBytes());
       final magMF = MultipartFile.fromBytes('magnetometer.csv.gz', magBytes, filename: 'magnetometer.csv.gz');
 
-      final response = await Http.multipartPost(endpoint, fields: {}, files: [metadataMF, gpsMF, accMF, gyrMF, magMF]);
-      if (response.statusCode != 200) {
-        throw Exception("Tracking service responded with ${response.statusCode}: ${response.body}.");
+      if (track.endTime != null) {
+        final trackDurationMinutes = (track.endTime! - track.startTime) / 1000 / 60;
+        log.i("Track duration: ${trackDurationMinutes.round()} minutes.");
+      } else {
+        log.i("Track duration: unknown (app was terminated before ride finished).");
       }
+      log.i("Sending ${(metadataBytes.length / 1000).round()} KB of gzipped track metadata.");
+      log.i("Sending ${(gpsBytes.length / 1000).round()} KB of compressed GPS data.");
+      log.i("Sending ${(accBytes.length / 1000).round()} KB of compressed accelerometer data.");
+      log.i("Sending ${(gyrBytes.length / 1000).round()} KB of compressed gyroscope data.");
+      log.i("Sending ${(magBytes.length / 1000).round()} KB of compressed magnetometer data.");
 
-      log.i("Sent track with id ${track.sessionId}.");
-      log.i("Sent ${(metadataBytes.length / 1000).round()} KB of gzipped track metadata.");
-      log.i("Sent ${(gpsBytes.length / 1000).round()} KB of gzipped GPS data.");
-      log.i("Sent ${(accBytes.length / 1000).round()} KB of gzipped accelerometer data.");
-      log.i("Sent ${(gyrBytes.length / 1000).round()} KB of gzipped gyroscope data.");
-      log.i("Sent ${(magBytes.length / 1000).round()} KB of gzipped magnetometer data.");
+      // Skip tracks that are >50 MB, but mark them as sent so that they are not sent again.
+      final totalSize = metadataBytes.length + gpsBytes.length + accBytes.length + gyrBytes.length + magBytes.length;
+      if (totalSize < 50 * 1000 * 1000) {
+        final response = await Http.multipartPost(
+          endpoint,
+          fields: {},
+          files: [metadataMF, gpsMF, accMF, gyrMF, magMF],
+        );
+        if (response.statusCode != 200) {
+          throw Exception("Tracking service responded with ${response.statusCode}: ${response.body}.");
+        }
+        log.i("Sent track with id ${track.sessionId}.");
+      } else {
+        log.w("Track with id ${track.sessionId} is too large (${totalSize / 1000 / 1000} MB), skipping.");
+      }
     } catch (e, stack) {
       log.e("Failed to send track with id ${track.sessionId}: $e $stack.");
       uploadingTracks.remove(track.sessionId);
@@ -416,7 +440,7 @@ class Tracking with ChangeNotifier {
   /// Run a timer that periodically sends tracks to the server.
   Future<void> runUploadRoutine() async {
     log.i("Starting to send tracks to the server.");
-    uploadTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+    callback() async {
       // Don't send tracks if the user is currently driving.
       if (track != null) return;
       if (previousTracks == null) {
@@ -433,6 +457,9 @@ class Tracking with ChangeNotifier {
       if (sent > 0) {
         log.i("Sent tracks to server - $sent/${tracksToSend.length} (${previousTracks?.length ?? 0} total).");
       }
-    });
+    }
+
+    callback(); // Send tracks immediately.
+    uploadTimer = Timer.periodic(const Duration(seconds: 120), (_) async => await callback());
   }
 }
