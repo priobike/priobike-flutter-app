@@ -33,7 +33,7 @@ class Http {
   static Map<String, String> cookies = {};
 
   /// Set the cookies.
-  static void setCookies(http.Response response) {
+  static void setCookies(http.BaseResponse response) {
     if (response.headers.containsKey("set-cookie")) {
       // Extract the cookies from the response.
       final header = response.headers["set-cookie"]!;
@@ -65,5 +65,23 @@ class Http {
     http.Response response = await _client.post(url, body: body, headers: headers);
     setCookies(response);
     return response;
+  }
+
+  /// Make a multipart POST request.
+  static Future<http.Response> multipartPost(
+    Uri url, {
+    Map<String, String>? fields,
+    List<http.MultipartFile>? files,
+  }) async {
+    final cookieString = Http.cookies.entries.map((e) => "${e.key}=${e.value}").join("; ");
+    final headers = {"Cookie": cookieString};
+    // Passing the sticky cookie will allow us to connect to the same backend.
+    final request = http.MultipartRequest("POST", url);
+    request.headers.addAll(headers);
+    if (fields != null) request.fields.addAll(fields);
+    if (files != null) request.files.addAll(files);
+    http.StreamedResponse response = await request.send();
+    setCookies(response);
+    return http.Response.fromStream(response);
   }
 }

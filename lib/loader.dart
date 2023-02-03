@@ -18,6 +18,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -71,6 +72,10 @@ class LoaderState extends State<Loader> {
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
       await Provider.of<Layers>(context, listen: false).loadPreferences();
+      final tracking = Provider.of<Tracking>(context, listen: false);
+      await tracking.loadPreviousTracks();
+      await tracking.runUploadRoutine();
+      await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
       final news = Provider.of<News>(context, listen: false);
       await news.getArticles(context);

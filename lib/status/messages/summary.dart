@@ -42,6 +42,18 @@ class StatusSummaryData {
             : json['average_prediction_quality'],
       );
 
+  factory StatusSummaryData.fromJsonCamelCase(Map<String, dynamic> json) => StatusSummaryData(
+        statusUpdateTime: json['statusUpdateTime'],
+        numThings: json['numThings'],
+        numPredictions: json['numPredictions'],
+        numBadPredictions: json['numBadPredictions'],
+        mostRecentPredictionTime: json['mostRecentPredictionTime'],
+        oldestPredictionTime: json['oldestPredictionTime'],
+        averagePredictionQuality: json['averagePredictionQuality'] is int
+            ? json['averagePredictionQuality'].toDouble()
+            : json['averagePredictionQuality'],
+      );
+
   Map<String, dynamic> toJsonCamelCase() => {
         'statusUpdateTime': statusUpdateTime,
         'numThings': numThings,

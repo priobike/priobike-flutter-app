@@ -89,8 +89,11 @@ class Ride with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
-  /// The predictions received during the ride.
-  final List<dynamic> predictions = [];
+  /// The predictions received during the ride, from the prediction service.
+  final List<PredictionServicePrediction> predictionServicePredictions = [];
+
+  /// The predictions received during the ride, from the predictor.
+  final List<PredictorPrediction> predictorPredictions = [];
 
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
@@ -229,12 +232,13 @@ class Ride with ChangeNotifier {
         log.i("Received prediction from prediction service: $json");
         prediction = PredictionServicePrediction.fromJson(json);
         calculateRecommendationFromPredictionService();
+        predictionServicePredictions.add(prediction);
       } else {
         log.i("Received prediction from predictor: $json");
         prediction = PredictorPrediction.fromJson(json);
         calculateRecommendationFromPredictor();
+        predictorPredictions.add(prediction);
       }
-      predictions.add(prediction);
     }
   }
 
@@ -444,7 +448,9 @@ class Ride with ChangeNotifier {
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
-    predictions.clear();
+    predictionServicePredictions.clear();
+    predictorPredictions.clear();
+    prediction = null;
     needsLayout = {};
     notifyListeners();
   }

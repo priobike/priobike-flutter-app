@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
@@ -24,18 +23,6 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   double? tapDownY;
 
   @override
-  void initState() {
-    super.initState();
-
-    // Setting the device Size.
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) {
-        tracking.deviceSize = MediaQuery.of(context).size;
-      },
-    );
-  }
-
-  @override
   void didChangeDependencies() {
     tracking = Provider.of<Tracking>(context);
     super.didChangeDependencies();
@@ -50,11 +37,14 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   _onTapUp(PointerEvent details) {
     // Add tap to tracks.
     if (tapDownX != null && tapDownY != null) {
-      tracking.tapsTracked.add(ScreenTrack(
+      tracking.track?.taps.add(
+        ScreenTrack(
           tapDownX: tapDownX!.round(),
           tapDownY: tapDownY!.round(),
           tapUpX: details.position.dx.round(),
-          tapUpY: details.position.dy.round()));
+          tapUpY: details.position.dy.round(),
+        ),
+      );
     }
 
     // Rest positions.

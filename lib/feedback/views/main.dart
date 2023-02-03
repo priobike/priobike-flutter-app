@@ -44,21 +44,12 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
-    var didSendSomething = false;
-
     // Send the feedback and reset the feedback service.
+    var didSendSomething = false;
     if (feedback.willSendFeedback) {
-      var didSend = await feedback.send(context);
-      didSendSomething = didSendSomething || didSend;
+      didSendSomething = await feedback.send(context);
     }
     await feedback.reset();
-
-    // Send the tracking data and reset the tracking service.
-    if (tracking.canSendTrack) {
-      var didSend = await tracking.send(context);
-      didSendSomething = didSendSomething || didSend;
-    }
-    await tracking.reset();
 
     if (didSendSomething) {
       ToastMessage.showSuccess("Danke für's Testen!");
@@ -255,7 +246,7 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   Widget build(BuildContext context) {
-    if (feedback.isSendingFeedback || tracking.isSendingTrack) {
+    if (feedback.isSendingFeedback) {
       return renderLoadingIndicator();
     }
 
