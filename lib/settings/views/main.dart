@@ -145,10 +145,14 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// The associated tracking service, which is injected by the provider.
+  late Tracking tracking;
+
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
     settings = Provider.of<Settings>(context);
+    tracking = Provider.of<Tracking>(context);
     super.didChangeDependencies();
   }
 
@@ -173,7 +177,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the settings service that we selected the new tracking submission policy.
     await settings.setTrackingSubmissionPolicy(trackingSubmissionPolicy);
     // Tell the tracking service that we selected the new tracking submission policy.
-    await Provider.of<Tracking>(context, listen: false).setSubmissionPolicy(trackingSubmissionPolicy);
+    tracking.setSubmissionPolicy(trackingSubmissionPolicy);
 
     Navigator.pop(context);
   }
@@ -276,20 +280,25 @@ class SettingsViewState extends State<SettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Telemetriedaten",
-                    subtitle: settings.trackingSubmissionPolicy.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: TrackingSubmissionPolicy.values,
-                            selected: settings.trackingSubmissionPolicy,
-                            title: (TrackingSubmissionPolicy e) => e.description,
-                            callback: onSelectTrackingSubmissionPolicy);
-                      },
-                    ),
-                  ),
+                      title: "Telemetriedaten",
+                      subtitle: tracking.uploadingTracks.isEmpty
+                          ? settings.trackingSubmissionPolicy.description
+                          : "Lädt hoch...",
+                      icon: Icons.expand_more,
+                      callback: () {
+                        // Don't allow to change the submission policy while tracks are uploading.
+                        if (tracking.uploadingTracks.isNotEmpty) return;
+                        showAppSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SettingsSelection(
+                                elements: TrackingSubmissionPolicy.values,
+                                selected: settings.trackingSubmissionPolicy,
+                                title: (TrackingSubmissionPolicy e) => e.description,
+                                callback: onSelectTrackingSubmissionPolicy);
+                          },
+                        );
+                      }),
                 ),
                 const SmallVSpace(),
                 const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),

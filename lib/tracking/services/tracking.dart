@@ -433,6 +433,7 @@ class Tracking with ChangeNotifier {
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
     previousTracks?.add(track);
     await savePreviousTracks();
+    notifyListeners();
 
     return true;
   }
@@ -460,6 +461,6 @@ class Tracking with ChangeNotifier {
     }
 
     callback(); // Send tracks immediately.
-    uploadTimer = Timer.periodic(const Duration(seconds: 120), (_) async => await callback());
+    uploadTimer = Timer.periodic(const Duration(seconds: 30), (_) async => await callback());
   }
 }
