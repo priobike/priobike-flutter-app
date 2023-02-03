@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -86,12 +86,12 @@ class AppMapState extends State<AppMap> {
   late Settings settings;
 
   /// The associated layers service.
-  late Layers layers;
+  late MapDesigns mapDesigns;
 
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
-    layers = Provider.of<Layers>(context);
+    mapDesigns = Provider.of<MapDesigns>(context);
 
     super.didChangeDependencies();
   }
@@ -103,8 +103,8 @@ class AppMapState extends State<AppMap> {
           accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
       key: const ValueKey("mapbox-map"),
       styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
-          ? layers.mapDesign.lightStyle
-          : layers.mapDesign.darkStyle,
+          ? mapDesigns.mapDesign.lightStyle
+          : mapDesigns.mapDesign.darkStyle,
       onMapCreated: onMapCreated,
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,

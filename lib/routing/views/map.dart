@@ -9,6 +9,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -46,6 +47,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
+
+  /// The associated map designs service, which is injected by the provider.
+  late MapDesigns mapDesigns;
 
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
@@ -106,8 +110,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     layers = Provider.of<Layers>(context);
     if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
-      loadMapDesign();
       layers.needsLayout[viewId] = false;
+    }
+
+    // Check if the selected map layers have changed.
+    mapDesigns = Provider.of<MapDesigns>(context);
+    if (mapDesigns.needsLayout[viewId] != false) {
+      loadMapDesign();
+      mapDesigns.needsLayout[viewId] = false;
     }
 
     // Check if the position has changed.
@@ -214,8 +224,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     await mapController!.style.setStyleURI(
       Theme.of(context).colorScheme.brightness == Brightness.light
-          ? layers.mapDesign.lightStyle
-          : layers.mapDesign.darkStyle,
+          ? mapDesigns.mapDesign.lightStyle
+          : mapDesigns.mapDesign.darkStyle,
     );
   }
 
@@ -228,42 +238,42 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       await BikeAirStationLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeAirStationLayer.removeFrom(mapController!);
+      await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
       if (!mounted) return;
       await ConstructionSitesLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ConstructionSitesLayer.removeFrom(mapController!);
+      await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       if (!mounted) return;
       await ParkingStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ParkingStationsLayer.removeFrom(mapController!);
+      await ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
       if (!mounted) return;
       await RentalStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await RentalStationsLayer.removeFrom(mapController!);
+      await RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
       if (!mounted) return;
       await BikeShopLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeShopLayer.removeFrom(mapController!);
+      await BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       if (!mounted) return;
       await AccidentHotspotsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await AccidentHotspotsLayer.removeFrom(mapController!);
+      await AccidentHotspotsLayer.remove(mapController!);
     }
   }
 

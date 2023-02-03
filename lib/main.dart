@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
@@ -90,6 +91,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Geosearch()),
         ChangeNotifierProvider(create: (context) => Routing()),
         ChangeNotifierProvider(create: (context) => Layers()),
+        ChangeNotifierProvider(create: (context) => MapDesigns()),
         ChangeNotifierProvider(create: (context) => Positioning()),
         ChangeNotifierProvider(create: (context) => Dangers()),
         ChangeNotifierProvider(create: (context) => Datastream()),

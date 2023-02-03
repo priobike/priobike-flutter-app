@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -72,6 +73,7 @@ class LoaderState extends State<Loader> {
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
       await Provider.of<Layers>(context, listen: false).loadPreferences();
+      await Provider.of<MapDesigns>(context, listen: false).loadPreferences();
       final tracking = Provider.of<Tracking>(context, listen: false);
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
