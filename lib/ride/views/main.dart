@@ -66,7 +66,7 @@ class RideViewState extends State<RideView> {
         await dangers.fetch(routing.selectedRoute!, context);
         // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
-        await ride.startNavigation(context); // Sets `sessionId` to a random new value.
+        await ride.startNavigation(context, true); // Sets `sessionId` to a random new value.
         await ride.selectRoute(context, routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = Provider.of<Settings>(context, listen: false);

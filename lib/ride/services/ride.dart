@@ -100,8 +100,12 @@ class Ride with ChangeNotifier {
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
+  /// If the MQTT client couldn't connect, the SG that it should have been subscribed to (used if it connects later on).
+  Sg? queuedSg;
+
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
+    if (sg != null) queuedSg = sg;
     if (!navigationIsActive || client == null) return;
 
     if (subscribedSG != null && subscribedSG != sg) {
@@ -167,9 +171,9 @@ class Ride with ChangeNotifier {
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context) async {
+  Future<void> startNavigation(BuildContext context, bool initialSetup) async {
     // Do nothing if the navigation has already been started.
-    if (navigationIsActive) return;
+    if (navigationIsActive && initialSetup) return;
     // Get the backend that is currently selected.
     final settings = Provider.of<Settings>(context, listen: false);
     predictionMode = settings.predictionMode;
@@ -227,10 +231,19 @@ class Ride with ChangeNotifier {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
       }
+      Future.delayed(const Duration(seconds: 10), () {
+        startNavigation(context, false);
+      });
     }
-    // Mark that navigation is now active.
-    sessionId = UniqueKey().toString();
-    navigationIsActive = true;
+    // Only perform on initial run of enclosing method but don't perform when the enclosing method gets called
+    // again because of exceptions in the MQTT-connection (sessionId needs to stay the same).
+    if (initialSetup) {
+      // Mark that navigation is now active.
+      sessionId = UniqueKey().toString();
+      navigationIsActive = true;
+    } else if (!initialSetup && client != null && queuedSg != null) {
+      selectSG(queuedSg);
+    }
   }
 
   /// A callback that is executed when data arrives.
