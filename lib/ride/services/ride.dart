@@ -101,7 +101,6 @@ class Ride with ChangeNotifier {
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive || client == null) return;
-    print(client);
 
     if (subscribedSG != null && subscribedSG != sg) {
       log.i("Unsubscribing from signal group ${subscribedSG?.id}");
