@@ -109,12 +109,23 @@ class AppMapState extends State<AppMap> {
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
       onCameraChangeListener: widget.onCameraChanged,
-      // Setting the following line (textureView) to true results in a spam of the message (only effects Android):
-      // "updateAcquireFence: Did not find frame."
-      // Setting the line (textureView) to false results in a spam of the message (only effects Android):
-      // "[SurfaceTexture-0-26276-3](id:66a40000000b,api:1,p:627,c:26276) dequeueBuffer: BufferQueue has been abandoned"
-      // Other effects were not yet observed.
-      // textureView: false,
+      // ONLY AFFECTS ANDROID
+      // If set to false, surfaceView is used instead.
+      // "Although SurfaceView is very efficient, it might not fit all use cases as it creates a separate window and
+      // cannot be moved, transformed, or animated. For these situations where you need more flexibility,
+      // it’s usually best to use a TextureView. This is less performant than SurfaceView, but it behaves as a standard
+      // View and can be manipulated as such." https://blog.mapbox.com/asynchronous-rendering-on-android-831722ac1837
+      // We use this to mitigate blank maps (observed when using the surfaceView and using the app excessively
+      // (e.g. starting a lot of rides/opening and closing map views without closing the app in between))
+      textureView: true,
+      mapOptions: mapbox.MapOptions(
+        // Setting this to UNIQUE allows Mapbox to perform optimizations (only possible if the GL context is not
+        // shared (not used by other frameworks/code except Mapbox))
+        contextMode: mapbox.ContextMode.UNIQUE,
+        // Has to be set if we set the MapOptions (thus, if we remove the contextMode we can also remove the
+        // pixelRatio)
+        pixelRatio: MediaQuery.of(context).devicePixelRatio,
+      ),
       cameraOptions: mapbox.CameraOptions(
         center: turf.Point(
             coordinates: turf.Position(
