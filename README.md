@@ -28,6 +28,23 @@ Since Android 12 implements its own splash screen, a solution must be found for 
 
 On push to `dev` or `beta`, a build workflow will be triggered to distribute our app.
 
+## Clean up Android logs
+
+Since we use the textureView for our Mapbox Maps, the log gets spammed with the following message:
+```
+updateAcquireFence: Did not find frame.
+```
+According to [this](https://github.com/flutter/flutter/issues/104268#issuecomment-1134964433), this is meaningless for us. Therefore we can use filters in our IDE to exclude this message from the log (ensuring a clean log).
+
+For Android Studio include the following filter when using Logcat:
+```
+package=:de.tudresden.priobike -message:"updateAcquireFence: Did not find frame."
+```
+For Visual Studio Code it is not that important because it groups the messages already such that they are not that annoying. To exclude those use the following filter:
+```
+!updateAcquireFence: Did not find frame.
+```
+
 ## Documentation for Flutter
 
 For help getting started with Flutter, view the
