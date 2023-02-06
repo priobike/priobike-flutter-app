@@ -311,8 +311,8 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
-    onFailure(reason) {
-      log.w("Failed to calculate predictor info: $reason");
+    onFailure(String? reason) {
+      if (reason != null) log.w("Failed to calculate predictor info: $reason");
       calcPhasesFromNow = null;
       calcQualitiesFromNow = null;
       calcCurrentPhaseChangeTime = null;
@@ -321,11 +321,14 @@ class Ride with ChangeNotifier {
       notifyListeners();
     }
 
-    if (this.prediction == null) return onFailure("No prediction available");
+    if (this.prediction == null) return onFailure(null); // Fail silently.
     // Check the type of the prediction.
-    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is not of wrong type");
+    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
     final prediction = this.prediction as PredictorPrediction;
 
+    // The prediction is split into two parts: "now" and "then".
+    // "now" is the predicted behavior within the current cycle, which can deviate from the average behavior.
+    // "then" is the predicted behavior after the cycle, which is the average behavior.
     final now = prediction.now.map((e) => PhaseColor.fromInt(e)).toList();
     if (now.isEmpty) return onFailure("No prediction available (now.length == 0)");
     final nowQuality = prediction.nowQuality.map((e) => e.toInt() / 100).toList();
@@ -333,35 +336,53 @@ class Ride with ChangeNotifier {
     if (then.isEmpty) return onFailure("No prediction available (then.length == 0)");
     final thenQuality = prediction.thenQuality.map((e) => e.toInt() / 100).toList();
     final diff = DateTime.now().difference(prediction.referenceTime).inSeconds;
-    if (diff < 0) return onFailure("Prediction is in the future");
-    if (diff > 300) return onFailure("Prediction is too old");
-    final index = max(0, diff);
+    if (diff > 300) return onFailure("Prediction is too old: $diff seconds");
+    var index = diff;
 
-    calcPhasesFromNow = List<Phase>.empty(growable: true);
-    calcQualitiesFromNow = List<double>.empty(growable: true);
-    if (index < now.length) {
-      calcPhasesFromNow = (now.sublist(index) + then);
-      calcQualitiesFromNow = nowQuality.sublist(index) + thenQuality;
-    } else {
-      calcPhasesFromNow = (then.sublist((index - now.length) % then.length) + then);
-      calcQualitiesFromNow = thenQuality.sublist((index - now.length) % then.length) + thenQuality;
+    calcPhasesFromNow = <Phase>[];
+    calcQualitiesFromNow = <double>[];
+    // Keep the index of the reference time in the prediction.
+    // This is 0 unless the reference time is in the future.
+    var refTimeIdx = 0;
+    // Check if the prediction is in the future.
+    if (index < -then.length) {
+      // Small deviations (-2 seconds, -1 seconds) are to be expected due to clock deviations,
+      // but if the prediction is too far in the future, something must have gone wrong.
+      return onFailure("Prediction is too far in the future: $index seconds");
+    } else if (index < 0) {
+      log.w("Prediction is in the future: $index seconds");
+      // Take the last part of the "then" prediction until we reach the start of "now".
+      calcPhasesFromNow = calcPhasesFromNow! + then.sublist(then.length + index, then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist(then.length + index, then.length);
+      refTimeIdx = calcPhasesFromNow!.length; // To calculate the current phase.
+      index = max(0, index);
     }
-    // Fill the phases array until we have > 300 values.
-    while (calcPhasesFromNow!.length < 300) {
+    // Calculate the phases from the start time of "now".
+    if (index < now.length) {
+      // We are within the "now" part of the prediction.
+      calcPhasesFromNow = calcPhasesFromNow! + now.sublist(index);
+      calcQualitiesFromNow = calcQualitiesFromNow! + nowQuality.sublist(index);
+    } else {
+      // We are within the "then" part of the prediction.
+      calcPhasesFromNow = calcPhasesFromNow! + then.sublist((index - now.length) % then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist((index - now.length) % then.length);
+    }
+    // Fill the phases with "then" (the average behavior) until we have enough values.
+    while (calcPhasesFromNow!.length < refTimeIdx + 300) {
       calcPhasesFromNow = calcPhasesFromNow! + then;
       calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality;
     }
     // Calculate the current phase.
-    final currentPhase = calcPhasesFromNow![0];
+    final currentPhase = calcPhasesFromNow![refTimeIdx];
     // Calculate the current phase change time.
-    for (int i = 0; i < calcPhasesFromNow!.length; i++) {
+    for (int i = refTimeIdx; i < calcPhasesFromNow!.length; i++) {
       if (calcPhasesFromNow![i] != currentPhase) {
         calcCurrentPhaseChangeTime = DateTime.now().add(Duration(seconds: i));
         break;
       }
     }
     calcCurrentSignalPhase = currentPhase;
-    calcPredictionQuality = calcQualitiesFromNow![0];
+    calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
 
     notifyListeners();
   }
