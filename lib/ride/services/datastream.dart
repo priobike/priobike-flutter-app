@@ -92,7 +92,7 @@ class Datastream with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
-      await client!.connect();
+      await client!.connect().timeout(const Duration(seconds: 5));
       client!.updates?.listen(onData);
 
       // Init the timer that updates the history every second.

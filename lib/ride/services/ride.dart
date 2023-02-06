@@ -200,14 +200,16 @@ class Ride with ChangeNotifier {
           .startClean()
           .withWillQos(MqttQos.atMostOnce);
       log.i("Connecting to Prediction MQTT broker.");
-      await client!.connect(
-        settings.predictionMode == PredictionMode.usePredictionService
-            ? settings.backend.predictionServiceMQTTUsername
-            : settings.backend.predictorMQTTUsername,
-        settings.predictionMode == PredictionMode.usePredictionService
-            ? settings.backend.predictionServiceMQTTPassword
-            : settings.backend.predictorMQTTPassword,
-      );
+      await client!
+          .connect(
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTUsername
+                : settings.backend.predictorMQTTUsername,
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTPassword
+                : settings.backend.predictorMQTTPassword,
+          )
+          .timeout(const Duration(seconds: 5));
       client!.updates?.listen(onData);
       // Start the timer that updates the prediction once per second.
       calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
