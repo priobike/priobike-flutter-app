@@ -311,8 +311,8 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
-    onFailure(reason) {
-      log.w("Failed to calculate predictor info: $reason");
+    onFailure(String? reason) {
+      if (reason != null) log.w("Failed to calculate predictor info: $reason");
       calcPhasesFromNow = null;
       calcQualitiesFromNow = null;
       calcCurrentPhaseChangeTime = null;
@@ -321,9 +321,9 @@ class Ride with ChangeNotifier {
       notifyListeners();
     }
 
-    if (this.prediction == null) return onFailure("No prediction available");
+    if (this.prediction == null) return onFailure(null); // Fail silently.
     // Check the type of the prediction.
-    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is not of wrong type");
+    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
     final prediction = this.prediction as PredictorPrediction;
 
     // The prediction is split into two parts: "now" and "then".
@@ -350,6 +350,7 @@ class Ride with ChangeNotifier {
       // but if the prediction is too far in the future, something must have gone wrong.
       return onFailure("Prediction is too far in the future: $index seconds");
     } else if (index < 0) {
+      log.w("Prediction is in the future: $index seconds");
       // Take the last part of the "then" prediction until we reach the start of "now".
       calcPhasesFromNow = calcPhasesFromNow! + then.sublist(then.length + index, then.length);
       calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist(then.length + index, then.length);
