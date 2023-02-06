@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -71,7 +70,6 @@ class News with ChangeNotifier {
 
       if (response.statusCode != 200) {
         final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
@@ -132,7 +130,6 @@ class News with ChangeNotifier {
 
       if (response.statusCode != 200) {
         final err = "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
