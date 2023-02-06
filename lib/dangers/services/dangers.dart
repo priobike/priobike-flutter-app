@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
@@ -105,9 +104,7 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Sent danger to $endpoint");
       }
-    } on TimeoutException catch (error) {
-      log.w("Timeout sending danger to $endpoint: $error");
-    } on SocketException catch (error) {
+    } catch (error) {
       log.w("Error sending danger to $endpoint: $error");
     }
     // Add the danger to the list.
@@ -176,9 +173,7 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Voted for danger $danger");
       }
-    } on TimeoutException catch (error) {
-      log.w("Timeout voting for danger $danger: $error");
-    } on SocketException catch (error) {
+    } catch (error) {
       log.w("Error voting for danger $danger: $error");
     }
     if (vote == 1) {

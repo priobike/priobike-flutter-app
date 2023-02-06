@@ -52,7 +52,7 @@ class Datastream with ChangeNotifier {
 
   /// Unsubscribe from a datastream.
   void unsubscribe(String? datastreamId) {
-    if (datastreamId == null) return;
+    if (datastreamId == null || client == null) return;
     final t = topic(datastreamId)!;
     client?.unsubscribe(t);
     subscriptions.remove(t);
@@ -61,7 +61,7 @@ class Datastream with ChangeNotifier {
 
   /// Subscribe to a datastream.
   void subscribe(String? datastreamId) {
-    if (datastreamId == null) return;
+    if (datastreamId == null || client == null) return;
     final t = topic(datastreamId)!;
     client?.subscribe(t, MqttQos.exactlyOnce);
     subscriptions.add(t);
@@ -70,51 +70,56 @@ class Datastream with ChangeNotifier {
 
   /// Connect the mqtt client.
   Future<void> connect(BuildContext context) async {
-    // Get the backend that is currently selected.
-    final backend = Provider.of<Settings>(context, listen: false).backend;
-    client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
-    client!.logging(on: false);
-    client!.keepAlivePeriod = 30;
-    client!.secure = false;
-    client!.port = backend.frostMQTTPort;
-    client!.autoReconnect = true;
-    client!.resubscribeOnAutoReconnect = true;
-    client!.onDisconnected = () => log.i("MQTT client disconnected");
-    client!.onConnected = () => log.i("MQTT client connected");
-    client!.onSubscribed = (topic) => log.i("MQTT client subscribed to $topic");
-    client!.onUnsubscribed = (topic) => log.i("MQTT client unsubscribed from $topic");
-    client!.onAutoReconnect = () => log.i("MQTT client auto reconnect");
-    client!.onAutoReconnected = () => log.i("MQTT client auto reconnected");
-    client!.setProtocolV311();
-    client!.connectionMessage = MqttConnectMessage()
-        .withClientIdentifier(client!.clientIdentifier)
-        .startClean()
-        .withWillQos(MqttQos.atMostOnce);
-    log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
-    await client!.connect();
-    client!.updates?.listen(onData);
+    try {
+      // Get the backend that is currently selected.
+      final backend = Provider.of<Settings>(context, listen: false).backend;
+      client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
+      client!.logging(on: false);
+      client!.keepAlivePeriod = 30;
+      client!.secure = false;
+      client!.port = backend.frostMQTTPort;
+      client!.autoReconnect = true;
+      client!.resubscribeOnAutoReconnect = true;
+      client!.onDisconnected = () => log.i("MQTT client disconnected");
+      client!.onConnected = () => log.i("MQTT client connected");
+      client!.onSubscribed = (topic) => log.i("MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("MQTT client unsubscribed from $topic");
+      client!.onAutoReconnect = () => log.i("MQTT client auto reconnect");
+      client!.onAutoReconnected = () => log.i("MQTT client auto reconnected");
+      client!.setProtocolV311();
+      client!.connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(client!.clientIdentifier)
+          .startClean()
+          .withWillQos(MqttQos.atMostOnce);
+      log.i("Connecting to MQTT broker ${backend.frostMQTTPath}:${backend.frostMQTTPort}");
+      await client!.connect();
+      client!.updates?.listen(onData);
 
-    // Init the timer that updates the history every second.
-    timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        // Shift the history to the left.
-        for (var i = 0; i < primarySignalHistory.length - 1; i++) {
-          primarySignalHistory[i] = primarySignalHistory[i + 1];
-        }
-        // Add the current value to the history.
-        primarySignalHistory[primarySignalHistory.length - 1] = primarySignal;
-        // If we have a primary signal, update the history by the phenomenon time.
-        if (primarySignal != null) {
-          final diff = DateTime.now().difference(primarySignal!.phenomenonTime);
-          final startIndex = max(primarySignalHistory.length - 1 - diff.inSeconds, 0);
-          for (var i = startIndex; i < primarySignalHistory.length; i++) {
-            primarySignalHistory[i] = primarySignal;
+      // Init the timer that updates the history every second.
+      timer = Timer.periodic(
+        const Duration(seconds: 1),
+        (timer) {
+          // Shift the history to the left.
+          for (var i = 0; i < primarySignalHistory.length - 1; i++) {
+            primarySignalHistory[i] = primarySignalHistory[i + 1];
           }
-        }
-        notifyListeners();
-      },
-    );
+          // Add the current value to the history.
+          primarySignalHistory[primarySignalHistory.length - 1] = primarySignal;
+          // If we have a primary signal, update the history by the phenomenon time.
+          if (primarySignal != null) {
+            final diff = DateTime.now().difference(primarySignal!.phenomenonTime);
+            final startIndex = max(primarySignalHistory.length - 1 - diff.inSeconds, 0);
+            for (var i = startIndex; i < primarySignalHistory.length; i++) {
+              primarySignalHistory[i] = primarySignal;
+            }
+          }
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      client = null;
+      log.w("Failed to connect the Frost MQTT client: $e");
+    }
   }
 
   /// A callback that is executed when data arrives.
@@ -188,11 +193,13 @@ class Datastream with ChangeNotifier {
 
   /// Disconnect and dispose the mqtt client.
   Future<void> disconnect() async {
-    for (final t in subscriptions) {
-      client?.unsubscribe(t);
+    if (client != null) {
+      for (final t in subscriptions) {
+        client?.unsubscribe(t);
+      }
+      client?.disconnect();
+      client = null;
     }
-    client?.disconnect();
-    client = null;
     subscriptions.clear();
     timer?.cancel();
     timer = null;

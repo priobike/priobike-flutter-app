@@ -100,7 +100,8 @@ class Ride with ChangeNotifier {
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
-    if (!navigationIsActive) return;
+    if (!navigationIsActive || client == null) return;
+    print(client);
 
     if (subscribedSG != null && subscribedSG != sg) {
       log.i("Unsubscribing from signal group ${subscribedSG?.id}");
@@ -172,51 +173,56 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     predictionMode = settings.predictionMode;
     final clientId = 'priobike-app-${UniqueKey().toString()}';
-    client = MqttServerClient(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPath
-          : settings.backend.predictorMQTTPath,
-      clientId,
-    );
-    client!.logging(on: false);
-    client!.keepAlivePeriod = 30;
-    client!.secure = false;
-    client!.port = settings.predictionMode == PredictionMode.usePredictionService
-        ? settings.backend.predictionServiceMQTTPort
-        : settings.backend.predictorMQTTPort;
-    client!.autoReconnect = true;
-    client!.resubscribeOnAutoReconnect = true;
-    client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
-    client!.onConnected = () => log.i("Prediction MQTT client connected");
-    client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
-    client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
-    client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
-    client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
-    client!.setProtocolV311(); // Default Mosquitto protocol
-    client!.connectionMessage = MqttConnectMessage()
-        .withClientIdentifier(client!.clientIdentifier)
-        .startClean()
-        .withWillQos(MqttQos.atMostOnce);
-    log.i("Connecting to Prediction MQTT broker.");
-    await client!.connect(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTUsername
-          : settings.backend.predictorMQTTUsername,
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPassword
-          : settings.backend.predictorMQTTPassword,
-    );
-    client!.updates?.listen(onData);
+    try {
+      client = MqttServerClient(
+        settings.predictionMode == PredictionMode.usePredictionService
+            ? settings.backend.predictionServiceMQTTPath
+            : settings.backend.predictorMQTTPath,
+        clientId,
+      );
+      client!.logging(on: false);
+      client!.keepAlivePeriod = 30;
+      client!.secure = false;
+      client!.port = settings.predictionMode == PredictionMode.usePredictionService
+          ? settings.backend.predictionServiceMQTTPort
+          : settings.backend.predictorMQTTPort;
+      client!.autoReconnect = true;
+      client!.resubscribeOnAutoReconnect = true;
+      client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
+      client!.onConnected = () => log.i("Prediction MQTT client connected");
+      client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
+      client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
+      client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
+      client!.setProtocolV311(); // Default Mosquitto protocol
+      client!.connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(client!.clientIdentifier)
+          .startClean()
+          .withWillQos(MqttQos.atMostOnce);
+      log.i("Connecting to Prediction MQTT broker.");
+      await client!.connect(
+        settings.predictionMode == PredictionMode.usePredictionService
+            ? settings.backend.predictionServiceMQTTUsername
+            : settings.backend.predictorMQTTUsername,
+        settings.predictionMode == PredictionMode.usePredictionService
+            ? settings.backend.predictionServiceMQTTPassword
+            : settings.backend.predictorMQTTPassword,
+      );
+      client!.updates?.listen(onData);
+      // Start the timer that updates the prediction once per second.
+      calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (predictionMode == PredictionMode.usePredictionService) {
+          calculateRecommendationFromPredictionService();
+        } else {
+          calculateRecommendationFromPredictor();
+        }
+      });
+    } catch (e) {
+      client = null;
+      log.w("Failed to connect the prediction MQTT client: $e");
+    }
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
-    // Start the timer that updates the prediction once per second.
-    calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (predictionMode == PredictionMode.usePredictionService) {
-        calculateRecommendationFromPredictionService();
-      } else {
-        calculateRecommendationFromPredictor();
-      }
-    });
     navigationIsActive = true;
   }
 
@@ -459,8 +465,10 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    client?.disconnect();
-    client = null;
+    if (client != null) {
+      client?.disconnect();
+      client = null;
+    }
     calcPhasesFromNow = null;
     calcQualitiesFromNow = null;
     calcCurrentPhaseChangeTime = null;

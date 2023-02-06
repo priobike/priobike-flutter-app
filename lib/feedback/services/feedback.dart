@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/feedback/messages/answer.dart';
@@ -70,9 +69,7 @@ class Feedback with ChangeNotifier {
         } else {
           log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
         }
-      } on TimeoutException catch (error) {
-        log.w("Timeout sending feedback to $endpoint: $error");
-      } on SocketException catch (error) {
+      } catch (error) {
         log.w("Error sending feedback to $endpoint: $error");
       }
     }
