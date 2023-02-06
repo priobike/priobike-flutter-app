@@ -192,7 +192,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                     child: deleteMode
                                         ? SmallIconButton(
                                             icon: Icons.delete,
-                                            onPressed: () => setState(() => deleteMode = false),
+                                            onPressed: () => onDeleteShortcut(entry.key),
                                             fill: Theme.of(context).colorScheme.surface,
                                           )
                                         : const Padding(
