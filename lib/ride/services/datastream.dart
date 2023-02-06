@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -11,6 +12,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Datastream with ChangeNotifier {
   /// Logger for this class.
@@ -116,9 +118,13 @@ class Datastream with ChangeNotifier {
           notifyListeners();
         },
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
       client = null;
-      log.w("Failed to connect the Frost MQTT client: $e");
+      final hint = "Failed to connect the Frost MQTT client: $e";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+      }
     }
   }
 
@@ -150,8 +156,12 @@ class Datastream with ChangeNotifier {
           log.i("MQTT: Received signalProgram: #${signalProgram!.program}");
         }
         notifyListeners();
-      } catch (e) {
-        log.e("MQTT: Error while parsing message: $e");
+      } catch (e, stackTrace) {
+        final hint = "MQTT: Error while parsing message: $e";
+        log.e(hint);
+        if (!kDebugMode) {
+          Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+        }
       }
     }
   }

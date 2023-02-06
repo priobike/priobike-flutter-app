@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -59,7 +60,9 @@ class PredictionStatusSummary with ChangeNotifier {
       hadError = true;
       notifyListeners();
       final hint = "Error while fetching prediction status: $e";
-      Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
       log.e(hint);
     }
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -15,6 +16,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -218,9 +220,13 @@ class Ride with ChangeNotifier {
           calculateRecommendationFromPredictor();
         }
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       client = null;
-      log.w("Failed to connect the prediction MQTT client: $e");
+      final hint = "Failed to connect the prediction MQTT client: $e";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+      }
     }
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();

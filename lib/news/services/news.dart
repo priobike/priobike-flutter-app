@@ -81,9 +81,9 @@ class News with ChangeNotifier {
       );
     } catch (e, stack) {
       final hint = "Failed to load articles: $e";
-      log.w(hint);
+      log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
 
@@ -142,9 +142,9 @@ class News with ChangeNotifier {
       await _storeCategory(context, category);
     } catch (e, stack) {
       final hint = "Failed to load category: $e";
-      log.w(hint);
+      log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
   }

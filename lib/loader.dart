@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -88,7 +89,9 @@ class LoaderState extends State<Loader> {
       final weather = Provider.of<Weather>(context, listen: false);
       await weather.fetch(context);
     } catch (e, stackTrace) {
-      await Sentry.captureException(e, stackTrace: stackTrace);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace);
+      }
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();

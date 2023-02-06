@@ -74,7 +74,7 @@ class Geocoding with ChangeNotifier {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+        Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
       }
       isFetchingAddress = false;
       hadErrorDuringFetch = true;

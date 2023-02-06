@@ -75,7 +75,7 @@ class Geosearch with ChangeNotifier {
       notifyListeners();
       final hint = "Addresses could not be fetched: $e";
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
       log.e(hint);
     }

@@ -55,7 +55,7 @@ Future<void> main() async {
     log.e(error.toString());
     log.e(stack.toString());
     // Send the error to Sentry, but only if we are not in debug mode.
-    if (!kDebugMode) await Sentry.captureException(error, stackTrace: stack);
+    if (!kDebugMode) Sentry.captureException(error, stackTrace: stack);
   });
 }
 

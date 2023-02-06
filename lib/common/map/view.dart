@@ -26,7 +26,7 @@ class AppMap extends StatefulWidget {
       final hint = "Failed to load offline tiles: $err";
       Logger("AppMap").e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
+        Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
       }
     }
   }

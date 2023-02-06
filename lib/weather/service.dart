@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -7,6 +8,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/messages.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Weather with ChangeNotifier {
   /// The logger for this service.
@@ -59,7 +61,11 @@ class Weather with ChangeNotifier {
       log.i("Fetched current weather.");
       current = CurrentWeatherResponse.fromJson(decoded).weather;
     } catch (e, stacktrace) {
-      log.e("Failed to fetch weather: $e $stacktrace");
+      final hint = "Failed to fetch weather: $e $stacktrace";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      }
     }
 
     hasLoaded = true;
