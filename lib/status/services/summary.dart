@@ -1,13 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
-import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/status/messages/summary.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/summary.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -46,8 +46,6 @@ class PredictionStatusSummary with ChangeNotifier {
         isLoading = false;
         notifyListeners();
         final err = "Error while fetching prediction status from $endpoint: ${response.statusCode}";
-        log.e(err);
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
@@ -62,10 +60,10 @@ class PredictionStatusSummary with ChangeNotifier {
       hadError = true;
       notifyListeners();
       final hint = "Error while fetching prediction status: $e";
-      Sentry.captureException(e, stackTrace: stack, hint: hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
       log.e(hint);
-      ToastMessage.showError(hint);
-      throw Exception(hint);
     }
   }
 

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -57,8 +56,6 @@ class Geosearch with ChangeNotifier {
         isFetchingAddress = false;
         notifyListeners();
         final err = "Addresses could not be fetched from $endpoint: ${response.body}";
-        log.e(err);
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
@@ -78,11 +75,9 @@ class Geosearch with ChangeNotifier {
       notifyListeners();
       final hint = "Addresses could not be fetched: $e";
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
       log.e(hint);
-      ToastMessage.showError(hint);
-      throw Exception(hint);
     }
   }
 

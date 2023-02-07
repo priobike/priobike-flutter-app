@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart';
-import 'package:priobike/http.dart';
-import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
+import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -21,6 +22,7 @@ import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/user.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CSVCache {
@@ -144,7 +146,11 @@ class Tracking with ChangeNotifier {
       // Delete the tracking files.
       (await track.trackDirectory).delete(recursive: true);
     } catch (e, stack) {
-      log.e("Failed to delete the track files: $e $stack");
+      final hint = "Failed to delete the track files: $e $stack";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
     }
     await savePreviousTracks();
     notifyListeners();
@@ -206,7 +212,11 @@ class Tracking with ChangeNotifier {
       await startCollectingGyrData(gyroscopeEvents);
       await startCollectingMagData(magnetometerEvents);
     } catch (e, stacktrace) {
-      log.e("Could not start a new track: $e $stacktrace");
+      final hint = "Could not start a new track: $e $stacktrace";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+      }
       return end(context);
     }
 
@@ -419,7 +429,11 @@ class Tracking with ChangeNotifier {
         log.w("Track with id ${track.sessionId} is too large (${totalSize / 1000 / 1000} MB), skipping.");
       }
     } catch (e, stack) {
-      log.e("Failed to send track with id ${track.sessionId}: $e $stack.");
+      final hint = "Failed to send track with id ${track.sessionId}: $e $stack.";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
       uploadingTracks.remove(track.sessionId);
       notifyListeners();
       return false;

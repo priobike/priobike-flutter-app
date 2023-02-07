@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -15,6 +16,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -100,7 +102,7 @@ class Ride with ChangeNotifier {
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
-    if (!navigationIsActive) return;
+    if (!navigationIsActive && client == null) return;
 
     if (subscribedSG != null && subscribedSG != sg) {
       log.i("Unsubscribing from signal group ${subscribedSG?.id}");
@@ -164,59 +166,81 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context) async {
-    // Do nothing if the navigation has already been started.
-    if (navigationIsActive) return;
+  /// Establish a connection with the MQTT client.
+  Future<void> connectMQTTClient(BuildContext context) async {
     // Get the backend that is currently selected.
     final settings = Provider.of<Settings>(context, listen: false);
     predictionMode = settings.predictionMode;
     final clientId = 'priobike-app-${UniqueKey().toString()}';
-    client = MqttServerClient(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPath
-          : settings.backend.predictorMQTTPath,
-      clientId,
-    );
-    client!.logging(on: false);
-    client!.keepAlivePeriod = 30;
-    client!.secure = false;
-    client!.port = settings.predictionMode == PredictionMode.usePredictionService
-        ? settings.backend.predictionServiceMQTTPort
-        : settings.backend.predictorMQTTPort;
-    client!.autoReconnect = true;
-    client!.resubscribeOnAutoReconnect = true;
-    client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
-    client!.onConnected = () => log.i("Prediction MQTT client connected");
-    client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
-    client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
-    client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
-    client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
-    client!.setProtocolV311(); // Default Mosquitto protocol
-    client!.connectionMessage = MqttConnectMessage()
-        .withClientIdentifier(client!.clientIdentifier)
-        .startClean()
-        .withWillQos(MqttQos.atMostOnce);
-    log.i("Connecting to Prediction MQTT broker.");
-    await client!.connect(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTUsername
-          : settings.backend.predictorMQTTUsername,
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPassword
-          : settings.backend.predictorMQTTPassword,
-    );
-    client!.updates?.listen(onData);
+    try {
+      client = MqttServerClient(
+        settings.predictionMode == PredictionMode.usePredictionService
+            ? settings.backend.predictionServiceMQTTPath
+            : settings.backend.predictorMQTTPath,
+        clientId,
+      );
+      client!.logging(on: false);
+      client!.keepAlivePeriod = 30;
+      client!.secure = false;
+      client!.port = settings.predictionMode == PredictionMode.usePredictionService
+          ? settings.backend.predictionServiceMQTTPort
+          : settings.backend.predictorMQTTPort;
+      client!.autoReconnect = true;
+      client!.resubscribeOnAutoReconnect = true;
+      client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
+      client!.onConnected = () => log.i("Prediction MQTT client connected");
+      client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
+      client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
+      client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
+      client!.setProtocolV311(); // Default Mosquitto protocol
+      client!.connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(client!.clientIdentifier)
+          .startClean()
+          .withWillQos(MqttQos.atMostOnce);
+      log.i("Connecting to Prediction MQTT broker.");
+      await client!
+          .connect(
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTUsername
+                : settings.backend.predictorMQTTUsername,
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTPassword
+                : settings.backend.predictorMQTTPassword,
+          )
+          .timeout(const Duration(seconds: 5));
+      client!.updates?.listen(onData);
+      selectSG(calcCurrentSG);
+      // Start the timer that updates the prediction once per second.
+      calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (predictionMode == PredictionMode.usePredictionService) {
+          calculateRecommendationFromPredictionService();
+        } else {
+          calculateRecommendationFromPredictor();
+        }
+      });
+    } catch (e, stackTrace) {
+      client = null;
+      final hint = "Failed to connect the prediction MQTT client: $e";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+      }
+      if (navigationIsActive) {
+        await Future.delayed(const Duration(seconds: 10));
+        connectMQTTClient(context);
+      }
+    }
+  }
+
+  /// Start the navigation and connect the MQTT client.
+  Future<void> startNavigation(BuildContext context) async {
+    // Do nothing if the navigation has already been started.
+    if (navigationIsActive) return;
+    connectMQTTClient(context);
+
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
-    // Start the timer that updates the prediction once per second.
-    calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (predictionMode == PredictionMode.usePredictionService) {
-        calculateRecommendationFromPredictionService();
-      } else {
-        calculateRecommendationFromPredictor();
-      }
-    });
     navigationIsActive = true;
   }
 
@@ -459,8 +483,10 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    client?.disconnect();
-    client = null;
+    if (client != null) {
+      client?.disconnect();
+      client = null;
+    }
     calcPhasesFromNow = null;
     calcQualitiesFromNow = null;
     calcCurrentPhaseChangeTime = null;

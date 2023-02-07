@@ -1,19 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,8 +70,6 @@ class News with ChangeNotifier {
 
       if (response.statusCode != 200) {
         final err = "News articles could not be fetched from endpoint $newsArticlesEndpoint: ${response.body}";
-        log.e(err);
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
@@ -82,17 +79,11 @@ class News with ChangeNotifier {
           articlesFromServer.add(article);
         },
       );
-    } on SocketException catch (e, stack) {
+    } catch (e, stack) {
       final hint = "Failed to load articles: $e";
-      log.w(hint);
+      log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
-    } on TimeoutException catch (e, stack) {
-      final hint = "Timed out loading articles: $e";
-      log.w(hint);
-      if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
 
@@ -139,8 +130,6 @@ class News with ChangeNotifier {
 
       if (response.statusCode != 200) {
         final err = "News category could not be fetched from endpoint $newsCategoryEndpoint: ${response.body}";
-        log.e(err);
-        ToastMessage.showError(err);
         throw Exception(err);
       }
 
@@ -151,17 +140,11 @@ class News with ChangeNotifier {
       }
 
       await _storeCategory(context, category);
-    } on SocketException catch (e, stack) {
+    } catch (e, stack) {
       final hint = "Failed to load category: $e";
-      log.w(hint);
+      log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
-    } on TimeoutException catch (e, stack) {
-      final hint = "Timed out loading categories: $e";
-      log.w(hint);
-      if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
     }
   }
