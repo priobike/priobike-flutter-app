@@ -109,6 +109,7 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onRideUpdate() async {
     if (!mounted) return;
     await TrafficLightLayer(context).update(mapController!);
+    await SelectedRouteLayer(context).update(mapController!);
 
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.

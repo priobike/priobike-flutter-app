@@ -7,6 +7,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -101,17 +102,28 @@ class SelectedRouteLayer {
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
+    final ride = Provider.of<Ride>(context, listen: false);
     final navNodes = routing.selectedRoute?.route ?? [];
+
+    final String? currentSgId = ride.calcCurrentSG?.id;
+    final double? currentSgPredictionQuality = ride.calcPredictionQuality;
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
-      final sgStatus = status.cache[navNode.signalGroupId];
       String color;
-      var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
-      // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
-      if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+      double q;
+      if (currentSgId != null && navNode.signalGroupId == currentSgId) {
+        q = min(1, max(0, currentSgPredictionQuality ?? 0));
+        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+        if (currentSgPredictionQuality == null || currentSgPredictionQuality < 0.9) q = 0;
+      } else {
+        final sgStatus = status.cache[navNode.signalGroupId];
+        q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+        if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
+      }
       // Interpolate between green and blue, by the prediction quality.
       color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
       if (currentFeature == null || currentFeature["color"] != color) {
