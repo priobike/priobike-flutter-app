@@ -142,6 +142,11 @@ class WeatherViewState extends State<WeatherView> {
     }
     summary = "${summary!} bei ${temp.toStringAsFixed(1)}°C.";
 
+    // Don't add the forecast to the summary if the display height is to small (resulting in an overflow).
+    if (MediaQuery.of(context).size.height < 550) {
+      return;
+    }
+
     // Check if the icon changes in the forecast.
     for (final forecast in weather.forecast ?? <WeatherForecast>[]) {
       if (forecast.icon != weather.current?.icon) {
