@@ -118,7 +118,7 @@ class Routing with ChangeNotifier {
   RoutingProfile? selectedProfile;
 
   /// The waypoints of the selected route, if provided.
-  List<Waypoint?>? selectedWaypoints;
+  List<Waypoint>? selectedWaypoints;
 
   /// The list of waypoints for SearchRoutingView.
   List<Waypoint?> routingItems = [];
@@ -170,7 +170,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Select new waypoints.
-  Future<void> selectWaypoints(List<Waypoint?>? waypoints) async {
+  Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
     if ((waypoints?.length ?? 0) < 2) {
       selectedRoute = null;
@@ -205,7 +205,7 @@ class Routing with ChangeNotifier {
         shortestWaypointToIdx = i + 1;
       }
     }
-    List<Waypoint?> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
+    List<Waypoint> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
     remaining += selectedWaypoints!.sublist(shortestWaypointToIdx);
     return await selectWaypoints(remaining);
   }
