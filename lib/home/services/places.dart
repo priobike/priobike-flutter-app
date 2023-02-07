@@ -27,21 +27,19 @@ class Places with ChangeNotifier {
     final routing = Provider.of<Routing>(context, listen: false);
     final bottomSheetState = Provider.of<BottomSheetState>(context, listen: false);
 
-    if (routing.selectedWaypoints == null ||
-        routing.selectedWaypoints!.isEmpty ||
-        routing.selectedWaypoints![0] == null) return;
+    if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation
-    if (routing.selectedWaypoints![0] != null && routing.selectedWaypoints![0]!.address == null) {
+    if (routing.selectedWaypoints![0].address == null) {
       final geocoding = Provider.of<Geocoding>(context, listen: false);
       final String? address = await geocoding.reverseGeocodeLatLng(
-          context, routing.selectedWaypoints![0]!.lat, routing.selectedWaypoints![0]!.lon);
+          context, routing.selectedWaypoints![0].lat, routing.selectedWaypoints![0].lon);
       if (address == null) return;
-      routing.selectedWaypoints![0]!.address = address;
+      routing.selectedWaypoints![0].address = address;
     }
 
     // Save the first waypoint.
-    final newPlace = Place(name: name, waypoint: routing.selectedWaypoints![0]!);
+    final newPlace = Place(name: name, waypoint: routing.selectedWaypoints![0]);
     if (places == null) await loadPlaces(context);
     if (places == null) return;
     places = [newPlace] + places!;

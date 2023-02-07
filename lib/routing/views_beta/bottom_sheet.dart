@@ -168,7 +168,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 }
                 if (routing.selectedWaypoints != null) {
                   // Save shortcut.
-                  if (routing.selectedWaypoints!.length > 1 && routing.selectedWaypoints![0] != null) {
+                  if (routing.selectedWaypoints!.length > 1) {
                     await shortcuts.saveNewShortcut(nameController.text, context);
                   } else {
                     // Save place.
@@ -405,11 +405,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.last != null
+            routing.selectedWaypoints != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
-                      text: routing.selectedWaypoints!.last!.address ?? "Aktueller Standort",
+                      text: routing.selectedWaypoints!.last.address ?? "Aktueller Standort",
                       context: context,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -547,11 +547,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         child: Column(
           children: [
             // Destination.
-            routing.selectedWaypoints != null && routing.selectedWaypoints!.last != null
+            routing.selectedWaypoints != null
                 ? Align(
                     alignment: Alignment.centerLeft,
                     child: BoldSubHeader(
-                      text: routing.selectedWaypoints!.last!.address!,
+                      text: routing.selectedWaypoints!.last.address!,
                       context: context,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

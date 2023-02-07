@@ -242,8 +242,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         CameraOptions(
           center: turf.Point(
               coordinates: turf.Position(
-            routing.selectedWaypoints![0]!.lon,
-            routing.selectedWaypoints![0]!.lat,
+            routing.selectedWaypoints![0].lon,
+            routing.selectedWaypoints![0].lat,
           )).toJson(),
         ),
         MapAnimationOptions(duration: 1000),
