@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
-import 'package:priobike/routing/services/bottom_sheet_state.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +30,7 @@ class Shortcuts with ChangeNotifier {
     final bottomSheetState = Provider.of<BottomSheetState>(context, listen: false);
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
+
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint? waypoint in routing.selectedWaypoints!) {
       if (waypoint == null) {
@@ -44,7 +45,7 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints as List<Waypoint>);
+    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
     if (shortcuts == null) await loadShortcuts(context);
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;

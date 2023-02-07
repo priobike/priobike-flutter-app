@@ -7,9 +7,9 @@ import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
@@ -265,7 +265,7 @@ class Routing with ChangeNotifier {
       log.e(hint);
 
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stack, hint: hint);
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
       return null;
     }
@@ -355,7 +355,7 @@ class Routing with ChangeNotifier {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
+        Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
       }
       return null;
     }

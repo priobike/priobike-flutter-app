@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/routing/views_beta/widgets/arrow.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views_beta/widgets/arrow.dart';
 import 'package:provider/provider.dart';
 
 class InstructionsView extends StatefulWidget {
@@ -42,7 +42,7 @@ class InstructionsViewState extends State<InstructionsView> {
                   width: 50,
                 ),
                 const SizedBox(width: 20),
-                Content(text: ghInstruction.distance.toStringAsFixed(0) + " m", context: context),
+                Content(text: "${ghInstruction.distance.toStringAsFixed(0)} m", context: context),
                 const SizedBox(width: 20),
               ],
             ),

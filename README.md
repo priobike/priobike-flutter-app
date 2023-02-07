@@ -1,6 +1,6 @@
 # PrioBike-HH Flutter App
 
-**Required Flutter Version: `2.10.5`**
+**Required Flutter Version: `3.3.10`**
 
 For getting started with development you need to set up your development environment according to the [guide](https://docs.flutter.dev/get-started/install).
 
@@ -27,6 +27,23 @@ Since Android 12 implements its own splash screen, a solution must be found for 
 ![Flutter App Development](https://user-images.githubusercontent.com/27271818/208384012-5259dae4-abad-4705-9390-ac1bcf007ac7.png)
 
 On push to `dev` or `beta`, a build workflow will be triggered to distribute our app.
+
+## Clean up Android logs
+
+Since we use the textureView for our Mapbox Maps, the log gets spammed with the following message:
+```
+updateAcquireFence: Did not find frame.
+```
+According to [this](https://github.com/flutter/flutter/issues/104268#issuecomment-1134964433), this is meaningless for us. Therefore we can use filters in our IDE to exclude this message from the log (ensuring a clean log).
+
+For Android Studio include the following filter when using Logcat:
+```
+package=:de.tudresden.priobike -message:"updateAcquireFence: Did not find frame."
+```
+For Visual Studio Code it is not that important because it groups the messages already such that they are not that annoying. To exclude those use the following filter:
+```
+!updateAcquireFence: Did not find frame.
+```
 
 ## Documentation for Flutter
 

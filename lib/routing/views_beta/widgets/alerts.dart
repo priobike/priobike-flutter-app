@@ -134,8 +134,8 @@ class AlertsViewState extends State<AlertsView> {
                     },
                     child: PageView(
                       physics: const NeverScrollableScrollPhysics(),
-                      children: alerts,
                       controller: controller,
+                      children: alerts,
                     ),
                   ),
                 ]),
@@ -190,7 +190,7 @@ class AlertsViewState extends State<AlertsView> {
                 children: [
                   RichText(
                     text: TextSpan(
-                      style: Theme.of(context).textTheme.headline4,
+                      style: Theme.of(context).textTheme.headlineMedium,
                       children: [
                         const TextSpan(text: "Diese Route enthält "),
                         if (predictionStatus.offline > 0 || predictionStatus.bad > 0) ...[
@@ -212,7 +212,7 @@ class AlertsViewState extends State<AlertsView> {
                             text: " ${predictionStatus.offline + predictionStatus.bad} aktuell nicht",
                             style: Theme.of(context)
                                 .textTheme
-                                .headline4!
+                                .headlineMedium!
                                 .merge(const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                           ),
                         ],
@@ -238,7 +238,7 @@ class AlertsViewState extends State<AlertsView> {
                             text: " ${predictionStatus.disconnected} gar nicht",
                             style: Theme.of(context)
                                 .textTheme
-                                .headline4!
+                                .headlineMedium!
                                 .merge(const TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ],

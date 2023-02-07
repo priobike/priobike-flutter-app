@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/dangers/models/danger.dart';
@@ -16,6 +16,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Dangers with ChangeNotifier {
   final log = Logger("Dangers");
@@ -74,8 +75,12 @@ class Dangers with ChangeNotifier {
             .toList();
         notifyListeners();
       }
-    } catch (error) {
-      log.e("Error fetching dangers from $endpoint: $error");
+    } catch (error, stackTrace) {
+      final hint = "Error fetching dangers from $endpoint: $error";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
+      }
     }
   }
 
@@ -105,10 +110,12 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Sent danger to $endpoint");
       }
-    } on TimeoutException catch (error) {
-      log.w("Timeout sending danger to $endpoint: $error");
-    } on SocketException catch (error) {
-      log.w("Error sending danger to $endpoint: $error");
+    } catch (error, stackTrace) {
+      final hint = "Error sending danger to $endpoint: $error";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
+      }
     }
     // Add the danger to the list.
     dangers.add(danger);
@@ -176,10 +183,12 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Voted for danger $danger");
       }
-    } on TimeoutException catch (error) {
-      log.w("Timeout voting for danger $danger: $error");
-    } on SocketException catch (error) {
-      log.w("Error voting for danger $danger: $error");
+    } catch (error, stackTrace) {
+      final hint = "Error voting for danger $danger: $error";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
+      }
     }
     if (vote == 1) {
       ToastMessage.showSuccess("Gefahr bestätigt!");

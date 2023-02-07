@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:priobike/common/map/controller.dart';
-import 'package:priobike/common/map/layers.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/map/layers/poi_layers.dart';
+import 'package:priobike/common/map/layers/route_layers.dart';
+import 'package:priobike/common/map/layers/sg_layers.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -17,6 +21,7 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
+import 'package:turf/helpers.dart' as turf;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -43,6 +48,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
+  /// The associated map designs service, which is injected by the provider.
+  late MapDesigns mapDesigns;
+
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
@@ -50,10 +58,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   late MapSettings mapSettings;
 
   /// A map controller for the map.
-  MapboxMapController? mapController;
-
-  /// A layer controller to safe add and remove layers.
-  LayerController? layerController;
+  MapboxMap? mapController;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
@@ -66,9 +71,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The animation for the on-tap animation.
   late Animation<double> animation;
-
-  /// The offset for the draggable bottom sheet.
-  double? bottomSheetOffset;
 
   /// The margins of the attribution.
   Point? attributionMargins;
@@ -111,6 +113,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       layers.needsLayout[viewId] = false;
     }
 
+    // Check if the selected map layers have changed.
+    mapDesigns = Provider.of<MapDesigns>(context);
+    if (mapDesigns.needsLayout[viewId] != false) {
+      loadMapDesign();
+      mapDesigns.needsLayout[viewId] = false;
+    }
+
     // Check if the position has changed.
     positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false) {
@@ -148,12 +157,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
     if (mapController == null || !mounted) return;
-    if (routing.selectedRoute == null || mapController?.isCameraMoving != false) return;
+    if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 500));
-    await mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(routing.selectedRoute!.paddedBounds),
-      duration: const Duration(milliseconds: 1000),
+    final currentCameraOptions = await mapController?.getCameraState();
+    if (currentCameraOptions == null) return;
+    final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
+      routing.selectedRoute!.paddedBounds,
+      currentCameraOptions.padding,
+      currentCameraOptions.bearing,
+      currentCameraOptions.pitch,
+    );
+    if (cameraOptionsForBounds == null) return;
+    await mapController?.flyTo(
+      cameraOptionsForBounds,
+      MapAnimationOptions(duration: 1000),
     );
   }
 
@@ -162,112 +180,148 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
 
-    // NOTE: Don't await this function, it will hang forever.
-    // This is a bug in our mapbox fork.
-    mapController?.updateUserLocation(
-      lat: positioning.lastPosition!.latitude,
-      lon: positioning.lastPosition!.longitude,
-      alt: positioning.lastPosition!.altitude,
-      acc: positioning.lastPosition!.accuracy,
-      heading: positioning.lastPosition!.heading,
-      speed: positioning.lastPosition!.speed,
+    await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
+      if (!value) {
+        await mapController!.style.addLayer(
+          LocationIndicatorLayer(
+            id: "user-location-puck",
+            bearingImage:
+                Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
+            bearingImageSize: 0.15,
+            accuracyRadiusColor: const Color(0x00000000).value,
+            accuracyRadiusBorderColor: const Color(0x00000000).value,
+            bearing: positioning.lastPosition!.heading,
+            location: [
+              positioning.lastPosition!.latitude,
+              positioning.lastPosition!.longitude,
+              positioning.lastPosition!.altitude
+            ],
+            accuracyRadius: positioning.lastPosition!.accuracy,
+          ),
+        );
+        await mapController!.style
+            .setStyleTransition(TransitionOptions(duration: 1000, enablePlacementTransitions: false));
+      } else {
+        mapController!.style.updateLayer(
+          LocationIndicatorLayer(
+            id: "user-location-puck",
+            bearing: positioning.lastPosition!.heading,
+            location: [
+              positioning.lastPosition!.latitude,
+              positioning.lastPosition!.longitude,
+              positioning.lastPosition!.altitude
+            ],
+            accuracyRadius: positioning.lastPosition!.accuracy,
+          ),
+        );
+      }
+    });
+  }
+
+  /// Load the map desgin.
+  loadMapDesign() async {
+    if (mapController == null) return;
+
+    await mapController!.style.setStyleURI(
+      Theme.of(context).colorScheme.brightness == Brightness.light
+          ? mapDesigns.mapDesign.lightStyle
+          : mapDesigns.mapDesign.darkStyle,
     );
   }
 
   /// Load the map layers.
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
-    if (layerController == null) return;
     // Load the map features.
     if (layers.showAirStations) {
       if (!mounted) return;
-      await BikeAirStationLayer(context).install(layerController!);
+      await BikeAirStationLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeAirStationLayer.removeFrom(layerController!);
+      await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
       if (!mounted) return;
-      await ConstructionSitesLayer(context).install(layerController!);
+      await ConstructionSitesLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ConstructionSitesLayer.removeFrom(layerController!);
+      await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       if (!mounted) return;
-      await ParkingStationsLayer(context).install(layerController!);
+      await ParkingStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await ParkingStationsLayer.removeFrom(layerController!);
+      await ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
       if (!mounted) return;
-      await RentalStationsLayer(context).install(layerController!);
+      await RentalStationsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await RentalStationsLayer.removeFrom(layerController!);
+      await RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
       if (!mounted) return;
-      await BikeShopLayer(context).install(layerController!);
+      await BikeShopLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await BikeShopLayer.removeFrom(layerController!);
+      await BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       if (!mounted) return;
-      await AccidentHotspotsLayer(context).install(layerController!);
+      await AccidentHotspotsLayer(context).install(mapController!);
     } else {
       if (!mounted) return;
-      await AccidentHotspotsLayer.removeFrom(layerController!);
+      await AccidentHotspotsLayer.remove(mapController!);
     }
   }
 
   /// Update all map layers.
   loadRouteMapLayers() async {
-    if (layerController == null) return;
+    if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
 
     if (!mounted) return;
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 2.5,
+      mapController!,
+      iconSize: ppi / 5,
     );
     if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 2.5,
+      mapController!,
+      iconSize: ppi / 5,
       below: offlineCrossings,
     );
     if (!mounted) return;
-    final discomforts = await DiscomfortsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 4,
+    final waypoints = await WaypointsLayer(context).install(
+      mapController!,
+      iconSize: 0.2,
       below: trafficLights,
     );
     if (!mounted) return;
-    final waypoints = await WaypointsLayer(context).install(
-      layerController!,
-      iconSize: ppi / 4,
-      below: discomforts,
-    );
-    if (!mounted) return;
-    final selectedRoute = await SelectedRouteLayer(context).install(
-      layerController!,
+    final discomforts = await DiscomfortsLayer(context).install(
+      mapController!,
+      iconSize: ppi / 8,
       below: waypoints,
     );
     if (!mounted) return;
+    final selectedRoute = await SelectedRouteLayer(context).install(
+      mapController!,
+      below: discomforts,
+    );
+    if (!mounted) return;
     await AllRoutesLayer(context).install(
-      layerController!,
+      mapController!,
       below: selectedRoute,
     );
   }
 
   /// A callback that is called when the user taps a feature.
-  onFeatureTapped(dynamic id, Point<double> point, LatLng coordinates) async {
-    if (id is! String) return;
-    // Map the ids of the layers to the corresponding feature.
-    if (id.startsWith("route-")) {
+  onFeatureTapped(QueriedFeature queriedFeature) async {
+    // Map the id of the layer to the corresponding feature.
+    final id = queriedFeature.feature['id'];
+    if ((id as String).startsWith("route-")) {
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
       routing.switchToRoute(context, routeIdx);
@@ -286,52 +340,34 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
     double newBottomInset = min(maxBottomInset, sheetHeightAbs);
-    mapController?.updateContentInsets(
-      EdgeInsets.fromLTRB(
-        defaultMapInsets.left,
-        defaultMapInsets.top,
-        defaultMapInsets.left,
-        newBottomInset,
+    mapController!.setCamera(
+      CameraOptions(
+        padding: MbxEdgeInsets(
+            bottom: newBottomInset,
+            left: defaultMapInsets.left,
+            top: defaultMapInsets.top,
+            right: defaultMapInsets.left),
       ),
-      false,
     );
     setState(
       () {
-        bottomSheetOffset = newBottomInset;
-        // On Android, the bottom inset needs to be added to the attribution margins.
-        if (Platform.isAndroid) {
-          attributionMargins = Point(20, newBottomInset);
-        } else {
-          attributionMargins = const Point(20, 0);
-        }
+        final ppi = frame.devicePixelRatio;
+        attributionMargins =
+            Point(20 * ppi, 124 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
       },
     );
   }
 
   /// A callback which is executed when the map was created.
-  onMapCreated(MapboxMapController controller) async {
+  onMapCreated(MapboxMap controller) async {
     mapController = controller;
-
-    // Added this here additionally to the onStyleLoaded- and didChangeDependencies-callback,
-    // because when using a mocked GPS-position (for testing) only calling it
-    // in those callbacks somehow results in the use of the real GPS-position,
-    // although not being set on our end (seems like a bug in the mapbox-framework).
-    displayCurrentUserLocation();
-
-    // Wrap the map controller in a layer controller for safer layer access.
-    layerController = LayerController(mapController: controller);
-
-    // Bind the interaction callbacks.
-    controller.onFeatureTapped.add(onFeatureTapped);
-
-    // Dont call any line/symbol/... removal/add operations here.
-    // The mapcontroller won't have the necessary line/symbol/...manager.
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
-  onStyleLoaded(BuildContext context) async {
+  onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
-    if (layerController == null || !mounted) return;
+
+    displayCurrentUserLocation();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -339,13 +375,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
 
-    // Clear all layers and sources from the layer controller.
-    layerController?.notifyStyleLoaded();
-
     fitCameraToRouteBounds();
-    displayCurrentUserLocation();
     loadGeoLayers();
     loadRouteMapLayers();
+  }
+
+  /// A callback which is executed when a tap on the map is registered.
+  /// This also resolves if a certain feature is being tapped on. This function
+  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
+  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
+  Future<void> onMapTap(ScreenCoordinate screenCoordinate) async {
+    if (mapController == null || !mounted) return;
+
+    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
+    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
+    // fixed in an upcoming version we need to remove this conversion.
+    final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
+      turf.Point(
+        coordinates: turf.Position(
+          screenCoordinate.y,
+          screenCoordinate.x,
+        ),
+      ).toJson(),
+    );
+
+    final List<QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+      RenderedQueryGeometry(
+        value: json.encode(actualScreenCoordinate.encode()),
+        type: Type.SCREEN_COORDINATE,
+      ),
+      RenderedQueryOptions(
+        layerIds: ['routes-layer', 'discomforts-layer'],
+      ),
+    );
+
+    if (features.isNotEmpty) {
+      onFeatureTapped(features[0]!);
+    }
   }
 
   /// A callback that is executed when the map was longclicked.
@@ -358,15 +424,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       x *= ppi;
       y *= ppi;
     }
-    final point = Point(x, y);
-    final coord = await mapController!.toLatLng(point);
+    final point = ScreenCoordinate(x: x, y: y);
+    final coord = await mapController!.coordinateForPixel(point);
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
-    String address = await geocoding.reverseGeocode(context, coord) ?? fallback;
+    final pointCoord = turf.Point.fromJson(Map<String, dynamic>.from(coord));
+    final longitude = pointCoord.coordinates.lng.toDouble();
+    final latitude = pointCoord.coordinates.lat.toDouble();
+    final coordLatLng = LatLng(latitude, longitude);
+    String address = await geocoding.reverseGeocode(context, coordLatLng) ?? fallback;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
-    await routing.addWaypoint(Waypoint(coord.latitude, coord.longitude, address: address));
+    await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
     await routing.loadRoutes(context);
   }
 
@@ -397,16 +467,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           },
           behavior: HitTestBehavior.translucent,
           child: AppMap(
-            puckImage: Theme.of(context).brightness == Brightness.dark
-                ? 'assets/images/position-static-dark.png'
-                : 'assets/images/position-static-light.png',
-            puckSize: 64,
             onMapCreated: onMapCreated,
-            onStyleLoaded: () => onStyleLoaded(context),
+            onStyleLoaded: onStyleLoaded,
+            onMapTap: onMapTap,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,
+            logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonMargins: attributionMargins,
+            attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
           ),
         ),
 

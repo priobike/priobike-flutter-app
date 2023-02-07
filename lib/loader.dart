@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/common/map/view.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/main.dart';
@@ -19,6 +20,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -55,9 +57,6 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load offline map tiles.
-    await AppMap.loadOfflineTiles();
-
     // Initialize Sentry.
     const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
     await SentryFlutter.init((options) => options.dsn = dsn);
@@ -75,6 +74,11 @@ class LoaderState extends State<Loader> {
       await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
       await Provider.of<Statistics>(context, listen: false).loadStatistics();
       await Provider.of<Layers>(context, listen: false).loadPreferences();
+      await Provider.of<MapDesigns>(context, listen: false).loadPreferences();
+      final tracking = Provider.of<Tracking>(context, listen: false);
+      await tracking.loadPreviousTracks();
+      await tracking.runUploadRoutine();
+      await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
       final news = Provider.of<News>(context, listen: false);
       await news.getArticles(context);
@@ -85,7 +89,9 @@ class LoaderState extends State<Loader> {
       final weather = Provider.of<Weather>(context, listen: false);
       await weather.fetch(context);
     } catch (e, stackTrace) {
-      await Sentry.captureException(e, stackTrace: stackTrace);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace);
+      }
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();
@@ -110,7 +116,7 @@ class LoaderState extends State<Loader> {
   void initState() {
     super.initState();
     // Init the view once the app is ready.
-    SchedulerBinding.instance!.addPostFrameCallback((_) => init(context));
+    SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
   }
 
   @override

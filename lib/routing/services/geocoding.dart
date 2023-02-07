@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
@@ -74,7 +74,7 @@ class Geocoding with ChangeNotifier {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
       if (!kDebugMode) {
-        await Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
+        Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
       }
       isFetchingAddress = false;
       hadErrorDuringFetch = true;

@@ -1,14 +1,15 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
-import 'package:priobike/routing/models/route.dart';
-import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -87,8 +88,10 @@ class PredictionSGStatus with ChangeNotifier {
         pending.add(future);
       } catch (e, stack) {
         final hint = "Error while fetching prediction status: $e";
-        log.w(hint);
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
+        log.e(hint);
+        if (!kDebugMode) {
+          Sentry.captureException(e, stackTrace: stack, hint: hint);
+        }
       }
     }
 

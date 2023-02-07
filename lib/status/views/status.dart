@@ -143,6 +143,7 @@ class StatusViewState extends State<StatusView> {
           content: Row(
             children: [
               Flexible(
+                fit: FlexFit.tight,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -155,7 +156,6 @@ class StatusViewState extends State<StatusView> {
                         : Small(text: text ?? "Lade Daten...", context: context),
                   ],
                 ),
-                fit: FlexFit.tight,
               ),
               const SmallHSpace(),
               // Show a progress indicator with the pct value.

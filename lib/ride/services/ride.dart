@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -15,6 +16,7 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -89,15 +91,18 @@ class Ride with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
 
-  /// The predictions received during the ride.
-  final List<dynamic> predictions = [];
+  /// The predictions received during the ride, from the prediction service.
+  final List<PredictionServicePrediction> predictionServicePredictions = [];
+
+  /// The predictions received during the ride, from the predictor.
+  final List<PredictorPrediction> predictorPredictions = [];
 
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
-    if (!navigationIsActive) return;
+    if (!navigationIsActive && client == null) return;
 
     if (subscribedSG != null && subscribedSG != sg) {
       log.i("Unsubscribing from signal group ${subscribedSG?.id}");
@@ -161,59 +166,81 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context) async {
-    // Do nothing if the navigation has already been started.
-    if (navigationIsActive) return;
+  /// Establish a connection with the MQTT client.
+  Future<void> connectMQTTClient(BuildContext context) async {
     // Get the backend that is currently selected.
     final settings = Provider.of<Settings>(context, listen: false);
     predictionMode = settings.predictionMode;
     final clientId = 'priobike-app-${UniqueKey().toString()}';
-    client = MqttServerClient(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPath
-          : settings.backend.predictorMQTTPath,
-      clientId,
-    );
-    client!.logging(on: false);
-    client!.keepAlivePeriod = 30;
-    client!.secure = false;
-    client!.port = settings.predictionMode == PredictionMode.usePredictionService
-        ? settings.backend.predictionServiceMQTTPort
-        : settings.backend.predictorMQTTPort;
-    client!.autoReconnect = true;
-    client!.resubscribeOnAutoReconnect = true;
-    client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
-    client!.onConnected = () => log.i("Prediction MQTT client connected");
-    client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
-    client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
-    client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
-    client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
-    client!.setProtocolV311(); // Default Mosquitto protocol
-    client!.connectionMessage = MqttConnectMessage()
-        .withClientIdentifier(client!.clientIdentifier)
-        .startClean()
-        .withWillQos(MqttQos.atMostOnce);
-    log.i("Connecting to Prediction MQTT broker.");
-    await client!.connect(
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTUsername
-          : settings.backend.predictorMQTTUsername,
-      settings.predictionMode == PredictionMode.usePredictionService
-          ? settings.backend.predictionServiceMQTTPassword
-          : settings.backend.predictorMQTTPassword,
-    );
-    client!.updates?.listen(onData);
+    try {
+      client = MqttServerClient(
+        settings.predictionMode == PredictionMode.usePredictionService
+            ? settings.backend.predictionServiceMQTTPath
+            : settings.backend.predictorMQTTPath,
+        clientId,
+      );
+      client!.logging(on: false);
+      client!.keepAlivePeriod = 30;
+      client!.secure = false;
+      client!.port = settings.predictionMode == PredictionMode.usePredictionService
+          ? settings.backend.predictionServiceMQTTPort
+          : settings.backend.predictorMQTTPort;
+      client!.autoReconnect = true;
+      client!.resubscribeOnAutoReconnect = true;
+      client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
+      client!.onConnected = () => log.i("Prediction MQTT client connected");
+      client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
+      client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
+      client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
+      client!.setProtocolV311(); // Default Mosquitto protocol
+      client!.connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(client!.clientIdentifier)
+          .startClean()
+          .withWillQos(MqttQos.atMostOnce);
+      log.i("Connecting to Prediction MQTT broker.");
+      await client!
+          .connect(
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTUsername
+                : settings.backend.predictorMQTTUsername,
+            settings.predictionMode == PredictionMode.usePredictionService
+                ? settings.backend.predictionServiceMQTTPassword
+                : settings.backend.predictorMQTTPassword,
+          )
+          .timeout(const Duration(seconds: 5));
+      client!.updates?.listen(onData);
+      selectSG(calcCurrentSG);
+      // Start the timer that updates the prediction once per second.
+      calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (predictionMode == PredictionMode.usePredictionService) {
+          calculateRecommendationFromPredictionService();
+        } else {
+          calculateRecommendationFromPredictor();
+        }
+      });
+    } catch (e, stackTrace) {
+      client = null;
+      final hint = "Failed to connect the prediction MQTT client: $e";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+      }
+      if (navigationIsActive) {
+        await Future.delayed(const Duration(seconds: 10));
+        connectMQTTClient(context);
+      }
+    }
+  }
+
+  /// Start the navigation and connect the MQTT client.
+  Future<void> startNavigation(BuildContext context) async {
+    // Do nothing if the navigation has already been started.
+    if (navigationIsActive) return;
+    connectMQTTClient(context);
+
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
-    // Start the timer that updates the prediction once per second.
-    calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (predictionMode == PredictionMode.usePredictionService) {
-        calculateRecommendationFromPredictionService();
-      } else {
-        calculateRecommendationFromPredictor();
-      }
-    });
     navigationIsActive = true;
   }
 
@@ -229,12 +256,13 @@ class Ride with ChangeNotifier {
         log.i("Received prediction from prediction service: $json");
         prediction = PredictionServicePrediction.fromJson(json);
         calculateRecommendationFromPredictionService();
+        predictionServicePredictions.add(prediction);
       } else {
         log.i("Received prediction from predictor: $json");
         prediction = PredictorPrediction.fromJson(json);
         calculateRecommendationFromPredictor();
+        predictorPredictions.add(prediction);
       }
-      predictions.add(prediction);
     }
   }
 
@@ -307,8 +335,8 @@ class Ride with ChangeNotifier {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
-    onFailure(reason) {
-      log.w("Failed to calculate predictor info: $reason");
+    onFailure(String? reason) {
+      if (reason != null) log.w("Failed to calculate predictor info: $reason");
       calcPhasesFromNow = null;
       calcQualitiesFromNow = null;
       calcCurrentPhaseChangeTime = null;
@@ -317,11 +345,14 @@ class Ride with ChangeNotifier {
       notifyListeners();
     }
 
-    if (this.prediction == null) return onFailure("No prediction available");
+    if (this.prediction == null) return onFailure(null); // Fail silently.
     // Check the type of the prediction.
-    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is not of wrong type");
+    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
     final prediction = this.prediction as PredictorPrediction;
 
+    // The prediction is split into two parts: "now" and "then".
+    // "now" is the predicted behavior within the current cycle, which can deviate from the average behavior.
+    // "then" is the predicted behavior after the cycle, which is the average behavior.
     final now = prediction.now.map((e) => PhaseColor.fromInt(e)).toList();
     if (now.isEmpty) return onFailure("No prediction available (now.length == 0)");
     final nowQuality = prediction.nowQuality.map((e) => e.toInt() / 100).toList();
@@ -329,35 +360,53 @@ class Ride with ChangeNotifier {
     if (then.isEmpty) return onFailure("No prediction available (then.length == 0)");
     final thenQuality = prediction.thenQuality.map((e) => e.toInt() / 100).toList();
     final diff = DateTime.now().difference(prediction.referenceTime).inSeconds;
-    if (diff < 0) return onFailure("Prediction is in the future");
-    if (diff > 300) return onFailure("Prediction is too old");
-    final index = max(0, diff);
+    if (diff > 300) return onFailure("Prediction is too old: $diff seconds");
+    var index = diff;
 
-    calcPhasesFromNow = List<Phase>.empty(growable: true);
-    calcQualitiesFromNow = List<double>.empty(growable: true);
-    if (index < now.length) {
-      calcPhasesFromNow = (now.sublist(index) + then);
-      calcQualitiesFromNow = nowQuality.sublist(index) + thenQuality;
-    } else {
-      calcPhasesFromNow = (then.sublist((index - now.length) % then.length) + then);
-      calcQualitiesFromNow = thenQuality.sublist((index - now.length) % then.length) + thenQuality;
+    calcPhasesFromNow = <Phase>[];
+    calcQualitiesFromNow = <double>[];
+    // Keep the index of the reference time in the prediction.
+    // This is 0 unless the reference time is in the future.
+    var refTimeIdx = 0;
+    // Check if the prediction is in the future.
+    if (index < -then.length) {
+      // Small deviations (-2 seconds, -1 seconds) are to be expected due to clock deviations,
+      // but if the prediction is too far in the future, something must have gone wrong.
+      return onFailure("Prediction is too far in the future: $index seconds");
+    } else if (index < 0) {
+      log.w("Prediction is in the future: $index seconds");
+      // Take the last part of the "then" prediction until we reach the start of "now".
+      calcPhasesFromNow = calcPhasesFromNow! + then.sublist(then.length + index, then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist(then.length + index, then.length);
+      refTimeIdx = calcPhasesFromNow!.length; // To calculate the current phase.
+      index = max(0, index);
     }
-    // Fill the phases array until we have > 300 values.
-    while (calcPhasesFromNow!.length < 300) {
+    // Calculate the phases from the start time of "now".
+    if (index < now.length) {
+      // We are within the "now" part of the prediction.
+      calcPhasesFromNow = calcPhasesFromNow! + now.sublist(index);
+      calcQualitiesFromNow = calcQualitiesFromNow! + nowQuality.sublist(index);
+    } else {
+      // We are within the "then" part of the prediction.
+      calcPhasesFromNow = calcPhasesFromNow! + then.sublist((index - now.length) % then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist((index - now.length) % then.length);
+    }
+    // Fill the phases with "then" (the average behavior) until we have enough values.
+    while (calcPhasesFromNow!.length < refTimeIdx + 300) {
       calcPhasesFromNow = calcPhasesFromNow! + then;
       calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality;
     }
     // Calculate the current phase.
-    final currentPhase = calcPhasesFromNow![0];
+    final currentPhase = calcPhasesFromNow![refTimeIdx];
     // Calculate the current phase change time.
-    for (int i = 0; i < calcPhasesFromNow!.length; i++) {
+    for (int i = refTimeIdx; i < calcPhasesFromNow!.length; i++) {
       if (calcPhasesFromNow![i] != currentPhase) {
         calcCurrentPhaseChangeTime = DateTime.now().add(Duration(seconds: i));
         break;
       }
     }
     calcCurrentSignalPhase = currentPhase;
-    calcPredictionQuality = calcQualitiesFromNow![0];
+    calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
 
     notifyListeners();
   }
@@ -434,8 +483,10 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    client?.disconnect();
-    client = null;
+    if (client != null) {
+      client?.disconnect();
+      client = null;
+    }
     calcPhasesFromNow = null;
     calcQualitiesFromNow = null;
     calcCurrentPhaseChangeTime = null;
@@ -444,7 +495,9 @@ class Ride with ChangeNotifier {
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
-    predictions.clear();
+    predictionServicePredictions.clear();
+    predictorPredictions.clear();
+    prediction = null;
     needsLayout = {};
     notifyListeners();
   }

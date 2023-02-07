@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/views/beta.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/privacy/views.dart';
@@ -14,6 +15,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/text.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
@@ -44,16 +46,17 @@ class SettingsElement extends StatelessWidget {
         content: Row(
           children: [
             Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BoldContent(text: title, context: context),
-                    if (subtitle != null) const SmallVSpace(),
-                    if (subtitle != null)
-                      Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
-                  ],
-                ),
-                fit: FlexFit.tight),
+              fit: FlexFit.tight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoldContent(text: title, context: context),
+                  if (subtitle != null) const SmallVSpace(),
+                  if (subtitle != null)
+                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                ],
+              ),
+            ),
             SizedBox(
               height: 48,
               width: 48,
@@ -101,14 +104,15 @@ class SettingsSelection<E> extends StatelessWidget {
               content: Row(
                 children: [
                   Flexible(
-                      child: Content(
-                        text: title(elements[index]),
-                        context: context,
-                        color: elements[index] == selected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.onBackground,
-                      ),
-                      fit: FlexFit.tight),
+                    fit: FlexFit.tight,
+                    child: Content(
+                      text: title(elements[index]),
+                      context: context,
+                      color: elements[index] == selected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
                   Expanded(
                     child: Container(),
                   ),
@@ -141,10 +145,14 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// The associated tracking service, which is injected by the provider.
+  late Tracking tracking;
+
   @override
   void didChangeDependencies() {
     feature = Provider.of<Feature>(context);
     settings = Provider.of<Settings>(context);
+    tracking = Provider.of<Tracking>(context);
     super.didChangeDependencies();
   }
 
@@ -160,6 +168,16 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> onSelectSpeedMode(SpeedMode speedMode) async {
     // Tell the settings service that we selected the new speed mode.
     await settings.setSpeedMode(speedMode);
+
+    Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a tracking submission policy is selected.
+  Future<void> onSelectTrackingSubmissionPolicy(TrackingSubmissionPolicy trackingSubmissionPolicy) async {
+    // Tell the settings service that we selected the new tracking submission policy.
+    await settings.setTrackingSubmissionPolicy(trackingSubmissionPolicy);
+    // Tell the tracking service that we selected the new tracking submission policy.
+    tracking.setSubmissionPolicy(trackingSubmissionPolicy);
 
     Navigator.pop(context);
   }
@@ -257,6 +275,30 @@ class SettingsViewState extends State<SettingsView> {
                         "Hinweis zur Tacho-Spanne: Du bist immer selbst verantwortlich, wie schnell du mit unserer App fahren möchtest. Bitte achte trotzdem immer auf deine Umgebung und passe deine Geschwindigkeit den Verhältnissen an.",
                     context: context,
                   ),
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                      title: "Telemetriedaten",
+                      subtitle: tracking.uploadingTracks.isEmpty
+                          ? settings.trackingSubmissionPolicy.description
+                          : "Lädt hoch...",
+                      icon: Icons.expand_more,
+                      callback: () {
+                        // Don't allow to change the submission policy while tracks are uploading.
+                        if (tracking.uploadingTracks.isNotEmpty) return;
+                        showAppSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SettingsSelection(
+                                elements: TrackingSubmissionPolicy.values,
+                                selected: settings.trackingSubmissionPolicy,
+                                title: (TrackingSubmissionPolicy e) => e.description,
+                                callback: onSelectTrackingSubmissionPolicy);
+                          },
+                        );
+                      }),
                 ),
                 const SmallVSpace(),
                 const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
