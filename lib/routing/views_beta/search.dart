@@ -90,7 +90,7 @@ class SearchViewState extends State<SearchView> {
     geosearch.clearGeosearch();
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
-    List<Waypoint?> newWaypoints = waypoints.toList();
+    List<Waypoint> newWaypoints = waypoints.toList();
     List<Waypoint?> newRoutingItems = routing.routingItems;
     if (widget.index != null) {
       // Check if it has to be put in selectedWaypoints or not.
@@ -101,19 +101,12 @@ class SearchViewState extends State<SearchView> {
         newWaypoints[widget.index!] = waypoint;
       }
     } else {
-      // Insert current location as first waypoint if option is set
-      if (profile.setLocationAsStart &&
-          currentLocationWaypoint != null &&
-          waypoints.isEmpty &&
-          waypoint.address != null) {
+      // Insert current location as first waypoint on first selection.
+      if (currentLocationWaypoint != null && waypoints.isEmpty && waypoint.address != null) {
         newWaypoints = [currentLocationWaypoint!, waypoint];
       } else {
-        // Only set destination when no waypoints selected.
-        if (waypoints.isEmpty) {
-          newWaypoints = [null, waypoint];
-        } else {
-          newWaypoints = [...waypoints, waypoint];
-        }
+        // Append waypoint.
+        newWaypoints = [...waypoints, waypoint];
       }
     }
 
@@ -154,7 +147,7 @@ class SearchViewState extends State<SearchView> {
 
     final waypoints = routing.selectedWaypoints ?? [];
     // exchange with new waypoint
-    List<Waypoint?> newWaypoints = waypoints.toList();
+    List<Waypoint> newWaypoints = waypoints.toList();
 
     if (!widget.fromRouteSearch) {
       if (widget.index != null) {
@@ -182,17 +175,17 @@ class SearchViewState extends State<SearchView> {
     if (currentLocationWaypoint != null) {
       final waypoints = routing.selectedWaypoints ?? [];
       // exchange with new waypoint
-      List<Waypoint?> newWaypoints = waypoints.toList();
+      List<Waypoint> newWaypoints = waypoints.toList();
 
       if (!widget.fromRouteSearch) {
         if (widget.index != null) {
-          newWaypoints[widget.index!] = currentLocationWaypoint;
+          newWaypoints[widget.index!] = currentLocationWaypoint!;
         } else {
           // Insert current location as first waypoint if option is set
           if (profile.setLocationAsStart && currentLocationWaypoint != null && waypoints.isEmpty) {
-            newWaypoints = [currentLocationWaypoint!, currentLocationWaypoint];
+            newWaypoints = [currentLocationWaypoint!, currentLocationWaypoint!];
           } else {
-            newWaypoints = [...waypoints, currentLocationWaypoint];
+            newWaypoints = [...waypoints, currentLocationWaypoint!];
           }
         }
       }

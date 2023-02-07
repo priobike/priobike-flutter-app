@@ -118,7 +118,7 @@ class Routing with ChangeNotifier {
   RoutingProfile? selectedProfile;
 
   /// The waypoints of the selected route, if provided.
-  List<Waypoint?>? selectedWaypoints;
+  List<Waypoint>? selectedWaypoints;
 
   /// The list of waypoints for SearchRoutingView.
   List<Waypoint?> routingItems = [];
@@ -170,7 +170,7 @@ class Routing with ChangeNotifier {
   }
 
   /// Select new waypoints.
-  Future<void> selectWaypoints(List<Waypoint?>? waypoints) async {
+  Future<void> selectWaypoints(List<Waypoint>? waypoints) async {
     selectedWaypoints = waypoints;
     if ((waypoints?.length ?? 0) < 2) {
       selectedRoute = null;
@@ -197,7 +197,7 @@ class Routing with ChangeNotifier {
     var shortestWaypointToIdx = 0;
     for (int i = 0; i < (selectedWaypoints!.length - 1); i++) {
       final w1 = selectedWaypoints![i], w2 = selectedWaypoints![i + 1];
-      final p1 = LatLng(w1!.lat, w1.lon), p2 = LatLng(w2!.lat, w2.lon);
+      final p1 = LatLng(w1.lat, w1.lon), p2 = LatLng(w2.lat, w2.lon);
       final n = Snapper.calcNearestPoint(userPosLatLng, p1, p2);
       final d = Snapper.vincenty.distance(userPosLatLng, n);
       if (d < shortestWaypointDistance) {
@@ -205,7 +205,7 @@ class Routing with ChangeNotifier {
         shortestWaypointToIdx = i + 1;
       }
     }
-    List<Waypoint?> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
+    List<Waypoint> remaining = [Waypoint(userPos.latitude, userPos.longitude, address: "Aktuelle Position")];
     remaining += selectedWaypoints!.sublist(shortestWaypointToIdx);
     return await selectWaypoints(remaining);
   }
@@ -374,16 +374,6 @@ class Routing with ChangeNotifier {
       return null;
     }
 
-    // Check if all Waypoints not null.
-    List<Waypoint> selectedWaypointsCasted = [];
-    for (var waypoint in selectedWaypoints!) {
-      if (waypoint == null) {
-        return null;
-      } else {
-        selectedWaypointsCasted.add(waypoint);
-      }
-    }
-
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
     notifyListeners();
@@ -392,7 +382,7 @@ class Routing with ChangeNotifier {
     selectedProfile = await selectProfile(context);
 
     // Load the GraphHopper response.
-    final ghResponse = await loadGHRouteResponse(context, selectedWaypointsCasted);
+    final ghResponse = await loadGHRouteResponse(context, selectedWaypoints!);
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -458,7 +448,7 @@ class Routing with ChangeNotifier {
             crossingsDistancesOnRoute: crossingsDistancesOnRoute,
           );
           // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first!, selectedWaypoints!.last!);
+          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
           return MapEntry(i, route);
         })
         .values
@@ -466,7 +456,7 @@ class Routing with ChangeNotifier {
 
     selectedRoute = routes.first;
     allRoutes = routes;
-    fetchedWaypoints = selectedWaypointsCasted;
+    fetchedWaypoints = selectedWaypoints!;
     isFetchingRoute = false;
 
     final discomforts = Provider.of<Discomforts>(context, listen: false);

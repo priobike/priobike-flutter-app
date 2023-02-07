@@ -32,11 +32,7 @@ class Shortcuts with ChangeNotifier {
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation
-    for (Waypoint? waypoint in routing.selectedWaypoints!) {
-      if (waypoint == null) {
-        ToastMessage.showError("Nicht genug Wegpunkte gesetzt!");
-        return;
-      }
+    for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = Provider.of<Geocoding>(context, listen: false);
         final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);

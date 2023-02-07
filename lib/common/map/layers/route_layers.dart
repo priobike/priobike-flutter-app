@@ -513,22 +513,20 @@ class WaypointsLayer {
   WaypointsLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
     final waypoints = routing.selectedWaypoints ?? [];
-    for (MapEntry<int, Waypoint?> entry in waypoints.asMap().entries) {
-      if (entry.value != null) {
-        features.add(
-          {
-            "type": "Feature",
-            "geometry": {
-              "type": "Point",
-              "coordinates": [entry.value!.lon, entry.value!.lat],
-            },
-            "properties": {
-              "isFirst": entry.key == 0,
-              "isLast": entry.key == waypoints.length - 1,
-            },
+    for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [entry.value.lon, entry.value.lat],
           },
-        );
-      }
+          "properties": {
+            "isFirst": entry.key == 0,
+            "isLast": entry.key == waypoints.length - 1,
+          },
+        },
+      );
     }
   }
 

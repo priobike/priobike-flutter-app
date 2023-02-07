@@ -344,7 +344,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                             count: routingService.selectedWaypoints?.length ?? 0,
                             idx: entry.key,
                             // Value is always a waypoint at this point
-                            waypoint: entry.value!,
+                            waypoint: entry.value,
                           );
                         },
                       ).toList() ??
