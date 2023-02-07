@@ -116,7 +116,7 @@ class SelectedRouteLayer {
       double q;
       if (currentSgId != null && navNode.signalGroupId == currentSgId) {
         q = min(1, max(0, currentSgPredictionQuality ?? 0));
-        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+        // If the status is to bad.
         if (currentSgPredictionQuality == null || currentSgPredictionQuality < 0.9) q = 0;
       } else {
         final sgStatus = status.cache[navNode.signalGroupId];
