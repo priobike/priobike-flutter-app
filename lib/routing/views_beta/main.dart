@@ -465,7 +465,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                           waypointsSelected && !routing.isFetchingRoute
                               ? SizedBox(
                                   // number of Elements * 40 + Padding (2*10) + System navigation bar
-                                  height: frame.size.height,
+                                  height: frame.size.height - frame.padding.bottom,
                                   child: Stack(clipBehavior: Clip.none, children: [
                                     AnimatedPositioned(
                                       top: showRoutingBar
