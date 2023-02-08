@@ -1,0 +1,217 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Route;
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:priobike/logging/logger.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/models/recommendation.dart';
+import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
+import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+class PredictionService {
+  /// Logger for this class.
+  final log = Logger("Prediction-Service");
+
+  /// A boolean indicating if the navigation is active.
+  var navigationIsActive = false;
+
+  /// The timer that is used to periodically calculate the prediction.
+  Timer? calcTimer;
+
+  /// The prediction client.
+  MqttServerClient? client;
+
+  /// The current prediction.
+  PredictionServicePrediction? prediction;
+
+  /// The current recommendation, calculated periodically.
+  Recommendation? recommendation;
+
+  /// The current predicted phases.
+  List<Phase>? calcPhasesFromNow;
+
+  /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
+  List<double>? calcQualitiesFromNow;
+
+  /// The current predicted time of the next phase change, calculated periodically.
+  DateTime? calcCurrentPhaseChangeTime;
+
+  /// The predicted current signal phase, calculated periodically.
+  Phase? calcCurrentSignalPhase;
+
+  /// The prediction quality in [0.0, 1.0], calculated periodically.
+  double? calcPredictionQuality;
+
+  /// The currently subscribed signal group.
+  Sg? subscribedSG;
+
+  /// The predictions received during the ride, from the prediction service.
+  final List<PredictionServicePrediction> predictionServicePredictions = [];
+
+  /// A callback that gets executed when the client is connected.
+  late final Function onConnected;
+
+  /// A callback that gets executed when the client is connected.
+  late final Function notifyListeners;
+
+  /// The callback that gets executed when a new prediction
+  /// was received from the prediction service and a new
+  /// status update was calculated based on the prediction.
+  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
+
+  PredictionService(
+      {required this.onConnected, required this.notifyListeners, required this.onNewPredictionStatusDuringRide});
+
+  /// Subscribe to the signal group.
+  void selectSG(Sg? sg) {
+    if (!navigationIsActive || client == null) return;
+
+    if (subscribedSG != null && subscribedSG != sg) {
+      log.i("Unsubscribing from signal group ${subscribedSG?.id}");
+      client?.unsubscribe(subscribedSG!.id);
+
+      // Reset all values that were calculated for the previous signal group.
+      prediction = null;
+      calcPhasesFromNow = null;
+      calcQualitiesFromNow = null;
+      calcCurrentPhaseChangeTime = null;
+      calcCurrentSignalPhase = null;
+      calcPredictionQuality = null;
+    }
+
+    if (sg != null && sg != subscribedSG) {
+      log.i("Subscribing to signal group ${sg.id}");
+      client?.subscribe(sg.id, MqttQos.atLeastOnce);
+    }
+
+    subscribedSG = sg;
+  }
+
+  /// Establish a connection with the MQTT client.
+  Future<void> connectMQTTClient(BuildContext context) async {
+    // Get the backend that is currently selected.
+    final settings = Provider.of<Settings>(context, listen: false);
+    final clientId = 'priobike-app-${UniqueKey().toString()}';
+    try {
+      client = MqttServerClient(
+        settings.backend.predictionServiceMQTTPath,
+        clientId,
+      );
+      client!.logging(on: false);
+      client!.keepAlivePeriod = 30;
+      client!.secure = false;
+      client!.port = settings.backend.predictionServiceMQTTPort;
+      client!.autoReconnect = true;
+      client!.resubscribeOnAutoReconnect = true;
+      client!.onDisconnected = () => log.i("Prediction MQTT client disconnected");
+      client!.onConnected = () => log.i("Prediction MQTT client connected");
+      client!.onSubscribed = (topic) => log.i("Prediction MQTT client subscribed to $topic");
+      client!.onUnsubscribed = (topic) => log.i("Prediction MQTT client unsubscribed from $topic");
+      client!.onAutoReconnect = () => log.i("Prediction MQTT client auto reconnect");
+      client!.onAutoReconnected = () => log.i("Prediction MQTT client auto reconnected");
+      client!.setProtocolV311(); // Default Mosquitto protocol
+      client!.connectionMessage = MqttConnectMessage()
+          .withClientIdentifier(client!.clientIdentifier)
+          .startClean()
+          .withWillQos(MqttQos.atMostOnce);
+      log.i("Connecting to Prediction MQTT broker.");
+      await client!
+          .connect(
+            settings.backend.predictionServiceMQTTUsername,
+            settings.backend.predictionServiceMQTTPassword,
+          )
+          .timeout(const Duration(seconds: 5));
+      client!.updates?.listen(onData);
+      onConnected();
+      // Start the timer that updates the prediction once per second.
+      calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        calculateRecommendationFromPredictionService();
+      });
+    } catch (e, stackTrace) {
+      client = null;
+      final hint = "Failed to connect the prediction MQTT client: $e";
+      log.e(hint);
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
+      }
+      if (navigationIsActive) {
+        await Future.delayed(const Duration(seconds: 10));
+        connectMQTTClient(context);
+      }
+    }
+  }
+
+  /// A callback that is executed when data arrives.
+  Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
+    if (messages == null) return;
+    for (final message in messages) {
+      final recMess = message.payload as MqttPublishMessage;
+      // Decode the payload.
+      final data = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      final json = jsonDecode(data);
+      log.i("Received prediction from prediction service: $json");
+      prediction = PredictionServicePrediction.fromJson(json);
+      calculateRecommendationFromPredictionService();
+      if (prediction != null) predictionServicePredictions.add(prediction!);
+      // Notify that a new prediction status was obtained.
+      onNewPredictionStatusDuringRide?.call(SGStatusData(
+        statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        thingName:
+            "hamburg/${prediction!.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
+        predictionQuality: prediction!.predictionQuality,
+        predictionTime: prediction!.startTime.millisecondsSinceEpoch ~/ 1000,
+      ));
+    }
+  }
+
+  Future<void> calculateRecommendationFromPredictionService() async {
+    if (!navigationIsActive) return;
+
+    // This will be executed if we fail somewhere.
+    onFailure(reason) {
+      log.w("Failed to calculate predictor info: $reason");
+      notifyListeners();
+    }
+
+    if (prediction == null) return onFailure("No prediction available");
+
+    recommendation = await prediction!.calculateRecommendation();
+
+    notifyListeners();
+  }
+
+  /// Stop the navigation.
+  Future<void> stopNavigation() async {
+    calcTimer?.cancel();
+    calcTimer = null;
+    if (client != null) {
+      client?.disconnect();
+      client = null;
+    }
+    navigationIsActive = false;
+  }
+
+  /// Reset the service.
+  Future<void> reset() async {
+    navigationIsActive = false;
+    if (client != null) {
+      client?.disconnect();
+      client = null;
+    }
+    calcPhasesFromNow = null;
+    calcQualitiesFromNow = null;
+    calcCurrentPhaseChangeTime = null;
+    calcCurrentSignalPhase = null;
+    calcPredictionQuality = null;
+    predictionServicePredictions.clear();
+    prediction = null;
+    recommendation = null;
+  }
+}
