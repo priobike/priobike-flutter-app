@@ -7,7 +7,6 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -102,11 +101,7 @@ class SelectedRouteLayer {
 
   SelectedRouteLayer(BuildContext context) {
     final routing = Provider.of<Routing>(context, listen: false);
-    final ride = Provider.of<Ride>(context, listen: false);
     final navNodes = routing.selectedRoute?.route ?? [];
-
-    final String? currentSgId = ride.calcCurrentSG?.id;
-    final double? currentSgPredictionQuality = ride.calcPredictionQuality;
 
     final status = Provider.of<PredictionSGStatus>(context, listen: false);
     Map<String, dynamic>? currentFeature;
