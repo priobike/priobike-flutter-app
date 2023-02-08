@@ -15,6 +15,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -101,8 +102,10 @@ class Ride with ChangeNotifier {
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
-  /// The BuildContext of the current active ride/navigation.
-  BuildContext? context;
+  /// The callback that gets executed when a new prediction
+  /// was received from the prediction service and a new
+  /// status update was calculated based on the prediction.
+  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
@@ -238,7 +241,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context) async {
+  Future<void> startNavigation(BuildContext context, Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
     connectMQTTClient(context);
@@ -246,7 +249,8 @@ class Ride with ChangeNotifier {
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
     navigationIsActive = true;
-    this.context = context;
+    // Notify listeners of a new sg status update.
+    this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
   }
 
   /// A callback that is executed when data arrives.
@@ -413,16 +417,12 @@ class Ride with ChangeNotifier {
     calcCurrentSignalPhase = currentPhase;
     calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
 
-    if (context != null && calcCurrentSG != null && calcPredictionQuality != null) {
-      final predictionSGStatus = Provider.of<PredictionSGStatus>(context!);
-      predictionSGStatus.update(
-        calcCurrentSG!.id,
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        calcPredictionQuality!,
-        prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
-        route,
-      );
-    }
+    onNewPredictionStatusDuringRide?.call(SGStatusData(
+      statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      thingName: prediction.thingName,
+      predictionQuality: calcPredictionQuality,
+      predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
+    ));
 
     notifyListeners();
   }
@@ -482,16 +482,12 @@ class Ride with ChangeNotifier {
     calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
     calcPredictionQuality = prediction.predictionQuality;
 
-    if (context != null && calcCurrentSG != null && calcPredictionQuality != null) {
-      final predictionSGStatus = Provider.of<PredictionSGStatus>(context!, listen: false);
-      predictionSGStatus.update(
-        calcCurrentSG!.id,
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        calcPredictionQuality!,
-        prediction.startTime.millisecondsSinceEpoch ~/ 1000,
-        route,
-      );
-    }
+    onNewPredictionStatusDuringRide?.call(SGStatusData(
+      statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      thingName: prediction.signalGroupId, // Same as thing name.
+      predictionQuality: calcPredictionQuality,
+      predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
+    ));
 
     notifyListeners();
   }
@@ -503,6 +499,7 @@ class Ride with ChangeNotifier {
     client?.disconnect();
     client = null;
     navigationIsActive = false;
+    onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
   }
 

@@ -41,6 +41,7 @@ class RideMapViewState extends State<RideMapView> {
   /// The associated dangers service, which is injected by the provider.
   late Dangers dangers;
 
+  /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
 
   /// A map controller for the map.

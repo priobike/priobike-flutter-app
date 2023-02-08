@@ -17,6 +17,7 @@ import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
@@ -60,13 +61,15 @@ class RideViewState extends State<RideView> {
         final datastream = Provider.of<Datastream>(context, listen: false);
         final routing = Provider.of<Routing>(context, listen: false);
         final dangers = Provider.of<Dangers>(context, listen: false);
+        final sgStatus = Provider.of<PredictionSGStatus>(context, listen: false);
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         await dangers.fetch(routing.selectedRoute!, context);
         // Start a new session.
         final ride = Provider.of<Ride>(context, listen: false);
-        await ride.startNavigation(context); // Sets `sessionId` to a random new value.
+        // Set `sessionId` to a random new value and bind the callbacks.
+        await ride.startNavigation(context, sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(context, routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = Provider.of<Settings>(context, listen: false);
