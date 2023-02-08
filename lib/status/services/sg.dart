@@ -148,6 +148,7 @@ class PredictionSGStatus with ChangeNotifier {
   /// When we receive a new prediction, we want to update the status.
   /// In this way the UI can adapt to the new prediction.
   onNewPredictionStatusDuringRide(SGStatusData status) {
+    log.i("Received new prediction status for ${status.thingName}.");
     cache[status.thingName] = status;
     // Note: We don't need to update the statistics here,
     // because we are in the ride and the statistics are not shown.

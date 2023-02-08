@@ -265,11 +265,25 @@ class Ride with ChangeNotifier {
         prediction = PredictionServicePrediction.fromJson(json);
         calculateRecommendationFromPredictionService();
         predictionServicePredictions.add(prediction);
+        // Notify that a new prediction status was obtained.
+        onNewPredictionStatusDuringRide?.call(SGStatusData(
+          statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          thingName: prediction.signalGroupId, // Same as thing name.
+          predictionQuality: calcPredictionQuality,
+          predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
+        ));
       } else {
         log.i("Received prediction from predictor: $json");
         prediction = PredictorPrediction.fromJson(json);
         calculateRecommendationFromPredictor();
         predictorPredictions.add(prediction);
+        // Notify that a new prediction status was obtained.
+        onNewPredictionStatusDuringRide?.call(SGStatusData(
+          statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          thingName: prediction.thingName,
+          predictionQuality: calcPredictionQuality,
+          predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
+        ));
       }
     }
   }
@@ -416,13 +430,6 @@ class Ride with ChangeNotifier {
     calcCurrentSignalPhase = currentPhase;
     calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
 
-    onNewPredictionStatusDuringRide?.call(SGStatusData(
-      statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      thingName: prediction.thingName,
-      predictionQuality: calcPredictionQuality,
-      predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
-    ));
-
     notifyListeners();
   }
 
@@ -480,13 +487,6 @@ class Ride with ChangeNotifier {
     calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
     calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
     calcPredictionQuality = prediction.predictionQuality;
-
-    onNewPredictionStatusDuringRide?.call(SGStatusData(
-      statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      thingName: prediction.signalGroupId, // Same as thing name.
-      predictionQuality: calcPredictionQuality,
-      predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
-    ));
 
     notifyListeners();
   }
