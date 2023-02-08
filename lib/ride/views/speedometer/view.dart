@@ -301,7 +301,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
           padding: const EdgeInsets.only(bottom: 18),
           child: Text(
             'PrioBike - Work in Progress. ${ride.sessionId} ${User.id}',
-            style: Theme.of(context).textTheme.headline3!.merge(
+            style: Theme.of(context).textTheme.displaySmall!.merge(
                   TextStyle(
                     color: Colors.white.withOpacity(0.2),
                     fontSize: 6,

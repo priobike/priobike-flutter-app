@@ -565,7 +565,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   /// The widget that displays the bottom buttons.
-  _bottomButtons(bool isTop, double topSnapRatio) {
+  _bottomButtons(bool isTop, double topSnapRatio, MediaQueryData frame) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -578,7 +578,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         const SizedBox(width: 10),
         IconTextButton(
             onPressed: showSaveShortcutSheet,
-            label: 'Speichern',
+            // Use abbreviation on smaller displays
+            label: frame.size.width > 900 ? 'Speichern' : 'Speich.',
             icon: Icons.save,
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
@@ -665,7 +666,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     ),
                     width: frame.size.width,
                     height: 50,
-                    child: _bottomButtons(isTop, topSnapRatio),
+                    child: _bottomButtons(isTop, topSnapRatio, frame),
                   ),
                 ),
               ]),
