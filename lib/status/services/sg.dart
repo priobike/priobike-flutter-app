@@ -98,6 +98,14 @@ class PredictionSGStatus with ChangeNotifier {
     // Wait for all requests to finish.
     await Future.wait(pending);
 
+    updateStatistics(route);
+
+    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
+    isLoading = false;
+    notifyListeners();
+  }
+
+  updateStatistics(Route? route) {
     ok = 0;
     offline = 0;
     bad = 0;
@@ -138,9 +146,22 @@ class PredictionSGStatus with ChangeNotifier {
     } else {
       okPercentage = 0;
     }
+  }
 
-    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
-    isLoading = false;
+  Future<void> update(
+      String signalGroupId, int statusUpdateTime, double predictionQuality, int predictionTime, Route? route) async {
+    final oldSgStatusData = cache[signalGroupId];
+    if (oldSgStatusData == null) return;
+    if (oldSgStatusData.statusUpdateTime == statusUpdateTime &&
+        oldSgStatusData.predictionQuality == predictionQuality &&
+        oldSgStatusData.predictionTime == predictionTime) return;
+    final updatedSgStatusData = SGStatusData(
+        statusUpdateTime: statusUpdateTime,
+        thingName: oldSgStatusData.thingName,
+        predictionQuality: predictionQuality,
+        predictionTime: predictionTime);
+    cache[signalGroupId] = updatedSgStatusData;
+    updateStatistics(route);
     notifyListeners();
   }
 

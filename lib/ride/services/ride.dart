@@ -15,6 +15,7 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -99,6 +100,9 @@ class Ride with ChangeNotifier {
 
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
+
+  /// The BuildContext of the current active ride/navigation.
+  BuildContext? context;
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
@@ -242,6 +246,7 @@ class Ride with ChangeNotifier {
     // Mark that navigation is now active.
     sessionId = UniqueKey().toString();
     navigationIsActive = true;
+    this.context = context;
   }
 
   /// A callback that is executed when data arrives.
@@ -408,6 +413,17 @@ class Ride with ChangeNotifier {
     calcCurrentSignalPhase = currentPhase;
     calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
 
+    if (context != null && calcCurrentSG != null && calcPredictionQuality != null) {
+      final predictionSGStatus = Provider.of<PredictionSGStatus>(context!);
+      predictionSGStatus.update(
+        calcCurrentSG!.id,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        calcPredictionQuality!,
+        prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
+        route,
+      );
+    }
+
     notifyListeners();
   }
 
@@ -465,6 +481,17 @@ class Ride with ChangeNotifier {
     calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
     calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
     calcPredictionQuality = prediction.predictionQuality;
+
+    if (context != null && calcCurrentSG != null && calcPredictionQuality != null) {
+      final predictionSGStatus = Provider.of<PredictionSGStatus>(context!, listen: false);
+      predictionSGStatus.update(
+        calcCurrentSG!.id,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        calcPredictionQuality!,
+        prediction.startTime.millisecondsSinceEpoch ~/ 1000,
+        route,
+      );
+    }
 
     notifyListeners();
   }

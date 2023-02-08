@@ -112,18 +112,11 @@ class SelectedRouteLayer {
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
+      final sgStatus = status.cache[navNode.signalGroupId];
       String color;
-      double q;
-      if (currentSgId != null && navNode.signalGroupId == currentSgId) {
-        q = min(1, max(0, currentSgPredictionQuality ?? 0));
-        // If the status is to bad.
-        if (currentSgPredictionQuality == null || currentSgPredictionQuality < 0.9) q = 0;
-      } else {
-        final sgStatus = status.cache[navNode.signalGroupId];
-        q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
-        // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
-        if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
-      }
+      var q = min(1, max(0, sgStatus?.predictionQuality ?? 0));
+      // If the status is not "ok" (e.g. if the prediction is too old), set the quality to 0.
+      if (sgStatus?.predictionState != SGPredictionState.ok) q = 0;
       // Interpolate between green and blue, by the prediction quality.
       color = "rgb(${(0 * q + 0 * (1 - q)).round()}, ${255 * q + 115 * (1 - q)}, ${106 * q + 255 * (1 - q)})";
       if (currentFeature == null || currentFeature["color"] != color) {

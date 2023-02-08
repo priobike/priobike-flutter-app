@@ -13,6 +13,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:turf/helpers.dart' as turf;
 
@@ -39,6 +40,8 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The associated dangers service, which is injected by the provider.
   late Dangers dangers;
+
+  late PredictionSGStatus predictionSGStatus;
 
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
@@ -77,7 +80,19 @@ class RideMapViewState extends State<RideMapView> {
       dangers.needsLayout[viewId] = false;
     }
 
+    predictionSGStatus = Provider.of<PredictionSGStatus>(context);
+    if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
+      onStatusUpdate();
+      predictionSGStatus.needsLayout[viewId] = false;
+    }
+
     super.didChangeDependencies();
+  }
+
+  /// Update the view with the current data.
+  Future<void> onStatusUpdate() async {
+    if (!mounted) return;
+    await SelectedRouteLayer(context).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -109,7 +124,6 @@ class RideMapViewState extends State<RideMapView> {
   Future<void> onRideUpdate() async {
     if (!mounted) return;
     await TrafficLightLayer(context).update(mapController!);
-    await SelectedRouteLayer(context).update(mapController!);
 
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.
