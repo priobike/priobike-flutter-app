@@ -163,6 +163,7 @@ class Ride with ChangeNotifier {
     }
   }
 
+  /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
     if (predictionMode == PredictionMode.usePredictionService) {
@@ -176,10 +177,12 @@ class Ride with ChangeNotifier {
     onSelectNextSignalGroup?.call(calcCurrentSG);
   }
 
+  /// Callback that gets called when the prediction service MQTT client established a connection.
   void onPredictionServiceClientConnected() {
     if (predictionService?.client != null) predictionService!.selectSG(calcCurrentSG);
   }
 
+  /// Callback that gets called when the predictor MQTT client established a connection.
   void onPredictorClientConnected() {
     if (predictor?.client != null) predictor!.selectSG(calcCurrentSG);
   }
