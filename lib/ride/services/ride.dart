@@ -253,7 +253,7 @@ class Ride with ChangeNotifier {
       if (hybridModePredictionMode != PredictionMode.usePredictor) {
         hybridModePredictionMode = PredictionMode.usePredictor;
         log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
-          Reason: Prediction service is not connected / not subscribed.""");
+          Reason: Prediction service is not ${predictionService?.client == null ? "connected." : "subscribed."}""");
       }
       return;
     }
@@ -261,7 +261,7 @@ class Ride with ChangeNotifier {
       if (hybridModePredictionMode != PredictionMode.usePredictionService) {
         hybridModePredictionMode = PredictionMode.usePredictionService;
         log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
-          Reason: Predictor is not connected / not subscribed.""");
+          Reason: Predictor is not ${predictor?.client == null ? "connected." : "subscribed."}""");
       }
       return;
     }
