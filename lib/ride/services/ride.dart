@@ -268,7 +268,7 @@ class Ride with ChangeNotifier {
         // Notify that a new prediction status was obtained.
         onNewPredictionStatusDuringRide?.call(SGStatusData(
           statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          thingName: prediction.signalGroupId, // Same as thing name.
+          thingName: userSelectedSG?.id ?? calcCurrentSG!.id,
           predictionQuality: calcPredictionQuality,
           predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
         ));
@@ -280,7 +280,7 @@ class Ride with ChangeNotifier {
         // Notify that a new prediction status was obtained.
         onNewPredictionStatusDuringRide?.call(SGStatusData(
           statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          thingName: prediction.thingName,
+          thingName: userSelectedSG?.id ?? calcCurrentSG!.id,
           predictionQuality: calcPredictionQuality,
           predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
         ));
@@ -353,7 +353,7 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateRecommendationFromPredictor() async {
+  void calculateRecommendationFromPredictor() {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
@@ -433,7 +433,7 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateRecommendationFromPredictionService() async {
+  void calculateRecommendationFromPredictionService() {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
