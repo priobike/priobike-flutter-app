@@ -566,7 +566,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   /// The widget that displays the bottom buttons.
   _bottomButtons(bool isTop, double topSnapRatio) {
-    double deviceWidth = WidgetsBinding.instance.window.physicalSize.width;
+    final double deviceWidth = WidgetsBinding.instance.window.physicalSize.width;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
