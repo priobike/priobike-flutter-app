@@ -149,6 +149,7 @@ class Profile with ChangeNotifier {
     } else {
       searchHistory = [waypoint];
     }
+    store();
 
     notifyListeners();
   }
