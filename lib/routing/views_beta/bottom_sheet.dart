@@ -588,7 +588,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         const SizedBox(width: 10),
         IconTextButton(
             onPressed: () => _changeDetailView(topSnapRatio),
-            label: isTop ? 'Karte' : frame.devicePixelRatio > 2 ? 'Details' : 'Det.',
+            label: isTop
+                ? 'Karte'
+                : frame.devicePixelRatio > 2
+                    ? 'Details'
+                    : 'Det.',
             icon: isTop ? Icons.map : Icons.list,
             borderColor: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.primary,
