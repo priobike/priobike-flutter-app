@@ -72,72 +72,106 @@ class Ride with ChangeNotifier {
   /// The wrapper-service for the predictor MQTT client.
   Predictor? predictor;
 
+  /// The currently used client used for the hybrid mode (predictionService or predictor) based on the current
+  /// predictions of both.
+  PredictionMode hybridModePredictionMode = PredictionMode.usePredictionService;
+
   /// The predicted current signal phase, calculated periodically.
   Phase? get calcCurrentSignalPhase {
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return null;
-      return predictionService!.calcCurrentSignalPhase;
+      return predictionService?.calcCurrentSignalPhase;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      return predictor?.calcCurrentSignalPhase;
     } else {
-      if (predictor?.client == null) return null;
-      return predictor!.calcCurrentSignalPhase;
+      if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+        return predictionService?.calcCurrentSignalPhase;
+      } else if (hybridModePredictionMode == PredictionMode.usePredictor) {
+        return predictor?.calcCurrentSignalPhase;
+      } else {
+        return null;
+      }
     }
   }
 
   /// The current predicted time of the next phase change, calculated periodically.
   DateTime? get calcCurrentPhaseChangeTime {
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return null;
-      return predictionService!.calcCurrentPhaseChangeTime;
+      return predictionService?.calcCurrentPhaseChangeTime;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      return predictor?.calcCurrentPhaseChangeTime;
     } else {
-      if (predictor?.client == null) return null;
-      return predictor!.calcCurrentPhaseChangeTime;
+      if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+        return predictionService?.calcCurrentPhaseChangeTime;
+      } else if (hybridModePredictionMode == PredictionMode.usePredictor) {
+        return predictor?.calcCurrentPhaseChangeTime;
+      } else {
+        return null;
+      }
     }
   }
 
   /// The prediction quality in [0.0, 1.0], calculated periodically.
   double? get calcPredictionQuality {
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return null;
-      return predictionService!.calcPredictionQuality;
+      return predictionService?.calcPredictionQuality;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      return predictor?.calcPredictionQuality;
     } else {
-      if (predictor?.client == null) return null;
-      return predictor!.calcPredictionQuality;
+      if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+        return predictionService?.calcPredictionQuality;
+      } else if (hybridModePredictionMode == PredictionMode.usePredictor) {
+        return predictor?.calcPredictionQuality;
+      } else {
+        return null;
+      }
     }
   }
 
   /// The current predicted phases.
   List<Phase>? get calcPhasesFromNow {
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return null;
-      return predictionService!.calcPhasesFromNow;
+      return predictionService?.calcPhasesFromNow;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      return predictor?.calcPhasesFromNow;
     } else {
-      if (predictor?.client == null) return null;
-      return predictor!.calcPhasesFromNow;
+      if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+        return predictionService?.calcPhasesFromNow;
+      } else if (hybridModePredictionMode == PredictionMode.usePredictor) {
+        return predictor?.calcPhasesFromNow;
+      } else {
+        return null;
+      }
     }
   }
 
   /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
   List<double>? get calcQualitiesFromNow {
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return null;
-      return predictionService!.calcQualitiesFromNow;
+      return predictionService?.calcQualitiesFromNow;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      return predictor?.calcQualitiesFromNow;
     } else {
-      if (predictor?.client == null) return null;
-      return predictor!.calcQualitiesFromNow;
+      if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+        return predictionService?.calcQualitiesFromNow;
+      } else if (hybridModePredictionMode == PredictionMode.usePredictor) {
+        return predictor?.calcQualitiesFromNow;
+      } else {
+        return null;
+      }
     }
   }
 
   /// The predictions received during the ride, from the prediction service.
   List<PredictionServicePrediction> get predictionServicePredictions {
-    if (predictionMode != PredictionMode.usePredictionService) return [];
-    if (predictionService?.client == null) return [];
+    if (predictionMode == PredictionMode.usePredictor) return [];
+    if (predictionService == null) return [];
     return predictionService!.predictionServicePredictions;
   }
 
   /// The predictions received during the ride, from the predictor.
   List<PredictorPrediction> get predictorPredictions {
     if (predictionMode == PredictionMode.usePredictionService) return [];
-    if (predictor?.client == null) return [];
+    if (predictor == null) return [];
     return predictor!.predictorPredictions;
   }
 
@@ -167,11 +201,14 @@ class Ride with ChangeNotifier {
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
     if (predictionMode == PredictionMode.usePredictionService) {
-      if (predictionService?.client == null) return;
+      if (predictionService == null) return;
       predictionService!.selectSG(sg);
-    } else {
-      if (predictor?.client == null) return;
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      if (predictor == null) return;
       predictor!.selectSG(sg);
+    } else {
+      if (predictionService != null) predictionService!.selectSG(sg);
+      if (predictor != null) predictor!.selectSG(sg);
     }
 
     onSelectNextSignalGroup?.call(calcCurrentSG);
@@ -179,12 +216,83 @@ class Ride with ChangeNotifier {
 
   /// Callback that gets called when the prediction service MQTT client established a connection.
   void onPredictionServiceClientConnected() {
-    if (predictionService?.client != null) predictionService!.selectSG(calcCurrentSG);
+    if (predictionService?.client == null) return;
+    predictionService!.selectSG(userSelectedSG ?? calcCurrentSG);
   }
 
   /// Callback that gets called when the predictor MQTT client established a connection.
   void onPredictorClientConnected() {
-    if (predictor?.client != null) predictor!.selectSG(calcCurrentSG);
+    if (predictor?.client == null) return;
+    predictor!.selectSG(userSelectedSG ?? calcCurrentSG);
+  }
+
+  /// A wrapper for the notifyListeners() method used in case of the hybrid prediction mode.
+  void predictionServiceUpdate() {
+    if (predictionMode == PredictionMode.hybrid) {
+      updateHybridMode();
+    }
+    notifyListeners();
+  }
+
+  /// A wrapper for the notifyListeners() method used in case of the hybrid prediction mode.
+  void predictorUpdate() {
+    if (predictionMode == PredictionMode.hybrid) {
+      updateHybridMode();
+    }
+    notifyListeners();
+  }
+
+  /// Update the hybrid mode based on some factors (decide what predictions to use (predictionService-predictions or
+  /// predictor-predictions)).
+  void updateHybridMode() {
+    // Basic availability checks.
+    if (predictionService == null || predictor == null) return;
+    if (predictionService?.client == null || predictor?.client == null) return;
+    // If one is currently not connected use the other one.
+    if (predictionService?.client == null || predictionService!.subscribedSG == null) {
+      if (hybridModePredictionMode != PredictionMode.usePredictor) {
+        hybridModePredictionMode = PredictionMode.usePredictor;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Prediction service is not connected / not subscribed.""");
+      }
+      return;
+    }
+    if (predictor?.client == null || predictor!.subscribedSG == null) {
+      if (hybridModePredictionMode != PredictionMode.usePredictionService) {
+        hybridModePredictionMode = PredictionMode.usePredictionService;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Predictor is not connected / not subscribed.""");
+      }
+      return;
+    }
+    // If one is currently subscribed to the wrong signal group use the other one.
+    if (predictionService!.subscribedSG != predictor!.subscribedSG) {
+      Sg? currentSG = userSelectedSG ?? calcCurrentSG;
+      if (currentSG == null) return;
+      if (predictionService!.subscribedSG!.id != currentSG.id && predictor!.subscribedSG!.id == currentSG.id) {
+        if (hybridModePredictionMode != PredictionMode.usePredictor) {
+          hybridModePredictionMode = PredictionMode.usePredictor;
+          log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Prediction service currently subscribes to the wrong SG.""");
+        }
+        return;
+      }
+      if (predictionService!.subscribedSG!.id == currentSG.id && predictor!.subscribedSG!.id != currentSG.id) {
+        if (hybridModePredictionMode != PredictionMode.usePredictionService) {
+          hybridModePredictionMode = PredictionMode.usePredictionService;
+          log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Predictor currently subscribes to the wrong SG.""");
+        }
+        return;
+      }
+    }
+    // If based on the previous checks everything is fine with both prediction clients use the prediction service as
+    // default.
+    if (hybridModePredictionMode != PredictionMode.usePredictionService) {
+      log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Fallback to default.""");
+      hybridModePredictionMode = PredictionMode.usePredictionService;
+    }
   }
 
   /// Select the next signal group.
@@ -233,17 +341,35 @@ class Ride with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     predictionMode = settings.predictionMode;
     if (predictionMode == PredictionMode.usePredictionService) {
+      // Connect the prediction service MQTT client.
       predictionService = PredictionService(
         onConnected: onPredictionServiceClientConnected,
-        notifyListeners: notifyListeners,
+        notifyListeners: predictionServiceUpdate,
         onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
       );
       predictionService!.connectMQTTClient(context);
       predictionService!.navigationIsActive = true;
-    } else {
+    } else if (predictionMode == PredictionMode.usePredictor) {
+      // Connect the predictor MQTT client.
       predictor = Predictor(
         onConnected: onPredictorClientConnected,
-        notifyListeners: notifyListeners,
+        notifyListeners: predictorUpdate,
+        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
+      );
+      predictor!.connectMQTTClient(context);
+      predictor!.navigationIsActive = true;
+    } else {
+      // Hybrid mode -> connect both clients.
+      predictionService = PredictionService(
+        onConnected: onPredictionServiceClientConnected,
+        notifyListeners: predictionServiceUpdate,
+        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
+      );
+      predictionService!.connectMQTTClient(context);
+      predictionService!.navigationIsActive = true;
+      predictor = Predictor(
+        onConnected: onPredictorClientConnected,
+        notifyListeners: predictorUpdate,
         onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
       );
       predictor!.connectMQTTClient(context);
