@@ -146,7 +146,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                   'Bitte gib einen Namen an, unter dem ${routing.selectedWaypoints!.length == 1 ? "der Ort" : "die Strecke"} gespeichert werden soll.',
               context: context),
           content: SizedBox(
-            height: 48,
+            height: 54,
             child: Column(
               children: [
                 TextFormField(
@@ -579,7 +579,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         IconTextButton(
             onPressed: showSaveShortcutSheet,
             // Use abbreviation on smaller displays
-            label: frame.size.width > 900 ? 'Speichern' : 'Speich.',
+            label: frame.devicePixelRatio > 2 ? 'Speichern' : 'Sp.',
             icon: Icons.save,
             textColor: Theme.of(context).colorScheme.primary,
             iconColor: Theme.of(context).colorScheme.primary,
@@ -588,7 +588,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         const SizedBox(width: 10),
         IconTextButton(
             onPressed: () => _changeDetailView(topSnapRatio),
-            label: isTop ? 'Karte' : 'Details',
+            label: isTop ? 'Karte' : frame.devicePixelRatio > 2 ? 'Details' : 'Det.',
             icon: isTop ? Icons.map : Icons.list,
             borderColor: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.primary,
