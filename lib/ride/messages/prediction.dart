@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/ride/models/recommendation.dart';
 
 enum Phase {
   dark,
@@ -87,18 +88,6 @@ class PredictorPrediction {
   /// The current prediction quality in [0.0, 1.0]. Calculated periodically.
   double? predictionQuality;
 
-  /// The current predicted phases.
-  List<Phase>? calcPhasesFromNow;
-
-  /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
-  List<double>? calcQualitiesFromNow;
-
-  /// The current predicted time of the next phase change, calculated periodically.
-  DateTime? calcCurrentPhaseChangeTime;
-
-  /// The predicted current signal phase, calculated periodically.
-  Phase? calcCurrentSignalPhase;
-
   /// Create a prediction from a JSON map.
   PredictorPrediction.fromJson(Map<String, dynamic> json)
       : thingName = json['thingName'] as String,
@@ -120,14 +109,16 @@ class PredictorPrediction {
         'programId': programId,
       };
 
-  Future<void> calculateRecommendation() async {
+  Future<Recommendation?> calculateRecommendation() async {
+    List<Phase> calcPhasesFromNow;
+    List<double> calcQualitiesFromNow;
+    DateTime? calcCurrentPhaseChangeTime;
+    Phase calcCurrentSignalPhase;
+
     // This will be executed if we fail somewhere.
     onFailure(String? reason) {
-      if (reason != null) log.w("Failed to calculate predictor info: $reason");
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
+      log.w("Failed to calculate predictor info: $reason");
+      return null;
     }
 
     // The prediction is split into two parts: "now" and "then".
@@ -156,37 +147,39 @@ class PredictorPrediction {
     } else if (index < 0) {
       log.w("Prediction is in the future: $index seconds");
       // Take the last part of the "then" prediction until we reach the start of "now".
-      calcPhasesFromNow = calcPhasesFromNow! + then.sublist(then.length + index, then.length);
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist(then.length + index, then.length);
-      refTimeIdx = calcPhasesFromNow!.length; // To calculate the current phase.
+      calcPhasesFromNow = calcPhasesFromNow + then.sublist(then.length + index, then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow + thenQuality.sublist(then.length + index, then.length);
+      refTimeIdx = calcPhasesFromNow.length; // To calculate the current phase.
       index = max(0, index);
     }
     // Calculate the phases from the start time of "now".
     if (index < now.length) {
       // We are within the "now" part of the prediction.
-      calcPhasesFromNow = calcPhasesFromNow! + now.sublist(index);
-      calcQualitiesFromNow = calcQualitiesFromNow! + nowQuality.sublist(index);
+      calcPhasesFromNow = calcPhasesFromNow + now.sublist(index);
+      calcQualitiesFromNow = calcQualitiesFromNow + nowQuality.sublist(index);
     } else {
       // We are within the "then" part of the prediction.
-      calcPhasesFromNow = calcPhasesFromNow! + then.sublist((index - now.length) % then.length);
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist((index - now.length) % then.length);
+      calcPhasesFromNow = calcPhasesFromNow + then.sublist((index - now.length) % then.length);
+      calcQualitiesFromNow = calcQualitiesFromNow + thenQuality.sublist((index - now.length) % then.length);
     }
     // Fill the phases with "then" (the average behavior) until we have enough values.
-    while (calcPhasesFromNow!.length < refTimeIdx + 300) {
-      calcPhasesFromNow = calcPhasesFromNow! + then;
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality;
+    while (calcPhasesFromNow.length < refTimeIdx + 300) {
+      calcPhasesFromNow = calcPhasesFromNow + then;
+      calcQualitiesFromNow = calcQualitiesFromNow + thenQuality;
     }
     // Calculate the current phase.
-    final currentPhase = calcPhasesFromNow![refTimeIdx];
+    final currentPhase = calcPhasesFromNow[refTimeIdx];
     // Calculate the current phase change time.
-    for (int i = refTimeIdx; i < calcPhasesFromNow!.length; i++) {
-      if (calcPhasesFromNow![i] != currentPhase) {
+    for (int i = refTimeIdx; i < calcPhasesFromNow.length; i++) {
+      if (calcPhasesFromNow[i] != currentPhase) {
         calcCurrentPhaseChangeTime = DateTime.now().add(Duration(seconds: i));
         break;
       }
     }
     calcCurrentSignalPhase = currentPhase;
-    predictionQuality = calcQualitiesFromNow![refTimeIdx];
+    predictionQuality = calcQualitiesFromNow[refTimeIdx];
+    if (calcCurrentPhaseChangeTime == null) return onFailure("Failed to calculate phase change time");
+    return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
 }
 
@@ -214,18 +207,6 @@ class PredictionServicePrediction {
   /// That is, if the value is greater than the threshold.
   final List<int> value;
 
-  /// The current predicted phases.
-  List<Phase>? calcPhasesFromNow;
-
-  /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
-  List<double>? calcQualitiesFromNow;
-
-  /// The current predicted time of the next phase change, calculated periodically.
-  DateTime? calcCurrentPhaseChangeTime;
-
-  /// The predicted current signal phase, calculated periodically.
-  Phase? calcCurrentSignalPhase;
-
   // Create a prediction from a JSON map.
   PredictionServicePrediction.fromJson(Map<String, dynamic> json)
       : greentimeThreshold = json['greentimeThreshold'] as int,
@@ -244,14 +225,16 @@ class PredictionServicePrediction {
         'value': value,
       };
 
-  Future<void> calculateRecommendation() async {
+  Future<Recommendation?> calculateRecommendation() async {
+    List<Phase> calcPhasesFromNow;
+    List<double> calcQualitiesFromNow;
+    DateTime calcCurrentPhaseChangeTime;
+    Phase calcCurrentSignalPhase;
+
     // This will be executed if we fail somewhere.
     onFailure(reason) {
       log.w("Failed to calculate predictor info: $reason");
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
+      return null;
     }
 
     // Check if we have all necessary information.
@@ -288,5 +271,7 @@ class PredictionServicePrediction {
     calcQualitiesFromNow = currentVector.map((_) => (predictionQuality)).toList();
     calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
     calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
+
+    return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
 }

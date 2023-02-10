@@ -9,6 +9,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -85,6 +86,9 @@ class Ride with ChangeNotifier {
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
+  /// The current recommendation, calculated periodically.
+  Recommendation? recommendation;
+
   /// The callback that gets executed when a new prediction
   /// was received from the prediction service and a new
   /// status update was calculated based on the prediction.
@@ -100,6 +104,7 @@ class Ride with ChangeNotifier {
 
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
+      recommendation = null;
       calcDistanceToNextSG = null;
     }
 
@@ -347,7 +352,7 @@ class Ride with ChangeNotifier {
     // Check the type of the prediction.
     if (prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
 
-    prediction.calculateRecommendation();
+    recommendation = await prediction.calculateRecommendation();
 
     notifyListeners();
   }
@@ -365,7 +370,7 @@ class Ride with ChangeNotifier {
     // Check the type of the prediction.
     if (prediction! is! PredictionServicePrediction) return onFailure("Prediction is of wrong type.");
 
-    prediction.calculateRecommendation();
+    recommendation = await prediction.calculateRecommendation();
 
     notifyListeners();
   }
@@ -395,6 +400,7 @@ class Ride with ChangeNotifier {
     predictionServicePredictions.clear();
     predictorPredictions.clear();
     prediction = null;
+    recommendation = null;
     needsLayout = {};
     notifyListeners();
   }
