@@ -40,15 +40,19 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     if (ride.calcCurrentSG == null) return alternativeView;
 
     // Check if we have all auxiliary data that the app calculated.
-    if (ride.calcCurrentSignalPhase == null || ride.calcCurrentPhaseChangeTime == null) return alternativeView;
+    if (ride.prediction?.calcCurrentSignalPhase == null || ride.prediction?.calcCurrentPhaseChangeTime == null) {
+      return alternativeView;
+    }
     // Calculate the countdown.
-    final countdown = ride.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
+    final countdown = ride.prediction.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
     // is not confused if the countdown is at 0 for a few seconds.
     var countdownLabel = countdown > 0 ? "$countdown" : "";
     // Show no countdown label for amber and redamber.
-    if (ride.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
-    if (ride.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
+    if (ride.prediction.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
+    if (ride.prediction.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
+
+    final currentPhase = ride.prediction.calcCurrentSignalPhase! as Phase;
 
     final trafficLight = Container(
       width: 148,
@@ -57,9 +61,9 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
           colors: [
-            ride.calcCurrentSignalPhase!.color,
-            ride.calcCurrentSignalPhase!.color.withOpacity(0.2),
-            ride.calcCurrentSignalPhase!.color.withOpacity(0),
+            currentPhase.color,
+            currentPhase.color.withOpacity(0.2),
+            currentPhase.color.withOpacity(0),
           ],
         ),
         borderRadius: BorderRadius.circular(64),
@@ -97,7 +101,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     );
 
     var showCountdown = (ride.calcDistanceToNextSG ?? double.infinity) < 500;
-    showCountdown = showCountdown && (ride.calcPredictionQuality ?? 0) > Ride.qualityThreshold;
+    showCountdown = showCountdown && (ride.prediction?.predictionQuality ?? 0) > Ride.qualityThreshold;
 
     return AnimatedCrossFade(
       firstCurve: Curves.easeInOutCubic,

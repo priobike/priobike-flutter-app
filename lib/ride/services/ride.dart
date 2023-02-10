@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
@@ -53,21 +52,6 @@ class Ride with ChangeNotifier {
   /// The current prediction.
   dynamic prediction;
 
-  /// The current predicted phases.
-  List<Phase>? calcPhasesFromNow;
-
-  /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
-  List<double>? calcQualitiesFromNow;
-
-  /// The current predicted time of the next phase change, calculated periodically.
-  DateTime? calcCurrentPhaseChangeTime;
-
-  /// The predicted current signal phase, calculated periodically.
-  Phase? calcCurrentSignalPhase;
-
-  /// The prediction quality in [0.0, 1.0], calculated periodically.
-  double? calcPredictionQuality;
-
   /// The currently subscribed signal group.
   Sg? subscribedSG;
 
@@ -116,11 +100,6 @@ class Ride with ChangeNotifier {
 
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
-      calcPredictionQuality = null;
       calcDistanceToNextSG = null;
     }
 
@@ -268,8 +247,9 @@ class Ride with ChangeNotifier {
         // Notify that a new prediction status was obtained.
         onNewPredictionStatusDuringRide?.call(SGStatusData(
           statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          thingName: userSelectedSG?.id ?? calcCurrentSG!.id,
-          predictionQuality: calcPredictionQuality,
+          thingName:
+              "hamburg/${prediction.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
+          predictionQuality: prediction.predictionQuality,
           predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
         ));
       } else {
@@ -280,8 +260,9 @@ class Ride with ChangeNotifier {
         // Notify that a new prediction status was obtained.
         onNewPredictionStatusDuringRide?.call(SGStatusData(
           statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          thingName: userSelectedSG?.id ?? calcCurrentSG!.id,
-          predictionQuality: calcPredictionQuality,
+          thingName:
+              "hamburg/${prediction.thingName}", // The prefix "hamburg/" is needed to match the naming schema of the status cache.
+          predictionQuality: prediction.predictionQuality,
           predictionTime: prediction.referenceTime.millisecondsSinceEpoch ~/ 1000,
         ));
       }
@@ -353,140 +334,38 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
-  void calculateRecommendationFromPredictor() {
+  Future<void> calculateRecommendationFromPredictor() async {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
     onFailure(String? reason) {
       if (reason != null) log.w("Failed to calculate predictor info: $reason");
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
-      calcPredictionQuality = null;
       notifyListeners();
     }
 
-    if (this.prediction == null) return onFailure(null); // Fail silently.
+    if (prediction == null) return onFailure(null); // Fail silently.
     // Check the type of the prediction.
-    if (this.prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
-    final prediction = this.prediction as PredictorPrediction;
+    if (prediction! is! PredictorPrediction) return onFailure("Prediction is of wrong type");
 
-    // The prediction is split into two parts: "now" and "then".
-    // "now" is the predicted behavior within the current cycle, which can deviate from the average behavior.
-    // "then" is the predicted behavior after the cycle, which is the average behavior.
-    final now = prediction.now.map((e) => PhaseColor.fromInt(e)).toList();
-    if (now.isEmpty) return onFailure("No prediction available (now.length == 0)");
-    final nowQuality = prediction.nowQuality.map((e) => e.toInt() / 100).toList();
-    final then = prediction.then.map((e) => PhaseColor.fromInt(e)).toList();
-    if (then.isEmpty) return onFailure("No prediction available (then.length == 0)");
-    final thenQuality = prediction.thenQuality.map((e) => e.toInt() / 100).toList();
-    final diff = DateTime.now().difference(prediction.referenceTime).inSeconds;
-    if (diff > 300) return onFailure("Prediction is too old: $diff seconds");
-    var index = diff;
-
-    calcPhasesFromNow = <Phase>[];
-    calcQualitiesFromNow = <double>[];
-    // Keep the index of the reference time in the prediction.
-    // This is 0 unless the reference time is in the future.
-    var refTimeIdx = 0;
-    // Check if the prediction is in the future.
-    if (index < -then.length) {
-      // Small deviations (-2 seconds, -1 seconds) are to be expected due to clock deviations,
-      // but if the prediction is too far in the future, something must have gone wrong.
-      return onFailure("Prediction is too far in the future: $index seconds");
-    } else if (index < 0) {
-      log.w("Prediction is in the future: $index seconds");
-      // Take the last part of the "then" prediction until we reach the start of "now".
-      calcPhasesFromNow = calcPhasesFromNow! + then.sublist(then.length + index, then.length);
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist(then.length + index, then.length);
-      refTimeIdx = calcPhasesFromNow!.length; // To calculate the current phase.
-      index = max(0, index);
-    }
-    // Calculate the phases from the start time of "now".
-    if (index < now.length) {
-      // We are within the "now" part of the prediction.
-      calcPhasesFromNow = calcPhasesFromNow! + now.sublist(index);
-      calcQualitiesFromNow = calcQualitiesFromNow! + nowQuality.sublist(index);
-    } else {
-      // We are within the "then" part of the prediction.
-      calcPhasesFromNow = calcPhasesFromNow! + then.sublist((index - now.length) % then.length);
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality.sublist((index - now.length) % then.length);
-    }
-    // Fill the phases with "then" (the average behavior) until we have enough values.
-    while (calcPhasesFromNow!.length < refTimeIdx + 300) {
-      calcPhasesFromNow = calcPhasesFromNow! + then;
-      calcQualitiesFromNow = calcQualitiesFromNow! + thenQuality;
-    }
-    // Calculate the current phase.
-    final currentPhase = calcPhasesFromNow![refTimeIdx];
-    // Calculate the current phase change time.
-    for (int i = refTimeIdx; i < calcPhasesFromNow!.length; i++) {
-      if (calcPhasesFromNow![i] != currentPhase) {
-        calcCurrentPhaseChangeTime = DateTime.now().add(Duration(seconds: i));
-        break;
-      }
-    }
-    calcCurrentSignalPhase = currentPhase;
-    calcPredictionQuality = calcQualitiesFromNow![refTimeIdx];
+    prediction.calculateRecommendation();
 
     notifyListeners();
   }
 
-  void calculateRecommendationFromPredictionService() {
+  Future<void> calculateRecommendationFromPredictionService() async {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
     onFailure(reason) {
       log.w("Failed to calculate predictor info: $reason");
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
-      calcPredictionQuality = null;
       notifyListeners();
     }
 
-    if (this.prediction == null) return onFailure("No prediction available");
+    if (prediction == null) return onFailure("No prediction available");
     // Check the type of the prediction.
-    if (this.prediction! is! PredictionServicePrediction) return onFailure("Prediction is of wrong type.");
-    final prediction = this.prediction as PredictionServicePrediction;
+    if (prediction! is! PredictionServicePrediction) return onFailure("Prediction is of wrong type.");
 
-    // Check if we have all necessary information.
-    if (prediction.greentimeThreshold == -1) return onFailure("No greentime threshold.");
-    if (prediction.predictionQuality == -1) return onFailure("No prediction quality.");
-    if (prediction.value.isEmpty) return onFailure("No prediction vector.");
-    // Calculate the seconds since the start of the prediction.
-    final now = DateTime.now();
-    final secondsSinceStart = max(0, now.difference(prediction.startTime).inSeconds);
-    // Chop off the seconds that are not in the prediction vector.
-    final secondsInVector = prediction.value.length;
-    if (secondsSinceStart >= secondsInVector) return onFailure("Prediction vector is too short.");
-    // Calculate the current vector.
-    final currentVector = prediction.value.sublist(secondsSinceStart);
-    if (currentVector.isEmpty) return onFailure("Current vector is empty.");
-    // Calculate the seconds to the next phase change.
-    int secondsToPhaseChange = 0;
-    bool greenNow = currentVector[0] >= prediction.greentimeThreshold;
-    for (int i = 1; i < currentVector.length; i++) {
-      final greenThen = currentVector[i] >= prediction.greentimeThreshold;
-      if ((greenNow && !greenThen) || (!greenNow && greenThen)) break;
-      secondsToPhaseChange++;
-    }
-
-    calcPhasesFromNow = currentVector.map(
-      (value) {
-        if (value >= prediction.greentimeThreshold) {
-          return Phase.green;
-        } else {
-          return Phase.red;
-        }
-      },
-    ).toList();
-    calcQualitiesFromNow = currentVector.map((_) => (prediction.predictionQuality)).toList();
-    calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
-    calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
-    calcPredictionQuality = prediction.predictionQuality;
+    prediction.calculateRecommendation();
 
     notifyListeners();
   }
@@ -510,11 +389,6 @@ class Ride with ChangeNotifier {
       client?.disconnect();
       client = null;
     }
-    calcPhasesFromNow = null;
-    calcQualitiesFromNow = null;
-    calcCurrentPhaseChangeTime = null;
-    calcCurrentSignalPhase = null;
-    calcPredictionQuality = null;
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
