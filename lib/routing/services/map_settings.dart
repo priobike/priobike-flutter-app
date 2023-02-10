@@ -3,7 +3,6 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
-import 'package:turf/helpers.dart' as turf;
 
 enum ControllerType {
   main,
@@ -112,13 +111,13 @@ class MapSettings with ChangeNotifier {
     final n = coordinatesNortheast[1] as double;
     final e = coordinatesNortheast[0] as double;
     final newBounds = CoordinateBounds(
-        southwest: turf.Point(
-            coordinates: turf.Position(
+        southwest: Point(
+            coordinates: Position(
           s + 0.175 * frame.size.height,
           w,
         )).toJson(),
-        northeast: turf.Point(
-            coordinates: turf.Position(
+        northeast: Point(
+            coordinates: Position(
           n + calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized),
           e,
         )).toJson(),
@@ -152,13 +151,13 @@ class MapSettings with ChangeNotifier {
     final n = coordinatesNortheast[1] as double;
     final e = coordinatesNortheast[0] as double;
     final newBounds = CoordinateBounds(
-        southwest: turf.Point(
-            coordinates: turf.Position(
+        southwest: Point(
+            coordinates: Position(
           s + 0.66 * frame.size.height,
           w,
         )).toJson(),
-        northeast: turf.Point(
-            coordinates: turf.Position(
+        northeast: Point(
+            coordinates: Position(
           n,
           e,
         )).toJson(),

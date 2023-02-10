@@ -10,7 +10,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:turf/helpers.dart' as turf;
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -127,8 +126,8 @@ class AppMapState extends State<AppMap> {
         pixelRatio: MediaQuery.of(context).devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
-        center: turf.Point(
-            coordinates: turf.Position(
+        center: mapbox.Point(
+            coordinates: mapbox.Position(
           settings.backend.center.longitude,
           settings.backend.center.latitude,
         )).toJson(),

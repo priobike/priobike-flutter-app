@@ -14,7 +14,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:turf/helpers.dart' as turf;
 
 class RideMapView extends StatefulWidget {
   const RideMapView({Key? key}) : super(key: key);
@@ -115,7 +114,7 @@ class RideMapViewState extends State<RideMapView> {
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
         mapbox.CameraOptions(
-            center: turf.Point(coordinates: turf.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
         mapbox.MapAnimationOptions(duration: 200),
       );
     }
@@ -177,9 +176,9 @@ class RideMapViewState extends State<RideMapView> {
     if (ride.userSelectedSG == null) {
       mapController!.easeTo(
           mapbox.CameraOptions(
-            center:
-                turf.Point(coordinates: turf.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
-                    .toJson(),
+            center: mapbox.Point(
+                    coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
+                .toJson(),
             bearing: cameraHeading,
             zoom: zoom,
             pitch: 60,
