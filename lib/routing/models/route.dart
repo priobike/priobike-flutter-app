@@ -7,7 +7,6 @@ import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:turf/helpers.dart' as turf;
 
 class Route {
   /// The route id.
@@ -114,13 +113,13 @@ class Route {
       e = max(e, node.lon);
     }
     return CoordinateBounds(
-        southwest: turf.Point(
-            coordinates: turf.Position(
+        southwest: Point(
+            coordinates: Position(
           s,
           w,
         )).toJson(),
-        northeast: turf.Point(
-            coordinates: turf.Position(
+        northeast: Point(
+            coordinates: Position(
           n,
           e,
         )).toJson(),
@@ -140,13 +139,13 @@ class Route {
     final n = coordinatesNortheast[1] as double;
     final e = coordinatesNortheast[0] as double;
     return CoordinateBounds(
-        southwest: turf.Point(
-            coordinates: turf.Position(
+        southwest: Point(
+            coordinates: Position(
           s - pad,
           w - pad,
         )).toJson(),
-        northeast: turf.Point(
-            coordinates: turf.Position(
+        northeast: Point(
+            coordinates: Position(
           n + pad,
           e + pad,
         )).toJson(),
@@ -167,8 +166,8 @@ class Route {
     // Calculate the center.
     final center = LatLng((s + n) / 2, (w + e) / 2);
     return CameraOptions(
-      center: turf.Point(
-          coordinates: turf.Position(
+      center: Point(
+          coordinates: Position(
         center.longitude,
         center.latitude,
       )).toJson(),

@@ -442,7 +442,7 @@ packages:
       name: mapbox_maps_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0"
+    version: "0.4.1"
   matcher:
     dependency: transitive
     description:
@@ -750,7 +750,7 @@ packages:
     source: hosted
     version: "0.9.1"
   turf:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: turf
       url: "https://pub.dartlang.org"
