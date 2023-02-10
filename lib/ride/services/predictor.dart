@@ -8,6 +8,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -15,7 +16,7 @@ import 'package:priobike/status/messages/sg.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-class Predictor {
+class Predictor implements PredictionComponent {
   /// Logger for this class.
   final log = Logger("Predictor");
 
@@ -29,46 +30,43 @@ class Predictor {
   MqttServerClient? client;
 
   /// The current prediction.
+  @override
   PredictorPrediction? prediction;
 
   /// The current recommendation, calculated periodically.
+  @override
   Recommendation? recommendation;
 
-  /// The current predicted phases.
-  List<Phase>? calcPhasesFromNow;
-
-  /// The prediction qualities from now in [0.0, 1.0], calculated periodically.
-  List<double>? calcQualitiesFromNow;
-
-  /// The current predicted time of the next phase change, calculated periodically.
-  DateTime? calcCurrentPhaseChangeTime;
-
-  /// The predicted current signal phase, calculated periodically.
-  Phase? calcCurrentSignalPhase;
-
-  /// The prediction quality in [0.0, 1.0], calculated periodically.
-  double? calcPredictionQuality;
-
   /// The currently subscribed signal group.
+  @override
   Sg? subscribedSG;
 
   /// The predictions received during the ride, from the predictor.
+  @override
   final List<PredictorPrediction> predictorPredictions = [];
 
-  /// A callback that gets executed when the client is connected.
-  late final Function onConnected;
+  /// The predictions received during the ride, from the prediction service.
+  @override
+  final List<PredictionServicePrediction> predictionServicePredictions = [];
 
   /// A callback that gets executed when the client is connected.
+  @override
+  late final Function onConnected;
+
+  /// A callback that gets executed when the parent provider should call the notifyListeners function.
+  @override
   late final Function notifyListeners;
 
   /// The callback that gets executed when a new prediction
   /// was received from the prediction service and a new
   /// status update was calculated based on the prediction.
+  @override
   void Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
   Predictor({required this.onConnected, required this.notifyListeners, required this.onNewPredictionStatusDuringRide});
 
   /// Subscribe to the signal group.
+  @override
   void selectSG(Sg? sg) {
     if (!navigationIsActive || client == null) return;
 
@@ -78,11 +76,7 @@ class Predictor {
 
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
-      calcPhasesFromNow = null;
-      calcQualitiesFromNow = null;
-      calcCurrentPhaseChangeTime = null;
-      calcCurrentSignalPhase = null;
-      calcPredictionQuality = null;
+      recommendation = null;
     }
 
     if (sg != null && sg != subscribedSG) {
@@ -94,6 +88,7 @@ class Predictor {
   }
 
   /// Establish a connection with the MQTT client.
+  @override
   Future<void> connectMQTTClient(BuildContext context) async {
     // Get the backend that is currently selected.
     final settings = Provider.of<Settings>(context, listen: false);
@@ -131,7 +126,7 @@ class Predictor {
       onConnected();
       // Start the timer that updates the prediction once per second.
       calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        calculateRecommendationFromPredictor();
+        calculateRecommendation();
       });
     } catch (e, stackTrace) {
       client = null;
@@ -157,7 +152,7 @@ class Predictor {
       final json = jsonDecode(data);
       log.i("Received prediction from predictor: $json");
       prediction = PredictorPrediction.fromJson(json);
-      calculateRecommendationFromPredictor();
+      calculateRecommendation();
       if (prediction != null) predictorPredictions.add(prediction!);
       // Notify that a new prediction status was obtained.
       onNewPredictionStatusDuringRide?.call(SGStatusData(
@@ -170,7 +165,7 @@ class Predictor {
     }
   }
 
-  Future<void> calculateRecommendationFromPredictor() async {
+  Future<void> calculateRecommendation() async {
     if (!navigationIsActive) return;
 
     // This will be executed if we fail somewhere.
@@ -187,6 +182,7 @@ class Predictor {
   }
 
   /// Stop the navigation.
+  @override
   Future<void> stopNavigation() async {
     calcTimer?.cancel();
     calcTimer = null;
@@ -198,17 +194,13 @@ class Predictor {
   }
 
   /// Reset the service.
+  @override
   Future<void> reset() async {
     navigationIsActive = false;
     if (client != null) {
       client?.disconnect();
       client = null;
     }
-    calcPhasesFromNow = null;
-    calcQualitiesFromNow = null;
-    calcCurrentPhaseChangeTime = null;
-    calcCurrentSignalPhase = null;
-    calcPredictionQuality = null;
     predictorPredictions.clear();
     prediction = null;
     recommendation = null;
