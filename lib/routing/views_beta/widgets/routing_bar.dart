@@ -68,6 +68,8 @@ class RoutingBarState extends State<RoutingBar> {
   /// Variable to not duplicate initial code which we can't execute in initState since the service is null.
   bool initDone = false;
 
+  bool showItemRowIcons = true;
+
   @override
   void didChangeDependencies() {
     geosearch = Provider.of<Geosearch>(context);
@@ -82,8 +84,9 @@ class RoutingBarState extends State<RoutingBar> {
     super.didChangeDependencies();
   }
 
-  /// update the routingBarItems
+  /// update the routingBarItems when selected route switched and initially sets routing Items for RouteSearchView.
   updateRoutingBarItems() {
+    // Update items after selected route switch.
     if (routing.selectedWaypoints != null) {
       routingBarItems = [];
       for (int i = 0; i < routing.selectedWaypoints!.length; i++) {
@@ -91,6 +94,7 @@ class RoutingBarState extends State<RoutingBar> {
             .add(_routingBarRow(i, routing.selectedWaypoints!.length, routing.selectedWaypoints![i], routing.nextItem));
       }
     } else {
+      // Init routing items for RouteSearchView.
       if (widget.fromRoutingSearch && !initDone) {
         setState(() {
           initDone = true;
@@ -134,41 +138,45 @@ class RoutingBarState extends State<RoutingBar> {
     return Row(
       key: Key('$index'),
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              leadingIcon != null
-                  ? Icon(leadingIcon)
-                  : Container(
-                      width: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          // Since new Font there has to be top padding.
-                          padding: const EdgeInsets.only(top: 1),
-                          child: Content(text: index.toString(), context: context),
-                        ),
-                      ),
-                    ),
-              index < max - 1
-                  ? Positioned(
-                      left: 3,
-                      top: index == 0 ? 23 : 20,
-                      child: const Icon(
-                        Icons.more_vert,
-                        size: 18,
-                      ),
-                    )
-                  : Container(),
-            ],
-          ),
-        ),
+        showItemRowIcons
+            ? Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    leadingIcon != null
+                        ? Icon(leadingIcon)
+                        : Container(
+                            width: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                            ),
+                            child: Center(
+                              child: Padding(
+                                // Since new Font there has to be top padding.
+                                padding: const EdgeInsets.only(top: 1),
+                                child: Content(text: index.toString(), context: context),
+                              ),
+                            ),
+                          ),
+                    index < max - 1
+                        ? Positioned(
+                            left: 3,
+                            top: index == 0 ? 23 : 21,
+                            child: const Icon(
+                              Icons.more_vert,
+                              size: 18,
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+              )
+            : Container(
+                width: 34,
+              ),
         Expanded(
           child: SizedBox(
             height: 40,
@@ -214,32 +222,38 @@ class RoutingBarState extends State<RoutingBar> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10, right: 5),
-          child: IconButton(
-            constraints: const BoxConstraints(maxHeight: 40),
-            iconSize: 20,
-            icon: Icon(trailingIcon),
-            onPressed: () async {
-              if (index < max - 1) {
-                if (index == 0 && max == 2) {
-                  swapWaypoints();
-                } else {
-                  onRemoveWaypoint(index, max);
-                }
-              } else {
-                if (widget.fromRoutingSearch) {
-                  // Adding empty waypoint in routeSearchView.
-                  routing.routingItems.add(null);
-                  routing.notifyListeners();
-                } else {
-                  widget.onSearch!(routing, null, widget.onPressed, widget.fromRoutingSearch);
-                }
-              }
-            },
-            splashRadius: 20,
-          ),
-        )
+        SizedBox(
+          height: 40,
+          width: 50,
+          child: showItemRowIcons
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 5, right: 5),
+                  child: IconButton(
+                    constraints: const BoxConstraints(maxHeight: 34),
+                    iconSize: 20,
+                    icon: Icon(trailingIcon),
+                    onPressed: () async {
+                      if (index < max - 1) {
+                        if (index == 0 && max == 2) {
+                          swapWaypoints();
+                        } else {
+                          onRemoveWaypoint(index, max);
+                        }
+                      } else {
+                        if (widget.fromRoutingSearch) {
+                          // Adding empty waypoint in routeSearchView.
+                          routing.routingItems.add(null);
+                          routing.notifyListeners();
+                        } else {
+                          widget.onSearch!(routing, null, widget.onPressed, widget.fromRoutingSearch);
+                        }
+                      }
+                    },
+                    splashRadius: 20,
+                  ),
+                )
+              : Container(),
+        ),
       ],
     );
   }
@@ -283,16 +297,21 @@ class RoutingBarState extends State<RoutingBar> {
 
   /// The proxy decorator used to style the reorderable list.
   Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
+    // Updated Item needed to hide side icons.
+    Widget updatedItemRow = widget.fromRoutingSearch
+        ? _routingBarRow(index, routing.routingItems.length, routing.routingItems[index], routing.nextItem)
+        : _routingBarRow(index, routing.selectedWaypoints!.length, routing.selectedWaypoints![index], routing.nextItem);
+
     return AnimatedBuilder(
       animation: animation,
       builder: (BuildContext context, Widget? child) {
         return Material(
           elevation: 0,
           color: Colors.transparent,
-          child: child,
+          child: updatedItemRow,
         );
       },
-      child: child,
+      child: updatedItemRow,
     );
   }
 
@@ -321,11 +340,19 @@ class RoutingBarState extends State<RoutingBar> {
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
 
-    final List<Widget> searchRoutingBarItems = [];
+    List<Widget> searchRoutingBarItems = [];
     if (widget.fromRoutingSearch) {
       for (int i = 0; i < routing.routingItems.length; i++) {
         searchRoutingBarItems
             .add(_routingBarRow(i, routing.routingItems.length, routing.routingItems[i], routing.nextItem));
+      }
+    } else {
+      if (routing.selectedWaypoints != null) {
+        routingBarItems = [];
+        for (int i = 0; i < routing.selectedWaypoints!.length; i++) {
+          routingBarItems.add(
+              _routingBarRow(i, routing.selectedWaypoints!.length, routing.selectedWaypoints![i], routing.nextItem));
+        }
       }
     }
 
@@ -399,6 +426,11 @@ class RoutingBarState extends State<RoutingBar> {
                     padding: EdgeInsets.zero,
                     proxyDecorator: _proxyDecorator,
                     // With a newer Version of Flutter onReorderStart can be used to hide symbols during drag
+                    onReorderStart: (int index) {
+                      setState(() {
+                        showItemRowIcons = false;
+                      });
+                    },
                     onReorder: (int oldIndex, int newIndex) {
                       if (routing.selectedWaypoints != null) {
                         // Catch out of range. ReorderableList sets newIndex to list.length() + 1 if its way below
@@ -430,6 +462,9 @@ class RoutingBarState extends State<RoutingBar> {
                         });
                         widget.checkNextItem!();
                       }
+                      setState(() {
+                        showItemRowIcons = true;
+                      });
                     },
                     children: widget.fromRoutingSearch ? searchRoutingBarItems : routingBarItems,
                   ),
