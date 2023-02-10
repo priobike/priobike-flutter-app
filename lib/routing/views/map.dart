@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -21,7 +21,6 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:provider/provider.dart';
-import 'package:turf/helpers.dart' as turf;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -73,7 +72,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   late Animation<double> animation;
 
   /// The margins of the attribution.
-  Point? attributionMargins;
+  math.Point? attributionMargins;
 
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
@@ -339,7 +338,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         ? 124 + frame.padding.bottom + sheetPadding // Default value.
         : sheetHeightRelative * frame.size.height + sheetPadding;
     final maxBottomInset = frame.size.height - frame.padding.top - 100;
-    double newBottomInset = min(maxBottomInset, sheetHeightAbs);
+    double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
     mapController!.setCamera(
       CameraOptions(
         padding: MbxEdgeInsets(
@@ -353,7 +352,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       () {
         final ppi = frame.devicePixelRatio;
         attributionMargins =
-            Point(20 * ppi, 124 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
+            math.Point(20 * ppi, 124 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
       },
     );
   }
@@ -391,8 +390,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
     // fixed in an upcoming version we need to remove this conversion.
     final ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
-      turf.Point(
-        coordinates: turf.Position(
+      Point(
+        coordinates: Position(
           screenCoordinate.y,
           screenCoordinate.x,
         ),
@@ -428,7 +427,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = Provider.of<Geocoding>(context, listen: false);
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
-    final pointCoord = turf.Point.fromJson(Map<String, dynamic>.from(coord));
+    final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
@@ -488,7 +487,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   left: tapPosition!.dx - animation.value * 128 - 12,
                   top: tapPosition!.dy - animation.value * 128 - 12,
                   child: Opacity(
-                    opacity: max(0, min(1, (animation.value) * 4)),
+                    opacity: math.max(0, math.min(1, (animation.value) * 4)),
                     child: Container(
                       width: animation.value * 256 + 24,
                       height: animation.value * 256 + 24,
@@ -507,7 +506,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   left: tapPosition!.dx - (1.0 - animation.value) * 64 - 12,
                   top: tapPosition!.dy - (1.0 - animation.value) * 64 - 12,
                   child: Opacity(
-                    opacity: max(0, (animation.value - 0.5) * 2),
+                    opacity: math.max(0, (animation.value - 0.5) * 2),
                     child: Container(
                       width: (1.0 - animation.value) * 128 + 24,
                       height: (1.0 - animation.value) * 128 + 24,
@@ -520,14 +519,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ),
                 Positioned(
                   left: tapPosition!.dx - 12,
-                  top: min(12 + tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3),
+                  top: math.min(12 + tapPosition!.dy - 256 + 256 * math.max(0, (animation.value - 0.25) * 4 / 3),
                           tapPosition!.dy) -
                       12,
                   child: SizedBox(
                     width: 24,
                     height: 24,
                     child: Opacity(
-                      opacity: max(0, (animation.value - 0.5) * 2),
+                      opacity: math.max(0, (animation.value - 0.5) * 2),
                       child: Image.asset(
                         'assets/images/pin.png',
                         fit: BoxFit.contain,
@@ -537,12 +536,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                 ),
                 Positioned(
                   left: tapPosition!.dx - 12,
-                  top: (tapPosition!.dy - 256 + 256 * max(0, (animation.value - 0.25) * 4 / 3)) - 12,
+                  top: (tapPosition!.dy - 256 + 256 * math.max(0, (animation.value - 0.25) * 4 / 3)) - 12,
                   child: SizedBox(
                     width: 24,
                     height: 24,
                     child: Opacity(
-                      opacity: max(0, (animation.value - 0.5) * 2),
+                      opacity: math.max(0, (animation.value - 0.5) * 2),
                       child: Image.asset(
                         'assets/images/waypoint.drawio.png',
                         fit: BoxFit.contain,
