@@ -26,10 +26,6 @@ class PredictionService implements PredictionComponent {
   @override
   Recommendation? recommendation;
 
-  /// A callback that gets executed when the client is connected.
-  @override
-  late final Function onConnected;
-
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   @override
   late final Function notifyListeners;
@@ -39,6 +35,9 @@ class PredictionService implements PredictionComponent {
   /// status update was calculated based on the prediction.
   @override
   late final Function(SGStatusData)? onNewPredictionStatusDuringRide;
+
+  /// A callback that gets executed when the client is connected.
+  late final Function onConnected;
 
   PredictionService({
     required this.onConnected,
@@ -60,6 +59,9 @@ class PredictionService implements PredictionComponent {
 
   /// The currently subscribed signal group.
   Sg? subscribedSG;
+
+  /// The status data of the current prediction.
+  SGStatusData? currentSGStatusData;
 
   /// Subscribe to the signal group.
   @override
@@ -157,13 +159,14 @@ class PredictionService implements PredictionComponent {
       calculateRecommendation();
       if (prediction != null) predictionServicePredictions.add(prediction!);
       // Notify that a new prediction status was obtained.
-      onNewPredictionStatusDuringRide?.call(SGStatusData(
+      currentSGStatusData = SGStatusData(
         statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
         thingName:
             "hamburg/${prediction!.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
         predictionQuality: prediction!.predictionQuality,
         predictionTime: prediction!.startTime.millisecondsSinceEpoch ~/ 1000,
-      ));
+      );
+      onNewPredictionStatusDuringRide?.call(currentSGStatusData!);
     }
   }
 

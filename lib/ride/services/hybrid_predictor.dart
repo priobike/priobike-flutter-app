@@ -25,10 +25,6 @@ class HybridPredictor implements PredictionComponent {
       ? predictionService?.recommendation
       : predictor?.recommendation;
 
-  /// A callback that gets executed when the client is connected.
-  @override
-  late final Function onConnected;
-
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   @override
   late final Function notifyListeners;
@@ -40,7 +36,6 @@ class HybridPredictor implements PredictionComponent {
   late final Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
   HybridPredictor({
-    required this.onConnected,
     required this.notifyListeners,
     required this.onNewPredictionStatusDuringRide,
   });
@@ -75,10 +70,8 @@ class HybridPredictor implements PredictionComponent {
 
     bool unsubscribed = false;
 
-    // Only handle unsubcribed-status of one (the main) prediction client to avoid false statuses
-    // because of race conditions between the two clients.
     if (predictionService != null) unsubscribed = predictionService!.selectSG(sg);
-    if (predictor != null) predictor!.selectSG(sg);
+    if (predictor != null) unsubscribed = predictor!.selectSG(sg);
 
     return unsubscribed;
   }
@@ -88,15 +81,15 @@ class HybridPredictor implements PredictionComponent {
   Future<void> connectMQTTClient(BuildContext context) async {
     // Hybrid mode -> connect both clients.
     predictionService = PredictionService(
-      onConnected: onConnected,
+      onConnected: onConnectedPredictionService,
       notifyListeners: update,
-      onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
+      onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRideWrapperPredictionService,
     );
     predictionService!.connectMQTTClient(context);
     predictor = Predictor(
-      onConnected: onConnected,
+      onConnected: onConnectedPredictor,
       notifyListeners: update,
-      onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
+      onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRideWrapperPredictor,
     );
     predictor!.connectMQTTClient(context);
   }
@@ -105,6 +98,34 @@ class HybridPredictor implements PredictionComponent {
   void update() {
     updateHybridMode();
     notifyListeners();
+  }
+
+  /// A wrapper for the onNewPredictionStatusDuringRide callback that only calls the original callback
+  /// if we currently selected the prediction service in the hybrid mode or if, depending on the status, we switch the
+  /// hybrid mode selection.
+  void onNewPredictionStatusDuringRideWrapperPredictionService(SGStatusData data) {
+    if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+      onNewPredictionStatusDuringRide?.call(data);
+    }
+  }
+
+  /// A wrapper for the onNewPredictionStatusDuringRide callback that only calls the original callback
+  /// if we currently selected the predictor in the hybrid mode or if, depending on the status, we switch the
+  /// hybrid mode selection.
+  void onNewPredictionStatusDuringRideWrapperPredictor(SGStatusData data) {
+    if (hybridModePredictionMode == PredictionMode.usePredictor) {
+      onNewPredictionStatusDuringRide?.call(data);
+    }
+  }
+
+  /// Callback that gets called when the predictor client established a connection.
+  void onConnectedPredictor() {
+    predictor?.selectSG(currentSG);
+  }
+
+  /// Callback that gets called when the prediction service client established a connection.
+  void onConnectedPredictionService() {
+    predictionService?.selectSG(currentSG);
   }
 
   /// Update the hybrid mode based on some factors (decide what predictions to use (predictionService-predictions or
@@ -152,12 +173,31 @@ class HybridPredictor implements PredictionComponent {
         return;
       }
     }
+    // If one has no "ok" prediction but the other has, use the other one.
+    if (predictionService!.currentSGStatusData?.predictionState != SGPredictionState.ok &&
+        predictor!.currentSGStatusData?.predictionState == SGPredictionState.ok) {
+      if (hybridModePredictionMode != PredictionMode.usePredictor) {
+        hybridModePredictionMode = PredictionMode.usePredictor;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Prediction Service currently has no "ok" prediction, but the predictor has.""");
+      }
+      return;
+    }
+    if (predictionService!.currentSGStatusData?.predictionState == SGPredictionState.ok &&
+        predictor!.currentSGStatusData?.predictionState != SGPredictionState.ok) {
+      if (hybridModePredictionMode != PredictionMode.usePredictionService) {
+        hybridModePredictionMode = PredictionMode.usePredictionService;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+          Reason: Predictor currently has no "ok" prediction, but the prediction service has.""");
+      }
+      return;
+    }
     // If based on the previous checks everything is fine with both prediction clients use the prediction service as
     // default.
     if (hybridModePredictionMode != PredictionMode.usePredictionService) {
+      hybridModePredictionMode = PredictionMode.usePredictionService;
       log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
           Reason: Fallback to default.""");
-      hybridModePredictionMode = PredictionMode.usePredictionService;
     }
   }
 

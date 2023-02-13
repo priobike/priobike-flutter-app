@@ -143,9 +143,7 @@ class Ride with ChangeNotifier {
     } else {
       // Hybrid mode -> connect both clients.
       predictionComponent = HybridPredictor(
-          onConnected: onPredictionComponentClientConnected,
-          notifyListeners: notifyListeners,
-          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
+          notifyListeners: notifyListeners, onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
       predictionComponent!.connectMQTTClient(context);
     }
 

@@ -11,9 +11,6 @@ abstract class PredictionComponent {
   /// The current calculated recommendation during the ride.
   Recommendation? get recommendation;
 
-  /// A callback that gets executed when the client is connected.
-  late final Function onConnected;
-
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   late final Function notifyListeners;
 
