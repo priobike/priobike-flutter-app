@@ -50,5 +50,10 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant SpeedometerPredictionArcPainter oldDelegate) => oldDelegate.isDark != isDark;
+  bool shouldRepaint(covariant SpeedometerPredictionArcPainter oldDelegate) =>
+      oldDelegate.isDark != isDark ||
+      oldDelegate.minSpeed != minSpeed ||
+      oldDelegate.maxSpeed != maxSpeed ||
+      oldDelegate.colors != colors ||
+      oldDelegate.stops != stops;
 }
