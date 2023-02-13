@@ -94,7 +94,7 @@ class HybridPredictor implements PredictionComponent {
     predictor!.connectMQTTClient(context);
   }
 
-  /// A wrapper for the notifyListeners() method used to update the hybrid mode.
+  /// A method that is called by the predictor or prediction service if the prediction changes.
   void update() {
     updateHybridMode();
     notifyListeners();
