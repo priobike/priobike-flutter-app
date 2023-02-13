@@ -210,13 +210,9 @@ class HybridPredictor implements PredictionComponent {
   /// Reset the service.
   @override
   Future<void> reset() async {
-    if (predictionService != null) {
-      predictionService!.reset();
-      predictionService = null;
-    }
-    if (predictor != null) {
-      predictor!.reset();
-      predictor = null;
-    }
+    await predictionService?.reset();
+    predictionService = null;
+    await predictor?.reset();
+    predictor = null;
   }
 }
