@@ -1,17 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
-import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/status/messages/sg.dart';
 
 abstract class PredictionComponent {
-  /// The predictions service predictions received during the ride (TODO bessere Lösung finden).
-  List<PredictionServicePrediction> get predictionServicePredictions;
-
-  /// The predictor predictions received during the ride (TODO bessere Lösung finden).
-  List<PredictorPrediction> get predictorPredictions;
-
   /// The current prediction received during the ride.
   Prediction? get prediction;
 

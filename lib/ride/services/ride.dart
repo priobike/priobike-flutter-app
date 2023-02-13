@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
-import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
@@ -66,28 +65,6 @@ class Ride with ChangeNotifier {
 
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
-
-  /// The currently used client used for the hybrid mode (predictionService or predictor) based on the current
-  /// predictions of both.
-  PredictionMode hybridModePredictionMode = PredictionMode.usePredictionService;
-
-  /// The predictions received during the ride, from the prediction service.
-  List<PredictionServicePrediction> get predictionServicePredictions {
-    if (predictionComponent == null || predictionComponent is Predictor) return [];
-    if (predictionComponent is PredictionService || predictionComponent is HybridPredictor) {
-      return predictionComponent!.predictionServicePredictions;
-    }
-    return [];
-  }
-
-  /// The predictions received during the ride, from the predictor.
-  List<PredictorPrediction> get predictorPredictions {
-    if (predictionComponent == null || predictionComponent is PredictionService) return [];
-    if (predictionComponent is Predictor || predictionComponent is HybridPredictor) {
-      return predictionComponent!.predictorPredictions;
-    }
-    return [];
-  }
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {

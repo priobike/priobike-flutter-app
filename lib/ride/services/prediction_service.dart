@@ -26,14 +26,6 @@ class PredictionService implements PredictionComponent {
   @override
   Recommendation? recommendation;
 
-  /// The predictions received during the ride, from the predictor.
-  @override
-  final List<PredictorPrediction> predictorPredictions = [];
-
-  /// The predictions received during the ride, from the prediction service.
-  @override
-  final List<PredictionServicePrediction> predictionServicePredictions = [];
-
   /// A callback that gets executed when the client is connected.
   @override
   late final Function onConnected;
@@ -56,6 +48,9 @@ class PredictionService implements PredictionComponent {
 
   /// Logger for this class.
   final log = Logger("Prediction-Service");
+
+  /// The predictions received during the ride, from the prediction service.
+  final List<PredictionServicePrediction> predictionServicePredictions = [];
 
   /// The timer that is used to periodically calculate the prediction.
   Timer? calcTimer;

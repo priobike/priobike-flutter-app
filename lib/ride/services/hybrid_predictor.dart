@@ -25,15 +25,6 @@ class HybridPredictor implements PredictionComponent {
       ? predictionService?.recommendation
       : predictor?.recommendation;
 
-  /// The predictions received during the ride, from the predictor.
-  @override
-  List<PredictorPrediction> get predictorPredictions => predictor?.predictorPredictions ?? [];
-
-  /// The predictions received during the ride, from the prediction service.
-  @override
-  List<PredictionServicePrediction> get predictionServicePredictions =>
-      predictionService?.predictionServicePredictions ?? [];
-
   /// A callback that gets executed when the client is connected.
   @override
   late final Function onConnected;
@@ -56,6 +47,13 @@ class HybridPredictor implements PredictionComponent {
 
   /// Logger for this class.
   final log = Logger("Predictor");
+
+  /// The predictions received during the ride, from the predictor.
+  List<PredictorPrediction> get predictorPredictions => predictor?.predictorPredictions ?? [];
+
+  /// The predictions received during the ride, from the prediction service.
+  List<PredictionServicePrediction> get predictionServicePredictions =>
+      predictionService?.predictionServicePredictions ?? [];
 
   /// The predictor component.
   Predictor? predictor;
