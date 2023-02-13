@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 
 enum Phase {
@@ -60,7 +61,7 @@ extension PhaseColor on Phase {
   }
 }
 
-class PredictorPrediction {
+class PredictorPrediction implements Prediction {
   /// Logger for this class.
   final log = Logger("Predictor-Prediction");
 
@@ -86,6 +87,7 @@ class PredictorPrediction {
   final int? programId;
 
   /// The current prediction quality in [0.0, 1.0]. Calculated periodically.
+  @override
   double? predictionQuality;
 
   /// Create a prediction from a JSON map.
@@ -99,6 +101,7 @@ class PredictorPrediction {
         programId = json['programId'] as int?;
 
   /// Write the prediction to a JSON map.
+  @override
   Map<String, dynamic> toJson() => {
         'thingName': thingName,
         'now': base64Encode(now),
@@ -109,6 +112,7 @@ class PredictorPrediction {
         'programId': programId,
       };
 
+  @override
   Future<Recommendation?> calculateRecommendation() async {
     List<Phase> calcPhasesFromNow;
     List<double> calcQualitiesFromNow;
@@ -183,7 +187,7 @@ class PredictorPrediction {
   }
 }
 
-class PredictionServicePrediction {
+class PredictionServicePrediction implements Prediction {
   /// Logger for this class.
   final log = Logger("Prediction-Service-Prediction");
 
@@ -193,6 +197,7 @@ class PredictionServicePrediction {
   /// A value denoting the quality of a prediction.
   /// The value is given in the interval [0.0, 1.0], where
   /// 0.0 is the worst quality and 1.0 is the best quality.
+  @override
   double predictionQuality;
 
   /// The signal group id for the prediction.
@@ -217,6 +222,7 @@ class PredictionServicePrediction {
         value = (json['value'] as List<dynamic>).cast<int>();
 
   /// Write the prediction to a JSON map.
+  @override
   Map<String, dynamic> toJson() => {
         'greentimeThreshold': greentimeThreshold,
         'predictionQuality': predictionQuality,
@@ -225,6 +231,7 @@ class PredictionServicePrediction {
         'value': value,
       };
 
+  @override
   Future<Recommendation?> calculateRecommendation() async {
     List<Phase> calcPhasesFromNow;
     List<double> calcQualitiesFromNow;

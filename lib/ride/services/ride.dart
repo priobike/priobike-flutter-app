@@ -4,8 +4,8 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
@@ -18,52 +18,6 @@ import 'package:provider/provider.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
-
-abstract class PredictionComponent {
-  /// A boolean indicating if the navigation is active.
-  set navigationIsActive(bool value);
-
-  /// The predictions service predictions received during the ride (TODO bessere Lösung finden).
-  List<PredictionServicePrediction> get predictionServicePredictions;
-
-  /// The predictor predictions received during the ride (TODO bessere Lösung finden).
-  List<PredictorPrediction> get predictorPredictions;
-
-  /// The current prediction received during the ride.
-  dynamic get prediction;
-
-  /// The current calculated recommendation during the ride.
-  Recommendation? get recommendation;
-
-  /// The currently subscribed signal group.
-  Sg? subscribedSG;
-
-  /// A callback that gets executed when the client is connected.
-  late final Function onConnected;
-
-  /// A callback that gets executed when the parent provider should call the notifyListeners function.
-  late final Function notifyListeners;
-
-  /// The callback that gets executed when a new prediction
-  /// was received from the prediction service and a new
-  /// status update was calculated based on the prediction.
-  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
-
-  PredictionComponent(
-      {required this.onConnected, required this.notifyListeners, required this.onNewPredictionStatusDuringRide});
-
-  /// Subscribe to the signal group.
-  void selectSG(Sg? sg);
-
-  /// Establish a connection with the MQTT client.
-  Future<void> connectMQTTClient(BuildContext context);
-
-  /// Stop the navigation.
-  Future<void> stopNavigation();
-
-  /// Reset the service.
-  Future<void> reset();
-}
 
 class Ride with ChangeNotifier {
   /// Logger for this class.
@@ -117,16 +71,6 @@ class Ride with ChangeNotifier {
   /// predictions of both.
   PredictionMode hybridModePredictionMode = PredictionMode.usePredictionService;
 
-  /// The predicted current signal phase, calculated periodically.
-  dynamic get prediction {
-    return predictionComponent?.prediction;
-  }
-
-  /// The current calculated recommendation during the ride.
-  Recommendation? get recommendation {
-    return predictionComponent?.recommendation;
-  }
-
   /// The predictions received during the ride, from the prediction service.
   List<PredictionServicePrediction> get predictionServicePredictions {
     if (predictionComponent == null || predictionComponent is Predictor) return [];
@@ -148,8 +92,9 @@ class Ride with ChangeNotifier {
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
-    predictionComponent?.selectSG(sg);
-    // TODO beim unsubscriben irgendwie "calcDistanceToNextSG = null" machen
+    bool? unsubscribed = predictionComponent?.selectSG(sg);
+
+    if (unsubscribed ?? false) calcDistanceToNextSG = null;
 
     onSelectNextSignalGroup?.call(calcCurrentSG);
   }
@@ -207,30 +152,24 @@ class Ride with ChangeNotifier {
     if (predictionMode == PredictionMode.usePredictionService) {
       // Connect the prediction service MQTT client.
       predictionComponent = PredictionService(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
-      );
+          onConnected: onPredictionComponentClientConnected,
+          notifyListeners: notifyListeners,
+          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
       predictionComponent!.connectMQTTClient(context);
-      predictionComponent!.navigationIsActive = true;
     } else if (predictionMode == PredictionMode.usePredictor) {
       // Connect the predictor MQTT client.
       predictionComponent = Predictor(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
-      );
+          onConnected: onPredictionComponentClientConnected,
+          notifyListeners: notifyListeners,
+          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
       predictionComponent!.connectMQTTClient(context);
-      predictionComponent!.navigationIsActive = true;
     } else {
       // Hybrid mode -> connect both clients.
       predictionComponent = HybridPredictor(
-        onConnected: onPredictionComponentClientConnected,
-        notifyListeners: notifyListeners,
-        onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide,
-      );
+          onConnected: onPredictionComponentClientConnected,
+          notifyListeners: notifyListeners,
+          onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
       predictionComponent!.connectMQTTClient(context);
-      predictionComponent!.navigationIsActive = true;
     }
 
     // Mark that navigation is now active.

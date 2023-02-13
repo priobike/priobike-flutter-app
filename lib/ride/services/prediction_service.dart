@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -17,18 +18,6 @@ import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionService implements PredictionComponent {
-  /// Logger for this class.
-  final log = Logger("Prediction-Service");
-
-  /// A boolean indicating if the navigation is active.
-  var navigationIsActive = false;
-
-  /// The timer that is used to periodically calculate the prediction.
-  Timer? calcTimer;
-
-  /// The prediction client.
-  MqttServerClient? client;
-
   /// The current prediction.
   @override
   PredictionServicePrediction? prediction;
@@ -36,10 +25,6 @@ class PredictionService implements PredictionComponent {
   /// The current recommendation, calculated periodically.
   @override
   Recommendation? recommendation;
-
-  /// The currently subscribed signal group.
-  @override
-  Sg? subscribedSG;
 
   /// The predictions received during the ride, from the predictor.
   @override
@@ -61,15 +46,32 @@ class PredictionService implements PredictionComponent {
   /// was received from the prediction service and a new
   /// status update was calculated based on the prediction.
   @override
-  void Function(SGStatusData)? onNewPredictionStatusDuringRide;
+  late final Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
-  PredictionService(
-      {required this.onConnected, required this.notifyListeners, required this.onNewPredictionStatusDuringRide});
+  PredictionService({
+    required this.onConnected,
+    required this.notifyListeners,
+    required this.onNewPredictionStatusDuringRide,
+  });
+
+  /// Logger for this class.
+  final log = Logger("Prediction-Service");
+
+  /// The timer that is used to periodically calculate the prediction.
+  Timer? calcTimer;
+
+  /// The prediction client.
+  MqttServerClient? client;
+
+  /// The currently subscribed signal group.
+  Sg? subscribedSG;
 
   /// Subscribe to the signal group.
   @override
-  void selectSG(Sg? sg) {
-    if (!navigationIsActive || client == null) return;
+  bool selectSG(Sg? sg) {
+    if (client == null) return false;
+
+    bool unsubscribed = false;
 
     if (subscribedSG != null && subscribedSG != sg) {
       log.i("Unsubscribing from signal group ${subscribedSG?.id}");
@@ -78,6 +80,7 @@ class PredictionService implements PredictionComponent {
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
       recommendation = null;
+      unsubscribed = true;
     }
 
     if (sg != null && sg != subscribedSG) {
@@ -86,6 +89,8 @@ class PredictionService implements PredictionComponent {
     }
 
     subscribedSG = sg;
+
+    return unsubscribed;
   }
 
   /// Establish a connection with the MQTT client.
@@ -136,7 +141,8 @@ class PredictionService implements PredictionComponent {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
       }
-      if (navigationIsActive) {
+      final ride = Provider.of<Ride>(context, listen: false);
+      if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));
         connectMQTTClient(context);
       }
@@ -167,8 +173,6 @@ class PredictionService implements PredictionComponent {
   }
 
   Future<void> calculateRecommendation() async {
-    if (!navigationIsActive) return;
-
     // This will be executed if we fail somewhere.
     onFailure(reason) {
       log.w("Failed to calculate predictor info: $reason");
@@ -191,13 +195,11 @@ class PredictionService implements PredictionComponent {
       client?.disconnect();
       client = null;
     }
-    navigationIsActive = false;
   }
 
   /// Reset the service.
   @override
   Future<void> reset() async {
-    navigationIsActive = false;
     if (client != null) {
       client?.disconnect();
       client = null;
