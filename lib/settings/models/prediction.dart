@@ -12,7 +12,7 @@ extension PredictionModeDescription on PredictionMode {
       case PredictionMode.usePredictor:
         return "Experimentell";
       case PredictionMode.hybrid:
-        return "Experimentell-Hybrid";
+        return "Hybrid";
     }
   }
 
@@ -23,7 +23,7 @@ extension PredictionModeDescription on PredictionMode {
       case PredictionMode.usePredictor:
         return "predictor-nginx/status";
       case PredictionMode.hybrid:
-        return "";
+        return "prediction-monitor-nginx";
     }
   }
 }
