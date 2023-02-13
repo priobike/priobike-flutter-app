@@ -130,48 +130,6 @@ class HybridPredictor implements PredictionComponent {
   /// Update the hybrid mode based on some factors (decide what predictions to use (predictionService-predictions or
   /// predictor-predictions)).
   void updateHybridMode() {
-    // Basic availability checks.
-    if (predictionService == null && predictor == null) return;
-    if (predictionService?.client == null && predictor?.client == null) return;
-    // If one is currently not connected/subscribed use the other one.
-    if ((predictionService?.client == null || predictionService!.subscribedSG == null) &&
-        (predictor?.client != null && predictor!.subscribedSG != null)) {
-      if (currentMode != PredictionMode.usePredictor) {
-        currentMode = PredictionMode.usePredictor;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
-          Reason: Prediction service is not ${predictionService?.client == null ? "connected." : "subscribed."}""");
-      }
-      return;
-    }
-    if ((predictor?.client == null || predictor!.subscribedSG == null) &&
-        (predictionService?.client != null && predictionService!.subscribedSG != null)) {
-      if (currentMode != PredictionMode.usePredictionService) {
-        currentMode = PredictionMode.usePredictionService;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
-          Reason: Predictor is not ${predictor?.client == null ? "connected." : "subscribed."}""");
-      }
-      return;
-    }
-    // If one is currently subscribed to the wrong signal group use the other one.
-    if (predictionService!.subscribedSG != predictor!.subscribedSG) {
-      if (currentSG == null) return;
-      if (predictionService!.subscribedSG!.id != currentSG!.id && predictor!.subscribedSG!.id == currentSG!.id) {
-        if (currentMode != PredictionMode.usePredictor) {
-          currentMode = PredictionMode.usePredictor;
-          log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
-          Reason: Prediction service currently subscribes to the wrong SG.""");
-        }
-        return;
-      }
-      if (predictionService!.subscribedSG!.id == currentSG!.id && predictor!.subscribedSG!.id != currentSG!.id) {
-        if (currentMode != PredictionMode.usePredictionService) {
-          currentMode = PredictionMode.usePredictionService;
-          log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
-          Reason: Predictor currently subscribes to the wrong SG.""");
-        }
-        return;
-      }
-    }
     // If one has no "ok" prediction but the other has, use the other one.
     if (predictionService!.currentSGStatusData?.predictionState != SGPredictionState.ok &&
         predictor!.currentSGStatusData?.predictionState == SGPredictionState.ok) {

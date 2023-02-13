@@ -77,6 +77,7 @@ class Predictor implements PredictionComponent {
       // Reset all values that were calculated for the previous signal group.
       prediction = null;
       recommendation = null;
+      currentSGStatusData = null;
       unsubscribed = true;
     }
 
@@ -201,5 +202,6 @@ class Predictor implements PredictionComponent {
     predictorPredictions.clear();
     prediction = null;
     recommendation = null;
+    currentSGStatusData = null;
   }
 }
