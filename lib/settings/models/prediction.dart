@@ -23,6 +23,7 @@ extension PredictionModeDescription on PredictionMode {
       case PredictionMode.usePredictor:
         return "predictor-nginx/status";
       case PredictionMode.hybrid:
+        // Use statuses of the prediction service.
         return "prediction-monitor-nginx";
     }
   }

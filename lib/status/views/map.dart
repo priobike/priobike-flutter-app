@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -11,13 +10,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
-import 'package:priobike/http.dart';
-import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SGStatusMapViewLegendElement {
   final String title;
@@ -37,185 +33,31 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
 
-  /// The logger for this service.
-  final log = Logger("SGStatusMapViewState");
-
-  /// The status map location features.
-  Map<String, dynamic>? featuresLocs;
-
-  /// The status map line features.
-  Map<String, dynamic>? featuresLanes;
-
-  /// Indicates if the features are currently fetched/merged/loaded.
-  bool loading = true;
-
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
-  }
-
-  /// Fetch the geojsons.
-  Future<Map<String, dynamic>?> fetch(String baseUrl, PredictionMode predictionMode, String fileName) async {
-    try {
-      var url = "https://$baseUrl/${predictionMode.statusProviderSubPath}/$fileName";
-      final endpoint = Uri.parse(url);
-
-      final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
-      if (response.statusCode != 200) {
-        final err = "Error while fetching prediction status from $endpoint: ${response.statusCode}";
-        throw Exception(err);
-      }
-      log.i("Fetched $fileName-features for status map (${predictionMode.name}).");
-      return jsonDecode(response.body);
-    } catch (e, stack) {
-      final hint = "Error while fetching prediction status: $e";
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
-      log.e(hint);
-      return null;
-    }
-  }
-
-  /// Merge the features of the prediction service and the predictor.
-  Map<String, dynamic> mergeFeatureCollections(
-      Map<String, dynamic> featuresPredictionService, Map<String, dynamic> featuresPredictor) {
-    Map<String, dynamic> mergedFeatures = {
-      "type": "FeatureCollection",
-      "features": [],
-    };
-    int predictionServiceFeatureCount = 0;
-    int predictorFeatureCount = 0;
-    // Iterate over features of prediction service.
-    for (var i = 0; i < featuresPredictionService["features"].length; i++) {
-      final featurePredictionService = featuresPredictionService["features"][i];
-      var featurePredictor =
-          i >= (featuresPredictor["features"] as List).length ? null : featuresPredictor["features"][i];
-      // If they are not in the same order (the index does not result in the same thing name)
-      // find the predictor feature that corresponds to the prediction service feature.
-      if (featurePredictor == null ||
-          featurePredictionService["properties"]["thing_name"] != featurePredictor["properties"]["thing_name"]) {
-        featurePredictor = featuresPredictor["features"].firstWhere(
-            (element) => element["properties"]["thing_name"] == featurePredictionService["properties"]["thing_name"],
-            orElse: () => null);
-      }
-      // If there doesn't exist a feature of the predictor that corresponds to the feature of the prediction service,
-      // just take the prediction service feature.
-      if (featurePredictionService["properties"]["thing_name"] != featurePredictor?["properties"]["thing_name"]) {
-        mergedFeatures["features"].add(featurePredictionService);
-        predictionServiceFeatureCount++;
-        continue;
-      }
-      // If the prediction service feature contains an available prediction and the predictor feature not,
-      // take the prediction service feature.
-      if (featurePredictionService["properties"]["prediction_available"] &&
-          !featurePredictor["properties"]["prediction_available"]) {
-        mergedFeatures["features"].add(featurePredictionService);
-        predictionServiceFeatureCount++;
-        continue;
-      }
-      // If the predictor feature contains an available prediction and the prediction service feature not,
-      // take the predictor feature.
-      if (!featurePredictionService["properties"]["prediction_available"] &&
-          featurePredictor["properties"]["prediction_available"]) {
-        mergedFeatures["features"].add(featurePredictor);
-        predictorFeatureCount++;
-        continue;
-      }
-      mergedFeatures["features"].add(featurePredictionService);
-      predictionServiceFeatureCount++;
-    }
-    log.i(
-        """Used $predictionServiceFeatureCount features from prediction service and $predictorFeatureCount features from predictor during merge.
-    ${featuresPredictionService["features"].length} features at prediction service and ${featuresPredictor["features"].length} features at predictor in total.
-    """);
-    return mergedFeatures;
   }
 
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
-    setState(() {
-      loading = true;
-    });
-
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-
-    // Get the location features.
-    if (settings.predictionMode != PredictionMode.hybrid) {
-      featuresLocs = await fetch(baseUrl, settings.predictionMode, "predictions-locations.geojson");
-    } else {
-      // Perform fusion of both prediction mode statuses.
-      final featuresPredictionService =
-          await fetch(baseUrl, PredictionMode.usePredictionService, "predictions-locations.geojson");
-      final featuresPredictor = await fetch(baseUrl, PredictionMode.usePredictor, "predictions-locations.geojson");
-
-      if (featuresPredictionService == null && featuresPredictor == null) {
-        setState(() {
-          loading = false;
-        });
-        return;
-      }
-
-      // If one endpoint doesn't return anything use the other one.
-      if (featuresPredictionService == null) featuresLocs = featuresPredictor;
-      if (featuresPredictor == null) featuresLocs = featuresPredictionService;
-
-      // The actual fusion.
-      featuresLocs ??= mergeFeatureCollections(featuresPredictionService!, featuresPredictor!);
-    }
-
-    if (featuresLocs == null) {
-      setState(() {
-        loading = false;
-      });
-      return;
-    }
+    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
     final sourceLocsExists = await mapController?.style.styleSourceExists("sg-locs");
     if (sourceLocsExists != null && !sourceLocsExists) {
       await mapController?.style.addSource(
-        mapbox.GeoJsonSource(id: "sg-locs", data: jsonEncode(featuresLocs)),
+        mapbox.GeoJsonSource(
+            id: "sg-locs", data: "https://$baseUrl/$statusProviderSubPath/predictions-locations.geojson"),
       );
-    }
-
-    // Get the lane features.
-    if (settings.predictionMode != PredictionMode.hybrid) {
-      featuresLanes = await fetch(baseUrl, settings.predictionMode, "predictions-lanes.geojson");
-    } else {
-      // Perform fusion of both prediction mode statuses.
-      final featuresPredictionService =
-          await fetch(baseUrl, PredictionMode.usePredictionService, "predictions-lanes.geojson");
-      final featuresPredictor = await fetch(baseUrl, PredictionMode.usePredictor, "predictions-lanes.geojson");
-
-      if (featuresPredictionService == null && featuresPredictor == null) {
-        setState(() {
-          loading = false;
-        });
-        return;
-      }
-
-      // If one endpoint doesn't return anything use the other one.
-      if (featuresPredictionService == null) featuresLanes = featuresPredictor;
-      if (featuresPredictor == null) featuresLanes = featuresPredictionService;
-
-      // The actual fusion.
-      featuresLanes ??= mergeFeatureCollections(featuresPredictionService!, featuresPredictor!);
-    }
-
-    if (featuresLanes == null) {
-      setState(() {
-        loading = false;
-      });
-      return;
     }
 
     final sourceSGLanesExists = await mapController?.style.styleSourceExists("sg-lanes");
     if (sourceSGLanesExists != null && !sourceSGLanesExists) {
       await mapController?.style.addSource(
-        mapbox.GeoJsonSource(id: "sg-lanes", data: jsonEncode(featuresLanes)),
+        mapbox.GeoJsonSource(id: "sg-lanes", data: "https://$baseUrl/$statusProviderSubPath/predictions-lanes.geojson"),
       );
     }
 
@@ -424,9 +266,6 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
             ],
           ));
     }
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
@@ -476,33 +315,29 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
                     fill: Theme.of(context).colorScheme.background,
                     content: SizedBox(
                       height: 60,
-                      child: loading
-                          ? const Center(
-                              child: CircularProgressIndicator(),
-                            )
-                          : Column(
-                              children: legend
-                                  .map(
-                                    (e) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 4),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: 16,
-                                            width: 16,
-                                            decoration: BoxDecoration(
-                                              color: e.color,
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          const HSpace(),
-                                          Small(text: e.title, context: context),
-                                        ],
+                      child: Column(
+                        children: legend
+                            .map(
+                              (e) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 16,
+                                      width: 16,
+                                      decoration: BoxDecoration(
+                                        color: e.color,
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                            ),
+                                    const HSpace(),
+                                    Small(text: e.title, context: context),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   ),
                 ),
