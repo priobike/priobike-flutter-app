@@ -189,10 +189,8 @@ class PredictionService implements PredictionComponent {
   Future<void> stopNavigation() async {
     calcTimer?.cancel();
     calcTimer = null;
-    if (client != null) {
-      client?.disconnect();
-      client = null;
-    }
+    client?.disconnect();
+    client = null;
   }
 
   /// Reset the service.
