@@ -18,14 +18,6 @@ class NavBarView extends StatelessWidget {
 
   const NavBarView({this.onTapSettingsButton, this.onTapNotificationButton, Key? key}) : super(key: key);
 
-  /// Get a greeting for the current time of day.
-  get greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return "Guten Morgen";
-    if (hour < 18) return "Guten Tag";
-    return "Guten Abend";
-  }
-
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<Settings>(context, listen: false);
@@ -79,7 +71,7 @@ class NavBarView extends StatelessWidget {
                       context: context,
                     ),
                   ),
-                  BoldContent(text: greeting, color: Colors.white, context: context),
+                  BoldContent(text: "Moin!", color: Colors.white, context: context),
                 ],
               ),
               const SmallVSpace(),
