@@ -140,9 +140,9 @@ class TrafficLightLayer {
   TrafficLightLayer(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ride = Provider.of<Ride>(context, listen: false);
-    final sgQuality = ride.prediction?.predictionQuality;
+    final sgQuality = ride.predictionComponent?.prediction?.predictionQuality;
     String sgIcon;
-    switch (ride.recommendation?.calcCurrentSignalPhase) {
+    switch (ride.predictionComponent?.recommendation?.calcCurrentSignalPhase) {
       case Phase.green:
         if (isDark) {
           sgIcon = "trafficlightonlinegreendark";

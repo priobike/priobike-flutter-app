@@ -119,7 +119,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
   /// Load the gauge colors and steps, from the predictor.
   Future<void> loadGauge(Ride ride) async {
-    if (ride.recommendation == null || ride.recommendation == null || ride.calcDistanceToNextSG == null) {
+    if (ride.predictionComponent?.recommendation == null || ride.calcDistanceToNextSG == null) {
       gaugeColors = [defaultGaugeColor, defaultGaugeColor];
       gaugeStops = [0.0, 1.0];
       return;
@@ -135,8 +135,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
       return;
     }
 
-    final phases = ride.recommendation!.calcPhasesFromNow;
-    final qualities = ride.recommendation!.calcQualitiesFromNow;
+    final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
+    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
 
     var colors = <Color>[];
     for (var i = 0; i < phases.length; i++) {

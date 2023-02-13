@@ -11,6 +11,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/services/hybrid_predictor.dart';
+import 'package:priobike/ride/services/prediction_service.dart';
+import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -330,8 +333,17 @@ class Tracking with ChangeNotifier {
     track?.endTime = DateTime.now().millisecondsSinceEpoch;
 
     final ride = Provider.of<Ride>(context, listen: false);
-    track?.predictionServicePredictions = ride.predictionServicePredictions;
-    track?.predictorPredictions = ride.predictorPredictions;
+    if (ride.predictionComponent is PredictionService) {
+      track?.predictionServicePredictions =
+          (ride.predictionComponent! as PredictionService).predictionServicePredictions;
+      track?.predictorPredictions = [];
+    } else if (ride.predictionComponent is Predictor) {
+      track?.predictorPredictions = (ride.predictionComponent! as Predictor).predictorPredictions;
+      track?.predictionServicePredictions = [];
+    } else if (ride.predictionComponent is HybridPredictor) {
+      track?.predictorPredictions = (ride.predictionComponent! as HybridPredictor).predictorPredictions;
+      track?.predictionServicePredictions = (ride.predictionComponent! as HybridPredictor).predictionServicePredictions;
+    }
 
     // Stop collecting data.
     await stopCollectingMagData();
