@@ -131,8 +131,8 @@ class HybridPredictor implements PredictionComponent {
   /// predictor-predictions)).
   void updateHybridMode() {
     // If one has no "ok" prediction but the other has, use the other one.
-    if (predictionService!.currentSGStatusData?.predictionState != SGPredictionState.ok &&
-        predictor!.currentSGStatusData?.predictionState == SGPredictionState.ok) {
+    if (predictionService?.currentSGStatusData?.predictionState != SGPredictionState.ok &&
+        predictor?.currentSGStatusData?.predictionState == SGPredictionState.ok) {
       if (currentMode != PredictionMode.usePredictor) {
         currentMode = PredictionMode.usePredictor;
         log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
@@ -140,8 +140,8 @@ class HybridPredictor implements PredictionComponent {
       }
       return;
     }
-    if (predictionService!.currentSGStatusData?.predictionState == SGPredictionState.ok &&
-        predictor!.currentSGStatusData?.predictionState != SGPredictionState.ok) {
+    if (predictionService?.currentSGStatusData?.predictionState == SGPredictionState.ok &&
+        predictor?.currentSGStatusData?.predictionState != SGPredictionState.ok) {
       if (currentMode != PredictionMode.usePredictionService) {
         currentMode = PredictionMode.usePredictionService;
         log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
