@@ -231,10 +231,8 @@ class Ride with ChangeNotifier {
   Future<void> reset() async {
     route = null;
     navigationIsActive = false;
-    if (predictionComponent != null) {
-      predictionComponent!.reset();
-      predictionComponent = null;
-    }
+    await predictionComponent?.reset();
+    predictionComponent = null;
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
