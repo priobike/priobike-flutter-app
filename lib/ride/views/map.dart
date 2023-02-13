@@ -257,7 +257,7 @@ class RideMapViewState extends State<RideMapView> {
     await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 3);
     await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 4);
+        .install(mapController!, iconSize: ppi / 3);
     await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
     // The traffic light layer image has a 2x resolution to make it look good on high DPI screens.
     await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 6);
