@@ -15,13 +15,12 @@ import 'package:priobike/status/messages/sg.dart';
 class HybridPredictor implements PredictionComponent {
   /// The current prediction.
   @override
-  Prediction? get prediction => hybridModePredictionMode == PredictionMode.usePredictionService
-      ? predictionService?.prediction
-      : predictor?.prediction;
+  Prediction? get prediction =>
+      currentMode == PredictionMode.usePredictionService ? predictionService?.prediction : predictor?.prediction;
 
   /// The current recommendation, calculated periodically.
   @override
-  Recommendation? get recommendation => hybridModePredictionMode == PredictionMode.usePredictionService
+  Recommendation? get recommendation => currentMode == PredictionMode.usePredictionService
       ? predictionService?.recommendation
       : predictor?.recommendation;
 
@@ -58,7 +57,7 @@ class HybridPredictor implements PredictionComponent {
 
   /// The currently used client used for the hybrid mode (predictionService or predictor) based on the current
   /// predictions of both.
-  PredictionMode hybridModePredictionMode = PredictionMode.usePredictionService;
+  PredictionMode currentMode = PredictionMode.usePredictionService;
 
   /// The current SG (either selected by the user or by the current position on the route)
   Sg? currentSG;
@@ -104,7 +103,7 @@ class HybridPredictor implements PredictionComponent {
   /// if we currently selected the prediction service in the hybrid mode or if, depending on the status, we switch the
   /// hybrid mode selection.
   void onNewPredictionStatusDuringRideWrapperPredictionService(SGStatusData data) {
-    if (hybridModePredictionMode == PredictionMode.usePredictionService) {
+    if (currentMode == PredictionMode.usePredictionService) {
       onNewPredictionStatusDuringRide?.call(data);
     }
   }
@@ -113,7 +112,7 @@ class HybridPredictor implements PredictionComponent {
   /// if we currently selected the predictor in the hybrid mode or if, depending on the status, we switch the
   /// hybrid mode selection.
   void onNewPredictionStatusDuringRideWrapperPredictor(SGStatusData data) {
-    if (hybridModePredictionMode == PredictionMode.usePredictor) {
+    if (currentMode == PredictionMode.usePredictor) {
       onNewPredictionStatusDuringRide?.call(data);
     }
   }
@@ -137,18 +136,18 @@ class HybridPredictor implements PredictionComponent {
     // If one is currently not connected/subscribed use the other one.
     if ((predictionService?.client == null || predictionService!.subscribedSG == null) &&
         (predictor?.client != null && predictor!.subscribedSG != null)) {
-      if (hybridModePredictionMode != PredictionMode.usePredictor) {
-        hybridModePredictionMode = PredictionMode.usePredictor;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+      if (currentMode != PredictionMode.usePredictor) {
+        currentMode = PredictionMode.usePredictor;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Prediction service is not ${predictionService?.client == null ? "connected." : "subscribed."}""");
       }
       return;
     }
     if ((predictor?.client == null || predictor!.subscribedSG == null) &&
         (predictionService?.client != null && predictionService!.subscribedSG != null)) {
-      if (hybridModePredictionMode != PredictionMode.usePredictionService) {
-        hybridModePredictionMode = PredictionMode.usePredictionService;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+      if (currentMode != PredictionMode.usePredictionService) {
+        currentMode = PredictionMode.usePredictionService;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Predictor is not ${predictor?.client == null ? "connected." : "subscribed."}""");
       }
       return;
@@ -157,17 +156,17 @@ class HybridPredictor implements PredictionComponent {
     if (predictionService!.subscribedSG != predictor!.subscribedSG) {
       if (currentSG == null) return;
       if (predictionService!.subscribedSG!.id != currentSG!.id && predictor!.subscribedSG!.id == currentSG!.id) {
-        if (hybridModePredictionMode != PredictionMode.usePredictor) {
-          hybridModePredictionMode = PredictionMode.usePredictor;
-          log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+        if (currentMode != PredictionMode.usePredictor) {
+          currentMode = PredictionMode.usePredictor;
+          log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Prediction service currently subscribes to the wrong SG.""");
         }
         return;
       }
       if (predictionService!.subscribedSG!.id == currentSG!.id && predictor!.subscribedSG!.id != currentSG!.id) {
-        if (hybridModePredictionMode != PredictionMode.usePredictionService) {
-          hybridModePredictionMode = PredictionMode.usePredictionService;
-          log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+        if (currentMode != PredictionMode.usePredictionService) {
+          currentMode = PredictionMode.usePredictionService;
+          log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Predictor currently subscribes to the wrong SG.""");
         }
         return;
@@ -176,27 +175,27 @@ class HybridPredictor implements PredictionComponent {
     // If one has no "ok" prediction but the other has, use the other one.
     if (predictionService!.currentSGStatusData?.predictionState != SGPredictionState.ok &&
         predictor!.currentSGStatusData?.predictionState == SGPredictionState.ok) {
-      if (hybridModePredictionMode != PredictionMode.usePredictor) {
-        hybridModePredictionMode = PredictionMode.usePredictor;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+      if (currentMode != PredictionMode.usePredictor) {
+        currentMode = PredictionMode.usePredictor;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Prediction Service currently has no "ok" prediction, but the predictor has.""");
       }
       return;
     }
     if (predictionService!.currentSGStatusData?.predictionState == SGPredictionState.ok &&
         predictor!.currentSGStatusData?.predictionState != SGPredictionState.ok) {
-      if (hybridModePredictionMode != PredictionMode.usePredictionService) {
-        hybridModePredictionMode = PredictionMode.usePredictionService;
-        log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+      if (currentMode != PredictionMode.usePredictionService) {
+        currentMode = PredictionMode.usePredictionService;
+        log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Predictor currently has no "ok" prediction, but the prediction service has.""");
       }
       return;
     }
     // If based on the previous checks everything is fine with both prediction clients use the prediction service as
     // default.
-    if (hybridModePredictionMode != PredictionMode.usePredictionService) {
-      hybridModePredictionMode = PredictionMode.usePredictionService;
-      log.i("""Update hybrid prediction mode: Now using predictions from: ${hybridModePredictionMode.name}
+    if (currentMode != PredictionMode.usePredictionService) {
+      currentMode = PredictionMode.usePredictionService;
+      log.i("""Update hybrid prediction mode: Now using predictions from: ${currentMode.name}
           Reason: Fallback to default.""");
     }
   }
