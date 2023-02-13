@@ -196,10 +196,8 @@ class PredictionService implements PredictionComponent {
   /// Reset the service.
   @override
   Future<void> reset() async {
-    if (client != null) {
-      client?.disconnect();
-      client = null;
-    }
+    client?.disconnect();
+    client = null;
     predictionServicePredictions.clear();
     prediction = null;
     recommendation = null;
