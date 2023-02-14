@@ -151,6 +151,10 @@ class Routing with ChangeNotifier {
       selectedWaypoints = [waypoint];
     } else {
       selectedWaypoints!.add(waypoint);
+      // Apparently those values have to be reset before loading the route.
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
     }
     notifyListeners();
   }
