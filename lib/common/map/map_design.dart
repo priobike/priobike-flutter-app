@@ -57,7 +57,7 @@ class MapDesign {
     name: 'PrioBike',
     lightStyle: 'mapbox://styles/snrmtths/cl77mab5k000214mkk26ewqqu',
     lightScreenshot: 'assets/images/screenshots/standard-light.png',
-    darkStyle: 'mapbox://styles/mapbox/dark-v10',
+    darkStyle: 'mapbox://styles/snrmtths/cle4gkymg001t01nwazajfyod',
     darkScreenshot: 'assets/images/screenshots/standard-dark.png',
   );
 
