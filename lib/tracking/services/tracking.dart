@@ -470,14 +470,8 @@ class Tracking with ChangeNotifier {
     if (!track.hasFileData || !track.uploaded) return false;
     log.i("Cleaning up track with id ${track.sessionId}.");
     // Delete the track files.
-    final gpsFile = await track.gpsCSVFile;
-    if (await gpsFile.exists()) await gpsFile.delete();
-    final accFile = await track.accelerometerCSVFile;
-    if (await accFile.exists()) await accFile.delete();
-    final gyrFile = await track.gyroscopeCSVFile;
-    if (await gyrFile.exists()) await gyrFile.delete();
-    final magFile = await track.magnetometerCSVFile;
-    if (await magFile.exists()) await magFile.delete();
+    final directory = await track.trackDirectory;
+    if (await directory.exists()) await directory.delete(recursive: true);
     log.i("Cleaned uploaded files for track with id ${track.sessionId}.");
     track.hasFileData = false;
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
@@ -509,7 +503,7 @@ class Tracking with ChangeNotifier {
       }
       // Delete the track files if they were sent to the server.
       var cleaned = 0;
-      final tracksToClean = previousTracks?.where((t) => t.uploaded).toList() ?? [];
+      final tracksToClean = previousTracks?.where((t) => t.uploaded && t.hasFileData).toList() ?? [];
       for (final track in tracksToClean) {
         if (await cleanup(track)) cleaned++;
       }
