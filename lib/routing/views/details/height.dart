@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/routing_view.dart';
@@ -84,13 +85,16 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   Widget build(BuildContext context) {
     if (routing.selectedRoute == null || series == null) return Container();
 
-    processRouteData();
+    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+        ? charts.MaterialPalette.white
+        : charts.MaterialPalette.black;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const SmallVSpace(),
           settings.routingView == RoutingViewOption.beta
               ? Container()
               : BoldContent(
@@ -100,10 +104,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              RotatedBox(
-                quarterTurns: -1,
-                child: Small(text: "Höhe in Meter", context: context),
-              ),
               Expanded(
                 child: SizedBox(
                   height: 128,
@@ -112,7 +112,9 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                     animate: true,
                     defaultRenderer: charts.LineRendererConfig(
                       includeArea: true,
-                      strokeWidthPx: 4,
+                      strokeWidthPx: 3,
+                      roundEndCaps: true,
+                      areaOpacity: 0.5,
                     ),
                     domainAxis: charts.NumericAxisSpec(
                       viewport: charts.NumericExtents(
@@ -124,18 +126,42 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                         desiredMinTickCount: 3,
                         dataIsInWholeNumbers: false,
                       ),
+                      renderSpec: charts.GridlineRendererSpec(
+                        labelStyle: charts.TextStyleSpec(
+                          fontSize: 12,
+                          color: chartAxesColor,
+                        ),
+                        lineStyle: const charts.LineStyleSpec(
+                          color: charts.MaterialPalette.transparent,
+                        ),
+                      ),
                     ),
-                    primaryMeasureAxis: const charts.NumericAxisSpec(
+                    primaryMeasureAxis: charts.NumericAxisSpec(
                       showAxisLine: false,
-                      tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
                         zeroBound: true,
+                        desiredTickCount: 3,
+                      ),
+                      renderSpec: charts.GridlineRendererSpec(
+                        labelStyle: charts.TextStyleSpec(
+                          fontSize: 12,
+                          color: chartAxesColor,
+                        ),
+                        lineStyle: charts.LineStyleSpec(
+                          color: chartAxesColor,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Small(text: "Höhe in Meter", context: context),
+              ),
             ],
           ),
+          const SmallVSpace(),
           Small(text: "Distanz der Route in Kilometer", context: context),
         ],
       ),
