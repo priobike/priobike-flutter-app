@@ -9,6 +9,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/map_settings.dart';
@@ -34,10 +35,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  /// The associated mapController service, which is injected by the provider.
-  late MapSettings mapController;
-
-  /// The associated shortcuts service, which is injected by the provider.
+  /// The associated MapSettings service, which is injected by the provider.
   late MapSettings mapSettings;
 
   /// The associated geocoding service, which is injected by the provider.
@@ -64,7 +62,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   @override
   void didChangeDependencies() {
     routing = Provider.of<Routing>(context);
-    mapController = Provider.of<MapSettings>(context);
     mapSettings = Provider.of<MapSettings>(context);
     geocoding = Provider.of<Geocoding>(context);
     profile = Provider.of<Profile>(context);
@@ -97,12 +94,12 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private ZoomIn Function which calls mapControllerService
   void _zoomIn() {
-    mapController.zoomIn(ControllerType.selectOnMap);
+    mapSettings.zoomIn(ControllerType.selectOnMap);
   }
 
   /// Private ZoomOut Function which calls mapControllerService
   void _zoomOut() {
-    mapController.zoomOut(ControllerType.selectOnMap);
+    mapSettings.zoomOut(ControllerType.selectOnMap);
   }
 
   /// Private GPS Centralization Function which calls mapControllerService
@@ -112,7 +109,7 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
   /// Private Center North Function which calls mapControllerService
   void _centerNorth() {
-    mapController.centerNorth(ControllerType.selectOnMap);
+    mapSettings.centerNorth(ControllerType.selectOnMap);
   }
 
   /// A function that is executed when the complete button is pressed.
@@ -182,13 +179,23 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                           ),
                         ),
                         onPressed: () async {
-                          final cameraPosition =
-                              ((await mapController.getCameraPosition(ControllerType.selectOnMap)) as List);
-                          onComplete(
-                            context,
-                            cameraPosition[1],
-                            cameraPosition[0],
-                          );
+                          final Map<String?, Object?>? cameraPosition =
+                              await mapSettings.getCameraPosition(ControllerType.selectOnMap);
+                          if (cameraPosition != null && cameraPosition["coordinates"] != null) {
+                            // Cast from Object to List.
+                            final List coordinates = cameraPosition["coordinates"] as List;
+                            // This should not happen, but just in case.
+                            if (coordinates.length == 2) {
+                              onComplete(
+                                context,
+                                coordinates[1],
+                                coordinates[0],
+                              );
+                            }
+                          } else {
+                            ToastMessage.showError(
+                                "Es konnten keine Koordinaten geladen werden. Bitte erneut versuchen.");
+                          }
                         },
                         child: Content(
                             text: widget.withName ? "Speichern" : "Fertig", context: context, color: Colors.white),
