@@ -284,12 +284,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: ppi / 10,
     );
     if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(context).install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: ppi / 10,
       below: offlineCrossings,
     );
     if (!mounted) return;

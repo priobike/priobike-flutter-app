@@ -416,11 +416,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final ppi = MediaQuery.of(context).devicePixelRatio;
     final offlineCrossings = await OfflineCrossingsLayer(context).install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: ppi / 10,
     );
     final trafficLights = await TrafficLightsLayer(context).install(
       mapController!,
-      iconSize: ppi / 5,
+      iconSize: ppi / 10,
       below: offlineCrossings,
     );
     final discomforts = await DiscomfortsLayer(context).install(
