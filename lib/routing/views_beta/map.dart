@@ -187,11 +187,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current route.
   fitCameraToRouteBounds() async {
     if (mapController == null || !mounted) return;
-    // FIXME with changenotifier at some point this condition needs to be adapted.
     // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
-    await Future.delayed(const Duration(milliseconds: 750));
+    await Future.delayed(const Duration(milliseconds: 500));
     // FIXME needs to be fixed (the old bounds don't work correctly with the new Mapbox plugin). After having
     // the correct bounds they can be used instead of "routing.selectedRoute!.paddedBounds" at the function
     // "cameraForCoordinateBounds()"
