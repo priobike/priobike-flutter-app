@@ -121,7 +121,21 @@ class DangerButtonState extends State<DangerButton> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SmallHSpace(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Small(
+                          text: dangers.previousDangerToVoteFor!.description,
+                          context: context,
+                        ),
+                        Small(
+                          text: "gesehen?",
+                          context: context,
+                        ),
+                      ],
+                    ),
+                    const SmallHSpace(),
                     InkWell(
                       onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, -1),
                       child: Container(
@@ -138,21 +152,7 @@ class DangerButtonState extends State<DangerButton> {
                         ),
                       ),
                     ),
-                    const SmallHSpace(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Small(
-                          text: dangers.previousDangerToVoteFor!.description,
-                          context: context,
-                        ),
-                        Small(
-                          text: "gesehen?",
-                          context: context,
-                        ),
-                      ],
-                    ),
-                    const SmallHSpace(),
+                    const SizedBox(width: 6),
                   ] else if (dangers.upcomingDangerToDisplay != null) ...[
                     Padding(
                       padding: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
