@@ -179,6 +179,7 @@ class HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: RefreshIndicator(
         edgeOffset: 128 + MediaQuery.of(context).padding.top,
         color: Colors.white,

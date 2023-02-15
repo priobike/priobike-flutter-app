@@ -226,9 +226,7 @@ class SettingsViewState extends State<SettingsView> {
                     },
                   ),
                 ],
-                const SmallVSpace(),
-                const Padding(padding: EdgeInsets.only(left: 16, top: 8), child: Divider()),
-                const SmallVSpace(),
+                const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 32),
                   child: Content(text: "Nutzbarkeit", context: context),
@@ -300,9 +298,7 @@ class SettingsViewState extends State<SettingsView> {
                         );
                       }),
                 ),
-                const SmallVSpace(),
-                const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                const SmallVSpace(),
+                const VSpace(),
                 Padding(
                   padding: const EdgeInsets.only(left: 32),
                   child: Content(text: "Weitere Informationen", context: context),
@@ -338,9 +334,7 @@ class SettingsViewState extends State<SettingsView> {
                     );
                   },
                 ),
-                const SmallVSpace(),
-                const Padding(padding: EdgeInsets.only(left: 16), child: Divider()),
-                const SmallVSpace(),
+                const VSpace(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Small(
