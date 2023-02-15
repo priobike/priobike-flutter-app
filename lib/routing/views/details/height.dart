@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -84,26 +84,23 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   Widget build(BuildContext context) {
     if (routing.selectedRoute == null || series == null) return Container();
 
-    processRouteData();
+    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+        ? charts.MaterialPalette.white
+        : charts.MaterialPalette.black;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          settings.routingView == RoutingViewOption.beta
-              ? Container()
-              : BoldContent(
-                  text: "Höhenprofil dieser Route",
-                  context: context,
-                ),
+          const SmallVSpace(),
+          Content(
+            text: "Höhenprofil dieser Route",
+            context: context,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              RotatedBox(
-                quarterTurns: -1,
-                child: Small(text: "Höhe in Meter", context: context),
-              ),
               Expanded(
                 child: SizedBox(
                   height: 128,
@@ -112,7 +109,9 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                     animate: true,
                     defaultRenderer: charts.LineRendererConfig(
                       includeArea: true,
-                      strokeWidthPx: 4,
+                      strokeWidthPx: 3,
+                      roundEndCaps: true,
+                      areaOpacity: 0.5,
                     ),
                     domainAxis: charts.NumericAxisSpec(
                       viewport: charts.NumericExtents(
@@ -120,23 +119,48 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                         maxDistance ?? 0,
                       ),
                       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                        desiredTickCount: 5,
-                        desiredMinTickCount: 3,
+                        desiredTickCount: 10,
+                        desiredMinTickCount: 5,
                         dataIsInWholeNumbers: false,
                       ),
+                      tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+                        (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
+                      ),
+                      renderSpec: charts.GridlineRendererSpec(
+                        labelStyle: charts.TextStyleSpec(
+                          fontSize: 10,
+                          color: chartAxesColor,
+                        ),
+                        lineStyle: const charts.LineStyleSpec(
+                          color: charts.MaterialPalette.transparent,
+                        ),
+                      ),
                     ),
-                    primaryMeasureAxis: const charts.NumericAxisSpec(
+                    primaryMeasureAxis: charts.NumericAxisSpec(
                       showAxisLine: false,
-                      tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
                         zeroBound: true,
+                        desiredTickCount: 3,
+                      ),
+                      renderSpec: charts.GridlineRendererSpec(
+                        labelStyle: charts.TextStyleSpec(
+                          fontSize: 10,
+                          color: chartAxesColor,
+                        ),
+                        lineStyle: const charts.LineStyleSpec(
+                          color: charts.MaterialPalette.transparent,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Small(text: "Höhe in Meter", context: context),
+              ),
             ],
           ),
-          Small(text: "Distanz der Route in Kilometer", context: context),
         ],
       ),
     );

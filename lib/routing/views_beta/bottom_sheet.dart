@@ -5,7 +5,7 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/routing/charts/height.dart';
+import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/instructions.dart';

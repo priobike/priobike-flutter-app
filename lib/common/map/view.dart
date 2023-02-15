@@ -144,21 +144,24 @@ class AppMapState extends State<AppMap> {
     controller.attribution.updateSettings(mapbox.AttributionSettings(
         clickable: true,
         position: widget.attributionButtonOrnamentPosition,
-        marginTop: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.TOP_RIGHT
+        marginTop: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.TOP_RIGHT &&
+                widget.attributionButtonMargins != null
             ? widget.attributionButtonMargins?.y.toDouble()
             : 0,
-        marginBottom: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_RIGHT
+        marginBottom: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_RIGHT &&
+                widget.attributionButtonMargins != null
             ? widget.attributionButtonMargins?.y.toDouble()
             : 0,
         marginRight: widget.attributionButtonMargins?.x.toDouble()));
     controller.logo.updateSettings(mapbox.LogoSettings(
         position: widget.logoViewOrnamentPosition,
-        marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT
+        marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT && widget.logoViewMargins != null
             ? widget.logoViewMargins?.y.toDouble()
             : 0,
-        marginBottom: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_LEFT
-            ? widget.logoViewMargins?.y.toDouble()
-            : 0,
+        marginBottom:
+            widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_LEFT && widget.logoViewMargins != null
+                ? widget.logoViewMargins?.y.toDouble()
+                : 0,
         marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);
   }
