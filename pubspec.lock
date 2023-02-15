@@ -600,10 +600,12 @@ packages:
   sensors_plus:
     dependency: "direct main"
     description:
-      name: sensors_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
+      path: "packages/sensors_plus/sensors_plus"
+      ref: main
+      resolved-ref: "9c147abd6992ca22f8da820faa71c33565e5ce30"
+      url: "https://github.com/priobike/priobike-plus-plugins"
+    source: git
+    version: "2.0.2"
   sensors_plus_platform_interface:
     dependency: transitive
     description:
