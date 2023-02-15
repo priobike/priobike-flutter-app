@@ -67,11 +67,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     speedAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
+      animationBehavior: AnimationBehavior.preserve,
     );
-    speedAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-      parent: speedAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    speedAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(speedAnimationController);
     speedAnimation.addListener(() {
       setState(() {
         speedAnimationPct = speedAnimation.value;
