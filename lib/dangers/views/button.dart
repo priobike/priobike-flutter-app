@@ -154,8 +154,12 @@ class DangerButtonState extends State<DangerButton> {
                     ),
                     const SizedBox(width: 6),
                   ] else if (dangers.upcomingDangerToDisplay != null) ...[
-                    Padding(
+                    Container(
                       padding: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(32)),
+                        color: Color.fromARGB(255, 255, 0, 0),
+                      ),
                       child: Stack(
                         children: [
                           Padding(
@@ -170,7 +174,7 @@ class DangerButtonState extends State<DangerButton> {
                             height: 48,
                             width: 48,
                             child: CircularProgressIndicator(
-                              strokeWidth: 4,
+                              strokeWidth: 6,
                               value: dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold,
                               valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onBackground),
                             ),
