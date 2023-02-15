@@ -71,9 +71,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The animation for the on-tap animation.
   late Animation<double> animation;
 
-  /// The margins of the attribution.
-  math.Point? attributionMargins;
-
   /// The default map insets.
   final defaultMapInsets = const EdgeInsets.only(
     top: 108,
@@ -333,6 +330,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Fit the attribution position to the position of the bottom sheet.
   fitAttributionPosition({double? sheetHeightRelative}) {
+    if (mapController == null) return;
     final frame = MediaQuery.of(context);
     final sheetHeightAbs = sheetHeightRelative == null
         ? 124 + frame.padding.bottom + sheetPadding // Default value.
@@ -348,13 +346,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             right: defaultMapInsets.left),
       ),
     );
-    setState(
-      () {
-        final ppi = frame.devicePixelRatio;
-        attributionMargins =
-            math.Point(20 * ppi, 124 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
-      },
-    );
+    final ppi = frame.devicePixelRatio;
+    final attributionMargins =
+        math.Point(20 * ppi, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 130 * ppi);
+    mapController!.attribution.updateSettings(AttributionSettings(
+        marginBottom: attributionMargins.y.toDouble(),
+        marginRight: attributionMargins.x.toDouble(),
+        position: OrnamentPosition.BOTTOM_RIGHT));
+    mapController!.logo.updateSettings(LogoSettings(
+        marginBottom: attributionMargins.y.toDouble(),
+        marginLeft: attributionMargins.x.toDouble(),
+        position: OrnamentPosition.BOTTOM_LEFT));
   }
 
   /// A callback which is executed when the map was created.
@@ -469,11 +471,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onMapTap: onMapTap,
-            // On iOS, the logoViewMargins and attributionButtonMargins will be set by
-            // updateContentInsets. This is why we set them to 0 here.
-            logoViewMargins: attributionMargins,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
-            attributionButtonMargins: attributionMargins,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
           ),
         ),
