@@ -4,12 +4,13 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/logging/views.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class BetaSettingsView extends StatefulWidget {
   const BetaSettingsView({Key? key}) : super(key: key);
@@ -94,9 +95,10 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                      title: "Logs",
-                      icon: Icons.list,
-                      callback: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LogsView()))),
+                    title: "Logs senden",
+                    icon: Icons.ios_share_rounded,
+                    callback: () => Share.share(Logger.db.join("\n"), subject: 'Logs für PrioBike'),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
