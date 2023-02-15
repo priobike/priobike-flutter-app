@@ -151,7 +151,7 @@ class Routing with ChangeNotifier {
       selectedWaypoints = [waypoint];
     } else {
       selectedWaypoints!.add(waypoint);
-      // Apparently those values have to be reset before loading the route.
+      // Reset the previously generated route(s) and fetched waypoints.
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
