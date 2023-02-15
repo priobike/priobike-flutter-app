@@ -50,15 +50,15 @@ dependencies:
   share_plus: ^6.2.0 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.1.1 # Used to initialize the connection to Firebase
   firebase_messaging: ^14.0.4 # Used to receive push notifications of news service
-  flutter_local_notifications: ^12.0.0 # Used to show the push notifications
   sensors_plus: # Used to get accelerometer data
     git:
       url: https://github.com/priobike/priobike-plus-plugins
       ref: main
       path: packages/sensors_plus/sensors_plus
+  flutter_local_notifications: ^13.0.0 # Used to show the push notifications
   mqtt_client: ^9.6.8
   system_info_plus: ^0.0.5 # Used to check the RAM of user device
-  confetti: ^0.6.0
+  confetti: ^0.7.0
   collection: ^1.16.0 # Used for example for the function DeepCollectionEquality()
   intl: ^0.17.0 # Used for date formats
   mapbox_maps_flutter: ^0.4.1
@@ -66,7 +66,7 @@ dependencies:
   connectivity_plus: ^3.0.2 # To check if the user is connected to Wifi or mobile data
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.10.0 # Generate app icons
+  flutter_launcher_icons: ^0.11.0 # Generate app icons
   flutter_test:
     sdk: flutter
 

@@ -170,10 +170,11 @@ class App extends StatelessWidget {
               dialogBackgroundColor: const Color(0xFF232323),
               fontFamily: 'HamburgSans',
               colorScheme: const ColorScheme.dark(
-                background: Color(0xFF232323),
+                background: Color.fromARGB(255, 31, 31, 31),
                 primary: CI.blue,
                 secondary: CI.lightBlue,
-                surface: Color(0xFF3B3B3B),
+                surface: Color.fromARGB(255, 42, 42, 42),
+                surfaceTint: Color.fromARGB(255, 42, 42, 42),
                 brightness: Brightness.dark,
               ),
               textTheme: const TextTheme(
