@@ -187,6 +187,7 @@ class Tracking with ChangeNotifier {
     try {
       track = Track(
         uploaded: false,
+        hasFileData: true,
         startTime: startTime,
         endTime: null,
         debug: kDebugMode,
@@ -464,6 +465,22 @@ class Tracking with ChangeNotifier {
     return true;
   }
 
+  /// Cleanup the track files.
+  Future<bool> cleanup(Track track) async {
+    if (!track.hasFileData || !track.uploaded) return false;
+    log.i("Cleaning up track with id ${track.sessionId}.");
+    // Delete the track files.
+    final directory = await track.trackDirectory;
+    if (await directory.exists()) await directory.delete(recursive: true);
+    log.i("Cleaned uploaded files for track with id ${track.sessionId}.");
+    track.hasFileData = false;
+    previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
+    previousTracks?.add(track);
+    await savePreviousTracks();
+    notifyListeners();
+    return true;
+  }
+
   /// Run a timer that periodically sends tracks to the server.
   Future<void> runUploadRoutine() async {
     log.i("Starting to send tracks to the server.");
@@ -483,6 +500,15 @@ class Tracking with ChangeNotifier {
       }
       if (sent > 0) {
         log.i("Sent tracks to server - $sent/${tracksToSend.length} (${previousTracks?.length ?? 0} total).");
+      }
+      // Delete the track files if they were sent to the server.
+      var cleaned = 0;
+      final tracksToClean = previousTracks?.where((t) => t.uploaded && t.hasFileData).toList() ?? [];
+      for (final track in tracksToClean) {
+        if (await cleanup(track)) cleaned++;
+      }
+      if (cleaned > 0) {
+        log.i("Cleaned tracks - $cleaned/${tracksToClean.length} (${previousTracks?.length ?? 0} total).");
       }
     }
 

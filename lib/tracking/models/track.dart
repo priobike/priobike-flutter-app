@@ -22,6 +22,9 @@ class Track {
   /// If the track was uploaded to the backend.
   bool uploaded;
 
+  /// If the track contains file data.
+  bool hasFileData;
+
   /// If the track was recorded in the debug mode.
   /// This important when filtering out tracks in the backend.
   /// With this field we can determine tracks in debug mode.
@@ -120,6 +123,7 @@ class Track {
 
   Track({
     required this.uploaded,
+    required this.hasFileData,
     required this.startTime,
     this.endTime,
     required this.debug,
@@ -144,6 +148,7 @@ class Track {
   Map<String, dynamic> toJson() {
     return {
       'uploaded': uploaded,
+      'hasFileData': hasFileData,
       'startTime': startTime,
       'endTime': endTime,
       'debug': debug,
@@ -174,6 +179,9 @@ class Track {
   factory Track.fromJson(Map<String, dynamic> json) {
     return Track(
       uploaded: json['uploaded'],
+      // If the track was stored before we added the hasFileData field,
+      // we assume that the track has file data to clean it up.
+      hasFileData: json['hasFileData'] ?? true,
       startTime: json['startTime'],
       endTime: json['endTime'],
       debug: json['debug'],
