@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
@@ -103,17 +105,22 @@ class MapSettings with ChangeNotifier {
     // The delay is necessary, otherwise sometimes the camera won't move.
     final currentCameraOptions = await controller?.getCameraState();
     if (currentCameraOptions == null) return;
+    MbxEdgeInsets insets = MbxEdgeInsets(
+        // Top routingBar * devicePixelRatio (needed).
+        top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized) *
+            frame.devicePixelRatio,
+        left: 0,
+        // Standard height of bottomSheet * devicePixelRatio (needed).
+        bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
+        right: 0);
+    if (Platform.isIOS) {
+      insets.top = insets.top * 0.4;
+      insets.bottom = insets.bottom * 0.2;
+    }
     final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
       // Setting the Padding for the overlaying UI elements.
-      MbxEdgeInsets(
-          // Top routingBar * devicePixelRatio (needed).
-          top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized) *
-              frame.devicePixelRatio,
-          left: 0,
-          // Standard height of bottomSheet * devicePixelRatio (needed).
-          bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
-          right: 0),
+      insets,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
@@ -130,15 +137,19 @@ class MapSettings with ChangeNotifier {
     // The delay is necessary, otherwise sometimes the camera won't move.
     final currentCameraOptions = await controller?.getCameraState();
     if (currentCameraOptions == null) return;
+    MbxEdgeInsets insets = MbxEdgeInsets(
+        top: 0,
+        left: 0,
+        // BottomSheet in 50% * devicePixelRatio (needed).
+        bottom: 0.66 * frame.size.height * frame.devicePixelRatio,
+        right: 0);
+    if (Platform.isIOS) {
+      insets.bottom = insets.bottom * 0.4;
+    }
     final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
       // Setting the Padding for the overlaying UI elements.
-      MbxEdgeInsets(
-          top: 0,
-          left: 0,
-          // BottomSheet in 50% * devicePixelRatio (needed).
-          bottom: 0.66 * frame.size.height * frame.devicePixelRatio,
-          right: 0),
+      insets,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
