@@ -242,11 +242,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         builder: (BuildContext context, ScrollController controller) {
           return Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.surface],
-              ),
+              color: Theme.of(context).colorScheme.background,
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 0, blurRadius: 16)],
             ),

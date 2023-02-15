@@ -3,7 +3,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -90,17 +89,15 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         : charts.MaterialPalette.black;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SmallVSpace(),
-          settings.routingView == RoutingViewOption.beta
-              ? Container()
-              : BoldContent(
-                  text: "Höhenprofil dieser Route",
-                  context: context,
-                ),
+          Content(
+            text: "Höhenprofil dieser Route",
+            context: context,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -122,13 +119,16 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                         maxDistance ?? 0,
                       ),
                       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                        desiredTickCount: 5,
-                        desiredMinTickCount: 3,
+                        desiredTickCount: 10,
+                        desiredMinTickCount: 5,
                         dataIsInWholeNumbers: false,
+                      ),
+                      tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+                        (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
                       ),
                       renderSpec: charts.GridlineRendererSpec(
                         labelStyle: charts.TextStyleSpec(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: chartAxesColor,
                         ),
                         lineStyle: const charts.LineStyleSpec(
@@ -144,11 +144,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                       ),
                       renderSpec: charts.GridlineRendererSpec(
                         labelStyle: charts.TextStyleSpec(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: chartAxesColor,
                         ),
-                        lineStyle: charts.LineStyleSpec(
-                          color: chartAxesColor,
+                        lineStyle: const charts.LineStyleSpec(
+                          color: charts.MaterialPalette.transparent,
                         ),
                       ),
                     ),
@@ -161,8 +161,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               ),
             ],
           ),
-          const SmallVSpace(),
-          Small(text: "Distanz der Route in Kilometer", context: context),
         ],
       ),
     );
