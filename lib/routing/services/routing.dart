@@ -151,6 +151,10 @@ class Routing with ChangeNotifier {
       selectedWaypoints = [waypoint];
     } else {
       selectedWaypoints!.add(waypoint);
+      // Reset the previously generated route(s) and fetched waypoints.
+      selectedRoute = null;
+      allRoutes = null;
+      fetchedWaypoints = null;
     }
     notifyListeners();
   }
