@@ -46,7 +46,6 @@ class CSVCache {
 
   /// Add a line to the cache.
   Future<void> add(String line) async {
-    if (!await file.exists()) await file.create(recursive: true);
     lines.add(line);
     if (lines.length >= maxLines) await flush();
   }
@@ -54,9 +53,17 @@ class CSVCache {
   /// Flush the cache.
   Future<void> flush() async {
     if (lines.isEmpty) return;
+    // Create the file if it does not exist.
+    var fileIsNew = false;
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+      fileIsNew = true;
+    }
     // Flush the cache and write the data to the file.
     final csv = lines.join("\n");
     lines.clear();
+    // If the file is not new, append a newline.
+    if (!fileIsNew) await file.writeAsString("\n", mode: FileMode.append, flush: true);
     await file.writeAsString(csv, mode: FileMode.append, flush: true);
   }
 }
@@ -242,7 +249,7 @@ class Tracking with ChangeNotifier {
     final position = Provider.of<Positioning>(context, listen: false).lastPosition;
     if (position == null) return;
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    gpsCache?.add("$timestamp,${position.longitude},${position.latitude},${position.speed},${position.accuracy}");
+    await gpsCache?.add("$timestamp,${position.longitude},${position.latitude},${position.speed},${position.accuracy}");
   }
 
   /// Stop collecting GPS data.
@@ -258,9 +265,9 @@ class Tracking with ChangeNotifier {
       file: await track!.accelerometerCSVFile,
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
-    accSub = stream.listen((event) {
+    accSub = stream.listen((event) async {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      accCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      await accCache?.add("$timestamp,${event.x},${event.y},${event.z}");
     });
     log.i("Started collecting accelerometer data.");
   }
@@ -280,9 +287,9 @@ class Tracking with ChangeNotifier {
       file: await track!.gyroscopeCSVFile,
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
-    gyrSub = stream.listen((event) {
+    gyrSub = stream.listen((event) async {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      gyrCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      await gyrCache?.add("$timestamp,${event.x},${event.y},${event.z}");
     });
     log.i("Started collecting gyroscope data.");
   }
@@ -302,9 +309,9 @@ class Tracking with ChangeNotifier {
       file: await track!.magnetometerCSVFile,
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
-    magSub = stream.listen((event) {
+    magSub = stream.listen((event) async {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      magCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      await magCache?.add("$timestamp,${event.x},${event.y},${event.z}");
     });
     log.i("Started collecting magnetometer data.");
   }
