@@ -52,7 +52,7 @@ class Feedback with ChangeNotifier {
     // Send all of the answered questions to the backend.
     final settings = Provider.of<Settings>(context, listen: false);
     final baseUrl = settings.backend.path;
-    final endpoint = Uri.parse('https://$baseUrl/feedback-service/answers/post/');
+    final endpoint = Uri.parse('https://$baseUrl/tracking-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {
       final request = PostAnswerRequest(
         userId: userId,
