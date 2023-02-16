@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/logging/logger.dart';
@@ -99,34 +101,26 @@ class MapSettings with ChangeNotifier {
   /// Fit the camera to the current route.
   fitCameraToRouteBounds(Routing routing, MediaQueryData frame) async {
     if (controller == null) return;
-    // FIXME with changenotifier at some point this condition needs to be adapted.
-    // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
-    await Future.delayed(const Duration(milliseconds: 750));
-    final coordinatesSouthwest = routing.selectedRoute!.paddedBounds.southwest["coordinates"] as List;
-    final s = coordinatesSouthwest[1] as double;
-    final w = coordinatesSouthwest[0] as double;
-    final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
-    final n = coordinatesNortheast[1] as double;
-    final e = coordinatesNortheast[0] as double;
-    final newBounds = CoordinateBounds(
-        southwest: Point(
-            coordinates: Position(
-          s + 0.175 * frame.size.height,
-          w,
-        )).toJson(),
-        northeast: Point(
-            coordinates: Position(
-          n + calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized),
-          e,
-        )).toJson(),
-        infiniteBounds: false);
     final currentCameraOptions = await controller?.getCameraState();
     if (currentCameraOptions == null) return;
+    MbxEdgeInsets insets = MbxEdgeInsets(
+        // Top routingBar * devicePixelRatio (needed).
+        top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized) *
+            frame.devicePixelRatio,
+        left: 0,
+        // Standard height of bottomSheet * devicePixelRatio (needed).
+        bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
+        right: 0);
+    if (Platform.isIOS) {
+      insets.top = insets.top * 0.4;
+      insets.bottom = insets.bottom * 0.2;
+    }
     final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
-      newBounds,
-      currentCameraOptions.padding,
+      routing.selectedRoute!.paddedBounds,
+      // Setting the Padding for the overlaying UI elements.
+      insets,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
@@ -139,34 +133,23 @@ class MapSettings with ChangeNotifier {
   /// Fit the camera to the current route in top part.
   fitCameraToRouteBoundsTop(Routing routing, MediaQueryData frame) async {
     if (controller == null) return;
-    // FIXME with changenotifier at some point this condition needs to be adapted.
-    // if (routing.selectedRoute == null || mapboxMapController?.isCameraMoving != false) return;
     if (routing.selectedRoute == null) return;
     // The delay is necessary, otherwise sometimes the camera won't move.
-    await Future.delayed(const Duration(milliseconds: 750));
-    final coordinatesSouthwest = routing.selectedRoute!.paddedBounds.southwest["coordinates"] as List;
-    final s = coordinatesSouthwest[1] as double;
-    final w = coordinatesSouthwest[0] as double;
-    final coordinatesNortheast = routing.selectedRoute!.paddedBounds.northeast["coordinates"] as List;
-    final n = coordinatesNortheast[1] as double;
-    final e = coordinatesNortheast[0] as double;
-    final newBounds = CoordinateBounds(
-        southwest: Point(
-            coordinates: Position(
-          s + 0.66 * frame.size.height,
-          w,
-        )).toJson(),
-        northeast: Point(
-            coordinates: Position(
-          n,
-          e,
-        )).toJson(),
-        infiniteBounds: false);
     final currentCameraOptions = await controller?.getCameraState();
     if (currentCameraOptions == null) return;
+    MbxEdgeInsets insets = MbxEdgeInsets(
+        top: 0,
+        left: 0,
+        // BottomSheet in 50% * devicePixelRatio (needed).
+        bottom: 0.66 * frame.size.height * frame.devicePixelRatio,
+        right: 0);
+    if (Platform.isIOS) {
+      insets.bottom = insets.bottom * 0.4;
+    }
     final cameraOptionsForBounds = await controller?.cameraForCoordinateBounds(
-      newBounds,
-      currentCameraOptions.padding,
+      routing.selectedRoute!.paddedBounds,
+      // Setting the Padding for the overlaying UI elements.
+      insets,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );

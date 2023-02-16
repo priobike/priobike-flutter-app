@@ -129,8 +129,6 @@ class Route {
   /// Calculate the padded bounds of this route.
   CoordinateBounds get paddedBounds {
     final bounds = this.bounds;
-    // Padding is approximately 111m (Approximately 0.001 degrees).
-    // See: https://www.usna.edu/Users/oceano/pguth/md_help/html/approx_equivalents.htm
     const pad = 0.003;
     final coordinatesSouthwest = bounds.southwest["coordinates"] as List;
     final s = coordinatesSouthwest[1] as double;
