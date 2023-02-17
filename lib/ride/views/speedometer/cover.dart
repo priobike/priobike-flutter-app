@@ -9,7 +9,7 @@ class SpeedometerCoverPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.black
-      ..strokeWidth = 256
+      ..strokeWidth = 64
       ..style = PaintingStyle.stroke;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 16;
