@@ -112,7 +112,7 @@ class Settings with ChangeNotifier {
   }
 
   static const predictionModeKey = "priobike.settings.predictionMode";
-  static const defaultPredictionMode = PredictionMode.usePredictionService;
+  static const defaultPredictionMode = PredictionMode.hybrid;
 
   Future<bool> setPredictionMode(PredictionMode predictionMode, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
