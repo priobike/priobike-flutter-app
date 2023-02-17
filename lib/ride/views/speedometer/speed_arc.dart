@@ -46,12 +46,14 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
         transform: const GradientRotation(startAngle),
       ).createShader(rect)
       ..strokeWidth = 18
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = StrokeCap.butt
       ..style = PaintingStyle.stroke;
     canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
   }
 
   void paintSpeedArcGlows(Canvas canvas, Size size) {
+    // Scale the opacity of the glow based on the speed.
+    final glowOpacity = (speed - minSpeed) / (maxSpeed - minSpeed);
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
@@ -68,12 +70,12 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           tileMode: TileMode.mirror,
           colors: isDark
               ? [
-                  CI.lightBlue.withOpacity(0.0),
-                  CI.lightBlue.withOpacity(1.0),
+                  CI.lightBlue.withOpacity(0.0 * glowOpacity),
+                  CI.lightBlue.withOpacity(1.0 * glowOpacity),
                 ]
               : [
-                  CI.blue.withOpacity(0.0),
-                  CI.blue.withOpacity(1.0),
+                  CI.blue.withOpacity(0.0 * glowOpacity),
+                  CI.blue.withOpacity(1.0 * glowOpacity),
                 ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
@@ -93,12 +95,12 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           tileMode: TileMode.mirror,
           colors: isDark
               ? [
-                  Colors.white.withOpacity(0.0),
-                  Colors.white.withOpacity(1.0),
+                  Colors.white.withOpacity(0.0 * glowOpacity),
+                  Colors.white.withOpacity(1.0 * glowOpacity),
                 ]
               : [
-                  Colors.white.withOpacity(0.0),
-                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.0 * glowOpacity),
+                  Colors.white.withOpacity(0.2 * glowOpacity),
                 ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
