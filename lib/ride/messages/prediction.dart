@@ -182,7 +182,6 @@ class PredictorPrediction implements Prediction {
     }
     calcCurrentSignalPhase = currentPhase;
     predictionQuality = calcQualitiesFromNow[refTimeIdx];
-    if (calcCurrentPhaseChangeTime == null) return onFailure("Failed to calculate phase change time");
     return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
 }
@@ -235,7 +234,7 @@ class PredictionServicePrediction implements Prediction {
   Future<Recommendation?> calculateRecommendation() async {
     List<Phase> calcPhasesFromNow;
     List<double> calcQualitiesFromNow;
-    DateTime calcCurrentPhaseChangeTime;
+    DateTime? calcCurrentPhaseChangeTime;
     Phase calcCurrentSignalPhase;
 
     // This will be executed if we fail somewhere.
