@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
@@ -17,6 +16,8 @@ import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
+
+import 'background.dart';
 
 class RideSpeedometerView extends StatefulWidget {
   const RideSpeedometerView({Key? key}) : super(key: key);
@@ -196,11 +197,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   @override
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
+    final displayHeight = MediaQuery.of(context).size.height;
+    final heightToPuck = displayHeight / 2;
+    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+
+    final originalSpeedometerHeight = MediaQuery.of(context).size.width;
+    final originalSpeedometerWidth = MediaQuery.of(context).size.width;
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
         Container(
-          height: MediaQuery.of(context).size.width,
+          height: originalSpeedometerHeight,
+          width: originalSpeedometerWidth,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -222,88 +231,106 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                   : const [0.0, 0.1, 0.8], // Light theme
             ),
           ),
-          child: Transform.translate(
-            offset: const Offset(0, 42),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              // When the user taps on the speedometer, we want to set the speed to the tapped speed.
-              onTapUp: (details) {
-                // Get the center of the speedometer
-                final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
-                final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
-                // Transform the angle of the tapped position into an intuitive angle system:
-                // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
-                final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
-                final headingDeg = angleDeg > 0 ? angleDeg : 360 + angleDeg;
-                // Interpolate the heading to a speed.
-                const minDeg = 45.0, maxDeg = 315.0;
-                var speed = (headingDeg - minDeg) / (maxDeg - minDeg) * (maxSpeed - minSpeed) + minSpeed;
-                speed = max(minSpeed, min(maxSpeed, speed));
-                onTapSpeedometer(speed);
-              },
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CustomPaint(
-                    painter: SpeedometerBackgroundPainter(
-                      isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+        ),
+        SafeArea(
+          bottom: true,
+          child: SizedBox(
+            height: heightToPuckBoundingBox,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: SizedBox(
+                height: originalSpeedometerHeight,
+                width: originalSpeedometerWidth,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        // When the user taps on the speedometer, we want to set the speed to the tapped speed.
+                        onTapUp: (details) {
+                          // Get the center of the speedometer
+                          final xRel = details.localPosition.dx / MediaQuery.of(context).size.width;
+                          final yRel = details.localPosition.dy / MediaQuery.of(context).size.width;
+                          // Transform the angle of the tapped position into an intuitive angle system:
+                          // 0 deg is south, 90 deg is west, 180 deg is north, 270 deg is east.
+                          final angleDeg = atan2(yRel - 0.5, xRel - 0.5) * 180 / pi - 90;
+                          final headingDeg = angleDeg > 0 ? angleDeg : 360 + angleDeg;
+                          // Interpolate the heading to a speed.
+                          const minDeg = 45.0, maxDeg = 315.0;
+                          var speed = (headingDeg - minDeg) / (maxDeg - minDeg) * (maxSpeed - minSpeed) + minSpeed;
+                          speed = max(minSpeed, min(maxSpeed, speed));
+                          onTapSpeedometer(speed);
+                        },
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CustomPaint(
+                              painter: SpeedometerBackgroundPainter(
+                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                              ),
+                            ),
+                            CustomPaint(
+                              painter: SpeedometerTicksPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                              ),
+                            ),
+                            CustomPaint(
+                              painter: SpeedometerPredictionArcPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                                colors: gaugeColors,
+                                stops: gaugeStops,
+                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                              ),
+                            ),
+                            CustomPaint(
+                              painter: SpeedometerSpeedArcPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                // Scale the animation pct between minSpeed and maxSpeed
+                                speed: speedkmh,
+                              ),
+                            ),
+                            CustomPaint(painter: SpeedometerCoverPainter()),
+                            CustomPaint(
+                              painter: SpeedometerLabelsPainter(
+                                minSpeed: minSpeed,
+                                maxSpeed: maxSpeed,
+                              ),
+                            ),
+                            const Center(child: RideTrafficLightView())
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  CustomPaint(
-                    painter: SpeedometerTicksPainter(
-                      minSpeed: minSpeed,
-                      maxSpeed: maxSpeed,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 26),
+                      child: BoldSubHeader(
+                        text: '${speedkmh.toStringAsFixed(0)} km/h',
+                        context: context,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  CustomPaint(
-                    painter: SpeedometerPredictionArcPainter(
-                      minSpeed: minSpeed,
-                      maxSpeed: maxSpeed,
-                      colors: gaugeColors,
-                      stops: gaugeStops,
-                      isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Text(
+                        'PrioBike App - Work in Progress.',
+                        style: Theme.of(context).textTheme.displaySmall!.merge(
+                              TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 8,
+                              ),
+                            ),
+                      ),
                     ),
-                  ),
-                  CustomPaint(
-                    painter: SpeedometerSpeedArcPainter(
-                      minSpeed: minSpeed,
-                      maxSpeed: maxSpeed,
-                      isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                      // Scale the animation pct between minSpeed and maxSpeed
-                      speed: speedkmh,
-                    ),
-                  ),
-                  CustomPaint(painter: SpeedometerCoverPainter()),
-                  CustomPaint(
-                    painter: SpeedometerLabelsPainter(
-                      minSpeed: minSpeed,
-                      maxSpeed: maxSpeed,
-                    ),
-                  ),
-                  const Center(child: RideTrafficLightView())
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 26),
-          child: BoldSubHeader(
-            text: '${speedkmh.toStringAsFixed(0)} km/h',
-            context: context,
-            color: Colors.white,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 18),
-          child: Text(
-            'PrioBike App - Work in Progress.',
-            style: Theme.of(context).textTheme.displaySmall!.merge(
-                  TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 8,
-                  ),
-                ),
           ),
         ),
       ],
