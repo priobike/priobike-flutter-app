@@ -133,7 +133,7 @@ class Profile with ChangeNotifier {
 
     await storage.setBool("priobike.home.profile.showGeneralPOIs", showGeneralPOIs);
     await storage.setBool("priobike.home.profile.setLocationAsStart", setLocationAsStart);
-    await storage.setBool("priobike.home.profile.avoidTraffic", saveSearchHistory);
+    await storage.setBool("priobike.home.profile.saveSearchHistory", saveSearchHistory);
 
     notifyListeners();
   }
