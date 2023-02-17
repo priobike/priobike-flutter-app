@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
 import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
@@ -16,8 +17,6 @@ import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:provider/provider.dart';
-
-import 'background.dart';
 
 class RideSpeedometerView extends StatefulWidget {
   const RideSpeedometerView({Key? key}) : super(key: key);
