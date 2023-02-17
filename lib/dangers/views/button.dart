@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -11,6 +13,46 @@ import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:provider/provider.dart';
 
+/// A custom painter that draws a circular progress but with rounded caps.
+class RoundedCapCircularProgressPainter extends CustomPainter {
+  /// The current progress.
+  final double progress;
+
+  /// The color of the progress.
+  final Color color;
+
+  /// The stroke width of the progress.
+  final double strokeWidth;
+
+  RoundedCapCircularProgressPainter({
+    required this.progress,
+    required this.color,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    canvas.drawArc(
+      Rect.fromCircle(
+        center: Offset(size.width / 2, size.height / 2),
+        radius: size.width / 2 - 2,
+      ),
+      -pi / 2,
+      pi * 2 * progress,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
 /// A button to report a new danger.
 class DangerButton extends StatefulWidget {
   const DangerButton({Key? key}) : super(key: key);
@@ -19,7 +61,7 @@ class DangerButton extends StatefulWidget {
   DangerButtonState createState() => DangerButtonState();
 }
 
-class DangerButtonState extends State<DangerButton> {
+class DangerButtonState extends State<DangerButton> with TickerProviderStateMixin {
   final log = Logger("DangerButtonState");
 
   /// If the modal is currently shown.
@@ -31,10 +73,47 @@ class DangerButtonState extends State<DangerButton> {
   /// The danger service, which is injected by the provider.
   late Dangers dangers;
 
+  /// The animation controller for the danger animation.
+  late AnimationController dangerProgressAnimationController;
+
+  /// The danger animation.
+  late Animation<double> dangerProgressAnimation;
+
+  /// The value of the danger animation.
+  double dangerProgressAnimationPct = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the speed animation.
+    dangerProgressAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+      animationBehavior: AnimationBehavior.preserve,
+    );
+    dangerProgressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(dangerProgressAnimationController);
+    dangerProgressAnimation.addListener(() {
+      setState(() {
+        dangerProgressAnimationPct = dangerProgressAnimation.value;
+      });
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     dangers = Provider.of<Dangers>(context);
+
+    if (dangers.previousDangerToVoteFor == null) {
+      if (dangers.upcomingDangerToDisplay != null) {
+        final pct = dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold;
+        dangerProgressAnimationController.animateTo(
+          pct,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
   }
 
   /// A callback that is called when the button is tapped.
@@ -156,27 +235,36 @@ class DangerButtonState extends State<DangerButton> {
                   ] else if (dangers.upcomingDangerToDisplay != null) ...[
                     Container(
                       padding: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(32)),
-                        color: Color.fromARGB(255, 255, 0, 0),
-                      ),
                       child: Stack(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+                            padding: const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
                             child: Image.asset(
                               dangers.upcomingDangerToDisplay!.icon,
-                              width: 32,
-                              height: 32,
+                              width: 28,
+                              height: 28,
                             ),
                           ),
                           SizedBox(
                             height: 48,
                             width: 48,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 6,
-                              value: dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold,
-                              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onBackground),
+                            child: CustomPaint(
+                              painter: RoundedCapCircularProgressPainter(
+                                progress: dangerProgressAnimationPct,
+                                color: Colors.black,
+                                strokeWidth: 4,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 48,
+                            width: 48,
+                            child: CustomPaint(
+                              painter: RoundedCapCircularProgressPainter(
+                                progress: dangerProgressAnimationPct,
+                                color: const Color.fromARGB(255, 255, 0, 0),
+                                strokeWidth: 3,
+                              ),
                             ),
                           ),
                         ],
