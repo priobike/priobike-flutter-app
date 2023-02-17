@@ -43,17 +43,19 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     if (ride.predictionComponent?.recommendation == null) {
       return alternativeView;
     }
+    final recommendation = ride.predictionComponent!.recommendation!;
+    // If the phase change time is null, we hide the countdown.
+    if (recommendation.calcCurrentPhaseChangeTime == null) return alternativeView;
     // Calculate the countdown.
-    final countdown =
-        ride.predictionComponent!.recommendation!.calcCurrentPhaseChangeTime.difference(DateTime.now()).inSeconds;
+    final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
     // is not confused if the countdown is at 0 for a few seconds.
     var countdownLabel = countdown > 0 ? "$countdown" : "";
     // Show no countdown label for amber and redamber.
-    if (ride.predictionComponent!.recommendation!.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
-    if (ride.predictionComponent!.recommendation!.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
+    if (recommendation.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
+    if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
 
-    final currentPhase = ride.predictionComponent!.recommendation!.calcCurrentSignalPhase;
+    final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
       width: 148,

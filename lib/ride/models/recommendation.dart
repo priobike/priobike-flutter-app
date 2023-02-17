@@ -8,7 +8,8 @@ class Recommendation {
   final List<double> calcQualitiesFromNow;
 
   /// The current predicted time of the next phase change, calculated periodically.
-  final DateTime calcCurrentPhaseChangeTime;
+  /// The phase change time may be null in case the prediction ends before the next phase change.
+  final DateTime? calcCurrentPhaseChangeTime;
 
   /// The predicted current signal phase, calculated periodically.
   final Phase calcCurrentSignalPhase;

@@ -182,7 +182,6 @@ class PredictorPrediction implements Prediction {
     }
     calcCurrentSignalPhase = currentPhase;
     predictionQuality = calcQualitiesFromNow[refTimeIdx];
-    if (calcCurrentPhaseChangeTime == null) return onFailure("Failed to calculate phase change time");
     return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
   }
 }
@@ -235,7 +234,7 @@ class PredictionServicePrediction implements Prediction {
   Future<Recommendation?> calculateRecommendation() async {
     List<Phase> calcPhasesFromNow;
     List<double> calcQualitiesFromNow;
-    DateTime calcCurrentPhaseChangeTime;
+    DateTime? calcCurrentPhaseChangeTime;
     Phase calcCurrentSignalPhase;
 
     // This will be executed if we fail somewhere.
@@ -259,10 +258,15 @@ class PredictionServicePrediction implements Prediction {
     if (currentVector.isEmpty) return onFailure("Current vector is empty.");
     // Calculate the seconds to the next phase change.
     int secondsToPhaseChange = 0;
+    // Check if the phase changes within the current vector.
+    var phaseChangeWithinVector = false;
     bool greenNow = currentVector[0] >= greentimeThreshold;
     for (int i = 1; i < currentVector.length; i++) {
       final greenThen = currentVector[i] >= greentimeThreshold;
-      if ((greenNow && !greenThen) || (!greenNow && greenThen)) break;
+      if ((greenNow && !greenThen) || (!greenNow && greenThen)) {
+        phaseChangeWithinVector = true;
+        break;
+      }
       secondsToPhaseChange++;
     }
 
@@ -276,7 +280,11 @@ class PredictionServicePrediction implements Prediction {
       },
     ).toList();
     calcQualitiesFromNow = currentVector.map((_) => (predictionQuality)).toList();
-    calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
+    if (phaseChangeWithinVector) {
+      // Only calculate the phase change time if the phase changes within the current vector.
+      // Otherwise the countdown will be shown, counting down to the end of the prediction (into the "unknown").
+      calcCurrentPhaseChangeTime = now.add(Duration(seconds: secondsToPhaseChange));
+    }
     calcCurrentSignalPhase = greenNow ? Phase.green : Phase.red;
 
     return Recommendation(calcPhasesFromNow, calcQualitiesFromNow, calcCurrentPhaseChangeTime, calcCurrentSignalPhase);
