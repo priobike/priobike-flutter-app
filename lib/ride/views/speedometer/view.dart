@@ -16,7 +16,6 @@ import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:priobike/user.dart';
 import 'package:provider/provider.dart';
 
 class RideSpeedometerView extends StatefulWidget {
