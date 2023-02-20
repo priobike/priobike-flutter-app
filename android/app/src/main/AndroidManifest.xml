@@ -41,6 +41,8 @@
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
                 android:value="fcm-channel" />
+            <!-- Disables Firebase Analytics -->
+            <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
