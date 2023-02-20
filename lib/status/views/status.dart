@@ -14,7 +14,7 @@ class StatusView extends StatefulWidget {
   StatusViewState createState() => StatusViewState();
 }
 
-class StatusViewState extends State<StatusView> {
+class StatusViewState extends State<StatusView> with WidgetsBindingObserver {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -29,6 +29,25 @@ class StatusViewState extends State<StatusView> {
 
   /// The animated scale of the status view.
   double animatedScale = 1.0;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      predictionStatusSummary.fetch(context);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -139,7 +158,10 @@ class StatusViewState extends State<StatusView> {
           fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
           shadowIntensity: isProblem ? 0.2 : 0.05,
           shadow: isProblem ? CI.red : Colors.black,
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
+          onPressed: () =>
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())).then((_) {
+            Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+          }),
           content: Row(
             children: [
               Flexible(

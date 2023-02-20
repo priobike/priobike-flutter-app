@@ -84,17 +84,16 @@ class HomeViewState extends State<HomeView> {
       (_) {
         // Mark all notifications as read.
         news.markAllArticlesAsRead(context);
+        Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
       },
     );
   }
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SettingsView(),
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsView())).then((_) {
+      Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+    });
   }
 
   /// A callback that is fired when a shortcut was selected.
@@ -117,6 +116,7 @@ class HomeViewState extends State<HomeView> {
           discomforts.reset();
           predictionSGStatus.reset();
         }
+        Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
       },
     );
   }
@@ -136,13 +136,16 @@ class HomeViewState extends State<HomeView> {
           discomforts.reset();
           predictionSGStatus.reset();
         }
+        Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
       },
     );
   }
 
   /// A callback that is fired when the shortcuts should be edited.
   void onOpenShortcutEditView() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView())).then((_) {
+      Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+    });
   }
 
   Widget renderDebugHint() {
