@@ -18,8 +18,48 @@ class FCM {
   /// A boolean indicating if the local notifications plugin is initialized.
   static bool isInitialized = false;
 
+  /// Current topic.
+  static String? topic;
+
   FCM() {
     log.i("Initializing FCM service");
+  }
+
+  /// Select a new backend to watch.
+  static Future<void> selectTopic(Backend backend) async {
+    if (!isInitialized) {
+      log.w("FCM service not initialized, ignoring backend selection.");
+      return;
+    }
+
+    if (topic == null) {
+      await FirebaseMessaging.instance.subscribeToTopic(backend.name);
+      topic = backend.name;
+      return;
+    }
+
+    if (kDebugMode && topic == "dev") {
+      log.i("Already subscribed to dev topic, ignoring.");
+      return;
+    }
+
+    if (kDebugMode) {
+      await FirebaseMessaging.instance.unsubscribeFromTopic(topic!);
+      await FirebaseMessaging.instance.subscribeToTopic("dev");
+      topic = "dev";
+      log.i("Subscribed to dev topic.");
+      return;
+    }
+
+    if (topic == backend.name) {
+      log.i("Already subscribed to backend ${backend.name}, ignoring.");
+      return;
+    }
+
+    await FirebaseMessaging.instance.unsubscribeFromTopic(topic!);
+    await FirebaseMessaging.instance.subscribeToTopic(backend.name);
+    topic = backend.name;
+    log.i("Subscribed to backend ${backend.name}.");
   }
 
   /// Initialize the FCM service.
@@ -31,8 +71,10 @@ class FCM {
     // Don't use await here since it will wait until an internet connection is established.
     if (kDebugMode) {
       FirebaseMessaging.instance.subscribeToTopic("dev");
+      topic = "dev";
     } else {
       FirebaseMessaging.instance.subscribeToTopic(backend.name);
+      topic = backend.name;
     }
 
     channel = const AndroidNotificationChannel(
