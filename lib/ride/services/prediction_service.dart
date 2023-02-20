@@ -159,15 +159,6 @@ class PredictionService implements PredictionComponent {
       prediction = PredictionServicePrediction.fromJson(json);
       calculateRecommendation();
       if (prediction != null) predictionServicePredictions.add(prediction!);
-      // Notify that a new prediction status was obtained.
-      currentSGStatusData = SGStatusData(
-        statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        thingName:
-            "hamburg/${prediction!.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
-        predictionQuality: prediction!.predictionQuality,
-        predictionTime: prediction!.startTime.millisecondsSinceEpoch ~/ 1000,
-      );
-      onNewPredictionStatusDuringRide?.call(currentSGStatusData!);
     }
   }
 
@@ -182,7 +173,22 @@ class PredictionService implements PredictionComponent {
 
     recommendation = await prediction!.calculateRecommendation();
 
+    // Set the prediction status of the current prediction. Needs to be set before notifyListeners() is called,
+    // because based on that (if used) the hybrid mode selects the used prediction component.
+    currentSGStatusData = SGStatusData(
+      statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      thingName:
+          "hamburg/${prediction!.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
+      predictionQuality: prediction!.predictionQuality,
+      predictionTime: prediction!.startTime.millisecondsSinceEpoch ~/ 1000,
+    );
+
+    // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
+    // used prediction component before correctly.
     notifyListeners();
+
+    // Notify that a new prediction status was obtained.
+    onNewPredictionStatusDuringRide?.call(currentSGStatusData!);
   }
 
   /// Stop the navigation.
