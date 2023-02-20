@@ -9,9 +9,6 @@ class FCM {
   /// The logger for this service.
   static final log = Logger("FCM");
 
-  /// The backend for which to display notifications.
-  static Backend? backendToWatch;
-
   /// An android notification channel.
   static AndroidNotificationChannel? channel;
 
@@ -25,21 +22,22 @@ class FCM {
     log.i("Initializing FCM service");
   }
 
-  /// Select a new backend to watch.
-  static Future<void> selectBackend(Backend backend) async {
-    backendToWatch = backend;
-  }
-
   /// Initialize the FCM service.
   static Future<void> load(Backend backend) async {
-    selectBackend(backend);
-
     if (isInitialized) return;
 
     await Firebase.initializeApp();
     await FirebaseMessaging.instance.requestPermission();
     // Don't use await here since it will wait until an internet connection is established.
-    FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
+    if (kDebugMode) {
+      FirebaseMessaging.instance.subscribeToTopic("dev");
+    } else {
+      if (backend == Backend.production) {
+        FirebaseMessaging.instance.subscribeToTopic("production");
+      } else if (backend == Backend.staging) {
+        FirebaseMessaging.instance.subscribeToTopic("staging");
+      }
+    }
 
     channel = const AndroidNotificationChannel(
       'fcm-channel',
@@ -80,16 +78,6 @@ class FCM {
     }
 
     log.i("Received FCM message: ${msg.data}");
-
-    // Decide by the environment and the backend if we should display a notification.
-    // Update the possibleEnvs with your individual env e.g. dev1 instead of dev when testing.
-    final possibleEnvs = ["dev", "staging", "production"];
-    final env = msg.data['environment'];
-    // Set the env to a custom value in the news service when testing so that not everyone with a debug version receives all notifications.
-    if (!possibleEnvs.contains(env)) return;
-    if (env == 'dev' && !kDebugMode) return;
-    if (env == 'staging' && backendToWatch != Backend.staging) return;
-    if (env == 'production' && backendToWatch != Backend.production) return;
 
     if (msg.notification == null) {
       log.w("FCM message has no notification, ignoring.");
