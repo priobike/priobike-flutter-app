@@ -32,11 +32,7 @@ class FCM {
     if (kDebugMode) {
       FirebaseMessaging.instance.subscribeToTopic("dev");
     } else {
-      if (backend == Backend.production) {
-        FirebaseMessaging.instance.subscribeToTopic("production");
-      } else if (backend == Backend.staging) {
-        FirebaseMessaging.instance.subscribeToTopic("staging");
-      }
+      FirebaseMessaging.instance.subscribeToTopic(backend.name);
     }
 
     channel = const AndroidNotificationChannel(
