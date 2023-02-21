@@ -94,8 +94,8 @@ class MapDesigns with ChangeNotifier {
   bool designCanBeChanged;
 
   /// The memory threshold in MB.
-  /// Generally this app uses between 500-1500 (expecting mapbox memory leak to occur).
-  static const memoryThreshold = 2000;
+  /// On low-end devices, this ensures that layers cannot be switched.
+  static const memoryThreshold = 500;
 
   Future<void> setMapDesign(MapDesign mapDesign) async {
     this.mapDesign = mapDesign;
