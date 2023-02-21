@@ -122,6 +122,9 @@ flutter:
     # Sideloaded offline maps
     - assets/offline/
 
+    # Geojsons
+    - assets/geo/
+
     # Files needed to get git info within the app, e.g. current branch or tag.
     # Please make sure that the repository is cloned by the branch name, and
     # not by the commit hash (as is the default for Jenkins CI pipelines).
