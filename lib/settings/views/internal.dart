@@ -70,7 +70,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await settings.setBackend(backend);
 
     // Tell the fcm service that we selected the new backend.
-    await FCM.selectBackend(backend);
+    await FCM.selectTopic(backend);
 
     // Reset the associated services.
     await predictionStatusSummary.reset();

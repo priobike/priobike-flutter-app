@@ -18,6 +18,17 @@ extension BackendPath on Backend {
   }
 }
 
+extension BackendName on Backend {
+  String get name {
+    switch (this) {
+      case Backend.production:
+        return "production";
+      case Backend.staging:
+        return "staging";
+    }
+  }
+}
+
 extension BackendPredictionServiceMqtt on Backend {
   String get predictionServiceMQTTPath {
     switch (this) {

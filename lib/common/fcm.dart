@@ -9,9 +9,6 @@ class FCM {
   /// The logger for this service.
   static final log = Logger("FCM");
 
-  /// The backend for which to display notifications.
-  static Backend? backendToWatch;
-
   /// An android notification channel.
   static AndroidNotificationChannel? channel;
 
@@ -21,25 +18,64 @@ class FCM {
   /// A boolean indicating if the local notifications plugin is initialized.
   static bool isInitialized = false;
 
+  /// Current topic.
+  static String? topic;
+
   FCM() {
     log.i("Initializing FCM service");
   }
 
   /// Select a new backend to watch.
-  static Future<void> selectBackend(Backend backend) async {
-    backendToWatch = backend;
+  static Future<void> selectTopic(Backend backend) async {
+    if (!isInitialized) {
+      log.w("FCM service not initialized, ignoring backend selection.");
+      return;
+    }
+
+    if (topic == null) {
+      await FirebaseMessaging.instance.subscribeToTopic(backend.name);
+      topic = backend.name;
+      return;
+    }
+
+    if (kDebugMode && topic == "dev") {
+      log.i("Already subscribed to dev topic, ignoring.");
+      return;
+    }
+
+    if (kDebugMode) {
+      await FirebaseMessaging.instance.unsubscribeFromTopic(topic!);
+      await FirebaseMessaging.instance.subscribeToTopic("dev");
+      topic = "dev";
+      log.i("Subscribed to dev topic.");
+      return;
+    }
+
+    if (topic == backend.name) {
+      log.i("Already subscribed to backend ${backend.name}, ignoring.");
+      return;
+    }
+
+    await FirebaseMessaging.instance.unsubscribeFromTopic(topic!);
+    await FirebaseMessaging.instance.subscribeToTopic(backend.name);
+    topic = backend.name;
+    log.i("Subscribed to backend ${backend.name}.");
   }
 
   /// Initialize the FCM service.
   static Future<void> load(Backend backend) async {
-    selectBackend(backend);
-
     if (isInitialized) return;
 
     await Firebase.initializeApp();
     await FirebaseMessaging.instance.requestPermission();
     // Don't use await here since it will wait until an internet connection is established.
-    FirebaseMessaging.instance.subscribeToTopic("Neuigkeiten");
+    if (kDebugMode) {
+      FirebaseMessaging.instance.subscribeToTopic("dev");
+      topic = "dev";
+    } else {
+      FirebaseMessaging.instance.subscribeToTopic(backend.name);
+      topic = backend.name;
+    }
 
     channel = const AndroidNotificationChannel(
       'fcm-channel',
@@ -80,16 +116,6 @@ class FCM {
     }
 
     log.i("Received FCM message: ${msg.data}");
-
-    // Decide by the environment and the backend if we should display a notification.
-    // Update the possibleEnvs with your individual env e.g. dev1 instead of dev when testing.
-    final possibleEnvs = ["dev", "staging", "production"];
-    final env = msg.data['environment'];
-    // Set the env to a custom value in the news service when testing so that not everyone with a debug version receives all notifications.
-    if (!possibleEnvs.contains(env)) return;
-    if (env == 'dev' && !kDebugMode) return;
-    if (env == 'staging' && backendToWatch != Backend.staging) return;
-    if (env == 'production' && backendToWatch != Backend.production) return;
 
     if (msg.notification == null) {
       log.w("FCM message has no notification, ignoring.");
