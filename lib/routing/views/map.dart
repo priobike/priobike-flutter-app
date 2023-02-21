@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
@@ -375,6 +376,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
+
+    // Load the boundary layer.
+    await BoundaryLayer(context).install(mapController!);
 
     fitCameraToRouteBounds();
     loadGeoLayers();
