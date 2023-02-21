@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -190,6 +191,7 @@ class Tracking with ChangeNotifier {
     final settings = Provider.of<Settings>(context, listen: false);
     final status = Provider.of<PredictionStatusSummary>(context, listen: false);
     final ride = Provider.of<Ride>(context, listen: false);
+    final profile = Provider.of<Profile>(context, listen: false);
 
     try {
       track = Track(
@@ -212,6 +214,9 @@ class Tracking with ChangeNotifier {
         predictionServicePredictions: [],
         predictorPredictions: [],
         selectedWaypoints: routing.selectedWaypoints!,
+        bikeType: profile.bikeType,
+        preferenceType: profile.preferenceType,
+        activityType: profile.activityType,
         routes: {startTime: routing.selectedRoute!},
       );
       // Add the track to the list of previous tracks and save it.
