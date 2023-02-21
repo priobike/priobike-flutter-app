@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ class StatusView extends StatefulWidget {
   StatusViewState createState() => StatusViewState();
 }
 
-class StatusViewState extends State<StatusView> {
+class StatusViewState extends State<StatusView> with WidgetsBindingObserver, RouteAware {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -31,11 +32,37 @@ class StatusViewState extends State<StatusView> {
   double animatedScale = 1.0;
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      predictionStatusSummary.fetch(context);
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
     text = loadText();
     goodPct = loadGood();
     super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    predictionStatusSummary.fetch(context);
   }
 
   /// Load the displayed text.
