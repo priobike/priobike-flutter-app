@@ -90,7 +90,11 @@ class HomeViewState extends State<HomeView> {
 
   /// A callback that is fired when the settings button is tapped.
   void onSettingsButtonTapped() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsView()));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const SettingsView(),
+      ),
+    );
   }
 
   /// A callback that is fired when a shortcut was selected.
