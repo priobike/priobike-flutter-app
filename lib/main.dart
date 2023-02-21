@@ -39,6 +39,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 final log = Logger("main.dart");
 
+final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
 Future<void> main() async {
   // Ensure that the widgets binding is initialized.
   // This is required by some plugins and functions.
@@ -110,6 +112,7 @@ class App extends StatelessWidget {
           return MaterialApp(
             title: 'PrioBike',
             showPerformanceOverlay: settings.enablePerformanceOverlay,
+            navigatorObservers: [routeObserver],
             theme: ThemeData(
               dialogBackgroundColor: const Color(0xFFFFFFFF),
               fontFamily: 'HamburgSans',

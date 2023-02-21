@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,7 @@ class StatusView extends StatefulWidget {
   StatusViewState createState() => StatusViewState();
 }
 
-class StatusViewState extends State<StatusView> with WidgetsBindingObserver {
+class StatusViewState extends State<StatusView> with WidgetsBindingObserver, RouteAware {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -39,6 +40,7 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
@@ -55,6 +57,12 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver {
     text = loadText();
     goodPct = loadGood();
     super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    predictionStatusSummary.fetch(context);
   }
 
   /// Load the displayed text.
@@ -158,10 +166,7 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver {
           fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
           shadowIntensity: isProblem ? 0.2 : 0.05,
           shadow: isProblem ? CI.red : Colors.black,
-          onPressed: () =>
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())).then((_) {
-            Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
-          }),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
           content: Row(
             children: [
               Flexible(
