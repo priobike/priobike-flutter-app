@@ -133,6 +133,25 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
 
   DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
+  bool isTop = false;
+
+  @override
+  void initState() {
+    super.initState();
+    draggableScrollableController.addListener(() {
+      final frame = MediaQuery.of(context);
+      // Calculation: ((height - 2 * Padding - appBackButtonHeight - systemBar) / Height) + close gap.
+      final double topSnapRatio = ((frame.size.height - 25 - 64 - frame.padding.top) / frame.size.height) + 0.01;
+      final size = draggableScrollableController.isAttached ? draggableScrollableController.size : 0;
+      // Check if changed needed so that the drag animation does not get interrupted.
+      if (isTop != (size <= topSnapRatio + 0.05 && size >= topSnapRatio - 0.05)) {
+        setState(() {
+          isTop = size <= topSnapRatio + 0.05 && size >= topSnapRatio - 0.05;
+        });
+      }
+    });
+  }
+
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet() {
     final shortcuts = Provider.of<Shortcuts>(context, listen: false);
@@ -474,9 +493,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             ),
             const SizedBox(height: 20),
             // Route height profile
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              SubHeader(text: "Höhenprofil", context: context),
-            ]),
             const RouteHeightChart(),
             // Route surface
             GestureDetector(
@@ -617,9 +633,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
           snapSizes: routing.selectedRoute != null ? [0.66] : [],
           controller: draggableScrollableController,
           builder: (BuildContext buildContext, ScrollController scrollController) {
-            final size = draggableScrollableController.isAttached ? draggableScrollableController.size : 0;
-            final bool isTop = size <= topSnapRatio + 0.05 && size >= topSnapRatio - 0.05;
-
             bottomSheetState.draggableScrollableController = draggableScrollableController;
             bottomSheetState.listController = scrollController;
 
