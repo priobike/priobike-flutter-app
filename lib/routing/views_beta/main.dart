@@ -339,6 +339,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
+      bottomSheetState.resetInitialHeight();
       await routing.loadRoutes(context);
       // Set the mapbox logo.
       sheetMovement.add(DraggableScrollableNotification(
@@ -355,6 +356,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
+      bottomSheetState.resetInitialHeight();
       await routing.loadRoutes(context);
       // Set the mapbox logo.
       sheetMovement.add(DraggableScrollableNotification(

@@ -16,6 +16,12 @@ class BottomSheetState with ChangeNotifier {
   BottomSheetState();
 
   /// Function which sets the showRoutingBar.
+  void resetInitialHeight() {
+    initialHeight = 0.175;
+    notifyListeners();
+  }
+
+  /// Function which sets the showRoutingBar.
   void setShowRoutingBar() {
     showRoutingBar = true;
     notifyListeners();
