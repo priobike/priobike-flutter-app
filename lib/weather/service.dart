@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:priobike/dummy/service.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -68,6 +70,8 @@ class Weather with ChangeNotifier {
       }
     }
 
+    final getIt = GetIt.instance;
+    getIt.get<Dummy>().fetch();
     hasLoaded = true;
     notifyListeners();
   }

@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/dummy/service.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -49,6 +51,10 @@ Future<void> main() async {
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
+
+  final getIt = GetIt.instance;
+  getIt.registerSingleton<Weather>(Weather());
+  getIt.registerSingleton<Dummy>(Dummy());
 
   runZonedGuarded(() async {
     runApp(const App());
@@ -102,7 +108,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Feedback()),
         ChangeNotifierProvider(create: (context) => MapSettings()),
         ChangeNotifierProvider(create: (context) => BottomSheetState()),
-        ChangeNotifierProvider(create: (context) => Weather()),
         ChangeNotifierProvider(create: (context) => Ride()),
       ],
       child: StatefulBuilder(

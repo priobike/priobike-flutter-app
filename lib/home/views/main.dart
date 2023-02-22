@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/dummy/service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -63,6 +65,19 @@ class HomeViewState extends State<HomeView> {
 
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
+
+  Dummy? dummy;
+  final getIt = GetIt.instance;
+  String text = "";
+
+  @override
+  void initState() {
+    dummy = getIt.get<Dummy>();
+    dummy!.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -188,7 +203,7 @@ class HomeViewState extends State<HomeView> {
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
-          await Provider.of<Weather>(context, listen: false).fetch(context);
+          await getIt.get<Weather>().fetch(context);
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -250,6 +265,7 @@ class HomeViewState extends State<HomeView> {
                     child: ProfileView(),
                   ),
                   const VSpace(),
+                  BoldContent(text: dummy?.text ?? "", context: context),
                   const SmallVSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 1000),

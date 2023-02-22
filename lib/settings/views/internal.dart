@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -52,6 +53,8 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated weather service, which is injected by the provider.
   late Weather weather;
 
+  final getIt = GetIt.instance;
+
   @override
   void didChangeDependencies() {
     settings = Provider.of<Settings>(context);
@@ -60,7 +63,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
     news = Provider.of<News>(context);
-    weather = Provider.of<Weather>(context);
+    weather = getIt.get<Weather>();
     super.didChangeDependencies();
   }
 

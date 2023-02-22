@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -86,7 +87,8 @@ class LoaderState extends State<Loader> {
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final weather = Provider.of<Weather>(context, listen: false);
+      final getIt = GetIt.instance;
+      final weather = getIt.get<Weather>();
       await weather.fetch(context);
     } catch (e, stackTrace) {
       if (!kDebugMode) {
