@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/messages.dart';
@@ -13,6 +15,10 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class Weather with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Weather");
+
+  Weather(this.ref) : super();
+
+  final riverpod.Ref ref;
 
   /// If the weather has been loaded.
   bool hasLoaded = false;
@@ -69,6 +75,7 @@ class Weather with ChangeNotifier {
     }
 
     hasLoaded = true;
+    ref.read(dummyProvider).fetch();
     notifyListeners();
   }
 }

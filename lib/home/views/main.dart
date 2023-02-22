@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/dummy/service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -11,6 +13,7 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -29,17 +32,16 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
-import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 
-class HomeView extends StatefulWidget {
+class HomeView extends riverpod.ConsumerStatefulWidget {
   const HomeView({Key? key}) : super(key: key);
 
   @override
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView> {
+class HomeViewState extends riverpod.ConsumerState<HomeView> {
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -64,6 +66,8 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  Dummy? dummy;
+
   @override
   void didChangeDependencies() {
     news = Provider.of<News>(context);
@@ -74,6 +78,7 @@ class HomeViewState extends State<HomeView> {
     discomforts = Provider.of<Discomforts>(context, listen: false);
     predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
     statistics = Provider.of<Statistics>(context, listen: false);
+    dummy = ref.watch(dummyProvider);
 
     super.didChangeDependencies();
   }
@@ -188,7 +193,7 @@ class HomeViewState extends State<HomeView> {
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
-          await Provider.of<Weather>(context, listen: false).fetch(context);
+          ref.read(weatherProvider).fetch(context);
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
@@ -250,6 +255,7 @@ class HomeViewState extends State<HomeView> {
                     child: ProfileView(),
                   ),
                   const VSpace(),
+                  BoldContent(text: dummy?.text ?? "", context: context),
                   const SmallVSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 1000),

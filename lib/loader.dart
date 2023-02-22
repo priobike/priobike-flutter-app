@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -14,6 +15,7 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -21,20 +23,19 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Loader extends StatefulWidget {
+class Loader extends riverpod.ConsumerStatefulWidget {
   const Loader({Key? key}) : super(key: key);
 
   @override
   LoaderState createState() => LoaderState();
 }
 
-class LoaderState extends State<Loader> {
+class LoaderState extends riverpod.ConsumerState<Loader> {
   final log = Logger("Loader");
 
   /// If the app is currently loading.
@@ -86,7 +87,7 @@ class LoaderState extends State<Loader> {
       final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final weather = Provider.of<Weather>(context, listen: false);
+      final weather = ref.read(weatherProvider);
       await weather.fetch(context);
     } catch (e, stackTrace) {
       if (!kDebugMode) {

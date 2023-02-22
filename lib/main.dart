@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -37,9 +38,14 @@ import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'dummy/service.dart';
+
 final log = Logger("main.dart");
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
+final weatherProvider = riverpod.ChangeNotifierProvider<Weather>((ref) => Weather(ref));
+final dummyProvider = riverpod.ChangeNotifierProvider<Dummy>((ref) => Dummy());
 
 Future<void> main() async {
   // Ensure that the widgets binding is initialized.
@@ -51,7 +57,7 @@ Future<void> main() async {
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
   runZonedGuarded(() async {
-    runApp(const App());
+    runApp(const riverpod.ProviderScope(child: App()));
   }, (error, stack) async {
     // Log the error to the console.
     log.e(error.toString());
@@ -102,7 +108,6 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Feedback()),
         ChangeNotifierProvider(create: (context) => MapSettings()),
         ChangeNotifierProvider(create: (context) => BottomSheetState()),
-        ChangeNotifierProvider(create: (context) => Weather()),
         ChangeNotifierProvider(create: (context) => Ride()),
       ],
       child: StatefulBuilder(

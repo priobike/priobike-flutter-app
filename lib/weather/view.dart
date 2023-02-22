@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/weather/messages.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 
-class WeatherView extends StatefulWidget {
+class WeatherView extends ConsumerStatefulWidget {
   const WeatherView({Key? key}) : super(key: key);
 
   @override
   WeatherViewState createState() => WeatherViewState();
 }
 
-class WeatherViewState extends State<WeatherView> {
+class WeatherViewState extends ConsumerState<WeatherView> {
   /// The associated weather service, which is injected by the provider.
   late Weather weather;
 
@@ -28,7 +29,7 @@ class WeatherViewState extends State<WeatherView> {
 
   @override
   void didChangeDependencies() {
-    weather = Provider.of<Weather>(context);
+    weather = ref.watch(weatherProvider);
     loadIcon();
     loadSummary();
     super.didChangeDependencies();

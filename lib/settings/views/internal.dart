@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -23,14 +25,14 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:provider/provider.dart';
 
-class InternalSettingsView extends StatefulWidget {
+class InternalSettingsView extends riverpod.ConsumerStatefulWidget {
   const InternalSettingsView({Key? key}) : super(key: key);
 
   @override
   InternalSettingsViewState createState() => InternalSettingsViewState();
 }
 
-class InternalSettingsViewState extends State<InternalSettingsView> {
+class InternalSettingsViewState extends riverpod.ConsumerState<InternalSettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
@@ -60,7 +62,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     position = Provider.of<Positioning>(context);
     routing = Provider.of<Routing>(context);
     news = Provider.of<News>(context);
-    weather = Provider.of<Weather>(context);
+    weather = ref.watch(weatherProvider);
     super.didChangeDependencies();
   }
 
