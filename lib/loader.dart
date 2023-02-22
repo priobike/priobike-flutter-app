@@ -23,7 +23,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +52,12 @@ class LoaderState extends State<Loader> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// he singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   /// Initialize everything needed before we can show the home view.
   Future<void> init(BuildContext context) async {
     // Init the HTTP client for all services.
@@ -63,7 +68,7 @@ class LoaderState extends State<Loader> {
     await SentryFlutter.init((options) => options.dsn = dsn);
 
     // Load the feature.
-    final feature = Provider.of<Feature>(context, listen: false);
+    final feature = getIt.get<Feature>();
     await feature.load();
     // Load the settings.
     await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
@@ -71,23 +76,22 @@ class LoaderState extends State<Loader> {
     // Load all other services.
     try {
       // Load local stuff.
-      await Provider.of<Profile>(context, listen: false).loadProfile();
-      await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
-      await Provider.of<Statistics>(context, listen: false).loadStatistics();
-      await Provider.of<Layers>(context, listen: false).loadPreferences();
-      await Provider.of<MapDesigns>(context, listen: false).loadPreferences();
-      final tracking = Provider.of<Tracking>(context, listen: false);
+      await getIt.get<Profile>().loadProfile();
+      await getIt.get<Shortcuts>().loadShortcuts(context);
+      await getIt.get<Statistics>().loadStatistics();
+      await getIt.get<Layers>().loadPreferences();
+      await getIt.get<MapDesigns>().loadPreferences();
+      final tracking = getIt.get<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
-      final news = Provider.of<News>(context, listen: false);
+      final news = getIt.get<News>();
       await news.getArticles(context);
       if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
+      final predictionStatusSummary = getIt.get<PredictionStatusSummary>();
       await predictionStatusSummary.fetch(context);
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final getIt = GetIt.instance;
       final weather = getIt.get<Weather>();
       await weather.fetch(context);
     } catch (e, stackTrace) {
@@ -116,15 +120,20 @@ class LoaderState extends State<Loader> {
 
   @override
   void initState() {
+    update = () => setState(() {});
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+
     super.initState();
     // Init the view once the app is ready.
     SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
   }
 
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   _resetData() async {

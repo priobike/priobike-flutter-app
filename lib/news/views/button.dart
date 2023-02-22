@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/services/news.dart';
-import 'package:provider/provider.dart';
 
 class NewsButton extends StatefulWidget {
   /// A callback that is fired when the button was pressed.
@@ -22,18 +22,31 @@ class NewsButtonState extends State<NewsButton> {
   /// The number of unread articles.
   int unread = 0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   @override
-  void didChangeDependencies() {
-    news = Provider.of<News>(context);
-    final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
-    if (unread != this.unread) {
-      setState(
-        () {
-          this.unread = unread;
-        },
-      );
-    }
-    super.didChangeDependencies();
+  void initState() {
+    news = GetIt.instance.get<News>();
+    update = () {
+      final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
+      if (unread != this.unread) {
+        setState(
+          () {
+            this.unread = unread;
+          },
+        );
+      }
+    };
+    news.addListener(update);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    news.removeListener(update);
+    super.dispose();
   }
 
   @override

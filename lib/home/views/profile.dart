@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -80,19 +81,33 @@ class ProfileViewState extends State<ProfileView> {
   /// The associated profile service, which is injected by the provider.
   late Profile profileService;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
   bool activitySelectionActive = false;
 
   @override
-  void didChangeDependencies() {
-    profileService = Provider.of<Profile>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+    profileService = getIt.get<Profile>();
+    profileService.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profileService.removeListener(update);
+    super.dispose();
   }
 
   void toggleBikeSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt.get<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {
@@ -105,7 +120,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void togglePreferenceSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt.get<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {
@@ -118,7 +133,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void toggleActivitySelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt.get<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {

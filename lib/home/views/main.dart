@@ -5,7 +5,6 @@ import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/dummy/service.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -32,7 +31,6 @@ import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -66,31 +64,40 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
-  Dummy? dummy;
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
-  String text = "";
 
   @override
   void initState() {
-    dummy = getIt.get<Dummy>();
-    dummy!.addListener(() {
-      setState(() {});
-    });
+    update = () => setState(() {});
+
+    news = getIt.get<News>();
+    news.addListener(update);
+    profile = getIt.get<Profile>();
+    profile.addListener(update);
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+
+    routing = getIt.get<Routing>();
+    discomforts = getIt.get<Discomforts>();
+    predictionSGStatus = getIt.get<PredictionSGStatus>();
+    statistics = getIt.get<Statistics>();
+
     super.initState();
   }
 
   @override
-  void didChangeDependencies() {
-    news = Provider.of<News>(context);
-    profile = Provider.of<Profile>(context);
-    settings = Provider.of<Settings>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    routing = Provider.of<Routing>(context, listen: false);
-    discomforts = Provider.of<Discomforts>(context, listen: false);
-    predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
-    statistics = Provider.of<Statistics>(context, listen: false);
-
-    super.didChangeDependencies();
+  void dispose() {
+    news.removeListener(update);
+    profile.removeListener(update);
+    settings.removeListener(update);
+    shortcuts.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the notification button is tapped.
@@ -117,7 +124,7 @@ class HomeViewState extends State<HomeView> {
     HapticFeedback.mediumImpact();
 
     // Tell the tutorial service that the shortcut was selected.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.select-shortcut");
+    getIt.get<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
 
@@ -202,7 +209,7 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await Provider.of<PredictionStatusSummary>(context, listen: false).fetch(context);
+          await getIt.get<PredictionStatusSummary>().fetch(context);
           await getIt.get<Weather>().fetch(context);
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
@@ -265,7 +272,6 @@ class HomeViewState extends State<HomeView> {
                     child: ProfileView(),
                   ),
                   const VSpace(),
-                  BoldContent(text: dummy?.text ?? "", context: context),
                   const SmallVSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 1000),
