@@ -72,6 +72,7 @@ class HomeViewState extends State<HomeView> {
 
   @override
   void initState() {
+    super.initState();
     update = () => setState(() {});
 
     news = getIt.get<News>();
@@ -87,8 +88,6 @@ class HomeViewState extends State<HomeView> {
     discomforts = getIt.get<Discomforts>();
     predictionSGStatus = getIt.get<PredictionSGStatus>();
     statistics = getIt.get<Statistics>();
-
-    super.initState();
   }
 
   @override

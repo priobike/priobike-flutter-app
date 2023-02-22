@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -12,7 +13,6 @@ import 'package:priobike/routing/views_beta/main.dart';
 import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({Key? key}) : super(key: key);
@@ -39,14 +39,35 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associcated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// he singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  void updateServices() {
+    routing = getIt.get<Routing>();
+    discomforts = getIt.get<Discomforts>();
+    predictionSGStatus = getIt.get<PredictionSGStatus>();
+    settings = getIt.get<Settings>();
+  }
+
   @override
-  void didChangeDependencies() {
-    shortcuts = Provider.of<Shortcuts>(context);
-    routing = Provider.of<Routing>(context, listen: false);
-    discomforts = Provider.of<Discomforts>(context, listen: false);
-    predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
-    settings = Provider.of<Settings>(context, listen: false);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () {
+      updateServices();
+      setState(() {});
+    };
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+    updateServices();
+  }
+
+  @override
+  void dispose() {
+    shortcuts.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when the order of the shortcuts change.
@@ -61,7 +82,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     final shortcut = reorderedShortcuts.removeAt(oldIndex);
     reorderedShortcuts.insert(newIndex, shortcut);
 
-    shortcuts.updateShortcuts(reorderedShortcuts, context);
+    shortcuts.updateShortcuts(reorderedShortcuts);
   }
 
   /// A callback that is executed when a shortcut should be deleted.
@@ -71,7 +92,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     final newShortcuts = shortcuts.shortcuts!.toList();
     newShortcuts.removeAt(idx);
 
-    shortcuts.updateShortcuts(newShortcuts, context);
+    shortcuts.updateShortcuts(newShortcuts);
   }
 
   @override

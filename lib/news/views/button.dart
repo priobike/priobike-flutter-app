@@ -27,6 +27,7 @@ class NewsButtonState extends State<NewsButton> {
 
   @override
   void initState() {
+    super.initState();
     news = GetIt.instance.get<News>();
     update = () {
       final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
@@ -39,8 +40,6 @@ class NewsButtonState extends State<NewsButton> {
       }
     };
     news.addListener(update);
-
-    super.initState();
   }
 
   @override

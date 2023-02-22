@@ -120,12 +120,12 @@ class LoaderState extends State<Loader> {
 
   @override
   void initState() {
+    super.initState();
     update = () => setState(() {});
 
     settings = getIt.get<Settings>();
     settings.addListener(update);
 
-    super.initState();
     // Init the view once the app is ready.
     SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
   }

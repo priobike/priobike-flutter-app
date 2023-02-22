@@ -35,7 +35,6 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 final log = Logger("main.dart");
@@ -102,7 +101,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
-        final settings = Provider.of<Settings>(context);
+        final settings = GetIt.instance.get<Settings>();
+        settings.addListener(() => setState(() {}));
 
         return MaterialApp(
           title: 'PrioBike',

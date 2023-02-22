@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/cancel_button.dart';
-import 'package:provider/provider.dart';
 
 class RideTrafficLightView extends StatefulWidget {
   const RideTrafficLightView({Key? key}) : super(key: key);
@@ -15,10 +15,24 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
 
+  /// he singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   @override
-  void didChangeDependencies() {
-    ride = Provider.of<Ride>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+    ride = getIt.get<Ride>();
+    ride.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    ride.removeListener(update);
+    super.dispose();
   }
 
   @override

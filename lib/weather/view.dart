@@ -30,11 +30,11 @@ class WeatherViewState extends State<WeatherView> {
 
   @override
   void initState() {
+    super.initState();
     weather = getIt.get<Weather>();
     weather.addListener(() {
       setState(() {});
     });
-    super.initState();
   }
 
   @override

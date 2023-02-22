@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -9,12 +10,14 @@ import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Shortcuts with ChangeNotifier {
   /// All available shortcuts.
   List<Shortcut>? shortcuts;
+
+  /// he singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
 
   Shortcuts();
 
@@ -24,17 +27,17 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Save a new shortcut.
-  Future<void> saveNewShortcut(String name, BuildContext context) async {
-    final routing = Provider.of<Routing>(context, listen: false);
+  Future<void> saveNewShortcut(String name) async {
+    final routing = getIt.get<Routing>();
 
-    final bottomSheetState = Provider.of<BottomSheetState>(context, listen: false);
+    final bottomSheetState = getIt.get<BottomSheetState>();
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
-        final geocoding = Provider.of<Geocoding>(context, listen: false);
+        final geocoding = getIt.get<Geocoding>();
         final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
@@ -42,10 +45,10 @@ class Shortcuts with ChangeNotifier {
     }
 
     final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
-    if (shortcuts == null) await loadShortcuts(context);
+    if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = [newShortcut] + shortcuts!;
-    await storeShortcuts(context);
+    await storeShortcuts();
 
     bottomSheetState.reset();
     routing.reset();
@@ -54,18 +57,18 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Update the shortcuts.
-  Future<void> updateShortcuts(List<Shortcut> newShortcuts, BuildContext context) async {
+  Future<void> updateShortcuts(List<Shortcut> newShortcuts) async {
     shortcuts = newShortcuts;
-    await storeShortcuts(context);
+    await storeShortcuts();
     notifyListeners();
   }
 
   /// Store all shortcuts.
-  Future<void> storeShortcuts(BuildContext context) async {
+  Future<void> storeShortcuts() async {
     if (shortcuts == null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt.get<Settings>().backend;
 
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -76,11 +79,11 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Load the custom shortcuts.
-  Future<void> loadShortcuts(BuildContext context) async {
+  Future<void> loadShortcuts() async {
     if (shortcuts != null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt.get<Settings>().backend;
     String? jsonStr;
     if (backend == Backend.production) {
       jsonStr = storage.getString("priobike.home.shortcuts.production");

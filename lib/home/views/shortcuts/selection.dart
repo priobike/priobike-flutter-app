@@ -1,15 +1,15 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
   final bool isLoading;
@@ -156,6 +156,12 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The scroll controller.
   late ScrollController scrollController;
 
+  /// he singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   @override
   void initState() {
     super.initState();
@@ -167,14 +173,18 @@ class ShortcutsViewState extends State<ShortcutsView> {
         }
       },
     );
+    update = () => setState(() {});
+    ss = getIt<Shortcuts>();
+    rs = getIt<Routing>();
+    ss.addListener(update);
+    rs.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    ss = Provider.of<Shortcuts>(context);
-    rs = Provider.of<Routing>(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) => triggerAnimations());
-    super.didChangeDependencies();
+  void dispose() {
+    ss.removeListener(update);
+    rs.removeListener(update);
+    super.dispose();
   }
 
   /// Trigger the animation of the status view.
