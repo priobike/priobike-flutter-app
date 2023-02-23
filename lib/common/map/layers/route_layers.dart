@@ -26,7 +26,7 @@ class AllRoutesLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  AllRoutesLayer(BuildContext context) {
+  AllRoutesLayer() {
     final routing = getIt.get<Routing>();
     for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
       final geometry = {
@@ -105,7 +105,7 @@ class SelectedRouteLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  SelectedRouteLayer(BuildContext context) {
+  SelectedRouteLayer() {
     final routing = getIt.get<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
@@ -198,7 +198,7 @@ class RouteLabelLayer {
 
   RouteLabelLayer._();
 
-  static Future<RouteLabelLayer> create(BuildContext context) async {
+  static Future<RouteLabelLayer> create(double deviceWidth, double deviceHeight) async {
     final getIt = GetIt.instance;
     var routeLabelLayer = RouteLabelLayer._();
 
@@ -212,8 +212,6 @@ class RouteLabelLayer {
         routing.selectedRoute != null) {
       var distance = const Distance();
 
-      double width = MediaQuery.of(context).size.width;
-      double height = MediaQuery.of(context).size.height;
       double meterPerPixel =
           zoomToGeographicalDistance[(await mapController.controller!.getCameraState()).zoom.toInt()] ?? 0;
       double cameraPosLat = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[1];
@@ -224,10 +222,10 @@ class RouteLabelLayer {
 
       // Getting the bounds north, east, south, west.
       // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-      LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-      LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-      LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      LatLng north = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 0);
+      LatLng east = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 90);
+      LatLng south = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 180);
+      LatLng west = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 270);
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
@@ -422,7 +420,7 @@ class DiscomfortsLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  DiscomfortsLayer(BuildContext context) {
+  DiscomfortsLayer() {
     final discomforts = getIt.get<Discomforts>().foundDiscomforts;
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
@@ -523,7 +521,7 @@ class WaypointsLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  WaypointsLayer(BuildContext context) {
+  WaypointsLayer() {
     final routing = getIt.get<Routing>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
@@ -597,8 +595,7 @@ class DangersLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  DangersLayer(BuildContext context, {hideBehindPosition = false}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  DangersLayer(bool isDark, {hideBehindPosition = false}) {
     final dangers = getIt.get<Dangers>();
     final routing = getIt.get<Routing>();
     final userPosSnap = getIt.get<Positioning>().snap;

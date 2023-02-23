@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/material.dart' hide Route;
 import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
@@ -19,8 +18,7 @@ class TrafficLightsLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  TrafficLightsLayer(BuildContext context, {hideBehindPosition = false}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  TrafficLightsLayer(bool isDark, {hideBehindPosition = false}) {
     final showLabels = getIt.get<Settings>().sgLabelsMode == SGLabelsMode.enabled;
     final routing = getIt.get<Routing>();
     final userPosSnap = getIt.get<Positioning>().snap;
@@ -143,8 +141,7 @@ class TrafficLightLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  TrafficLightLayer(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  TrafficLightLayer(bool isDark) {
     final ride = getIt.get<Ride>();
     final sgQuality = ride.predictionComponent?.prediction?.predictionQuality;
     String sgIcon;
@@ -251,8 +248,7 @@ class OfflineCrossingsLayer {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  OfflineCrossingsLayer(BuildContext context, {hideBehindPosition = false}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  OfflineCrossingsLayer(bool isDark, {hideBehindPosition = false}) {
     final showLabels = getIt.get<Settings>().sgLabelsMode == SGLabelsMode.enabled;
     final routing = getIt.get<Routing>();
     final userPosSnap = getIt.get<Positioning>().snap;

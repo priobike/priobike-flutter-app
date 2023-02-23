@@ -183,7 +183,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                     }
                   }
                 }
-                Navigator.pop(context);
+                if (mounted) Navigator.pop(context);
               },
               child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
             ),
@@ -243,30 +243,32 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     if (didViewWarning) {
       startRide();
     } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routing.warning", true);
-                startRide();
-              },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            alignment: AlignmentDirectional.center,
+            actionsAlignment: MainAxisAlignment.center,
+            title: BoldContent(
+                text:
+                    'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                context: context),
+            content: Container(height: 0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  preferences.setBool("priobike.routing.warning", true);
+                  startRide();
+                },
+                child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 

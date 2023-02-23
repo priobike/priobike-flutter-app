@@ -169,7 +169,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       await routing.selectWaypoints(routing.routingItems.map((e) => e!).toList());
       routing.routingItems = [];
       routing.nextItem = -1;
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
       return;
     }
     setState(() {

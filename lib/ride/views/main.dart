@@ -8,6 +8,7 @@ import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/datastream.dart';
@@ -67,6 +68,9 @@ class RideViewState extends State<RideView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
+        final deviceWidth = MediaQuery.of(context).size.width;
+        final deviceHeight = MediaQuery.of(context).size.height;
+
         final tracking = getIt.get<Tracking>();
         final positioning = getIt.get<Positioning>();
         final datastream = getIt.get<Datastream>();
@@ -91,7 +95,10 @@ class RideViewState extends State<RideView> {
         }
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
-          context: context,
+          onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning.positionSource);
+          },
           onNewPosition: () async {
             await dangers.calculateUpcomingAndPreviousDangers();
             await ride.updatePosition();
@@ -112,8 +119,9 @@ class RideViewState extends State<RideView> {
             }
           },
         );
+
         // Start tracking once the `sessionId` is set and the positioning stream is available.
-        await tracking.start(context);
+        await tracking.start(deviceWidth, deviceHeight);
       },
     );
   }

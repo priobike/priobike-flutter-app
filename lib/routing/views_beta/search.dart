@@ -149,7 +149,7 @@ class SearchViewState extends State<SearchView> {
       await routing.selectWaypoints(newWaypoints);
     }
 
-    Navigator.of(context).pop(waypoint);
+    if (mounted) Navigator.of(context).pop(waypoint);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -168,35 +168,37 @@ class SearchViewState extends State<SearchView> {
     FocusManager.instance.primaryFocus?.unfocus();
     // We have to wait a little while since we can't await the void method above.
     await Future.delayed(const Duration(milliseconds: 100));
-    final waypoint = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SelectOnMapView(withName: false),
-      ),
-    );
+    if (mounted) {
+      final waypoint = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const SelectOnMapView(withName: false),
+        ),
+      );
 
-    final waypoints = routing.selectedWaypoints ?? [];
-    // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
+      final waypoints = routing.selectedWaypoints ?? [];
+      // exchange with new waypoint
+      List<Waypoint> newWaypoints = waypoints.toList();
 
-    if (!widget.fromRouteSearch) {
-      if (widget.index != null) {
-        newWaypoints[widget.index!] = waypoint;
-      } else {
-        // Insert current location as first waypoint if option is set
-        if (profile.setLocationAsStart &&
-            currentLocationWaypoint != null &&
-            waypoints.isEmpty &&
-            waypoint.address != null) {
-          newWaypoints = [currentLocationWaypoint!, waypoint];
+      if (!widget.fromRouteSearch) {
+        if (widget.index != null) {
+          newWaypoints[widget.index!] = waypoint;
         } else {
-          newWaypoints = [...waypoints, waypoint];
+          // Insert current location as first waypoint if option is set
+          if (profile.setLocationAsStart &&
+              currentLocationWaypoint != null &&
+              waypoints.isEmpty &&
+              waypoint.address != null) {
+            newWaypoints = [currentLocationWaypoint!, waypoint];
+          } else {
+            newWaypoints = [...waypoints, waypoint];
+          }
         }
       }
+
+      await routing.selectWaypoints(newWaypoints);
+
+      if (mounted) Navigator.of(context).pop(waypoint);
     }
-
-    await routing.selectWaypoints(newWaypoints);
-
-    Navigator.of(context).pop(waypoint);
   }
 
   /// The callback that is executed when the current location button is pressed.

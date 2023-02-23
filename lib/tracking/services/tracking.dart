@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -171,7 +170,7 @@ class Tracking with ChangeNotifier {
   }
 
   /// Start a new track.
-  Future<void> start(BuildContext context) async {
+  Future<void> start(double deviceWidth, double deviceHeight) async {
     log.i("Starting a new track.");
 
     // Get some session- and device-specific data.
@@ -208,8 +207,8 @@ class Tracking with ChangeNotifier {
         userId: await User.getOrCreateId(),
         sessionId: ride.sessionId!,
         deviceType: deviceType,
-        deviceWidth: MediaQuery.of(context).size.width,
-        deviceHeight: MediaQuery.of(context).size.height,
+        deviceWidth: deviceWidth,
+        deviceHeight: deviceHeight,
         appVersion: packageInfo.version,
         buildNumber: packageInfo.buildNumber,
         statusSummary: status.current!,

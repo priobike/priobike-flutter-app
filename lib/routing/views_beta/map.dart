@@ -354,13 +354,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map layers for the route.
   loadRouteMapLayers() async {
     if (mapController == null) return;
-    await AllRoutesLayer(context).update(mapController!);
-    await SelectedRouteLayer(context).update(mapController!);
-    await WaypointsLayer(context).update(mapController!);
-    await DiscomfortsLayer(context).update(mapController!);
-    await TrafficLightsLayer(context).update(mapController!);
-    await OfflineCrossingsLayer(context).update(mapController!);
-    await (await RouteLabelLayer.create(context)).update(mapController!);
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await AllRoutesLayer().update(mapController!);
+    await SelectedRouteLayer().update(mapController!);
+    await WaypointsLayer().update(mapController!);
+    await DiscomfortsLayer().update(mapController!);
+    await TrafficLightsLayer(isDark).update(mapController!);
+    await OfflineCrossingsLayer(isDark).update(mapController!);
+
+    await (await RouteLabelLayer.create(deviceHeight, deviceWidth)).update(mapController!);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -428,6 +432,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -436,38 +444,37 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     fitAttributionPosition();
 
     // Trigger an update of the map layers.
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    final offlineCrossings = await OfflineCrossingsLayer(context).install(
+    final offlineCrossings = await OfflineCrossingsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
     );
-    final trafficLights = await TrafficLightsLayer(context).install(
+    final trafficLights = await TrafficLightsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
       below: offlineCrossings,
     );
-    final discomforts = await DiscomfortsLayer(context).install(
+    final discomforts = await DiscomfortsLayer().install(
       mapController!,
       iconSize: ppi / 8,
       below: trafficLights,
     );
-    final waypoints = await WaypointsLayer(context).install(
+    final waypoints = await WaypointsLayer().install(
       mapController!,
       iconSize: ppi / 8,
       below: discomforts,
     );
-    final selectedRoute = await SelectedRouteLayer(context).install(
+    final selectedRoute = await SelectedRouteLayer().install(
       mapController!,
       below: waypoints,
     );
     if (widget.withRouting) {
-      await AllRoutesLayer(context).install(
+      await AllRoutesLayer().install(
         mapController!,
         below: selectedRoute,
       );
-      await (await RouteLabelLayer.create(context)).install(mapController!, iconSize: ppi / 6);
+      await (await RouteLabelLayer.create(deviceWidth, deviceHeight)).install(mapController!, iconSize: ppi / 6);
       await loadRouteMapLayers();
-      await (await RouteLabelLayer.create(context)).update(mapController!);
+      await (await RouteLabelLayer.create(deviceWidth, deviceHeight)).update(mapController!);
     }
     await fitCameraToRouteBounds();
     await displayCurrentUserLocation();
@@ -543,9 +550,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting && mapController != null && !(await mapController!.isUserAnimationInProgress())) {
-      await (await RouteLabelLayer.create(context)).update(mapController!);
+      await (await RouteLabelLayer.create(deviceWidth, deviceHeight)).update(mapController!);
     }
   }
 

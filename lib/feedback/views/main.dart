@@ -63,8 +63,10 @@ class FeedbackViewState extends State<FeedbackView> {
 
     showNavigationBarAndroid();
 
-    // Call the callback.
-    await widget.onSubmitted(context);
+    if (mounted) {
+      // Call the callback.
+      await widget.onSubmitted(context);
+    }
   }
 
   /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View

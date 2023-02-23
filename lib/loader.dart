@@ -161,7 +161,7 @@ class LoaderState extends State<Loader> {
               onPressed: () async {
                 await _resetData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
-                Navigator.of(context).pop();
+                if (mounted) Navigator.of(context).pop();
               },
               child: Content(
                 text: "Zurücksetzen",

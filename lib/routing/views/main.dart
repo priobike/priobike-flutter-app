@@ -12,6 +12,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
@@ -121,7 +122,10 @@ class RoutingViewState extends State<RoutingView> {
         await routing?.loadRoutes();
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning?.requestSingleLocation(context);
+        await positioning?.requestSingleLocation(onNoPermission: () {
+          Navigator.of(context).pop();
+          showLocationAccessDeniedDialog(context, positioning!.positionSource);
+        });
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {

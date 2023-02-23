@@ -44,7 +44,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
         borderRadius: BorderRadius.circular(100),
       ),
-      child: CancelButton(
+      child: const CancelButton(
         borderRadius: 128,
         text: "Fertig",
       ),
@@ -110,7 +110,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
             ),
             Transform.translate(
               offset: const Offset(0, 24),
-              child: CancelButton(),
+              child: const CancelButton(),
             ),
           ],
         ),

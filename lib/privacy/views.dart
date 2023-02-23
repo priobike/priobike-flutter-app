@@ -56,7 +56,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
     // Load once the window was built.
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
-        await privacyService.loadPolicy(context);
+        final assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+        await privacyService.loadPolicy(assetText);
       },
     );
   }
@@ -83,7 +84,8 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    await privacyService.confirm(context);
+    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    await privacyService.confirm(confirmedPolicy);
   }
 
   @override

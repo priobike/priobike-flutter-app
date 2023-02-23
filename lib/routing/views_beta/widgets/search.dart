@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 
@@ -229,7 +230,12 @@ class RouteSearchState extends State<RouteSearch> {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await positioning.requestSingleLocation(context);
+      await positioning.requestSingleLocation(
+        onNoPermission: () {
+          Navigator.of(context).pop();
+          showLocationAccessDeniedDialog(context, positioning.positionSource);
+        },
+      );
     });
 
     update = () => setState(() {});

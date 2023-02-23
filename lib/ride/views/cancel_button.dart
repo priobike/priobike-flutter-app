@@ -11,8 +11,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
-/// A cancel button to cancel the ride.
-class CancelButton extends StatelessWidget {
+class CancelButton extends StatefulWidget {
   /// The border radius of the button.
   final double borderRadius;
 
@@ -20,8 +19,14 @@ class CancelButton extends StatelessWidget {
   final String text;
 
   /// Create a new cancel button.
-  CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
+  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
+  @override
+  CancelButtonState createState() => CancelButtonState();
+}
+
+/// A cancel button to cancel the ride.
+class CancelButtonState extends State<CancelButton> {
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
@@ -42,7 +47,7 @@ class CancelButton extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => onTap(context),
+          onPressed: () => onTap(),
           style: ButtonStyle(
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
@@ -76,7 +81,7 @@ class CancelButton extends StatelessWidget {
   }
 
   /// A callback that is executed when the cancel button is pressed.
-  Future<void> onTap(BuildContext context) async {
+  Future<void> onTap() async {
     // End the tracking and collect the data.
     final tracking = getIt.get<Tracking>();
     await tracking.end(); // Performs all needed resets.
@@ -97,41 +102,45 @@ class CancelButton extends StatelessWidget {
     final position = getIt.get<Positioning>();
     await position.stopGeolocation();
 
-    // Show the feedback dialog.
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => WillPopScope(
-          onWillPop: () async => false,
-          child: FeedbackView(
-            onSubmitted: (context) async {
-              // Reset the statistics.
-              await statistics.reset();
+    if (mounted) {
+      // Show the feedback dialog.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => WillPopScope(
+            onWillPop: () async => false,
+            child: FeedbackView(
+              onSubmitted: (context) async {
+                // Reset the statistics.
+                await statistics.reset();
 
-              // Reset the ride service.
-              await ride.reset();
+                // Reset the ride service.
+                await ride.reset();
 
-              // Reset the position service.
-              await position.reset();
+                // Reset the position service.
+                await position.reset();
 
-              // Reset the route service.
-              final routing = getIt.get<Routing>();
-              await routing.reset();
+                // Reset the route service.
+                final routing = getIt.get<Routing>();
+                await routing.reset();
 
-              // Reset the prediction sg status.
-              final predictionSGStatus = getIt.get<PredictionSGStatus>();
-              await predictionSGStatus.reset();
+                // Reset the prediction sg status.
+                final predictionSGStatus = getIt.get<PredictionSGStatus>();
+                await predictionSGStatus.reset();
 
-              // Reset the dangers.
-              final dangers = getIt.get<Dangers>();
-              await dangers.reset();
+                // Reset the dangers.
+                final dangers = getIt.get<Dangers>();
+                await dangers.reset();
 
-              // Leave the feedback view.
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
+                if (mounted) {
+                  // Leave the feedback view.
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -141,7 +150,7 @@ class CancelButton extends StatelessWidget {
       child: ElevatedButton.icon(
         icon: const Icon(Icons.flag_rounded),
         label: BoldSmall(
-          text: text,
+          text: widget.text,
           context: context,
           color: Colors.white,
         ),
@@ -152,7 +161,7 @@ class CancelButton extends StatelessWidget {
         style: ButtonStyle(
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(widget.borderRadius),
               side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
             ),
           ),

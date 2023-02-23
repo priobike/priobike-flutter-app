@@ -314,37 +314,38 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   loadRouteMapLayers() async {
     if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!mounted) return;
-    final offlineCrossings = await OfflineCrossingsLayer(context).install(
+    final offlineCrossings = await OfflineCrossingsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
     );
     if (!mounted) return;
-    final trafficLights = await TrafficLightsLayer(context).install(
+    final trafficLights = await TrafficLightsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
       below: offlineCrossings,
     );
     if (!mounted) return;
-    final waypoints = await WaypointsLayer(context).install(
+    final waypoints = await WaypointsLayer().install(
       mapController!,
       iconSize: 0.2,
       below: trafficLights,
     );
     if (!mounted) return;
-    final discomforts = await DiscomfortsLayer(context).install(
+    final discomforts = await DiscomfortsLayer().install(
       mapController!,
       iconSize: ppi / 8,
       below: waypoints,
     );
     if (!mounted) return;
-    final selectedRoute = await SelectedRouteLayer(context).install(
+    final selectedRoute = await SelectedRouteLayer().install(
       mapController!,
       below: discomforts,
     );
     if (!mounted) return;
-    await AllRoutesLayer(context).install(
+    await AllRoutesLayer().install(
       mapController!,
       below: selectedRoute,
     );

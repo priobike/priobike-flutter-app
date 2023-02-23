@@ -13,6 +13,7 @@ import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
@@ -102,11 +103,18 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         await routing.loadRoutes();
         await getIt.get<Places>().loadPlaces();
         // To place the mapbox logo correct when shortcut selected in home screen.
-        sheetMovement.add(DraggableScrollableNotification(
-            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+        if (mounted) {
+          sheetMovement.add(DraggableScrollableNotification(
+              minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+        }
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning.requestSingleLocation(context);
+        await positioning.requestSingleLocation(
+          onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning.positionSource);
+          },
+        );
         // Checking threshold for location accuracy
         if (positioning.lastPosition?.accuracy != null &&
             positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -188,30 +196,32 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (didViewWarning) {
       startRide();
     } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routingNew.warning", true);
-                startRide();
-              },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            alignment: AlignmentDirectional.center,
+            actionsAlignment: MainAxisAlignment.center,
+            title: BoldContent(
+                text:
+                    'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                context: context),
+            content: Container(height: 0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  preferences.setBool("priobike.routingNew.warning", true);
+                  startRide();
+                },
+                child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -355,8 +365,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       // Minimize view when coming from extra search page.
       routing.setMinimized();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -371,8 +383,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -387,8 +401,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
       await routing.loadRoutes();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -411,8 +427,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     await routing.selectWaypoints(waypoints);
     await routing.loadRoutes();
     // Set the mapbox logo.
-    sheetMovement.add(DraggableScrollableNotification(
-        minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+    if (mounted) {
+      sheetMovement.add(DraggableScrollableNotification(
+          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+    }
   }
 
   @override
