@@ -8,7 +8,6 @@ import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
-import 'package:provider/provider.dart';
 
 class ProfileElementButton extends StatelessWidget {
   final IconData icon;

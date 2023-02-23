@@ -204,7 +204,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
                       ),
                     ),
                     InkWell(
-                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, 1),
+                      onTap: () => dangers.vote(dangers.previousDangerToVoteFor!, 1),
                       child: Container(
                         width: 48,
                         height: 48,
@@ -235,7 +235,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
                     ),
                     const SmallHSpace(),
                     InkWell(
-                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, -1),
+                      onTap: () => dangers.vote(dangers.previousDangerToVoteFor!, -1),
                       child: Container(
                         width: 48,
                         height: 48,

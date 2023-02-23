@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/arrow.dart';
-import 'package:provider/provider.dart';
 
 class InstructionsView extends StatefulWidget {
   const InstructionsView({Key? key}) : super(key: key);
@@ -18,11 +18,25 @@ class InstructionsViewState extends State<InstructionsView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
-    super.didChangeDependencies();
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    super.dispose();
   }
 
   /// The widget that displays an instruction.

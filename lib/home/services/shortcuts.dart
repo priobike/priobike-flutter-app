@@ -38,7 +38,7 @@ class Shortcuts with ChangeNotifier {
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
         final geocoding = getIt.get<Geocoding>();
-        final String? address = await geocoding.reverseGeocodeLatLng(context, waypoint.lat, waypoint.lon);
+        final String? address = await geocoding.reverseGeocodeLatLng(waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
       }

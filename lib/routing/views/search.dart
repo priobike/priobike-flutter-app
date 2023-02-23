@@ -253,7 +253,7 @@ class RouteSearchState extends State<RouteSearch> {
     if (query == null) return;
     debouncer.run(
       () {
-        geosearch.geosearch(context, query);
+        geosearch.geosearch(query);
       },
     );
   }

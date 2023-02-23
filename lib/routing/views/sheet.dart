@@ -82,7 +82,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     reorderedWaypoints.insert(newIndex, waypoint);
 
     routing.selectWaypoints(reorderedWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   /// A callback that is executed when the search page is opened.
@@ -105,7 +105,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final newWaypoints = [...waypoints, waypoint];
 
     routing.selectWaypoints(newWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   /// A callback that is executed when the user removes a waypoint.
@@ -116,7 +116,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     removedWaypoints.removeAt(index);
 
     routing.selectWaypoints(removedWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   Widget renderDragIndicator(BuildContext context) {

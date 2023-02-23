@@ -46,7 +46,6 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
       text = loadText();
       goodPct = loadGood();
       setState(() {});
-      routeObserver.subscribe(this, ModalRoute.of(context)!);
     };
 
     predictionStatusSummary = getIt.get<PredictionStatusSummary>();
@@ -54,6 +53,11 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
 
     text = loadText();
     goodPct = loadGood();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 

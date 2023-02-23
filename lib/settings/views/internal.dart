@@ -60,6 +60,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
   @override
   void initState() {
+    super.initState();
     update = () => setState(() {});
 
     settings = getIt.get<Settings>();
@@ -76,7 +77,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     news.addListener(update);
     weather = getIt.get<Weather>();
     weather.addListener(update);
-    super.initState();
   }
 
   @override

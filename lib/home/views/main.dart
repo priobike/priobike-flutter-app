@@ -104,7 +104,7 @@ class HomeViewState extends State<HomeView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
       (_) {
         // Mark all notifications as read.
-        news.markAllArticlesAsRead(context);
+        news.markAllArticlesAsRead();
       },
     );
   }
@@ -126,7 +126,6 @@ class HomeViewState extends State<HomeView> {
     getIt.get<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
-
     Navigator.of(context)
         .push(MaterialPageRoute(
             builder: (_) =>
@@ -208,8 +207,8 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await getIt.get<PredictionStatusSummary>().fetch(context);
-          await getIt.get<Weather>().fetch(context);
+          await getIt.get<PredictionStatusSummary>().fetch();
+          await getIt.get<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),

@@ -30,10 +30,10 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
 
   @override
   void initState() {
+    super.initState();
     update = () => setState(() {});
     statistics = getIt.get<Statistics>();
     statistics.addListener(update);
-    super.initState();
   }
 
   @override

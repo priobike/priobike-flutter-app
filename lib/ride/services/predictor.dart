@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:get_it/get_it.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -96,7 +95,7 @@ class Predictor implements PredictionComponent {
 
   /// Establish a connection with the MQTT client.
   @override
-  Future<void> connectMQTTClient(BuildContext context) async {
+  Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
     final settings = getIt.get<Settings>();
     final clientId = 'priobike-app-${UniqueKey().toString()}';
@@ -145,7 +144,7 @@ class Predictor implements PredictionComponent {
       final ride = getIt.get<Ride>();
       if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));
-        connectMQTTClient(context);
+        connectMQTTClient();
       }
     }
   }

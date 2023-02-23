@@ -135,19 +135,19 @@ class Ride with ChangeNotifier {
           onConnected: onPredictionComponentClientConnected,
           notifyListeners: notifyListeners,
           onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     } else if (predictionMode == PredictionMode.usePredictor) {
       // Connect the predictor MQTT client.
       predictionComponent = Predictor(
           onConnected: onPredictionComponentClientConnected,
           notifyListeners: notifyListeners,
           onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     } else {
       // Hybrid mode -> connect both clients.
       predictionComponent = HybridPredictor(
           notifyListeners: notifyListeners, onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     }
 
     // Mark that navigation is now active.
@@ -223,7 +223,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Stop the navigation.
-  Future<void> stopNavigation(BuildContext context) async {
+  Future<void> stopNavigation() async {
     if (predictionComponent != null) predictionComponent!.stopNavigation();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.

@@ -121,7 +121,7 @@ class RoutingViewState extends State<RoutingView> {
         await routing?.loadRoutes();
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning?.requestSingleLocation();
+        await positioning?.requestSingleLocation(context);
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -151,6 +151,7 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
+    sheetMovement.close();
     super.dispose();
   }
 
@@ -269,7 +270,7 @@ class RoutingViewState extends State<RoutingView> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
-                    await routing?.loadRoutes(context);
+                    await routing?.loadRoutes();
                   },
                 ),
                 // Move the button a bit more up.
@@ -386,11 +387,5 @@ class RoutingViewState extends State<RoutingView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    sheetMovement.close();
-    super.dispose();
   }
 }

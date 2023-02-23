@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -13,7 +14,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/search.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays the routing bar.
 class RoutingBar extends StatefulWidget {
@@ -70,18 +70,47 @@ class RoutingBarState extends State<RoutingBar> {
 
   bool showItemRowIcons = true;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    routing = Provider.of<Routing>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    profile = Provider.of<Profile>(context);
-    positioning = Provider.of<Positioning>(context);
-    bottomSheetState = Provider.of<BottomSheetState>(context);
+  void initState() {
+    super.initState();
+    update = () {
+      updateWaypoint();
+      updateRoutingBarItems();
+      setState(() {});
+    };
+
+    geosearch = getIt.get<Geosearch>();
+    geosearch.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    discomforts = getIt.get<Discomforts>();
+    discomforts.addListener(update);
+    profile = getIt.get<Profile>();
+    profile.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+    bottomSheetState = getIt.get<BottomSheetState>();
+    bottomSheetState.addListener(update);
+
     updateWaypoint();
     updateRoutingBarItems();
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    geosearch.removeListener(update);
+    routing.removeListener(update);
+    discomforts.removeListener(update);
+    profile.removeListener(update);
+    positioning.removeListener(update);
+    bottomSheetState.removeListener(update);
+    super.dispose();
   }
 
   /// update the routingBarItems when selected route switched and initially sets routing Items for RouteSearchView.
@@ -265,7 +294,7 @@ class RoutingBarState extends State<RoutingBar> {
     final waypointsSwapped = [routing.selectedWaypoints![1], routing.selectedWaypoints![0]];
 
     routing.selectWaypoints(waypointsSwapped);
-    routing.loadRoutes(widget.context);
+    routing.loadRoutes();
   }
 
   /// A function which removes the selected waypoint.
@@ -290,7 +319,7 @@ class RoutingBarState extends State<RoutingBar> {
         removedWaypoints.removeAt(index);
 
         routing.selectWaypoints(removedWaypoints);
-        routing.loadRoutes(widget.context);
+        routing.loadRoutes();
       }
     }
   }
@@ -439,7 +468,7 @@ class RoutingBarState extends State<RoutingBar> {
                         }
                         if (oldIndex == newIndex) return;
                         // Tell the tutorial that the user has changed the order of the waypoints.
-                        Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
+                        getIt.get<Tutorial>().complete("priobike.tutorial.draw-waypoints");
 
                         if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
@@ -448,7 +477,7 @@ class RoutingBarState extends State<RoutingBar> {
                         reorderedWaypoints.insert(newIndex, waypoint);
 
                         routing.selectWaypoints(reorderedWaypoints);
-                        routing.loadRoutes(widget.context);
+                        routing.loadRoutes();
                       } else {
                         // on reorder when in SearchRoutingView
                         // Catch out of range. ReorderableList sets newIndex to list.length() + 1 if its way below

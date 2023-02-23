@@ -76,7 +76,7 @@ class RideViewState extends State<RideView> {
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
-        await dangers.fetch(routing.selectedRoute!, context);
+        await dangers.fetch(routing.selectedRoute!);
         // Start a new session.
         final ride = getIt.get<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.
@@ -85,7 +85,7 @@ class RideViewState extends State<RideView> {
         // Connect the datastream mqtt client, if the user enabled real-time data.
         final settings = getIt.get<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
-          await datastream.connect(context);
+          await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
@@ -93,19 +93,19 @@ class RideViewState extends State<RideView> {
         await positioning.startGeolocation(
           context: context,
           onNewPosition: () async {
-            await dangers.calculateUpcomingAndPreviousDangers(context);
+            await dangers.calculateUpcomingAndPreviousDangers();
             await ride.updatePosition();
-            await tracking.updatePosition(context);
+            await tracking.updatePosition();
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
-                await routing.selectRemainingWaypoints(context);
-                final routes = await routing.loadRoutes(context);
+                await routing.selectRemainingWaypoints();
+                final routes = await routing.loadRoutes();
                 if (routes != null && routes.isNotEmpty) {
                   await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
-                  await dangers.fetch(routes.first, context);
+                  await dangers.fetch(routes.first);
                   await tracking.selectRoute(routes.first);
                 }
               });

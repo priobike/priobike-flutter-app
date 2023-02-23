@@ -22,7 +22,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -83,7 +82,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   final sheetPadding = 16.0;
 
   /// The current mode (dark/light).
-  late final bool isDark;
+  bool isDark = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
@@ -134,8 +133,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   @override
   void initState() {
     super.initState();
-
-    isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Connect the sheet movement listener to adapt the map insets.
     sheetMovementSubscription = widget.sheetMovement?.listen(
@@ -470,7 +467,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
-    final geocoding = Provider.of<Geocoding>(context, listen: false);
+    final geocoding = getIt.get<Geocoding>();
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
@@ -486,6 +483,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    isDark = Theme.of(context).brightness == Brightness.dark;
     return Stack(
       children: [
         // Show the map.

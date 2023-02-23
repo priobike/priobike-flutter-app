@@ -156,6 +156,7 @@ class SettingsViewState extends State<SettingsView> {
 
   @override
   void initState() {
+    super.initState();
     update = () => setState(() {});
 
     feature = getIt.get<Feature>();
@@ -164,7 +165,6 @@ class SettingsViewState extends State<SettingsView> {
     settings.addListener(update);
     tracking = getIt.get<Tracking>();
     tracking.addListener(update);
-    super.initState();
   }
 
   @override

@@ -79,11 +79,11 @@ class CancelButton extends StatelessWidget {
   Future<void> onTap(BuildContext context) async {
     // End the tracking and collect the data.
     final tracking = getIt.get<Tracking>();
-    await tracking.end(context); // Performs all needed resets.
+    await tracking.end(); // Performs all needed resets.
 
     // Calculate a summary of the ride.
     final statistics = getIt.get<Statistics>();
-    await statistics.calculateSummary(context);
+    await statistics.calculateSummary();
 
     // Disconnect from the mqtt broker.
     final datastream = getIt.get<Datastream>();
@@ -91,7 +91,7 @@ class CancelButton extends StatelessWidget {
 
     // End the recommendations.
     final ride = getIt.get<Ride>();
-    await ride.stopNavigation(context);
+    await ride.stopNavigation();
 
     // Stop the geolocation.
     final position = getIt.get<Positioning>();

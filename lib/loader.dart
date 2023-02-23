@@ -77,7 +77,7 @@ class LoaderState extends State<Loader> {
     try {
       // Load local stuff.
       await getIt.get<Profile>().loadProfile();
-      await getIt.get<Shortcuts>().loadShortcuts(context);
+      await getIt.get<Shortcuts>().loadShortcuts();
       await getIt.get<Statistics>().loadStatistics();
       await getIt.get<Layers>().loadPreferences();
       await getIt.get<MapDesigns>().loadPreferences();
@@ -87,13 +87,13 @@ class LoaderState extends State<Loader> {
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
       final news = getIt.get<News>();
-      await news.getArticles(context);
+      await news.getArticles();
       if (!news.hasLoaded) log.i("Could not load news");
       final predictionStatusSummary = getIt.get<PredictionStatusSummary>();
-      await predictionStatusSummary.fetch(context);
+      await predictionStatusSummary.fetch();
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
       final weather = getIt.get<Weather>();
-      await weather.fetch(context);
+      await weather.fetch();
     } catch (e, stackTrace) {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace);

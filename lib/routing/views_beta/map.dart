@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
@@ -20,7 +21,6 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -105,6 +105,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The extra distance between the bottom sheet and the attribution.
   final sheetPadding = 16.0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
   void initState() {
     super.initState();
@@ -123,29 +129,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       parent: animationController,
       curve: Curves.easeInOutCubicEmphasized,
     );
+
+    update = () {
+      updateMap();
+      setState(() {});
+    };
+
+    layers = getIt.get<Layers>();
+    layers.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    discomforts = getIt.get<Discomforts>();
+    discomforts.addListener(update);
+    status = getIt.get<PredictionSGStatus>();
+    status.addListener(update);
+    mapSettings = getIt.get<MapSettings>();
+    mapSettings.addListener(update);
+
+    updateMap();
   }
 
-  @override
-  void didChangeDependencies() {
+  /// Update the map.
+  void updateMap() {
     // Check if the selected map layers have changed.
-    layers = Provider.of<Layers>(context);
     if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
       layers.needsLayout[viewId] = false;
     }
 
     // Check if the position has changed.
-    positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false) {
       displayCurrentUserLocation();
       positioning.needsLayout[viewId] = false;
     }
 
     // Check if route-related stuff has changed.
-    routing = Provider.of<Routing>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    status = Provider.of<PredictionSGStatus>(context);
-
     if (routing.needsLayout[viewId] != false ||
         discomforts.needsLayout[viewId] != false ||
         status.needsLayout[viewId] != false) {
@@ -157,14 +177,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       status.needsLayout[viewId] = false;
     }
 
-    mapSettings = Provider.of<MapSettings>(context);
     if (mapSettings.centerCameraOnUserLocation) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
       mapSettings.setCameraCenterOnUserLocation(false);
     }
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    animationController.dispose();
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
+    layers.removeListener(update);
+    positioning.removeListener(update);
+    routing.removeListener(update);
+    discomforts.removeListener(update);
+    status.removeListener(update);
+    mapSettings.removeListener(update);
+    super.dispose();
   }
 
   /// Fit the camera to the current user position.
@@ -340,7 +371,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if ((id as String).startsWith("route-")) {
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
-      routing.switchToRoute(context, routeIdx);
+      routing.switchToRoute(routeIdx);
       discomforts.unselectDiscomfort();
       discomforts.unselectTrafficLight();
     } else if (id.startsWith("discomfort-")) {
@@ -355,7 +386,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
         return;
       }
-      routing.switchToRoute(context, routeLabelIdx);
+      routing.switchToRoute(routeLabelIdx);
     }
   }
 
@@ -456,18 +487,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
-    final geocoding = Provider.of<Geocoding>(context, listen: false);
+    final geocoding = getIt.get<Geocoding>();
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
-    String address = await geocoding.reverseGeocode(context, coordLatLng) ?? fallback;
+    String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
     await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
-    await routing.loadRoutes(context);
+    await routing.loadRoutes();
   }
 
   /// A callback which is executed when a tap on the map is registered.
@@ -516,15 +547,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (widget.withRouting && mapController != null && !(await mapController!.isUserAnimationInProgress())) {
       await (await RouteLabelLayer.create(context)).update(mapController!);
     }
-  }
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
-
-    super.dispose();
   }
 
   @override

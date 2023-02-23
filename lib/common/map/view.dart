@@ -95,14 +95,14 @@ class AppMapState extends State<AppMap> {
 
   @override
   void initState() {
+    super.initState();
+
     update = () => setState(() {});
 
     settings = getIt.get<Settings>();
     settings.addListener(update);
     mapDesigns = getIt.get<MapDesigns>();
     mapDesigns.addListener(update);
-
-    super.initState();
   }
 
   @override

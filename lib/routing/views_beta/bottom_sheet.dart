@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views_beta/instructions.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../routing/services/bottom_sheet_state.dart';
@@ -129,13 +129,19 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of surface.
   bool showSurfaceDetails = false;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
   DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet() {
-    final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+    final shortcuts = getIt.get<Shortcuts>();
     showDialog(
       context: context,
       builder: (_) {
@@ -169,11 +175,11 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 if (routing.selectedWaypoints != null) {
                   // Save shortcut.
                   if (routing.selectedWaypoints!.length > 1) {
-                    await shortcuts.saveNewShortcut(nameController.text, context);
+                    await shortcuts.saveNewShortcut(nameController.text);
                   } else {
                     // Save place.
                     if (routing.selectedWaypoints!.length == 1) {
-                      await places.saveNewPlaceFromWaypoint(nameController.text, context);
+                      await places.saveNewPlaceFromWaypoint(nameController.text);
                     }
                   }
                 }
@@ -188,13 +194,30 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   @override
-  void didChangeDependencies() {
-    bottomSheetState = Provider.of<BottomSheetState>(context);
-    routing = Provider.of<Routing>(context);
-    places = Provider.of<Places>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    predictionStatus = Provider.of<PredictionSGStatus>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    bottomSheetState = getIt.get<BottomSheetState>();
+    bottomSheetState.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    places = getIt.get<Places>();
+    places.addListener(update);
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+    predictionStatus = getIt.get<PredictionSGStatus>();
+    predictionStatus.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    bottomSheetState.removeListener(update);
+    routing.removeListener(update);
+    places.removeListener(update);
+    shortcuts.removeListener(update);
+    predictionStatus.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the ride is started.

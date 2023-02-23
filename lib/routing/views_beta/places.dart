@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
-import 'package:provider/provider.dart';
 
 class PlacesView extends StatefulWidget {
   const PlacesView({Key? key}) : super(key: key);
@@ -18,11 +18,25 @@ class PlacesViewState extends State<PlacesView> {
   /// The associated places service, which is injected by the provider.
   late Places places;
 
-  @override
-  void didChangeDependencies() {
-    places = Provider.of<Places>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
-    super.didChangeDependencies();
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    places = getIt.get<Places>();
+    places.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    places.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a place should be deleted.
@@ -32,7 +46,7 @@ class PlacesViewState extends State<PlacesView> {
     final newPlaces = places.places!.toList();
     newPlaces.remove(place);
 
-    places.updatePlaces(newPlaces, context);
+    places.updatePlaces(newPlaces);
   }
 
   /// The widget which displays a place.

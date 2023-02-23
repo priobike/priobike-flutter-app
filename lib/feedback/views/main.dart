@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -17,7 +18,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -79,6 +79,8 @@ class FeedbackViewState extends State<FeedbackView> {
 
   @override
   void initState() {
+    super.initState();
+
     update = () => setState(() {});
 
     routing = getIt.get<Routing>();
@@ -89,7 +91,6 @@ class FeedbackViewState extends State<FeedbackView> {
     feedback.addListener(update);
     statistics = getIt.get<Statistics>();
     statistics.addListener(update);
-    super.initState();
   }
 
   @override

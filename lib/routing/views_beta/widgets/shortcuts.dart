@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:provider/provider.dart';
 
 /// Displays the shortcut row.
 class ShortCutsRow extends StatefulWidget {
@@ -26,12 +26,32 @@ class ShortCutsRowState extends State<ShortCutsRow> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    shortcuts = Provider.of<Shortcuts>(context);
-    places = Provider.of<Places>(context);
-    routing = Provider.of<Routing>(context);
+  void initState() {
+    super.initState();
+
+    update = () => setState(() {});
+
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+    places = getIt.get<Places>();
+    places.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    shortcuts.removeListener(update);
+    places.removeListener(update);
+    routing.removeListener(update);
+    super.dispose();
   }
 
   /// Widget that displays a shortcut row.

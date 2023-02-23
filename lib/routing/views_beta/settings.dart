@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
@@ -9,7 +10,6 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/routing/views_beta/places.dart';
 import 'package:priobike/routing/views_beta/routes.dart';
 import 'package:priobike/routing/views_beta/widgets/delete_dialog.dart';
-import 'package:provider/provider.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({Key? key}) : super(key: key);
@@ -28,13 +28,31 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
 
-  @override
-  void didChangeDependencies() {
-    profile = Provider.of<Profile>(context);
-    places = Provider.of<Places>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
-    super.didChangeDependencies();
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    profile = getIt.get<Profile>();
+    profile.addListener(update);
+    places = getIt.get<Places>();
+    places.addListener(update);
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profile.removeListener(update);
+    places.removeListener(update);
+    shortcuts.removeListener(update);
+    super.dispose();
   }
 
   /// The callback that is executed when the delete search history button is pressed.
@@ -46,13 +64,13 @@ class SettingsViewState extends State<SettingsView> {
 
   /// The callback that is executed when the delete all places button is pressed.
   _deleteAllPlaces() {
-    places.updatePlaces([], context);
+    places.updatePlaces([]);
     ToastMessage.showSuccess("Orte gelöscht!");
   }
 
   /// The callback that is executed when the delete all routes button is pressed.
   _deleteAllRoutes() {
-    shortcuts.updateShortcuts([], context);
+    shortcuts.updateShortcuts([]);
     ToastMessage.showSuccess("Routen gelöscht!");
   }
 
