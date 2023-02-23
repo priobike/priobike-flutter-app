@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -13,7 +14,6 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class SGStatusMapViewLegendElement {
   final String title;
@@ -33,6 +33,9 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
@@ -42,7 +45,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 

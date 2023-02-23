@@ -39,29 +39,22 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associcated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// he singleton instance of our dependency injection service.
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  void updateServices() {
+  @override
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
     routing = getIt.get<Routing>();
     discomforts = getIt.get<Discomforts>();
     predictionSGStatus = getIt.get<PredictionSGStatus>();
     settings = getIt.get<Settings>();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    update = () {
-      updateServices();
-      setState(() {});
-    };
-    shortcuts = getIt.get<Shortcuts>();
-    shortcuts.addListener(update);
-    updateServices();
   }
 
   @override

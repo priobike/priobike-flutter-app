@@ -42,12 +42,18 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Submit feedback.
   Future<void> submit(BuildContext context) async {
     // Send the feedback and reset the feedback service.
     var didSendSomething = false;
     if (feedback.willSendFeedback) {
-      didSendSomething = await feedback.send(context);
+      didSendSomething = await feedback.send();
     }
     await feedback.reset();
 
@@ -72,12 +78,27 @@ class FeedbackViewState extends State<FeedbackView> {
   }
 
   @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    tracking = Provider.of<Tracking>(context);
-    feedback = Provider.of<Feedback>(context);
-    statistics = Provider.of<Statistics>(context);
-    super.didChangeDependencies();
+  void initState() {
+    update = () => setState(() {});
+
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    tracking = getIt.get<Tracking>();
+    tracking.addListener(update);
+    feedback = getIt.get<Feedback>();
+    feedback.addListener(update);
+    statistics = getIt.get<Statistics>();
+    statistics.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    tracking.removeListener(update);
+    feedback.removeListener(update);
+    statistics.removeListener(update);
+    super.dispose();
   }
 
   /// Render a loading indicator.
@@ -317,7 +338,7 @@ class FeedbackViewState extends State<FeedbackView> {
                           bottom: 24,
                         ),
                         child: TrackPictogram(
-                          track: Provider.of<Positioning>(context, listen: false).positions,
+                          track: getIt.get<Positioning>().positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
                         ),

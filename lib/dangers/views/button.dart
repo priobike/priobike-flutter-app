@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -11,7 +12,6 @@ import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:provider/provider.dart';
 
 /// A custom painter that draws a circular progress but with rounded caps.
 class RoundedCapCircularProgressPainter extends CustomPainter {
@@ -82,6 +82,26 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
   /// The value of the danger animation.
   double dangerProgressAnimationPct = 0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Animates the danger progress.
+  void animateDangerProgress() {
+    if (dangers.previousDangerToVoteFor == null) {
+      if (dangers.upcomingDangerToDisplay != null) {
+        final pct = dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold;
+        dangerProgressAnimationController.animateTo(
+          pct,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,23 +117,22 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
         dangerProgressAnimationPct = dangerProgressAnimation.value;
       });
     });
+
+    update = () {
+      setState(() {});
+      animateDangerProgress();
+    };
+
+    dangers = getIt.get<Dangers>();
+    dangers.addListener(update);
+
+    animateDangerProgress();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    dangers = Provider.of<Dangers>(context);
-
-    if (dangers.previousDangerToVoteFor == null) {
-      if (dangers.upcomingDangerToDisplay != null) {
-        final pct = dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold;
-        dangerProgressAnimationController.animateTo(
-          pct,
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
+  void dispose() {
+    dangers.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is called when the button is tapped.
@@ -122,7 +141,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
     if (!showModal /* Prepare to show modal. */) {
       log.i("Caching the current position.");
       // Get the current snapped position.
-      final snap = Provider.of<Positioning>(context, listen: false).snap;
+      final snap = getIt.get<Positioning>().snap;
       if (snap == null) {
         log.w("Cannot report a danger without a current snapped position.");
         return;

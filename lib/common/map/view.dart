@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
@@ -87,12 +87,29 @@ class AppMapState extends State<AppMap> {
   /// The associated layers service.
   late MapDesigns mapDesigns;
 
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    mapDesigns = Provider.of<MapDesigns>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
-    super.didChangeDependencies();
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  @override
+  void initState() {
+    update = () => setState(() {});
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+    mapDesigns = getIt.get<MapDesigns>();
+    mapDesigns.addListener(update);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    mapDesigns.removeListener(update);
+    super.dispose();
   }
 
   @override

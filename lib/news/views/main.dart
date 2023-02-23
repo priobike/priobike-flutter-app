@@ -20,7 +20,7 @@ class NewsViewState extends State<NewsView> {
   /// The associated articles service, which is injected by the provider.
   late News news;
 
-  /// he singleton instance of our dependency injection service.
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.

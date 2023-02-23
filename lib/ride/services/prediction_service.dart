@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Route;
+import 'package:get_it/get_it.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
@@ -14,7 +15,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionService implements PredictionComponent {
@@ -63,6 +63,9 @@ class PredictionService implements PredictionComponent {
   /// The status data of the current prediction.
   SGStatusData? currentSGStatusData;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Subscribe to the signal group.
   @override
   bool selectSG(Sg? sg) {
@@ -95,7 +98,7 @@ class PredictionService implements PredictionComponent {
   @override
   Future<void> connectMQTTClient(BuildContext context) async {
     // Get the backend that is currently selected.
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     final clientId = 'priobike-app-${UniqueKey().toString()}';
     try {
       client = MqttServerClient(
@@ -139,7 +142,7 @@ class PredictionService implements PredictionComponent {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
       }
-      final ride = Provider.of<Ride>(context, listen: false);
+      final ride = getIt.get<Ride>();
       if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));
         connectMQTTClient(context);

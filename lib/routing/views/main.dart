@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -21,11 +22,10 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 /// Show a sheet to save the current route as a shortcut.
 void showSaveShortcutSheet(context) {
-  final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+  final shortcuts = GetIt.instance.get<Shortcuts>();
   showDialog(
     context: context,
     builder: (_) {
@@ -57,7 +57,7 @@ void showSaveShortcutSheet(context) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.saveNewShortcut(name, context);
+              await shortcuts.saveNewShortcut(name);
               ToastMessage.showSuccess("Route gespeichert!");
               Navigator.pop(context);
             },
@@ -106,16 +106,22 @@ class RoutingViewState extends State<RoutingView> {
   /// may be caused by energy saving options or disallowed precise geolocation.
   final int locationAccuracyThreshold = 100;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing?.loadRoutes(context);
+        await routing?.loadRoutes();
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning?.requestSingleLocation(context);
+        await positioning?.requestSingleLocation();
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -123,16 +129,29 @@ class RoutingViewState extends State<RoutingView> {
         }
       },
     );
+
+    update = () => setState(() {});
+
+    geocoding = getIt.get<Geocoding>();
+    geocoding!.addListener(update);
+    routing = getIt.get<Routing>();
+    routing!.addListener(update);
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts!.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning!.addListener(update);
+    layers = getIt.get<Layers>();
+    layers.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    geocoding = Provider.of<Geocoding>(context);
-    routing = Provider.of<Routing>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    positioning = Provider.of<Positioning>(context);
-    layers = Provider.of<Layers>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    geocoding!.removeListener(update);
+    routing!.removeListener(update);
+    shortcuts!.removeListener(update);
+    positioning!.removeListener(update);
+    layers.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the ride is started.
@@ -149,7 +168,7 @@ class RoutingViewState extends State<RoutingView> {
         ),
         result: true);
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     if (settings.didViewWarning) {
       startRide();
     } else {
@@ -222,7 +241,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt.get<Settings>().backend;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
@@ -17,14 +18,16 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class AllRoutesLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   AllRoutesLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+    final routing = getIt.get<Routing>();
     for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
       final geometry = {
         "type": "LineString",
@@ -99,11 +102,14 @@ class SelectedRouteLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   SelectedRouteLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+    final routing = getIt.get<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
-    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    final status = getIt.get<PredictionSGStatus>();
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
@@ -193,10 +199,11 @@ class RouteLabelLayer {
   RouteLabelLayer._();
 
   static Future<RouteLabelLayer> create(BuildContext context) async {
+    final getIt = GetIt.instance;
     var routeLabelLayer = RouteLabelLayer._();
 
-    final routing = Provider.of<Routing>(context, listen: false);
-    final mapController = Provider.of<MapSettings>(context, listen: false);
+    final routing = getIt.get<Routing>();
+    final mapController = getIt.get<MapSettings>();
 
     // Conditions for having route labels.
     if (mapController.controller != null &&
@@ -412,8 +419,11 @@ class DiscomfortsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   DiscomfortsLayer(BuildContext context) {
-    final discomforts = Provider.of<Discomforts>(context, listen: false).foundDiscomforts;
+    final discomforts = getIt.get<Discomforts>().foundDiscomforts;
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       // A section of the route.
@@ -510,8 +520,11 @@ class WaypointsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   WaypointsLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+    final routing = getIt.get<Routing>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
@@ -581,11 +594,14 @@ class DangersLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   DangersLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dangers = Provider.of<Dangers>(context, listen: false);
-    final routing = Provider.of<Routing>(context, listen: false);
-    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    final dangers = getIt.get<Dangers>();
+    final routing = getIt.get<Routing>();
+    final userPosSnap = getIt.get<Positioning>().snap;
     if (routing.selectedRoute == null) return;
     for (int i = 0; i < dangers.dangers.length; i++) {
       final danger = dangers.dangers[i];

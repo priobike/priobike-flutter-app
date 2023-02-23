@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/messages.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Weather with ChangeNotifier {
@@ -23,9 +22,12 @@ class Weather with ChangeNotifier {
   /// The current weather.
   CurrentWeather? current;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Fetch the weather for the given location.
-  Future<void> fetch(BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+  Future<void> fetch() async {
+    final settings = getIt.get<Settings>();
     final lat = settings.backend.center.latitude;
     final lon = settings.backend.center.longitude;
 

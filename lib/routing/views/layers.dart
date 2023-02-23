@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:provider/provider.dart';
 
 class LayerSelectionView extends StatefulWidget {
   const LayerSelectionView({Key? key}) : super(key: key);
@@ -20,11 +20,28 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The map designs service, which is injected by the provider.
   late MapDesigns mapDesigns;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    layers = Provider.of<Layers>(context);
-    mapDesigns = Provider.of<MapDesigns>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    layers = getIt.get<Layers>();
+    layers.addListener(update);
+    mapDesigns = getIt.get<MapDesigns>();
+    mapDesigns.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    layers.removeListener(update);
+    mapDesigns.removeListener(update);
+    super.dispose();
   }
 
   @override

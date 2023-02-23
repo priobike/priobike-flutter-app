@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
@@ -81,9 +82,60 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The extra distance between the bottom sheet and the attribution.
   final sheetPadding = 16.0;
 
+  /// The current mode (dark/light).
+  late final bool isDark;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Updates the map.
+  void updateMap() {
+    // Check if the selected map layers have changed.
+    if (layers.needsLayout[viewId] != false) {
+      loadGeoLayers();
+      layers.needsLayout[viewId] = false;
+    }
+
+    // Check if the selected map design has changed.
+    if (mapDesigns.needsLayout[viewId] != false) {
+      loadMapDesign();
+      mapDesigns.needsLayout[viewId] = false;
+    }
+
+    // Check if the position has changed.
+    if (positioning.needsLayout[viewId] != false) {
+      displayCurrentUserLocation();
+      positioning.needsLayout[viewId] = false;
+    }
+
+    // Check if route-related stuff has changed.
+    if (routing.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      fitCameraToRouteBounds();
+      routing.needsLayout[viewId] = false;
+    }
+
+    // Check if the discomforts have changed.
+    if (discomforts.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      discomforts.needsLayout[viewId] = false;
+    }
+
+    // Check if the status has changed.
+    if (status.needsLayout[viewId] != false) {
+      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      status.needsLayout[viewId] = false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Connect the sheet movement listener to adapt the map insets.
     sheetMovementSubscription = widget.sheetMovement?.listen(
@@ -99,56 +151,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       parent: animationController,
       curve: Curves.easeInOutCubicEmphasized,
     );
+
+    update = () {
+      updateMap();
+      setState(() {});
+    };
+
+    layers = getIt.get<Layers>();
+    layers.addListener(update);
+    mapDesigns = getIt.get<MapDesigns>();
+    mapDesigns.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    discomforts = getIt.get<Discomforts>();
+    discomforts.addListener(update);
+    status = getIt.get<PredictionSGStatus>();
+    status.addListener(update);
+    mapSettings = getIt.get<MapSettings>();
+    mapSettings.addListener(update);
+
+    updateMap();
   }
 
   @override
-  void didChangeDependencies() {
-    // Check if the selected map layers have changed.
-    layers = Provider.of<Layers>(context);
-    if (layers.needsLayout[viewId] != false) {
-      loadGeoLayers();
-      layers.needsLayout[viewId] = false;
-    }
-
-    // Check if the selected map layers have changed.
-    mapDesigns = Provider.of<MapDesigns>(context);
-    if (mapDesigns.needsLayout[viewId] != false) {
-      loadMapDesign();
-      mapDesigns.needsLayout[viewId] = false;
-    }
-
-    // Check if the position has changed.
-    positioning = Provider.of<Positioning>(context);
-    if (positioning.needsLayout[viewId] != false) {
-      displayCurrentUserLocation();
-      positioning.needsLayout[viewId] = false;
-    }
-
-    // Check if route-related stuff has changed.
-    routing = Provider.of<Routing>(context);
-    if (routing.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
-      fitCameraToRouteBounds();
-      routing.needsLayout[viewId] = false;
-    }
-
-    // Check if the discomforts have changed.
-    discomforts = Provider.of<Discomforts>(context);
-    if (discomforts.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
-      discomforts.needsLayout[viewId] = false;
-    }
-
-    // Check if the status has changed.
-    status = Provider.of<PredictionSGStatus>(context);
-    if (status.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
-      status.needsLayout[viewId] = false;
-    }
-
-    mapSettings = Provider.of<MapSettings>(context);
-
-    super.didChangeDependencies();
+  void dispose() {
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
+    animationController.dispose();
+    layers.removeListener(update);
+    mapDesigns.removeListener(update);
+    positioning.removeListener(update);
+    routing.removeListener(update);
+    discomforts.removeListener(update);
+    status.removeListener(update);
+    mapSettings.removeListener(update);
+    super.dispose();
   }
 
   /// Fit the camera to the current route.
@@ -321,7 +360,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if ((id as String).startsWith("route-")) {
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
-      routing.switchToRoute(context, routeIdx);
+      routing.switchToRoute(routeIdx);
     } else if (id.startsWith("discomfort-")) {
       final discomfortIdx = int.tryParse(id.split("-")[1]);
       if (discomfortIdx == null) return;
@@ -378,7 +417,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     fitAttributionPosition();
 
     // Load the boundary layer.
-    await BoundaryLayer(context).install(mapController!);
+    await BoundaryLayer(isDark).install(mapController!);
 
     fitCameraToRouteBounds();
     loadGeoLayers();
@@ -437,20 +476,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
-    String address = await geocoding.reverseGeocode(context, coordLatLng) ?? fallback;
+    String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
     await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
-    await routing.loadRoutes(context);
-  }
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
-    super.dispose();
+    await routing.loadRoutes();
   }
 
   @override

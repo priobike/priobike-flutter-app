@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/buttons.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/privacy/services.dart';
-import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
@@ -45,17 +45,40 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
   late PrivacyPolicy privacyService;
 
-  @override
-  void didChangeDependencies() {
-    privacyService = Provider.of<PrivacyPolicy>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Load the privacy policy.
+  void loadPolicy() {
     // Load once the window was built.
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         await privacyService.loadPolicy(context);
       },
     );
-    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    update = () {
+      loadPolicy();
+      setState(() {});
+    };
+
+    privacyService = getIt.get<PrivacyPolicy>();
+    privacyService.addListener(update);
+
+    loadPolicy();
+  }
+
+  @override
+  void dispose() {
+    privacyService.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when the accept button was pressed.

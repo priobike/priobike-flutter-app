@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -42,15 +43,34 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The distance to the waypoint in meters.
   double? distance;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
+  void initState() {
+    super.initState();
+    update = () {
+      updateDistance();
+      setState(() {});
+    };
+
+    geosearch = getIt.get<Geosearch>();
+    geosearch.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
 
     // Update the distance to the waypoint.
     updateDistance();
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    geosearch.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the distance to the waypoint.

@@ -22,7 +22,6 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 
 class InternalSettingsView extends StatefulWidget {
   const InternalSettingsView({Key? key}) : super(key: key);
@@ -53,18 +52,43 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated weather service, which is injected by the provider.
   late Weather weather;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    position = Provider.of<Positioning>(context);
-    routing = Provider.of<Routing>(context);
-    news = Provider.of<News>(context);
+  void initState() {
+    update = () => setState(() {});
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+    predictionStatusSummary = getIt.get<PredictionStatusSummary>();
+    predictionStatusSummary.addListener(update);
+    shortcuts = getIt.get<Shortcuts>();
+    shortcuts.addListener(update);
+    position = getIt.get<Positioning>();
+    position.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    news = getIt.get<News>();
+    news.addListener(update);
     weather = getIt.get<Weather>();
-    super.didChangeDependencies();
+    weather.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    predictionStatusSummary.removeListener(update);
+    shortcuts.removeListener(update);
+    position.removeListener(update);
+    routing.removeListener(update);
+    news.removeListener(update);
+    weather.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a backend is selected.
@@ -82,10 +106,10 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await news.reset();
 
     // Load stuff for the new backend.
-    await news.getArticles(context);
-    await shortcuts.loadShortcuts(context);
-    await predictionStatusSummary.fetch(context);
-    await weather.fetch(context);
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await weather.fetch();
 
     Navigator.pop(context);
   }
@@ -276,7 +300,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Tutorials zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
+                    callback: () => getIt.get<Tutorial>().deleteCompleted(),
                   ),
                 ),
                 Padding(
@@ -284,7 +308,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Datenschutz zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
+                    callback: () => getIt.get<PrivacyPolicy>().deleteStoredPolicy(),
                   ),
                 ),
                 Padding(
@@ -292,7 +316,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Sicherheits-Warnung zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
+                    callback: () => getIt.get<Settings>().setDidViewWarning(false),
                   ),
                 ),
                 const SmallVSpace(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
@@ -9,7 +10,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 /// A cancel button to cancel the ride.
 class CancelButton extends StatelessWidget {
@@ -20,7 +20,10 @@ class CancelButton extends StatelessWidget {
   final String text;
 
   /// Create a new cancel button.
-  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
+  CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
 
   Widget askForConfirmation(BuildContext context) {
     return AlertDialog(
@@ -75,23 +78,23 @@ class CancelButton extends StatelessWidget {
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap(BuildContext context) async {
     // End the tracking and collect the data.
-    final tracking = Provider.of<Tracking>(context, listen: false);
+    final tracking = getIt.get<Tracking>();
     await tracking.end(context); // Performs all needed resets.
 
     // Calculate a summary of the ride.
-    final statistics = Provider.of<Statistics>(context, listen: false);
+    final statistics = getIt.get<Statistics>();
     await statistics.calculateSummary(context);
 
     // Disconnect from the mqtt broker.
-    final datastream = Provider.of<Datastream>(context, listen: false);
+    final datastream = getIt.get<Datastream>();
     await datastream.disconnect();
 
     // End the recommendations.
-    final ride = Provider.of<Ride>(context, listen: false);
+    final ride = getIt.get<Ride>();
     await ride.stopNavigation(context);
 
     // Stop the geolocation.
-    final position = Provider.of<Positioning>(context, listen: false);
+    final position = getIt.get<Positioning>();
     await position.stopGeolocation();
 
     // Show the feedback dialog.
@@ -111,15 +114,15 @@ class CancelButton extends StatelessWidget {
               await position.reset();
 
               // Reset the route service.
-              final routing = Provider.of<Routing>(context, listen: false);
+              final routing = getIt.get<Routing>();
               await routing.reset();
 
               // Reset the prediction sg status.
-              final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+              final predictionSGStatus = getIt.get<PredictionSGStatus>();
               await predictionSGStatus.reset();
 
               // Reset the dangers.
-              final dangers = Provider.of<Dangers>(context, listen: false);
+              final dangers = getIt.get<Dangers>();
               await dangers.reset();
 
               // Leave the feedback view.

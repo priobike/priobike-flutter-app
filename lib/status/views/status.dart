@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -6,7 +7,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
-import 'package:provider/provider.dart';
 
 class StatusView extends StatefulWidget {
   const StatusView({Key? key}) : super(key: key);
@@ -31,38 +31,50 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   /// The animated scale of the status view.
   double animatedScale = 1.0;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    update = () {
+      text = loadText();
+      goodPct = loadGood();
+      setState(() {});
+      routeObserver.subscribe(this, ModalRoute.of(context)!);
+    };
+
+    predictionStatusSummary = getIt.get<PredictionStatusSummary>();
+    predictionStatusSummary.addListener(update);
+
+    text = loadText();
+    goodPct = loadGood();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
+    predictionStatusSummary.removeListener(update);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      predictionStatusSummary.fetch(context);
+      predictionStatusSummary.fetch();
     }
   }
 
   @override
-  void didChangeDependencies() {
-    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    text = loadText();
-    goodPct = loadGood();
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
   void didPopNext() {
-    predictionStatusSummary.fetch(context);
+    predictionStatusSummary.fetch();
   }
 
   /// Load the displayed text.

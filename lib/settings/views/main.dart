@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
-import 'package:priobike/settings/models/speed.dart';
-import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/settings/views/beta.dart';
-import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/beta.dart';
+import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
@@ -148,12 +148,31 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    feature = Provider.of<Feature>(context);
-    settings = Provider.of<Settings>(context);
-    tracking = Provider.of<Tracking>(context);
-    super.didChangeDependencies();
+  void initState() {
+    update = () => setState(() {});
+
+    feature = getIt.get<Feature>();
+    feature.addListener(update);
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+    tracking = getIt.get<Tracking>();
+    tracking.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    feature.removeListener(update);
+    settings.removeListener(update);
+    tracking.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when darkMode is changed

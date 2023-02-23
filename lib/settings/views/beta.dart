@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -9,7 +10,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class BetaSettingsView extends StatefulWidget {
@@ -23,10 +23,25 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    update = () => setState(() {});
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a routing endpoint is selected.

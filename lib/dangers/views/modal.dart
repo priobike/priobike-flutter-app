@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -7,7 +8,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/positioning/models/snap.dart';
-import 'package:provider/provider.dart';
 
 class DangerModal extends StatefulWidget {
   const DangerModal({Key? key, required this.position, required this.onExit}) : super(key: key);
@@ -26,9 +26,12 @@ class DangerModal extends StatefulWidget {
 }
 
 class DangerModalState extends State<DangerModal> {
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
   Widget build(BuildContext context) {
-    final dangers = Provider.of<Dangers>(context, listen: false);
+    final dangers = getIt.get<Dangers>();
     return Stack(children: [
       GestureDetector(
         onTap: widget.onExit,

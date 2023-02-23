@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:geolocator/geolocator.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
@@ -11,12 +12,11 @@ import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class Positioning with ChangeNotifier {
   final log = Logger("Positioning");
@@ -45,6 +45,9 @@ class Positioning with ChangeNotifier {
 
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
 
   Positioning({this.positionSource});
 
@@ -131,12 +134,12 @@ class Positioning with ChangeNotifier {
 
   /// Ensure that the position source is initialized.
   Future<void> initializePositionSource(BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     if (settings.positioningMode == PositioningMode.gnss) {
       positionSource = GNSSPositionSource();
       log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
-      final routing = Provider.of<Routing>(context, listen: false);
+      final routing = getIt.get<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
@@ -144,7 +147,7 @@ class Positioning with ChangeNotifier {
       positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
-      final routing = Provider.of<Routing>(context, listen: false);
+      final routing = getIt.get<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??

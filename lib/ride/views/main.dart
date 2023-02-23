@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -19,7 +20,6 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
 class RideView extends StatefulWidget {
@@ -42,9 +42,20 @@ class RideViewState extends State<RideView> {
   /// Indicating whether the widgets can be loaded or the loading screen should be shown.
   bool ready = false;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
   @override
   void initState() {
     super.initState();
+
+    update = () => setState(() {});
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
 
     // Wait a moment for a clean disposal of the map in the routing view.
     // Without that at the moment it won't dispose correctly causing some weird bugs.
@@ -56,23 +67,23 @@ class RideViewState extends State<RideView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        final tracking = Provider.of<Tracking>(context, listen: false);
-        final positioning = Provider.of<Positioning>(context, listen: false);
-        final datastream = Provider.of<Datastream>(context, listen: false);
-        final routing = Provider.of<Routing>(context, listen: false);
-        final dangers = Provider.of<Dangers>(context, listen: false);
-        final sgStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+        final tracking = getIt.get<Tracking>();
+        final positioning = getIt.get<Positioning>();
+        final datastream = getIt.get<Datastream>();
+        final routing = getIt.get<Routing>();
+        final dangers = getIt.get<Dangers>();
+        final sgStatus = getIt.get<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         await dangers.fetch(routing.selectedRoute!, context);
         // Start a new session.
-        final ride = Provider.of<Ride>(context, listen: false);
+        final ride = getIt.get<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.
-        await ride.startNavigation(context, sgStatus.onNewPredictionStatusDuringRide);
-        await ride.selectRoute(context, routing.selectedRoute!);
+        await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
+        await ride.selectRoute(routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = Provider.of<Settings>(context, listen: false);
+        final settings = getIt.get<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect(context);
           // Link the ride to the datastream.
@@ -83,7 +94,7 @@ class RideViewState extends State<RideView> {
           context: context,
           onNewPosition: () async {
             await dangers.calculateUpcomingAndPreviousDangers(context);
-            await ride.updatePosition(context);
+            await ride.updatePosition();
             await tracking.updatePosition(context);
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
@@ -92,7 +103,7 @@ class RideViewState extends State<RideView> {
                 await routing.selectRemainingWaypoints(context);
                 final routes = await routing.loadRoutes(context);
                 if (routes != null && routes.isNotEmpty) {
-                  await ride.selectRoute(context, routes.first);
+                  await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
                   await dangers.fetch(routes.first, context);
                   await tracking.selectRoute(routes.first);
@@ -105,6 +116,12 @@ class RideViewState extends State<RideView> {
         await tracking.start(context);
       },
     );
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// Render a loading indicator.
@@ -132,12 +149,6 @@ class RideViewState extends State<RideView> {
         ),
       ],
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
   }
 
   @override

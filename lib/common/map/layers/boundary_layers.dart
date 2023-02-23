@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 /// A layer that displays the boundary of the routable area.
 class BoundaryLayer {
@@ -19,14 +19,14 @@ class BoundaryLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
 
-  BoundaryLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  BoundaryLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     String geojson;
     switch (settings.backend) {
       case Backend.production:

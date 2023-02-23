@@ -16,7 +16,7 @@ class Shortcuts with ChangeNotifier {
   /// All available shortcuts.
   List<Shortcut>? shortcuts;
 
-  /// he singleton instance of our dependency injection service.
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
   Shortcuts();

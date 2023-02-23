@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/feedback/messages/answer.dart';
 import 'package:priobike/feedback/models/question.dart';
 import 'package:priobike/http.dart';
@@ -11,7 +11,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/user.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Feedback with ChangeNotifier {
@@ -25,6 +24,9 @@ class Feedback with ChangeNotifier {
 
   /// A boolean indicating if the feedback service will send feedback.
   get willSendFeedback => pending.isNotEmpty;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
 
   /// Update a question by the question id.
   Future<void> update({required String id, required Question question}) async {
@@ -40,17 +42,17 @@ class Feedback with ChangeNotifier {
   }
 
   /// Send an answered question.
-  Future<bool> send(BuildContext context) async {
+  Future<bool> send() async {
     if (!willSendFeedback) return false;
 
     isSendingFeedback = true;
     notifyListeners();
 
-    final sessionId = Provider.of<Ride>(context, listen: false).sessionId;
+    final sessionId = getIt.get<Ride>().sessionId;
     final userId = await User.getOrCreateId();
 
     // Send all of the answered questions to the backend.
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/tracking-service/answers/post/');
     for (final entry in pending.values.toList().asMap().entries) {

@@ -156,7 +156,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The scroll controller.
   late ScrollController scrollController;
 
-  /// he singleton instance of our dependency injection service.
+  /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.

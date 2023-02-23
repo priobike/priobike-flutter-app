@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -13,7 +14,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:provider/provider.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -66,6 +66,9 @@ class Ride with ChangeNotifier {
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
@@ -114,17 +117,17 @@ class Ride with ChangeNotifier {
   }
 
   /// Select a new route.
-  Future<void> selectRoute(BuildContext context, Route route) async {
+  Future<void> selectRoute(Route route) async {
     this.route = route;
     notifyListeners();
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context, Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
+  Future<void> startNavigation(Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt.get<Settings>();
     final predictionMode = settings.predictionMode;
     if (predictionMode == PredictionMode.usePredictionService) {
       // Connect the prediction service MQTT client.
@@ -155,10 +158,10 @@ class Ride with ChangeNotifier {
   }
 
   /// Update the position.
-  Future<void> updatePosition(BuildContext context) async {
+  Future<void> updatePosition() async {
     if (!navigationIsActive) return;
 
-    final snap = Provider.of<Positioning>(context, listen: false).snap;
+    final snap = getIt.get<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // Calculate the distance to the next turn.

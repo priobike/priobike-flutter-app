@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionStatusSummary with ChangeNotifier {
@@ -26,8 +25,11 @@ class PredictionStatusSummary with ChangeNotifier {
 
   PredictionStatusSummary();
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Fetch the status of the prediction.
-  Future<void> fetch(BuildContext context) async {
+  Future<void> fetch() async {
     hadError = false;
 
     if (isLoading) return;
@@ -35,7 +37,7 @@ class PredictionStatusSummary with ChangeNotifier {
     notifyListeners();
 
     try {
-      final settings = Provider.of<Settings>(context, listen: false);
+      final settings = getIt.get<Settings>();
       final baseUrl = settings.backend.path;
       final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
       var url = "https://$baseUrl/$statusProviderSubPath/status.json";

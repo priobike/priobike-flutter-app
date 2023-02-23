@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/route_layers.dart';
@@ -14,7 +15,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
   const RideMapView({Key? key}) : super(key: key);
@@ -52,41 +52,69 @@ class RideMapViewState extends State<RideMapView> {
   /// If the upcoming traffic light is green.
   bool? upcomingTrafficLightIsGreen;
 
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
 
-    routing = Provider.of<Routing>(context);
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
+  /// Update the map.
+  void updateMap() {
     if (routing.needsLayout[viewId] != false && mapController != null) {
       onRoutingUpdate();
       routing.needsLayout[viewId] = false;
     }
-
-    ride = Provider.of<Ride>(context);
     if (ride.needsLayout[viewId] != false && mapController != null) {
       onRideUpdate();
       ride.needsLayout[viewId] = false;
     }
-
-    positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false && mapController != null) {
       onPositioningUpdate();
       positioning.needsLayout[viewId] = false;
     }
-
-    dangers = Provider.of<Dangers>(context);
     if (dangers.needsLayout[viewId] != false && mapController != null) {
       onDangersUpdate();
       dangers.needsLayout[viewId] = false;
     }
-
-    predictionSGStatus = Provider.of<PredictionSGStatus>(context);
     if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
       onStatusUpdate();
       predictionSGStatus.needsLayout[viewId] = false;
     }
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+    update = () {
+      updateMap();
+      setState(() {});
+    };
+
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    ride = getIt.get<Ride>();
+    ride.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+    dangers = getIt.get<Dangers>();
+    dangers.addListener(update);
+    predictionSGStatus = getIt.get<PredictionSGStatus>();
+    predictionSGStatus.addListener(update);
+
+    updateMap();
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    routing.removeListener(update);
+    ride.removeListener(update);
+    positioning.removeListener(update);
+    dangers.removeListener(update);
+    predictionSGStatus.removeListener(update);
+    super.dispose();
   }
 
   /// Update the view with the current data.
@@ -150,7 +178,7 @@ class RideMapViewState extends State<RideMapView> {
     // Get some data that we will need for adaptive camera control.
     final sgPos = ride.calcCurrentSG?.position;
     final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
-    final userPos = Provider.of<Positioning>(context, listen: false).lastPosition;
+    final userPos = getIt.get<Positioning>().lastPosition;
     final userPosSnap = positioning.snap;
 
     if (userPos == null || userPosSnap == null) {

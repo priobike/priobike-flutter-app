@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -10,17 +11,19 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class TrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   TrafficLightsLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
-    final routing = Provider.of<Routing>(context, listen: false);
-    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    final showLabels = getIt.get<Settings>().sgLabelsMode == SGLabelsMode.enabled;
+    final routing = getIt.get<Routing>();
+    final userPosSnap = getIt.get<Positioning>().snap;
     if (routing.selectedRoute == null) return;
     for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
       final sg = routing.selectedRoute!.signalGroups[i];
@@ -137,9 +140,12 @@ class TrafficLightLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   TrafficLightLayer(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ride = Provider.of<Ride>(context, listen: false);
+    final ride = getIt.get<Ride>();
     final sgQuality = ride.predictionComponent?.prediction?.predictionQuality;
     String sgIcon;
     switch (ride.predictionComponent?.recommendation?.calcCurrentSignalPhase) {
@@ -242,11 +248,14 @@ class OfflineCrossingsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   OfflineCrossingsLayer(BuildContext context, {hideBehindPosition = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final showLabels = Provider.of<Settings>(context, listen: false).sgLabelsMode == SGLabelsMode.enabled;
-    final routing = Provider.of<Routing>(context, listen: false);
-    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+    final showLabels = getIt.get<Settings>().sgLabelsMode == SGLabelsMode.enabled;
+    final routing = getIt.get<Routing>();
+    final userPosSnap = getIt.get<Positioning>().snap;
     if (routing.selectedRoute == null) return;
     for (int i = 0; i < routing.selectedRoute!.crossings.length; i++) {
       final crossing = routing.selectedRoute!.crossings[i];

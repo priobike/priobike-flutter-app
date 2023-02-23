@@ -1,11 +1,11 @@
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({Key? key}) : super(key: key);
@@ -37,12 +37,31 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The maximum distance.
   double? maxDistance;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    settings = Provider.of<Settings>(context);
+  void initState() {
+    super.initState();
+    update = () {
+      processRouteData();
+      setState(() {});
+    };
+    routing = getIt.get<Routing>();
+    routing.addListener(update);
+    settings = getIt.get<Settings>();
+    settings.addListener(update);
     processRouteData();
-    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// Process the route data and create the chart series.

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
@@ -11,7 +11,6 @@ import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Datastream with ChangeNotifier {
@@ -48,6 +47,9 @@ class Datastream with ChangeNotifier {
   /// The set of current subscriptions.
   final Set<String> subscriptions = {};
 
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   /// Get the topic for a datastream.
   static String? topic(String? datastreamId) =>
       datastreamId == null ? null : "v1.1/Datastreams($datastreamId)/Observations";
@@ -71,10 +73,10 @@ class Datastream with ChangeNotifier {
   }
 
   /// Connect the mqtt client.
-  Future<void> connect(BuildContext context) async {
+  Future<void> connect() async {
     try {
       // Get the backend that is currently selected.
-      final backend = Provider.of<Settings>(context, listen: false).backend;
+      final backend = getIt.get<Settings>().backend;
       client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;

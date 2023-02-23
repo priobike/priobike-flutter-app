@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -6,7 +7,6 @@ import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
 import 'package:priobike/statistics/services/statistics.dart';
-import 'package:provider/provider.dart';
 
 class TotalStatisticsView extends StatefulWidget {
   const TotalStatisticsView({Key? key}) : super(key: key);
@@ -22,10 +22,24 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   /// padding for the rows used in the statistics view
   double paddingStats = 16.0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    statistics = Provider.of<Statistics>(context);
-    super.didChangeDependencies();
+  void initState() {
+    update = () => setState(() {});
+    statistics = getIt.get<Statistics>();
+    statistics.addListener(update);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    statistics.removeListener(update);
+    super.dispose();
   }
 
   Container renderTableBorder() {

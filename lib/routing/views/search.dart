@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -10,7 +11,6 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:provider/provider.dart';
 
 class WaypointListItemView extends StatefulWidget {
   /// If the item is displaying the current position.
@@ -43,15 +43,34 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The distance to the waypoint in meters.
   double? distance;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
+  void initState() {
+    super.initState();
+    update = () {
+      // Update the distance to the waypoint.
+      updateDistance();
+      setState(() {});
+    };
 
-    // Update the distance to the waypoint.
+    geosearch = getIt.get<Geosearch>();
+    geosearch.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+
     updateDistance();
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    geosearch.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the distance to the waypoint.
@@ -126,11 +145,32 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   /// The currently fetched address.
   Waypoint? waypoint;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
-  void didChangeDependencies() {
-    positioning = Provider.of<Positioning>(context);
+  void initState() {
+    super.initState();
+    update = () {
+      // Update the distance to the waypoint.
+      updateWaypoint();
+      setState(() {});
+    };
+
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
+
+    // Update the distance to the waypoint.
     updateWaypoint();
-    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the waypoint.
@@ -177,6 +217,12 @@ class RouteSearchState extends State<RouteSearch> {
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  late VoidCallback update;
+
+  /// The singleton instance of our dependency injection service.
+  final getIt = GetIt.instance;
+
   @override
   void initState() {
     super.initState();
@@ -186,13 +232,20 @@ class RouteSearchState extends State<RouteSearch> {
         await positioning.requestSingleLocation(context);
       },
     );
+
+    update = () => setState(() {});
+
+    geosearch = getIt.get<Geosearch>();
+    geosearch.addListener(update);
+    positioning = getIt.get<Positioning>();
+    positioning.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    geosearch.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the search is updated.
