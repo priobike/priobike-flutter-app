@@ -197,15 +197,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     MbxEdgeInsets insets = MbxEdgeInsets(
         // Top routingBar * devicePixelRatio (needed).
         top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized) *
-            0.4 *
             frame.devicePixelRatio,
         left: 0,
         // Standard height of bottomSheet * devicePixelRatio (needed).
-        bottom: 0.175 * frame.size.height * frame.devicePixelRatio * 0.2,
+        bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
         right: 0);
     if (Platform.isIOS) {
-      insets.top = insets.top * 0.4;
-      insets.bottom = insets.bottom * 0.2;
+      insets.top = insets.top * 0.4; // FIXME @daniel 2 * 0.4 for ios here?
+      insets.bottom = insets.bottom * 0.2; // FIXME @daniel 2 * 0.2 for ios here?
     }
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
