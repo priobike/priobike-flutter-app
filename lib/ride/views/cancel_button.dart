@@ -131,7 +131,7 @@ class CancelButtonState extends State<CancelButton> {
                 final dangers = getIt.get<Dangers>();
                 await dangers.reset();
 
-                if (mounted) {
+                if (context.mounted) {
                   // Leave the feedback view.
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }

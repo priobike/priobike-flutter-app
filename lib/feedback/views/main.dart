@@ -49,7 +49,7 @@ class FeedbackViewState extends State<FeedbackView> {
   final getIt = GetIt.instance;
 
   /// Submit feedback.
-  Future<void> submit(BuildContext context) async {
+  Future<void> submit() async {
     // Send the feedback and reset the feedback service.
     var didSendSomething = false;
     if (feedback.willSendFeedback) {
@@ -400,7 +400,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     icon: Icons.check,
                     fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                     label: "Fertig",
-                    onPressed: () => submit(context),
+                    onPressed: () => submit(),
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   BigButton(

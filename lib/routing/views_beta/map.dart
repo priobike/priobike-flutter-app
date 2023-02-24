@@ -318,34 +318,35 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map layers.
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
     if (layers.showAirStations) {
-      BikeAirStationLayer(context).install(mapController!);
+      BikeAirStationLayer(isDark).install(mapController!);
     } else {
       BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
-      ConstructionSitesLayer(context).install(mapController!);
+      ConstructionSitesLayer(isDark).install(mapController!);
     } else {
       ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
-      ParkingStationsLayer(context).install(mapController!);
+      ParkingStationsLayer(isDark).install(mapController!);
     } else {
       ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
-      RentalStationsLayer(context).install(mapController!);
+      RentalStationsLayer(isDark).install(mapController!);
     } else {
       RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
-      BikeShopLayer(context).install(mapController!);
+      BikeShopLayer(isDark).install(mapController!);
     } else {
       BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
-      AccidentHotspotsLayer(context).install(mapController!);
+      AccidentHotspotsLayer(isDark).install(mapController!);
     } else {
       AccidentHotspotsLayer.remove(mapController!);
     }

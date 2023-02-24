@@ -265,45 +265,46 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map layers.
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
     if (layers.showAirStations) {
       if (!mounted) return;
-      await BikeAirStationLayer(context).install(mapController!);
+      await BikeAirStationLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
       if (!mounted) return;
-      await ConstructionSitesLayer(context).install(mapController!);
+      await ConstructionSitesLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       if (!mounted) return;
-      await ParkingStationsLayer(context).install(mapController!);
+      await ParkingStationsLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
       if (!mounted) return;
-      await RentalStationsLayer(context).install(mapController!);
+      await RentalStationsLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
       if (!mounted) return;
-      await BikeShopLayer(context).install(mapController!);
+      await BikeShopLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       if (!mounted) return;
-      await AccidentHotspotsLayer(context).install(mapController!);
+      await AccidentHotspotsLayer(isDark).install(mapController!);
     } else {
       if (!mounted) return;
       await AccidentHotspotsLayer.remove(mapController!);

@@ -27,7 +27,6 @@ class ShortcutView extends StatelessWidget {
     required this.width,
     required this.height,
     required this.rightPad,
-    required BuildContext context,
   }) : super(key: key);
 
   @override
@@ -217,7 +216,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
         width: shortcutWidth,
         height: shortcutHeight,
         rightPad: shortcutRightPad,
-        context: context,
       ),
     ];
 
@@ -233,7 +231,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
                 width: shortcutWidth,
                 height: shortcutHeight,
                 rightPad: shortcutRightPad,
-                context: context,
               ),
             )
             .toList() ??

@@ -22,7 +22,6 @@ class RoutingBar extends StatefulWidget {
   final Function? checkNextItem;
   final Function onPressed;
   final Function? onSearch;
-  final BuildContext context;
   final StreamController<DraggableScrollableNotification> sheetMovement;
 
   const RoutingBar({
@@ -30,7 +29,6 @@ class RoutingBar extends StatefulWidget {
     this.locationSearchController,
     required this.fromRoutingSearch,
     required this.onPressed,
-    required this.context,
     this.checkNextItem,
     this.onSearch,
     required this.sheetMovement,

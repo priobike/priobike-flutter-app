@@ -525,7 +525,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                         fromRoutingSearch: false,
                                         onPressed: _loadShortcutsRoute,
                                         onSearch: onSearch,
-                                        context: context,
                                         sheetMovement: sheetMovement,
                                       ),
                                     ),

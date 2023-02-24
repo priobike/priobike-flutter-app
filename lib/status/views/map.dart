@@ -45,6 +45,9 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
+    final textColor =
+        Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value;
+
     final settings = getIt.get<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
@@ -198,8 +201,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           id: "sg-first-labels",
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 14,
-          textColor:
-              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textColor: textColor,
           textAllowOverlap: true,
         ),
       );
@@ -238,8 +240,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           id: "sg-second-labels",
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
-          textColor:
-              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textColor: textColor,
           textAllowOverlap: true,
         ),
       );

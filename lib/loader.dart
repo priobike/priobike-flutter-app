@@ -59,7 +59,7 @@ class LoaderState extends State<Loader> {
   late VoidCallback update;
 
   /// Initialize everything needed before we can show the home view.
-  Future<void> init(BuildContext context) async {
+  Future<void> init() async {
     // Init the HTTP client for all services.
     Http.initClient();
 
@@ -127,7 +127,7 @@ class LoaderState extends State<Loader> {
     settings.addListener(update);
 
     // Init the view once the app is ready.
-    SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
+    SchedulerBinding.instance.addPostFrameCallback((_) => init());
   }
 
   @override
@@ -267,7 +267,7 @@ class LoaderState extends State<Loader> {
                               ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
+                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
                         ],
                       ),
                     ),

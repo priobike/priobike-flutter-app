@@ -132,8 +132,10 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   }
 
   /// A function that is executed when the complete button is pressed.
-  Future<void> onComplete(BuildContext context, double lat, double lon) async {
+  Future<void> onComplete(double lat, double lon) async {
     String? address = await geocoding.reverseGeocodeLatLng(lat, lon);
+
+    if (!mounted) return;
 
     address ??= "Wegpunkt";
 
@@ -206,7 +208,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             // This should not happen, but just in case.
                             if (coordinates.length == 2) {
                               onComplete(
-                                context,
                                 coordinates[1],
                                 coordinates[0],
                               );

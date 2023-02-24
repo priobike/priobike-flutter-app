@@ -221,7 +221,7 @@ class SearchViewState extends State<SearchView> {
         }
       }
       await routing.selectWaypoints(newWaypoints);
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
     }
   }
 

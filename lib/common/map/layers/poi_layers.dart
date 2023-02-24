@@ -17,13 +17,10 @@ class ParkingStationsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  ParkingStationsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -77,13 +74,10 @@ class RentalStationsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  RentalStationsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -169,13 +163,10 @@ class BikeShopLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeShopLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -266,13 +257,10 @@ class BikeAirStationLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeAirStationLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -358,13 +346,10 @@ class ConstructionSitesLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  ConstructionSitesLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
@@ -437,13 +422,10 @@ class AccidentHotspotsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
   /// The singleton instance of our dependency injection service.
   final getIt = GetIt.instance;
 
-  AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  AccidentHotspotsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {

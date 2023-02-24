@@ -193,7 +193,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
               fromRoutingSearch: true,
               checkNextItem: checkNextItem,
               onPressed: widget.onPressed,
-              context: context,
               sheetMovement: widget.sheetMovement,
             ),
             Expanded(

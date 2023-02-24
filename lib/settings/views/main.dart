@@ -180,7 +180,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the settings service that we selected the new colorModePreference.
     await settings.setColorMode(colorMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a speed mode is selected.
@@ -188,7 +188,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the settings service that we selected the new speed mode.
     await settings.setSpeedMode(speedMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a tracking submission policy is selected.
@@ -198,7 +198,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the tracking service that we selected the new tracking submission policy.
     tracking.setSubmissionPolicy(trackingSubmissionPolicy);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override

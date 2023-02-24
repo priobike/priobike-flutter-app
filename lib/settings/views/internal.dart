@@ -111,7 +111,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await predictionStatusSummary.fetch();
     await weather.fetch();
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a predictor mode is selected.
@@ -119,7 +119,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new predictor mode.
     await settings.setPredictionMode(predictionMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -127,7 +127,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new sg labels mode.
     await settings.setSGLabelsMode(mode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a positioning is selected.
@@ -137,7 +137,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Reset the position service since it depends on the positioning.
     await position.reset();
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a datastream mode is selected.
@@ -145,7 +145,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new datastream mode.
     await settings.setDatastreamMode(datastreamMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a routing is selected.
@@ -153,7 +153,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new routing.
     await settings.selectRoutingView(routingView);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override

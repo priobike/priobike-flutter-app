@@ -49,7 +49,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     // Tell the settings service that we selected the new backend.
     await settings.setRoutingEndpoint(routingEndpoint);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg-selector is selected.
@@ -57,7 +57,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     // Tell the settings service that we selected the new sg-selector.
     await settings.setSGSelector(sgSelector);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override
