@@ -27,9 +27,7 @@ class SelectOnMapNameViewState extends State<SelectOnMapNameView> {
   late Places places;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {

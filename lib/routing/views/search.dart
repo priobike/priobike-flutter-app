@@ -211,9 +211,7 @@ class RouteSearchState extends State<RouteSearch> {
   final debouncer = Debouncer(milliseconds: 100);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {

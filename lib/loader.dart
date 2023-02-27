@@ -53,9 +53,7 @@ class LoaderState extends State<Loader> {
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   /// Initialize everything needed before we can show the home view.
   Future<void> init() async {

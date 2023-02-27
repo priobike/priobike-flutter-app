@@ -81,9 +81,7 @@ class ProfileViewState extends State<ProfileView> {
   late Profile profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;

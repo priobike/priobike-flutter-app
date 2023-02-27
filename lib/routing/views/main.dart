@@ -109,9 +109,7 @@ class RoutingViewState extends State<RoutingView> {
   final int locationAccuracyThreshold = 100;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {

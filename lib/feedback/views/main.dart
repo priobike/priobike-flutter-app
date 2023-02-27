@@ -43,9 +43,7 @@ class FeedbackViewState extends State<FeedbackView> {
   late Statistics statistics;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   /// Submit feedback.
   Future<void> submit() async {

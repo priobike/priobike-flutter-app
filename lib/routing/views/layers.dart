@@ -21,9 +21,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   late MapDesigns mapDesigns;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {

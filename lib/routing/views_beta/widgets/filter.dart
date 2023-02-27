@@ -16,9 +16,7 @@ class FilterSelectionViewState extends State<FilterSelectionView> {
   late Profile profile;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {

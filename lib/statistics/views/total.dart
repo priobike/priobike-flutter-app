@@ -23,9 +23,7 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   double paddingStats = 16.0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {
