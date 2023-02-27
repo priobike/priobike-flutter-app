@@ -41,6 +41,7 @@ final log = Logger("main.dart");
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
+/// The central getIt instance that is used to access the singleton services.
 final getIt = GetIt.instance;
 
 Future<void> main() async {
