@@ -22,11 +22,12 @@ class PrivacyPolicy with ChangeNotifier {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();
+    this.assetText = assetText;
     final storedPrivacyPolicy = storage.getString(key);
 
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
-    isConfirmed = storedPrivacyPolicy?.trim() == assetText.trim();
+    isConfirmed = storedPrivacyPolicy?.trim() == this.assetText?.trim();
     hasChanged = !isConfirmed!;
     hasLoaded = true;
     notifyListeners();
