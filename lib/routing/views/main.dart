@@ -109,7 +109,9 @@ class RoutingViewState extends State<RoutingView> {
   final int locationAccuracyThreshold = 100;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -131,8 +133,6 @@ class RoutingViewState extends State<RoutingView> {
         }
       },
     );
-
-    update = () => setState(() {});
 
     geocoding = getIt<Geocoding>();
     geocoding!.addListener(update);

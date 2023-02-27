@@ -40,7 +40,10 @@ class TutorialViewState extends State<TutorialView> {
   final _fadeOutDuration = const Duration(milliseconds: 1000);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateTutorialStatus();
+    setState(() {});
+  }
 
   /// Updates the tutorial status.
   void updateTutorialStatus() {
@@ -84,11 +87,6 @@ class TutorialViewState extends State<TutorialView> {
         tutorial.loadCompleted();
       },
     );
-
-    update = () {
-      updateTutorialStatus();
-      setState(() {});
-    };
 
     tutorial = getIt<Tutorial>();
     tutorial.addListener(update);

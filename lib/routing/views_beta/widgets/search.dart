@@ -44,15 +44,14 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   double? distance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateDistance();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () {
-      updateDistance();
-      setState(() {});
-    };
 
     geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
@@ -139,16 +138,14 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   Waypoint? waypoint;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateWaypoint();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-
-    update = () {
-      updateWaypoint();
-      setState(() {});
-    };
 
     positioning = getIt<Positioning>();
     positioning.addListener(update);
@@ -214,7 +211,9 @@ class RouteSearchState extends State<RouteSearch> {
   final debouncer = Debouncer(milliseconds: 100);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -228,8 +227,6 @@ class RouteSearchState extends State<RouteSearch> {
         },
       );
     });
-
-    update = () => setState(() {});
 
     geosearch = getIt<Geosearch>();
     geosearch.addListener(update);

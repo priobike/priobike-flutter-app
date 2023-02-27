@@ -55,16 +55,14 @@ class SearchBarState extends State<SearchBar> {
   final debouncer = Debouncer(milliseconds: 100);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateWaypoint();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-
-    update = () {
-      updateWaypoint();
-      setState(() {});
-    };
 
     geosearch = getIt<Geosearch>();
     geosearch.addListener(update);

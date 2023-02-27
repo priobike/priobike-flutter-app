@@ -149,12 +149,13 @@ class SettingsViewState extends State<SettingsView> {
   late Tracking tracking;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     feature = getIt<Feature>();
     feature.addListener(update);

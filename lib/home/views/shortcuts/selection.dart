@@ -156,7 +156,9 @@ class ShortcutsViewState extends State<ShortcutsView> {
   late ScrollController scrollController;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -169,7 +171,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
         }
       },
     );
-    update = () => setState(() {});
     ss = getIt<Shortcuts>();
     rs = getIt<Routing>();
     ss.addListener(update);

@@ -30,13 +30,14 @@ class StarRatingViewState extends State<StarRatingView> {
   int rating = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
     confettiControllers = List.generate(5, (index) => ConfettiController(duration: const Duration(milliseconds: 500)));
-    update = () => setState(() {});
     feedback = getIt<Feedback>();
     feedback.addListener(update);
   }

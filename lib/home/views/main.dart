@@ -65,12 +65,13 @@ class HomeViewState extends State<HomeView> {
   late Statistics statistics;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     news = getIt<News>();
     news.addListener(update);

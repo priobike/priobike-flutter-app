@@ -85,7 +85,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   bool isDark = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateMap();
+    setState(() {});
+  }
 
   /// Updates the map.
   void updateMap() {
@@ -145,11 +148,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       parent: animationController,
       curve: Curves.easeInOutCubicEmphasized,
     );
-
-    update = () {
-      updateMap();
-      setState(() {});
-    };
 
     layers = getIt<Layers>();
     layers.addListener(update);

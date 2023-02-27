@@ -23,12 +23,13 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   double? tapDownY;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
     tracking = getIt<Tracking>();
     tracking.addListener(update);
   }

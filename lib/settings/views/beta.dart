@@ -24,12 +24,13 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     settings = getIt<Settings>();
     settings.addListener(update);

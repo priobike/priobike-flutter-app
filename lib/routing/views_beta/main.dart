@@ -89,7 +89,10 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   bool fitCameraTop = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    _checkRoutingBarShown();
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -119,11 +122,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         }
       },
     );
-
-    update = () {
-      _checkRoutingBarShown();
-      setState(() {});
-    };
 
     geocoding = getIt<Geocoding>();
     geocoding.addListener(update);

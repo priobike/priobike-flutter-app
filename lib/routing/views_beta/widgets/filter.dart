@@ -16,13 +16,13 @@ class FilterSelectionViewState extends State<FilterSelectionView> {
   late Profile profile;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-
-    update = () => setState(() {});
 
     profile = getIt<Profile>();
     profile.addListener(update);

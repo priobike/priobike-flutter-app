@@ -83,7 +83,10 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
   double dangerProgressAnimationPct = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+    animateDangerProgress();
+  }
 
   /// Animates the danger progress.
   void animateDangerProgress() {
@@ -114,11 +117,6 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
         dangerProgressAnimationPct = dangerProgressAnimation.value;
       });
     });
-
-    update = () {
-      setState(() {});
-      animateDangerProgress();
-    };
 
     dangers = getIt<Dangers>();
     dangers.addListener(update);

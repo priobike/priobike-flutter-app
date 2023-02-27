@@ -130,7 +130,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   bool showSurfaceDetails = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
@@ -193,7 +195,6 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     bottomSheetState = getIt<BottomSheetState>();
     bottomSheetState.addListener(update);

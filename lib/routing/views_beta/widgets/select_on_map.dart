@@ -51,7 +51,9 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -60,8 +62,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await routing.loadRoutes();
     });
-
-    update = () => setState(() {});
 
     routing = getIt<Routing>();
     routing.addListener(update);

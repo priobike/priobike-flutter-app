@@ -43,7 +43,9 @@ class FeedbackViewState extends State<FeedbackView> {
   late Statistics statistics;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -79,8 +81,6 @@ class FeedbackViewState extends State<FeedbackView> {
   @override
   void initState() {
     super.initState();
-
-    update = () => setState(() {});
 
     routing = getIt<Routing>();
     routing.addListener(update);

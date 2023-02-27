@@ -71,15 +71,14 @@ class RoadClassChartState extends State<RoadClassChart> {
   Map<String, double> roadClassDistances = {};
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    processRouteData();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () {
-      processRouteData();
-      setState(() {});
-    };
 
     routing = getIt<Routing>();
     routing.addListener(update);

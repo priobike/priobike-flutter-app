@@ -15,12 +15,13 @@ class RideSGButtonState extends State<RideSGButton> {
   late Ride ride;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
     ride = getIt<Ride>();
     ride.addListener(update);
   }

@@ -31,12 +31,13 @@ class DatastreamViewState extends State<DatastreamView> {
   String? timeDiff;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
     datastream = getIt<Datastream>();
     settings = getIt<Settings>();
     datastream.addListener(update);

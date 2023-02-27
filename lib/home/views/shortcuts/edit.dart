@@ -40,12 +40,13 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   late Settings settings;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     routing = getIt<Routing>();

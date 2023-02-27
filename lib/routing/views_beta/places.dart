@@ -19,12 +19,13 @@ class PlacesViewState extends State<PlacesView> {
   late Places places;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     places = getIt<Places>();
     places.addListener(update);

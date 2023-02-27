@@ -69,16 +69,15 @@ class RoutingBarState extends State<RoutingBar> {
   bool showItemRowIcons = true;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateWaypoint();
+    updateRoutingBarItems();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () {
-      updateWaypoint();
-      updateRoutingBarItems();
-      setState(() {});
-    };
 
     geosearch = getIt<Geosearch>();
     geosearch.addListener(update);

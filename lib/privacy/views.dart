@@ -46,7 +46,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   late PrivacyPolicy privacyService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    loadPolicy();
+    setState(() {});
+  }
 
   /// Load the privacy policy.
   void loadPolicy() {
@@ -62,10 +65,6 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   @override
   void initState() {
     super.initState();
-    update = () {
-      loadPolicy();
-      setState(() {});
-    };
 
     privacyService = getIt<PrivacyPolicy>();
     privacyService.addListener(update);

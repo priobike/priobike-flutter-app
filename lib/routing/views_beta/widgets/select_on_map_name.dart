@@ -27,12 +27,13 @@ class SelectOnMapNameViewState extends State<SelectOnMapNameView> {
   late Places places;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     profile = getIt<Profile>();
     profile.addListener(update);

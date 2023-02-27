@@ -47,16 +47,15 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   double? distance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    // Update the distance to the waypoint.
+    updateDistance();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () {
-      // Update the distance to the waypoint.
-      updateDistance();
-      setState(() {});
-    };
 
     geosearch = getIt<Geosearch>();
     geosearch?.addListener(update);

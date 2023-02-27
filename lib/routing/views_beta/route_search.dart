@@ -54,17 +54,15 @@ class RouteSearchViewState extends State<RouteSearchView> {
   Waypoint? currentLocationWaypoint;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    // to update the position of the current Location Waypoint
+    updateWaypoint();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-
-    update = () {
-      // to update the position of the current Location Waypoint
-      updateWaypoint();
-      setState(() {});
-    };
 
     routing = getIt<Routing>();
     routing.addListener(update);

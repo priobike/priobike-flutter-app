@@ -81,7 +81,9 @@ class ProfileViewState extends State<ProfileView> {
   late Profile profileService;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
@@ -90,7 +92,6 @@ class ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
     profileService = getIt<Profile>();
     profileService.addListener(update);
   }

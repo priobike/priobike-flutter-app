@@ -106,7 +106,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   final sheetPadding = 16.0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateMap();
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -126,11 +129,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       parent: animationController,
       curve: Curves.easeInOutCubicEmphasized,
     );
-
-    update = () {
-      updateMap();
-      setState(() {});
-    };
 
     layers = getIt<Layers>();
     layers.addListener(update);

@@ -57,15 +57,14 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
   Map<String, double> surfaceTypeDistances = {};
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    processRouteData();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () {
-      processRouteData();
-      setState(() {});
-    };
 
     routing = getIt<Routing>();
     routing.addListener(update);

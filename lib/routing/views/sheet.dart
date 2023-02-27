@@ -39,12 +39,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   late PredictionSGStatus status;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    update = () => setState(() {});
 
     routing = getIt<Routing>();
     routing.addListener(update);

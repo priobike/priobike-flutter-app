@@ -31,7 +31,10 @@ class AlertsViewState extends State<AlertsView> {
   int currentPage = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    scrollToDiscomfort();
+    setState(() {});
+  }
 
   /// Scroll to a discomfort if one was selected.
   void scrollToDiscomfort() {
@@ -69,11 +72,6 @@ class AlertsViewState extends State<AlertsView> {
   @override
   void initState() {
     super.initState();
-
-    update = () {
-      scrollToDiscomfort();
-      setState(() {});
-    };
 
     predictionStatus = getIt<PredictionSGStatus>();
     predictionStatus.addListener(update);

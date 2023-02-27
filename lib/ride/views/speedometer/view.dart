@@ -59,7 +59,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   double speedAnimationPct = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateSpeedometer();
+    setState(() {});
+  }
 
   /// Update the speedometer.
   void updateSpeedometer() {
@@ -95,11 +98,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
         speedAnimationPct = speedAnimation.value;
       });
     });
-
-    update = () {
-      updateSpeedometer();
-      setState(() {});
-    };
 
     positioning = getIt<Positioning>();
     positioning.addListener(update);

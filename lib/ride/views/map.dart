@@ -53,7 +53,10 @@ class RideMapViewState extends State<RideMapView> {
   bool? upcomingTrafficLightIsGreen;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    updateMap();
+    setState(() {});
+  }
 
   /// Update the map.
   void updateMap() {
@@ -82,10 +85,6 @@ class RideMapViewState extends State<RideMapView> {
   @override
   void initState() {
     super.initState();
-    update = () {
-      updateMap();
-      setState(() {});
-    };
 
     settings = getIt<Settings>();
     settings.addListener(update);

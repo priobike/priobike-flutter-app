@@ -31,18 +31,16 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   double animatedScale = 1.0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    text = loadText();
+    goodPct = loadGood();
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    update = () {
-      text = loadText();
-      goodPct = loadGood();
-      setState(() {});
-    };
 
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);

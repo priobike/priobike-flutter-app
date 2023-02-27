@@ -23,10 +23,12 @@ class NewsButtonState extends State<NewsButton> {
   int unread = 0;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  late VoidCallback update;
+  void update() {
+    checkUnread();
+  }
 
   /// Checks if the number of unread articles has changed and updates the state.
-  voidCheckUnread() {
+  void checkUnread() {
     final unread = news.articles.where((article) => !news.readArticles.contains(article)).length;
     if (unread != this.unread) {
       setState(
@@ -41,11 +43,8 @@ class NewsButtonState extends State<NewsButton> {
   void initState() {
     super.initState();
     news = getIt<News>();
-    update = () {
-      voidCheckUnread();
-    };
     news.addListener(update);
-    voidCheckUnread();
+    checkUnread();
   }
 
   @override
