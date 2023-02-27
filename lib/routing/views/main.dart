@@ -11,6 +11,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
@@ -110,9 +111,6 @@ class RoutingViewState extends State<RoutingView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -136,15 +134,15 @@ class RoutingViewState extends State<RoutingView> {
 
     update = () => setState(() {});
 
-    geocoding = getIt.get<Geocoding>();
+    geocoding = getIt<Geocoding>();
     geocoding!.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing!.addListener(update);
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts!.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning!.addListener(update);
-    layers = getIt.get<Layers>();
+    layers = getIt<Layers>();
     layers.addListener(update);
   }
 
@@ -173,7 +171,7 @@ class RoutingViewState extends State<RoutingView> {
         ),
         result: true);
 
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     if (settings.didViewWarning) {
       startRide();
     } else {
@@ -246,7 +244,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

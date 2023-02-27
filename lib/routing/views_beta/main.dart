@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -12,6 +11,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
@@ -91,9 +91,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -101,7 +98,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
         await routing.loadRoutes();
-        await getIt.get<Places>().loadPlaces();
+        await getIt<Places>().loadPlaces();
         // To place the mapbox logo correct when shortcut selected in home screen.
         if (mounted) {
           sheetMovement.add(DraggableScrollableNotification(
@@ -128,23 +125,23 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       setState(() {});
     };
 
-    geocoding = getIt.get<Geocoding>();
+    geocoding = getIt<Geocoding>();
     geocoding.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    mapSettings = getIt.get<MapSettings>();
+    mapSettings = getIt<MapSettings>();
     mapSettings.addListener(update);
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    bottomSheetState = getIt.get<BottomSheetState>();
+    bottomSheetState = getIt<BottomSheetState>();
     bottomSheetState.addListener(update);
-    discomforts = getIt.get<Discomforts>();
+    discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
-    layers = getIt.get<Layers>();
+    layers = getIt<Layers>();
     layers.addListener(update);
 
     _checkRoutingBarShown();
@@ -266,7 +263,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

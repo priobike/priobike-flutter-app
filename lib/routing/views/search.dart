@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -47,9 +47,6 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -59,9 +56,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
       setState(() {});
     };
 
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
 
     updateDistance();
@@ -149,9 +146,6 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -161,7 +155,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       setState(() {});
     };
 
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
 
     // Update the distance to the waypoint.
@@ -221,9 +215,6 @@ class RouteSearchState extends State<RouteSearch> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -241,9 +232,9 @@ class RouteSearchState extends State<RouteSearch> {
 
     update = () => setState(() {});
 
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
   }
 

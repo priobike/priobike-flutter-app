@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -137,9 +137,6 @@ class Routing with ChangeNotifier {
   /// Variable that holds the state of which the item should be minimized to max 3 items.
   bool minimized = false;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -194,7 +191,7 @@ class Routing with ChangeNotifier {
 
   /// Select the remaining waypoints.
   Future<void> selectRemainingWaypoints() async {
-    final userPos = getIt.get<Positioning>().lastPosition;
+    final userPos = getIt<Positioning>().lastPosition;
     if (userPos == null) return;
     final userPosLatLng = LatLng(userPos.latitude, userPos.longitude);
     if (selectedWaypoints == null) return;
@@ -235,7 +232,7 @@ class Routing with ChangeNotifier {
   /// Load a SG-Selector response.
   Future<SGSelectorResponse?> loadSGSelectorResponse(GHRouteResponsePath path) async {
     try {
-      final settings = getIt.get<Settings>();
+      final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
       String usedRoutingParameter;
@@ -279,7 +276,7 @@ class Routing with ChangeNotifier {
 
   /// Select the correct profile.
   Future<RoutingProfile> selectProfile() async {
-    final profile = getIt.get<Profile>();
+    final profile = getIt<Profile>();
 
     // Look for specific bike types first.
     if (profile.bikeType == BikeType.mountainbike) {
@@ -324,7 +321,7 @@ class Routing with ChangeNotifier {
   /// Load a GraphHopper response.
   Future<GHRouteResponse?> loadGHRouteResponse(List<Waypoint> waypoints) async {
     try {
-      final settings = getIt.get<Settings>();
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       final servicePath = settings.routingEndpoint.servicePath;
       var ghUrl = "https://$baseUrl/$servicePath/route";
@@ -464,10 +461,10 @@ class Routing with ChangeNotifier {
     fetchedWaypoints = selectedWaypoints!;
     isFetchingRoute = false;
 
-    final discomforts = getIt.get<Discomforts>();
+    final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(routes.first.path);
 
-    final status = getIt.get<PredictionSGStatus>();
+    final status = getIt<PredictionSGStatus>();
     await status.fetch(routes.first);
 
     // Force new route label coords.
@@ -482,10 +479,10 @@ class Routing with ChangeNotifier {
 
     selectedRoute = allRoutes![idx];
 
-    final discomforts = getIt.get<Discomforts>();
+    final discomforts = getIt<Discomforts>();
     await discomforts.findDiscomforts(selectedRoute!.path);
 
-    final status = getIt.get<PredictionSGStatus>();
+    final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
 
     notifyListeners();

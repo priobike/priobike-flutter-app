@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 /// Displays the shortcut row.
@@ -29,20 +29,17 @@ class ShortCutsRowState extends State<ShortCutsRow> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
 
     update = () => setState(() {});
 
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    places = getIt.get<Places>();
+    places = getIt<Places>();
     places.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
   }
 

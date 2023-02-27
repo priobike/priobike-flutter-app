@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -27,9 +27,6 @@ class CancelButton extends StatefulWidget {
 
 /// A cancel button to cancel the ride.
 class CancelButtonState extends State<CancelButton> {
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   Widget askForConfirmation(BuildContext context) {
     return AlertDialog(
       //contentPadding: const EdgeInsets.all(30),
@@ -83,23 +80,23 @@ class CancelButtonState extends State<CancelButton> {
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap() async {
     // End the tracking and collect the data.
-    final tracking = getIt.get<Tracking>();
+    final tracking = getIt<Tracking>();
     await tracking.end(); // Performs all needed resets.
 
     // Calculate a summary of the ride.
-    final statistics = getIt.get<Statistics>();
+    final statistics = getIt<Statistics>();
     await statistics.calculateSummary();
 
     // Disconnect from the mqtt broker.
-    final datastream = getIt.get<Datastream>();
+    final datastream = getIt<Datastream>();
     await datastream.disconnect();
 
     // End the recommendations.
-    final ride = getIt.get<Ride>();
+    final ride = getIt<Ride>();
     await ride.stopNavigation();
 
     // Stop the geolocation.
-    final position = getIt.get<Positioning>();
+    final position = getIt<Positioning>();
     await position.stopGeolocation();
 
     if (mounted) {
@@ -120,15 +117,15 @@ class CancelButtonState extends State<CancelButton> {
                 await position.reset();
 
                 // Reset the route service.
-                final routing = getIt.get<Routing>();
+                final routing = getIt<Routing>();
                 await routing.reset();
 
                 // Reset the prediction sg status.
-                final predictionSGStatus = getIt.get<PredictionSGStatus>();
+                final predictionSGStatus = getIt<PredictionSGStatus>();
                 await predictionSGStatus.reset();
 
                 // Reset the dangers.
-                final dangers = getIt.get<Dangers>();
+                final dangers = getIt<Dangers>();
                 await dangers.reset();
 
                 if (context.mounted) {

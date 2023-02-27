@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -57,9 +57,6 @@ class SearchBarState extends State<SearchBar> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -69,11 +66,11 @@ class SearchBarState extends State<SearchBar> {
       setState(() {});
     };
 
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
 
     updateWaypoint();

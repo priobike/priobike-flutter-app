@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/service.dart';
 
 /// A small tutorial view which can be used to show a tutorial.
@@ -41,9 +41,6 @@ class TutorialViewState extends State<TutorialView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Updates the tutorial status.
   void updateTutorialStatus() {
@@ -93,7 +90,7 @@ class TutorialViewState extends State<TutorialView> {
       setState(() {});
     };
 
-    tutorial = getIt.get<Tutorial>();
+    tutorial = getIt<Tutorial>();
     tutorial.addListener(update);
 
     updateTutorialStatus();

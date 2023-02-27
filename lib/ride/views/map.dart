@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/route_layers.dart';
@@ -10,6 +9,7 @@ import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -55,9 +55,6 @@ class RideMapViewState extends State<RideMapView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Update the map.
   void updateMap() {
     if (routing.needsLayout[viewId] != false && mapController != null) {
@@ -90,17 +87,17 @@ class RideMapViewState extends State<RideMapView> {
       setState(() {});
     };
 
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    ride = getIt.get<Ride>();
+    ride = getIt<Ride>();
     ride.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    dangers = getIt.get<Dangers>();
+    dangers = getIt<Dangers>();
     dangers.addListener(update);
-    predictionSGStatus = getIt.get<PredictionSGStatus>();
+    predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(update);
 
     updateMap();
@@ -182,7 +179,7 @@ class RideMapViewState extends State<RideMapView> {
     // Get some data that we will need for adaptive camera control.
     final sgPos = ride.calcCurrentSG?.position;
     final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
-    final userPos = getIt.get<Positioning>().lastPosition;
+    final userPos = getIt<Positioning>().lastPosition;
     final userPosSnap = positioning.snap;
 
     if (userPos == null || userPosSnap == null) {

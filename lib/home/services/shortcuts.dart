@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -16,9 +16,6 @@ class Shortcuts with ChangeNotifier {
   /// All available shortcuts.
   List<Shortcut>? shortcuts;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   Shortcuts();
 
   /// Reset the shortcuts service.
@@ -28,16 +25,16 @@ class Shortcuts with ChangeNotifier {
 
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name) async {
-    final routing = getIt.get<Routing>();
+    final routing = getIt<Routing>();
 
-    final bottomSheetState = getIt.get<BottomSheetState>();
+    final bottomSheetState = getIt<BottomSheetState>();
 
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation
     for (Waypoint waypoint in routing.selectedWaypoints!) {
       if (waypoint.address == null) {
-        final geocoding = getIt.get<Geocoding>();
+        final geocoding = getIt<Geocoding>();
         final String? address = await geocoding.reverseGeocodeLatLng(waypoint.lat, waypoint.lon);
         if (address == null) return;
         waypoint.address = address;
@@ -68,7 +65,7 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -83,7 +80,7 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts != null) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
     String? jsonStr;
     if (backend == Backend.production) {
       jsonStr = storage.getString("priobike.home.shortcuts.production");

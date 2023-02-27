@@ -5,12 +5,12 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
@@ -108,9 +108,6 @@ class Tracking with ChangeNotifier {
   /// A timer that checks if tracks need to be uploaded.
   Timer? uploadTimer;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   Tracking();
 
   /// Set the current tracking submission policy.
@@ -189,11 +186,11 @@ class Tracking with ChangeNotifier {
     }
     final packageInfo = await PackageInfo.fromPlatform();
     final startTime = DateTime.now().millisecondsSinceEpoch;
-    final routing = getIt.get<Routing>();
-    final settings = getIt.get<Settings>();
-    final status = getIt.get<PredictionStatusSummary>();
-    final ride = getIt.get<Ride>();
-    final profile = getIt.get<Profile>();
+    final routing = getIt<Routing>();
+    final settings = getIt<Settings>();
+    final status = getIt<PredictionStatusSummary>();
+    final ride = getIt<Ride>();
+    final profile = getIt<Profile>();
 
     try {
       track = Track(
@@ -253,7 +250,7 @@ class Tracking with ChangeNotifier {
 
   /// Notify the track that a new GPS position is available.
   Future<void> updatePosition() async {
-    final position = getIt.get<Positioning>().lastPosition;
+    final position = getIt<Positioning>().lastPosition;
     if (position == null) return;
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     await gpsCache?.add("$timestamp,${position.longitude},${position.latitude},${position.speed},${position.accuracy}");
@@ -347,7 +344,7 @@ class Tracking with ChangeNotifier {
     log.i("Ending the current track.");
     track?.endTime = DateTime.now().millisecondsSinceEpoch;
 
-    final ride = getIt.get<Ride>();
+    final ride = getIt<Ride>();
     if (ride.predictionComponent is PredictionService) {
       track?.predictionServicePredictions =
           (ride.predictionComponent! as PredictionService).predictionServicePredictions;

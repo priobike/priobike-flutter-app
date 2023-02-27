@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/weather/messages.dart';
 import 'package:priobike/weather/service.dart';
 
@@ -26,12 +26,10 @@ class WeatherViewState extends State<WeatherView> {
   /// If the current weather should be displayed as a warning.
   bool warning = false;
 
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
-    weather = getIt.get<Weather>();
+    weather = getIt<Weather>();
     weather.addListener(() {
       setState(() {});
     });

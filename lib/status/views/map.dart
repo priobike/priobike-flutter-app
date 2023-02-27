@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -11,6 +10,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -33,9 +33,6 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   /// A map controller for the map.
   mapbox.MapboxMap? mapController;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
@@ -48,7 +45,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
     final textColor =
         Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value;
 
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 

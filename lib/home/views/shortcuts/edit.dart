@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -39,9 +39,6 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   /// The associcated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -49,12 +46,12 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   void initState() {
     super.initState();
     update = () => setState(() {});
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    routing = getIt.get<Routing>();
-    discomforts = getIt.get<Discomforts>();
-    predictionSGStatus = getIt.get<PredictionSGStatus>();
-    settings = getIt.get<Settings>();
+    routing = getIt<Routing>();
+    discomforts = getIt<Discomforts>();
+    predictionSGStatus = getIt<PredictionSGStatus>();
+    settings = getIt<Settings>();
   }
 
   @override

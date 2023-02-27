@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 
 class RideSGButton extends StatefulWidget {
@@ -14,9 +14,6 @@ class RideSGButtonState extends State<RideSGButton> {
   /// The ride service which is injected by the provider.
   late Ride ride;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -24,7 +21,7 @@ class RideSGButtonState extends State<RideSGButton> {
   void initState() {
     super.initState();
     update = () => setState(() {});
-    ride = getIt.get<Ride>();
+    ride = getIt<Ride>();
     ride.addListener(update);
   }
 

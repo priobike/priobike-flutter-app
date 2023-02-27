@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -25,9 +25,6 @@ class Geosearch with ChangeNotifier {
 
   Geosearch();
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Fetch addresses to a given query.
   /// See: https://nominatim.org/release-docs/develop/api/Search/
   Future<void> geosearch(String query) async {
@@ -39,7 +36,7 @@ class Geosearch with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      final settings = getIt.get<Settings>();
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/search";
       url += "?accept-language=de";

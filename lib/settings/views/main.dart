@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/speed.dart';
@@ -151,19 +151,16 @@ class SettingsViewState extends State<SettingsView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    feature = getIt.get<Feature>();
+    feature = getIt<Feature>();
     feature.addListener(update);
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
-    tracking = getIt.get<Tracking>();
+    tracking = getIt<Tracking>();
     tracking.addListener(update);
   }
 

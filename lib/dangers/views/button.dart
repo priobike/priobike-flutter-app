@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -10,6 +9,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 
@@ -85,9 +85,6 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Animates the danger progress.
   void animateDangerProgress() {
     if (dangers.previousDangerToVoteFor == null) {
@@ -123,7 +120,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
       animateDangerProgress();
     };
 
-    dangers = getIt.get<Dangers>();
+    dangers = getIt<Dangers>();
     dangers.addListener(update);
 
     animateDangerProgress();
@@ -141,7 +138,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
     if (!showModal /* Prepare to show modal. */) {
       log.i("Caching the current position.");
       // Get the current snapped position.
-      final snap = getIt.get<Positioning>().snap;
+      final snap = getIt<Positioning>().snap;
       if (snap == null) {
         log.w("Cannot report a danger without a current snapped position.");
         return;

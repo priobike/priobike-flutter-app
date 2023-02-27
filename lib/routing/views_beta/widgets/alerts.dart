@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -32,9 +32,6 @@ class AlertsViewState extends State<AlertsView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Scroll to a discomfort if one was selected.
   void scrollToDiscomfort() {
@@ -78,11 +75,11 @@ class AlertsViewState extends State<AlertsView> {
       setState(() {});
     };
 
-    predictionStatus = getIt.get<PredictionSGStatus>();
+    predictionStatus = getIt<PredictionSGStatus>();
     predictionStatus.addListener(update);
-    discomforts = getIt.get<Discomforts>();
+    discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
 
     scrollToDiscomfort();

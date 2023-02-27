@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -29,9 +29,6 @@ class DatastreamViewState extends State<DatastreamView> {
 
   /// The displayed time diff.
   String? timeDiff;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;

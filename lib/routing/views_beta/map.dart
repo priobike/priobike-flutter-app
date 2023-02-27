@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
@@ -12,6 +11,7 @@ import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -108,9 +108,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -135,17 +132,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       setState(() {});
     };
 
-    layers = getIt.get<Layers>();
+    layers = getIt<Layers>();
     layers.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    discomforts = getIt.get<Discomforts>();
+    discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
-    status = getIt.get<PredictionSGStatus>();
+    status = getIt<PredictionSGStatus>();
     status.addListener(update);
-    mapSettings = getIt.get<MapSettings>();
+    mapSettings = getIt<MapSettings>();
     mapSettings.addListener(update);
 
     updateMap();
@@ -495,7 +492,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
-    final geocoding = getIt.get<Geocoding>();
+    final geocoding = getIt<Geocoding>();
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();

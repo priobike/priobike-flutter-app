@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
 
@@ -20,9 +20,6 @@ class NewsViewState extends State<NewsView> {
   /// The associated articles service, which is injected by the provider.
   late News news;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -30,7 +27,7 @@ class NewsViewState extends State<NewsView> {
   void initState() {
     super.initState();
     update = () => setState(() {});
-    news = getIt.get<News>();
+    news = getIt<News>();
     news.addListener(update);
     initializeDateFormatting('de');
   }

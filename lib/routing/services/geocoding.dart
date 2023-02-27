@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -21,9 +21,6 @@ class Geocoding with ChangeNotifier {
   bool hadErrorDuringFetch = false;
 
   Geocoding();
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
@@ -42,7 +39,7 @@ class Geocoding with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      final settings = getIt.get<Settings>();
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/reverse";
       url += "?accept-language=de";

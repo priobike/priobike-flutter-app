@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -132,16 +132,13 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
   DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet() {
-    final shortcuts = getIt.get<Shortcuts>();
+    final shortcuts = getIt<Shortcuts>();
     showDialog(
       context: context,
       builder: (_) {
@@ -198,15 +195,15 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     super.initState();
     update = () => setState(() {});
 
-    bottomSheetState = getIt.get<BottomSheetState>();
+    bottomSheetState = getIt<BottomSheetState>();
     bottomSheetState.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    places = getIt.get<Places>();
+    places = getIt<Places>();
     places.addListener(update);
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    predictionStatus = getIt.get<PredictionSGStatus>();
+    predictionStatus = getIt<PredictionSGStatus>();
     predictionStatus.addListener(update);
   }
 

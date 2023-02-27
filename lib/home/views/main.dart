@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -12,6 +11,7 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -67,27 +67,24 @@ class HomeViewState extends State<HomeView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    news = getIt.get<News>();
+    news = getIt<News>();
     news.addListener(update);
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
 
-    routing = getIt.get<Routing>();
-    discomforts = getIt.get<Discomforts>();
-    predictionSGStatus = getIt.get<PredictionSGStatus>();
-    statistics = getIt.get<Statistics>();
+    routing = getIt<Routing>();
+    discomforts = getIt<Discomforts>();
+    predictionSGStatus = getIt<PredictionSGStatus>();
+    statistics = getIt<Statistics>();
   }
 
   @override
@@ -123,7 +120,7 @@ class HomeViewState extends State<HomeView> {
     HapticFeedback.mediumImpact();
 
     // Tell the tutorial service that the shortcut was selected.
-    getIt.get<Tutorial>().complete("priobike.tutorial.select-shortcut");
+    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(shortcut.waypoints);
     Navigator.of(context)
@@ -207,8 +204,8 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await getIt.get<PredictionStatusSummary>().fetch();
-          await getIt.get<Weather>().fetch();
+          await getIt<PredictionStatusSummary>().fetch();
+          await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),

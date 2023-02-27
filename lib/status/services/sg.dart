@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
@@ -42,9 +42,6 @@ class PredictionSGStatus with ChangeNotifier {
 
   PredictionSGStatus();
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route.
   Future<void> fetch(Route? route) async {
@@ -52,7 +49,7 @@ class PredictionSGStatus with ChangeNotifier {
 
     log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
 
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 

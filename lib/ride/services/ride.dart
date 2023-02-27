@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Route;
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
@@ -66,9 +66,6 @@ class Ride with ChangeNotifier {
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {
     if (!navigationIsActive) return;
@@ -127,7 +124,7 @@ class Ride with ChangeNotifier {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final predictionMode = settings.predictionMode;
     if (predictionMode == PredictionMode.usePredictionService) {
       // Connect the prediction service MQTT client.
@@ -161,7 +158,7 @@ class Ride with ChangeNotifier {
   Future<void> updatePosition() async {
     if (!navigationIsActive) return;
 
-    final snap = getIt.get<Positioning>().snap;
+    final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // Calculate the distance to the next turn.

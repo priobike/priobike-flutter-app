@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/layers.dart';
 
 class LayerSelectionView extends StatefulWidget {
@@ -23,18 +23,15 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
 
     update = () => setState(() {});
 
-    layers = getIt.get<Layers>();
+    layers = getIt<Layers>();
     layers.addListener(update);
-    mapDesigns = getIt.get<MapDesigns>();
+    mapDesigns = getIt<MapDesigns>();
     mapDesigns.addListener(update);
   }
 

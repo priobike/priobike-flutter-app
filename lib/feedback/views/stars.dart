@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/models/question.dart';
 import 'package:priobike/feedback/services/feedback.dart';
+import 'package:priobike/main.dart';
 
 /// A view with 5 stars to rate the current ride.
 class StarRatingView extends StatefulWidget {
@@ -32,15 +32,12 @@ class StarRatingViewState extends State<StarRatingView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     confettiControllers = List.generate(5, (index) => ConfettiController(duration: const Duration(milliseconds: 500)));
     update = () => setState(() {});
-    feedback = getIt.get<Feedback>();
+    feedback = getIt<Feedback>();
     feedback.addListener(update);
   }
 

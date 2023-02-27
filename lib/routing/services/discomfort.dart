@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 
@@ -27,9 +27,6 @@ class Discomforts with ChangeNotifier {
 
   /// The signal group clicked.
   bool trafficLightClicked = false;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   Discomforts({
     this.foundDiscomforts,
@@ -82,7 +79,7 @@ class Discomforts with ChangeNotifier {
   }
 
   Future<void> findDiscomforts(GHRouteResponsePath path) async {
-    final profile = getIt.get<Profile>();
+    final profile = getIt<Profile>();
 
     // Use the surface values to determine unsmooth sections.
     // See: https://wiki.openstreetmap.org/wiki/Key:surface

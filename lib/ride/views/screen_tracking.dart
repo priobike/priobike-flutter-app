@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
@@ -22,9 +22,6 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   /// Temporary saving tap down X;
   double? tapDownY;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -32,7 +29,7 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   void initState() {
     super.initState();
     update = () => setState(() {});
-    tracking = getIt.get<Tracking>();
+    tracking = getIt<Tracking>();
     tracking.addListener(update);
   }
 

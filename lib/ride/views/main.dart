@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -43,9 +43,6 @@ class RideViewState extends State<RideView> {
   /// Indicating whether the widgets can be loaded or the loading screen should be shown.
   bool ready = false;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -55,7 +52,7 @@ class RideViewState extends State<RideView> {
 
     update = () => setState(() {});
 
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
 
     // Wait a moment for a clean disposal of the map in the routing view.
@@ -71,23 +68,23 @@ class RideViewState extends State<RideView> {
         final deviceWidth = MediaQuery.of(context).size.width;
         final deviceHeight = MediaQuery.of(context).size.height;
 
-        final tracking = getIt.get<Tracking>();
-        final positioning = getIt.get<Positioning>();
-        final datastream = getIt.get<Datastream>();
-        final routing = getIt.get<Routing>();
-        final dangers = getIt.get<Dangers>();
-        final sgStatus = getIt.get<PredictionSGStatus>();
+        final tracking = getIt<Tracking>();
+        final positioning = getIt<Positioning>();
+        final datastream = getIt<Datastream>();
+        final routing = getIt<Routing>();
+        final dangers = getIt<Dangers>();
+        final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         await dangers.fetch(routing.selectedRoute!);
         // Start a new session.
-        final ride = getIt.get<Ride>();
+        final ride = getIt<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt.get<Settings>();
+        final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
           await datastream.connect();
           // Link the ride to the datastream.

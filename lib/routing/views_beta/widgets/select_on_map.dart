@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -11,6 +10,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/map_settings.dart';
@@ -53,9 +53,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -66,15 +63,15 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
 
     update = () => setState(() {});
 
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    mapSettings = getIt.get<MapSettings>();
+    mapSettings = getIt<MapSettings>();
     mapSettings.addListener(update);
-    geocoding = getIt.get<Geocoding>();
+    geocoding = getIt<Geocoding>();
     geocoding.addListener(update);
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    places = getIt.get<Places>();
+    places = getIt<Places>();
     places.addListener(update);
   }
 

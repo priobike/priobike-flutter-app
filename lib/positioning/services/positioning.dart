@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:geolocator/geolocator.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
@@ -44,9 +44,6 @@ class Positioning with ChangeNotifier {
 
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   Positioning({this.positionSource});
 
@@ -109,12 +106,12 @@ class Positioning with ChangeNotifier {
 
   /// Ensure that the position source is initialized.
   Future<void> initializePositionSource() async {
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     if (settings.positioningMode == PositioningMode.gnss) {
       positionSource = GNSSPositionSource();
       log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
-      final routing = getIt.get<Routing>();
+      final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
@@ -122,7 +119,7 @@ class Positioning with ChangeNotifier {
       positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
-      final routing = getIt.get<Routing>();
+      final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??

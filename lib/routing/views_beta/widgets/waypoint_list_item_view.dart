@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -49,9 +49,6 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -61,9 +58,9 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
       setState(() {});
     };
 
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch?.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning?.addListener(update);
 
     // Update the distance to the waypoint.

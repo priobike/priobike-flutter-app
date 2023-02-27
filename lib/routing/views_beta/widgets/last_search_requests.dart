@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/views_beta/widgets/waypoint_list_item_view.dart';
 
@@ -29,17 +29,14 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
   }
 

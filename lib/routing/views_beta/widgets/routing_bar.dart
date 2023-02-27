@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
@@ -71,9 +71,6 @@ class RoutingBarState extends State<RoutingBar> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
@@ -83,17 +80,17 @@ class RoutingBarState extends State<RoutingBar> {
       setState(() {});
     };
 
-    geosearch = getIt.get<Geosearch>();
+    geosearch = getIt<Geosearch>();
     geosearch.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    discomforts = getIt.get<Discomforts>();
+    discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    bottomSheetState = getIt.get<BottomSheetState>();
+    bottomSheetState = getIt<BottomSheetState>();
     bottomSheetState.addListener(update);
 
     updateWaypoint();
@@ -466,7 +463,7 @@ class RoutingBarState extends State<RoutingBar> {
                         }
                         if (oldIndex == newIndex) return;
                         // Tell the tutorial that the user has changed the order of the waypoints.
-                        getIt.get<Tutorial>().complete("priobike.tutorial.draw-waypoints");
+                        getIt<Tutorial>().complete("priobike.tutorial.draw-waypoints");
 
                         if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 

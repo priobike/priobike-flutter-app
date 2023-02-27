@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -15,6 +14,7 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -52,9 +52,6 @@ class LoaderState extends State<Loader> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -68,7 +65,7 @@ class LoaderState extends State<Loader> {
     await SentryFlutter.init((options) => options.dsn = dsn);
 
     // Load the feature.
-    final feature = getIt.get<Feature>();
+    final feature = getIt<Feature>();
     await feature.load();
     // Load the settings.
     await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
@@ -76,23 +73,23 @@ class LoaderState extends State<Loader> {
     // Load all other services.
     try {
       // Load local stuff.
-      await getIt.get<Profile>().loadProfile();
-      await getIt.get<Shortcuts>().loadShortcuts();
-      await getIt.get<Statistics>().loadStatistics();
-      await getIt.get<Layers>().loadPreferences();
-      await getIt.get<MapDesigns>().loadPreferences();
-      final tracking = getIt.get<Tracking>();
+      await getIt<Profile>().loadProfile();
+      await getIt<Shortcuts>().loadShortcuts();
+      await getIt<Statistics>().loadStatistics();
+      await getIt<Layers>().loadPreferences();
+      await getIt<MapDesigns>().loadPreferences();
+      final tracking = getIt<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
-      final news = getIt.get<News>();
+      final news = getIt<News>();
       await news.getArticles();
       if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = getIt.get<PredictionStatusSummary>();
+      final predictionStatusSummary = getIt<PredictionStatusSummary>();
       await predictionStatusSummary.fetch();
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final weather = getIt.get<Weather>();
+      final weather = getIt<Weather>();
       await weather.fetch();
     } catch (e, stackTrace) {
       if (!kDebugMode) {
@@ -123,7 +120,7 @@ class LoaderState extends State<Loader> {
     super.initState();
     update = () => setState(() {});
 
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
 
     // Init the view once the app is ready.

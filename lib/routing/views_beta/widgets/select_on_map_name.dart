@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 class SelectOnMapNameView extends StatefulWidget {
@@ -29,17 +29,14 @@ class SelectOnMapNameViewState extends State<SelectOnMapNameView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
-    places = getIt.get<Places>();
+    places = getIt<Places>();
     places.addListener(update);
   }
 

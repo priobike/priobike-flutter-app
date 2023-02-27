@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/statistics/models/summary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,9 +49,6 @@ class Statistics with ChangeNotifier {
   /// The summaries of the statistics.
   List<Summary>? summaries;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   Statistics({
     this.totalDistanceMeters,
     this.totalDurationSeconds,
@@ -89,7 +86,7 @@ class Statistics with ChangeNotifier {
     await loadStatistics();
 
     // Get the positioning service.
-    final positioning = getIt.get<Positioning>();
+    final positioning = getIt<Positioning>();
     final positions = positioning.positions;
     if (positions.isEmpty) return;
 

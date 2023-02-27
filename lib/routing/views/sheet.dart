@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -41,19 +41,16 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    status = getIt.get<PredictionSGStatus>();
+    status = getIt<PredictionSGStatus>();
     status.addListener(update);
   }
 
@@ -68,7 +65,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
     // Tell the tutorial that the user has changed the order of the waypoints.
-    getIt.get<Tutorial>().complete("priobike.tutorial.draw-waypoints");
+    getIt<Tutorial>().complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;

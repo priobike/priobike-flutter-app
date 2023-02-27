@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -19,14 +19,11 @@ class BoundaryLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   BoundaryLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     String geojson;
     switch (settings.backend) {
       case Backend.production:

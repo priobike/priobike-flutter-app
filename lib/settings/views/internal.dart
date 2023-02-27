@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -55,27 +55,24 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
     update = () => setState(() {});
 
-    settings = getIt.get<Settings>();
+    settings = getIt<Settings>();
     settings.addListener(update);
-    predictionStatusSummary = getIt.get<PredictionStatusSummary>();
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
-    shortcuts = getIt.get<Shortcuts>();
+    shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    position = getIt.get<Positioning>();
+    position = getIt<Positioning>();
     position.addListener(update);
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    news = getIt.get<News>();
+    news = getIt<News>();
     news.addListener(update);
-    weather = getIt.get<Weather>();
+    weather = getIt<Weather>();
     weather.addListener(update);
   }
 
@@ -300,7 +297,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Tutorials zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => getIt.get<Tutorial>().deleteCompleted(),
+                    callback: () => getIt<Tutorial>().deleteCompleted(),
                   ),
                 ),
                 Padding(
@@ -308,7 +305,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Datenschutz zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => getIt.get<PrivacyPolicy>().deleteStoredPolicy(),
+                    callback: () => getIt<PrivacyPolicy>().deleteStoredPolicy(),
                   ),
                 ),
                 Padding(
@@ -316,7 +313,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Sicherheits-Warnung zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => getIt.get<Settings>().setDidViewWarning(false),
+                    callback: () => getIt<Settings>().setDidViewWarning(false),
                   ),
                 ),
                 const SmallVSpace(),

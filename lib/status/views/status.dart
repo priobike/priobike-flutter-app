@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -31,9 +30,6 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   /// The animated scale of the status view.
   double animatedScale = 1.0;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
@@ -48,7 +44,7 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
       setState(() {});
     };
 
-    predictionStatusSummary = getIt.get<PredictionStatusSummary>();
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
 
     text = loadText();

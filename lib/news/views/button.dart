@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 
 class NewsButton extends StatefulWidget {
@@ -40,7 +40,7 @@ class NewsButtonState extends State<NewsButton> {
   @override
   void initState() {
     super.initState();
-    news = GetIt.instance.get<News>();
+    news = getIt<News>();
     update = () {
       voidCheckUnread();
     };

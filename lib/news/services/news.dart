@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' hide Category;
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -28,9 +28,6 @@ class News with ChangeNotifier {
 
   /// Map with all categories
   Map<int, Category> categories = {};
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Reset the service to its initial state.
   Future<void> reset() async {
@@ -56,7 +53,7 @@ class News with ChangeNotifier {
       newLastSyncDate = localSavedArticles[0].pubDate;
     }
 
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final newsArticlesUrl = newLastSyncDate == null
         ? "https://$baseUrl/news-service/news/articles"
@@ -120,7 +117,7 @@ class News with ChangeNotifier {
     }
 
     // If the category doesn't exist already in the shared preferences get it from backend server.
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
@@ -155,7 +152,7 @@ class News with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -170,7 +167,7 @@ class News with ChangeNotifier {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     final String jsonStr = jsonEncode(category.toJson());
     if (backend == Backend.production) {
@@ -184,7 +181,7 @@ class News with ChangeNotifier {
   Future<List<Article>> _getStoredArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedArticlesStr;
 
@@ -210,7 +207,7 @@ class News with ChangeNotifier {
   Future<Category?> _getStoredCategory(int categoryId) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedCategoryStr;
 
@@ -232,7 +229,7 @@ class News with ChangeNotifier {
     if (readArticles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
@@ -247,7 +244,7 @@ class News with ChangeNotifier {
   Future<Set<Article>> _getStoredReadArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = getIt.get<Settings>().backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedReadArticlesStr;
 

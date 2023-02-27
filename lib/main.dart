@@ -41,6 +41,8 @@ final log = Logger("main.dart");
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
 
+final getIt = GetIt.instance;
+
 Future<void> main() async {
   // Ensure that the widgets binding is initialized.
   // This is required by some plugins and functions.
@@ -51,7 +53,6 @@ Future<void> main() async {
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
   // Register the services.
-  final getIt = GetIt.instance;
   getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<Feature>(Feature());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());

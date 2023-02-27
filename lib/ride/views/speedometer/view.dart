@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -61,13 +61,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Update the speedometer.
   void updateSpeedometer() {
     // Fetch the maximum speed from the settings service.
-    maxSpeed = getIt.get<Settings>().speedMode.maxSpeed;
+    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
     if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
       positioning.needsLayout[viewId] = false;
@@ -104,9 +101,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
       setState(() {});
     };
 
-    positioning = getIt.get<Positioning>();
+    positioning = getIt<Positioning>();
     positioning.addListener(update);
-    ride = getIt.get<Ride>();
+    ride = getIt<Ride>();
     ride.addListener(update);
 
     updateSpeedometer();

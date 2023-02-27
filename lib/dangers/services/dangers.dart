@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -47,12 +47,9 @@ class Dangers with ChangeNotifier {
   /// The submitted votes for the dangers, by the pk of the danger.
   Map<int, int> votes = {};
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Load dangers along a route.
   Future<void> fetch(Route route) async {
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
     final request = {
@@ -100,7 +97,7 @@ class Dangers with ChangeNotifier {
       lon: snap.position.longitude,
       category: category,
     );
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/post/');
     try {
@@ -127,8 +124,8 @@ class Dangers with ChangeNotifier {
 
   /// Update the position.
   Future<void> calculateUpcomingAndPreviousDangers() async {
-    final snap = getIt.get<Positioning>().snap;
-    final route = getIt.get<Routing>().selectedRoute;
+    final snap = getIt<Positioning>().snap;
+    final route = getIt<Routing>().selectedRoute;
     if (snap == null || route == null) return;
     // First, go backwards and find a danger that the user should vote for.
     previousDangerToVoteFor = null;
@@ -171,7 +168,7 @@ class Dangers with ChangeNotifier {
 
   /// Vote for a danger.
   Future<void> vote(Danger danger, int vote) async {
-    final settings = getIt.get<Settings>();
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/vote/');
     final request = {

@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -47,9 +47,6 @@ class Datastream with ChangeNotifier {
   /// The set of current subscriptions.
   final Set<String> subscriptions = {};
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   /// Get the topic for a datastream.
   static String? topic(String? datastreamId) =>
       datastreamId == null ? null : "v1.1/Datastreams($datastreamId)/Observations";
@@ -76,7 +73,7 @@ class Datastream with ChangeNotifier {
   Future<void> connect() async {
     try {
       // Get the backend that is currently selected.
-      final backend = getIt.get<Settings>().backend;
+      final backend = getIt<Settings>().backend;
       client = MqttServerClient(backend.frostMQTTPath, 'priobike-app-${UniqueKey().toString()}');
       client!.logging(on: false);
       client!.keepAlivePeriod = 30;

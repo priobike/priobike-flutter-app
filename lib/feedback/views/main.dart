@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
@@ -13,6 +12,7 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -44,9 +44,6 @@ class FeedbackViewState extends State<FeedbackView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
-
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
 
   /// Submit feedback.
   Future<void> submit() async {
@@ -85,13 +82,13 @@ class FeedbackViewState extends State<FeedbackView> {
 
     update = () => setState(() {});
 
-    routing = getIt.get<Routing>();
+    routing = getIt<Routing>();
     routing.addListener(update);
-    tracking = getIt.get<Tracking>();
+    tracking = getIt<Tracking>();
     tracking.addListener(update);
-    feedback = getIt.get<Feedback>();
+    feedback = getIt<Feedback>();
     feedback.addListener(update);
-    statistics = getIt.get<Statistics>();
+    statistics = getIt<Statistics>();
     statistics.addListener(update);
   }
 
@@ -341,7 +338,7 @@ class FeedbackViewState extends State<FeedbackView> {
                           bottom: 24,
                         ),
                         child: TrackPictogram(
-                          track: getIt.get<Positioning>().positions,
+                          track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
                         ),

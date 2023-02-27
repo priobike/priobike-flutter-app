@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 
 class FilterSelectionView extends StatefulWidget {
   const FilterSelectionView({Key? key}) : super(key: key);
@@ -18,16 +18,13 @@ class FilterSelectionViewState extends State<FilterSelectionView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   late VoidCallback update;
 
-  /// The singleton instance of our dependency injection service.
-  final getIt = GetIt.instance;
-
   @override
   void initState() {
     super.initState();
 
     update = () => setState(() {});
 
-    profile = getIt.get<Profile>();
+    profile = getIt<Profile>();
     profile.addListener(update);
   }
 
