@@ -9,14 +9,17 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/ride/models/crossing.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -242,7 +245,7 @@ class Routing with ChangeNotifier {
         usedRoutingParameter = "osm";
       }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+          "https://$baseUrl/sg-selector-backend/routing/${SGSelectionMode.single.path}?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -259,6 +262,51 @@ class Routing with ChangeNotifier {
       if (response.statusCode == 200) {
         log.i("Loaded SG-Selector response from $sgSelectorUrl");
         return SGSelectorResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e, stack) {
+      final hint = "Failed to load SG-Selector response: $e";
+      log.e(hint);
+
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
+      return null;
+    }
+  }
+
+  /// Load a SG-Selector response.
+  Future<SGSelectorCrossingsResponse?> loadSGSelectorCrossingsResponse(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.backend.path;
+      String usedRoutingParameter;
+      if (settings.routingEndpoint == RoutingEndpoint.graphhopperDRN) {
+        usedRoutingParameter = "drn";
+      } else {
+        usedRoutingParameter = "osm";
+      }
+      final sgSelectorUrl =
+          "https://$baseUrl/sg-selector-backend/routing/${SGSelectionMode.crossing.path}?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+      final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
+      log.i("Loading SG-Selector response from $sgSelectorUrl");
+
+      final req = SGSelectorRequest(
+          route: path.points.coordinates
+              .map((e) => SGSelectorPosition(
+                    lat: e.lat,
+                    lon: e.lon,
+                    alt: e.elevation ?? 0.0,
+                  ))
+              .toList());
+      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded SG-Selector response from $sgSelectorUrl");
+        return SGSelectorCrossingsResponse.fromJson(json.decode(response.body));
       } else {
         log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
         return null;
@@ -393,68 +441,137 @@ class Routing with ChangeNotifier {
       return null;
     }
 
-    // Load the SG-Selector responses for each path.
-    final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(path)));
-    if (sgSelectorResponses.contains(null)) {
-      hadErrorDuringFetch = true;
-      isFetchingRoute = false;
-      notifyListeners();
-      return null;
-    }
+    List<Route> routes = [];
+    SGSelectionMode sgSelectionMode = getIt<Settings>().sgSelectionMode;
 
-    if (ghResponse.paths.length != sgSelectorResponses.length) {
-      hadErrorDuringFetch = true;
-      isFetchingRoute = false;
-      notifyListeners();
-      return null;
-    }
+    if (sgSelectionMode == SGSelectionMode.single) {
+      // Load the SG-Selector responses for each path.
+      final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(path)));
+      if (sgSelectorResponses.contains(null)) {
+        hadErrorDuringFetch = true;
+        isFetchingRoute = false;
+        notifyListeners();
+        return null;
+      }
 
-    // Create the routes.
-    final routes = ghResponse.paths
-        .asMap()
-        .map((i, path) {
-          final sgSelectorResponse = sgSelectorResponses[i]!;
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          for (final waypoint in sgSelectorResponse.route) {
-            if (waypoint.signalGroupId == null) continue;
-            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-            if (sg == null) continue;
-            if (sgsInOrderOfRoute.contains(sg)) continue;
-            sgsInOrderOfRoute.add(sg);
-          }
-          // Snap each signal group to the route and calculate the distance.
-          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final sg in sgsInOrderOfRoute) {
-            final snappedSgPos = Snapper(
-              position: LatLng(sg.position.lat, sg.position.lon),
-              nodes: sgSelectorResponse.route,
-            ).snap();
-            signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
-          }
-          // Snap each crossing to the route and calculate the distance.
-          final crossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final crossing in sgSelectorResponse.crossings) {
-            final snappedCrossingPos = Snapper(
-              position: LatLng(crossing.position.lat, crossing.position.lon),
-              nodes: sgSelectorResponse.route,
-            ).snap();
-            crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
-          }
-          var route = r.Route(
-            id: i,
-            path: path,
-            route: sgSelectorResponse.route,
-            signalGroups: sgsInOrderOfRoute,
-            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-            crossings: sgSelectorResponse.crossings,
-            crossingsDistancesOnRoute: crossingsDistancesOnRoute,
-          );
-          // Connect the route to the start and end points.
-          route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
-          return MapEntry(i, route);
-        })
-        .values
-        .toList();
+      if (ghResponse.paths.length != sgSelectorResponses.length) {
+        hadErrorDuringFetch = true;
+        isFetchingRoute = false;
+        notifyListeners();
+        return null;
+      }
+
+      // Create the routes.
+      routes = ghResponse.paths
+          .asMap()
+          .map((i, path) {
+            final sgSelectorResponse = sgSelectorResponses[i]!;
+            final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
+            for (final waypoint in sgSelectorResponse.route) {
+              if (waypoint.signalGroupId == null) continue;
+              final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
+              if (sg == null) continue;
+              if (sgsInOrderOfRoute.contains(sg)) continue;
+              sgsInOrderOfRoute.add(sg);
+            }
+            // Snap each signal group to the route and calculate the distance.
+            final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+            for (final sg in sgsInOrderOfRoute) {
+              final snappedSgPos = Snapper(
+                position: LatLng(sg.position.lat, sg.position.lon),
+                nodes: sgSelectorResponse.route,
+              ).snap();
+              signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+            }
+            // Snap each crossing to the route and calculate the distance.
+            final crossingsDistancesOnRoute = List<double>.empty(growable: true);
+            for (final crossing in sgSelectorResponse.crossings) {
+              final snappedCrossingPos = Snapper(
+                position: LatLng(crossing.position.lat, crossing.position.lon),
+                nodes: sgSelectorResponse.route,
+              ).snap();
+              crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
+            }
+            var route = r.Route(
+              id: i,
+              path: path,
+              route: sgSelectorResponse.route,
+              signalGroups: sgsInOrderOfRoute,
+              signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+              crossings: sgSelectorResponse.crossings,
+              crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+            );
+            // Connect the route to the start and end points.
+            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+            return MapEntry(i, route);
+          })
+          .values
+          .toList();
+    } else if (sgSelectionMode == SGSelectionMode.crossing) {
+      // Load the SG-Selector responses for each path.
+      final sgSelectorCrossingResponses =
+          await Future.wait(ghResponse.paths.map((path) => loadSGSelectorCrossingsResponse(path)));
+      if (sgSelectorCrossingResponses.contains(null)) {
+        hadErrorDuringFetch = true;
+        isFetchingRoute = false;
+        notifyListeners();
+        return null;
+      }
+
+      if (ghResponse.paths.length != sgSelectorCrossingResponses.length) {
+        hadErrorDuringFetch = true;
+        isFetchingRoute = false;
+        notifyListeners();
+        return null;
+      }
+
+      // Create the routes.
+      routes = ghResponse.paths
+          .asMap()
+          .map((i, path) {
+            final sgSelectorCrossingsResponse = sgSelectorCrossingResponses[i]!;
+            final crossingsInOrderOfRoute = List<Crossing>.empty(growable: true);
+            for (final waypoint in sgSelectorCrossingsResponse.route) {
+              if (waypoint.signalGroupId == null) continue;
+              final crossing = sgSelectorCrossingsResponse.connectedCrossings[waypoint.signalGroupId];
+              if (crossing == null) continue;
+              if (sgsInOrderOfRoute.contains(sg)) continue;
+              sgsInOrderOfRoute.add(sg);
+            }
+            // Snap each signal group to the route and calculate the distance.
+            final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
+            for (final sg in sgsInOrderOfRoute) {
+              final snappedSgPos = Snapper(
+                position: LatLng(sg.position.lat, sg.position.lon),
+                nodes: sgSelectorResponse.route,
+              ).snap();
+              signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+            }
+            // Snap each crossing to the route and calculate the distance.
+            final crossingsDistancesOnRoute = List<double>.empty(growable: true);
+            for (final crossing in sgSelectorResponse.crossings) {
+              final snappedCrossingPos = Snapper(
+                position: LatLng(crossing.position.lat, crossing.position.lon),
+                nodes: sgSelectorResponse.route,
+              ).snap();
+              crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
+            }
+            var route = r.Route(
+              id: i,
+              path: path,
+              route: sgSelectorResponse.route,
+              signalGroups: sgsInOrderOfRoute,
+              signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+              crossings: sgSelectorResponse.crossings,
+              crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+            );
+            // Connect the route to the start and end points.
+            route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
+            return MapEntry(i, route);
+          })
+          .values
+          .toList();
+    }
 
     selectedRoute = routes.first;
     allRoutes = routes;

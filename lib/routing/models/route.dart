@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/ride/models/crossing.dart' as ride_crossing;
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/navigation.dart';
@@ -30,6 +31,9 @@ class Route {
   /// A list of crossings.
   final List<Crossing> crossings;
 
+  /// A list of bulks of signal groups.
+  final List<ride_crossing.Crossing>? rideCrossings;
+
   /// A list of crossing distances on the route, in the order of `crossings`.
   final List<double> crossingsDistancesOnRoute;
 
@@ -41,6 +45,7 @@ class Route {
     required this.signalGroupsDistancesOnRoute,
     required this.crossings,
     required this.crossingsDistancesOnRoute,
+    this.rideCrossings,
   });
 
   Map<String, dynamic> toJson() => {

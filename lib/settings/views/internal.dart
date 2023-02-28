@@ -17,6 +17,7 @@ import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/summary.dart';
@@ -114,6 +115,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   Future<void> onSelectPredictionMode(PredictionMode predictionMode) async {
     // Tell the settings service that we selected the new predictor mode.
     await settings.setPredictionMode(predictionMode);
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a sg selection mode is selected.
+  Future<void> onSelectSGSelectionMode(SGSelectionMode mode) async {
+    // Tell the settings service that we selected the new sg selection mode.
+    await settings.setSGSelectionMode(mode);
 
     if (mounted) Navigator.pop(context);
   }
@@ -267,6 +276,25 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                           selected: settings.sgLabelsMode,
                           title: (SGLabelsMode e) => e.description,
                           callback: onSelectSGLabelsMode,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "SG-Vorhersage-Modus",
+                    subtitle: settings.sgSelectionMode.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                          elements: SGSelectionMode.values,
+                          selected: settings.sgSelectionMode,
+                          title: (SGSelectionMode e) => e.description,
+                          callback: onSelectSGSelectionMode,
                         );
                       },
                     ),

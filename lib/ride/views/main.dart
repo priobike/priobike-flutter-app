@@ -11,6 +11,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/crossing_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
@@ -18,6 +19,7 @@ import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
@@ -168,12 +170,13 @@ class RideViewState extends State<RideView> {
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   clipBehavior: Clip.none,
-                  children: const [
-                    RideMapView(),
-                    RideSpeedometerView(),
-                    DatastreamView(),
-                    RideSGButton(),
-                    DangerButton(),
+                  children: [
+                    const RideMapView(),
+                    if (settings.sgSelectionMode == SGSelectionMode.single) const RideSpeedometerView(),
+                    if (settings.sgSelectionMode == SGSelectionMode.single) const DatastreamView(),
+                    if (settings.sgSelectionMode == SGSelectionMode.single) const RideSGButton(),
+                    if (settings.sgSelectionMode == SGSelectionMode.crossing) const RideCrossingButton(),
+                    const DangerButton(),
                   ],
                 ),
               ),

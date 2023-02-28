@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:priobike/logging/logger.dart';
+
 import '../models/routing_view.dart';
 
 class Settings with ChangeNotifier {
@@ -53,6 +55,9 @@ class Settings with ChangeNotifier {
 
   /// The selected signal group selector mode.
   SGSelector sgSelector;
+
+  /// The selected signal group selection mode.
+  SGSelectionMode sgSelectionMode;
 
   /// The selected tracking submission policy.
   TrackingSubmissionPolicy trackingSubmissionPolicy;
@@ -294,6 +299,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const sgSelectionModeKey = "priobike.settings.sgSelectionMode";
+  static const defaultSGSelectionMode = SGSelectionMode.single;
+
+  Future<bool> setSGSelectionMode(SGSelectionMode sgSelectionMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgSelectionMode;
+    this.sgSelectionMode = sgSelectionMode;
+    bool success = await storage.setString(sgSelectionModeKey, sgSelectionMode.name);
+    if (!success) {
+      log.e("Failed to set sgSelectionMode to $sgSelectionMode");
+      this.sgSelectionMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
   static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
 
@@ -327,6 +349,7 @@ class Settings with ChangeNotifier {
     this.datastreamMode = defaultDatastreamMode,
     this.connectionErrorCounter = defaultConnectionErrorCounter,
     this.sgSelector = defaultSGSelector,
+    this.sgSelectionMode = defaultSGSelectionMode,
     this.routingView = defaultRoutingView,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
   });
