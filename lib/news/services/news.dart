@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' hide Category;
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,11 +39,11 @@ class News with ChangeNotifier {
   }
 
   /// Returns all available articles from the shared preferences or if not stored locally from the backend server.
-  Future<void> getArticles(BuildContext context) async {
+  Future<void> getArticles() async {
     if (hasLoaded) return;
 
     // Get articles that are already saved in the shared preferences on the device.
-    List<Article> localSavedArticles = await _getStoredArticles(context);
+    List<Article> localSavedArticles = await _getStoredArticles();
 
     // If there are articles saved already in the shared preferences on the device
     // get the lastSyncDate for later usage eg when deciding whether the "Neu"-tag
@@ -55,7 +53,7 @@ class News with ChangeNotifier {
       newLastSyncDate = localSavedArticles[0].pubDate;
     }
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final newsArticlesUrl = newLastSyncDate == null
         ? "https://$baseUrl/news-service/news/articles"
@@ -89,28 +87,28 @@ class News with ChangeNotifier {
 
     articles = [...articlesFromServer, ...localSavedArticles];
 
-    await _getCategories(context);
+    await _getCategories();
 
-    await _storeArticles(context);
+    await _storeArticles();
 
-    readArticles = await _getStoredReadArticles(context);
+    readArticles = await _getStoredReadArticles();
 
     hasLoaded = true;
     notifyListeners();
   }
 
   /// Gets a all categories for the given [articles].
-  Future<void> _getCategories(BuildContext context) async {
+  Future<void> _getCategories() async {
     for (final article in articles) {
       if (article.categoryId != null && !categories.containsKey(article.categoryId)) {
-        await _getCategory(context, article.categoryId!);
+        await _getCategory(article.categoryId!);
       }
     }
   }
 
   /// Gets single category given the [categoryId] from the shared preferences or if not stored locally from the backend server
-  Future<void> _getCategory(BuildContext context, int categoryId) async {
-    Category? category = await _getStoredCategory(context, categoryId);
+  Future<void> _getCategory(int categoryId) async {
+    Category? category = await _getStoredCategory(categoryId);
     if (category != null) {
       if (!categories.containsKey(categoryId)) {
         categories[categoryId] = category;
@@ -119,7 +117,7 @@ class News with ChangeNotifier {
     }
 
     // If the category doesn't exist already in the shared preferences get it from backend server.
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final newsCategoryUrl = "https://$baseUrl/news-service/news/category/${categoryId.toString()}";
     final newsCategoryEndpoint = Uri.parse(newsCategoryUrl);
@@ -139,7 +137,7 @@ class News with ChangeNotifier {
         categories[categoryId] = category;
       }
 
-      await _storeCategory(context, category);
+      await _storeCategory(category);
     } catch (e, stack) {
       final hint = "Failed to load category: $e";
       log.e(hint);
@@ -150,11 +148,11 @@ class News with ChangeNotifier {
   }
 
   /// Store all articles in shared preferences.
-  Future<void> _storeArticles(BuildContext context) async {
+  Future<void> _storeArticles() async {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
     if (backend == Backend.production) {
@@ -165,11 +163,11 @@ class News with ChangeNotifier {
   }
 
   /// Store category in shared preferences.
-  Future<void> _storeCategory(BuildContext context, Category category) async {
+  Future<void> _storeCategory(Category category) async {
     if (articles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     final String jsonStr = jsonEncode(category.toJson());
     if (backend == Backend.production) {
@@ -180,10 +178,10 @@ class News with ChangeNotifier {
   }
 
   /// Get all stored articles
-  Future<List<Article>> _getStoredArticles(BuildContext context) async {
+  Future<List<Article>> _getStoredArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedArticlesStr;
 
@@ -206,10 +204,10 @@ class News with ChangeNotifier {
   }
 
   /// Get stored category for given [categoryId]
-  Future<Category?> _getStoredCategory(BuildContext context, int categoryId) async {
+  Future<Category?> _getStoredCategory(int categoryId) async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedCategoryStr;
 
@@ -227,11 +225,11 @@ class News with ChangeNotifier {
   }
 
   /// Store all read articles in shared preferences.
-  Future<void> _storeReadArticles(BuildContext context) async {
+  Future<void> _storeReadArticles() async {
     if (readArticles.isEmpty) return;
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
@@ -243,10 +241,10 @@ class News with ChangeNotifier {
   }
 
   /// Get stored articles that were already read by the user.
-  Future<Set<Article>> _getStoredReadArticles(BuildContext context) async {
+  Future<Set<Article>> _getStoredReadArticles() async {
     final storage = await SharedPreferences.getInstance();
 
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
 
     String? storedReadArticlesStr;
 
@@ -269,14 +267,14 @@ class News with ChangeNotifier {
   }
 
   /// Mark all articles as read.
-  void markAllArticlesAsRead(BuildContext context) {
+  void markAllArticlesAsRead() {
     // Check whether there are new articles that are not already marked as read and
     // stored in the shared preferences (not necessary for the readArticles set, but to
     // reduce unnecessary storing of the articles)
     final bool newUnreadArticles = !readArticles.containsAll(articles);
     if (newUnreadArticles) {
       readArticles.addAll(articles);
-      _storeReadArticles(context);
+      _storeReadArticles();
       notifyListeners();
     }
   }

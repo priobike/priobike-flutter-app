@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/messages.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Weather with ChangeNotifier {
@@ -24,8 +23,8 @@ class Weather with ChangeNotifier {
   CurrentWeather? current;
 
   /// Fetch the weather for the given location.
-  Future<void> fetch(BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+  Future<void> fetch() async {
+    final settings = getIt<Settings>();
     final lat = settings.backend.center.latitude;
     final lon = settings.backend.center.longitude;
 

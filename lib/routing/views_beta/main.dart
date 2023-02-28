@@ -11,7 +11,9 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
@@ -37,7 +39,6 @@ import 'package:priobike/routing/views_beta/widgets/shortcuts.dart';
 import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RoutingViewNew extends StatefulWidget {
@@ -87,20 +88,33 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// The attribute which holds the state of which the route was centered top.
   bool fitCameraTop = false;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    _checkRoutingBarShown();
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing.loadRoutes(context);
-        await Provider.of<Places>(context, listen: false).loadPlaces(context);
+        await routing.loadRoutes();
+        await getIt<Places>().loadPlaces();
         // To place the mapbox logo correct when shortcut selected in home screen.
-        sheetMovement.add(DraggableScrollableNotification(
-            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+        if (mounted) {
+          sheetMovement.add(DraggableScrollableNotification(
+              minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+        }
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning.requestSingleLocation(context);
+        await positioning.requestSingleLocation(
+          onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning.positionSource);
+          },
+        );
         // Checking threshold for location accuracy
         if (positioning.lastPosition?.accuracy != null &&
             positioning.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -108,23 +122,42 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         }
       },
     );
+
+    geocoding = getIt<Geocoding>();
+    geocoding.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    mapSettings = getIt<MapSettings>();
+    mapSettings.addListener(update);
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    bottomSheetState = getIt<BottomSheetState>();
+    bottomSheetState.addListener(update);
+    discomforts = getIt<Discomforts>();
+    discomforts.addListener(update);
+    layers = getIt<Layers>();
+    layers.addListener(update);
+
+    _checkRoutingBarShown();
   }
 
   @override
-  void didChangeDependencies() {
-    geocoding = Provider.of<Geocoding>(context);
-    routing = Provider.of<Routing>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    mapSettings = Provider.of<MapSettings>(context);
-    profile = Provider.of<Profile>(context);
-    positioning = Provider.of<Positioning>(context);
-    bottomSheetState = Provider.of<BottomSheetState>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    layers = Provider.of<Layers>(context);
-
-    _checkRoutingBarShown();
-
-    super.didChangeDependencies();
+  void dispose() {
+    geocoding.removeListener(update);
+    routing.removeListener(update);
+    shortcuts.removeListener(update);
+    mapSettings.removeListener(update);
+    profile.removeListener(update);
+    positioning.removeListener(update);
+    bottomSheetState.removeListener(update);
+    discomforts.removeListener(update);
+    layers.removeListener(update);
+    sheetMovement.close();
+    super.dispose();
   }
 
   /// Function which checks if the RoutingBar needs to be shown.
@@ -158,30 +191,32 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     if (didViewWarning) {
       startRide();
     } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routingNew.warning", true);
-                startRide();
-              },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            alignment: AlignmentDirectional.center,
+            actionsAlignment: MainAxisAlignment.center,
+            title: BoldContent(
+                text:
+                    'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                context: context),
+            content: Container(height: 0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  preferences.setBool("priobike.routingNew.warning", true);
+                  startRide();
+                },
+                child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -226,7 +261,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -254,7 +289,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
-                    await routing.loadRoutes(context);
+                    await routing.loadRoutes();
                   },
                 ),
                 // Move the button a bit more up.
@@ -321,12 +356,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       ),
     );
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
-      await routing.loadRoutes(context);
+      await routing.loadRoutes();
       // Minimize view when coming from extra search page.
       routing.setMinimized();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -339,10 +376,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
-      await routing.loadRoutes(context);
+      await routing.loadRoutes();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -355,10 +394,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
-      await routing.loadRoutes(context);
+      await routing.loadRoutes();
       // Set the mapbox logo.
-      sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      if (mounted) {
+        sheetMovement.add(DraggableScrollableNotification(
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+      }
     }
   }
 
@@ -379,10 +420,12 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   /// Function which loads Routes from shortcuts view.
   _loadShortcutsRoute(List<Waypoint> waypoints) async {
     await routing.selectWaypoints(waypoints);
-    await routing.loadRoutes(context);
+    await routing.loadRoutes();
     // Set the mapbox logo.
-    sheetMovement.add(DraggableScrollableNotification(
-        minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+    if (mounted) {
+      sheetMovement.add(DraggableScrollableNotification(
+          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+    }
   }
 
   @override
@@ -477,7 +520,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                         fromRoutingSearch: false,
                                         onPressed: _loadShortcutsRoute,
                                         onSearch: onSearch,
-                                        context: context,
                                         sheetMovement: sheetMovement,
                                       ),
                                     ),
@@ -642,11 +684,5 @@ class RoutingViewNewState extends State<RoutingViewNew> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    sheetMovement.close();
-    super.dispose();
   }
 }

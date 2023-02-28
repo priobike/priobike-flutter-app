@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views/details/road.dart';
 import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:provider/provider.dart';
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
@@ -38,18 +38,33 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    positioning = Provider.of<Positioning>(context);
-    status = Provider.of<PredictionSGStatus>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    status = getIt<PredictionSGStatus>();
+    status.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    positioning.removeListener(update);
+    status.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when the order of the waypoints change.
   Future<void> onChangeWaypointOrder(int oldIndex, int newIndex) async {
     // Tell the tutorial that the user has changed the order of the waypoints.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.draw-waypoints");
+    getIt<Tutorial>().complete("priobike.tutorial.draw-waypoints");
 
     if (oldIndex == newIndex) return;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
@@ -63,7 +78,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     reorderedWaypoints.insert(newIndex, waypoint);
 
     routing.selectWaypoints(reorderedWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   /// A callback that is executed when the search page is opened.
@@ -86,7 +101,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final newWaypoints = [...waypoints, waypoint];
 
     routing.selectWaypoints(newWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   /// A callback that is executed when the user removes a waypoint.
@@ -97,7 +112,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     removedWaypoints.removeAt(index);
 
     routing.selectWaypoints(removedWaypoints);
-    routing.loadRoutes(context);
+    routing.loadRoutes();
   }
 
   Widget renderDragIndicator(BuildContext context) {

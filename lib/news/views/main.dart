@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/article_list_item.dart';
-import 'package:provider/provider.dart';
 
 class NewsView extends StatefulWidget {
   const NewsView({Key? key}) : super(key: key);
@@ -20,16 +20,21 @@ class NewsViewState extends State<NewsView> {
   /// The associated articles service, which is injected by the provider.
   late News news;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
+    news = getIt<News>();
+    news.addListener(update);
     initializeDateFormatting('de');
   }
 
   @override
-  void didChangeDependencies() {
-    news = Provider.of<News>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    news.removeListener(update);
+    super.dispose();
   }
 
   @override

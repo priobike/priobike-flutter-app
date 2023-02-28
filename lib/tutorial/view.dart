@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:provider/provider.dart';
 
 /// A small tutorial view which can be used to show a tutorial.
 class TutorialView extends StatefulWidget {
@@ -39,20 +39,14 @@ class TutorialViewState extends State<TutorialView> {
   /// The time in milliseconds for a finished tutorial to fade out.
   final _fadeOutDuration = const Duration(milliseconds: 1000);
 
-  @override
-  void initState() {
-    super.initState();
-
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) async {
-        tutorial.loadCompleted();
-      },
-    );
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    updateTutorialStatus();
+    setState(() {});
   }
 
-  @override
-  void didChangeDependencies() {
-    tutorial = Provider.of<Tutorial>(context);
+  /// Updates the tutorial status.
+  void updateTutorialStatus() {
     final wasCompleted = tutorial.isCompleted(widget.id);
     if (wasCompleted != null && !wasCompleted) {
       // If the tutorial was not completed, show it.
@@ -82,7 +76,28 @@ class TutorialViewState extends State<TutorialView> {
         },
       );
     }
-    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        tutorial.loadCompleted();
+      },
+    );
+
+    tutorial = getIt<Tutorial>();
+    tutorial.addListener(update);
+
+    updateTutorialStatus();
+  }
+
+  @override
+  void dispose() {
+    tutorial.removeListener(update);
+    super.dispose();
   }
 
   @override

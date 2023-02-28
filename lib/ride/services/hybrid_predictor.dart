@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart' hide Route;
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
@@ -77,20 +76,20 @@ class HybridPredictor implements PredictionComponent {
 
   /// Establish a connection with the MQTT clients.
   @override
-  Future<void> connectMQTTClient(BuildContext context) async {
+  Future<void> connectMQTTClient() async {
     // Hybrid mode -> connect both clients.
     predictionService = PredictionService(
       onConnected: onConnectedPredictionService,
       notifyListeners: update,
       onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRideWrapperPredictionService,
     );
-    predictionService!.connectMQTTClient(context);
+    predictionService!.connectMQTTClient();
     predictor = Predictor(
       onConnected: onConnectedPredictor,
       notifyListeners: update,
       onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRideWrapperPredictor,
     );
-    predictor!.connectMQTTClient(context);
+    predictor!.connectMQTTClient();
   }
 
   /// A method that is called by the predictor or prediction service if the prediction changes.

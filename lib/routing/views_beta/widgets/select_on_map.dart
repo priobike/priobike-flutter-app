@@ -10,6 +10,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/map_settings.dart';
@@ -19,7 +20,6 @@ import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
 import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map_name.dart';
 import 'package:priobike/routing/views_beta/widgets/zoom_in_and_out_button.dart';
-import 'package:provider/provider.dart';
 
 class SelectOnMapView extends StatefulWidget {
   final int? index;
@@ -50,24 +50,38 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await routing.loadRoutes(context);
+      await routing.loadRoutes();
     });
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    mapSettings = getIt<MapSettings>();
+    mapSettings.addListener(update);
+    geocoding = getIt<Geocoding>();
+    geocoding.addListener(update);
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    places = getIt<Places>();
+    places.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    mapSettings = Provider.of<MapSettings>(context);
-    geocoding = Provider.of<Geocoding>(context);
-    profile = Provider.of<Profile>(context);
-    places = Provider.of<Places>(context);
-
-    super.didChangeDependencies();
+  void dispose() {
+    routing.removeListener(update);
+    mapSettings.removeListener(update);
+    geocoding.removeListener(update);
+    profile.removeListener(update);
+    places.removeListener(update);
+    sheetMovement.close();
+    super.dispose();
   }
 
   /// Render a loading indicator.
@@ -113,8 +127,10 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
   }
 
   /// A function that is executed when the complete button is pressed.
-  Future<void> onComplete(BuildContext context, double lat, double lon) async {
-    String? address = await geocoding.reverseGeocodeLatLng(context, lat, lon);
+  Future<void> onComplete(double lat, double lon) async {
+    String? address = await geocoding.reverseGeocodeLatLng(lat, lon);
+
+    if (!mounted) return;
 
     address ??= "Wegpunkt";
 
@@ -187,7 +203,6 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
                             // This should not happen, but just in case.
                             if (coordinates.length == 2) {
                               onComplete(
-                                context,
                                 coordinates[1],
                                 coordinates[0],
                               );
@@ -249,11 +264,5 @@ class SelectOnMapViewState extends State<SelectOnMapView> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    sheetMovement.close();
-    super.dispose();
   }
 }

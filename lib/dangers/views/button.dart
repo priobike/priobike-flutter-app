@@ -9,9 +9,9 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:provider/provider.dart';
 
 /// A custom painter that draws a circular progress but with rounded caps.
 class RoundedCapCircularProgressPainter extends CustomPainter {
@@ -82,6 +82,26 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
   /// The value of the danger animation.
   double dangerProgressAnimationPct = 0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    setState(() {});
+    animateDangerProgress();
+  }
+
+  /// Animates the danger progress.
+  void animateDangerProgress() {
+    if (dangers.previousDangerToVoteFor == null) {
+      if (dangers.upcomingDangerToDisplay != null) {
+        final pct = dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold;
+        dangerProgressAnimationController.animateTo(
+          pct,
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,23 +117,17 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
         dangerProgressAnimationPct = dangerProgressAnimation.value;
       });
     });
+
+    dangers = getIt<Dangers>();
+    dangers.addListener(update);
+
+    animateDangerProgress();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    dangers = Provider.of<Dangers>(context);
-
-    if (dangers.previousDangerToVoteFor == null) {
-      if (dangers.upcomingDangerToDisplay != null) {
-        final pct = dangers.distanceToUpcomingDangerToDisplay! / Dangers.distanceThreshold;
-        dangerProgressAnimationController.animateTo(
-          pct,
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
+  void dispose() {
+    dangers.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is called when the button is tapped.
@@ -122,7 +136,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
     if (!showModal /* Prepare to show modal. */) {
       log.i("Caching the current position.");
       // Get the current snapped position.
-      final snap = Provider.of<Positioning>(context, listen: false).snap;
+      final snap = getIt<Positioning>().snap;
       if (snap == null) {
         log.w("Cannot report a danger without a current snapped position.");
         return;
@@ -185,7 +199,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
                       ),
                     ),
                     InkWell(
-                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, 1),
+                      onTap: () => dangers.vote(dangers.previousDangerToVoteFor!, 1),
                       child: Container(
                         width: 48,
                         height: 48,
@@ -216,7 +230,7 @@ class DangerButtonState extends State<DangerButton> with TickerProviderStateMixi
                     ),
                     const SmallHSpace(),
                     InkWell(
-                      onTap: () => dangers.vote(context, dangers.previousDangerToVoteFor!, -1),
+                      onTap: () => dangers.vote(dangers.previousDangerToVoteFor!, -1),
                       child: Container(
                         width: 48,
                         height: 48,

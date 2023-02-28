@@ -6,8 +6,8 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/models/snap.dart';
-import 'package:provider/provider.dart';
 
 class DangerModal extends StatefulWidget {
   const DangerModal({Key? key, required this.position, required this.onExit}) : super(key: key);
@@ -28,7 +28,7 @@ class DangerModal extends StatefulWidget {
 class DangerModalState extends State<DangerModal> {
   @override
   Widget build(BuildContext context) {
-    final dangers = Provider.of<Dangers>(context, listen: false);
+    final dangers = getIt<Dangers>();
     return Stack(children: [
       GestureDetector(
         onTap: widget.onExit,
@@ -72,7 +72,7 @@ class DangerModalState extends State<DangerModal> {
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(context, widget.position, "potholes");
+                    dangers.submitNew(widget.position, "potholes");
                     ToastMessage.showSuccess("Schlechte Straße gemeldet!");
                     widget.onExit();
                   },
@@ -93,7 +93,7 @@ class DangerModalState extends State<DangerModal> {
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(context, widget.position, "obstacle");
+                    dangers.submitNew(widget.position, "obstacle");
                     ToastMessage.showSuccess("Hindernis gemeldet!");
                     widget.onExit();
                   },
@@ -114,7 +114,7 @@ class DangerModalState extends State<DangerModal> {
                 Tile(
                   fill: Theme.of(context).colorScheme.surface,
                   onPressed: () {
-                    dangers.submitNew(context, widget.position, "dangerspot");
+                    dangers.submitNew(widget.position, "dangerspot");
                     ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
                     widget.onExit();
                   },

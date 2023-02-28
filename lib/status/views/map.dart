@@ -10,10 +10,10 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class SGStatusMapViewLegendElement {
   final String title;
@@ -42,7 +42,10 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null) return;
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final textColor =
+        Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value;
+
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 
@@ -195,8 +198,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           id: "sg-first-labels",
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 14,
-          textColor:
-              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textColor: textColor,
           textAllowOverlap: true,
         ),
       );
@@ -235,8 +237,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
           id: "sg-second-labels",
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
-          textColor:
-              Theme.of(context).colorScheme.brightness == Brightness.dark ? Colors.white.value : Colors.black.value,
+          textColor: textColor,
           textAllowOverlap: true,
         ),
       );

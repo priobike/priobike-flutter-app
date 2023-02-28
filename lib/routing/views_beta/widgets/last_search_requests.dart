@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/views_beta/widgets/waypoint_list_item_view.dart';
-import 'package:provider/provider.dart';
 
 /// Widget for last search results
 class LastSearchRequests extends StatefulWidget {
@@ -26,11 +26,24 @@ class LastSearchRequestsState extends State<LastSearchRequests> {
   /// The profile service that is injected by the provider.
   late Profile profile;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    profile = Provider.of<Profile>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profile.removeListener(update);
+    geosearch.removeListener(update);
+    super.dispose();
   }
 
   @override

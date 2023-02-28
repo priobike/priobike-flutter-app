@@ -9,12 +9,12 @@ import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class RideMapView extends StatefulWidget {
   const RideMapView({Key? key}) : super(key: key);
@@ -52,78 +52,105 @@ class RideMapViewState extends State<RideMapView> {
   /// If the upcoming traffic light is green.
   bool? upcomingTrafficLightIsGreen;
 
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    updateMap();
+    setState(() {});
+  }
 
-    routing = Provider.of<Routing>(context);
+  /// Update the map.
+  void updateMap() {
     if (routing.needsLayout[viewId] != false && mapController != null) {
       onRoutingUpdate();
       routing.needsLayout[viewId] = false;
     }
-
-    ride = Provider.of<Ride>(context);
     if (ride.needsLayout[viewId] != false && mapController != null) {
       onRideUpdate();
       ride.needsLayout[viewId] = false;
     }
-
-    positioning = Provider.of<Positioning>(context);
     if (positioning.needsLayout[viewId] != false && mapController != null) {
       onPositioningUpdate();
       positioning.needsLayout[viewId] = false;
     }
-
-    dangers = Provider.of<Dangers>(context);
     if (dangers.needsLayout[viewId] != false && mapController != null) {
       onDangersUpdate();
       dangers.needsLayout[viewId] = false;
     }
-
-    predictionSGStatus = Provider.of<PredictionSGStatus>(context);
     if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
       onStatusUpdate();
       predictionSGStatus.needsLayout[viewId] = false;
     }
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    ride = getIt<Ride>();
+    ride.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    dangers = getIt<Dangers>();
+    dangers.addListener(update);
+    predictionSGStatus = getIt<PredictionSGStatus>();
+    predictionSGStatus.addListener(update);
+
+    updateMap();
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    routing.removeListener(update);
+    ride.removeListener(update);
+    positioning.removeListener(update);
+    dangers.removeListener(update);
+    predictionSGStatus.removeListener(update);
+    super.dispose();
   }
 
   /// Update the view with the current data.
   Future<void> onStatusUpdate() async {
     if (!mounted) return;
-    await SelectedRouteLayer(context).update(mapController!);
+    await SelectedRouteLayer().update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer(context).update(mapController!);
+    await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
-    await WaypointsLayer(context).update(mapController!);
+    await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
-    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
+    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await TrafficLightLayer(context).update(mapController!);
+    await TrafficLightLayer(isDark).update(mapController!);
 
     if (ride.userSelectedSG != null) {
       // The camera target is the selected SG.
@@ -139,7 +166,8 @@ class RideMapViewState extends State<RideMapView> {
   /// Update the view with the current data.
   Future<void> onDangersUpdate() async {
     if (!mounted) return;
-    await DangersLayer(context, hideBehindPosition: true).update(mapController!);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -150,7 +178,7 @@ class RideMapViewState extends State<RideMapView> {
     // Get some data that we will need for adaptive camera control.
     final sgPos = ride.calcCurrentSG?.position;
     final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
-    final userPos = Provider.of<Positioning>(context, listen: false).lastPosition;
+    final userPos = getIt<Positioning>().lastPosition;
     final userPosSnap = positioning.snap;
 
     if (userPos == null || userPosSnap == null) {
@@ -245,21 +273,26 @@ class RideMapViewState extends State<RideMapView> {
 
   /// A callback which is executed when the map style was loaded.
   Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
-    if (mapController == null) return;
+    if (mapController == null || !mounted) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
-
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    await SelectedRouteLayer(context)
+    if (!mounted) return;
+    await SelectedRouteLayer()
         .install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
-    await WaypointsLayer(context).install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
-    await TrafficLightsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
+    await WaypointsLayer().install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
+    if (!mounted) return;
+    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 5);
-    await OfflineCrossingsLayer(context, hideBehindPosition: ride.userSelectedSG == null)
+    if (!mounted) return;
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 5);
-    await DangersLayer(context, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
-    await TrafficLightLayer(context).install(mapController!, iconSize: ppi / 5);
+    if (!mounted) return;
+    await DangersLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
+    if (!mounted) return;
+    await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5);
 
     onRoutingUpdate();
     onPositioningUpdate();

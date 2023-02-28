@@ -7,8 +7,8 @@ import 'package:priobike/home/models/place.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:provider/provider.dart';
 
 class SelectOnMapNameView extends StatefulWidget {
   final Waypoint waypoint;
@@ -26,17 +26,30 @@ class SelectOnMapNameViewState extends State<SelectOnMapNameView> {
   /// The associated place service, which is injected by the provider.
   late Places places;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    profile = Provider.of<Profile>(context);
-    places = Provider.of<Places>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    places = getIt<Places>();
+    places.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profile.removeListener(update);
+    places.removeListener(update);
+    super.dispose();
   }
 
   /// A function that is executed when the complete button is pressed.
   Future<void> onComplete(BuildContext context, String name) async {
     Place newPlace = Place(waypoint: widget.waypoint, name: name);
-    places.saveNewPlace(newPlace, context);
+    places.saveNewPlace(newPlace);
 
     if (widget.waypoint.address != null && profile.saveSearchHistory) {
       profile.saveNewSearch(widget.waypoint);
