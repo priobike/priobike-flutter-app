@@ -283,14 +283,7 @@ class Routing with ChangeNotifier {
       final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
-      String usedRoutingParameter;
-      if (settings.routingEndpoint == RoutingEndpoint.graphhopperDRN) {
-        usedRoutingParameter = "drn";
-      } else {
-        usedRoutingParameter = "osm";
-      }
-      final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/${SGSelectionMode.crossing.path}?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+      final sgSelectorUrl = "http://10.0.2.2:8000/routing/${SGSelectionMode.crossing.path}";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -549,6 +542,7 @@ class Routing with ChangeNotifier {
                 id: crossing["id"],
                 signalGroups: crossing["signalGroups"],
                 signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+                position: crossing["position"],
               ));
             }
             // Snap each crossing to the route and calculate the distance.
@@ -560,6 +554,7 @@ class Routing with ChangeNotifier {
               ).snap();
               crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
             }
+
             var route = r.Route(
               id: i,
               path: path,

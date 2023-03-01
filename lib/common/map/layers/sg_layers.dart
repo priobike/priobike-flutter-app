@@ -131,6 +131,129 @@ class TrafficLightsLayer {
   }
 }
 
+class ConnectedCrossingsLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  ConnectedCrossingsLayer(bool isDark, {hideBehindPosition = false}) {
+    final showLabels = getIt<Settings>().sgLabelsMode == SGLabelsMode.enabled;
+    final routing = getIt<Routing>();
+    final userPosSnap = getIt<Positioning>().snap;
+
+    if (routing.selectedRoute == null) return;
+    if (routing.selectedRoute!.rideCrossings == null) return;
+    for (int i = 0; i < routing.selectedRoute!.rideCrossings!.length; i++) {
+      for (int j = 0; j < routing.selectedRoute!.rideCrossings![i].signalGroups.length; j++) {
+        final sg = routing.selectedRoute!.rideCrossings![i].signalGroups[j];
+        final sgDistanceOnRoute = routing.selectedRoute!.rideCrossings![i].signalGroupsDistancesOnRoute[j];
+        // Clamp the value to not unnecessarily update the source.
+        final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
+        features.add(
+          {
+            "id": "traffic-light",
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [sg.position.lon, sg.position.lat],
+            },
+            "properties": {
+              "id": sg.id,
+              "isDark": isDark,
+              "showLabels": showLabels,
+              "distanceToSgOnRoute": distanceToSgOnRoute,
+              "hideBehindPosition": hideBehindPosition,
+            },
+          },
+        );
+      }
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    final sourceExists = await mapController.style.styleSourceExists("crossings");
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: "crossings", data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists("crossing-icons");
+    if (!trafficLightIconsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: "crossings",
+            id: "crossing-icons",
+            iconSize: iconSize,
+            iconAllowOverlap: true,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+            iconOpacity: 0,
+          ),
+          mapbox.LayerPosition(below: below));
+      await mapController.style.setStyleLayerProperty(
+          "crossing-icons",
+          'icon-image',
+          json.encode([
+            "case",
+            ["get", "isDark"],
+            "trafficlightonlinedarknocheck",
+            "trafficlightonlinelightnocheck",
+          ]));
+      await mapController.style.setStyleLayerProperty(
+          "crossing-icons",
+          'icon-opacity',
+          json.encode(
+            showAfter(zoom: 16, opacity: [
+              "case",
+              ["get", "hideBehindPosition"],
+              [
+                "case",
+                [
+                  "<",
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                ],
+                0,
+                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
+                [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "distanceToSgOnRoute"],
+                  -5, // See above - this is clamped to [-5, 0]
+                  0,
+                  0,
+                  1
+                ],
+              ],
+              1
+            ]),
+          ));
+      await mapController.style.setStyleLayerProperty(
+          "crossing-icons",
+          'text-field',
+          json.encode([
+            "case",
+            ["get", "showLabels"],
+            ["get", "id"],
+            ""
+          ]));
+    }
+    return "crossing-icons";
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists("crossings");
+    if (sourceExists) {
+      final source = await mapController.style.getSource("crossings");
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
 class TrafficLightLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);

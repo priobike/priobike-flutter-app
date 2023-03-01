@@ -102,6 +102,7 @@ class Route {
       ],
       crossings: crossings,
       crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+      rideCrossings: rideCrossings,
     );
   }
 

@@ -11,9 +11,13 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_crossing.dart';
+import 'package:priobike/ride/views/cancel_button_crossing.dart';
 import 'package:priobike/ride/views/crossing_button.dart';
 import 'package:priobike/ride/views/datastream.dart';
+import 'package:priobike/ride/views/lanes/view.dart';
 import 'package:priobike/ride/views/map.dart';
+import 'package:priobike/ride/views/map_crossings.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
@@ -78,14 +82,20 @@ class RideViewState extends State<RideView> {
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         await dangers.fetch(routing.selectedRoute!);
-        // Start a new session.
-        final ride = getIt<Ride>();
+        final settings = getIt<Settings>();
+        dynamic ride;
+        if (settings.sgSelectionMode == SGSelectionMode.single) {
+          // Start a new session.
+          ride = getIt<Ride>();
+        } else if (settings.sgSelectionMode == SGSelectionMode.crossing) {
+          // Start a new session.
+          ride = getIt<RideCrossing>();
+        }
         // Set `sessionId` to a random new value and bind the callbacks.
         await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
         await ride.selectRoute(routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt<Settings>();
-        if (settings.datastreamMode == DatastreamMode.enabled) {
+        if (settings.datastreamMode == DatastreamMode.enabled && settings.sgSelectionMode == SGSelectionMode.single) {
           await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
@@ -164,23 +174,35 @@ class RideViewState extends State<RideView> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        body: !ready
-            ? renderLoadingIndicator()
-            : ScreenTrackingView(
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  clipBehavior: Clip.none,
-                  children: [
-                    const RideMapView(),
-                    if (settings.sgSelectionMode == SGSelectionMode.single) const RideSpeedometerView(),
-                    if (settings.sgSelectionMode == SGSelectionMode.single) const DatastreamView(),
-                    if (settings.sgSelectionMode == SGSelectionMode.single) const RideSGButton(),
-                    if (settings.sgSelectionMode == SGSelectionMode.crossing) const RideCrossingButton(),
-                    const DangerButton(),
-                  ],
-                ),
-              ),
-      ),
+          body: !ready
+              ? renderLoadingIndicator()
+              : settings.sgSelectionMode == SGSelectionMode.single
+                  ? ScreenTrackingView(
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        clipBehavior: Clip.none,
+                        children: const [
+                          RideMapView(),
+                          RideSpeedometerView(),
+                          DatastreamView(),
+                          RideSGButton(),
+                          DangerButton(),
+                        ],
+                      ),
+                    )
+                  : ScreenTrackingView(
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        clipBehavior: Clip.none,
+                        children: const [
+                          RideMapCrossingsView(),
+                          LanesView(),
+                          CancelButtonCrossing(),
+                          RideCrossingButton(),
+                          DangerButton(),
+                        ],
+                      ),
+                    )),
     );
   }
 }

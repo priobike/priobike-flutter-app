@@ -19,6 +19,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_crossing.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -80,6 +81,7 @@ Future<void> main() async {
   getIt.registerSingleton<MapSettings>(MapSettings());
   getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
+  getIt.registerSingleton<RideCrossing>(RideCrossing());
 
   runZonedGuarded(() async {
     runApp(const App());

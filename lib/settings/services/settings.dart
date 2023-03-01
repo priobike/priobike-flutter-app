@@ -413,6 +413,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      sgSelectionMode = SGSelectionMode.values.byName(storage.getString(sgSelectionModeKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.

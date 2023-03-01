@@ -1,3 +1,4 @@
+import 'package:priobike/common/models/point.dart';
 import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
@@ -82,7 +83,11 @@ class SGSelectorCrossingsResponse {
   factory SGSelectorCrossingsResponse.fromJson(Map<String, dynamic> json) => SGSelectorCrossingsResponse(
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
         orderedConnectedCrossings: (json['orderedConnectedCrossings'] as List)
-            .map((e) => {"id": e["id"], "signalGroups": (e["signalGroups"] as List).map((e) => Sg.fromJson(e))})
+            .map((e) => {
+                  "id": e["id"],
+                  "position": Point(lat: e["position"]["lat"], lon: e["position"]["lon"]),
+                  "signalGroups": (e["signalGroups"] as List).map((e) => Sg.fromJson(e)).toList()
+                })
             .toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
       );

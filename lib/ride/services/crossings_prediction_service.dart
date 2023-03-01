@@ -60,6 +60,7 @@ class CrossingPredictionService {
       }
 
       // Reset all values that were calculated for the previous signal group.
+      subscribedCrossing?.onUnselected();
       subscribedCrossing = null;
       unsubscribed = true;
     }
@@ -72,6 +73,9 @@ class CrossingPredictionService {
     }
 
     subscribedCrossing = crossing;
+    if (subscribedCrossing != null) {
+      subscribedCrossing!.onSelected(notifyListeners, onNewPredictionStatusDuringRide);
+    }
 
     return unsubscribed;
   }

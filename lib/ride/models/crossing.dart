@@ -27,23 +27,29 @@ class Crossing {
   Map<String, SGStatusData> currentSGStatusDataList = {};
 
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
-  late final Function notifyListeners;
+  Function? notifyListeners;
 
   /// The callback that gets executed when a new prediction
   /// was received from the prediction service and a new
   /// status update was calculated based on the prediction.
-  late final Function(SGStatusData)? onNewPredictionStatusDuringRide;
+  Function(SGStatusData)? onNewPredictionStatusDuringRide;
 
-  Crossing({
-    required this.id,
-    required this.signalGroups,
-    required this.signalGroupsDistancesOnRoute,
-  });
+  Crossing(
+      {required this.id,
+      required this.signalGroups,
+      required this.signalGroupsDistancesOnRoute,
+      required this.position});
 
   /// Called when the crossing is selected.
   void onSelected(Function notifyListeners, Function(SGStatusData)? onNewPredictionStatusDuringRide) {
     this.notifyListeners = notifyListeners;
     this.onNewPredictionStatusDuringRide = onNewPredictionStatusDuringRide;
+  }
+
+  /// Called when the crossing is unselected.
+  void onUnselected() {
+    notifyListeners = null;
+    onNewPredictionStatusDuringRide = null;
   }
 
   /// Add a new prediction to the list of predictions (for each signal group ID only one prediction (the latest)).
@@ -79,7 +85,7 @@ class Crossing {
 
     // Needs to be called before onNewPredictionStatusDuringRide() to ensure that (if used) the hybrid mode selects the
     // used prediction component before correctly.
-    notifyListeners();
+    notifyListeners?.call();
 
     // Notify that a new prediction status was obtained.
     onNewPredictionStatusDuringRide?.call(currentSGStatusData);

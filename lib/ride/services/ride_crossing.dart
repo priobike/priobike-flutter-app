@@ -80,17 +80,18 @@ class RideCrossing with ChangeNotifier {
   /// Forward is step = 1, backward is step = -1.
   void jumpToCrossing({required int step}) {
     if (route == null) return;
-    if (route!.signalGroups.isEmpty) return;
+    if (route!.rideCrossings == null) return;
+    if (route!.rideCrossings!.isEmpty) return;
     if (userSelectedCrossingIndex == null && calcCurrentCrossingIndex == null) {
-      // If there is no next signal group, select the first one if moving forward.
+      // If there is no next crossing, select the first one if moving forward.
       // If moving backward, select the last one.
-      userSelectedCrossingIndex = step > 0 ? 0 : route!.signalGroups.length - 1;
+      userSelectedCrossingIndex = step > 0 ? 0 : route!.rideCrossings!.length - 1;
     } else if (userSelectedCrossingIndex == null) {
-      // User did not manually select a signal group yet.
-      userSelectedCrossingIndex = (calcCurrentCrossingIndex! + step) % route!.signalGroups.length;
+      // User did not manually select a crossing yet.
+      userSelectedCrossingIndex = (calcCurrentCrossingIndex! + step) % route!.rideCrossings!.length;
     } else {
-      // User manually selected a signal group.
-      userSelectedCrossingIndex = (userSelectedCrossingIndex! + step) % route!.signalGroups.length;
+      // User manually selected a crossing.
+      userSelectedCrossingIndex = (userSelectedCrossingIndex! + step) % route!.rideCrossings!.length;
     }
     userSelectedCrossing = route!.rideCrossings![userSelectedCrossingIndex!];
     selectCrossing(userSelectedCrossing);
@@ -166,7 +167,7 @@ class RideCrossing with ChangeNotifier {
         if (route!.rideCrossings![i].signalGroupsDistancesOnRoute[j] > snap.distanceOnRoute) {
           nextCrossing = route!.rideCrossings![i];
           nextCrossingIndex = i;
-          routeDistanceOfNextCrossing = route!.rideCrossings![i].signalGroupsDistancesOnRoute[i];
+          routeDistanceOfNextCrossing = route!.rideCrossings![i].signalGroupsDistancesOnRoute[j];
           break outerLoop;
         }
       }
