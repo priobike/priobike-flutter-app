@@ -28,6 +28,7 @@ import 'package:priobike/routing/views_beta/search.dart';
 import 'package:priobike/routing/views_beta/widgets/alerts.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
+import 'package:priobike/routing/views_beta/widgets/details.dart';
 import 'package:priobike/routing/views_beta/widgets/filter_button.dart';
 import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
 import 'package:priobike/routing/views_beta/widgets/layer_button.dart';
@@ -429,7 +430,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     }
                   } else {
                     // Hide routingBar when sheet is 60% or more.
-                    if (notification.extent >= 0.6 && notification.extent <= 0.7) {
+                    if (notification.extent >= 0.5 && notification.extent <= 0.7) {
                       // Trigger center route in top part of screen.
                       if (fitCameraTop == false) {
                         mapSettings.fitCameraToRouteBoundsTop(routing, frame);
@@ -483,9 +484,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                     ),
                                     !showRoutingBar
                                         ? AnimatedPositioned(
-                                            top: bottomSheetState.draggableScrollableController != null &&
-                                                    bottomSheetState.draggableScrollableController!.size <= 1 &&
-                                                    bottomSheetState.draggableScrollableController!.size >= 0.7
+                                            top: bottomSheetState.draggableScrollableController.size <= 1 &&
+                                                    bottomSheetState.draggableScrollableController.size >= 0.7
                                                 ? 0
                                                 : -(40 + 64 + frame.padding.top),
                                             left: 0,
@@ -600,7 +600,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   ),
                   waypointsSelected && !routing.isFetchingRoute
                       ? Positioned(
-                          bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
+                          bottom: frame.size.height * DetailsState.bottomSnapRatio + 10,
                           right: 0,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
