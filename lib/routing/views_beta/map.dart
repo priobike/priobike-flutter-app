@@ -529,7 +529,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: ['routes-layer', 'discomforts-layer', "traffic-lights-icons", "routeLabels-clicklayer"],
+        layerIds: [
+          'routes-layer',
+          'discomforts-layer',
+          'traffic-lights-icons',
+          'offline-crossings-icons',
+          'routeLabels-clicklayer'
+        ],
       ),
     );
 
