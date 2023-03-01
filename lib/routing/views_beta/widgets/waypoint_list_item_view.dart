@@ -1,11 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 class WaypointListItemView extends StatefulWidget {
   /// If the item is displaying the current position.
@@ -45,15 +46,31 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The distance to the waypoint in meters.
   double? distance;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    // Update the distance to the waypoint.
+    updateDistance();
+    setState(() {});
+  }
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
+  void initState() {
+    super.initState();
+
+    geosearch = getIt<Geosearch>();
+    geosearch?.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning?.addListener(update);
 
     // Update the distance to the waypoint.
     updateDistance();
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    geosearch?.removeListener(update);
+    positioning?.removeListener(update);
+    super.dispose();
   }
 
   /// Update the distance to the waypoint.

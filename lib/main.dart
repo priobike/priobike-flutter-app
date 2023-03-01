@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -34,12 +35,14 @@ import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 final log = Logger("main.dart");
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
+/// The central getIt instance that is used to access the singleton services.
+final getIt = GetIt.instance;
 
 Future<void> main() async {
   // Ensure that the widgets binding is initialized.
@@ -49,6 +52,34 @@ Future<void> main() async {
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
+
+  // Register the services.
+  getIt.registerSingleton<Weather>(Weather());
+  getIt.registerSingleton<Feature>(Feature());
+  getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
+  getIt.registerSingleton<Tutorial>(Tutorial());
+  getIt.registerSingleton<Settings>(Settings());
+  getIt.registerSingleton<PredictionStatusSummary>(PredictionStatusSummary());
+  getIt.registerSingleton<PredictionSGStatus>(PredictionSGStatus());
+  getIt.registerSingleton<Profile>(Profile());
+  getIt.registerSingleton<News>(News());
+  getIt.registerSingleton<Shortcuts>(Shortcuts());
+  getIt.registerSingleton<Places>(Places());
+  getIt.registerSingleton<Discomforts>(Discomforts());
+  getIt.registerSingleton<Geocoding>(Geocoding());
+  getIt.registerSingleton<Geosearch>(Geosearch());
+  getIt.registerSingleton<Routing>(Routing());
+  getIt.registerSingleton<Layers>(Layers());
+  getIt.registerSingleton<MapDesigns>(MapDesigns());
+  getIt.registerSingleton<Positioning>(Positioning());
+  getIt.registerSingleton<Dangers>(Dangers());
+  getIt.registerSingleton<Datastream>(Datastream());
+  getIt.registerSingleton<Tracking>(Tracking());
+  getIt.registerSingleton<Statistics>(Statistics());
+  getIt.registerSingleton<Feedback>(Feedback());
+  getIt.registerSingleton<MapSettings>(MapSettings());
+  getIt.registerSingleton<BottomSheetState>(BottomSheetState());
+  getIt.registerSingleton<Ride>(Ride());
 
   runZonedGuarded(() async {
     runApp(const App());
@@ -70,174 +101,139 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      // All changenotifiers reside above the MaterialApp, as of now.
-      // This is to make sure that changenotifiers are not disposed when
-      // calling the navigator. In this way, it is always safe to use
-      // Provider.of(...) in any build context. However, it needs to be
-      // ensured that the changenotifiers are properly recycled.
-      // For this, changenotifiers may provide a `reset` method.
-      providers: [
-        ChangeNotifierProvider(create: (context) => Feature()),
-        ChangeNotifierProvider(create: (context) => PrivacyPolicy()),
-        ChangeNotifierProvider(create: (context) => Tutorial()),
-        ChangeNotifierProvider(create: (context) => Settings()),
-        ChangeNotifierProvider(create: (context) => PredictionStatusSummary()),
-        ChangeNotifierProvider(create: (context) => PredictionSGStatus()),
-        ChangeNotifierProvider(create: (context) => Profile()),
-        ChangeNotifierProvider(create: (context) => News()),
-        ChangeNotifierProvider(create: (context) => Shortcuts()),
-        ChangeNotifierProvider(create: (context) => Places()),
-        ChangeNotifierProvider(create: (context) => Discomforts()),
-        ChangeNotifierProvider(create: (context) => Geocoding()),
-        ChangeNotifierProvider(create: (context) => Geosearch()),
-        ChangeNotifierProvider(create: (context) => Routing()),
-        ChangeNotifierProvider(create: (context) => Layers()),
-        ChangeNotifierProvider(create: (context) => MapDesigns()),
-        ChangeNotifierProvider(create: (context) => Positioning()),
-        ChangeNotifierProvider(create: (context) => Dangers()),
-        ChangeNotifierProvider(create: (context) => Datastream()),
-        ChangeNotifierProvider(create: (context) => Tracking()),
-        ChangeNotifierProvider(create: (context) => Statistics()),
-        ChangeNotifierProvider(create: (context) => Feedback()),
-        ChangeNotifierProvider(create: (context) => MapSettings()),
-        ChangeNotifierProvider(create: (context) => BottomSheetState()),
-        ChangeNotifierProvider(create: (context) => Weather()),
-        ChangeNotifierProvider(create: (context) => Ride()),
-      ],
-      child: StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          final settings = Provider.of<Settings>(context);
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        final settings = GetIt.instance.get<Settings>();
+        settings.addListener(() => setState(() {}));
 
-          return MaterialApp(
-            title: 'PrioBike',
-            showPerformanceOverlay: settings.enablePerformanceOverlay,
-            navigatorObservers: [routeObserver],
-            theme: ThemeData(
-              dialogBackgroundColor: const Color(0xFFFFFFFF),
-              fontFamily: 'HamburgSans',
-              colorScheme: const ColorScheme.light(
-                background: Color(0xFFFFFFFF),
-                primary: CI.blue,
-                secondary: CI.lightBlue,
-                surface: Color(0xFFF6F6FF),
-                brightness: Brightness.light,
-              ),
-              textTheme: const TextTheme(
-                displayLarge: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 38,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF000000),
-                ),
-                displayMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF000000),
-                ),
-                displaySmall: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF000000),
-                ),
-                headlineMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF000000),
-                ),
-                bodyLarge: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF000000),
-                ),
-                titleMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFF000000),
-                ),
-                titleSmall: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF000000),
-                ),
-              ),
-              useMaterial3: true,
+        return MaterialApp(
+          title: 'PrioBike',
+          showPerformanceOverlay: settings.enablePerformanceOverlay,
+          navigatorObservers: [routeObserver],
+          theme: ThemeData(
+            dialogBackgroundColor: const Color(0xFFFFFFFF),
+            fontFamily: 'HamburgSans',
+            colorScheme: const ColorScheme.light(
+              background: Color(0xFFFFFFFF),
+              primary: CI.blue,
+              secondary: CI.lightBlue,
+              surface: Color(0xFFF6F6FF),
+              brightness: Brightness.light,
             ),
-            darkTheme: ThemeData(
-              dialogBackgroundColor: const Color(0xFF232323),
-              fontFamily: 'HamburgSans',
-              colorScheme: const ColorScheme.dark(
-                background: Color.fromARGB(255, 31, 31, 31),
-                primary: CI.blue,
-                secondary: CI.lightBlue,
-                surface: Color.fromARGB(255, 42, 42, 42),
-                surfaceTint: Color.fromARGB(255, 42, 42, 42),
-                brightness: Brightness.dark,
+            textTheme: const TextTheme(
+              displayLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 38,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
               ),
-              textTheme: const TextTheme(
-                displayLarge: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 38,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
-                displayMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
-                displaySmall: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFFFFFFFF),
-                ),
-                headlineMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
-                bodyLarge: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFFFFFFFF),
-                ),
-                titleMedium: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  color: Color(0xFFFFFFFF),
-                ),
-                titleSmall: TextStyle(
-                  fontFamily: 'HamburgSans',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
+              displayMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
               ),
-              useMaterial3: true,
+              displaySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              headlineMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
+              ),
+              bodyLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              titleMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 20,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFF000000),
+              ),
+              titleSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF000000),
+              ),
             ),
-            themeMode: settings.colorMode == ColorMode.light
-                ? ThemeMode.light
-                : settings.colorMode == ColorMode.dark
-                    ? ThemeMode.dark
-                    // Fallback to the system preference.
-                    : ThemeMode.system,
-            // The navigator key is used to access the app's build context.
-            navigatorKey: navigatorKey,
-            home: const PrivacyPolicyView(child: Loader()),
-          );
-        },
-      ),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            dialogBackgroundColor: const Color(0xFF232323),
+            fontFamily: 'HamburgSans',
+            colorScheme: const ColorScheme.dark(
+              background: Color.fromARGB(255, 31, 31, 31),
+              primary: CI.blue,
+              secondary: CI.lightBlue,
+              surface: Color.fromARGB(255, 42, 42, 42),
+              surfaceTint: Color.fromARGB(255, 42, 42, 42),
+              brightness: Brightness.dark,
+            ),
+            textTheme: const TextTheme(
+              displayLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 38,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
+              displayMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
+              displaySmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              headlineMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
+              bodyLarge: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              titleMedium: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 20,
+                fontWeight: FontWeight.w300,
+                color: Color(0xFFFFFFFF),
+              ),
+              titleSmall: TextStyle(
+                fontFamily: 'HamburgSans',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFFFFF),
+              ),
+            ),
+            useMaterial3: true,
+          ),
+          themeMode: settings.colorMode == ColorMode.light
+              ? ThemeMode.light
+              : settings.colorMode == ColorMode.dark
+                  ? ThemeMode.dark
+                  // Fallback to the system preference.
+                  : ThemeMode.system,
+          // The navigator key is used to access the app's build context.
+          navigatorKey: navigatorKey,
+          home: const PrivacyPolicyView(child: Loader()),
+        );
+      },
     );
   }
 }

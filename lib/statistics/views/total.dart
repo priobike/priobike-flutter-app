@@ -5,8 +5,8 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
 import 'package:priobike/game/models.dart';
 import 'package:priobike/game/view.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
-import 'package:provider/provider.dart';
 
 class TotalStatisticsView extends StatefulWidget {
   const TotalStatisticsView({Key? key}) : super(key: key);
@@ -22,10 +22,20 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   /// padding for the rows used in the statistics view
   double paddingStats = 16.0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    statistics = Provider.of<Statistics>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    statistics = getIt<Statistics>();
+    statistics.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    statistics.removeListener(update);
+    super.dispose();
   }
 
   Container renderTableBorder() {

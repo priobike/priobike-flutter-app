@@ -1,12 +1,12 @@
 import 'dart:math';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
-import 'package:confetti/confetti.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/feedback/models/question.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/main.dart';
 
 /// A view with 5 stars to rate the current ride.
 class StarRatingView extends StatefulWidget {
@@ -29,16 +29,15 @@ class StarRatingViewState extends State<StarRatingView> {
   /// The current rating.
   int rating = 0;
 
-  @override
-  void initState() {
-    confettiControllers = List.generate(5, (index) => ConfettiController(duration: const Duration(milliseconds: 500)));
-    super.initState();
-  }
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
 
   @override
-  void didChangeDependencies() {
-    feedback = Provider.of<Feedback>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    confettiControllers = List.generate(5, (index) => ConfettiController(duration: const Duration(milliseconds: 500)));
+    feedback = getIt<Feedback>();
+    feedback.addListener(update);
   }
 
   @override
@@ -46,6 +45,7 @@ class StarRatingViewState extends State<StarRatingView> {
     for (final controller in confettiControllers) {
       controller.dispose();
     }
+    feedback.removeListener(update);
     super.dispose();
   }
 

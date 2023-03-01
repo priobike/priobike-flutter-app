@@ -3,7 +3,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/main.dart';
 
 class FilterSelectionView extends StatefulWidget {
   const FilterSelectionView({Key? key}) : super(key: key);
@@ -15,10 +15,21 @@ class FilterSelectionView extends StatefulWidget {
 class FilterSelectionViewState extends State<FilterSelectionView> {
   late Profile profile;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    profile = Provider.of<Profile>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    profile = getIt<Profile>();
+    profile.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profile.removeListener(update);
+    super.dispose();
   }
 
   @override

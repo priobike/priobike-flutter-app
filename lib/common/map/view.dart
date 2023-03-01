@@ -6,9 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
@@ -87,12 +87,24 @@ class AppMapState extends State<AppMap> {
   /// The associated layers service.
   late MapDesigns mapDesigns;
 
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    mapDesigns = Provider.of<MapDesigns>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+    mapDesigns = getIt<MapDesigns>();
+    mapDesigns.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    mapDesigns.removeListener(update);
+    super.dispose();
   }
 
   @override

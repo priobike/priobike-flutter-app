@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
@@ -17,14 +18,13 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class AllRoutesLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  AllRoutesLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+  AllRoutesLayer() {
+    final routing = getIt<Routing>();
     for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
       final geometry = {
         "type": "LineString",
@@ -99,11 +99,11 @@ class SelectedRouteLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  SelectedRouteLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+  SelectedRouteLayer() {
+    final routing = getIt<Routing>();
     final navNodes = routing.selectedRoute?.route ?? [];
 
-    final status = Provider.of<PredictionSGStatus>(context, listen: false);
+    final status = getIt<PredictionSGStatus>();
     Map<String, dynamic>? currentFeature;
     for (int i = navNodes.length - 1; i >= 0; i--) {
       final navNode = navNodes[i];
@@ -192,11 +192,11 @@ class RouteLabelLayer {
 
   RouteLabelLayer._();
 
-  static Future<RouteLabelLayer> create(BuildContext context) async {
+  static Future<RouteLabelLayer> create(double deviceWidth, double deviceHeight) async {
     var routeLabelLayer = RouteLabelLayer._();
 
-    final routing = Provider.of<Routing>(context, listen: false);
-    final mapController = Provider.of<MapSettings>(context, listen: false);
+    final routing = getIt<Routing>();
+    final mapController = getIt<MapSettings>();
 
     // Conditions for having route labels.
     if (mapController.controller != null &&
@@ -205,8 +205,6 @@ class RouteLabelLayer {
         routing.selectedRoute != null) {
       var distance = const Distance();
 
-      double width = MediaQuery.of(context).size.width;
-      double height = MediaQuery.of(context).size.height;
       double meterPerPixel =
           zoomToGeographicalDistance[(await mapController.controller!.getCameraState()).zoom.toInt()] ?? 0;
       double cameraPosLat = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[1];
@@ -217,10 +215,10 @@ class RouteLabelLayer {
 
       // Getting the bounds north, east, south, west.
       // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      LatLng north = distance.offset(cameraPos, height / 2 * meterPerPixel, 0);
-      LatLng east = distance.offset(cameraPos, width / 2 * meterPerPixel, 90);
-      LatLng south = distance.offset(cameraPos, height / 2 * meterPerPixel, 180);
-      LatLng west = distance.offset(cameraPos, width / 2 * meterPerPixel, 270);
+      LatLng north = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 0);
+      LatLng east = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 90);
+      LatLng south = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 180);
+      LatLng west = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 270);
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
@@ -412,8 +410,8 @@ class DiscomfortsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  DiscomfortsLayer(BuildContext context) {
-    final discomforts = Provider.of<Discomforts>(context, listen: false).foundDiscomforts;
+  DiscomfortsLayer() {
+    final discomforts = getIt<Discomforts>().foundDiscomforts;
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
       // A section of the route.
@@ -510,8 +508,8 @@ class WaypointsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  WaypointsLayer(BuildContext context) {
-    final routing = Provider.of<Routing>(context, listen: false);
+  WaypointsLayer() {
+    final routing = getIt<Routing>();
     final waypoints = routing.selectedWaypoints ?? [];
     for (MapEntry<int, Waypoint> entry in waypoints.asMap().entries) {
       features.add(
@@ -581,11 +579,10 @@ class DangersLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  DangersLayer(BuildContext context, {hideBehindPosition = false}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dangers = Provider.of<Dangers>(context, listen: false);
-    final routing = Provider.of<Routing>(context, listen: false);
-    final userPosSnap = Provider.of<Positioning>(context, listen: false).snap;
+  DangersLayer(bool isDark, {hideBehindPosition = false}) {
+    final dangers = getIt<Dangers>();
+    final routing = getIt<Routing>();
+    final userPosSnap = getIt<Positioning>().snap;
     if (routing.selectedRoute == null) return;
     for (int i = 0; i < dangers.dangers.length; i++) {
       final danger = dangers.dangers[i];

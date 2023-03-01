@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -10,7 +11,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
@@ -21,11 +24,10 @@ import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 /// Show a sheet to save the current route as a shortcut.
 void showSaveShortcutSheet(context) {
-  final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+  final shortcuts = GetIt.instance.get<Shortcuts>();
   showDialog(
     context: context,
     builder: (_) {
@@ -57,7 +59,7 @@ void showSaveShortcutSheet(context) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.saveNewShortcut(name, context);
+              await shortcuts.saveNewShortcut(name);
               ToastMessage.showSuccess("Route gespeichert!");
               Navigator.pop(context);
             },
@@ -106,16 +108,22 @@ class RoutingViewState extends State<RoutingView> {
   /// may be caused by energy saving options or disallowed precise geolocation.
   final int locationAccuracyThreshold = 100;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing?.loadRoutes(context);
+        await routing?.loadRoutes();
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
-        await positioning?.requestSingleLocation(context);
+        await positioning?.requestSingleLocation(onNoPermission: () {
+          Navigator.of(context).pop();
+          showLocationAccessDeniedDialog(context, positioning!.positionSource);
+        });
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -123,16 +131,28 @@ class RoutingViewState extends State<RoutingView> {
         }
       },
     );
+
+    geocoding = getIt<Geocoding>();
+    geocoding!.addListener(update);
+    routing = getIt<Routing>();
+    routing!.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts!.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning!.addListener(update);
+    layers = getIt<Layers>();
+    layers.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    geocoding = Provider.of<Geocoding>(context);
-    routing = Provider.of<Routing>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    positioning = Provider.of<Positioning>(context);
-    layers = Provider.of<Layers>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    geocoding!.removeListener(update);
+    routing!.removeListener(update);
+    shortcuts!.removeListener(update);
+    positioning!.removeListener(update);
+    layers.removeListener(update);
+    sheetMovement.close();
+    super.dispose();
   }
 
   /// A callback that is fired when the ride is started.
@@ -149,7 +169,7 @@ class RoutingViewState extends State<RoutingView> {
         ),
         result: true);
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     if (settings.didViewWarning) {
       startRide();
     } else {
@@ -222,7 +242,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Render a try again button.
   Widget renderTryAgainButton() {
-    final backend = Provider.of<Settings>(context, listen: false).backend;
+    final backend = getIt<Settings>().backend;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -250,7 +270,7 @@ class RoutingViewState extends State<RoutingView> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
-                    await routing?.loadRoutes(context);
+                    await routing?.loadRoutes();
                   },
                 ),
                 // Move the button a bit more up.
@@ -367,11 +387,5 @@ class RoutingViewState extends State<RoutingView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    sheetMovement.close();
-    super.dispose();
   }
 }

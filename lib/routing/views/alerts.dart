@@ -3,10 +3,10 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
 class AlertsView extends StatefulWidget {
@@ -32,13 +32,14 @@ class AlertsViewState extends State<AlertsView> {
   /// The currently selected page.
   int currentPage = 0;
 
-  @override
-  void didChangeDependencies() {
-    predictionStatus = Provider.of<PredictionSGStatus>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    routing = Provider.of<Routing>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    scrollToDiscomfort();
+    setState(() {});
+  }
 
-    // Scroll to a discomfort if one was selected.
+  /// Scroll to a discomfort if one was selected.
+  void scrollToDiscomfort() {
     if (discomforts.selectedDiscomfort != null) {
       final found = discomforts.foundDiscomforts;
       if (found != null && found.isNotEmpty) {
@@ -55,8 +56,28 @@ class AlertsViewState extends State<AlertsView> {
         }
       }
     }
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    predictionStatus = getIt<PredictionSGStatus>();
+    predictionStatus.addListener(update);
+    discomforts = getIt<Discomforts>();
+    discomforts.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+
+    scrollToDiscomfort();
+  }
+
+  @override
+  void dispose() {
+    predictionStatus.removeListener(update);
+    discomforts.removeListener(update);
+    routing.removeListener(update);
+    super.dispose();
   }
 
   @override

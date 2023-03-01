@@ -6,7 +6,9 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/datastream.dart';
@@ -19,7 +21,6 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
 class RideView extends StatefulWidget {
@@ -42,9 +43,15 @@ class RideViewState extends State<RideView> {
   /// Indicating whether the widgets can be loaded or the loading screen should be shown.
   bool ready = false;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
 
     // Wait a moment for a clean disposal of the map in the routing view.
     // Without that at the moment it won't dispose correctly causing some weird bugs.
@@ -56,55 +63,68 @@ class RideViewState extends State<RideView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        final tracking = Provider.of<Tracking>(context, listen: false);
-        final positioning = Provider.of<Positioning>(context, listen: false);
-        final datastream = Provider.of<Datastream>(context, listen: false);
-        final routing = Provider.of<Routing>(context, listen: false);
-        final dangers = Provider.of<Dangers>(context, listen: false);
-        final sgStatus = Provider.of<PredictionSGStatus>(context, listen: false);
+        final deviceWidth = MediaQuery.of(context).size.width;
+        final deviceHeight = MediaQuery.of(context).size.height;
+
+        final tracking = getIt<Tracking>();
+        final positioning = getIt<Positioning>();
+        final datastream = getIt<Datastream>();
+        final routing = getIt<Routing>();
+        final dangers = getIt<Dangers>();
+        final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
-        await dangers.fetch(routing.selectedRoute!, context);
+        await dangers.fetch(routing.selectedRoute!);
         // Start a new session.
-        final ride = Provider.of<Ride>(context, listen: false);
+        final ride = getIt<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.
-        await ride.startNavigation(context, sgStatus.onNewPredictionStatusDuringRide);
-        await ride.selectRoute(context, routing.selectedRoute!);
+        await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
+        await ride.selectRoute(routing.selectedRoute!);
         // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = Provider.of<Settings>(context, listen: false);
+        final settings = getIt<Settings>();
         if (settings.datastreamMode == DatastreamMode.enabled) {
-          await datastream.connect(context);
+          await datastream.connect();
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
-          context: context,
+          onNoPermission: () {
+            Navigator.of(context).pop();
+            showLocationAccessDeniedDialog(context, positioning.positionSource);
+          },
           onNewPosition: () async {
-            await dangers.calculateUpcomingAndPreviousDangers(context);
-            await ride.updatePosition(context);
-            await tracking.updatePosition(context);
+            await dangers.calculateUpcomingAndPreviousDangers();
+            await ride.updatePosition();
+            await tracking.updatePosition();
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
-                await routing.selectRemainingWaypoints(context);
-                final routes = await routing.loadRoutes(context);
+                await routing.selectRemainingWaypoints();
+                final routes = await routing.loadRoutes();
                 if (routes != null && routes.isNotEmpty) {
-                  await ride.selectRoute(context, routes.first);
+                  await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
-                  await dangers.fetch(routes.first, context);
+                  await dangers.fetch(routes.first);
                   await tracking.selectRoute(routes.first);
                 }
               });
             }
           },
         );
+
         // Start tracking once the `sessionId` is set and the positioning stream is available.
-        await tracking.start(context);
+        await tracking.start(deviceWidth, deviceHeight);
       },
     );
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// Render a loading indicator.
@@ -132,12 +152,6 @@ class RideViewState extends State<RideView> {
         ),
       ],
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
   }
 
   @override

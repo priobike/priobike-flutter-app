@@ -6,17 +6,17 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/licenses/views.dart';
-import 'package:priobike/settings/models/speed.dart';
-import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/settings/views/beta.dart';
-import 'package:priobike/settings/views/internal.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/settings/models/color_mode.dart';
+import 'package:priobike/settings/models/speed.dart';
+import 'package:priobike/settings/models/tracking.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/settings/views/beta.dart';
+import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
@@ -148,12 +148,27 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    feature = Provider.of<Feature>(context);
-    settings = Provider.of<Settings>(context);
-    tracking = Provider.of<Tracking>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    feature = getIt<Feature>();
+    feature.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
+    tracking = getIt<Tracking>();
+    tracking.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    feature.removeListener(update);
+    settings.removeListener(update);
+    tracking.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when darkMode is changed
@@ -161,7 +176,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the settings service that we selected the new colorModePreference.
     await settings.setColorMode(colorMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a speed mode is selected.
@@ -169,7 +184,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the settings service that we selected the new speed mode.
     await settings.setSpeedMode(speedMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a tracking submission policy is selected.
@@ -179,7 +194,7 @@ class SettingsViewState extends State<SettingsView> {
     // Tell the tracking service that we selected the new tracking submission policy.
     tracking.setSubmissionPolicy(trackingSubmissionPolicy);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override

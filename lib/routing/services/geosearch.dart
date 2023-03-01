@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Geosearch with ChangeNotifier {
@@ -28,7 +27,7 @@ class Geosearch with ChangeNotifier {
 
   /// Fetch addresses to a given query.
   /// See: https://nominatim.org/release-docs/develop/api/Search/
-  Future<void> geosearch(BuildContext context, String query) async {
+  Future<void> geosearch(String query) async {
     if (isFetchingAddress) return;
 
     isFetchingAddress = true;
@@ -37,7 +36,7 @@ class Geosearch with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      final settings = Provider.of<Settings>(context, listen: false);
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/search";
       url += "?accept-language=de";

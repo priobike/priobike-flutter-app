@@ -5,11 +5,11 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class BetaSettingsView extends StatefulWidget {
@@ -23,10 +23,21 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a routing endpoint is selected.
@@ -34,7 +45,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     // Tell the settings service that we selected the new backend.
     await settings.setRoutingEndpoint(routingEndpoint);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg-selector is selected.
@@ -42,7 +53,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     // Tell the settings service that we selected the new sg-selector.
     await settings.setSGSelector(sgSelector);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override

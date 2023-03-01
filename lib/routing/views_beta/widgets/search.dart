@@ -6,10 +6,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:provider/provider.dart';
 
 class WaypointListItemView extends StatefulWidget {
   /// If the item is displaying the current position.
@@ -42,15 +43,30 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The distance to the waypoint in meters.
   double? distance;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    updateDistance();
+    setState(() {});
+  }
+
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
+  void initState() {
+    super.initState();
+
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
 
     // Update the distance to the waypoint.
     updateDistance();
+  }
 
-    super.didChangeDependencies();
+  @override
+  void dispose() {
+    geosearch.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the distance to the waypoint.
@@ -121,11 +137,26 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
   /// The currently fetched address.
   Waypoint? waypoint;
 
-  @override
-  void didChangeDependencies() {
-    positioning = Provider.of<Positioning>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     updateWaypoint();
-    super.didChangeDependencies();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+
+    updateWaypoint();
+  }
+
+  @override
+  void dispose() {
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the waypoint.
@@ -179,27 +210,40 @@ class RouteSearchState extends State<RouteSearch> {
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await positioning.requestSingleLocation(context);
+      await positioning.requestSingleLocation(
+        onNoPermission: () {
+          Navigator.of(context).pop();
+          showLocationAccessDeniedDialog(context, positioning.positionSource);
+        },
+      );
     });
+
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    positioning = Provider.of<Positioning>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    geosearch.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the search is updated.
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
     debouncer.run(() {
-      geosearch.geosearch(context, query);
+      geosearch.geosearch(query);
     });
   }
 

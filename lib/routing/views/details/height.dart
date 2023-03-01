@@ -1,11 +1,11 @@
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 class RouteHeightChart extends StatefulWidget {
   const RouteHeightChart({Key? key}) : super(key: key);
@@ -37,12 +37,27 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The maximum distance.
   double? maxDistance;
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    settings = Provider.of<Settings>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     processRouteData();
-    super.didChangeDependencies();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    settings = getIt<Settings>();
+    settings.addListener(update);
+    processRouteData();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    settings.removeListener(update);
+    super.dispose();
   }
 
   /// Process the route data and create the chart series.

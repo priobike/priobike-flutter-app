@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
@@ -20,7 +20,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 enum RoutingProfile {
@@ -191,8 +190,8 @@ class Routing with ChangeNotifier {
   }
 
   /// Select the remaining waypoints.
-  Future<void> selectRemainingWaypoints(BuildContext context) async {
-    final userPos = Provider.of<Positioning>(context, listen: false).lastPosition;
+  Future<void> selectRemainingWaypoints() async {
+    final userPos = getIt<Positioning>().lastPosition;
     if (userPos == null) return;
     final userPosLatLng = LatLng(userPos.latitude, userPos.longitude);
     if (selectedWaypoints == null) return;
@@ -231,9 +230,9 @@ class Routing with ChangeNotifier {
   }
 
   /// Load a SG-Selector response.
-  Future<SGSelectorResponse?> loadSGSelectorResponse(BuildContext context, GHRouteResponsePath path) async {
+  Future<SGSelectorResponse?> loadSGSelectorResponse(GHRouteResponsePath path) async {
     try {
-      final settings = Provider.of<Settings>(context, listen: false);
+      final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
       String usedRoutingParameter;
@@ -243,7 +242,7 @@ class Routing with ChangeNotifier {
         usedRoutingParameter = "osm";
       }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select?matcher${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
@@ -276,8 +275,8 @@ class Routing with ChangeNotifier {
   }
 
   /// Select the correct profile.
-  Future<RoutingProfile> selectProfile(BuildContext context) async {
-    final profile = Provider.of<Profile>(context, listen: false);
+  Future<RoutingProfile> selectProfile() async {
+    final profile = getIt<Profile>();
 
     // Look for specific bike types first.
     if (profile.bikeType == BikeType.mountainbike) {
@@ -320,9 +319,9 @@ class Routing with ChangeNotifier {
   }
 
   /// Load a GraphHopper response.
-  Future<GHRouteResponse?> loadGHRouteResponse(BuildContext context, List<Waypoint> waypoints) async {
+  Future<GHRouteResponse?> loadGHRouteResponse(List<Waypoint> waypoints) async {
     try {
-      final settings = Provider.of<Settings>(context, listen: false);
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       final servicePath = settings.routingEndpoint.servicePath;
       var ghUrl = "https://$baseUrl/$servicePath/route";
@@ -367,7 +366,7 @@ class Routing with ChangeNotifier {
 
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
-  Future<List<r.Route>?> loadRoutes(BuildContext context) async {
+  Future<List<r.Route>?> loadRoutes() async {
     if (isFetchingRoute) return null;
 
     // Do nothing if the waypoints were already fetched (or both are null).
@@ -383,10 +382,10 @@ class Routing with ChangeNotifier {
     notifyListeners();
 
     // Select the correct profile.
-    selectedProfile = await selectProfile(context);
+    selectedProfile = await selectProfile();
 
     // Load the GraphHopper response.
-    final ghResponse = await loadGHRouteResponse(context, selectedWaypoints!);
+    final ghResponse = await loadGHRouteResponse(selectedWaypoints!);
     if (ghResponse == null || ghResponse.paths.isEmpty) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -395,8 +394,7 @@ class Routing with ChangeNotifier {
     }
 
     // Load the SG-Selector responses for each path.
-    final sgSelectorResponses =
-        await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(context, path)));
+    final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(path)));
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -463,11 +461,11 @@ class Routing with ChangeNotifier {
     fetchedWaypoints = selectedWaypoints!;
     isFetchingRoute = false;
 
-    final discomforts = Provider.of<Discomforts>(context, listen: false);
-    await discomforts.findDiscomforts(context, routes.first.path);
+    final discomforts = getIt<Discomforts>();
+    await discomforts.findDiscomforts(routes.first.path);
 
-    final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, routes.first);
+    final status = getIt<PredictionSGStatus>();
+    await status.fetch(routes.first);
 
     // Force new route label coords.
     routeLabelCoords = [];
@@ -476,16 +474,16 @@ class Routing with ChangeNotifier {
   }
 
   /// Select a route.
-  Future<void> switchToRoute(BuildContext context, int idx) async {
+  Future<void> switchToRoute(int idx) async {
     if (idx < 0 || idx >= allRoutes!.length) return;
 
     selectedRoute = allRoutes![idx];
 
-    final discomforts = Provider.of<Discomforts>(context, listen: false);
-    await discomforts.findDiscomforts(context, selectedRoute!.path);
+    final discomforts = getIt<Discomforts>();
+    await discomforts.findDiscomforts(selectedRoute!.path);
 
-    final status = Provider.of<PredictionSGStatus>(context, listen: false);
-    await status.fetch(context, selectedRoute!);
+    final status = getIt<PredictionSGStatus>();
+    await status.fetch(selectedRoute!);
 
     notifyListeners();
   }

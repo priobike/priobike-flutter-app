@@ -7,9 +7,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
-import 'package:provider/provider.dart';
+import 'package:priobike/main.dart';
+import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
   final bool isLoading;
@@ -27,7 +27,6 @@ class ShortcutView extends StatelessWidget {
     required this.width,
     required this.height,
     required this.rightPad,
-    required BuildContext context,
   }) : super(key: key);
 
   @override
@@ -156,6 +155,9 @@ class ShortcutsViewState extends State<ShortcutsView> {
   /// The scroll controller.
   late ScrollController scrollController;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
   void initState() {
     super.initState();
@@ -167,14 +169,17 @@ class ShortcutsViewState extends State<ShortcutsView> {
         }
       },
     );
+    ss = getIt<Shortcuts>();
+    rs = getIt<Routing>();
+    ss.addListener(update);
+    rs.addListener(update);
   }
 
   @override
-  void didChangeDependencies() {
-    ss = Provider.of<Shortcuts>(context);
-    rs = Provider.of<Routing>(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) => triggerAnimations());
-    super.didChangeDependencies();
+  void dispose() {
+    ss.removeListener(update);
+    rs.removeListener(update);
+    super.dispose();
   }
 
   /// Trigger the animation of the status view.
@@ -207,7 +212,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
         width: shortcutWidth,
         height: shortcutHeight,
         rightPad: shortcutRightPad,
-        context: context,
       ),
     ];
 
@@ -223,7 +227,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
                 width: shortcutWidth,
                 height: shortcutHeight,
                 rightPad: shortcutRightPad,
-                context: context,
               ),
             )
             .toList() ??

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PrivacyPolicy with ChangeNotifier {
   /// The key under which the accepted privacy policy is stored in the user defaults / shared preferences.
@@ -18,16 +18,16 @@ class PrivacyPolicy with ChangeNotifier {
   bool? hasChanged;
 
   /// Load the privacy policy.
-  Future<void> loadPolicy(BuildContext context) async {
+  Future<void> loadPolicy(String assetText) async {
     if (hasLoaded) return;
 
     final storage = await SharedPreferences.getInstance();
-    assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    this.assetText = assetText;
     final storedPrivacyPolicy = storage.getString(key);
 
     // Strings must be have their leading and tailing whitespaces trimmed
     // otherwise Android will have a bug where equals versions of the privacy notice are not equal.
-    isConfirmed = storedPrivacyPolicy?.trim() == assetText?.trim();
+    isConfirmed = storedPrivacyPolicy?.trim() == this.assetText?.trim();
     hasChanged = !isConfirmed!;
     hasLoaded = true;
     notifyListeners();
@@ -46,10 +46,9 @@ class PrivacyPolicy with ChangeNotifier {
   }
 
   /// Confirm the privacy policy and commits the new version to shared preferences.
-  Future<void> confirm(BuildContext context) async {
+  Future<void> confirm(String confirmedPolicy) async {
     if (!hasLoaded) return;
     final storage = await SharedPreferences.getInstance();
-    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
 
     isConfirmed = await storage.setString(key, confirmedPolicy);
     hasChanged = false;

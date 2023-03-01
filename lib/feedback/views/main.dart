@@ -12,12 +12,12 @@ import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/feedback/views/pictogram.dart';
 import 'package:priobike/feedback/views/stars.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 class FeedbackView extends StatefulWidget {
   /// A callback that will be called when the user has submitted feedback.
@@ -42,12 +42,15 @@ class FeedbackViewState extends State<FeedbackView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   /// Submit feedback.
-  Future<void> submit(BuildContext context) async {
+  Future<void> submit() async {
     // Send the feedback and reset the feedback service.
     var didSendSomething = false;
     if (feedback.willSendFeedback) {
-      didSendSomething = await feedback.send(context);
+      didSendSomething = await feedback.send();
     }
     await feedback.reset();
 
@@ -57,8 +60,10 @@ class FeedbackViewState extends State<FeedbackView> {
 
     showNavigationBarAndroid();
 
-    // Call the callback.
-    await widget.onSubmitted(context);
+    if (mounted) {
+      // Call the callback.
+      await widget.onSubmitted(context);
+    }
   }
 
   /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
@@ -72,12 +77,26 @@ class FeedbackViewState extends State<FeedbackView> {
   }
 
   @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    tracking = Provider.of<Tracking>(context);
-    feedback = Provider.of<Feedback>(context);
-    statistics = Provider.of<Statistics>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    tracking = getIt<Tracking>();
+    tracking.addListener(update);
+    feedback = getIt<Feedback>();
+    feedback.addListener(update);
+    statistics = getIt<Statistics>();
+    statistics.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    tracking.removeListener(update);
+    feedback.removeListener(update);
+    statistics.removeListener(update);
+    super.dispose();
   }
 
   /// Render a loading indicator.
@@ -317,7 +336,7 @@ class FeedbackViewState extends State<FeedbackView> {
                           bottom: 24,
                         ),
                         child: TrackPictogram(
-                          track: Provider.of<Positioning>(context, listen: false).positions,
+                          track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
                           maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
                         ),
@@ -376,7 +395,7 @@ class FeedbackViewState extends State<FeedbackView> {
                     icon: Icons.check,
                     fillColor: Theme.of(context).colorScheme.background.withOpacity(0.25),
                     label: "Fertig",
-                    onPressed: () => submit(context),
+                    onPressed: () => submit(),
                     boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width - 24),
                   ),
                   BigButton(

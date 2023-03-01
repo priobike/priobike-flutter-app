@@ -4,13 +4,13 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/views/main.dart';
-import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/views_beta/instructions.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../routing/services/bottom_sheet_state.dart';
@@ -129,6 +129,9 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   /// The details state of surface.
   bool showSurfaceDetails = false;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
   DraggableScrollableController draggableScrollableController = DraggableScrollableController();
@@ -150,11 +153,22 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
         });
       }
     });
+
+    bottomSheetState = getIt<BottomSheetState>();
+    bottomSheetState.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    places = getIt<Places>();
+    places.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    predictionStatus = getIt<PredictionSGStatus>();
+    predictionStatus.addListener(update);
   }
 
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet() {
-    final shortcuts = Provider.of<Shortcuts>(context, listen: false);
+    final shortcuts = getIt<Shortcuts>();
     showDialog(
       context: context,
       builder: (_) {
@@ -188,15 +202,15 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
                 if (routing.selectedWaypoints != null) {
                   // Save shortcut.
                   if (routing.selectedWaypoints!.length > 1) {
-                    await shortcuts.saveNewShortcut(nameController.text, context);
+                    await shortcuts.saveNewShortcut(nameController.text);
                   } else {
                     // Save place.
                     if (routing.selectedWaypoints!.length == 1) {
-                      await places.saveNewPlaceFromWaypoint(nameController.text, context);
+                      await places.saveNewPlaceFromWaypoint(nameController.text);
                     }
                   }
                 }
-                Navigator.pop(context);
+                if (mounted) Navigator.pop(context);
               },
               child: BoldContent(text: 'Speichern', color: Theme.of(context).colorScheme.primary, context: context),
             ),
@@ -207,13 +221,13 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   @override
-  void didChangeDependencies() {
-    bottomSheetState = Provider.of<BottomSheetState>(context);
-    routing = Provider.of<Routing>(context);
-    places = Provider.of<Places>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    predictionStatus = Provider.of<PredictionSGStatus>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    bottomSheetState.removeListener(update);
+    routing.removeListener(update);
+    places.removeListener(update);
+    shortcuts.removeListener(update);
+    predictionStatus.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is fired when the ride is started.
@@ -239,30 +253,32 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
     if (didViewWarning) {
       startRide();
     } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          alignment: AlignmentDirectional.center,
-          actionsAlignment: MainAxisAlignment.center,
-          title: BoldContent(
-              text:
-                  'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
-              context: context),
-          content: Container(height: 0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                preferences.setBool("priobike.routing.warning", true);
-                startRide();
-              },
-              child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            alignment: AlignmentDirectional.center,
+            actionsAlignment: MainAxisAlignment.center,
+            title: BoldContent(
+                text:
+                    'Denke an deine Sicherheit und achte stets auf deine Umgebung. Beachte die Hinweisschilder und die örtlichen Gesetze.',
+                context: context),
+            content: Container(height: 0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(24)),
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  preferences.setBool("priobike.routing.warning", true);
+                  startRide();
+                },
+                child: BoldContent(text: 'OK', color: Theme.of(context).colorScheme.primary, context: context),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/views_beta/settings.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays the search bar.
 class SearchBar extends StatefulWidget {
@@ -54,13 +54,32 @@ class SearchBarState extends State<SearchBar> {
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
-  @override
-  void didChangeDependencies() {
-    geosearch = Provider.of<Geosearch>(context);
-    profile = Provider.of<Profile>(context);
-    positioning = Provider.of<Positioning>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     updateWaypoint();
-    super.didChangeDependencies();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+
+    updateWaypoint();
+  }
+
+  @override
+  void dispose() {
+    geosearch.removeListener(update);
+    profile.removeListener(update);
+    positioning.removeListener(update);
+    super.dispose();
   }
 
   /// Update the waypoint.
@@ -79,7 +98,7 @@ class SearchBarState extends State<SearchBar> {
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
     debouncer.run(() {
-      geosearch.geosearch(context, query);
+      geosearch.geosearch(query);
     });
   }
 

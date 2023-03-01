@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:provider/provider.dart';
 
 /// The translation of the surface.
 final surfaceTypeTranslation = {
@@ -56,11 +56,26 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
   /// The chart data.
   Map<String, double> surfaceTypeDistances = {};
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     processRouteData();
-    super.didChangeDependencies();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+
+    processRouteData();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    super.dispose();
   }
 
   /// Process the route data and create the chart series.

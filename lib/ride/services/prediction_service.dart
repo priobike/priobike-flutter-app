@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
@@ -14,7 +14,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionService implements PredictionComponent {
@@ -93,9 +92,9 @@ class PredictionService implements PredictionComponent {
 
   /// Establish a connection with the MQTT client.
   @override
-  Future<void> connectMQTTClient(BuildContext context) async {
+  Future<void> connectMQTTClient() async {
     // Get the backend that is currently selected.
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final clientId = 'priobike-app-${UniqueKey().toString()}';
     try {
       client = MqttServerClient(
@@ -139,10 +138,10 @@ class PredictionService implements PredictionComponent {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
       }
-      final ride = Provider.of<Ride>(context, listen: false);
+      final ride = getIt<Ride>();
       if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));
-        connectMQTTClient(context);
+        connectMQTTClient();
       }
     }
   }

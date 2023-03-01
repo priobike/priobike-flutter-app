@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Geocoding with ChangeNotifier {
@@ -25,13 +24,13 @@ class Geocoding with ChangeNotifier {
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
-  Future<String?> reverseGeocodeLatLng(BuildContext context, double lat, double lng) async {
-    return await reverseGeocode(context, LatLng(lat, lng));
+  Future<String?> reverseGeocodeLatLng(double lat, double lng) async {
+    return await reverseGeocode(LatLng(lat, lng));
   }
 
   /// Fetch the address to a given coordinate.
   /// See: https://nominatim.org/release-docs/develop/api/Reverse/
-  Future<String?> reverseGeocode(BuildContext context, LatLng coordinate) async {
+  Future<String?> reverseGeocode(LatLng coordinate) async {
     if (isFetchingAddress) return null;
 
     isFetchingAddress = true;
@@ -40,7 +39,7 @@ class Geocoding with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      final settings = Provider.of<Settings>(context, listen: false);
+      final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
       var url = "https://$baseUrl/nominatim/reverse";
       url += "?accept-language=de";

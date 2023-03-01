@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class DatastreamView extends StatefulWidget {
   const DatastreamView({Key? key}) : super(key: key);
@@ -30,24 +30,31 @@ class DatastreamViewState extends State<DatastreamView> {
   /// The displayed time diff.
   String? timeDiff;
 
-  @override
-  void didChangeDependencies() {
-    datastream = Provider.of<Datastream>(context);
-    settings = Provider.of<Settings>(context);
-    refreshTimeDiff();
-    super.didChangeDependencies();
-  }
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
 
   @override
   void initState() {
     super.initState();
+    datastream = getIt<Datastream>();
+    settings = getIt<Settings>();
+    datastream.addListener(update);
+    settings.addListener(update);
     timer = Timer.periodic(const Duration(seconds: 1), (_) => refreshTimeDiff());
   }
 
   @override
   void dispose() {
+    datastream.removeListener(update);
+    settings.removeListener(update);
     timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    refreshTimeDiff();
+    super.didChangeDependencies();
   }
 
   /// Refresh the time diff.

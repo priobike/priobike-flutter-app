@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
@@ -21,7 +22,6 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 
 class InternalSettingsView extends StatefulWidget {
   const InternalSettingsView({Key? key}) : super(key: key);
@@ -52,16 +52,39 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   /// The associated weather service, which is injected by the provider.
   late Weather weather;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    position = Provider.of<Positioning>(context);
-    routing = Provider.of<Routing>(context);
-    news = Provider.of<News>(context);
-    weather = Provider.of<Weather>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
+    predictionStatusSummary.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    position = getIt<Positioning>();
+    position.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    news = getIt<News>();
+    news.addListener(update);
+    weather = getIt<Weather>();
+    weather.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    settings.removeListener(update);
+    predictionStatusSummary.removeListener(update);
+    shortcuts.removeListener(update);
+    position.removeListener(update);
+    routing.removeListener(update);
+    news.removeListener(update);
+    weather.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a backend is selected.
@@ -79,12 +102,12 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     await news.reset();
 
     // Load stuff for the new backend.
-    await news.getArticles(context);
-    await shortcuts.loadShortcuts(context);
-    await predictionStatusSummary.fetch(context);
-    await weather.fetch(context);
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await weather.fetch();
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a predictor mode is selected.
@@ -92,7 +115,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new predictor mode.
     await settings.setPredictionMode(predictionMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a sg labels mode is selected.
@@ -100,7 +123,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new sg labels mode.
     await settings.setSGLabelsMode(mode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a positioning is selected.
@@ -110,7 +133,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Reset the position service since it depends on the positioning.
     await position.reset();
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a datastream mode is selected.
@@ -118,7 +141,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new datastream mode.
     await settings.setDatastreamMode(datastreamMode);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a routing is selected.
@@ -126,7 +149,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     // Tell the settings service that we selected the new routing.
     await settings.selectRoutingView(routingView);
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -273,7 +296,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Tutorials zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<Tutorial>(context, listen: false).deleteCompleted(),
+                    callback: () => getIt<Tutorial>().deleteCompleted(),
                   ),
                 ),
                 Padding(
@@ -281,7 +304,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Datenschutz zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<PrivacyPolicy>(context, listen: false).deleteStoredPolicy(),
+                    callback: () => getIt<PrivacyPolicy>().deleteStoredPolicy(),
                   ),
                 ),
                 Padding(
@@ -289,7 +312,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   child: SettingsElement(
                     title: "Sicherheits-Warnung zurücksetzen",
                     icon: Icons.recycling,
-                    callback: () => Provider.of<Settings>(context, listen: false).setDidViewWarning(false),
+                    callback: () => getIt<Settings>().setDidViewWarning(false),
                   ),
                 ),
                 const SmallVSpace(),

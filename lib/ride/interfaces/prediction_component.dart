@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/routing/models/sg.dart';
@@ -24,7 +23,7 @@ abstract class PredictionComponent {
   bool selectSG(Sg? sg);
 
   /// Establish a connection with the MQTT client.
-  Future<void> connectMQTTClient(BuildContext context);
+  Future<void> connectMQTTClient();
 
   /// Stop the navigation.
   Future<void> stopNavigation();
