@@ -72,17 +72,18 @@ class SGSelectorCrossingsResponse {
   final List<NavigationNode> route;
 
   /// The signal groups of the route..
-  final Map<String, Map<String, Sg>> connectedCrossings;
+  final List orderedConnectedCrossings;
 
   /// The crossings of the route.
   final List<Crossing> crossings;
 
-  SGSelectorCrossingsResponse({required this.route, required this.connectedCrossings, required this.crossings});
+  SGSelectorCrossingsResponse({required this.route, required this.orderedConnectedCrossings, required this.crossings});
 
   factory SGSelectorCrossingsResponse.fromJson(Map<String, dynamic> json) => SGSelectorCrossingsResponse(
         route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-        connectedCrossings: (json['connectedCrossings'] as Map<String, dynamic>)
-            .map((k, e) => MapEntry(k, e.map((k, e) => MapEntry(k, Sg.fromJson(e))))),
+        orderedConnectedCrossings: (json['orderedConnectedCrossings'] as List)
+            .map((e) => {"id": e["id"], "signalGroups": (e["signalGroups"] as List).map((e) => Sg.fromJson(e))})
+            .toList(),
         crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
       );
 }

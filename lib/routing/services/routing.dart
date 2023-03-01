@@ -531,39 +531,44 @@ class Routing with ChangeNotifier {
           .map((i, path) {
             final sgSelectorCrossingsResponse = sgSelectorCrossingResponses[i]!;
             final crossingsInOrderOfRoute = List<Crossing>.empty(growable: true);
-            for (final waypoint in sgSelectorCrossingsResponse.route) {
-              if (waypoint.signalGroupId == null) continue;
-              final crossing = sgSelectorCrossingsResponse.connectedCrossings[waypoint.signalGroupId];
+            for (final crossing in sgSelectorCrossingsResponse.orderedConnectedCrossings) {
+              final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
               if (crossing == null) continue;
-              if (sgsInOrderOfRoute.contains(sg)) continue;
-              sgsInOrderOfRoute.add(sg);
-            }
-            // Snap each signal group to the route and calculate the distance.
-            final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-            for (final sg in sgsInOrderOfRoute) {
-              final snappedSgPos = Snapper(
-                position: LatLng(sg.position.lat, sg.position.lon),
-                nodes: sgSelectorResponse.route,
-              ).snap();
-              signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+              if (crossingsInOrderOfRoute.contains(crossing)) continue;
+
+              // Snap each signal group to the route and calculate the distance.
+              for (final sg in crossing["signalGroups"]) {
+                final snappedSgPos = Snapper(
+                  position: LatLng(sg.position.lat, sg.position.lon),
+                  nodes: sgSelectorCrossingsResponse.route,
+                ).snap();
+                signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
+              }
+
+              crossingsInOrderOfRoute.add(Crossing(
+                id: crossing["id"],
+                signalGroups: crossing["signalGroups"],
+                signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+              ));
             }
             // Snap each crossing to the route and calculate the distance.
             final crossingsDistancesOnRoute = List<double>.empty(growable: true);
-            for (final crossing in sgSelectorResponse.crossings) {
+            for (final crossing in sgSelectorCrossingsResponse.crossings) {
               final snappedCrossingPos = Snapper(
                 position: LatLng(crossing.position.lat, crossing.position.lon),
-                nodes: sgSelectorResponse.route,
+                nodes: sgSelectorCrossingsResponse.route,
               ).snap();
               crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
             }
             var route = r.Route(
               id: i,
               path: path,
-              route: sgSelectorResponse.route,
-              signalGroups: sgsInOrderOfRoute,
-              signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-              crossings: sgSelectorResponse.crossings,
+              route: sgSelectorCrossingsResponse.route,
+              signalGroups: [],
+              signalGroupsDistancesOnRoute: [],
+              crossings: sgSelectorCrossingsResponse.crossings,
               crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+              rideCrossings: crossingsInOrderOfRoute,
             );
             // Connect the route to the start and end points.
             route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);

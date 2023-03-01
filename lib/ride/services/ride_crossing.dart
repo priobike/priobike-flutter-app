@@ -160,14 +160,14 @@ class RideCrossing with ChangeNotifier {
     Crossing? nextCrossing;
     int? nextCrossingIndex;
     double routeDistanceOfNextCrossing = double.infinity;
+    outerLoop:
     for (int i = 0; i < route!.rideCrossings!.length; i++) {
       for (int j = 0; j < route!.rideCrossings![i].signalGroups.length; j++) {
         if (route!.rideCrossings![i].signalGroupsDistancesOnRoute[j] > snap.distanceOnRoute) {
-          if (routeDistanceOfNextCrossing < route!.rideCrossings![i].signalGroupsDistancesOnRoute[j]) {
-            nextCrossing = route!.rideCrossings![i];
-            nextCrossingIndex = i;
-            routeDistanceOfNextCrossing = route!.rideCrossings![i].signalGroupsDistancesOnRoute[i];
-          }
+          nextCrossing = route!.rideCrossings![i];
+          nextCrossingIndex = i;
+          routeDistanceOfNextCrossing = route!.rideCrossings![i].signalGroupsDistancesOnRoute[i];
+          break outerLoop;
         }
       }
     }
