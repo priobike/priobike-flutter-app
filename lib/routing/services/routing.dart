@@ -243,7 +243,7 @@ class Routing with ChangeNotifier {
         usedRoutingParameter = "osm";
       }
       final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/select?matcher${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
+          "https://$baseUrl/sg-selector-backend/routing/select?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
