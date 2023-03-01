@@ -93,17 +93,15 @@ class AlertsViewState extends State<AlertsView> {
                   bottomRight: Radius.circular(24.0),
                 ),
               ),
-              child: Stack(alignment: AlignmentDirectional.topStart, children: [
-                PageView(
-                  controller: controller,
-                  onPageChanged: (index) => setState(
-                    () {
-                      currentPage = index;
-                    },
-                  ),
-                  children: alerts,
+              child: PageView(
+                controller: controller,
+                onPageChanged: (index) => setState(
+                  () {
+                    currentPage = index;
+                  },
                 ),
-              ]),
+                children: alerts,
+              ),
             ),
           ),
           // Show dots to indicate the current page.
