@@ -403,10 +403,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
             await mapController!.getCameraState())
-        .install(
-      mapController!,
-      iconSize: ppi / 8
-    );
+        .install(mapController!, iconSize: ppi / 8);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -564,13 +561,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {}
+
   /// A callback that is executed when the camera movement of the user stopped.
-  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
     final deviceWidth = MediaQuery.of(context).size.width;
     final deviceHeight = MediaQuery.of(context).size.height;
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting && mapController != null && !(await mapController!.isUserAnimationInProgress())) {
-      // await (RouteLabelLayer(deviceWidth, deviceHeight, await mapController!.getCameraState())).update(mapController!);
+      await (RouteLabelLayer(deviceWidth, deviceHeight, await mapController!.getCameraState())).update(mapController!);
     }
   }
 
@@ -597,6 +597,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapTap: onMapTap,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
+            onCameraIdle: onCameraIdle,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,
