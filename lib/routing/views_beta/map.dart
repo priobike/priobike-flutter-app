@@ -400,6 +400,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       mapController!,
       below: selectedRoute,
     );
+    if (!mounted) return;
+    await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
+            await mapController!.getCameraState())
+        .install(
+      mapController!,
+      iconSize: ppi / 8
+    );
   }
 
   /// A callback that is called when the user taps a feature.
@@ -563,7 +570,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final deviceHeight = MediaQuery.of(context).size.height;
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting && mapController != null && !(await mapController!.isUserAnimationInProgress())) {
-      await (await RouteLabelLayer.create(deviceWidth, deviceHeight)).update(mapController!);
+      // await (RouteLabelLayer(deviceWidth, deviceHeight, await mapController!.getCameraState())).update(mapController!);
     }
   }
 
