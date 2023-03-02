@@ -5,8 +5,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
-
-import '../../settings/services/settings.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 class TrafficService with ChangeNotifier {
   /// The logger for this service.
@@ -18,7 +17,7 @@ class TrafficService with ChangeNotifier {
   /// If the service had an error during the last request.
   bool hadError = false;
 
-  Map<String, double>? json;
+  Map<String, dynamic>? json;
 
   TrafficService();
 
@@ -44,6 +43,7 @@ class TrafficService with ChangeNotifier {
         throw Exception(err);
       }
       json = jsonDecode(response.body);
+      log.e("Charly Got prediction: $json");
       isLoading = false;
       hadError = false;
       notifyListeners();
@@ -51,8 +51,7 @@ class TrafficService with ChangeNotifier {
       isLoading = false;
       hadError = true;
       notifyListeners();
-      final hint = "Error while fetching traffic-service prediction: $e";
-      log.e(hint);
+      log.e("Error while fetching traffic-service prediction: $e");
     }
 
     /// Reset the status.
