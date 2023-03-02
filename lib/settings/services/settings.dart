@@ -59,6 +59,9 @@ class Settings with ChangeNotifier {
   /// The selected signal group selection mode.
   SGSelectionMode sgSelectionMode;
 
+  /// The bearing diff for the crossing SG selection mode.
+  SGSelectionModeBearingDiff sgSelectionModeBearingDiff;
+
   /// The selected tracking submission policy.
   TrackingSubmissionPolicy trackingSubmissionPolicy;
 
@@ -316,6 +319,24 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const sgSelectionModeBearingDiffKey = "priobike.settings.sgSelectionModeBearingDiff";
+  static const defaultSGSelectionModeBearingDiff = SGSelectionModeBearingDiff.thirty;
+
+  Future<bool> setSGSelectionModeBearingDiff(SGSelectionModeBearingDiff sgSelectionModeBearingDiff,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgSelectionModeBearingDiff;
+    this.sgSelectionModeBearingDiff = sgSelectionModeBearingDiff;
+    bool success = await storage.setString(sgSelectionModeBearingDiffKey, sgSelectionModeBearingDiff.name);
+    if (!success) {
+      log.e("Failed to set sgSelectionModeBearingDiff to $sgSelectionModeBearingDiff");
+      this.sgSelectionModeBearingDiff = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
   static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
 
@@ -350,6 +371,7 @@ class Settings with ChangeNotifier {
     this.connectionErrorCounter = defaultConnectionErrorCounter,
     this.sgSelector = defaultSGSelector,
     this.sgSelectionMode = defaultSGSelectionMode,
+    this.sgSelectionModeBearingDiff = defaultSGSelectionModeBearingDiff,
     this.routingView = defaultRoutingView,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
   });
@@ -418,6 +440,12 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      sgSelectionModeBearingDiff =
+          SGSelectionModeBearingDiff.values.byName(storage.getString(sgSelectionModeBearingDiffKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.
@@ -470,6 +498,8 @@ class Settings with ChangeNotifier {
         "routingView": routingView.name,
         "connectionErrorCounter": connectionErrorCounter,
         "sgSelector": sgSelector.name,
+        "sgSelectionMode": sgSelectionMode.name,
+        "sgSelectionModeBearingDiff": sgSelectionModeBearingDiff.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
       };
 }

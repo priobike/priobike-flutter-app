@@ -127,6 +127,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a bearing diff for the crossing sg selection mode is selected.
+  Future<void> onSelectBearingDiffForCrossing(SGSelectionModeBearingDiff sgSelectionModeBearingDiff) async {
+    // Tell the settings service that we selected the new bearing diff.
+    await settings.setSGSelectionModeBearingDiff(sgSelectionModeBearingDiff);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   /// A callback that is executed when a sg labels mode is selected.
   Future<void> onSelectSGLabelsMode(SGLabelsMode mode) async {
     // Tell the settings service that we selected the new sg labels mode.
@@ -295,6 +303,25 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                           selected: settings.sgSelectionMode,
                           title: (SGSelectionMode e) => e.description,
                           callback: onSelectSGSelectionMode,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Max. Richtungsunterschied für Spuren SG-Vorhersage-Modus",
+                    subtitle: settings.sgSelectionModeBearingDiff.degree.toString(),
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                          elements: SGSelectionModeBearingDiff.values,
+                          selected: settings.sgSelectionModeBearingDiff,
+                          title: (SGSelectionModeBearingDiff e) => e.degree.toString(),
+                          callback: onSelectBearingDiffForCrossing,
                         );
                       },
                     ),

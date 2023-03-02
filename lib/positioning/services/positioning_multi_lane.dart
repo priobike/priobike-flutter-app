@@ -11,15 +11,14 @@ import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
-import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/models/route_multi_lane.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-class Positioning with ChangeNotifier {
-  final log = Logger("Positioning");
+class PositioningMultiLane with ChangeNotifier {
+  final log = Logger("Positioning-Multi-Lane");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -38,7 +37,7 @@ class Positioning with ChangeNotifier {
   Position? lastPosition;
 
   /// The current route, for snapping.
-  Route? route;
+  RouteMultiLane? route;
 
   /// The current position snapped to the route.
   Snap? snap;
@@ -46,7 +45,7 @@ class Positioning with ChangeNotifier {
   /// An indicator if geolocation is active.
   bool isGeolocating = false;
 
-  Positioning({this.positionSource});
+  PositioningMultiLane({this.positionSource});
 
   /// Reset the position service.
   Future<void> reset() async {
@@ -61,7 +60,7 @@ class Positioning with ChangeNotifier {
   }
 
   /// Notify the positioning that a new route was loaded.
-  Future<void> selectRoute(Route? route) async {
+  Future<void> selectRoute(RouteMultiLane? route) async {
     this.route = route;
     snap = null;
     notifyListeners();
@@ -202,7 +201,7 @@ class Positioning with ChangeNotifier {
         if (route != null && route!.route.length > 2) {
           snap = Snapper(
             position: LatLng(position.latitude, position.longitude),
-            nodes: List.from([route!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
+            nodes: route!.route,
           ).snap();
         }
         onNewPosition();

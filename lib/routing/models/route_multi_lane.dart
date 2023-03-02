@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
-import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/crossing_multi_lane.dart';
 import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/sg_multi_lane.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
-class Route {
+class RouteMultiLane {
   /// The route id.
   final int id;
 
@@ -19,28 +19,20 @@ class Route {
   ///
   /// This is set by the SG selector with an interpolated
   /// route that contains the signal groups.
-  final List<NavigationNode> route;
+  final List<NavigationNodeMultiLane> route;
 
   /// A list of signal groups in the order of the route.
-  final List<Sg> signalGroups;
-
-  /// A list of sg distances on the route, in the order of `signalGroups`.
-  final List<double> signalGroupsDistancesOnRoute;
+  final List<SgMultiLane> signalGroups;
 
   /// A list of crossings.
-  final List<Crossing> crossings;
+  final List<CrossingMultiLane> crossings;
 
-  /// A list of crossing distances on the route, in the order of `crossings`.
-  final List<double> crossingsDistancesOnRoute;
-
-  const Route({
+  const RouteMultiLane({
     required this.id,
     required this.path,
     required this.route,
     required this.signalGroups,
-    required this.signalGroupsDistancesOnRoute,
     required this.crossings,
-    required this.crossingsDistancesOnRoute,
   });
 
   Map<String, dynamic> toJson() => {
@@ -48,55 +40,39 @@ class Route {
         'path': path.toJson(),
         'route': route.map((e) => e.toJson()).toList(),
         'signalGroups': signalGroups.map((e) => e.toJson()).toList(),
-        'signalGroupsDistancesOnRoute': signalGroupsDistancesOnRoute,
         'crossings': crossings.map((e) => e.toJson()).toList(),
-        'crossingsDistancesOnRoute': crossingsDistancesOnRoute,
       };
 
-  factory Route.fromJson(dynamic json) => Route(
+  factory RouteMultiLane.fromJson(dynamic json) => RouteMultiLane(
         id: json["id"],
         path: GHRouteResponsePath.fromJson(json['path']),
-        route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-        signalGroups: (json['signalGroups'] as List).map((e) => Sg.fromJson(e)).toList(),
-        signalGroupsDistancesOnRoute: (json['signalGroupsDistancesOnRoute'] as List).map((e) => e as double).toList(),
-        crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
-        crossingsDistancesOnRoute: (json['crossingsDistancesOnRoute'] as List).map((e) => e as double).toList(),
+        route: (json['route'] as List).map((e) => NavigationNodeMultiLane.fromJson(e)).toList(),
+        signalGroups: (json['signalGroups'] as List).map((e) => SgMultiLane.fromJson(e)).toList(),
+        crossings: (json['crossings'] as List).map((e) => CrossingMultiLane.fromJson(e)).toList(),
       );
 
   /// The route, connected to the start and end point.
-  Route connected(Waypoint startpoint, Waypoint endpoint) {
-    const vincenty = Distance();
+  RouteMultiLane connected(Waypoint startpoint, Waypoint endpoint) {
     final first = route.isNotEmpty ? route.first : null;
-    final distToFirst =
-        first == null ? null : vincenty.distance(LatLng(startpoint.lat, startpoint.lon), LatLng(first.lat, first.lon));
     final last = route.isNotEmpty ? route.last : null;
-    final distToLast =
-        last == null ? null : vincenty.distance(LatLng(last.lat, last.lon), LatLng(endpoint.lat, endpoint.lon));
-    return Route(
+    return RouteMultiLane(
       id: id,
       path: path,
       signalGroups: signalGroups,
-      signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
       route: [
-        NavigationNode(
+        NavigationNodeMultiLane(
           lon: startpoint.lon,
           lat: startpoint.lat,
           alt: first?.alt ?? 0,
-          distanceToNextSignal:
-              first?.distanceToNextSignal == null ? null : (first!.distanceToNextSignal! + distToFirst!),
-          signalGroupId: first?.signalGroupId,
         ),
         ...route,
-        NavigationNode(
+        NavigationNodeMultiLane(
           lon: endpoint.lon,
           lat: endpoint.lat,
           alt: last?.alt ?? 0,
-          distanceToNextSignal: last?.distanceToNextSignal == null ? null : (last!.distanceToNextSignal! + distToLast!),
-          signalGroupId: last?.signalGroupId,
         ),
       ],
       crossings: crossings,
-      crossingsDistancesOnRoute: crossingsDistancesOnRoute,
     );
   }
 

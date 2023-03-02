@@ -12,9 +12,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/route.dart' as r;
-import 'package:priobike/routing/models/route.dart';
-import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/route_multi_lane.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -100,9 +98,9 @@ extension RoutingProfileExtension on RoutingProfile {
   }
 }
 
-class Routing with ChangeNotifier {
+class RoutingMultiLane with ChangeNotifier {
   /// The logger for this service.
-  final log = Logger("Routing");
+  final log = Logger("Routing-Multi-Lane");
 
   /// An indicator if the data of this notifier changed.
   Map<String, bool> needsLayout = {};
@@ -129,10 +127,10 @@ class Routing with ChangeNotifier {
   int nextItem = -1;
 
   /// The currently selected route, if one fetched.
-  r.Route? selectedRoute;
+  RouteMultiLane? selectedRoute;
 
   /// All routes, if they were fetched.
-  List<r.Route>? allRoutes;
+  List<RouteMultiLane>? allRoutes;
 
   /// The route label coords.
   List<GHCoordinate> routeLabelCoords = [];
@@ -140,7 +138,7 @@ class Routing with ChangeNotifier {
   /// Variable that holds the state of which the item should be minimized to max 3 items.
   bool minimized = false;
 
-  Routing({
+  RoutingMultiLane({
     this.fetchedWaypoints,
     this.selectedWaypoints,
     this.selectedRoute,
@@ -277,6 +275,45 @@ class Routing with ChangeNotifier {
     }
   }
 
+  /// Load a SG-Selector response.
+  Future<SGSelectorMultiLaneResponse?> loadSGSelectorMultiLaneResponse(GHRouteResponsePath path) async {
+    try {
+      final settings = getIt<Settings>();
+
+      final baseUrl = settings.backend.path;
+      final sgSelectorUrl =
+          "http://10.0.2.2:8000/routing/${SGSelectionMode.crossing.path}?bearingDiff=${settings.sgSelectionModeBearingDiff}";
+      final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
+      log.i("Loading SG-Selector response from $sgSelectorUrl");
+
+      final req = SGSelectorRequest(
+          route: path.points.coordinates
+              .map((e) => SGSelectorPosition(
+                    lat: e.lat,
+                    lon: e.lon,
+                    alt: e.elevation ?? 0.0,
+                  ))
+              .toList());
+      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
+
+      if (response.statusCode == 200) {
+        log.i("Loaded SG-Selector response from $sgSelectorUrl");
+        return SGSelectorMultiLaneResponse.fromJson(json.decode(response.body));
+      } else {
+        log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
+        return null;
+      }
+    } catch (e, stack) {
+      final hint = "Failed to load SG-Selector response: $e";
+      log.e(hint);
+
+      if (!kDebugMode) {
+        Sentry.captureException(e, stackTrace: stack, hint: hint);
+      }
+      return null;
+    }
+  }
+
   /// Select the correct profile.
   Future<RoutingProfile> selectProfile() async {
     final profile = getIt<Profile>();
@@ -369,7 +406,7 @@ class Routing with ChangeNotifier {
 
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
-  Future<List<r.Route>?> loadRoutes() async {
+  Future<List<RouteMultiLane>?> loadRoutes() async {
     if (isFetchingRoute) return null;
 
     // Do nothing if the waypoints were already fetched (or both are null).
@@ -396,10 +433,11 @@ class Routing with ChangeNotifier {
       return null;
     }
 
-    List<Route> routes = [];
+    List<RouteMultiLane> routes = [];
 
     // Load the SG-Selector responses for each path.
-    final sgSelectorResponses = await Future.wait(ghResponse.paths.map((path) => loadSGSelectorResponse(path)));
+    final sgSelectorResponses =
+        await Future.wait(ghResponse.paths.map((path) => loadSGSelectorMultiLaneResponse(path)));
     if (sgSelectorResponses.contains(null)) {
       hadErrorDuringFetch = true;
       isFetchingRoute = false;
@@ -419,40 +457,18 @@ class Routing with ChangeNotifier {
         .asMap()
         .map((i, path) {
           final sgSelectorResponse = sgSelectorResponses[i]!;
-          final sgsInOrderOfRoute = List<Sg>.empty(growable: true);
-          for (final waypoint in sgSelectorResponse.route) {
-            if (waypoint.signalGroupId == null) continue;
-            final sg = sgSelectorResponse.signalGroups[waypoint.signalGroupId];
-            if (sg == null) continue;
-            if (sgsInOrderOfRoute.contains(sg)) continue;
-            sgsInOrderOfRoute.add(sg);
-          }
-          // Snap each signal group to the route and calculate the distance.
-          final signalGroupsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final sg in sgsInOrderOfRoute) {
-            final snappedSgPos = Snapper(
-              position: LatLng(sg.position.lat, sg.position.lon),
-              nodes: List.from([sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
-            ).snap();
-            signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
-          }
-          // Snap each crossing to the route and calculate the distance.
-          final crossingsDistancesOnRoute = List<double>.empty(growable: true);
-          for (final crossing in sgSelectorResponse.crossings) {
-            final snappedCrossingPos = Snapper(
-              position: LatLng(crossing.position.lat, crossing.position.lon),
-              nodes: List.from([sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
-            ).snap();
-            crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
-          }
-          var route = r.Route(
+          var route = RouteMultiLane(
             id: i,
             path: path,
-            route: sgSelectorResponse.route,
-            signalGroups: sgsInOrderOfRoute,
-            signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
+            route: path.points.coordinates
+                .map((e) => NavigationNodeMultiLane(
+                      lat: e.lat,
+                      lon: e.lon,
+                      alt: e.elevation ?? 0.0,
+                    ))
+                .toList(),
+            signalGroups: sgSelectorResponse.signalGroups,
             crossings: sgSelectorResponse.crossings,
-            crossingsDistancesOnRoute: crossingsDistancesOnRoute,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
@@ -470,7 +486,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(routes.first.path);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(routes.first);
+    await status.fetchMulitLane(routes.first);
 
     // Force new route label coords.
     routeLabelCoords = [];
@@ -488,7 +504,7 @@ class Routing with ChangeNotifier {
     await discomforts.findDiscomforts(selectedRoute!.path);
 
     final status = getIt<PredictionSGStatus>();
-    await status.fetch(selectedRoute!);
+    await status.fetchMulitLane(selectedRoute!);
 
     notifyListeners();
   }

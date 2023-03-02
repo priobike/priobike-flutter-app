@@ -19,7 +19,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/services/ride_crossing.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -27,6 +27,7 @@ import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -34,6 +35,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/tracking/services/tracking_multi_lane.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -81,7 +83,8 @@ Future<void> main() async {
   getIt.registerSingleton<MapSettings>(MapSettings());
   getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
-  getIt.registerSingleton<RideCrossing>(RideCrossing());
+  getIt.registerSingleton<RideMultiLane>(RideMultiLane());
+  getIt.registerSingleton<RoutingMultiLane>(RoutingMultiLane());
 
   runZonedGuarded(() async {
     runApp(const App());

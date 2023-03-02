@@ -6,6 +6,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/models/route_multi_lane.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -137,6 +138,90 @@ class PredictionSGStatus with ChangeNotifier {
     } else {
       okPercentage = 0;
     }
+
+    log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// Populate the sg status cache with the current route and
+  /// Recalculate the status for this route.
+  Future<void> fetchMulitLane(RouteMultiLane? route) async {
+    if (isLoading) return;
+
+    log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
+
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
+
+    isLoading = true;
+    notifyListeners();
+
+    final pending = List<Future>.empty(growable: true);
+    for (final sg in route?.signalGroups ?? []) {
+      if (cache.containsKey(sg.id)) {
+        final now = DateTime.now().millisecondsSinceEpoch / 1000;
+        final lastFetched = cache[sg.id]!.statusUpdateTime;
+        if (now - lastFetched < 5 * 60) continue;
+      }
+
+      try {
+        var url = "https://$baseUrl/$statusProviderSubPath/${sg.id}/status.json";
+        log.i("Fetching $url");
+        final endpoint = Uri.parse(url);
+
+        final future = Http.get(endpoint).then(
+          (response) {
+            if (response.statusCode == 200) {
+              final data = SGStatusData.fromJson(jsonDecode(response.body));
+              cache[sg.id] = data;
+              log.i("Fetched status for ${sg.id}.");
+            } else {
+              log.e("Failed to fetch $url: ${response.statusCode}");
+            }
+          },
+        ).catchError(
+          (error) {
+            log.e("Failed to fetch $url: $error");
+          },
+        );
+        pending.add(future);
+      } catch (e, stack) {
+        final hint = "Error while fetching prediction status: $e";
+        log.e(hint);
+        if (!kDebugMode) {
+          Sentry.captureException(e, stackTrace: stack, hint: hint);
+        }
+      }
+    }
+
+    // Wait for all requests to finish.
+    await Future.wait(pending);
+
+    ok = 0;
+    offline = 0;
+    bad = 0;
+    for (final sg in route?.signalGroups ?? []) {
+      if (!cache.containsKey(sg.id)) {
+        offline++;
+        continue;
+      }
+      final status = cache[sg.id]!;
+      switch (status.predictionState) {
+        case SGPredictionState.ok:
+          ok++;
+          break;
+        case SGPredictionState.offline:
+          offline++;
+          break;
+        case SGPredictionState.bad:
+          bad++;
+          break;
+      }
+    }
+
+    disconnected = route?.crossings.where((c) => !c.connected).length ?? 0;
 
     log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
     isLoading = false;

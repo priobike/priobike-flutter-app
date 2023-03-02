@@ -3,11 +3,11 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride_crossing.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
-class CancelButtonCrossing extends StatefulWidget {
+class CancelButtonMultiLane extends StatefulWidget {
   /// The border radius of the button.
   final double borderRadius;
 
@@ -15,14 +15,14 @@ class CancelButtonCrossing extends StatefulWidget {
   final String text;
 
   /// Create a new cancel button.
-  const CancelButtonCrossing({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
+  const CancelButtonMultiLane({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
   @override
-  CancelButtonCrossingState createState() => CancelButtonCrossingState();
+  CancelButtonMulitLaneState createState() => CancelButtonMulitLaneState();
 }
 
 /// A cancel button to cancel the ride.
-class CancelButtonCrossingState extends State<CancelButtonCrossing> {
+class CancelButtonMulitLaneState extends State<CancelButtonMultiLane> {
   Widget askForConfirmation(BuildContext context) {
     return AlertDialog(
       //contentPadding: const EdgeInsets.all(30),
@@ -76,36 +76,34 @@ class CancelButtonCrossingState extends State<CancelButtonCrossing> {
   /// A callback that is executed when the cancel button is pressed.
   Future<void> onTap() async {
     // End the recommendations.
-    final ride = getIt<RideCrossing>();
+    final ride = getIt<RideMultiLane>();
     await ride.stopNavigation();
 
     // Stop the geolocation.
     final position = getIt<Positioning>();
     await position.stopGeolocation();
 
-    if (mounted) {
-      // Reset the ride service.
-      await ride.reset();
+    // Reset the ride service.
+    await ride.reset();
 
-      // Reset the position service.
-      await position.reset();
+    // Reset the position service.
+    await position.reset();
 
-      // Reset the route service.
-      final routing = getIt<Routing>();
-      await routing.reset();
+    // Reset the route service.
+    final routing = getIt<Routing>();
+    await routing.reset();
 
-      // Reset the prediction sg status.
-      final predictionSGStatus = getIt<PredictionSGStatus>();
-      await predictionSGStatus.reset();
+    // Reset the prediction sg status.
+    final predictionSGStatus = getIt<PredictionSGStatus>();
+    await predictionSGStatus.reset();
 
-      // Reset the dangers.
-      final dangers = getIt<Dangers>();
-      await dangers.reset();
+    // Reset the dangers.
+    final dangers = getIt<Dangers>();
+    await dangers.reset();
 
-      if (context.mounted) {
-        // Leave the feedback view.
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+    if (context.mounted) {
+      // Leave the feedback view.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 

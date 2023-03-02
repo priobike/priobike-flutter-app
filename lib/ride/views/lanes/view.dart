@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/ride/services/ride_crossing.dart';
+import 'package:priobike/ride/messages/prediction.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -25,7 +27,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   late double maxSpeed;
 
   /// The associated ride service, which is injected by the provider.
-  late RideCrossing rideCrossing;
+  late RideMultiLane ride;
 
   /// The associated positioning service, which is injected by the provider.
   late Positioning positioning;
@@ -50,7 +52,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     // Fetch the maximum speed from the settings service.
     maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
-    if (rideCrossing.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
+    if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
       positioning.needsLayout[viewId] = false;
     }
   }
@@ -62,8 +64,8 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
 
     positioning = getIt<Positioning>();
     positioning.addListener(update);
-    rideCrossing = getIt<RideCrossing>();
-    rideCrossing.addListener(update);
+    ride = getIt<RideMultiLane>();
+    ride.addListener(update);
 
     updateSpeedometer();
   }
@@ -71,7 +73,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   @override
   void dispose() {
     positioning.removeListener(update);
-    rideCrossing.removeListener(update);
+    ride.removeListener(update);
     super.dispose();
   }
 
@@ -85,6 +87,42 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     }
   }
 
+  Color getColor(Phase calcCurrentSignalPhase) {
+    final bool isDark = Theme.of(context).colorScheme.brightness == Brightness.dark;
+    switch (calcCurrentSignalPhase) {
+      case Phase.green:
+        if (isDark) {
+          return Colors.green;
+        } else {
+          return Colors.green;
+        }
+      case Phase.amber:
+        if (isDark) {
+          return Colors.amber;
+        } else {
+          return Colors.amber;
+        }
+      case Phase.redAmber:
+        if (isDark) {
+          return Colors.redAccent;
+        } else {
+          return Colors.redAccent;
+        }
+      case Phase.red:
+        if (isDark) {
+          return Colors.red;
+        } else {
+          return Colors.red;
+        }
+      default:
+        if (isDark) {
+          return Colors.grey;
+        } else {
+          return Colors.grey;
+        }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayHeight = MediaQuery.of(context).size.height;
@@ -94,13 +132,13 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     final originalSpeedometerHeight = MediaQuery.of(context).size.width;
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
 
-    final currentCrossing = rideCrossing.crossingPredictionService?.subscribedCrossing;
-    print("Current crossing: $currentCrossing");
+    // final currentCrossing = ride.crossingPredictionService?.subscribedCrossing;
+    const currentCrossing = null;
 
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        /*Container(
+        Container(
           height: originalSpeedometerHeight,
           width: originalSpeedometerWidth,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -124,7 +162,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                   : const [0.0, 0.1, 0.8], // Light theme
             ),
           ),
-        ),*/
+        ),
         if (currentCrossing != null)
           SafeArea(
             bottom: true,
@@ -133,12 +171,43 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: SizedBox(
-                    height: originalSpeedometerHeight,
-                    width: originalSpeedometerWidth,
-                    child: Row(
-                      children: List.from(currentCrossing.recommendations.entries
-                          .map((value) => Text(value.value.calcCurrentSignalPhase.name))),
-                    )),
+                  height: originalSpeedometerHeight,
+                  width: originalSpeedometerWidth,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.max,
+                    children: List.from(
+                      currentCrossing.recommendations.entries.map(
+                        (value) {
+                          // Calculate the countdown.
+                          final countdown =
+                              value.value.calcCurrentPhaseChangeTime?.difference(DateTime.now()).inSeconds;
+                          // If the countdown is 0 (or negative), we hide the countdown. In this way the user
+                          // is not confused if the countdown is at 0 for a few seconds.
+                          final countdownLabel = (countdown ?? 0) > 0 ? "$countdown" : "";
+                          return Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    color: getColor(value.value.calcCurrentSignalPhase),
+                                  ),
+                                  BoldSubHeader(
+                                    text: countdownLabel,
+                                    context: context,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

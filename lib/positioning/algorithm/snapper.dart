@@ -10,7 +10,7 @@ class Snapper {
   final LatLng position;
 
   /// The list of navigation nodes to snap.
-  final List<NavigationNode> nodes;
+  final List<NavigationNodeMultiLane> nodes;
 
   const Snapper({
     required this.position,

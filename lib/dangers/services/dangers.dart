@@ -11,7 +11,8 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -48,12 +49,12 @@ class Dangers with ChangeNotifier {
   Map<int, int> votes = {};
 
   /// Load dangers along a route.
-  Future<void> fetch(Route route) async {
+  Future<void> fetch(GHRouteResponsePath path, List<NavigationNodeMultiLane> nodes) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
     final request = {
-      "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
+      "route": path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
     };
     try {
       final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
@@ -68,7 +69,7 @@ class Dangers with ChangeNotifier {
             .map(
               (d) => Snapper(
                 position: LatLng(d.lat, d.lon),
-                nodes: route.route,
+                nodes: nodes,
               ).snap().distanceOnRoute,
             )
             .toList();

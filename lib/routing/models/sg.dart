@@ -10,12 +10,6 @@ class Sg {
   /// The position of the signal group.
   final Point position;
 
-  /// The bearing of the start of the signal group.
-  final double? bearingStart;
-
-  /// The bearing of the end of the signal group.
-  final double? bearingEnd;
-
   /// The datastream id for a car detector, if exists (layerType == detector_car).
   final String? datastreamDetectorCar;
 
@@ -35,8 +29,6 @@ class Sg {
     required this.id,
     required this.label,
     required this.position,
-    this.bearingStart,
-    this.bearingEnd,
     this.datastreamDetectorCar,
     this.datastreamDetectorCyclists,
     this.datastreamCycleSecond,
@@ -48,8 +40,6 @@ class Sg {
         id: json['id'],
         label: json['label'],
         position: Point.fromJson(json['position']),
-        bearingStart: json['bearingStart'],
-        bearingEnd: json['bearingEnd'],
         datastreamDetectorCar: json['datastreamDetectorCar'],
         datastreamDetectorCyclists: json['datastreamDetectorCyclists'],
         datastreamCycleSecond: json['datastreamCycleSecond'],
@@ -61,8 +51,6 @@ class Sg {
         'id': id,
         'label': label,
         'position': position.toJson(),
-        'bearingStart': bearingStart,
-        'bearingEnd': bearingEnd,
         'datastreamDetectorCar': datastreamDetectorCar,
         'datastreamDetectorCyclists': datastreamDetectorCyclists,
         'datastreamCycleSecond': datastreamCycleSecond,

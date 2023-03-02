@@ -1,7 +1,8 @@
-import 'package:priobike/common/models/point.dart';
 import 'package:priobike/routing/models/crossing.dart';
+import 'package:priobike/routing/models/crossing_multi_lane.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/sg_multi_lane.dart';
 
 class SGSelectorPosition {
   /// The latitude of the position.
@@ -68,27 +69,17 @@ class SGSelectorResponse {
       );
 }
 
-class SGSelectorCrossingsResponse {
-  /// The list of navigation nodes.
-  final List<NavigationNode> route;
+class SGSelectorMultiLaneResponse {
+  /// The list of signal groups.
+  final List<SgMultiLane> signalGroups;
 
-  /// The signal groups of the route..
-  final List orderedConnectedCrossings;
+  /// The list of crossings.
+  final List<CrossingMultiLane> crossings;
 
-  /// The crossings of the route.
-  final List<Crossing> crossings;
+  SGSelectorMultiLaneResponse({required this.signalGroups, required this.crossings});
 
-  SGSelectorCrossingsResponse({required this.route, required this.orderedConnectedCrossings, required this.crossings});
-
-  factory SGSelectorCrossingsResponse.fromJson(Map<String, dynamic> json) => SGSelectorCrossingsResponse(
-        route: (json['route'] as List).map((e) => NavigationNode.fromJson(e)).toList(),
-        orderedConnectedCrossings: (json['orderedConnectedCrossings'] as List)
-            .map((e) => {
-                  "id": e["id"],
-                  "position": Point(lat: e["position"]["lat"], lon: e["position"]["lon"]),
-                  "signalGroups": (e["signalGroups"] as List).map((e) => Sg.fromJson(e)).toList()
-                })
-            .toList(),
-        crossings: (json['crossings'] as List).map((e) => Crossing.fromJson(e)).toList(),
+  factory SGSelectorMultiLaneResponse.fromJson(Map<String, dynamic> json) => SGSelectorMultiLaneResponse(
+        signalGroups: (json['signalGroups'] as List).map((e) => SgMultiLane.fromJson(e)).toList(),
+        crossings: (json['crossings'] as List).map((e) => CrossingMultiLane.fromJson(e)).toList(),
       );
 }

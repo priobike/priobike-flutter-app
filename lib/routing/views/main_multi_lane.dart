@@ -14,10 +14,10 @@ import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
-import 'package:priobike/ride/views/main.dart';
+import 'package:priobike/ride/views/main_multi_lane.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -77,19 +77,19 @@ void showSaveShortcutSheet(context) {
   );
 }
 
-class RoutingView extends StatefulWidget {
-  const RoutingView({Key? key}) : super(key: key);
+class RoutingMultiLaneView extends StatefulWidget {
+  const RoutingMultiLaneView({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => RoutingViewState();
+  State<StatefulWidget> createState() => RoutingMultiLaneViewState();
 }
 
-class RoutingViewState extends State<RoutingView> {
+class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
   /// The associated geocoding service, which is injected by the provider.
   Geocoding? geocoding;
 
   /// The associated routing service, which is injected by the provider.
-  Routing? routing;
+  RoutingMultiLane? routingMultiLane;
 
   /// The associated position service, which is injected by the provider.
   Positioning? positioning;
@@ -119,7 +119,7 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing?.loadRoutes();
+        await routingMultiLane?.loadRoutes();
 
         // Calling requestSingleLocation function to fill lastPosition of PositionService
         await positioning?.requestSingleLocation(onNoPermission: () {
@@ -136,8 +136,8 @@ class RoutingViewState extends State<RoutingView> {
 
     geocoding = getIt<Geocoding>();
     geocoding!.addListener(update);
-    routing = getIt<Routing>();
-    routing!.addListener(update);
+    routingMultiLane = getIt<RoutingMultiLane>();
+    routingMultiLane!.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts!.addListener(update);
     positioning = getIt<Positioning>();
@@ -149,7 +149,7 @@ class RoutingViewState extends State<RoutingView> {
   @override
   void dispose() {
     geocoding!.removeListener(update);
-    routing!.removeListener(update);
+    routingMultiLane!.removeListener(update);
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
@@ -167,7 +167,7 @@ class RoutingViewState extends State<RoutingView> {
     void startRide() => Navigator.pushReplacement<void, bool>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => const RideView(),
+          builder: (BuildContext context) => const RideMultiLaneView(),
         ),
         result: true);
 
@@ -272,7 +272,7 @@ class RoutingViewState extends State<RoutingView> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
-                    await routing?.loadRoutes();
+                    await routingMultiLane?.loadRoutes();
                   },
                 ),
                 // Move the button a bit more up.
@@ -336,9 +336,9 @@ class RoutingViewState extends State<RoutingView> {
               if (settings.sgSelectionMode == SGSelectionMode.crossing)
                 RoutingMapMultiLaneView(sheetMovement: sheetMovement.stream),
 
-              if (routing!.isFetchingRoute) renderLoadingIndicator(),
+              if (routingMultiLane!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+              if (routingMultiLane!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar
               SafeArea(

@@ -16,11 +16,14 @@ import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/routing/views/main_multi_lane.dart';
 import 'package:priobike/routing/views_beta/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/routing_view.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -55,6 +58,9 @@ class HomeViewState extends State<HomeView> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated multi lane routing service, which is injected by the provider.
+  late RoutingMultiLane routingMultiLane;
+
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
 
@@ -81,6 +87,7 @@ class HomeViewState extends State<HomeView> {
     shortcuts.addListener(update);
 
     routing = getIt<Routing>();
+    routingMultiLane = getIt<RoutingMultiLane>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
@@ -121,39 +128,68 @@ class HomeViewState extends State<HomeView> {
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectWaypoints(shortcut.waypoints);
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
-        .then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+    SGSelectionMode sgSelectionMode = settings.sgSelectionMode;
+
+    if (sgSelectionMode == SGSelectionMode.single) {
+      routing.selectWaypoints(shortcut.waypoints);
+      Navigator.of(context)
+          .push(MaterialPageRoute(
+              builder: (_) =>
+                  settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+          .then(
+        (comingNotFromRoutingView) {
+          if (comingNotFromRoutingView == null) {
+            routing.reset();
+            discomforts.reset();
+            predictionSGStatus.reset();
+          }
+        },
+      );
+    } else if (sgSelectionMode == SGSelectionMode.crossing) {
+      routingMultiLane.selectWaypoints(shortcut.waypoints);
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingMultiLaneView())).then(
+        (comingNotFromRoutingView) {
+          if (comingNotFromRoutingView == null) {
+            routingMultiLane.reset();
+            discomforts.reset();
+            predictionSGStatus.reset();
+          }
+        },
+      );
+    }
   }
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
-        .then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+    SGSelectionMode sgSelectionMode = settings.sgSelectionMode;
+
+    if (sgSelectionMode == SGSelectionMode.single) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(
+              builder: (_) =>
+                  settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
+          .then(
+        (comingNotFromRoutingView) {
+          if (comingNotFromRoutingView == null) {
+            routing.reset();
+            discomforts.reset();
+            predictionSGStatus.reset();
+          }
+        },
+      );
+    } else if (sgSelectionMode == SGSelectionMode.crossing) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingMultiLaneView())).then(
+        (comingNotFromRoutingView) {
+          if (comingNotFromRoutingView == null) {
+            routingMultiLane.reset();
+            discomforts.reset();
+            predictionSGStatus.reset();
+          }
+        },
+      );
+    }
   }
 
   /// A callback that is fired when the shortcuts should be edited.

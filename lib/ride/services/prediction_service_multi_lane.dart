@@ -7,14 +7,13 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/models/crossing.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-class CrossingPredictionService {
+class PredictionServiceMultiLane {
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   late final Function notifyListeners;
 
@@ -26,7 +25,7 @@ class CrossingPredictionService {
   /// A callback that gets executed when the client is connected.
   late final Function onConnected;
 
-  CrossingPredictionService({
+  PredictionServiceMultiLane({
     required this.onConnected,
     required this.notifyListeners,
     required this.onNewPredictionStatusDuringRide,

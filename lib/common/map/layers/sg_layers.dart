@@ -5,9 +5,11 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -131,41 +133,38 @@ class TrafficLightsLayer {
   }
 }
 
-class ConnectedCrossingsLayer {
+class MultiLaneTrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  ConnectedCrossingsLayer(bool isDark, {hideBehindPosition = false}) {
+  MultiLaneTrafficLightsLayer(bool isDark, {hideBehindPosition = false}) {
     final showLabels = getIt<Settings>().sgLabelsMode == SGLabelsMode.enabled;
-    final routing = getIt<Routing>();
-    final userPosSnap = getIt<Positioning>().snap;
+    final routing = getIt<RoutingMultiLane>();
+    final userPosSnap = getIt<PositioningMultiLane>().snap;
 
     if (routing.selectedRoute == null) return;
-    if (routing.selectedRoute!.rideCrossings == null) return;
-    for (int i = 0; i < routing.selectedRoute!.rideCrossings!.length; i++) {
-      for (int j = 0; j < routing.selectedRoute!.rideCrossings![i].signalGroups.length; j++) {
-        final sg = routing.selectedRoute!.rideCrossings![i].signalGroups[j];
-        final sgDistanceOnRoute = routing.selectedRoute!.rideCrossings![i].signalGroupsDistancesOnRoute[j];
-        // Clamp the value to not unnecessarily update the source.
-        final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
-        features.add(
-          {
-            "id": "traffic-light",
-            "type": "Feature",
-            "geometry": {
-              "type": "Point",
-              "coordinates": [sg.position.lon, sg.position.lat],
-            },
-            "properties": {
-              "id": sg.id,
-              "isDark": isDark,
-              "showLabels": showLabels,
-              "distanceToSgOnRoute": distanceToSgOnRoute,
-              "hideBehindPosition": hideBehindPosition,
-            },
+    for (int i = 0; i < routing.selectedRoute!.signalGroups.length; i++) {
+      final sg = routing.selectedRoute!.signalGroups[i];
+      final sgDistanceOnRoute = sg.distanceOnRoute;
+      // Clamp the value to not unnecessarily update the source.
+      final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
+      features.add(
+        {
+          "id": "traffic-light",
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sg.position.lon, sg.position.lat],
           },
-        );
-      }
+          "properties": {
+            "id": sg.id,
+            "isDark": isDark,
+            "showLabels": showLabels,
+            "distanceToSgOnRoute": distanceToSgOnRoute,
+            "hideBehindPosition": hideBehindPosition,
+          },
+        },
+      );
     }
   }
 

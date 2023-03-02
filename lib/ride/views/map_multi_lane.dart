@@ -11,28 +11,32 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/services/ride_crossing.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
-class RideMapCrossingsView extends StatefulWidget {
-  const RideMapCrossingsView({Key? key}) : super(key: key);
+class RideMapMultiLaneView extends StatefulWidget {
+  const RideMapMultiLaneView({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => RideMapCrossingsViewState();
+  State<StatefulWidget> createState() => RideMapMultiLaneViewState();
 }
 
-class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
-  static const viewId = "ride.views.map";
+class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
+  static const viewId = "ride.views.map.multi_lane";
 
-  late Routing routing;
+  /// The associated routing service, which is injected by the provider.
+  late RoutingMultiLane routingMultiLane;
 
   /// The associated positioning service, which is injected by the provider.
-  late Positioning positioning;
+  late PositioningMultiLane positioningMultiLane;
 
   /// The associated ride service, which is injected by the provider.
-  late RideCrossing rideCrossing;
+  late RideMultiLane rideMultiLane;
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
@@ -60,17 +64,17 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
 
   /// Update the map.
   void updateMap() {
-    if (routing.needsLayout[viewId] != false && mapController != null) {
+    if (routingMultiLane.needsLayout[viewId] != false && mapController != null) {
       onRoutingUpdate();
-      routing.needsLayout[viewId] = false;
+      routingMultiLane.needsLayout[viewId] = false;
     }
-    if (rideCrossing.needsLayout[viewId] != false && mapController != null) {
+    if (rideMultiLane.needsLayout[viewId] != false && mapController != null) {
       onRideUpdate();
-      rideCrossing.needsLayout[viewId] = false;
+      rideMultiLane.needsLayout[viewId] = false;
     }
-    if (positioning.needsLayout[viewId] != false && mapController != null) {
+    if (positioningMultiLane.needsLayout[viewId] != false && mapController != null) {
       onPositioningUpdate();
-      positioning.needsLayout[viewId] = false;
+      positioningMultiLane.needsLayout[viewId] = false;
     }
     if (dangers.needsLayout[viewId] != false && mapController != null) {
       onDangersUpdate();
@@ -88,12 +92,12 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
-    routing = getIt<Routing>();
-    routing.addListener(update);
-    rideCrossing = getIt<RideCrossing>();
-    rideCrossing.addListener(update);
-    positioning = getIt<Positioning>();
-    positioning.addListener(update);
+    routingMultiLane = getIt<RoutingMultiLane>();
+    routingMultiLane.addListener(update);
+    rideMultiLane = getIt<RideMultiLane>();
+    rideMultiLane.addListener(update);
+    positioningMultiLane = getIt<PositioningMultiLane>();
+    positioningMultiLane.addListener(update);
     dangers = getIt<Dangers>();
     dangers.addListener(update);
     predictionSGStatus = getIt<PredictionSGStatus>();
@@ -105,9 +109,9 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
   @override
   void dispose() {
     settings.removeListener(update);
-    routing.removeListener(update);
-    rideCrossing.removeListener(update);
-    positioning.removeListener(update);
+    routingMultiLane.removeListener(update);
+    rideMultiLane.removeListener(update);
+    positioningMultiLane.removeListener(update);
     dangers.removeListener(update);
     predictionSGStatus.removeListener(update);
     super.dispose();
@@ -128,11 +132,9 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await ConnectedCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .update(mapController!);
+    await MultiLaneTrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .update(mapController!);
+    await OfflineCrossingsLayer(isDark).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -140,11 +142,9 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await ConnectedCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .update(mapController!);
+    await MultiLaneTrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .update(mapController!);
+    await OfflineCrossingsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
@@ -155,17 +155,6 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     // await TrafficLightLayer(isDark).update(mapController!);
-
-    if (rideCrossing.userSelectedCrossing != null) {
-      // The camera target is the selected SG.
-      final cameraTarget =
-          LatLng(rideCrossing.userSelectedCrossing!.position.lat, rideCrossing.userSelectedCrossing!.position.lon);
-      await mapController?.flyTo(
-        mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
-        mapbox.MapAnimationOptions(duration: 200),
-      );
-    }
   }
 
   /// Update the view with the current data.
@@ -178,7 +167,7 @@ class RideMapCrossingsViewState extends State<RideMapCrossingsView> {
   /// Adapt the map controller to a changed position.
   Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
-    if (routing.selectedRoute == null) return;
+    if (routingMultiLane.selectedRoute == null) return;
 
     // Get some data that we will need for adaptive camera control.
     final sgPos = rideCrossing.calcCurrentCrossing?.position;

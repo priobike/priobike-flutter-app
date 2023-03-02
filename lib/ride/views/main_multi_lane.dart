@@ -7,31 +7,25 @@ import 'package:priobike/common/lock.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
-import 'package:priobike/ride/services/datastream.dart';
-import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/datastream.dart';
-import 'package:priobike/ride/views/map.dart';
-import 'package:priobike/ride/views/screen_tracking.dart';
-import 'package:priobike/ride/views/sg_button.dart';
-import 'package:priobike/ride/views/speedometer/view.dart';
-import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/datastream.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
+import 'package:priobike/ride/views/cancel_button_multi_lane.dart';
+import 'package:priobike/ride/views/lanes/view.dart';
+import 'package:priobike/ride/views/map_multi_lane.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/tracking/services/tracking.dart';
 import 'package:wakelock/wakelock.dart';
 
-class RideView extends StatefulWidget {
-  const RideView({Key? key}) : super(key: key);
+class RideMultiLaneView extends StatefulWidget {
+  const RideMultiLaneView({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => RideViewState();
+  State<StatefulWidget> createState() => RideMultiLaneViewState();
 }
 
-class RideViewState extends State<RideView> {
+class RideMultiLaneViewState extends State<RideMultiLaneView> {
   /// The distance in meters at which a new route is requested.
   static double rerouteDistance = 50;
 
@@ -64,32 +58,19 @@ class RideViewState extends State<RideView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        final deviceWidth = MediaQuery.of(context).size.width;
-        final deviceHeight = MediaQuery.of(context).size.height;
-
-        final tracking = getIt<Tracking>();
-        final positioning = getIt<Positioning>();
-        final datastream = getIt<Datastream>();
-        final routing = getIt<Routing>();
+        final positioning = getIt<PositioningMultiLane>();
+        final routing = getIt<RoutingMultiLane>();
         final dangers = getIt<Dangers>();
         final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
-        await dangers.fetch(routing.selectedRoute!.path,
-            List.from([routing.selectedRoute!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]));
+        await dangers.fetch(routing.selectedRoute!.path, routing.selectedRoute!.route);
         // Start a new session.
-        final ride = getIt<Ride>();
+        final rideMultiLane = getIt<RideMultiLane>();
         // Set `sessionId` to a random new value and bind the callbacks.
-        await ride.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
-        await ride.selectRoute(routing.selectedRoute!);
-        // Connect the datastream mqtt client, if the user enabled real-time data.
-        final settings = getIt<Settings>();
-        if (settings.datastreamMode == DatastreamMode.enabled) {
-          await datastream.connect();
-          // Link the ride to the datastream.
-          ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
-        }
+        await rideMultiLane.startNavigation(sgStatus.onNewPredictionStatusDuringRide);
+        await rideMultiLane.selectRoute(routing.selectedRoute!);
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
@@ -98,8 +79,7 @@ class RideViewState extends State<RideView> {
           },
           onNewPosition: () async {
             await dangers.calculateUpcomingAndPreviousDangers();
-            await ride.updatePosition();
-            await tracking.updatePosition();
+            await rideMultiLane.updatePosition();
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
@@ -107,21 +87,14 @@ class RideViewState extends State<RideView> {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
                 if (routes != null && routes.isNotEmpty) {
-                  await ride.selectRoute(routes.first);
+                  await rideMultiLane.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
-                  await dangers.fetch(
-                      routes.first.path,
-                      List.from(
-                          [routing.selectedRoute!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]));
-                  await tracking.selectRoute(routes.first);
+                  await dangers.fetch(routes.first.path, routes.first.route);
                 }
               });
             }
           },
         );
-
-        // Start tracking once the `sessionId` is set and the positioning stream is available.
-        await tracking.start(deviceWidth, deviceHeight);
       },
     );
   }
@@ -169,18 +142,15 @@ class RideViewState extends State<RideView> {
       child: Scaffold(
         body: !ready
             ? renderLoadingIndicator()
-            : ScreenTrackingView(
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  clipBehavior: Clip.none,
-                  children: const [
-                    RideMapView(),
-                    RideSpeedometerView(),
-                    DatastreamView(),
-                    RideSGButton(),
-                    DangerButton(),
-                  ],
-                ),
+            : Stack(
+                alignment: Alignment.bottomCenter,
+                clipBehavior: Clip.none,
+                children: const [
+                  RideMapMultiLaneView(),
+                  LanesView(),
+                  CancelButtonMultiLane(),
+                  DangerButton(),
+                ],
               ),
       ),
     );
