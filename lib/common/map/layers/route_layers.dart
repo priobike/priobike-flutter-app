@@ -202,8 +202,7 @@ class RouteLabelLayer {
         routing.selectedRoute != null) {
       var distance = const Distance();
 
-      double meterPerPixel =
-          zoomToGeographicalDistance[cameraState.zoom.toInt()] ?? 0;
+      double meterPerPixel = zoomToGeographicalDistance[cameraState.zoom.toInt()] ?? 0;
       double cameraPosLat = (cameraState.center["coordinates"] as List)[1];
       double cameraPosLong = (cameraState.center["coordinates"] as List)[0];
 
