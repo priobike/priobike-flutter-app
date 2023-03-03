@@ -120,25 +120,33 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.loadRoutes();
   }
 
-  /// Element for Bar Chart for Traffic Prediction
-  Widget trafficBar(double height, int time, {bool noData = false}) {
+  /// Element for Bar Chart for Traffic Prediction. The Bar for the current time is highlighted.
+  Widget trafficBar(double height, int time, bool rightNow, {bool noData = false}) {
     return !noData
         ? Column(
             children: [
               Container(
-                width: 30,
+                width: 50,
                 height: height,
-                margin: const EdgeInsets.only(left: 3, right: 3, bottom: 5, top: 3),
-                decoration: const ShapeDecoration(
-                  gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [
-                    Color(0xFF00B4DB),
-                    Color(0xFF0083B0),
-                  ]),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5),
-                    ),
+                margin: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: !rightNow
+                          ? [
+                              Color.fromARGB(255, 166, 168, 168),
+                              Color.fromARGB(255, 214, 215, 216),
+                            ]
+                          : [
+                              Color.fromARGB(255, 47, 45, 166),
+                              Color.fromARGB(255, 214, 215, 216),
+                            ]),
+                  shape: BoxShape.rectangle,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(5),
+                    topRight: Radius.circular(5),
                   ),
                 ),
               ),
@@ -161,9 +169,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         children: [
           if (trafficService.json != null)
             for (final key in trafficService.json!.keys)
-              (trafficService.json![key] != null)
-                  ? trafficBar((trafficService.json![key]! - 0.9) * 1000, int.parse(key))
-                  : trafficBar(0, 0, noData: true),
+              if (trafficService.json![key] != null)
+                trafficBar(
+                    (trafficService.json![key]! - 0.9) * 1000, int.parse(key), (int.parse(key) == DateTime.now().hour))
+              else
+                trafficBar(0, 0, false, noData: true)
         ],
       ),
     );
