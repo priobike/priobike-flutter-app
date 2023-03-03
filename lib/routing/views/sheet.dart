@@ -131,18 +131,20 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                 margin: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
+                  //color: !rightNow ? Color.fromARGB(255, 163, 161, 161) : Theme.of(context).colorScheme.primary,
                   gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: !rightNow
-                          ? [
-                              Color.fromARGB(255, 166, 168, 168),
-                              Color.fromARGB(255, 214, 215, 216),
-                            ]
-                          : [
-                              Color.fromARGB(255, 47, 45, 166),
-                              Color.fromARGB(255, 214, 215, 216),
-                            ]),
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: !rightNow
+                        ? [
+                            const Color.fromARGB(255, 166, 168, 168),
+                            const Color.fromARGB(255, 214, 215, 216),
+                          ]
+                        : [
+                            Theme.of(context).colorScheme.primary,
+                            Theme.of(context).colorScheme.secondary,
+                          ],
+                  ),
                   shape: BoxShape.rectangle,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(5),
@@ -161,22 +163,41 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   Widget renderTrafficPredicition(BuildContext context) {
     trafficService.fetch();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (trafficService.json != null)
-            for (final key in trafficService.json!.keys)
-              if (trafficService.json![key] != null)
-                trafficBar(
-                    (trafficService.json![key]! - 0.9) * 1000, int.parse(key), (int.parse(key) == DateTime.now().hour))
-              else
-                trafficBar(0, 0, false, noData: true)
-        ],
-      ),
-    );
+    return trafficService.hasLoaded == true
+        ? Padding(
+            padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Content(
+                      text: "Verkehrslage",
+                      context: context,
+                    ),
+                    Content(
+                      text: "Verkehrslage gewöhnlich", //TODO: Anpassen
+                      context: context,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (final key in trafficService.json!.keys)
+                      if ((trafficService.json![key] != null))
+                        trafficBar((trafficService.json![key]! - trafficService.lowestValue! * 0.97) * 2000,
+                            int.parse(key), (int.parse(key) == DateTime.now().hour))
+                      else
+                        trafficBar(0, 0, false, noData: true)
+                  ],
+                ),
+              ],
+            ),
+          )
+        : Container();
   }
 
   Widget renderDragIndicator(BuildContext context) {

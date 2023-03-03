@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
@@ -23,6 +24,12 @@ class TrafficService with ChangeNotifier {
   /// The last time the status was checked. Only check every hour.
   DateTime? lastChecked;
 
+  /// The lowest value of the prediction. Used for scaling the barchart.
+  double? lowestValue;
+
+  /// If the service has loaded the status.
+  bool? hasLoaded;
+
   TrafficService();
 
   /// Fetch the status of the prediction.
@@ -30,7 +37,8 @@ class TrafficService with ChangeNotifier {
     hadError = false;
 
     if (isLoading) return;
-    if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 60))) return;
+    // Only check every 10 minutes.
+    if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 10))) return;
     isLoading = true;
     notifyListeners();
 
@@ -48,13 +56,20 @@ class TrafficService with ChangeNotifier {
         throw Exception(err);
       }
       json = jsonDecode(response.body);
+      for (double? value in json!.values) {
+        if (value == null) continue;
+        lowestValue == null ? lowestValue = value : lowestValue = min(lowestValue!, value);
+      }
+
       isLoading = false;
       hadError = false;
+      hasLoaded = true;
       lastChecked = DateTime.now();
       notifyListeners();
     } catch (e) {
       isLoading = false;
       hadError = true;
+      hasLoaded = false;
       notifyListeners();
       log.e("Error while fetching traffic-service prediction: $e");
     }
@@ -64,7 +79,9 @@ class TrafficService with ChangeNotifier {
       json = null;
       isLoading = false;
       hadError = false;
+      hasLoaded = false;
       lastChecked = null;
+      lowestValue = null;
       notifyListeners();
     }
   }
