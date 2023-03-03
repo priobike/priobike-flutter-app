@@ -17,7 +17,11 @@ class TrafficService with ChangeNotifier {
   /// If the service had an error during the last request.
   bool hadError = false;
 
+  /// The json with prediction for traffic from -1 hour to next 5 hours.
   Map<String, dynamic>? json;
+
+  /// The last time the status was checked. Only check every hour.
+  DateTime? lastChecked;
 
   TrafficService();
 
@@ -26,6 +30,7 @@ class TrafficService with ChangeNotifier {
     hadError = false;
 
     if (isLoading) return;
+    if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 60))) return;
     isLoading = true;
     notifyListeners();
 
@@ -46,6 +51,7 @@ class TrafficService with ChangeNotifier {
       log.e("Charly Got prediction: $json");
       isLoading = false;
       hadError = false;
+      lastChecked = DateTime.now();
       notifyListeners();
     } catch (e) {
       isLoading = false;
@@ -59,6 +65,7 @@ class TrafficService with ChangeNotifier {
       json = null;
       isLoading = false;
       hadError = false;
+      lastChecked = null;
       notifyListeners();
     }
   }

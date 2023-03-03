@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -11,7 +12,10 @@ import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/traffic/services/traffic_service.dart';
+import 'package:priobike/traffic/views/traffic_bars.dart';
 import 'package:priobike/tutorial/service.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
@@ -38,6 +42,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
+  late TrafficService trafficService;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -51,6 +57,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     positioning.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    trafficService = getIt<TrafficService>();
+    trafficService.addListener(update);
   }
 
   @override
@@ -113,6 +121,32 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     routing.selectWaypoints(removedWaypoints);
     routing.loadRoutes();
+  }
+
+  Future<void> predictTraffic() async {
+    await trafficService.fetch();
+  }
+
+  Widget renderTrafficPredicition(BuildContext context) {
+    predictTraffic();
+    return Container(
+      color: const Color(0xfff0f0f0),
+      child: const BarChartContent(),
+
+      // child: Row(
+      //   children: [
+      //     BoldContent(
+      //       context: context,
+      //       text: trafficService.json!.keys.toString(),
+      //     ),
+      //     BoldContent(
+      //       // return trafficService.json!.values.toString() and round each value to 2 decimal places
+      //       text: trafficService.json!.values.map((e) => {if (e != null) e.toStringAsFixed(2)}).toString(),
+      //       context: context,
+      //     )
+      //   ],
+      // ),
+    );
   }
 
   Widget renderDragIndicator(BuildContext context) {
@@ -255,7 +289,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         maxChildSize: 1,
         minChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
-          return Container(
+          return renderTrafficPredicition(context);
+
+          Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
