@@ -122,11 +122,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// Element for Bar Chart for Traffic Prediction. The Bar for the current time is highlighted.
   Widget trafficBar(double height, int time, bool rightNow, {bool noData = false}) {
+    final availableWidth = (MediaQuery.of(context).size.width - 24);
+
     return !noData
         ? Column(
             children: [
               Container(
-                width: 50,
+                width: availableWidth / 6 - 14,
                 height: height,
                 margin: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
