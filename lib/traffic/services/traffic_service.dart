@@ -48,7 +48,6 @@ class TrafficService with ChangeNotifier {
         throw Exception(err);
       }
       json = jsonDecode(response.body);
-      log.e("Charly Got prediction: $json");
       isLoading = false;
       hadError = false;
       lastChecked = DateTime.now();

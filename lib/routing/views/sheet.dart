@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -13,9 +12,7 @@ import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
-import 'package:priobike/traffic/views/traffic_bars.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
@@ -123,29 +120,52 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.loadRoutes();
   }
 
-  Future<void> predictTraffic() async {
-    await trafficService.fetch();
+  /// Element for Bar Chart for Traffic Prediction
+  Widget trafficBar(double height, int time, {bool noData = false}) {
+    return !noData
+        ? Column(
+            children: [
+              Container(
+                width: 30,
+                height: height,
+                margin: const EdgeInsets.only(left: 3, right: 3, bottom: 5, top: 3),
+                decoration: const ShapeDecoration(
+                  gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [
+                    Color(0xFF00B4DB),
+                    Color(0xFF0083B0),
+                  ]),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                    ),
+                  ),
+                ),
+              ),
+              Small(
+                text: "$time:00",
+                context: context,
+              )
+            ],
+          )
+        : Container();
   }
 
   Widget renderTrafficPredicition(BuildContext context) {
-    predictTraffic();
-    return Container(
-      color: const Color(0xfff0f0f0),
-      child: const BarChartContent(),
-
-      // child: Row(
-      //   children: [
-      //     BoldContent(
-      //       context: context,
-      //       text: trafficService.json!.keys.toString(),
-      //     ),
-      //     BoldContent(
-      //       // return trafficService.json!.values.toString() and round each value to 2 decimal places
-      //       text: trafficService.json!.values.map((e) => {if (e != null) e.toStringAsFixed(2)}).toString(),
-      //       context: context,
-      //     )
-      //   ],
-      // ),
+    trafficService.fetch();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (trafficService.json != null)
+            for (final key in trafficService.json!.keys)
+              (trafficService.json![key] != null)
+                  ? trafficBar((trafficService.json![key]! - 0.9) * 1000, int.parse(key))
+                  : trafficBar(0, 0, noData: true),
+        ],
+      ),
     );
   }
 
@@ -289,9 +309,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         maxChildSize: 1,
         minChildSize: 116 / frame.size.height + (frame.padding.bottom / frame.size.height),
         builder: (BuildContext context, ScrollController controller) {
-          return renderTrafficPredicition(context);
-
-          Container(
+          return Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
@@ -307,6 +325,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderStartRideButton(context),
                   renderBottomSheetWaypoints(context),
                   const Padding(padding: EdgeInsets.only(top: 8, left: 4, right: 4), child: RoadClassChart()),
+                  renderTrafficPredicition(context),
                   const RouteHeightChart(),
                   const Padding(padding: EdgeInsets.only(top: 4, left: 4, right: 4), child: SurfaceTypeChart()),
                   renderSaveRouteButton(context),
