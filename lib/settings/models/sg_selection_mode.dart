@@ -20,7 +20,7 @@ extension SGSelectionModePath on SGSelectionMode {
       case SGSelectionMode.single:
         return "select";
       case SGSelectionMode.crossing:
-        return "select_crossing";
+        return "select_multi_lane";
     }
   }
 }

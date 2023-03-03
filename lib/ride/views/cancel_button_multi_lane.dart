@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
-import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class CancelButtonMultiLane extends StatefulWidget {
@@ -80,7 +80,7 @@ class CancelButtonMulitLaneState extends State<CancelButtonMultiLane> {
     await ride.stopNavigation();
 
     // Stop the geolocation.
-    final position = getIt<Positioning>();
+    final position = getIt<PositioningMultiLane>();
     await position.stopGeolocation();
 
     // Reset the ride service.
@@ -90,7 +90,7 @@ class CancelButtonMulitLaneState extends State<CancelButtonMultiLane> {
     await position.reset();
 
     // Reset the route service.
-    final routing = getIt<Routing>();
+    final routing = getIt<RoutingMultiLane>();
     await routing.reset();
 
     // Reset the prediction sg status.

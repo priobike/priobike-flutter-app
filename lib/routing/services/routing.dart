@@ -432,7 +432,7 @@ class Routing with ChangeNotifier {
           for (final sg in sgsInOrderOfRoute) {
             final snappedSgPos = Snapper(
               position: LatLng(sg.position.lat, sg.position.lon),
-              nodes: List.from([sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
+              nodes: sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e)).toList(),
             ).snap();
             signalGroupsDistancesOnRoute.add(snappedSgPos.distanceOnRoute);
           }
@@ -441,7 +441,7 @@ class Routing with ChangeNotifier {
           for (final crossing in sgSelectorResponse.crossings) {
             final snappedCrossingPos = Snapper(
               position: LatLng(crossing.position.lat, crossing.position.lon),
-              nodes: List.from([sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
+              nodes: sgSelectorResponse.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e)).toList(),
             ).snap();
             crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
           }

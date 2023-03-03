@@ -12,7 +12,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main_multi_lane.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -22,7 +22,7 @@ import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/map_multi_lane.dart';
-import 'package:priobike/routing/views/sheet.dart';
+import 'package:priobike/routing/views/sheet_multi_lane.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -92,7 +92,7 @@ class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
   RoutingMultiLane? routingMultiLane;
 
   /// The associated position service, which is injected by the provider.
-  Positioning? positioning;
+  PositioningMultiLane? positioning;
 
   /// The associated shortcuts service, which is injected by the provider.
   Shortcuts? shortcuts;
@@ -140,7 +140,7 @@ class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
     routingMultiLane!.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts!.addListener(update);
-    positioning = getIt<Positioning>();
+    positioning = getIt<PositioningMultiLane>();
     positioning!.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
@@ -384,7 +384,7 @@ class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
                     )
                   : Container(),
 
-              RouteDetailsBottomSheet(
+              RouteDetailsMultiLaneBottomSheet(
                 onSelectStartButton: onStartRide,
                 onSelectSaveButton: () => showSaveShortcutSheet(context),
               ),

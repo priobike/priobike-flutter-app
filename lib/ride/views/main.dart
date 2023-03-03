@@ -77,7 +77,7 @@ class RideViewState extends State<RideView> {
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
         await dangers.fetch(routing.selectedRoute!.path,
-            List.from([routing.selectedRoute!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]));
+            routing.selectedRoute!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e)).toList());
         // Start a new session.
         final ride = getIt<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.

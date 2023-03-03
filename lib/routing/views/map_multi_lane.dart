@@ -14,7 +14,7 @@ import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -43,7 +43,7 @@ class RoutingMapMultiLaneViewState extends State<RoutingMapMultiLaneView> with T
   late Discomforts discomforts;
 
   /// The associated location service, which is injected by the provider.
-  late Positioning positioning;
+  late PositioningMultiLane positioning;
 
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
@@ -153,7 +153,7 @@ class RoutingMapMultiLaneViewState extends State<RoutingMapMultiLaneView> with T
     layers.addListener(update);
     mapDesigns = getIt<MapDesigns>();
     mapDesigns.addListener(update);
-    positioning = getIt<Positioning>();
+    positioning = getIt<PositioningMultiLane>();
     positioning.addListener(update);
     routingMultiLane = getIt<RoutingMultiLane>();
     routingMultiLane.addListener(update);
@@ -336,12 +336,12 @@ class RoutingMapMultiLaneViewState extends State<RoutingMapMultiLaneView> with T
       below: waypoints,
     );
     if (!mounted) return;
-    final selectedRoute = await SelectedRouteLayer().install(
+    final selectedRoute = await SelectedRouteMultiLaneLayer().install(
       mapController!,
       below: discomforts,
     );
     if (!mounted) return;
-    await AllRoutesLayer().install(
+    await AllRoutesMultiLaneLayer().install(
       mapController!,
       below: selectedRoute,
     );

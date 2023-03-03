@@ -202,7 +202,7 @@ class Positioning with ChangeNotifier {
         if (route != null && route!.route.length > 2) {
           snap = Snapper(
             position: LatLng(position.latitude, position.longitude),
-            nodes: List.from([route!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e))]),
+            nodes: route!.route.map((e) => NavigationNodeMultiLane.fromNavigationNode(e)).toList(),
           ).snap();
         }
         onNewPosition();

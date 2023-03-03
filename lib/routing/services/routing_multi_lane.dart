@@ -8,7 +8,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
 import 'package:priobike/routing/models/navigation.dart';
@@ -18,7 +18,6 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selection_mode.dart';
-import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -192,7 +191,7 @@ class RoutingMultiLane with ChangeNotifier {
 
   /// Select the remaining waypoints.
   Future<void> selectRemainingWaypoints() async {
-    final userPos = getIt<Positioning>().lastPosition;
+    final userPos = getIt<PositioningMultiLane>().lastPosition;
     if (userPos == null) return;
     final userPosLatLng = LatLng(userPos.latitude, userPos.longitude);
     if (selectedWaypoints == null) return;
@@ -231,58 +230,13 @@ class RoutingMultiLane with ChangeNotifier {
   }
 
   /// Load a SG-Selector response.
-  Future<SGSelectorResponse?> loadSGSelectorResponse(GHRouteResponsePath path) async {
-    try {
-      final settings = getIt<Settings>();
-
-      final baseUrl = settings.backend.path;
-      String usedRoutingParameter;
-      if (settings.routingEndpoint == RoutingEndpoint.graphhopperDRN) {
-        usedRoutingParameter = "drn";
-      } else {
-        usedRoutingParameter = "osm";
-      }
-      final sgSelectorUrl =
-          "https://$baseUrl/sg-selector-backend/routing/${SGSelectionMode.single.path}?matcher=${settings.sgSelector.servicePathParameter}&routing=$usedRoutingParameter";
-      final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
-      log.i("Loading SG-Selector response from $sgSelectorUrl");
-
-      final req = SGSelectorRequest(
-          route: path.points.coordinates
-              .map((e) => SGSelectorPosition(
-                    lat: e.lat,
-                    lon: e.lon,
-                    alt: e.elevation ?? 0.0,
-                  ))
-              .toList());
-      final response = await Http.post(sgSelectorEndpoint, body: json.encode(req.toJson()));
-
-      if (response.statusCode == 200) {
-        log.i("Loaded SG-Selector response from $sgSelectorUrl");
-        return SGSelectorResponse.fromJson(json.decode(response.body));
-      } else {
-        log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
-        return null;
-      }
-    } catch (e, stack) {
-      final hint = "Failed to load SG-Selector response: $e";
-      log.e(hint);
-
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
-      return null;
-    }
-  }
-
-  /// Load a SG-Selector response.
   Future<SGSelectorMultiLaneResponse?> loadSGSelectorMultiLaneResponse(GHRouteResponsePath path) async {
     try {
       final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
       final sgSelectorUrl =
-          "http://10.0.2.2:8000/routing/${SGSelectionMode.crossing.path}?bearingDiff=${settings.sgSelectionModeBearingDiff}";
+          "http://10.0.2.2:8000/routing/${SGSelectionMode.crossing.path}?bearingDiff=${settings.sgSelectionModeBearingDiff.degree}";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 

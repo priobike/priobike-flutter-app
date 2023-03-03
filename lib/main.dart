@@ -15,6 +15,7 @@ import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -35,7 +36,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:priobike/tracking/services/tracking_multi_lane.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -85,6 +85,7 @@ Future<void> main() async {
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<RideMultiLane>(RideMultiLane());
   getIt.registerSingleton<RoutingMultiLane>(RoutingMultiLane());
+  getIt.registerSingleton<PositioningMultiLane>(PositioningMultiLane());
 
   runZonedGuarded(() async {
     runApp(const App());

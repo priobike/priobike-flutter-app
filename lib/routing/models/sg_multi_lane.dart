@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:priobike/common/models/point.dart';
 
 class SgMultiLane {
@@ -22,7 +23,7 @@ class SgMultiLane {
   /// The direction of the signal group.
   final Direction direction;
 
-  const SgMultiLane({
+  SgMultiLane({
     required this.id,
     required this.position,
     required this.projectedLengthOnRoute,
@@ -69,10 +70,32 @@ class SgMultiLane {
       };
 }
 
+/// The direction of the signal group. Order matters, because by that it is sorted
 enum Direction {
-  lightLeft,
   hardLeft,
+  lightLeft,
   straight,
   lightRight,
   hardRight,
+}
+
+extension DirectionComparion on Direction {
+  int compareTo(Direction other) => index.compareTo(other.index);
+}
+
+extension DirectionIcon on Direction {
+  IconData get icon {
+    switch (this) {
+      case Direction.hardLeft:
+        return Icons.west;
+      case Direction.lightLeft:
+        return Icons.north_west;
+      case Direction.straight:
+        return Icons.north;
+      case Direction.lightRight:
+        return Icons.north_east;
+      case Direction.hardRight:
+        return Icons.east;
+    }
+  }
 }

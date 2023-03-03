@@ -10,6 +10,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 
 class ShortcutView extends StatelessWidget {
   final bool isLoading;
@@ -171,6 +172,137 @@ class ShortcutsViewState extends State<ShortcutsView> {
     );
     ss = getIt<Shortcuts>();
     rs = getIt<Routing>();
+    ss.addListener(update);
+    rs.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    ss.removeListener(update);
+    rs.removeListener(update);
+    super.dispose();
+  }
+
+  /// Trigger the animation of the status view.
+  Future<void> triggerAnimations() async {
+    // Add some delay before we start the animation.
+    await Future.delayed(const Duration(milliseconds: 5000));
+    if (!hasScrolled) setState(() => leftPad = 24);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!hasScrolled) setState(() => leftPad = 22);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (!hasScrolled) setState(() => leftPad = 24);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const double shortcutRightPad = 16;
+    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
+    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+
+    List<Widget> views = [
+      AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+        padding: EdgeInsets.only(left: leftPad),
+      ),
+      ShortcutView(
+        onPressed: () {
+          if (!rs.isFetchingRoute) widget.onStartFreeRouting();
+        },
+        width: shortcutWidth,
+        height: shortcutHeight,
+        rightPad: shortcutRightPad,
+      ),
+    ];
+
+    views += ss.shortcuts
+            ?.map(
+              (shortcut) => ShortcutView(
+                onPressed: () {
+                  // Allow only one shortcut to be fetched at a time.
+                  if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
+                },
+                isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
+                shortcut: shortcut,
+                width: shortcutWidth,
+                height: shortcutHeight,
+                rightPad: shortcutRightPad,
+              ),
+            )
+            .toList() ??
+        [];
+
+    List<Widget> animatedViews = views
+        .asMap()
+        .entries
+        .map(
+          (e) => BlendIn(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutCubic,
+            delay: Duration(milliseconds: 250 /* Time until shortcuts are shown */ + 250 * e.key),
+            child: e.value,
+          ),
+        )
+        .toList();
+
+    return SingleChildScrollView(
+      controller: scrollController,
+      scrollDirection: Axis.horizontal,
+      child: Row(children: animatedViews),
+    );
+  }
+}
+
+class ShortcutsMultiLaneView extends StatefulWidget {
+  /// A callback that will be executed when the shortcut was selected.
+  final void Function(Shortcut shortcut) onSelectShortcut;
+
+  /// A callback that will be executed when free routing is started.
+  final void Function() onStartFreeRouting;
+
+  const ShortcutsMultiLaneView({
+    required this.onSelectShortcut,
+    required this.onStartFreeRouting,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => ShortcutsMultiLaneViewState();
+}
+
+class ShortcutsMultiLaneViewState extends State<ShortcutsMultiLaneView> {
+  /// The associated shortcuts service, which is injected by the provider.
+  late Shortcuts ss;
+
+  /// The associated routing service, which is injected by the provider.
+  late RoutingMultiLane rs;
+
+  /// The left padding.
+  double leftPad = 24;
+
+  /// If the user has scrolled.
+  bool hasScrolled = false;
+
+  /// The scroll controller.
+  late ScrollController scrollController;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController();
+    scrollController.addListener(
+      () {
+        if (scrollController.offset > 0) {
+          hasScrolled = true;
+        }
+      },
+    );
+    ss = getIt<Shortcuts>();
+    rs = getIt<RoutingMultiLane>();
     ss.addListener(update);
     rs.addListener(update);
   }

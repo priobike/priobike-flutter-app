@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
@@ -10,11 +9,8 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/services/positioning_multi_lane.dart';
-import 'package:priobike/ride/services/ride_crossing.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -120,14 +116,14 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
   /// Update the view with the current data.
   Future<void> onStatusUpdate() async {
     if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await SelectedRouteMultiLaneLayer().update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await SelectedRouteMultiLaneLayer().update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
@@ -151,11 +147,7 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
   }
 
   /// Update the view with the current data.
-  Future<void> onRideUpdate() async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (!mounted) return;
-    // await TrafficLightLayer(isDark).update(mapController!);
-  }
+  Future<void> onRideUpdate() async {}
 
   /// Update the view with the current data.
   Future<void> onDangersUpdate() async {
@@ -169,60 +161,24 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
     if (mapController == null) return;
     if (routingMultiLane.selectedRoute == null) return;
 
-    // Get some data that we will need for adaptive camera control.
-    final sgPos = rideCrossing.calcCurrentCrossing?.position;
-    final sgPosLatLng = sgPos == null ? null : LatLng(sgPos.lat, sgPos.lon);
-    final userPos = getIt<Positioning>().lastPosition;
-    final userPosSnap = positioning.snap;
+    final userPos = positioningMultiLane.lastPosition;
+    final userPosSnap = positioningMultiLane.snap;
 
     if (userPos == null || userPosSnap == null) {
-      await mapController?.setBounds(mapbox.CameraBoundsOptions(bounds: routing.selectedRoute!.paddedBounds));
+      await mapController?.setBounds(mapbox.CameraBoundsOptions(bounds: routingMultiLane.selectedRoute!.paddedBounds));
       return;
     }
 
-    const vincenty = Distance(roundResult: false);
-
-    // Calculate the bearing to the next traffic light.
-    double? sgBearing = sgPosLatLng == null ? null : vincenty.bearing(userPosSnap.position, sgPosLatLng);
-
-    // Adapt the focus dynamically to the next interesting feature.
-    final distanceOfInterest = min(
-      rideCrossing.calcDistanceToNextTurn ?? double.infinity,
-      rideCrossing.calcDistanceToNextCrossing ?? double.infinity,
-    );
-    // Scale the zoom level with the distance of interest.
-    // Between 0 meters: zoom 18 and 500 meters: zoom 18.
-    double zoom = 18 - (distanceOfInterest / 500).clamp(0, 1) * 2;
-
-    // Within those thresholds the bearing to the next SG is used.
-    // max-threshold: If the next SG is to far away it doesn't make sense to align to it.
-    // min-threshold: Often the SGs are slightly on the left or right side of the route and
-    //                without this threshold the camera would orient away from the route
-    //                when it's close to the SG.
-    double? cameraHeading;
-    if (rideCrossing.calcDistanceToNextCrossing != null &&
-        sgBearing != null &&
-        rideCrossing.calcDistanceToNextCrossing! < 500 &&
-        rideCrossing.calcDistanceToNextCrossing! > 10) {
-      cameraHeading = sgBearing > 0 ? sgBearing : 360 + sgBearing; // Look into the direction of the next SG.
-    }
-    // Avoid looking too far away from the route.
-    if (cameraHeading == null || (cameraHeading - userPosSnap.heading).abs() > 20) {
-      cameraHeading = userPosSnap.heading; // Look into the direction of the user.
-    }
-
-    if (rideCrossing.userSelectedCrossing == null) {
-      mapController!.easeTo(
-          mapbox.CameraOptions(
-            center: mapbox.Point(
-                    coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
-                .toJson(),
-            bearing: cameraHeading,
-            zoom: zoom,
-            pitch: 60,
-          ),
-          mapbox.MapAnimationOptions(duration: 1500));
-    }
+    mapController!.easeTo(
+        mapbox.CameraOptions(
+          center:
+              mapbox.Point(coordinates: mapbox.Position(userPosSnap.position.longitude, userPosSnap.position.latitude))
+                  .toJson(),
+          bearing: userPos.heading,
+          zoom: 18,
+          pitch: 60,
+        ),
+        mapbox.MapAnimationOptions(duration: 1500));
 
     await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
       if (value) {
@@ -274,19 +230,15 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
     if (!mounted) return;
-    await SelectedRouteLayer()
+    await SelectedRouteMultiLaneLayer()
         .install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
     await WaypointsLayer().install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
     if (!mounted) return;
-    await ConnectedCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .install(mapController!, iconSize: ppi / 5);
+    await MultiLaneTrafficLightsLayer(isDark).install(mapController!, iconSize: ppi / 5);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: rideCrossing.userSelectedCrossing == null)
-        .install(mapController!, iconSize: ppi / 5);
+    await OfflineCrossingsLayer(isDark).install(mapController!, iconSize: ppi / 5);
     if (!mounted) return;
     await DangersLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
-    if (!mounted) return;
-    // await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5);
 
     onRoutingUpdate();
     onPositioningUpdate();

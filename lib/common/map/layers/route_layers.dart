@@ -12,10 +12,12 @@ import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/route.dart' as r;
+import 'package:priobike/routing/models/route_multi_lane.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 
@@ -26,6 +28,82 @@ class AllRoutesLayer {
   AllRoutesLayer() {
     final routing = getIt<Routing>();
     for (MapEntry<int, Route> entry in routing.allRoutes?.asMap().entries ?? []) {
+      final geometry = {
+        "type": "LineString",
+        "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
+      };
+      features.add(
+        {
+          "id": "route-${entry.key}", // Required for click listener.
+          "type": "Feature",
+          "geometry": geometry,
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<String> install(
+    mapbox.MapboxMap mapController, {
+    lineWidth = 9.0,
+    clickLineWidth = 25.0,
+    String? below,
+  }) async {
+    final sourceExists = await mapController.style.styleSourceExists("routes");
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: "routes", data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+    // Add another layer that makes it easier to click on the route.
+    final routeClickLayerExists = await mapController.style.styleLayerExists("routes-clicklayer");
+    if (!routeClickLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: "routes",
+            id: "routes-clicklayer",
+            lineColor: Colors.pink.value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineWidth: clickLineWidth,
+            lineOpacity: 0.001,
+          ),
+          mapbox.LayerPosition(below: below));
+    }
+    final routesLayerExists = await mapController.style.styleLayerExists("routes-layer");
+    if (!routesLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: "routes",
+            id: "routes-layer",
+            lineColor: const Color(0xFFC6C6C6).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineWidth: lineWidth,
+          ),
+          mapbox.LayerPosition(below: "routes-clicklayer"));
+    }
+
+    return "routes-layer";
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists("routes");
+    if (sourceExists) {
+      final source = await mapController.style.getSource("routes");
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class AllRoutesMultiLaneLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  AllRoutesMultiLaneLayer() {
+    final routing = getIt<RoutingMultiLane>();
+    for (MapEntry<int, RouteMultiLane> entry in routing.allRoutes?.asMap().entries ?? []) {
       final geometry = {
         "type": "LineString",
         "coordinates": entry.value.route.map((e) => [e.lon, e.lat]).toList(),
@@ -135,6 +213,80 @@ class SelectedRouteLayer {
         currentFeature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
       }
     }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
+    final sourceExists = await mapController.style.styleSourceExists("route");
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(id: "route", data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+    final routeBackgroundLayerExists = await mapController.style.styleLayerExists("route-background-layer");
+    if (!routeBackgroundLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: "route",
+            id: "route-background-layer",
+            lineColor: const Color(0xFFC6C6C6).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: bgLineWidth,
+          ),
+          mapbox.LayerPosition(below: below));
+    }
+    final routeLayerExists = await mapController.style.styleLayerExists("route-layer");
+    if (!routeLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: "route",
+            id: "route-layer",
+            lineColor: const Color(0xFFC6C6C6).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: fgLineWidth,
+          ),
+          mapbox.LayerPosition(below: below));
+      await mapController.style.setStyleLayerProperty("route-layer", 'line-color', json.encode(["get", "color"]));
+    }
+    return "route-layer";
+  }
+
+  update(mapbox.MapboxMap mapController, {String? below}) async {
+    final sourceExists = await mapController.style.styleSourceExists("route");
+    if (sourceExists) {
+      final source = await mapController.style.getSource("route");
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class SelectedRouteMultiLaneLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  SelectedRouteMultiLaneLayer() {
+    final routing = getIt<RoutingMultiLane>();
+    final navNodes = routing.selectedRoute?.route ?? [];
+
+    Map<String, dynamic> feature = {
+      "type": "Feature",
+      "properties": {
+        "color": "rgb(0, 115, 255)",
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [],
+      },
+    };
+    for (int i = navNodes.length - 1; i >= 0; i--) {
+      final navNode = navNodes[i];
+      feature["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
+    }
+    features.add(feature);
   }
 
   /// Install the overlay on the map controller.

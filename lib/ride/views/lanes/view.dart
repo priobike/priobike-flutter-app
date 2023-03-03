@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
+import 'package:priobike/routing/models/sg_multi_lane.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -30,7 +30,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   late RideMultiLane ride;
 
   /// The associated positioning service, which is injected by the provider.
-  late Positioning positioning;
+  late PositioningMultiLane positioning;
 
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
@@ -62,7 +62,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     hideNavigationBarAndroid();
     super.initState();
 
-    positioning = getIt<Positioning>();
+    positioning = getIt<PositioningMultiLane>();
     positioning.addListener(update);
     ride = getIt<RideMultiLane>();
     ride.addListener(update);
@@ -133,7 +133,9 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
 
     // final currentCrossing = ride.crossingPredictionService?.subscribedCrossing;
-    const currentCrossing = null;
+    final currentSgs = ride.currentSignalGroups;
+    final currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
+    currentSgsOrdered.sort((a, b) => a.direction.compareTo(b.direction));
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -163,7 +165,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
             ),
           ),
         ),
-        if (currentCrossing != null)
+        if (currentSgsOrdered.isNotEmpty)
           SafeArea(
             bottom: true,
             child: SizedBox(
@@ -178,29 +180,52 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     mainAxisSize: MainAxisSize.max,
                     children: List.from(
-                      currentCrossing.recommendations.entries.map(
-                        (value) {
+                      currentSgsOrdered.map(
+                        (SgMultiLane sg) {
                           // Calculate the countdown.
-                          final countdown =
-                              value.value.calcCurrentPhaseChangeTime?.difference(DateTime.now()).inSeconds;
+                          final countdown = ride
+                              .predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentPhaseChangeTime
+                              ?.difference(DateTime.now())
+                              .inSeconds;
                           // If the countdown is 0 (or negative), we hide the countdown. In this way the user
                           // is not confused if the countdown is at 0 for a few seconds.
                           final countdownLabel = (countdown ?? 0) > 0 ? "$countdown" : "";
+
+                          final phase =
+                              ride.predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentSignalPhase ??
+                                  Phase.dark;
                           return Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    color: getColor(value.value.calcCurrentSignalPhase),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                ClipRect(
+                                  clipBehavior: Clip.none,
+                                  child: Transform.translate(
+                                    offset: const Offset(0, -300),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      child: Container(
+                                        height: 1000,
+                                        color: getColor(phase),
+                                      ),
+                                    ),
                                   ),
-                                  BoldSubHeader(
-                                    text: countdownLabel,
-                                    context: context,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Column(
+                                  children: [
+                                    Icon(
+                                      sg.direction.icon,
+                                      color: Colors.white,
+                                      size: 64,
+                                    ),
+                                    /*BoldSubHeader(
+                                      text: countdownLabel,
+                                      context: context,
+                                      color: Colors.white,
+                                    ),*/
+                                  ],
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -211,6 +236,13 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
               ),
             ),
           ),
+        Transform.translate(
+          offset: const Offset(0, -150),
+          child: Container(
+            color: Colors.blue,
+            height: 6,
+          ),
+        ),
       ],
     );
   }

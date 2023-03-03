@@ -13,6 +13,7 @@ import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
 import 'package:priobike/routing/models/route_multi_lane.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -111,7 +112,7 @@ class PositioningMultiLane with ChangeNotifier {
       positionSource = GNSSPositionSource();
       log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
-      final routing = getIt<Routing>();
+      final routing = getIt<RoutingMultiLane>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??

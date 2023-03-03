@@ -7,7 +7,9 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
-import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/models/recommendation.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
+import 'package:priobike/routing/models/sg_multi_lane.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
@@ -32,10 +34,10 @@ class PredictionServiceMultiLane {
   });
 
   /// Logger for this class.
-  final log = Logger("Crossing-Prediction-Service");
+  final log = Logger("Prediction-Service-Multi-Lane");
 
   /// The predictions received during the ride, from the prediction service.
-  final List<PredictionServicePrediction> predictionServicePredictions = [];
+  final List<PredictionServicePrediction> predictionServicePredictionsHistory = [];
 
   /// The timer that is used to periodically calculate the prediction.
   Timer? calcTimer;
@@ -43,40 +45,33 @@ class PredictionServiceMultiLane {
   /// The prediction client.
   MqttServerClient? client;
 
-  /// The currently subscribed crossing.
-  Crossing? subscribedCrossing;
+  /// The currently subscribed signal groups.
+  Set<SgMultiLane> subscribedSgs = {};
 
-  /// Subscribe to the signal groups of the current crossing.
-  bool selectCrossing(Crossing? crossing) {
-    if (client == null) return false;
+  /// The current predictions.
+  Map<String, PredictionServicePrediction> predictions = {};
 
-    bool unsubscribed = false;
+  /// The current recommendations, calculated periodically.
+  Map<String, Recommendation> recommendations = {};
 
-    if (subscribedCrossing != null && subscribedCrossing != crossing) {
-      log.i("Unsubscribing from signal groups");
-      for (final sg in subscribedCrossing!.signalGroups) {
-        client?.unsubscribe(sg.id);
-      }
+  /// Add another signal group.
+  void addSg(SgMultiLane sg) {
+    if (subscribedSgs.contains(sg)) return;
+    if (client == null) return;
+    client?.subscribe(sg.id, MqttQos.atLeastOnce);
+    subscribedSgs.add(sg);
+    log.i("Subscribing to signal group ${sg.id}");
+  }
 
-      // Reset all values that were calculated for the previous signal group.
-      subscribedCrossing?.onUnselected();
-      subscribedCrossing = null;
-      unsubscribed = true;
-    }
-
-    if (crossing != null && crossing != subscribedCrossing) {
-      log.i("Subscribing to signal groups");
-      for (final sg in crossing.signalGroups) {
-        client?.subscribe(sg.id, MqttQos.atLeastOnce);
-      }
-    }
-
-    subscribedCrossing = crossing;
-    if (subscribedCrossing != null) {
-      subscribedCrossing!.onSelected(notifyListeners, onNewPredictionStatusDuringRide);
-    }
-
-    return unsubscribed;
+  /// Remove a signal group.
+  void removeSg(SgMultiLane sg) {
+    if (!subscribedSgs.contains(sg)) return;
+    if (client == null) return;
+    client?.unsubscribe(sg.id);
+    subscribedSgs.remove(sg);
+    if (predictions.containsKey(sg.id)) predictions.remove(sg.id);
+    if (recommendations.containsKey(sg.id)) recommendations.remove(sg.id);
+    log.i("Unsubscribing from signal group ${sg.id}");
   }
 
   /// Establish a connection with the MQTT client.
@@ -117,7 +112,7 @@ class PredictionServiceMultiLane {
       onConnected();
       // Start the timer that updates the prediction once per second.
       calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        subscribedCrossing?.update();
+        update();
       });
     } catch (e, stackTrace) {
       client = null;
@@ -126,7 +121,7 @@ class PredictionServiceMultiLane {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
       }
-      final ride = getIt<Ride>();
+      final ride = getIt<RideMultiLane>();
       if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));
         connectMQTTClient();
@@ -136,6 +131,7 @@ class PredictionServiceMultiLane {
 
   /// A callback that is executed when data arrives.
   Future<void> onData(List<MqttReceivedMessage<MqttMessage>>? messages) async {
+    log.i("saerfserfewrferfer");
     if (messages == null) return;
     for (final message in messages) {
       final recMess = message.payload as MqttPublishMessage;
@@ -144,10 +140,44 @@ class PredictionServiceMultiLane {
       final json = jsonDecode(data);
       log.i("Received prediction from prediction service: $json");
       final prediction = PredictionServicePrediction.fromJson(json);
-      subscribedCrossing?.addPrediction(prediction);
-      subscribedCrossing?.calculateRecommendation(prediction);
-      predictionServicePredictions.add(prediction);
+      final recommendation = await prediction.calculateRecommendation();
+      if (recommendation != null) {
+        recommendations["hamburg/${prediction.signalGroupId}"] = recommendation;
+      }
+      predictionServicePredictionsHistory.add(prediction);
+      predictions["hamburg/${prediction.signalGroupId}"] = prediction;
+
+      SGStatusData sgStatusData = SGStatusData(
+        statusUpdateTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        thingName:
+            "hamburg/${prediction.signalGroupId}", // Same as thing name. The prefix "hamburg/" is needed to match the naming schema of the status cache.
+        predictionQuality: prediction.predictionQuality,
+        predictionTime: prediction.startTime.millisecondsSinceEpoch ~/ 1000,
+      );
+
+      notifyListeners();
+
+      onNewPredictionStatusDuringRide?.call(sgStatusData);
     }
+  }
+
+  Future<void> update() async {
+    // This will be executed if we fail somewhere.
+    onFailure(reason) {
+      log.w("Failed to calculate predictor info: $reason");
+      notifyListeners();
+    }
+
+    if (predictions.isEmpty) return onFailure("No predictions available");
+
+    for (var entry in predictions.entries) {
+      final recommendation = await entry.value.calculateRecommendation();
+      if (recommendation != null) {
+        recommendations[entry.key] = recommendation;
+      }
+    }
+
+    notifyListeners();
   }
 
   /// Stop the navigation.
@@ -162,7 +192,9 @@ class PredictionServiceMultiLane {
   Future<void> reset() async {
     client?.disconnect();
     client = null;
-    predictionServicePredictions.clear();
-    subscribedCrossing = null;
+    predictionServicePredictionsHistory.clear();
+    subscribedSgs.clear();
+    predictions.clear();
+    recommendations.clear();
   }
 }

@@ -11,7 +11,7 @@ import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/ride/views/cancel_button_multi_lane.dart';
-import 'package:priobike/ride/views/lanes/view.dart';
+import 'package:priobike/ride/views/lanes/view_demo.dart';
 import 'package:priobike/ride/views/map_multi_lane.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -147,7 +147,7 @@ class RideMultiLaneViewState extends State<RideMultiLaneView> {
                 clipBehavior: Clip.none,
                 children: const [
                   RideMapMultiLaneView(),
-                  LanesView(),
+                  LanesDemoView(),
                   CancelButtonMultiLane(),
                   DangerButton(),
                 ],

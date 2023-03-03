@@ -230,6 +230,7 @@ class HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final SGSelectionMode sgSelectionMode = settings.sgSelectionMode;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: RefreshIndicator(
@@ -293,7 +294,11 @@ class HomeViewState extends State<HomeView> {
                               'Fährst du eine Route häufiger? Du kannst neue Strecken erstellen, indem du eine Route planst und dann auf "Strecke speichern" klickst.',
                           padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                         ),
-                        ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                        if (sgSelectionMode == SGSelectionMode.single)
+                          ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting),
+                        if (sgSelectionMode == SGSelectionMode.crossing)
+                          ShortcutsMultiLaneView(
+                              onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
                       ],
                     ),
                   ),
