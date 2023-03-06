@@ -108,6 +108,27 @@ class Tracking with ChangeNotifier {
   /// A timer that checks if tracks need to be uploaded.
   Timer? uploadTimer;
 
+  /// Latest accelerometer data.
+  AccelerometerEvent? latestAccEvent;
+
+  /// The timestamp of the last accelerometer event.
+  int? latestAccEventTimestamp;
+
+  /// Latest magnetometer data.
+  MagnetometerEvent? latestMagEvent;
+
+  /// The timestamp of the last magnetometer event.
+  int? latestMagEventTimestamp;
+
+  /// Latest gyroscope data.
+  GyroscopeEvent? latestGyroEvent;
+
+  /// The timestamp of the last gyroscope event.
+  int? latestGyroEventTimestamp;
+
+  /// Specifying if we currently want to sample the sensors.
+  bool samplingSensorEvents = false;
+
   Tracking();
 
   /// Set the current tracking submission policy.
@@ -226,6 +247,8 @@ class Tracking with ChangeNotifier {
       await startCollectingAccData(accelerometerEvents);
       await startCollectingGyrData(gyroscopeEvents);
       await startCollectingMagData(magnetometerEvents);
+      samplingSensorEvents = true;
+      startSamplingSensors();
     } catch (e, stacktrace) {
       final hint = "Could not start a new track: $e $stacktrace";
       log.e(hint);
@@ -236,6 +259,23 @@ class Tracking with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// Start sampling the sensor data.
+  Future<void> startSamplingSensors() async {
+    while (samplingSensorEvents) {
+      if (latestAccEvent != null && latestAccEventTimestamp != null) {
+        await accCache?.add("$latestAccEventTimestamp,${latestAccEvent?.x},${latestAccEvent?.y},${latestAccEvent?.z}");
+      }
+      if (latestGyroEvent != null && latestGyroEventTimestamp != null) {
+        await gyrCache
+            ?.add("$latestGyroEventTimestamp,${latestGyroEvent?.x},${latestGyroEvent?.y},${latestGyroEvent?.z}");
+      }
+      if (latestMagEvent != null && latestMagEventTimestamp != null) {
+        await magCache?.add("$latestMagEventTimestamp,${latestMagEvent?.x},${latestMagEvent?.y},${latestMagEvent?.z}");
+      }
+      await Future.delayed(const Duration(seconds: 1));
+    }
   }
 
   /// Start collecting GPS data.
@@ -270,8 +310,8 @@ class Tracking with ChangeNotifier {
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
     accSub = stream.listen((event) async {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      await accCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      latestAccEventTimestamp = DateTime.now().millisecondsSinceEpoch;
+      latestAccEvent = event;
     });
     log.i("Started collecting accelerometer data.");
   }
@@ -292,8 +332,8 @@ class Tracking with ChangeNotifier {
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
     gyrSub = stream.listen((event) async {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      await gyrCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      latestGyroEventTimestamp = DateTime.now().millisecondsSinceEpoch;
+      latestGyroEvent = event;
     });
     log.i("Started collecting gyroscope data.");
   }
@@ -314,8 +354,8 @@ class Tracking with ChangeNotifier {
       maxLines: 500, // Flush after 500 lines of data (~5s on most devices).
     );
     magSub = stream.listen((event) async {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      await magCache?.add("$timestamp,${event.x},${event.y},${event.z}");
+      latestMagEventTimestamp = DateTime.now().millisecondsSinceEpoch;
+      latestMagEvent = event;
     });
     log.i("Started collecting magnetometer data.");
   }
@@ -356,6 +396,8 @@ class Tracking with ChangeNotifier {
       track?.predictorPredictions = (ride.predictionComponent! as HybridPredictor).predictorPredictions;
       track?.predictionServicePredictions = (ride.predictionComponent! as HybridPredictor).predictionServicePredictions;
     }
+
+    samplingSensorEvents = false;
 
     // Stop collecting data.
     await stopCollectingMagData();
