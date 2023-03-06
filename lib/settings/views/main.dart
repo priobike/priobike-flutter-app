@@ -17,6 +17,7 @@ import 'package:priobike/settings/views/beta.dart';
 import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/user.dart';
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
@@ -148,6 +149,9 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The generated user id.
+  String userId = "";
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -161,6 +165,8 @@ class SettingsViewState extends State<SettingsView> {
     settings.addListener(update);
     tracking = getIt<Tracking>();
     tracking.addListener(update);
+
+    getUserId();
   }
 
   @override
@@ -169,6 +175,12 @@ class SettingsViewState extends State<SettingsView> {
     settings.removeListener(update);
     tracking.removeListener(update);
     super.dispose();
+  }
+
+  /// Get the user id.
+  Future<void> getUserId() async {
+    userId = await User.getOrCreateId();
+    setState(() {});
   }
 
   /// A callback that is executed when darkMode is changed
@@ -216,6 +228,25 @@ class SettingsViewState extends State<SettingsView> {
                     const HSpace(),
                     SubHeader(text: "Einstellungen", context: context),
                   ],
+                ),
+                const SmallVSpace(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const VSpace(),
+                      Row(
+                        children: [
+                          Content(text: "Version: ", context: context),
+                          BoldContent(text: feature.appVersion, context: context),
+                          Content(text: ", ID: ", context: context),
+                          BoldContent(text: userId, context: context),
+                        ],
+                      ),
+                      const VSpace(),
+                    ],
+                  ),
                 ),
                 if (feature.canEnableInternalFeatures) ...[
                   const SmallVSpace(),
