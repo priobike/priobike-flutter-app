@@ -31,7 +31,7 @@ class TrafficService with ChangeNotifier {
   double? scoreNow;
 
   /// The historic average score for the current hour.
-  double? historicScoreNow;
+  double? historicScore;
 
   /// If the service has loaded the status.
   bool? hasLoaded;
@@ -41,17 +41,17 @@ class TrafficService with ChangeNotifier {
 
   TrafficService();
 
-  /// Evaluate the traffic status.
+  /// Evaluate the traffic status by comparing the current score to the historic average.
   String evaluateTraffic() {
-    double difference = scoreNow! / historicScoreNow!;
-    if (difference > 1.03) {
+    double difference = scoreNow! / historicScore!;
+    if (difference > 1.05) {
       return "deutlich besser als gewöhnlich";
-    } else if (difference < 0.97) {
-      return "deutlich schlechter als gewöhnlich";
-    } else if (difference > 1) {
+    } else if (difference > 1.03) {
       return "besser als gewöhnlich";
-    } else if (difference < 1) {
+    } else if (difference < 0.97) {
       return "schlechter als gewöhnlich";
+    } else if (difference < 0.95) {
+      return "deutlich schlechter als gewöhnlich";
     } else {
       return "wie gewöhnlich";
     }
@@ -70,7 +70,7 @@ class TrafficService with ChangeNotifier {
       final settings = getIt<Settings>();
 
       final baseUrl = settings.backend.path;
-      var url = "https://$baseUrl/traffic-service/prediction.json";
+      String url = "https://$baseUrl/traffic-service/prediction.json";
       final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
@@ -91,7 +91,7 @@ class TrafficService with ChangeNotifier {
         lowestValue == null ? lowestValue = value : lowestValue = min(lowestValue!, value);
       }
       scoreNow = data["now"];
-      historicScoreNow = trafficData![DateTime.now().hour.toString()];
+      historicScore = trafficData![DateTime.now().hour.toString()];
       trafficStatus = evaluateTraffic();
       isLoading = false;
       hadError = false;
@@ -104,20 +104,6 @@ class TrafficService with ChangeNotifier {
       hasLoaded = false;
       notifyListeners();
       log.e("Error while fetching traffic-service prediction: $e");
-    }
-
-    /// Reset the status.
-    Future<void> reset() async {
-      trafficData = null;
-      isLoading = false;
-      hadError = false;
-      hasLoaded = false;
-      lastChecked = null;
-      scoreNow = null;
-      historicScoreNow = null;
-      lowestValue = null;
-      trafficStatus = null;
-      notifyListeners();
     }
   }
 }

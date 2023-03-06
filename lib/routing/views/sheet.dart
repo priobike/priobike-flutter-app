@@ -122,48 +122,47 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   /// Element for Bar Chart for Traffic Prediction. The Bar for the current time is highlighted.
-  Widget renderTrafficBar(double height, int time, bool rightNow, {bool noData = false}) {
+  Widget renderTrafficBar(double height, int time, bool highlightHourNow) {
     final availableWidth = (MediaQuery.of(context).size.width - 24);
-    return !noData
-        ? Column(
-            children: [
-              Container(
-                // max. 7 bars + 5 padding on each side
-                width: availableWidth / 7 - 10,
-                height: height,
-                margin: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: !rightNow
-                        ? [
-                            const Color.fromARGB(255, 166, 168, 168),
-                            const Color.fromARGB(255, 214, 215, 216),
-                          ]
-                        : [
-                            Theme.of(context).colorScheme.primary,
-                            Theme.of(context).colorScheme.secondary,
-                          ],
-                  ),
-                  shape: BoxShape.rectangle,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                  ),
-                ),
-              ),
-              Small(
-                text: "$time:00",
-                context: context,
-              )
-            ],
-          )
-        : Container();
+    return Column(
+      children: [
+        Container(
+          // max. 7 bars + 5 padding on each side
+          width: availableWidth / 7 - 10,
+          height: height,
+          margin: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: !highlightHourNow
+                  ? [
+                      const Color.fromARGB(255, 166, 168, 168),
+                      const Color.fromARGB(255, 214, 215, 216),
+                    ]
+                  : [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+            ),
+            shape: BoxShape.rectangle,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(5),
+              topRight: Radius.circular(5),
+            ),
+          ),
+        ),
+        Small(
+          text: "$time:00",
+          context: context,
+        )
+      ],
+    );
   }
 
-  Widget renderTrafficPredicition(BuildContext context) {
+  /// Render the Traffic Prediction Bar Chart.
+  Widget renderTrafficPrediction(BuildContext context) {
     trafficService.fetch();
     final availableHeight = (MediaQuery.of(context).size.height);
     return (trafficService.hasLoaded == true)
@@ -190,14 +189,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     for (final key in trafficService.trafficData!.keys)
-                      (trafficService.trafficData![key] != null)
-                          ? renderTrafficBar(
-                              (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) *
-                                  availableHeight *
-                                  5,
-                              int.parse(key),
-                              (int.parse(key) == DateTime.now().hour))
-                          : renderTrafficBar(0, 0, false, noData: true)
+                      if (trafficService.trafficData![key] != null)
+                        renderTrafficBar(
+                            (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) *
+                                availableHeight *
+                                5,
+                            int.parse(key),
+                            (int.parse(key) == DateTime.now().hour))
                   ],
                 ),
               ],
@@ -362,7 +360,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderStartRideButton(context),
                   renderBottomSheetWaypoints(context),
                   const Padding(padding: EdgeInsets.only(top: 8, left: 4, right: 4), child: RoadClassChart()),
-                  renderTrafficPredicition(context),
+                  renderTrafficPrediction(context),
                   const RouteHeightChart(),
                   const Padding(padding: EdgeInsets.only(top: 4, left: 4, right: 4), child: SurfaceTypeChart()),
                   renderSaveRouteButton(context),
