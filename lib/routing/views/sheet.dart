@@ -128,12 +128,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         ? Column(
             children: [
               Container(
-                width: availableWidth / 6 - 14,
+                // max. 7 bars + 5 padding on each side
+                width: availableWidth / 7 - 10,
                 height: height,
                 margin: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
-                  //color: !rightNow ? Color.fromARGB(255, 163, 161, 161) : Theme.of(context).colorScheme.primary,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
@@ -192,9 +192,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                     for (final key in trafficService.trafficData!.keys)
                       (trafficService.trafficData![key] != null)
                           ? renderTrafficBar(
-                              (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.95) *
+                              (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) *
                                   availableHeight *
-                                  2,
+                                  5,
                               int.parse(key),
                               (int.parse(key) == DateTime.now().hour))
                           : renderTrafficBar(0, 0, false, noData: true)

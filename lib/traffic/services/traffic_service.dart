@@ -44,8 +44,14 @@ class TrafficService with ChangeNotifier {
   /// Evaluate the traffic status.
   String evaluateTraffic() {
     double difference = scoreNow! / historicScoreNow!;
-    if (difference > 0) {
+    if (difference > 1.05) {
+      return "Verkehrslage deutlich besser als gewöhnlich";
+    } else if (difference < 0.95) {
+      return "Verkehrslage deutlich schlechter als gewöhnlich";
+    } else if (difference > 1) {
       return "Verkehrslage besser als gewöhnlich";
+    } else if (difference < 1) {
+      return "Verkehrslage schlechter als gewöhnlich";
     } else {
       return "Verkehrslage wie gewöhnlich";
     }
@@ -56,7 +62,7 @@ class TrafficService with ChangeNotifier {
     hadError = false;
 
     if (isLoading) return;
-    // Only check every 10 minutes.
+    // No need to check more than once per minute.
     if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 1))) return;
     isLoading = true;
 
@@ -69,7 +75,6 @@ class TrafficService with ChangeNotifier {
       final response = await Http.get(endpoint).timeout(const Duration(seconds: 4));
       if (response.statusCode != 200) {
         isLoading = false;
-        notifyListeners();
         final err = "Error while fetching prediction status from $endpoint: ${response.statusCode}";
         throw Exception(err);
       }
@@ -112,6 +117,7 @@ class TrafficService with ChangeNotifier {
       scoreNow = null;
       historicScoreNow = null;
       lowestValue = null;
+      trafficStatus = null;
       notifyListeners();
     }
   }
