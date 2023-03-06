@@ -59,7 +59,6 @@ class TrafficService with ChangeNotifier {
     // Only check every 10 minutes.
     if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 1))) return;
     isLoading = true;
-    notifyListeners();
 
     try {
       final settings = getIt<Settings>();
