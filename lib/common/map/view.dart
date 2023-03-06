@@ -40,7 +40,7 @@ class AppMap extends StatefulWidget {
   final void Function(mapbox.CameraChangedEventData)? onCameraChanged;
 
   /// A callback that is executed when the camera is idle.
-  final void Function()? onCameraIdle;
+  final void Function(mapbox.MapIdleEventData)? onCameraIdle;
 
   /// A callback that is executed when the map is longclicked.
   final void Function(Point<double>, LatLng)? onMapLongClick;
@@ -120,6 +120,7 @@ class AppMapState extends State<AppMap> {
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
       onCameraChangeListener: widget.onCameraChanged,
+      onMapIdleListener: widget.onCameraIdle,
       // ONLY AFFECTS ANDROID
       // If set to false, surfaceView is used instead.
       // "Although SurfaceView is very efficient, it might not fit all use cases as it creates a separate window and

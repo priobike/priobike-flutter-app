@@ -93,7 +93,6 @@ class RoutingBarState extends State<RoutingBar> {
     bottomSheetState.addListener(update);
 
     updateWaypoint();
-    updateRoutingBarItems();
   }
 
   @override

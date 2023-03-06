@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
@@ -190,11 +191,7 @@ class RouteLabelLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  RouteLabelLayer._();
-
-  static Future<RouteLabelLayer> create(double deviceWidth, double deviceHeight) async {
-    var routeLabelLayer = RouteLabelLayer._();
-
+  RouteLabelLayer(double deviceWidth, double deviceHeight, CameraState cameraState) {
     final routing = getIt<Routing>();
     final mapController = getIt<MapSettings>();
 
@@ -205,10 +202,9 @@ class RouteLabelLayer {
         routing.selectedRoute != null) {
       var distance = const Distance();
 
-      double meterPerPixel =
-          zoomToGeographicalDistance[(await mapController.controller!.getCameraState()).zoom.toInt()] ?? 0;
-      double cameraPosLat = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[1];
-      double cameraPosLong = ((await mapController.controller!.getCameraState()).center["coordinates"] as List)[0];
+      double meterPerPixel = zoomToGeographicalDistance[cameraState.zoom.toInt()] ?? 0;
+      double cameraPosLat = (cameraState.center["coordinates"] as List)[1];
+      double cameraPosLong = (cameraState.center["coordinates"] as List)[0];
 
       // Cast to LatLng2 format.
       LatLng cameraPos = LatLng(cameraPosLat, cameraPosLong);
@@ -239,7 +235,7 @@ class RouteLabelLayer {
       // But update route labels in case the selected route changed.
       if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoords.length) {
         for (var i = 0; i < routing.allRoutes!.length; i++) {
-          routeLabelLayer.features.add(
+          features.add(
             {
               "id": "routeLabel-${routing.allRoutes![i].id}", // Required for click listener.
               "type": "Feature",
@@ -254,7 +250,6 @@ class RouteLabelLayer {
             },
           );
         }
-        return routeLabelLayer;
       }
 
       // Reset the old coords before adding the new ones.
@@ -304,7 +299,7 @@ class RouteLabelLayer {
 
         if (chosenCoordinate != null) {
           // Found coordinate and add Label with time.
-          routeLabelLayer.features.add(
+          features.add(
             {
               "id": "routeLabel-${route.id}", // Required for click listener.
               "type": "Feature",
@@ -323,7 +318,6 @@ class RouteLabelLayer {
         }
       }
     }
-    return routeLabelLayer;
   }
 
   /// Install the overlay on the layer controller.
@@ -374,7 +368,7 @@ class RouteLabelLayer {
           'icon-offset',
           json.encode([
             "literal",
-            [0, -10]
+            [0, -20]
           ]));
       await mapController.style
           .setStyleLayerProperty("routeLabels-clicklayer", 'text-field', json.encode(["get", "text"]));
@@ -383,7 +377,7 @@ class RouteLabelLayer {
           'text-offset',
           json.encode([
             "literal",
-            [0, -1.25]
+            [0, -1]
           ]));
       await mapController.style.setStyleLayerProperty(
           "routeLabels-clicklayer",
