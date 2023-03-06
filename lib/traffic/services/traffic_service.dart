@@ -37,7 +37,7 @@ class TrafficService with ChangeNotifier {
   double? historicScore;
 
   /// If the service has loaded the status.
-  bool? hasLoaded;
+  bool hasLoaded = false;
 
   /// The status of the score right now compared to the historic average.
   String? trafficStatus;
@@ -68,6 +68,7 @@ class TrafficService with ChangeNotifier {
     // No need to check more than once per minute.
     if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 1))) return;
     isLoading = true;
+    hasLoaded = false;
 
     try {
       final settings = getIt<Settings>();
@@ -105,9 +106,22 @@ class TrafficService with ChangeNotifier {
     } catch (e) {
       isLoading = false;
       hadError = true;
-      hasLoaded = false;
       notifyListeners();
       log.e("Error while fetching traffic-service prediction: $e");
     }
+  }
+
+  /// Reset the status.
+  Future<void> reset() async {
+    trafficData = null;
+    isLoading = false;
+    hadError = false;
+    hasLoaded = false;
+    lastChecked = null;
+    scoreNow = null;
+    historicScore = null;
+    lowestValue = null;
+    trafficStatus = null;
+    notifyListeners();
   }
 }

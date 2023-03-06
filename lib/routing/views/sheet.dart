@@ -165,7 +165,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   Widget renderTrafficPrediction(BuildContext context) {
     trafficService.fetch();
     if (trafficService.hasLoaded == false) return Container();
-    double availableHeight = (MediaQuery.of(context).size.height) / 6;
+    final availableHeight = (MediaQuery.of(context).size.height) / 6;
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
       child: Column(
