@@ -63,6 +63,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     routing.removeListener(update);
     positioning.removeListener(update);
     status.removeListener(update);
+    trafficService.removeListener(update);
     super.dispose();
   }
 
@@ -121,9 +122,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   }
 
   /// Element for Bar Chart for Traffic Prediction. The Bar for the current time is highlighted.
-  Widget trafficBar(double height, int time, bool rightNow, {bool noData = false}) {
+  Widget renderTrafficBar(double height, int time, bool rightNow, {bool noData = false}) {
     final availableWidth = (MediaQuery.of(context).size.width - 24);
-
     return !noData
         ? Column(
             children: [
@@ -165,7 +165,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   Widget renderTrafficPredicition(BuildContext context) {
     trafficService.fetch();
-    return trafficService.hasLoaded == true
+    final availableHeight = (MediaQuery.of(context).size.height);
+    return (trafficService.hasLoaded == true)
         ? Padding(
             padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
             child: Column(
@@ -174,11 +175,11 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Content(
-                      text: "Verkehrslage",
+                      text: "Verkehr",
                       context: context,
                     ),
                     Content(
-                      text: "Verkehrslage gewöhnlich", //TODO: Anpassen
+                      text: trafficService.trafficStatus!,
                       context: context,
                     ),
                   ],
@@ -188,12 +189,15 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    for (final key in trafficService.json!.keys)
-                      if ((trafficService.json![key] != null))
-                        trafficBar((trafficService.json![key]! - trafficService.lowestValue! * 0.97) * 2000,
-                            int.parse(key), (int.parse(key) == DateTime.now().hour))
-                      else
-                        trafficBar(0, 0, false, noData: true)
+                    for (final key in trafficService.trafficData!.keys)
+                      (trafficService.trafficData![key] != null)
+                          ? renderTrafficBar(
+                              (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.95) *
+                                  availableHeight *
+                                  2,
+                              int.parse(key),
+                              (int.parse(key) == DateTime.now().hour))
+                          : renderTrafficBar(0, 0, false, noData: true)
                   ],
                 ),
               ],

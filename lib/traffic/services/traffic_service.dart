@@ -18,8 +18,8 @@ class TrafficService with ChangeNotifier {
   /// If the service had an error during the last request.
   bool hadError = false;
 
-  /// The json with prediction for traffic from -1 hour to next 5 hours.
-  Map<String, dynamic>? json;
+  /// The predictions for traffic from t-1 hour to next t+5 hours.
+  Map<String, dynamic>? trafficData;
 
   /// The last time the status was checked. Only check every hour.
   DateTime? lastChecked;
@@ -27,10 +27,29 @@ class TrafficService with ChangeNotifier {
   /// The lowest value of the prediction. Used for scaling the barchart.
   double? lowestValue;
 
+  /// The the score for the current hour.
+  double? scoreNow;
+
+  /// The historic average score for the current hour.
+  double? historicScoreNow;
+
   /// If the service has loaded the status.
   bool? hasLoaded;
 
+  /// The status of the score right now compared to the historic average.
+  String? trafficStatus;
+
   TrafficService();
+
+  /// Evaluate the traffic status.
+  String evaluateTraffic() {
+    double difference = scoreNow! / historicScoreNow!;
+    if (difference > 0) {
+      return "Verkehrslage besser als gewöhnlich";
+    } else {
+      return "Verkehrslage wie gewöhnlich";
+    }
+  }
 
   /// Fetch the status of the prediction.
   Future<void> fetch() async {
@@ -38,7 +57,7 @@ class TrafficService with ChangeNotifier {
 
     if (isLoading) return;
     // Only check every 10 minutes.
-    if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 10))) return;
+    if ((lastChecked != null) && (DateTime.now().difference(lastChecked!) < const Duration(minutes: 1))) return;
     isLoading = true;
     notifyListeners();
 
@@ -55,12 +74,22 @@ class TrafficService with ChangeNotifier {
         final err = "Error while fetching prediction status from $endpoint: ${response.statusCode}";
         throw Exception(err);
       }
-      json = jsonDecode(response.body);
-      for (double? value in json!.values) {
+      trafficData = {};
+      Map<String, dynamic> data = jsonDecode(response.body);
+      for (String key in data.keys) {
+        // TODO: It would be better to filter via a common prefix.
+        if (key.startsWith("quality") || key.startsWith("now")) {
+          continue;
+        }
+        trafficData![key] = data[key];
+      }
+      for (double? value in trafficData!.values) {
         if (value == null) continue;
         lowestValue == null ? lowestValue = value : lowestValue = min(lowestValue!, value);
       }
-
+      scoreNow = data["now"];
+      historicScoreNow = trafficData![DateTime.now().hour.toString()];
+      trafficStatus = evaluateTraffic();
       isLoading = false;
       hadError = false;
       hasLoaded = true;
@@ -76,11 +105,13 @@ class TrafficService with ChangeNotifier {
 
     /// Reset the status.
     Future<void> reset() async {
-      json = null;
+      trafficData = null;
       isLoading = false;
       hadError = false;
       hasLoaded = false;
       lastChecked = null;
+      scoreNow = null;
+      historicScoreNow = null;
       lowestValue = null;
       notifyListeners();
     }
