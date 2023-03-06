@@ -130,49 +130,56 @@ class LanesDemoViewState extends State<LanesDemoView> with TickerProviderStateMi
     while (true) {
       y += 10;
       await Future.delayed(const Duration(seconds: 1));
-      if (y > 1000) {
+      if (y > 500) {
         y = 0;
       }
-      log.i("aawefawefawefawefawef");
       setState(() {});
     }
   }
 
+  double getBarWidth(int numberOfLanes) {
+    return MediaQuery.of(context).size.width / numberOfLanes - 10;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final originalSpeedometerHeight = MediaQuery.of(context).size.width;
-    final originalSpeedometerWidth = MediaQuery.of(context).size.width;
+    final originalSpeedometerHeight = MediaQuery.of(context).size.height;
 
-    final demoList = ["bla", "blub", "blabla"];
+    final demoList = ["bla", "blub", "blabla", "sergsreg"];
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      children: List.from(
-        demoList.map(
-          (value) {
-            return Expanded(
-              child: Stack(
-                children: [
-                  AnimatedPositioned(
-                    top: 0,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.linear,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Container(
-                        height: 1000,
-                        color: Colors.greenAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+    return Stack(
+      children: [
+        Container(
+          color: Colors.transparent,
         ),
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.from(
+            demoList.map(
+              (value) {
+                return SizedBox(
+                  width: getBarWidth(demoList.length),
+                  height: originalSpeedometerHeight,
+                  child: Stack(
+                    children: [
+                      AnimatedPositioned(
+                        duration: const Duration(seconds: 1),
+                        curve: Curves.linear,
+                        width: getBarWidth(demoList.length),
+                        height: originalSpeedometerHeight,
+                        top: y,
+                        child: Container(
+                          color: Colors.greenAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
