@@ -203,8 +203,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
         right: 0);
     if (Platform.isIOS) {
-      insets.top = insets.top * 0.4; // FIXME @daniel 2 * 0.4 for ios here?
-      insets.bottom = insets.bottom * 0.2; // FIXME @daniel 2 * 0.2 for ios here?
+      insets.top = insets.top * 0.4;
+      insets.bottom = insets.bottom * 0.2;
     }
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
