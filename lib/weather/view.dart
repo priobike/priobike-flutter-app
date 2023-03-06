@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/weather/messages.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 
 class WeatherView extends StatefulWidget {
   const WeatherView({Key? key}) : super(key: key);
@@ -27,8 +27,16 @@ class WeatherViewState extends State<WeatherView> {
   bool warning = false;
 
   @override
+  void initState() {
+    super.initState();
+    weather = getIt<Weather>();
+    weather.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void didChangeDependencies() {
-    weather = Provider.of<Weather>(context);
     loadIcon();
     loadSummary();
     super.didChangeDependencies();

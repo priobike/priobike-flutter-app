@@ -1,16 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
@@ -45,12 +44,12 @@ class PredictionSGStatus with ChangeNotifier {
 
   /// Populate the sg status cache with the current route and
   /// Recalculate the status for this route.
-  Future<void> fetch(BuildContext context, Route? route) async {
+  Future<void> fetch(Route? route) async {
     if (isLoading) return;
 
     log.i("Fetching sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final statusProviderSubPath = settings.predictionMode.statusProviderSubPath;
 

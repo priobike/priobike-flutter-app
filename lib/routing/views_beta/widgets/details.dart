@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/views/details/height.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/instructions.dart';
-import 'package:provider/provider.dart';
 
 /// The translation from of the road class.
 final roadClassTranslation = {
@@ -114,11 +114,24 @@ class DetailsState extends State<Details> {
 
   final _bottomSheetKey = GlobalKey<ScaffoldState>();
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    bottomSheetState = Provider.of<BottomSheetState>(context);
-    routing = Provider.of<Routing>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    bottomSheetState = getIt<BottomSheetState>();
+    bottomSheetState.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    bottomSheetState.removeListener(update);
+    routing.removeListener(update);
+    super.dispose();
   }
 
   /// The widget that displays a detail row in the bar.

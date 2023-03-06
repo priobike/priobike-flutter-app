@@ -14,6 +14,7 @@ import 'package:priobike/home/views/main.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -22,7 +23,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,8 +52,11 @@ class LoaderState extends State<Loader> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   /// Initialize everything needed before we can show the home view.
-  Future<void> init(BuildContext context) async {
+  Future<void> init() async {
     // Init the HTTP client for all services.
     Http.initClient();
 
@@ -62,7 +65,7 @@ class LoaderState extends State<Loader> {
     await SentryFlutter.init((options) => options.dsn = dsn);
 
     // Load the feature.
-    final feature = Provider.of<Feature>(context, listen: false);
+    final feature = getIt<Feature>();
     await feature.load();
     // Load the settings.
     await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
@@ -70,24 +73,24 @@ class LoaderState extends State<Loader> {
     // Load all other services.
     try {
       // Load local stuff.
-      await Provider.of<Profile>(context, listen: false).loadProfile();
-      await Provider.of<Shortcuts>(context, listen: false).loadShortcuts(context);
-      await Provider.of<Statistics>(context, listen: false).loadStatistics();
-      await Provider.of<Layers>(context, listen: false).loadPreferences();
-      await Provider.of<MapDesigns>(context, listen: false).loadPreferences();
-      final tracking = Provider.of<Tracking>(context, listen: false);
+      await getIt<Profile>().loadProfile();
+      await getIt<Shortcuts>().loadShortcuts();
+      await getIt<Statistics>().loadStatistics();
+      await getIt<Layers>().loadPreferences();
+      await getIt<MapDesigns>().loadPreferences();
+      final tracking = getIt<Tracking>();
       await tracking.loadPreviousTracks();
       await tracking.runUploadRoutine();
       await tracking.setSubmissionPolicy(settings.trackingSubmissionPolicy);
       // Load stuff from the server.
-      final news = Provider.of<News>(context, listen: false);
-      await news.getArticles(context);
+      final news = getIt<News>();
+      await news.getArticles();
       if (!news.hasLoaded) log.i("Could not load news");
-      final predictionStatusSummary = Provider.of<PredictionStatusSummary>(context, listen: false);
-      await predictionStatusSummary.fetch(context);
+      final predictionStatusSummary = getIt<PredictionStatusSummary>();
+      await predictionStatusSummary.fetch();
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
-      final weather = Provider.of<Weather>(context, listen: false);
-      await weather.fetch(context);
+      final weather = getIt<Weather>();
+      await weather.fetch();
     } catch (e, stackTrace) {
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stackTrace);
@@ -115,14 +118,18 @@ class LoaderState extends State<Loader> {
   @override
   void initState() {
     super.initState();
+
+    settings = getIt<Settings>();
+    settings.addListener(update);
+
     // Init the view once the app is ready.
-    SchedulerBinding.instance.addPostFrameCallback((_) => init(context));
+    SchedulerBinding.instance.addPostFrameCallback((_) => init());
   }
 
   @override
-  void didChangeDependencies() {
-    settings = Provider.of<Settings>(context);
-    super.didChangeDependencies();
+  void dispose() {
+    settings.removeListener(update);
+    super.dispose();
   }
 
   _resetData() async {
@@ -150,7 +157,7 @@ class LoaderState extends State<Loader> {
               onPressed: () async {
                 await _resetData();
                 ToastMessage.showSuccess("Daten zurück gesetzt!");
-                Navigator.of(context).pop();
+                if (mounted) Navigator.of(context).pop();
               },
               child: Content(
                 text: "Zurücksetzen",
@@ -256,7 +263,7 @@ class LoaderState extends State<Loader> {
                               ? BigButton(label: "Daten zurücksetzen", onPressed: () => _showResetDialog(context))
                               : Container(),
                           const SizedBox(height: 16),
-                          BigButton(label: "Erneut versuchen", onPressed: () => init(context)),
+                          BigButton(label: "Erneut versuchen", onPressed: () => init()),
                         ],
                       ),
                     ),

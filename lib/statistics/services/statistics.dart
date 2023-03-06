@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/statistics/models/summary.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Statistics with ChangeNotifier {
@@ -81,12 +81,12 @@ class Statistics with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Calculate a new summary from the build context.
-  Future<void> calculateSummary(BuildContext context) async {
+  /// Calculate a new summary.
+  Future<void> calculateSummary() async {
     await loadStatistics();
 
     // Get the positioning service.
-    final positioning = Provider.of<Positioning>(context, listen: false);
+    final positioning = getIt<Positioning>();
     final positions = positioning.positions;
     if (positions.isEmpty) return;
 

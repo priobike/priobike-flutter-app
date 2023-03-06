@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -9,10 +10,8 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
-/// A cancel button to cancel the ride.
-class CancelButton extends StatelessWidget {
+class CancelButton extends StatefulWidget {
   /// The border radius of the button.
   final double borderRadius;
 
@@ -22,6 +21,12 @@ class CancelButton extends StatelessWidget {
   /// Create a new cancel button.
   const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
 
+  @override
+  CancelButtonState createState() => CancelButtonState();
+}
+
+/// A cancel button to cancel the ride.
+class CancelButtonState extends State<CancelButton> {
   Widget askForConfirmation(BuildContext context) {
     return AlertDialog(
       //contentPadding: const EdgeInsets.all(30),
@@ -39,7 +44,7 @@ class CancelButton extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => onTap(context),
+          onPressed: () => onTap(),
           style: ButtonStyle(
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
@@ -73,62 +78,66 @@ class CancelButton extends StatelessWidget {
   }
 
   /// A callback that is executed when the cancel button is pressed.
-  Future<void> onTap(BuildContext context) async {
+  Future<void> onTap() async {
     // End the tracking and collect the data.
-    final tracking = Provider.of<Tracking>(context, listen: false);
-    await tracking.end(context); // Performs all needed resets.
+    final tracking = getIt<Tracking>();
+    await tracking.end(); // Performs all needed resets.
 
     // Calculate a summary of the ride.
-    final statistics = Provider.of<Statistics>(context, listen: false);
-    await statistics.calculateSummary(context);
+    final statistics = getIt<Statistics>();
+    await statistics.calculateSummary();
 
     // Disconnect from the mqtt broker.
-    final datastream = Provider.of<Datastream>(context, listen: false);
+    final datastream = getIt<Datastream>();
     await datastream.disconnect();
 
     // End the recommendations.
-    final ride = Provider.of<Ride>(context, listen: false);
-    await ride.stopNavigation(context);
+    final ride = getIt<Ride>();
+    await ride.stopNavigation();
 
     // Stop the geolocation.
-    final position = Provider.of<Positioning>(context, listen: false);
+    final position = getIt<Positioning>();
     await position.stopGeolocation();
 
-    // Show the feedback dialog.
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => WillPopScope(
-          onWillPop: () async => false,
-          child: FeedbackView(
-            onSubmitted: (context) async {
-              // Reset the statistics.
-              await statistics.reset();
+    if (mounted) {
+      // Show the feedback dialog.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => WillPopScope(
+            onWillPop: () async => false,
+            child: FeedbackView(
+              onSubmitted: (context) async {
+                // Reset the statistics.
+                await statistics.reset();
 
-              // Reset the ride service.
-              await ride.reset();
+                // Reset the ride service.
+                await ride.reset();
 
-              // Reset the position service.
-              await position.reset();
+                // Reset the position service.
+                await position.reset();
 
-              // Reset the route service.
-              final routing = Provider.of<Routing>(context, listen: false);
-              await routing.reset();
+                // Reset the route service.
+                final routing = getIt<Routing>();
+                await routing.reset();
 
-              // Reset the prediction sg status.
-              final predictionSGStatus = Provider.of<PredictionSGStatus>(context, listen: false);
-              await predictionSGStatus.reset();
+                // Reset the prediction sg status.
+                final predictionSGStatus = getIt<PredictionSGStatus>();
+                await predictionSGStatus.reset();
 
-              // Reset the dangers.
-              final dangers = Provider.of<Dangers>(context, listen: false);
-              await dangers.reset();
+                // Reset the dangers.
+                final dangers = getIt<Dangers>();
+                await dangers.reset();
 
-              // Leave the feedback view.
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
+                if (context.mounted) {
+                  // Leave the feedback view.
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -138,7 +147,7 @@ class CancelButton extends StatelessWidget {
       child: ElevatedButton.icon(
         icon: const Icon(Icons.flag_rounded),
         label: BoldSmall(
-          text: text,
+          text: widget.text,
           context: context,
           color: Colors.white,
         ),
@@ -149,7 +158,7 @@ class CancelButton extends StatelessWidget {
         style: ButtonStyle(
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(widget.borderRadius),
               side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
             ),
           ),

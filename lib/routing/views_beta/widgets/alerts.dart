@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 /// A view that displays alerts in the routing context.
 class AlertsView extends StatefulWidget {
@@ -30,13 +30,14 @@ class AlertsViewState extends State<AlertsView> {
   /// The currently selected page.
   int currentPage = 0;
 
-  @override
-  void didChangeDependencies() {
-    predictionStatus = Provider.of<PredictionSGStatus>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    routing = Provider.of<Routing>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    scrollToDiscomfort();
+    setState(() {});
+  }
 
-    // Scroll to a discomfort if one was selected.
+  /// Scroll to a discomfort if one was selected.
+  void scrollToDiscomfort() {
     if (discomforts.selectedDiscomfort != null &&
         discomforts.foundDiscomforts != null &&
         discomforts.foundDiscomforts!.isNotEmpty) {
@@ -66,8 +67,28 @@ class AlertsViewState extends State<AlertsView> {
         currentPage = 0;
       });
     }
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    predictionStatus = getIt<PredictionSGStatus>();
+    predictionStatus.addListener(update);
+    discomforts = getIt<Discomforts>();
+    discomforts.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+
+    scrollToDiscomfort();
+  }
+
+  @override
+  void dispose() {
+    predictionStatus.removeListener(update);
+    discomforts.removeListener(update);
+    routing.removeListener(update);
+    super.dispose();
   }
 
   @override
@@ -79,67 +100,31 @@ class AlertsViewState extends State<AlertsView> {
       ];
       if (alerts.isEmpty) return Container();
 
-      bool withSignalGroupDiscomforts =
-          (predictionStatus.bad != 0 || predictionStatus.offline != 0 || predictionStatus.disconnected != 0);
       return Stack(
         alignment: AlignmentDirectional.bottomEnd,
         children: [
           Padding(
-              padding: const EdgeInsets.only(bottom: 22),
-              child: Container(
-                height: 64,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(24.0),
-                    bottomRight: Radius.circular(24.0),
-                  ),
+            padding: const EdgeInsets.only(bottom: 22),
+            child: Container(
+              height: 64,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(24.0),
+                  bottomRight: Radius.circular(24.0),
                 ),
-                child: Stack(alignment: AlignmentDirectional.topStart, children: [
-                  GestureDetector(
-                    onHorizontalDragEnd: (details) {
-                      (details.primaryVelocity ?? 0) < 0
-                          ? controller
-                              .nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut)
-                              .then((value) {
-                              // Check bounds.
-                              if (currentPage <
-                                  discomforts.foundDiscomforts!.length - (withSignalGroupDiscomforts ? 0 : 1)) {
-                                discomforts.selectDiscomfort(
-                                    // Add offset if prediction error is displayed.
-                                    withSignalGroupDiscomforts ? currentPage : currentPage + 1);
-                              }
-                            })
-                          : controller
-                              .previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut)
-                              .then((value) {
-                              // Check bounds.
-                              if (currentPage > 1) {
-                                discomforts.selectDiscomfort(
-                                    // Add offset if prediction error is displayed.
-                                    (predictionStatus.bad != 0 ||
-                                            predictionStatus.offline != 0 ||
-                                            predictionStatus.disconnected != 0)
-                                        ? currentPage - 2
-                                        : currentPage - 1);
-                              }
-                              if (currentPage == 1) {
-                                setState(() {
-                                  currentPage = 0;
-                                  discomforts.unselectDiscomfort();
-                                  discomforts.selectTrafficLight();
-                                });
-                              }
-                            });
-                    },
-                    child: PageView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: controller,
-                      children: alerts,
-                    ),
-                  ),
-                ]),
-              )),
+              ),
+              child: PageView(
+                controller: controller,
+                onPageChanged: (index) => setState(
+                  () {
+                    currentPage = index;
+                  },
+                ),
+                children: alerts,
+              ),
+            ),
+          ),
           // Show dots to indicate the current page.
           if (alerts.length > 1)
             Positioned(

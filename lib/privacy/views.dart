@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/fx.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/privacy/services.dart';
-import 'package:provider/provider.dart';
 
 /// A list item with icon.
 class IconItem extends Row {
@@ -45,22 +45,43 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
   /// The associated privacy service, which is injected by the provider.
   late PrivacyPolicy privacyService;
 
-  @override
-  void didChangeDependencies() {
-    privacyService = Provider.of<PrivacyPolicy>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    loadPolicy();
+    setState(() {});
+  }
 
+  /// Load the privacy policy.
+  void loadPolicy() {
     // Load once the window was built.
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
-        await privacyService.loadPolicy(context);
+        final assetText = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+        await privacyService.loadPolicy(assetText);
       },
     );
-    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    privacyService = getIt<PrivacyPolicy>();
+    privacyService.addListener(update);
+
+    loadPolicy();
+  }
+
+  @override
+  void dispose() {
+    privacyService.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when the accept button was pressed.
   Future<void> onAcceptButtonPressed() async {
-    await privacyService.confirm(context);
+    final confirmedPolicy = await DefaultAssetBundle.of(context).loadString("assets/text/privacy.txt");
+    await privacyService.confirm(confirmedPolicy);
   }
 
   @override

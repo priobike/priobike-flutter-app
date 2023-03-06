@@ -3,8 +3,8 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/map/map_design.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:provider/provider.dart';
 
 class LayerSelectionView extends StatefulWidget {
   const LayerSelectionView({Key? key}) : super(key: key);
@@ -20,11 +20,24 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
   /// The map designs service, which is injected by the provider.
   late MapDesigns mapDesigns;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    layers = Provider.of<Layers>(context);
-    mapDesigns = Provider.of<MapDesigns>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
+    layers = getIt<Layers>();
+    layers.addListener(update);
+    mapDesigns = getIt<MapDesigns>();
+    mapDesigns.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    layers.removeListener(update);
+    mapDesigns.removeListener(update);
+    super.dispose();
   }
 
   @override

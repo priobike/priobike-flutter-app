@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart' hide Shortcuts;
-import 'package:flutter/services.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/map_settings.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/last_search_requests.dart';
+import 'package:priobike/routing/views_beta/widgets/search_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map_button.dart';
-import 'package:priobike/routing/views_beta/widgets/search_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/shortcuts.dart';
 import 'package:priobike/routing/views_beta/widgets/waypoint_list_item_view.dart';
-import 'package:provider/provider.dart';
 
 import 'widgets/current_location_button.dart';
 
@@ -57,18 +57,43 @@ class SearchViewState extends State<SearchView> {
   /// The currentLocationWaypoint
   Waypoint? currentLocationWaypoint;
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    mapController = Provider.of<MapSettings>(context);
-    profile = Provider.of<Profile>(context);
-    positioning = Provider.of<Positioning>(context);
-    geosearch = Provider.of<Geosearch>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     // to update the position of the current Location Waypoint
     updateWaypoint();
+    setState(() {});
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    mapController = getIt<MapSettings>();
+    mapController.addListener(update);
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+
+    // to update the position of the current Location Waypoint
+    updateWaypoint();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    shortcuts.removeListener(update);
+    mapController.removeListener(update);
+    profile.removeListener(update);
+    positioning.removeListener(update);
+    geosearch.removeListener(update);
+    super.dispose();
   }
 
   /// Update the waypoint.
@@ -120,7 +145,7 @@ class SearchViewState extends State<SearchView> {
       await routing.selectWaypoints(newWaypoints);
     }
 
-    Navigator.of(context).pop(waypoint);
+    if (mounted) Navigator.of(context).pop(waypoint);
   }
 
   /// A callback that is fired when a waypoint is tapped.
@@ -129,7 +154,7 @@ class SearchViewState extends State<SearchView> {
       if (waypoint.address != null) {
         _locationSearchController.text = waypoint.address!;
       }
-      geosearch.geosearch(context, _locationSearchController.text);
+      geosearch.geosearch(_locationSearchController.text);
     });
   }
 
@@ -139,35 +164,37 @@ class SearchViewState extends State<SearchView> {
     FocusManager.instance.primaryFocus?.unfocus();
     // We have to wait a little while since we can't await the void method above.
     await Future.delayed(const Duration(milliseconds: 100));
-    final waypoint = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const SelectOnMapView(withName: false),
-      ),
-    );
+    if (mounted) {
+      final waypoint = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const SelectOnMapView(withName: false),
+        ),
+      );
 
-    final waypoints = routing.selectedWaypoints ?? [];
-    // exchange with new waypoint
-    List<Waypoint> newWaypoints = waypoints.toList();
+      final waypoints = routing.selectedWaypoints ?? [];
+      // exchange with new waypoint
+      List<Waypoint> newWaypoints = waypoints.toList();
 
-    if (!widget.fromRouteSearch) {
-      if (widget.index != null) {
-        newWaypoints[widget.index!] = waypoint;
-      } else {
-        // Insert current location as first waypoint if option is set
-        if (profile.setLocationAsStart &&
-            currentLocationWaypoint != null &&
-            waypoints.isEmpty &&
-            waypoint.address != null) {
-          newWaypoints = [currentLocationWaypoint!, waypoint];
+      if (!widget.fromRouteSearch) {
+        if (widget.index != null) {
+          newWaypoints[widget.index!] = waypoint;
         } else {
-          newWaypoints = [...waypoints, waypoint];
+          // Insert current location as first waypoint if option is set
+          if (profile.setLocationAsStart &&
+              currentLocationWaypoint != null &&
+              waypoints.isEmpty &&
+              waypoint.address != null) {
+            newWaypoints = [currentLocationWaypoint!, waypoint];
+          } else {
+            newWaypoints = [...waypoints, waypoint];
+          }
         }
       }
+
+      await routing.selectWaypoints(newWaypoints);
+
+      if (mounted) Navigator.of(context).pop(waypoint);
     }
-
-    await routing.selectWaypoints(newWaypoints);
-
-    Navigator.of(context).pop(waypoint);
   }
 
   /// The callback that is executed when the current location button is pressed.
@@ -190,7 +217,7 @@ class SearchViewState extends State<SearchView> {
         }
       }
       await routing.selectWaypoints(newWaypoints);
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
     }
   }
 

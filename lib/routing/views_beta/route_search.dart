@@ -4,16 +4,16 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/map_settings.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/last_search_requests.dart';
 import 'package:priobike/routing/views_beta/widgets/routing_bar.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map.dart';
 import 'package:priobike/routing/views_beta/widgets/select_on_map_button.dart';
-import 'package:provider/provider.dart';
 
 import 'widgets/current_location_button.dart';
 
@@ -53,18 +53,43 @@ class RouteSearchViewState extends State<RouteSearchView> {
   /// The currentLocationWaypoint
   Waypoint? currentLocationWaypoint;
 
-  @override
-  void didChangeDependencies() {
-    routing = Provider.of<Routing>(context);
-    shortcuts = Provider.of<Shortcuts>(context);
-    mapController = Provider.of<MapSettings>(context);
-    profile = Provider.of<Profile>(context);
-    positioning = Provider.of<Positioning>(context);
-    geosearch = Provider.of<Geosearch>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
     // to update the position of the current Location Waypoint
     updateWaypoint();
+    setState(() {});
+  }
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    profile = getIt<Profile>();
+    profile.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    mapController = getIt<MapSettings>();
+    mapController.addListener(update);
+    geosearch = getIt<Geosearch>();
+    geosearch.addListener(update);
+
+    // to update the position of the current Location Waypoint
+    updateWaypoint();
+  }
+
+  @override
+  void dispose() {
+    routing.removeListener(update);
+    shortcuts.removeListener(update);
+    profile.removeListener(update);
+    positioning.removeListener(update);
+    mapController.removeListener(update);
+    geosearch.removeListener(update);
+    super.dispose();
   }
 
   /// Update the waypoint.
@@ -96,7 +121,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       if (waypoint.address != null) {
         _locationSearchController.text = waypoint.address!;
       }
-      geosearch.geosearch(context, _locationSearchController.text);
+      geosearch.geosearch(_locationSearchController.text);
     });
   }
 
@@ -139,7 +164,7 @@ class RouteSearchViewState extends State<RouteSearchView> {
       await routing.selectWaypoints(routing.routingItems.map((e) => e!).toList());
       routing.routingItems = [];
       routing.nextItem = -1;
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
       return;
     }
     setState(() {
@@ -163,7 +188,6 @@ class RouteSearchViewState extends State<RouteSearchView> {
               fromRoutingSearch: true,
               checkNextItem: checkNextItem,
               onPressed: widget.onPressed,
-              context: context,
               sheetMovement: widget.sheetMovement,
             ),
             Expanded(

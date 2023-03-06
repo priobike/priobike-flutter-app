@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 import 'package:priobike/tracking/services/tracking.dart';
-import 'package:provider/provider.dart';
 
 class ScreenTrackingView extends StatefulWidget {
   final Widget child;
@@ -22,10 +22,20 @@ class ScreenTrackingViewState extends State<ScreenTrackingView> {
   /// Temporary saving tap down X;
   double? tapDownY;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   @override
-  void didChangeDependencies() {
-    tracking = Provider.of<Tracking>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    tracking = getIt<Tracking>();
+    tracking.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    tracking.removeListener(update);
+    super.dispose();
   }
 
   _onTapDown(PointerEvent details) {

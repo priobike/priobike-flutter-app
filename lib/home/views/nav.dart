@@ -3,11 +3,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/news/views/button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/view.dart';
-import 'package:provider/provider.dart';
 
 class NavBarView extends StatelessWidget {
   /// A callback that is fired when the settings button was pressed.
@@ -20,7 +20,7 @@ class NavBarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     return SliverAppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/dangers/models/danger.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -15,7 +15,6 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Dangers with ChangeNotifier {
@@ -49,8 +48,8 @@ class Dangers with ChangeNotifier {
   Map<int, int> votes = {};
 
   /// Load dangers along a route.
-  Future<void> fetch(Route route, BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+  Future<void> fetch(Route route) async {
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
     final request = {
@@ -85,7 +84,7 @@ class Dangers with ChangeNotifier {
   }
 
   /// Report a new danger.
-  Future<void> submitNew(BuildContext context, Snap? snap, String category) async {
+  Future<void> submitNew(Snap? snap, String category) async {
     if (snap == null) {
       log.w("Cannot report a danger without a position.");
       return;
@@ -98,7 +97,7 @@ class Dangers with ChangeNotifier {
       lon: snap.position.longitude,
       category: category,
     );
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/post/');
     try {
@@ -124,9 +123,9 @@ class Dangers with ChangeNotifier {
   }
 
   /// Update the position.
-  Future<void> calculateUpcomingAndPreviousDangers(BuildContext context) async {
-    final snap = Provider.of<Positioning>(context, listen: false).snap;
-    final route = Provider.of<Routing>(context, listen: false).selectedRoute;
+  Future<void> calculateUpcomingAndPreviousDangers() async {
+    final snap = getIt<Positioning>().snap;
+    final route = getIt<Routing>().selectedRoute;
     if (snap == null || route == null) return;
     // First, go backwards and find a danger that the user should vote for.
     previousDangerToVoteFor = null;
@@ -168,8 +167,8 @@ class Dangers with ChangeNotifier {
   }
 
   /// Vote for a danger.
-  Future<void> vote(BuildContext context, Danger danger, int vote) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+  Future<void> vote(Danger danger, int vote) async {
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/vote/');
     final request = {
@@ -197,7 +196,7 @@ class Dangers with ChangeNotifier {
     }
     // Add the vote to the list.
     votes[danger.pk!] = vote;
-    await calculateUpcomingAndPreviousDangers(context);
+    await calculateUpcomingAndPreviousDangers();
   }
 
   /// The list of reported dangers during the ride.

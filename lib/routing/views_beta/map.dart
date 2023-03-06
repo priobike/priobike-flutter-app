@@ -6,11 +6,14 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -20,7 +23,6 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:provider/provider.dart';
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -54,6 +56,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
+  /// The associated map designs service, which is injected by the provider.
+  late MapDesigns mapDesigns;
+
   /// The associated settings service, which is injected by the provider.
   late MapSettings mapSettings;
 
@@ -62,21 +67,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A map controller for the map.
   MapboxMap? mapController;
-
-  /// The discomfort locations that are displayed, if they were fetched.
-  List<Symbol>? discomfortLocations;
-
-  /// The route label locations that are displayed, if they were fetched.
-  List<Symbol>? routeLabelLocations;
-
-  /// The traffic lights that are displayed, if there are traffic lights on the route.
-  List<Symbol>? trafficLights;
-
-  /// The offline crossings that are displayed, if there are offline crossings on the route.
-  List<Symbol>? offlineCrossings;
-
-  /// The current waypoints, if the route is selected.
-  List<Symbol>? waypoints;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   StreamSubscription<DraggableScrollableNotification>? sheetMovementSubscription;
@@ -105,6 +95,54 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The extra distance between the bottom sheet and the attribution.
   final sheetPadding = 16.0;
 
+  /// The current mode (dark/light).
+  bool isDark = false;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    updateMap();
+    setState(() {});
+  }
+
+  /// Update the map.
+  void updateMap() {
+    // Check if the selected map layers have changed.
+    if (layers.needsLayout[viewId] != false) {
+      loadGeoLayers();
+      layers.needsLayout[viewId] = false;
+    }
+
+    // Check if the selected map design has changed.
+    if (mapDesigns.needsLayout[viewId] != false) {
+      loadMapDesign();
+      mapDesigns.needsLayout[viewId] = false;
+    }
+
+    // Check if the position has changed.
+    if (positioning.needsLayout[viewId] != false) {
+      displayCurrentUserLocation();
+      positioning.needsLayout[viewId] = false;
+    }
+
+    // Check if route-related stuff has changed.
+    if (routing.needsLayout[viewId] != false ||
+        discomforts.needsLayout[viewId] != false ||
+        status.needsLayout[viewId] != false) {
+      loadRouteMapLayers();
+      fitCameraToRouteBounds();
+      fitCameraToLatLng();
+      routing.needsLayout[viewId] = false;
+      discomforts.needsLayout[viewId] = false;
+      status.needsLayout[viewId] = false;
+    }
+
+    if (mapSettings.centerCameraOnUserLocation) {
+      displayCurrentUserLocation();
+      fitCameraToUserPosition();
+      mapSettings.setCameraCenterOnUserLocation(false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -123,48 +161,38 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       parent: animationController,
       curve: Curves.easeInOutCubicEmphasized,
     );
+
+    layers = getIt<Layers>();
+    layers.addListener(update);
+    mapDesigns = getIt<MapDesigns>();
+    mapDesigns.addListener(update);
+    positioning = getIt<Positioning>();
+    positioning.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    discomforts = getIt<Discomforts>();
+    discomforts.addListener(update);
+    status = getIt<PredictionSGStatus>();
+    status.addListener(update);
+    mapSettings = getIt<MapSettings>();
+    mapSettings.addListener(update);
+
+    updateMap();
   }
 
   @override
-  void didChangeDependencies() {
-    // Check if the selected map layers have changed.
-    layers = Provider.of<Layers>(context);
-    if (layers.needsLayout[viewId] != false) {
-      loadGeoLayers();
-      layers.needsLayout[viewId] = false;
-    }
-
-    // Check if the position has changed.
-    positioning = Provider.of<Positioning>(context);
-    if (positioning.needsLayout[viewId] != false) {
-      displayCurrentUserLocation();
-      positioning.needsLayout[viewId] = false;
-    }
-
-    // Check if route-related stuff has changed.
-    routing = Provider.of<Routing>(context);
-    discomforts = Provider.of<Discomforts>(context);
-    status = Provider.of<PredictionSGStatus>(context);
-
-    if (routing.needsLayout[viewId] != false ||
-        discomforts.needsLayout[viewId] != false ||
-        status.needsLayout[viewId] != false) {
-      loadRouteMapLayers();
-      fitCameraToRouteBounds();
-      fitCameraToLatLng();
-      routing.needsLayout[viewId] = false;
-      discomforts.needsLayout[viewId] = false;
-      status.needsLayout[viewId] = false;
-    }
-
-    mapSettings = Provider.of<MapSettings>(context);
-    if (mapSettings.centerCameraOnUserLocation) {
-      displayCurrentUserLocation();
-      fitCameraToUserPosition();
-      mapSettings.setCameraCenterOnUserLocation(false);
-    }
-
-    super.didChangeDependencies();
+  void dispose() {
+    animationController.dispose();
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
+    layers.removeListener(update);
+    mapDesigns.removeListener(update);
+    positioning.removeListener(update);
+    routing.removeListener(update);
+    discomforts.removeListener(update);
+    status.removeListener(update);
+    mapSettings.removeListener(update);
+    super.dispose();
   }
 
   /// Fit the camera to the current user position.
@@ -197,11 +225,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     MbxEdgeInsets insets = MbxEdgeInsets(
         // Top routingBar * devicePixelRatio (needed).
         top: calculateRoutingBarHeight(frame, routing.selectedWaypoints?.length ?? 0, true, routing.minimized) *
-            0.4 *
             frame.devicePixelRatio,
         left: 0,
         // Standard height of bottomSheet * devicePixelRatio (needed).
-        bottom: 0.175 * frame.size.height * frame.devicePixelRatio * 0.2,
+        bottom: 0.175 * frame.size.height * frame.devicePixelRatio,
         right: 0);
     if (Platform.isIOS) {
       insets.top = insets.top * 0.4;
@@ -246,6 +273,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   displayCurrentUserLocation() async {
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
+
     await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
       if (!value) {
         await mapController!.style.addLayer(
@@ -253,7 +281,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             id: "user-location-puck",
             bearingImage:
                 Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
-            bearingImageSize: 0.2,
+            bearingImageSize: 0.15,
             accuracyRadiusColor: const Color(0x00000000).value,
             accuracyRadiusBorderColor: const Color(0x00000000).value,
             bearing: positioning.lastPosition!.heading,
@@ -284,52 +312,97 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
+  /// Load the map desgin.
+  loadMapDesign() async {
+    if (mapController == null) return;
+
+    await mapController!.style.setStyleURI(
+      Theme.of(context).colorScheme.brightness == Brightness.light
+          ? mapDesigns.mapDesign.lightStyle
+          : mapDesigns.mapDesign.darkStyle,
+    );
+  }
+
   /// Load the map layers.
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
     if (layers.showAirStations) {
-      BikeAirStationLayer(context).install(mapController!);
+      BikeAirStationLayer(isDark).install(mapController!);
     } else {
       BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
-      ConstructionSitesLayer(context).install(mapController!);
+      ConstructionSitesLayer(isDark).install(mapController!);
     } else {
       ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
-      ParkingStationsLayer(context).install(mapController!);
+      ParkingStationsLayer(isDark).install(mapController!);
     } else {
       ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
-      RentalStationsLayer(context).install(mapController!);
+      RentalStationsLayer(isDark).install(mapController!);
     } else {
       RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
-      BikeShopLayer(context).install(mapController!);
+      BikeShopLayer(isDark).install(mapController!);
     } else {
       BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
-      AccidentHotspotsLayer(context).install(mapController!);
+      AccidentHotspotsLayer(isDark).install(mapController!);
     } else {
       AccidentHotspotsLayer.remove(mapController!);
     }
   }
 
-  /// Load the map layers for the route.
+  /// Update all map layers.
   loadRouteMapLayers() async {
     if (mapController == null) return;
-    await AllRoutesLayer(context).update(mapController!);
-    await SelectedRouteLayer(context).update(mapController!);
-    await WaypointsLayer(context).update(mapController!);
-    await DiscomfortsLayer(context).update(mapController!);
-    await TrafficLightsLayer(context).update(mapController!);
-    await OfflineCrossingsLayer(context).update(mapController!);
-    await (await RouteLabelLayer.create(context)).update(mapController!);
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (!mounted) return;
+    final offlineCrossings = await OfflineCrossingsLayer(isDark).install(
+      mapController!,
+      iconSize: ppi / 10,
+    );
+    if (!mounted) return;
+    final trafficLights = await TrafficLightsLayer(isDark).install(
+      mapController!,
+      iconSize: ppi / 10,
+      below: offlineCrossings,
+    );
+    if (!mounted) return;
+    final waypoints = await WaypointsLayer().install(
+      mapController!,
+      iconSize: 0.2,
+      below: trafficLights,
+    );
+    if (!mounted) return;
+    final discomforts = await DiscomfortsLayer().install(
+      mapController!,
+      iconSize: ppi / 8,
+      below: waypoints,
+    );
+    if (!mounted) return;
+    final selectedRoute = await SelectedRouteLayer().install(
+      mapController!,
+      below: discomforts,
+    );
+    if (!mounted) return;
+    await AllRoutesLayer().install(
+      mapController!,
+      below: selectedRoute,
+    );
+    if (!mounted) return;
+    await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
+            await mapController!.getCameraState())
+        .install(mapController!, iconSize: ppi / 8);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -340,7 +413,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if ((id as String).startsWith("route-")) {
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
-      routing.switchToRoute(context, routeIdx);
+      routing.switchToRoute(routeIdx);
       discomforts.unselectDiscomfort();
       discomforts.unselectTrafficLight();
     } else if (id.startsWith("discomfort-")) {
@@ -355,7 +428,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
         return;
       }
-      routing.switchToRoute(context, routeLabelIdx);
+      routing.switchToRoute(routeLabelIdx);
     }
   }
 
@@ -394,9 +467,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapController = controller;
   }
 
-  /// A callback which is executed when the map style was loaded.
-  Future<void> onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
-    if (mapController == null) return;
+  /// A callback which is executed when the map style was (re-)loaded.
+  onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
+    if (mapController == null || !mounted) return;
+
+    displayCurrentUserLocation();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -404,43 +479,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
 
-    // Trigger an update of the map layers.
-    final ppi = MediaQuery.of(context).devicePixelRatio;
-    final offlineCrossings = await OfflineCrossingsLayer(context).install(
-      mapController!,
-      iconSize: ppi / 10,
-    );
-    final trafficLights = await TrafficLightsLayer(context).install(
-      mapController!,
-      iconSize: ppi / 10,
-      below: offlineCrossings,
-    );
-    final discomforts = await DiscomfortsLayer(context).install(
-      mapController!,
-      iconSize: ppi / 8,
-      below: trafficLights,
-    );
-    final waypoints = await WaypointsLayer(context).install(
-      mapController!,
-      iconSize: ppi / 8,
-      below: discomforts,
-    );
-    final selectedRoute = await SelectedRouteLayer(context).install(
-      mapController!,
-      below: waypoints,
-    );
-    if (widget.withRouting) {
-      await AllRoutesLayer(context).install(
-        mapController!,
-        below: selectedRoute,
-      );
-      await (await RouteLabelLayer.create(context)).install(mapController!, iconSize: ppi / 6);
-      await loadRouteMapLayers();
-      await (await RouteLabelLayer.create(context)).update(mapController!);
-    }
-    await fitCameraToRouteBounds();
-    await displayCurrentUserLocation();
-    await loadGeoLayers();
+    // Load the boundary layer.
+    await BoundaryLayer(isDark).install(mapController!);
+
+    fitCameraToRouteBounds();
+    loadGeoLayers();
+    loadRouteMapLayers();
   }
 
   /// A callback that is executed when the map was longclicked.
@@ -456,18 +500,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
-    final geocoding = Provider.of<Geocoding>(context, listen: false);
+    final geocoding = getIt<Geocoding>();
     String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
-    String address = await geocoding.reverseGeocode(context, coordLatLng) ?? fallback;
+    String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
     await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
-    await routing.loadRoutes(context);
+    await routing.loadRoutes();
   }
 
   /// A callback which is executed when a tap on the map is registered.
@@ -495,7 +539,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: ['routes-layer', 'discomforts-layer', "traffic-lights-icons", "routeLabels-clicklayer"],
+        layerIds: [
+          'routes-layer',
+          'discomforts-layer',
+          'traffic-lights-icons',
+          'offline-crossings-icons',
+          'routeLabels-clicklayer'
+        ],
       ),
     );
 
@@ -510,21 +560,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {}
+
   /// A callback that is executed when the camera movement of the user stopped.
-  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
     // Check if the route labels have to be positionally adjusted.
     if (widget.withRouting && mapController != null && !(await mapController!.isUserAnimationInProgress())) {
-      await (await RouteLabelLayer.create(context)).update(mapController!);
+      await (RouteLabelLayer(deviceWidth, deviceHeight, await mapController!.getCameraState())).update(mapController!);
     }
-  }
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
-
-    super.dispose();
   }
 
   @override
@@ -550,6 +596,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapTap: onMapTap,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
+            onCameraIdle: onCameraIdle,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,

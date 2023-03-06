@@ -4,8 +4,8 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:provider/provider.dart';
 
 class RoutesView extends StatefulWidget {
   const RoutesView({Key? key}) : super(key: key);
@@ -18,11 +18,21 @@ class RoutesViewState extends State<RoutesView> {
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
 
-  @override
-  void didChangeDependencies() {
-    shortcuts = Provider.of<Shortcuts>(context);
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
 
-    super.didChangeDependencies();
+  @override
+  void initState() {
+    super.initState();
+
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    shortcuts.removeListener(update);
+    super.dispose();
   }
 
   /// A callback that is executed when a shortcut should be deleted.
@@ -32,7 +42,7 @@ class RoutesViewState extends State<RoutesView> {
     final newShortcuts = shortcuts.shortcuts!.toList();
     newShortcuts.remove(shortcut);
 
-    shortcuts.updateShortcuts(newShortcuts, context);
+    shortcuts.updateShortcuts(newShortcuts);
   }
 
   /// The widget that displays a waypoint.

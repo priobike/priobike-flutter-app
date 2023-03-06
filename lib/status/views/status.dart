@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/map.dart';
-import 'package:provider/provider.dart';
 
 class StatusView extends StatefulWidget {
   const StatusView({Key? key}) : super(key: key);
@@ -31,38 +30,49 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   /// The animated scale of the status view.
   double animatedScale = 1.0;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() {
+    text = loadText();
+    goodPct = loadGood();
+    setState(() {});
+  }
+
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
+    predictionStatusSummary.addListener(update);
+
+    text = loadText();
+    goodPct = loadGood();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
+    predictionStatusSummary.removeListener(update);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      predictionStatusSummary.fetch(context);
+      predictionStatusSummary.fetch();
     }
   }
 
   @override
-  void didChangeDependencies() {
-    predictionStatusSummary = Provider.of<PredictionStatusSummary>(context);
-    text = loadText();
-    goodPct = loadGood();
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
   void didPopNext() {
-    predictionStatusSummary.fetch(context);
+    predictionStatusSummary.fetch();
   }
 
   /// Load the displayed text.

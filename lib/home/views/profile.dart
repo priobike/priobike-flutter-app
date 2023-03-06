@@ -5,9 +5,9 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
-import 'package:provider/provider.dart';
 
 class ProfileElementButton extends StatelessWidget {
   final IconData icon;
@@ -80,19 +80,29 @@ class ProfileViewState extends State<ProfileView> {
   /// The associated profile service, which is injected by the provider.
   late Profile profileService;
 
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
   bool bikeSelectionActive = false;
   bool preferenceSelectionActive = false;
   bool activitySelectionActive = false;
 
   @override
-  void didChangeDependencies() {
-    profileService = Provider.of<Profile>(context);
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    profileService = getIt<Profile>();
+    profileService.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    profileService.removeListener(update);
+    super.dispose();
   }
 
   void toggleBikeSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {
@@ -105,7 +115,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void togglePreferenceSelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {
@@ -118,7 +128,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void toggleActivitySelection() {
     // Tell the tutorial that the user has seen a profile selection.
-    Provider.of<Tutorial>(context, listen: false).complete("priobike.tutorial.configure-profile");
+    getIt<Tutorial>().complete("priobike.tutorial.configure-profile");
 
     setState(
       () {

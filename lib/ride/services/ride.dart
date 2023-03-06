@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
@@ -13,7 +14,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:provider/provider.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -114,17 +114,17 @@ class Ride with ChangeNotifier {
   }
 
   /// Select a new route.
-  Future<void> selectRoute(BuildContext context, Route route) async {
+  Future<void> selectRoute(Route route) async {
     this.route = route;
     notifyListeners();
   }
 
   /// Start the navigation and connect the MQTT client.
-  Future<void> startNavigation(BuildContext context, Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
+  Future<void> startNavigation(Function(SGStatusData)? onNewPredictionStatusDuringRide) async {
     // Do nothing if the navigation has already been started.
     if (navigationIsActive) return;
 
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final predictionMode = settings.predictionMode;
     if (predictionMode == PredictionMode.usePredictionService) {
       // Connect the prediction service MQTT client.
@@ -132,19 +132,19 @@ class Ride with ChangeNotifier {
           onConnected: onPredictionComponentClientConnected,
           notifyListeners: notifyListeners,
           onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     } else if (predictionMode == PredictionMode.usePredictor) {
       // Connect the predictor MQTT client.
       predictionComponent = Predictor(
           onConnected: onPredictionComponentClientConnected,
           notifyListeners: notifyListeners,
           onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     } else {
       // Hybrid mode -> connect both clients.
       predictionComponent = HybridPredictor(
           notifyListeners: notifyListeners, onNewPredictionStatusDuringRide: onNewPredictionStatusDuringRide);
-      predictionComponent!.connectMQTTClient(context);
+      predictionComponent!.connectMQTTClient();
     }
 
     // Mark that navigation is now active.
@@ -155,10 +155,10 @@ class Ride with ChangeNotifier {
   }
 
   /// Update the position.
-  Future<void> updatePosition(BuildContext context) async {
+  Future<void> updatePosition() async {
     if (!navigationIsActive) return;
 
-    final snap = Provider.of<Positioning>(context, listen: false).snap;
+    final snap = getIt<Positioning>().snap;
     if (snap == null || route == null) return;
 
     // Calculate the distance to the next turn.
@@ -220,7 +220,7 @@ class Ride with ChangeNotifier {
   }
 
   /// Stop the navigation.
-  Future<void> stopNavigation(BuildContext context) async {
+  Future<void> stopNavigation() async {
     if (predictionComponent != null) predictionComponent!.stopNavigation();
     navigationIsActive = false;
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.

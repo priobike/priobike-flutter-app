@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class ParkingStationsLayer {
   /// The ID of the Mapbox source.
@@ -17,14 +17,11 @@ class ParkingStationsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  ParkingStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  ParkingStationsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_parking.geojson"),
@@ -74,14 +71,11 @@ class RentalStationsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  RentalStationsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  RentalStationsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_rental.geojson"),
@@ -163,14 +157,11 @@ class BikeShopLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  BikeShopLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeShopLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bicycle_shop.geojson"),
@@ -257,14 +248,11 @@ class BikeAirStationLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  BikeAirStationLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  BikeAirStationLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/bike_air_station.geojson"),
@@ -346,14 +334,11 @@ class ConstructionSitesLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  ConstructionSitesLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  ConstructionSitesLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/construction_sites.geojson"),
@@ -422,14 +407,11 @@ class AccidentHotspotsLayer {
   /// If the layer should display a dark version of the icons.
   final bool isDark;
 
-  /// BuildContext of the widget
-  final BuildContext context;
-
-  AccidentHotspotsLayer(this.context) : isDark = Theme.of(context).brightness == Brightness.dark;
+  AccidentHotspotsLayer(this.isDark);
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+    final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
     await mapController.style.addSource(
       mapbox.GeoJsonSource(id: sourceId, data: "https://$baseUrl/map-data/accident_hot_spots.geojson"),

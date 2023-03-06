@@ -4,19 +4,18 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/sources/gnss.dart';
 import 'package:priobike/positioning/sources/interface.dart';
 import 'package:priobike/positioning/sources/mock.dart';
-import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:provider/provider.dart';
 
 class Positioning with ChangeNotifier {
   final log = Logger("Positioning");
@@ -67,30 +66,6 @@ class Positioning with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Show a dialog if the location provider was denied.
-  void showLocationAccessDeniedDialog(BuildContext context) {
-    Widget okButton = TextButton(
-      child: const Text("Einstellungen öffnen"),
-      onPressed: () => positionSource?.openLocationSettings(),
-    );
-    AlertDialog alert = AlertDialog(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      title: SubHeader(
-        text: "Zugriff auf Standort verweigert.",
-        context: context,
-      ),
-      content: Content(
-        text: "Bitte erlauben Sie den Zugriff auf Ihren Standort in den Einstellungen.",
-        context: context,
-      ),
-      actions: [okButton],
-    );
-    showDialog(context: context, builder: (BuildContext context) => alert);
-  }
-
   Future<bool> requestGeolocatorPermission() async {
     if (positionSource == null) return false;
 
@@ -130,13 +105,13 @@ class Positioning with ChangeNotifier {
   }
 
   /// Ensure that the position source is initialized.
-  Future<void> initializePositionSource(BuildContext context) async {
-    final settings = Provider.of<Settings>(context, listen: false);
+  Future<void> initializePositionSource() async {
+    final settings = getIt<Settings>();
     if (settings.positioningMode == PositioningMode.gnss) {
       positionSource = GNSSPositionSource();
       log.i("Using gnss positioning source.");
     } else if (settings.positioningMode == PositioningMode.follow18kmh) {
-      final routing = Provider.of<Routing>(context, listen: false);
+      final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
@@ -144,7 +119,7 @@ class Positioning with ChangeNotifier {
       positionSource = PathMockPositionSource(speed: 18 / 3.6, positions: positions);
       log.i("Using mocked path positioning source (18 km/h).");
     } else if (settings.positioningMode == PositioningMode.follow40kmh) {
-      final routing = Provider.of<Routing>(context, listen: false);
+      final routing = getIt<Routing>();
       final positions = routing.selectedRoute?.route // Fallback to center location of city.
               .map((e) => LatLng(e.lat, e.lon))
               .toList() ??
@@ -172,13 +147,12 @@ class Positioning with ChangeNotifier {
   }
 
   /// Request a single location update. This will not be recorded.
-  Future<void> requestSingleLocation(BuildContext context) async {
-    await initializePositionSource(context);
+  Future<void> requestSingleLocation({required void Function() onNoPermission}) async {
+    await initializePositionSource();
 
     final hasPermission = await requestGeolocatorPermission();
     if (!hasPermission) {
-      Navigator.of(context).pop();
-      showLocationAccessDeniedDialog(context);
+      onNoPermission();
       log.w('Permission to Geolocator denied');
       isGeolocating = false;
       return;
@@ -189,18 +163,17 @@ class Positioning with ChangeNotifier {
   }
 
   Future<void> startGeolocation({
-    required BuildContext context,
+    required void Function() onNoPermission,
     required void Function() onNewPosition,
   }) async {
     if (isGeolocating) return;
     isGeolocating = true;
 
-    await initializePositionSource(context);
+    await initializePositionSource();
 
     final hasPermission = await requestGeolocatorPermission();
     if (!hasPermission) {
-      Navigator.of(context).pop();
-      showLocationAccessDeniedDialog(context);
+      onNoPermission();
       log.w('Permission to Geolocator denied');
       isGeolocating = false;
       return;
