@@ -248,9 +248,7 @@ class Tracking with ChangeNotifier {
       await startCollectingGyrData(gyroscopeEvents);
       await startCollectingMagData(magnetometerEvents);
       if (sensorSamplingTimer == null || !sensorSamplingTimer!.isActive) {
-        sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-          await sampleSensorData();
-        });
+        sensorSamplingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async => await sampleSensorData());
       }
     } catch (e, stacktrace) {
       final hint = "Could not start a new track: $e $stacktrace";
