@@ -149,6 +149,7 @@ class SettingsViewState extends State<SettingsView> {
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The generated user id.
   String userId = "";
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -176,6 +177,7 @@ class SettingsViewState extends State<SettingsView> {
     super.dispose();
   }
 
+  /// Get the user id.
   Future<void> getUserId() async {
     userId = await User.getOrCreateId();
     setState(() {});
