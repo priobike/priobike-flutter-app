@@ -677,7 +677,7 @@ packages:
     description:
       path: "packages/sensors_plus/sensors_plus"
       ref: main
-      resolved-ref: "9c147abd6992ca22f8da820faa71c33565e5ce30"
+      resolved-ref: "8d2dc9a7bb66616c63e8d8cca2833d48724fd76a"
       url: "https://github.com/priobike/priobike-plus-plugins"
     source: git
     version: "2.0.2"
