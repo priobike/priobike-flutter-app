@@ -234,24 +234,13 @@ class SettingsViewState extends State<SettingsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const VSpace(),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Row(
-                          children: [
-                            Content(text: "Zufällige Geräte ID: ", context: context),
-                            BoldContent(text: userId, context: context),
-                          ],
-                        ),
-                      ),
-                      const SmallVSpace(),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Row(
-                          children: [
-                            Content(text: "Version: ", context: context),
-                            BoldContent(text: feature.appVersion, context: context),
-                          ],
-                        ),
+                      Row(
+                        children: [
+                          Content(text: "Version: ", context: context),
+                          BoldContent(text: feature.appVersion, context: context),
+                          Content(text: ", ID: ", context: context),
+                          BoldContent(text: userId, context: context),
+                        ],
                       ),
                       const VSpace(),
                     ],
