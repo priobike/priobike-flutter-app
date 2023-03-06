@@ -27,6 +27,9 @@ class TrafficService with ChangeNotifier {
   /// The lowest value of the prediction. Used for scaling the barchart.
   double? lowestValue;
 
+  /// The highest value of the prediction. Used for scaling the barchart.
+  double? highestValue;
+
   /// The the score for the current hour.
   double? scoreNow;
 
@@ -89,6 +92,7 @@ class TrafficService with ChangeNotifier {
       for (double? value in trafficData!.values) {
         if (value == null) continue;
         lowestValue == null ? lowestValue = value : lowestValue = min(lowestValue!, value);
+        highestValue == null ? highestValue = value : highestValue = max(highestValue!, value);
       }
       scoreNow = data["now"];
       historicScore = trafficData![DateTime.now().hour.toString()];

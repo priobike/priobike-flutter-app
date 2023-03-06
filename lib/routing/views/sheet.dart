@@ -164,44 +164,43 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render the Traffic Prediction Bar Chart.
   Widget renderTrafficPrediction(BuildContext context) {
     trafficService.fetch();
-    final availableHeight = (MediaQuery.of(context).size.height);
-    return (trafficService.hasLoaded == true)
-        ? Padding(
-            padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Content(
-                      text: "Verkehrslage",
-                      context: context,
-                    ),
-                    Content(
-                      text: trafficService.trafficStatus!,
-                      context: context,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    for (final key in trafficService.trafficData!.keys)
-                      if (trafficService.trafficData![key] != null)
-                        renderTrafficBar(
-                            (trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) *
-                                availableHeight *
-                                5,
-                            int.parse(key),
-                            (int.parse(key) == DateTime.now().hour))
-                  ],
-                ),
-              ],
-            ),
-          )
-        : Container();
+    if (trafficService.hasLoaded == false) return Container();
+    double availableHeight = (MediaQuery.of(context).size.height) / 6;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Content(
+                text: "Verkehrslage",
+                context: context,
+              ),
+              Content(
+                text: trafficService.trafficStatus!,
+                context: context,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final key in trafficService.trafficData!.keys)
+                if (trafficService.trafficData![key] != null)
+                  renderTrafficBar(
+                      ((trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) /
+                              (trafficService.highestValue! * 1.01 - trafficService.lowestValue! * 0.99)) *
+                          availableHeight,
+                      int.parse(key),
+                      (int.parse(key) == DateTime.now().hour))
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget renderDragIndicator(BuildContext context) {
