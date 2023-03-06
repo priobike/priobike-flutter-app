@@ -175,7 +175,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Content(
-                      text: "Verkehr",
+                      text: "Verkehrslage",
                       context: context,
                     ),
                     Content(

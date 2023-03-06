@@ -44,16 +44,16 @@ class TrafficService with ChangeNotifier {
   /// Evaluate the traffic status.
   String evaluateTraffic() {
     double difference = scoreNow! / historicScoreNow!;
-    if (difference > 1.05) {
-      return "Verkehrslage deutlich besser als gewöhnlich";
-    } else if (difference < 0.95) {
-      return "Verkehrslage deutlich schlechter als gewöhnlich";
+    if (difference > 1.03) {
+      return "deutlich besser als gewöhnlich";
+    } else if (difference < 0.97) {
+      return "deutlich schlechter als gewöhnlich";
     } else if (difference > 1) {
-      return "Verkehrslage besser als gewöhnlich";
+      return "besser als gewöhnlich";
     } else if (difference < 1) {
-      return "Verkehrslage schlechter als gewöhnlich";
+      return "schlechter als gewöhnlich";
     } else {
-      return "Verkehrslage wie gewöhnlich";
+      return "wie gewöhnlich";
     }
   }
 
@@ -81,7 +81,6 @@ class TrafficService with ChangeNotifier {
       trafficData = {};
       Map<String, dynamic> data = jsonDecode(response.body);
       for (String key in data.keys) {
-        // TODO: It would be better to filter via a common prefix.
         if (key.startsWith("quality") || key.startsWith("now")) {
           continue;
         }
