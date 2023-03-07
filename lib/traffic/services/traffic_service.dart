@@ -85,6 +85,7 @@ class TrafficService with ChangeNotifier {
       trafficData = {};
       Map<String, dynamic> data = jsonDecode(response.body);
       for (String key in data.keys) {
+        // if the JSON contains other keys, this needs to be updated.
         if (key.startsWith("quality") || key.startsWith("now")) {
           continue;
         }
@@ -111,7 +112,7 @@ class TrafficService with ChangeNotifier {
     }
   }
 
-  /// Reset the status.
+  /// Reset the traffic prediction.
   Future<void> reset() async {
     trafficData = null;
     isLoading = false;
