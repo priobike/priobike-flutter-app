@@ -81,7 +81,7 @@ Future<void> main() async {
   getIt.registerSingleton<MapSettings>(MapSettings());
   getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
-  getIt.registerSingleton<TrafficService>(TrafficService());
+  getIt.registerSingleton<Traffic>(Traffic());
 
   runZonedGuarded(() async {
     runApp(const App());

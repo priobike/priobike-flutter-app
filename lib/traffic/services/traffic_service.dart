@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
@@ -8,9 +7,9 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-class TrafficService with ChangeNotifier {
+class Traffic with ChangeNotifier {
   /// The logger for this service.
-  final log = Logger("TrafficService");
+  final log = Logger("Traffic");
 
   /// If the service is currently loading the status.
   bool isLoading = false;
@@ -24,12 +23,6 @@ class TrafficService with ChangeNotifier {
   /// The last time the status was checked. Only check every hour.
   DateTime? lastChecked;
 
-  /// The lowest value of the prediction. Used for scaling the barchart.
-  double? lowestValue;
-
-  /// The highest value of the prediction. Used for scaling the barchart.
-  double? highestValue;
-
   /// The the score for the current hour.
   double? scoreNow;
 
@@ -42,21 +35,27 @@ class TrafficService with ChangeNotifier {
   /// The status of the score right now compared to the historic average.
   String? trafficStatus;
 
-  TrafficService();
+  Traffic();
 
   /// Evaluate the traffic status by comparing the current score to the historic average.
   String evaluateTraffic() {
+    if (scoreNow == null || historicScore == null) {
+      return "Keine Daten";
+    }
+    if (historicScore == 0) {
+      return "Keine Daten";
+    }
     double difference = scoreNow! / historicScore!;
     if (difference > 1.05) {
-      return "deutlich besser als gewöhnlich";
+      return "Deutlich weniger als gewöhnlich";
     } else if (difference > 1.03) {
-      return "besser als gewöhnlich";
+      return "Weniger als gewöhnlich";
     } else if (difference < 0.97) {
-      return "schlechter als gewöhnlich";
+      return "Mehr als gewöhnlich";
     } else if (difference < 0.95) {
-      return "deutlich schlechter als gewöhnlich";
+      return "Deutlich mehr als gewöhnlich";
     } else {
-      return "wie gewöhnlich";
+      return "Wie gewöhnlich";
     }
   }
 
@@ -91,11 +90,6 @@ class TrafficService with ChangeNotifier {
         }
         trafficData![int.parse(key)] = data[key] as double?;
       }
-      for (double? value in trafficData!.values) {
-        if (value == null) continue;
-        lowestValue == null ? lowestValue = value : lowestValue = min(lowestValue!, value);
-        highestValue == null ? highestValue = value : highestValue = max(highestValue!, value);
-      }
       scoreNow = data["now"];
       historicScore = trafficData![DateTime.now().hour];
       trafficStatus = evaluateTraffic();
@@ -110,19 +104,5 @@ class TrafficService with ChangeNotifier {
       notifyListeners();
       log.e("Error while fetching traffic-service prediction: $e");
     }
-  }
-
-  /// Reset the traffic service.
-  Future<void> reset() async {
-    trafficData = null;
-    isLoading = false;
-    hadError = false;
-    hasLoaded = false;
-    lastChecked = null;
-    scoreNow = null;
-    historicScore = null;
-    lowestValue = null;
-    trafficStatus = null;
-    notifyListeners();
   }
 }
