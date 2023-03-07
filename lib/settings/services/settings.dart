@@ -59,8 +59,11 @@ class Settings with ChangeNotifier {
   /// The selected signal group selection mode.
   SGSelectionMode sgSelectionMode;
 
-  /// The bearing diff for the crossing SG selection mode.
+  /// The bearing diff for the multi lane SG selection mode.
   SGSelectionModeBearingDiff sgSelectionModeBearingDiff;
+
+  /// The maximum distance between route and SG for the multi lane SG selection mode.
+  SGSelectionModeDistanceToRoute sgSelectionModeDistanceToRoute;
 
   /// The selected tracking submission policy.
   TrackingSubmissionPolicy trackingSubmissionPolicy;
@@ -337,6 +340,24 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const sgSelectionModeDistanceToRouteKey = "priobike.settings.sgSelectionModeDistanceToRoute";
+  static const defaultSGSelectionModeDistanceToRoute = SGSelectionModeDistanceToRoute.thirty;
+
+  Future<bool> setSGSelectionModeDistanceToRoute(SGSelectionModeDistanceToRoute sgSelectionModeDistanceToRoute,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgSelectionModeDistanceToRoute;
+    this.sgSelectionModeDistanceToRoute = sgSelectionModeDistanceToRoute;
+    bool success = await storage.setString(sgSelectionModeDistanceToRouteKey, sgSelectionModeDistanceToRoute.name);
+    if (!success) {
+      log.e("Failed to set sgSelectionModeDistanceToRoute to $sgSelectionModeDistanceToRoute");
+      this.sgSelectionModeDistanceToRoute = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
   static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
 
@@ -372,6 +393,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.sgSelectionMode = defaultSGSelectionMode,
     this.sgSelectionModeBearingDiff = defaultSGSelectionModeBearingDiff,
+    this.sgSelectionModeDistanceToRoute = defaultSGSelectionModeDistanceToRoute,
     this.routingView = defaultRoutingView,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
   });
@@ -446,6 +468,12 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      sgSelectionModeDistanceToRoute =
+          SGSelectionModeDistanceToRoute.values.byName(storage.getString(sgSelectionModeDistanceToRouteKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.
@@ -500,6 +528,7 @@ class Settings with ChangeNotifier {
         "sgSelector": sgSelector.name,
         "sgSelectionMode": sgSelectionMode.name,
         "sgSelectionModeBearingDiff": sgSelectionModeBearingDiff.name,
+        "sgSelectionModeDistanceToRoute": sgSelectionModeDistanceToRoute.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
       };
 }

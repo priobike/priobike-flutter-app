@@ -139,7 +139,8 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     final userDistanceOnRoute = positioning.snap?.distanceOnRoute;
     if (userDistanceOnRoute == null) return 1000;
     final distanceToSignalGroup = absSgDistance - userDistanceOnRoute;
-    final bottomOffset = distanceToSignalGroup * (standardBarHeight / preDistance);
+    final bottomOffset =
+        (distanceToSignalGroup * (standardBarHeight / preDistance)) - (40 * (standardBarHeight / preDistance));
     return bottomOffset;
   }
 
@@ -306,36 +307,43 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
         if (currentSgsOrdered.isNotEmpty)
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.2,
-            child: Row(
-              children: [
-                Transform.rotate(
-                  angle: 40,
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
+            child: Transform(
+              alignment: FractionalOffset.bottomCenter,
+              transform: perspective.scaled(1.0, 1.0, 1.0)
+                ..rotateX(tiltDegree * pi / 180)
+                ..rotateY(0.0)
+                ..rotateZ(0.0),
+              child: Row(
+                children: [
+                  Transform.rotate(
+                    angle: 40,
+                    child: Container(
+                      height: 20,
+                      width: 20,
                       color: Theme.of(context).primaryColor,
-                      width: MediaQuery.of(context).size.width - 20,
-                      height: 5,
                     ),
-                    Image.asset('assets/images/position-dark.png', height: 100),
-                  ],
-                ),
-                Transform.rotate(
-                  angle: 40,
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    color: Theme.of(context).primaryColor,
                   ),
-                ),
-              ],
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        color: Theme.of(context).primaryColor,
+                        width: MediaQuery.of(context).size.width - 20,
+                        height: 5,
+                      ),
+                      Image.asset('assets/images/position-dark.png', height: 100),
+                    ],
+                  ),
+                  Transform.rotate(
+                    angle: 40,
+                    child: Container(
+                      height: 20,
+                      width: 20,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
       ],

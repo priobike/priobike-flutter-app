@@ -70,3 +70,49 @@ extension SGSelectionModeBearingDiffDegree on SGSelectionModeBearingDiff {
     }
   }
 }
+
+enum SGSelectionModeDistanceToRoute {
+  five,
+  ten,
+  fifteen,
+  twenty,
+  twentyFive,
+  thirty,
+  thirtyFive,
+  forty,
+  fortyFive,
+  fifty,
+  fiftyFive,
+  sixty,
+}
+
+extension SGSelectionModeDistanceToRouteMeter on SGSelectionModeDistanceToRoute {
+  int get meter {
+    switch (this) {
+      case SGSelectionModeDistanceToRoute.five:
+        return 5;
+      case SGSelectionModeDistanceToRoute.ten:
+        return 10;
+      case SGSelectionModeDistanceToRoute.fifteen:
+        return 15;
+      case SGSelectionModeDistanceToRoute.twenty:
+        return 20;
+      case SGSelectionModeDistanceToRoute.twentyFive:
+        return 25;
+      case SGSelectionModeDistanceToRoute.thirty:
+        return 30;
+      case SGSelectionModeDistanceToRoute.thirtyFive:
+        return 35;
+      case SGSelectionModeDistanceToRoute.forty:
+        return 40;
+      case SGSelectionModeDistanceToRoute.fortyFive:
+        return 45;
+      case SGSelectionModeDistanceToRoute.fifty:
+        return 50;
+      case SGSelectionModeDistanceToRoute.fiftyFive:
+        return 55;
+      case SGSelectionModeDistanceToRoute.sixty:
+        return 60;
+    }
+  }
+}
