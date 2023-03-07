@@ -194,8 +194,8 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                       ((trafficService.trafficData![key]! - trafficService.lowestValue! * 0.99) /
                               (trafficService.highestValue! * 1.01 - trafficService.lowestValue! * 0.99)) *
                           availableHeight,
-                      int.parse(key),
-                      (int.parse(key) == DateTime.now().hour))
+                      key,
+                      (key == DateTime.now().hour))
             ],
           ),
         ],

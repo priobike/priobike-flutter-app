@@ -19,7 +19,7 @@ class TrafficService with ChangeNotifier {
   bool hadError = false;
 
   /// The predictions for traffic from t-1 hour to next t+5 hours.
-  Map<String, dynamic>? trafficData;
+  Map<int, double?>? trafficData;
 
   /// The last time the status was checked. Only check every hour.
   DateTime? lastChecked;
@@ -89,7 +89,7 @@ class TrafficService with ChangeNotifier {
         if (key.startsWith("quality") || key.startsWith("now")) {
           continue;
         }
-        trafficData![key] = data[key];
+        trafficData![int.parse(key)] = data[key] as double?;
       }
       for (double? value in trafficData!.values) {
         if (value == null) continue;
@@ -97,7 +97,7 @@ class TrafficService with ChangeNotifier {
         highestValue == null ? highestValue = value : highestValue = max(highestValue!, value);
       }
       scoreNow = data["now"];
-      historicScore = trafficData![DateTime.now().hour.toString()];
+      historicScore = trafficData![DateTime.now().hour];
       trafficStatus = evaluateTraffic();
       isLoading = false;
       hadError = false;
