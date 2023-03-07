@@ -23,6 +23,9 @@ class SgMultiLane {
   /// The direction of the signal group.
   final Direction direction;
 
+  /// The lane type of the signal group (allowed vehicles).
+  final LaneType laneType;
+
   SgMultiLane({
     required this.id,
     required this.position,
@@ -31,6 +34,7 @@ class SgMultiLane {
     required this.bearingEnd,
     required this.distanceOnRoute,
     required this.direction,
+    required this.laneType,
   });
 
   factory SgMultiLane.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,29 @@ class SgMultiLane {
     } else {
       direction = Direction.straight;
     }
+
+    LaneType laneType;
+    switch (json['laneType']) {
+      case 'Radfahrer':
+        laneType = LaneType.bike;
+        break;
+      case 'Fußgänger/Radfahrer':
+        laneType = LaneType.bikePedestrian;
+        break;
+      case 'KFZ/Radfahrer':
+        laneType = LaneType.bikeCar;
+        break;
+      case 'KFZ/Bus/Radfahrer':
+        laneType = LaneType.bikeCarBus;
+        break;
+      case 'Bus/Radfahrer':
+        laneType = LaneType.bikeBus;
+        break;
+      default:
+        laneType = LaneType.unknown;
+        break;
+    }
+
     return SgMultiLane(
       id: json['id'],
       position: Point.fromJson(json['position']),
@@ -56,6 +83,7 @@ class SgMultiLane {
       bearingEnd: json['bearingEnd'],
       distanceOnRoute: json['distanceOnRoute'],
       direction: direction,
+      laneType: laneType,
     );
   }
 
@@ -67,6 +95,7 @@ class SgMultiLane {
         'bearingEnd': bearingEnd,
         'distanceOnRoute': distanceOnRoute,
         'direction': direction.name,
+        'laneType': laneType.name,
       };
 }
 
@@ -96,6 +125,82 @@ extension DirectionIcon on Direction {
         return Icons.north_east;
       case Direction.hardRight:
         return Icons.east;
+    }
+  }
+}
+
+/// The lane type of the signal group (allowed vehicles).
+enum LaneType {
+  bike,
+  bikePedestrian,
+  bikeCar,
+  bikeCarBus,
+  bikeBus,
+  unknown,
+}
+
+Widget _getCombinedIcons(Color iconColor, List<IconData> icons) {
+  switch (icons.length) {
+    case 1:
+      return Icon(Icons.pedal_bike_rounded, color: iconColor, size: 28);
+    case 2:
+      return SizedBox(
+        width: 28,
+        height: 28,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Icon(icons[0], color: iconColor, size: 18),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Icon(icons[1], color: iconColor, size: 18),
+            ),
+          ],
+        ),
+      );
+    case 3:
+      return SizedBox(
+        width: 28,
+        height: 28,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Icon(icons[0], color: iconColor, size: 14),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Icon(icons[1], color: iconColor, size: 14),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Icon(icons[2], color: iconColor, size: 14),
+            ),
+          ],
+        ),
+      );
+  }
+  return const SizedBox();
+}
+
+extension LaneTypeIcon on LaneType {
+  Widget icon(Color color) {
+    switch (this) {
+      case LaneType.bike:
+        return _getCombinedIcons(color, [Icons.pedal_bike_rounded]);
+      case LaneType.bikePedestrian:
+        return _getCombinedIcons(color, [Icons.pedal_bike_rounded, Icons.directions_walk_rounded]);
+      case LaneType.bikeCar:
+        return _getCombinedIcons(color, [Icons.pedal_bike_rounded, Icons.directions_car_filled]);
+      case LaneType.bikeCarBus:
+        return _getCombinedIcons(
+            color, [Icons.pedal_bike_rounded, Icons.directions_car_filled, Icons.directions_bus_filled]);
+      case LaneType.bikeBus:
+        return _getCombinedIcons(color, [Icons.pedal_bike_rounded, Icons.directions_bus_filled]);
+      case LaneType.unknown:
+        return _getCombinedIcons(color, []);
     }
   }
 }

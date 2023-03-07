@@ -43,6 +43,10 @@ class RideMultiLane with ChangeNotifier {
   /// Current signal groups.
   Set<SgMultiLane> currentSignalGroups = {};
 
+  /// The distance on the route before a signal group from which it is considered for the predictions and
+  /// recommendations.
+  static const preDistance = 100.0;
+
   /// Callback that gets called when the prediction component client established a connection.
   void onPredictionComponentClientConnected() {
     for (final signalGroup in currentSignalGroups) {
@@ -81,13 +85,12 @@ class RideMultiLane with ChangeNotifier {
     final snap = getIt<PositioningMultiLane>().snap;
     if (snap == null || route == null) return;
 
-    // The distance on the route before a signal group from which it is considered for the predictions and
-    // recommendations.
-    const preDistance = 100.0;
     for (final sg in route!.signalGroups) {
       final absSgDistance = route!.path.distance * sg.distanceOnRoute;
-      // Signal group is behind the user.
-      if (absSgDistance < snap.distanceOnRoute) {
+      // Signal group is behind the user (leave it until
+      // shortly behind the user such that it is still shown to the user
+      // when being close to the SG).
+      if (absSgDistance < snap.distanceOnRoute - 20) {
         final removed = currentSignalGroups.remove(sg);
         if (removed) {
           predictionServiceMultiLane!.removeSg(sg);

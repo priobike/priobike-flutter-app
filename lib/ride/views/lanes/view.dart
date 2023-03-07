@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +41,9 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
 
   /// The current gauge stops, if we have the necessary data.
   List<double> gaugeStops = [];
+
+  /// The distance before a signal group from which it is considered for predictions and recommendations.
+  static const preDistance = RideMultiLane.preDistance;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -123,126 +127,217 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     }
   }
 
+  double getBarWidth(double standardBarWidth, int numberOfLanes) {
+    if (numberOfLanes <= 3) return standardBarWidth;
+    return standardBarWidth / numberOfLanes;
+  }
+
+  double getBottomOffset(double standardBarHeight, double sgDistanceOnRoute) {
+    // Convert from relative to absolute distance.
+    final absSgDistance = ride.route!.path.distance * sgDistanceOnRoute;
+
+    final userDistanceOnRoute = positioning.snap?.distanceOnRoute;
+    if (userDistanceOnRoute == null) return 1000;
+    final distanceToSignalGroup = absSgDistance - userDistanceOnRoute;
+    final bottomOffset = distanceToSignalGroup * (standardBarHeight / preDistance);
+    return bottomOffset;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final displayHeight = MediaQuery.of(context).size.height;
-    final heightToPuck = displayHeight / 2;
-    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+    final standardBarHeight = MediaQuery.of(context).size.height * 1;
+    final standardBarWidth = (MediaQuery.of(context).size.width / 3) - 10;
 
-    final originalSpeedometerHeight = MediaQuery.of(context).size.width;
-    final originalSpeedometerWidth = MediaQuery.of(context).size.width;
-
-    // final currentCrossing = ride.crossingPredictionService?.subscribedCrossing;
     final currentSgs = ride.currentSignalGroups;
     final currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
     currentSgsOrdered.sort((a, b) => a.direction.compareTo(b.direction));
 
+    const tiltDegree = -45;
+
+    Matrix4 perspective = Matrix4(
+      1.0, 0.0, 0.0, 0.0, //
+      0.0, 1.0, 0.0, 0.0, //
+      0.0, 0.0, 1.0, 0.002, //
+      0.0, 0.0, 0.0, 1.0,
+    );
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        Container(
-          height: originalSpeedometerHeight,
-          width: originalSpeedometerWidth,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? [
-                      Colors.black.withOpacity(0),
-                      Colors.black.withOpacity(0.5),
-                      Colors.black,
-                    ]
-                  : [
-                      Colors.black.withOpacity(0.0),
-                      Colors.black.withOpacity(0.1),
-                      Colors.black,
-                    ],
-              stops: Theme.of(context).colorScheme.brightness == Brightness.dark
-                  ? const [0.1, 0.3, 0.5] // Dark theme
-                  : const [0.0, 0.1, 0.8], // Light theme
+        if (currentSgsOrdered.isNotEmpty)
+          Container(
+            height: MediaQuery.of(context).size.height * 0.45,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.bottomCenter,
+                radius: 1.0,
+                colors: [
+                  Colors.black,
+                  Colors.black.withOpacity(0.5),
+                  Colors.black.withOpacity(0),
+                ],
+                stops: const [0.0, 0.5, 1],
+              ),
             ),
           ),
-        ),
         if (currentSgsOrdered.isNotEmpty)
-          SafeArea(
-            bottom: true,
-            child: SizedBox(
-              height: heightToPuckBoundingBox,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  height: originalSpeedometerHeight,
-                  width: originalSpeedometerWidth,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    mainAxisSize: MainAxisSize.max,
-                    children: List.from(
-                      currentSgsOrdered.map(
-                        (SgMultiLane sg) {
-                          // Calculate the countdown.
-                          final countdown = ride
-                              .predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentPhaseChangeTime
-                              ?.difference(DateTime.now())
-                              .inSeconds;
-                          // If the countdown is 0 (or negative), we hide the countdown. In this way the user
-                          // is not confused if the countdown is at 0 for a few seconds.
-                          final countdownLabel = (countdown ?? 0) > 0 ? "$countdown" : "";
-
-                          final phase =
-                              ride.predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentSignalPhase ??
-                                  Phase.dark;
-                          return Expanded(
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                ClipRect(
-                                  clipBehavior: Clip.none,
-                                  child: Transform.translate(
-                                    offset: const Offset(0, -300),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                                      child: Container(
-                                        height: 1000,
-                                        color: getColor(phase),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Column(
-                                  children: [
-                                    Icon(
-                                      sg.direction.icon,
-                                      color: Colors.white,
-                                      size: 64,
-                                    ),
-                                    /*BoldSubHeader(
-                                      text: countdownLabel,
-                                      context: context,
-                                      color: Colors.white,
-                                    ),*/
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.38,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.from(
+                currentSgsOrdered.map(
+                  (sg) {
+                    final phase =
+                        ride.predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentSignalPhase ?? Phase.dark;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: getColor(phase),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: sg.laneType.icon(Colors.white),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
           ),
-        Transform.translate(
-          offset: const Offset(0, -150),
-          child: Container(
-            color: Colors.blue,
-            height: 6,
+        if (currentSgsOrdered.isNotEmpty)
+          Transform(
+            alignment: FractionalOffset.bottomCenter,
+            transform: perspective.scaled(1.0, 1.0, 1.0)
+              ..rotateX(tiltDegree * pi / 180)
+              ..rotateY(0.0)
+              ..rotateZ(0.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.from(
+                currentSgsOrdered.map(
+                  (sg) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: SizedBox(
+                        width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                        height: standardBarHeight,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(6),
+                            topRight: Radius.circular(6),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.topCenter,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      const Color.fromARGB(255, 219, 219, 219),
+                                      Theme.of(context).primaryColor,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: getBarWidth(standardBarWidth - 2, currentSgsOrdered.length),
+                                height: standardBarHeight,
+                                child: Container(
+                                  color: const Color.fromARGB(255, 50, 50, 50),
+                                ),
+                              ),
+                              AnimatedPositioned(
+                                key: ValueKey(sg.id),
+                                duration: const Duration(seconds: 1),
+                                curve: Curves.linear,
+                                width: getBarWidth(standardBarWidth - 2, currentSgsOrdered.length),
+                                height: standardBarHeight,
+                                bottom: getBottomOffset(standardBarHeight, sg.distanceOnRoute),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.greenAccent,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 32),
+                                child: Icon(
+                                  sg.direction.icon,
+                                  color: Colors.white,
+                                  size: 112,
+                                  shadows: const <Shadow>[Shadow(color: Colors.grey, blurRadius: 5.0)],
+                                ),
+                              ),
+                              Container(
+                                width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                                height: standardBarHeight * 0.03,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 219, 219, 219),
+                                  border: Border.all(
+                                    color: const Color.fromARGB(255, 225, 225, 225),
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color.fromARGB(150, 170, 170, 170),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: Offset(0, 1), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
-        ),
+        if (currentSgsOrdered.isNotEmpty)
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.2,
+            child: Row(
+              children: [
+                Transform.rotate(
+                  angle: 40,
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      color: Theme.of(context).primaryColor,
+                      width: MediaQuery.of(context).size.width - 20,
+                      height: 5,
+                    ),
+                    Image.asset('assets/images/position-dark.png', height: 100),
+                  ],
+                ),
+                Transform.rotate(
+                  angle: 40,
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
