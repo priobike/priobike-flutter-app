@@ -236,7 +236,7 @@ class RoutingMultiLane with ChangeNotifier {
 
       final baseUrl = settings.backend.path;
       final sgSelectorUrl =
-          "http://10.0.2.2:8000/routing/${SGSelectionMode.crossing.path}?bearingDiff=${settings.sgSelectionModeBearingDiff.degree}&distanceToRoute=${settings.sgSelectionModeDistanceToRoute.meter}";
+          "https://$baseUrl/sg-selector-backend/routing/${SGSelectionMode.crossing.path}?bearingDiff=${settings.sgSelectionModeBearingDiff.degree}&distanceToRoute=${settings.sgSelectionModeDistanceToRoute.meter}";
       final sgSelectorEndpoint = Uri.parse(sgSelectorUrl);
       log.i("Loading SG-Selector response from $sgSelectorUrl");
 
