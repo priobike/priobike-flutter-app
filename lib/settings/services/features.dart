@@ -41,11 +41,11 @@ class Feature with ChangeNotifier {
     // Check if the user has the right to enable experimental features.
     // This is the case, when the branch is not beta or release.
     // (Allow internal features on all development branches.)
-    canEnableInternalFeatures = !gitHead.endsWith('beta') && !gitHead.endsWith('release');
+    canEnableInternalFeatures = !gitHead.contains('beta') && !gitHead.contains('release');
 
     // Check if the user has the right to enable beta features.
     // This is the case, when the branch is not release.
-    canEnableBetaFeatures = !gitHead.endsWith('release');
+    canEnableBetaFeatures = !gitHead.contains('release');
 
     final info = await PackageInfo.fromPlatform();
     appName = info.appName;

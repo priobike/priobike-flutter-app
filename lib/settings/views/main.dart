@@ -230,21 +230,23 @@ class SettingsViewState extends State<SettingsView> {
                   ],
                 ),
                 const SmallVSpace(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  margin: const EdgeInsets.only(left: 18, top: 12, bottom: 8, right: 18),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
                     children: [
-                      const VSpace(),
-                      Row(
-                        children: [
-                          Content(text: "Version: ", context: context),
-                          BoldContent(text: feature.appVersion, context: context),
-                          Content(text: ", ID: ", context: context),
-                          BoldContent(text: userId, context: context),
-                        ],
+                      Content(text: "Version: ", context: context),
+                      BoldContent(
+                        text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+                        context: context,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                      const VSpace(),
+                      Content(text: ", App-ID: ", context: context),
+                      Content(text: userId, context: context),
                     ],
                   ),
                 ),
@@ -381,13 +383,6 @@ class SettingsViewState extends State<SettingsView> {
                   },
                 ),
                 const VSpace(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Small(
-                      text: "Info für Nerds: PrioBike v${feature.appVersion} ${feature.gitHead}",
-                      color: Colors.grey,
-                      context: context),
-                ),
                 const SizedBox(height: 128),
               ],
             ),
