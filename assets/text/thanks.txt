@@ -1,1 +1,7 @@
 Diese Arbeit wird vom Bundesministerium für Digitales und Verkehr (BMDV) im Rahmen des Projekts PrioBike-HH (FKZ: 16DKVM001B) gefördert.
+
+API-Nutzung für die graphische Darstellung der Verkehrslage in Hamburg:
+Bereitgestellt durch die Stadt Hamburg.
+Link zur API: https://api.hamburg.de/datasets/v1/verkehrslage/
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Links zur Lizenz: www.govdata.de/dl-de/by-2-0
