@@ -112,7 +112,7 @@ class TrafficService with ChangeNotifier {
     }
   }
 
-  /// Reset the traffic prediction.
+  /// Reset the traffic service.
   Future<void> reset() async {
     trafficData = null;
     isLoading = false;

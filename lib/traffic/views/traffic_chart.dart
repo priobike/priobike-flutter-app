@@ -42,7 +42,9 @@ class TrafficChartState extends State<TrafficChart> {
           height: height,
           margin: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
+            border: Border.all(
+              color: Colors.grey,
+            ),
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
