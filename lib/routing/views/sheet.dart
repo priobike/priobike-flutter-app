@@ -11,6 +11,7 @@ import 'package:priobike/routing/views/details/surface.dart';
 import 'package:priobike/routing/views/details/waypoints.dart';
 import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
 
 /// A bottom sheet to display route details.
@@ -271,6 +272,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                   renderStartRideButton(context),
                   renderBottomSheetWaypoints(context),
                   const Padding(padding: EdgeInsets.only(top: 8, left: 4, right: 4), child: RoadClassChart()),
+                  const TrafficChart(),
                   const RouteHeightChart(),
                   const Padding(padding: EdgeInsets.only(top: 4, left: 4, right: 4), child: SurfaceTypeChart()),
                   renderSaveRouteButton(context),
