@@ -4,4 +4,4 @@ API-Nutzung für die graphische Darstellung der Verkehrslage in Hamburg:
 Bereitgestellt durch die Stadt Hamburg.
 Link zur API: https://api.hamburg.de/datasets/v1/verkehrslage/
 Datenlizenz Deutschland – Namensnennung – Version 2.0
-Links zur Lizenz: www.govdata.de/dl-de/by-2-0
+Link zur Lizenz: www.govdata.de/dl-de/by-2-0
