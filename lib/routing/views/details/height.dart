@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -22,6 +21,21 @@ class HeightData {
   HeightData(this.height, this.distance);
 }
 
+/// An Element of the chart. There is one main line and an arbitrary number of alternatives lines.
+class LineElement {
+  /// The main line determines the min and max distance of the coordiante system and is blue instead of grey.
+  final bool isMainLine;
+
+  /// The height data of the line.
+  final charts.Series<HeightData, double> series;
+
+  // Only important for the main line.
+  final double? minDistance;
+  final double? maxDistance;
+
+  LineElement(this.isMainLine, this.series, this.minDistance, this.maxDistance);
+}
+
 class RouteHeightChartState extends State<RouteHeightChart> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
@@ -29,19 +43,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The associated routing service, which is injected by the provider.
   late Settings settings;
 
-  /// The processed route data, which is injected by the provider.
-  charts.Series<HeightData, double>? series;
-
-  /// The processed route data for the alternative routes, which is injected by the provider.
-  charts.Series<HeightData, double>? alternativeSeries;
-
-  /// The minimum distance.
-  double? minDistance;
-
-  /// The maximum distance.
-  double? maxDistance;
-
-  bool? isAlternative;
+  /// The lineElements for the chart.
+  List<LineElement> lineElements = List.empty(growable: true);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -66,25 +69,14 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     super.dispose();
   }
 
-  /// Process the route data and create the chart series.
+  /// Process the route data and create the lines for the chart.
   void processRouteData() {
-    if (routing.selectedRoute == null) return;
-
-    for (bool useAlternative in [false, true]) {
-      if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) continue;
+    if (routing.allRoutes == null || routing.allRoutes!.isEmpty) return;
+    lineElements = List.empty(growable: true);
+    for (var route in routing.allRoutes!) {
+      final latlngCoords = route.path.points.coordinates;
 
       const vincenty = Distance(roundResult: false);
-      List<GHCoordinate> latlngCoords;
-      if (useAlternative) {
-        /// If the alternative route is selected by the user, use the other route as alternative.
-        if (routing.allRoutes!.elementAt(1).path.points.coordinates == routing.selectedRoute!.path.points.coordinates) {
-          latlngCoords = routing.allRoutes!.elementAt(0).path.points.coordinates;
-        } else {
-          latlngCoords = routing.allRoutes!.elementAt(1).path.points.coordinates;
-        }
-      } else {
-        latlngCoords = routing.selectedRoute!.path.points.coordinates;
-      }
       final data = List<HeightData>.empty(growable: true);
       var prevDist = 0.0;
       for (var i = 0; i < latlngCoords.length - 1; i++) {
@@ -97,43 +89,51 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         prevDist += dist;
         data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
       }
+      final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
 
-      setState(
-        () {
-          minDistance = useAlternative ? minDistance : data.first.distance;
-          maxDistance = useAlternative ? maxDistance : data.last.distance;
-          useAlternative
-              ? alternativeSeries = charts.Series<HeightData, double>(
-                  id: 'AlternativeHeight',
-                  colorFn: (_, __) => charts.Color.fromHex(code: '#838991'),
-                  domainFn: (HeightData data, _) => data.distance,
-                  measureFn: (HeightData data, _) => data.height,
-                  data: data,
-                )
-              : series = charts.Series<HeightData, double>(
-                  id: 'Height',
-                  colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
-                  domainFn: (HeightData data, _) => data.distance,
-                  measureFn: (HeightData data, _) => data.height,
-                  data: data,
-                );
-        },
+      final String id = isMainLine ? 'Height' : 'AlternativeHeight';
+      final String colorCode = isMainLine ? '#0073FF' : '#838991';
+
+      lineElements.add(
+        LineElement(
+            isMainLine,
+            charts.Series<HeightData, double>(
+              id: id,
+              colorFn: (_, __) => charts.Color.fromHex(code: colorCode),
+              domainFn: (HeightData data, _) => data.distance,
+              measureFn: (HeightData data, _) => data.height,
+              data: data,
+            ),
+            data.first.distance,
+            data.last.distance),
       );
     }
+
+    setState(() {
+      lineElements = lineElements;
+    });
   }
 
-  Widget renderLineChart() {
+  Widget renderLineChart(BuildContext context) {
     final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
         ? charts.MaterialPalette.white
         : charts.MaterialPalette.black;
 
-    if (series == null && alternativeSeries == null) return Container();
+    if (lineElements.isEmpty) return Container();
 
-    final List<charts.Series<HeightData, double>> seriesList = [
-      if (series != null) series!..setAttribute(charts.rendererIdKey, "mainLine"),
-      if (alternativeSeries != null) alternativeSeries!..setAttribute(charts.rendererIdKey, "alternativeLine"),
-    ];
+    double? minDistance;
+    double? maxDistance;
 
+    final List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
+    for (var lineElement in lineElements) {
+      if (lineElement.isMainLine) {
+        seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "mainLine"));
+        minDistance = lineElement.minDistance;
+        maxDistance = lineElement.maxDistance;
+      } else {
+        seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "alternativeLine"));
+      }
+    }
     return charts.LineChart(
       seriesList,
       animate: true,
@@ -199,7 +199,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (routing.selectedRoute == null || series == null) return Container();
+    // if (routing.selectedRoute == null || series == null) return Container();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -217,7 +217,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               Expanded(
                 child: SizedBox(
                   height: 128,
-                  child: renderLineChart(),
+                  child: renderLineChart(context),
                 ),
               ),
               RotatedBox(
