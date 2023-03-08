@@ -33,6 +33,7 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -80,6 +81,7 @@ Future<void> main() async {
   getIt.registerSingleton<MapSettings>(MapSettings());
   getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
+  getIt.registerSingleton<Traffic>(Traffic());
 
   runZonedGuarded(() async {
     runApp(const App());
