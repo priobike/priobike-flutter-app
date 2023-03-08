@@ -175,7 +175,8 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   /// The callback that is executed when the detail/map button is pressed.
-  _changeDetailView(double topSnapRatio, MediaQueryData frame) {
+  _changeDetailView(double topSnapRatio) {
+    final frame = MediaQuery.of(context);
     if (bottomSheetState.draggableScrollableController.isAttached) {
       // The bottom padding that has to be considered.
       final paddingBottom = 50 / frame.size.height;
@@ -201,7 +202,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
   }
 
   /// The widget that displays the bottom buttons.
-  _bottomButtons(bool isTop, double topSnapRatio, MediaQueryData frame) {
+  _bottomButtons(bool isTop, double topSnapRatio) {
     final double deviceWidth = WidgetsBinding.instance.window.physicalSize.width;
 
     return Row(
@@ -225,7 +226,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
             fillColor: Theme.of(context).colorScheme.background),
         const SizedBox(width: 10),
         IconTextButton(
-            onPressed: () => _changeDetailView(topSnapRatio, frame),
+            onPressed: () => _changeDetailView(topSnapRatio),
             label: isTop ? 'Karte' : (deviceWidth > 700 ? 'Details' : 'Det.'),
             icon: isTop ? Icons.map : Icons.list,
             borderColor: Theme.of(context).colorScheme.primary,
@@ -277,7 +278,7 @@ class BottomSheetDetailState extends State<BottomSheetDetail> {
               ),
               width: frame.size.width,
               height: 50,
-              child: _bottomButtons(isTop, topSnapRatio, frame),
+              child: _bottomButtons(isTop, topSnapRatio),
             ),
           ],
         ),

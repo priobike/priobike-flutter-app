@@ -433,47 +433,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Fit the attribution position to the position of the bottom sheet.
-  // fitAttributionPosition({double? sheetHeightRelative}) {
-  //   final frame = MediaQuery.of(context);
-  //   final sheetHeightAbs = sheetHeightRelative == null
-  //       ? frame.padding.bottom + sheetPadding // Default value.
-  //       : sheetHeightRelative * frame.size.height + sheetPadding;
-  //   final maxBottomInset = frame.size.height - frame.padding.top - 100;
-  //   double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
-  //   setState(
-  //     () {
-  //       bottomSheetOffset = newBottomInset;
-  //       // On Android, the bottom inset needs to be added to the attribution margins.
-  //       if (Platform.isAndroid) {
-  //         attributionMargins = math.Point(20, newBottomInset);
-  //       } else {
-  //         attributionMargins = const math.Point(20, 0);
-  //       }
-  //     },
-  //   );
-  // }
-
-  /// Fit the attribution position to the position of the bottom sheet.
   fitAttributionPosition({double? sheetHeightRelative}) {
     if (mapController == null) return;
     final frame = MediaQuery.of(context);
+    final bottomPadding = 50 / frame.size.height;
+
+    final ppi = frame.devicePixelRatio;
     final sheetHeightAbs = sheetHeightRelative == null
         ? 124 + frame.padding.bottom + sheetPadding // Default value.
-        : sheetHeightRelative * frame.size.height + sheetPadding;
-    final maxBottomInset = frame.size.height - frame.padding.top - 100;
-    double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
-    mapController!.setCamera(
-      CameraOptions(
-        padding: MbxEdgeInsets(
-            bottom: newBottomInset,
-            left: defaultMapInsets.left,
-            top: defaultMapInsets.top,
-            right: defaultMapInsets.left),
-      ),
-    );
-    final ppi = frame.devicePixelRatio;
-    final attributionMargins =
-    math.Point(20 * ppi, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 150 * ppi);
+        // 1 - relative is used to equalize the difference in the height relative of the bottom sheet (which has padding) and the map.
+        // If this should be applied to the standard route view, just remove the 1 - ... part.
+        : (sheetHeightRelative + (1 - sheetHeightRelative) * bottomPadding) * frame.size.height + sheetPadding;
+
+    final attributionMargins = math.Point(20 * ppi, sheetHeightAbs * ppi);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),
