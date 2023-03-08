@@ -245,13 +245,19 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final standardBarHeight = MediaQuery.of(context).size.height;
+    log.i(standardBarHeight);
     final standardBarWidth = (MediaQuery.of(context).size.width / 3) - 10;
 
     final currentSgs = ride.currentSignalGroups;
     final currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
     currentSgsOrdered.sort((a, b) => a.direction.compareTo(b.direction));
 
-    const tiltDegree = -45;
+    // For standardBarHeight of 640, -45 works well
+    // For standardBarHeight of 896, -39 works well
+    // Based on this, we have to choose the right value based on the standardBarHeight
+    final standardBarHeightDiff = 640 - standardBarHeight;
+    final degreeDiff = standardBarHeightDiff / (256 / 6);
+    final tiltDegree = -45 - degreeDiff;
 
     Matrix4 perspective = Matrix4(
       1.0, 0.0, 0.0, 0.0, //
@@ -422,8 +428,8 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                   Transform.rotate(
                     angle: 40,
                     child: Container(
-                      height: 20,
-                      width: 20,
+                      height: 0.03125 * standardBarHeight,
+                      width: 0.03125 * standardBarHeight,
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
@@ -432,17 +438,17 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                     children: [
                       Container(
                         color: Theme.of(context).primaryColor,
-                        width: MediaQuery.of(context).size.width - 20,
-                        height: 5,
+                        width: MediaQuery.of(context).size.width - 0.03125 * standardBarHeight,
+                        height: 0.0078125 * standardBarHeight,
                       ),
-                      Image.asset('assets/images/position-dark.png', height: 100),
+                      Image.asset('assets/images/position-dark.png', height: 0.15625 * standardBarHeight),
                     ],
                   ),
                   Transform.rotate(
                     angle: 40,
                     child: Container(
-                      height: 20,
-                      width: 20,
+                      height: 0.03125 * standardBarHeight,
+                      width: 0.03125 * standardBarHeight,
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
