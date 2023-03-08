@@ -44,8 +44,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    processRouteData(useAlternative: false);
-    processRouteData(useAlternative: true);
+    processRouteData();
     setState(() {});
   }
 
@@ -56,8 +55,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     routing.addListener(update);
     settings = getIt<Settings>();
     settings.addListener(update);
-    processRouteData(useAlternative: false);
-    processRouteData(useAlternative: true);
+    processRouteData();
   }
 
   @override
@@ -68,48 +66,51 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   }
 
   /// Process the route data and create the chart series.
-  void processRouteData({required bool useAlternative}) {
+  void processRouteData() {
     if (routing.selectedRoute == null) return;
-    if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) return;
 
-    const vincenty = Distance(roundResult: false);
-    final latlngCoords = useAlternative
-        ? routing.allRoutes!.elementAt(1).path.points.coordinates
-        : routing.selectedRoute!.path.points.coordinates;
-    final data = List<HeightData>.empty(growable: true);
-    var prevDist = 0.0;
-    for (var i = 0; i < latlngCoords.length - 1; i++) {
-      var dist = 0.0;
-      final p = latlngCoords[i];
-      if (i > 0) {
-        final pPrev = latlngCoords[i - 1];
-        dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
+    for (bool useAlternative in [false, true]) {
+      if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) continue;
+
+      const vincenty = Distance(roundResult: false);
+      final latlngCoords = useAlternative
+          ? routing.allRoutes!.elementAt(1).path.points.coordinates
+          : routing.selectedRoute!.path.points.coordinates;
+      final data = List<HeightData>.empty(growable: true);
+      var prevDist = 0.0;
+      for (var i = 0; i < latlngCoords.length - 1; i++) {
+        var dist = 0.0;
+        final p = latlngCoords[i];
+        if (i > 0) {
+          final pPrev = latlngCoords[i - 1];
+          dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
+        }
+        prevDist += dist;
+        data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
       }
-      prevDist += dist;
-      data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
-    }
 
-    setState(
-      () {
-        minDistance = useAlternative ? minDistance : data.first.distance;
-        maxDistance = useAlternative ? maxDistance : data.last.distance;
-        useAlternative
-            ? alternativeSeries = charts.Series<HeightData, double>(
-                id: 'AlternativeHeight',
-                colorFn: (_, __) => charts.Color.fromHex(code: '#838991'),
-                domainFn: (HeightData data, _) => data.distance,
-                measureFn: (HeightData data, _) => data.height,
-                data: data,
-              )
-            : series = charts.Series<HeightData, double>(
-                id: 'Height',
-                colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
-                domainFn: (HeightData data, _) => data.distance,
-                measureFn: (HeightData data, _) => data.height,
-                data: data,
-              );
-      },
-    );
+      setState(
+        () {
+          minDistance = useAlternative ? minDistance : data.first.distance;
+          maxDistance = useAlternative ? maxDistance : data.last.distance;
+          useAlternative
+              ? alternativeSeries = charts.Series<HeightData, double>(
+                  id: 'AlternativeHeight',
+                  colorFn: (_, __) => charts.Color.fromHex(code: '#838991'),
+                  domainFn: (HeightData data, _) => data.distance,
+                  measureFn: (HeightData data, _) => data.height,
+                  data: data,
+                )
+              : series = charts.Series<HeightData, double>(
+                  id: 'Height',
+                  colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
+                  domainFn: (HeightData data, _) => data.distance,
+                  measureFn: (HeightData data, _) => data.height,
+                  data: data,
+                );
+        },
+      );
+    }
   }
 
   Widget renderLineChart() {
