@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -73,9 +74,17 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) continue;
 
       const vincenty = Distance(roundResult: false);
-      final latlngCoords = useAlternative
-          ? routing.allRoutes!.elementAt(1).path.points.coordinates
-          : routing.selectedRoute!.path.points.coordinates;
+      List<GHCoordinate> latlngCoords;
+      if (useAlternative) {
+        /// If the alternative route is selected by the user, use the other route as alternative.
+        if (routing.allRoutes!.elementAt(1).path.points.coordinates == routing.selectedRoute!.path.points.coordinates) {
+          latlngCoords = routing.allRoutes!.elementAt(0).path.points.coordinates;
+        } else {
+          latlngCoords = routing.allRoutes!.elementAt(1).path.points.coordinates;
+        }
+      } else {
+        latlngCoords = routing.selectedRoute!.path.points.coordinates;
+      }
       final data = List<HeightData>.empty(growable: true);
       var prevDist = 0.0;
       for (var i = 0; i < latlngCoords.length - 1; i++) {
