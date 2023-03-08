@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -30,6 +29,7 @@ import 'package:priobike/routing/views_beta/search.dart';
 import 'package:priobike/routing/views_beta/widgets/alerts.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/routing/views_beta/widgets/compass_button.dart';
+import 'package:priobike/routing/views_beta/widgets/details.dart';
 import 'package:priobike/routing/views_beta/widgets/filter_button.dart';
 import 'package:priobike/routing/views_beta/widgets/gps_button.dart';
 import 'package:priobike/routing/views_beta/widgets/layer_button.dart';
@@ -89,10 +89,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   bool fitCameraTop = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    _checkRoutingBarShown();
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {
@@ -141,8 +138,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     discomforts.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
-
-    _checkRoutingBarShown();
   }
 
   @override
@@ -158,18 +153,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     layers.removeListener(update);
     sheetMovement.close();
     super.dispose();
-  }
-
-  /// Function which checks if the RoutingBar needs to be shown.
-  _checkRoutingBarShown() async {
-    // This seems not to work somehow
-    if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty && mapSettings.controller != null) {
-      await mapSettings.controller!.setCamera(
-        mapbox.CameraOptions(
-          padding: mapbox.MbxEdgeInsets(bottom: 120, left: 0, top: 150, right: 0),
-        ),
-      );
-    }
   }
 
   /// A callback that is fired when the ride is started.
@@ -368,7 +351,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// Private Function which is executed when search is executed.
-  Future<void> _startSearch() async {
+  Future<void> _startSearch(MediaQueryData frame) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute, fromRouteSearch: false),
@@ -376,6 +359,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
+      bottomSheetState.resetInitialHeight();
       await routing.loadRoutes();
       // Set the mapbox logo.
       if (mounted) {
@@ -386,7 +370,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// A callback that is executed when the search page is opened.
-  Future<void> onSearch(Routing routing, int? index, Function onPressed, bool fromRouteSearch) async {
+  Future<void> onSearch(
+      Routing routing, int? index, Function onPressed, bool fromRouteSearch, MediaQueryData frame) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
@@ -394,6 +379,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
     );
 
     if (routing.selectedWaypoints != null && routing.selectedWaypoints!.isNotEmpty) {
+      bottomSheetState.resetInitialHeight();
       await routing.loadRoutes();
       // Set the mapbox logo.
       if (mounted) {
@@ -409,8 +395,9 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
-  _showLessDetails() {
-    bottomSheetState.animateController(0.175);
+  _showLessDetails(MediaQueryData frame) {
+    final bottomPadding = 50 / frame.size.height;
+    bottomSheetState.animateController(0.175, bottomPadding);
 
     if (bottomSheetState.listController != null) {
       bottomSheetState.listController!.jumpTo(0);
@@ -472,7 +459,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                     }
                   } else {
                     // Hide routingBar when sheet is 60% or more.
-                    if (notification.extent >= 0.6 && notification.extent <= 0.7) {
+                    if (notification.extent >= 0.5 && notification.extent <= 0.7) {
                       // Trigger center route in top part of screen.
                       if (fitCameraTop == false) {
                         mapSettings.fitCameraToRouteBoundsTop(routing, frame);
@@ -525,9 +512,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                     ),
                                     !showRoutingBar
                                         ? AnimatedPositioned(
-                                            top: bottomSheetState.draggableScrollableController != null &&
-                                                    bottomSheetState.draggableScrollableController!.size <= 1 &&
-                                                    bottomSheetState.draggableScrollableController!.size >= 0.7
+                                            top: bottomSheetState.draggableScrollableController.size <= 1 &&
+                                                    bottomSheetState.draggableScrollableController.size >= 0.7
                                                 ? 0
                                                 : -(40 + 64 + frame.padding.top),
                                             left: 0,
@@ -557,7 +543,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                       top: 20 + frame.padding.top,
                                       left: showRoutingBar ? -64 : 0,
                                       duration: const Duration(milliseconds: 250),
-                                      child: AppBackButton(onPressed: _showLessDetails),
+                                      child: AppBackButton(onPressed: () => _showLessDetails(frame)),
                                     ),
                                     AnimatedPositioned(
                                       // top calculates from padding + systemBar.
@@ -642,7 +628,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                   ),
                   waypointsSelected && !routing.isFetchingRoute
                       ? Positioned(
-                          bottom: frame.size.height * BottomSheetDetailState.bottomSnapRatio + 10,
+                          bottom: frame.size.height * DetailsState.bottomSnapRatio + 10,
                           right: 0,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),

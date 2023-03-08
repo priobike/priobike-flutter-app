@@ -8,12 +8,18 @@ class BottomSheetState with ChangeNotifier {
   double initialHeight = 0.175;
 
   /// The draggableScrollableController used for DraggableScrollView and ListView in BottomSheet.
-  DraggableScrollableController? draggableScrollableController;
+  DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
   /// The draggableScrollableController used for DraggableScrollView and ListView in BottomSheet.
   ScrollController? listController;
 
   BottomSheetState();
+
+  /// Function which sets the showRoutingBar.
+  void resetInitialHeight() {
+    initialHeight = 0.175;
+    notifyListeners();
+  }
 
   /// Function which sets the showRoutingBar.
   void setShowRoutingBar() {
@@ -28,18 +34,17 @@ class BottomSheetState with ChangeNotifier {
   }
 
   /// Function which animates the scroll controller to a given value.
-  void animateController(double value) {
-    if (draggableScrollableController != null) {
-      draggableScrollableController!
-          .animateTo(value, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
-      initialHeight = value;
-    }
+  void animateController(double value, double? bottomPadding) {
+    draggableScrollableController.animateTo(value - (bottomPadding ?? 0),
+        duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+
+    initialHeight = value;
   }
 
   /// Resets the initial height. Has to be called, when the bottomSheet will be disposed.
   void reset() {
     initialHeight = 0.175;
-    draggableScrollableController = null;
+    draggableScrollableController.reset();
     listController = null;
     showRoutingBar = true;
   }

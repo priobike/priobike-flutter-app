@@ -286,6 +286,7 @@ class RoutingBarState extends State<RoutingBar> {
 
     final waypointsSwapped = [routing.selectedWaypoints![1], routing.selectedWaypoints![0]];
 
+    bottomSheetState.resetInitialHeight();
     routing.selectWaypoints(waypointsSwapped);
     routing.loadRoutes();
   }
@@ -311,6 +312,7 @@ class RoutingBarState extends State<RoutingBar> {
         final removedWaypoints = routing.selectedWaypoints!.toList();
         removedWaypoints.removeAt(index);
 
+        bottomSheetState.resetInitialHeight();
         routing.selectWaypoints(removedWaypoints);
         routing.loadRoutes();
       }
@@ -469,6 +471,7 @@ class RoutingBarState extends State<RoutingBar> {
                         final waypoint = reorderedWaypoints.removeAt(oldIndex);
                         reorderedWaypoints.insert(newIndex, waypoint);
 
+                        bottomSheetState.resetInitialHeight();
                         routing.selectWaypoints(reorderedWaypoints);
                         routing.loadRoutes();
                       } else {

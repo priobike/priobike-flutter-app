@@ -250,6 +250,7 @@ class RouteLabelLayer {
             },
           );
         }
+        return;
       }
 
       // Reset the old coords before adding the new ones.
