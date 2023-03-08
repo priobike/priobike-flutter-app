@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -29,9 +31,8 @@ class LineElement {
   /// The height data of the line.
   final charts.Series<HeightData, double> series;
 
-  // Only important for the main line.
-  final double? minDistance;
-  final double? maxDistance;
+  final double minDistance;
+  final double maxDistance;
 
   LineElement(this.isMainLine, this.series, this.minDistance, this.maxDistance);
 }
@@ -126,6 +127,10 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
     final List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
     for (var lineElement in lineElements) {
+      // find smallest and largest distance
+      minDistance = minDistance == null ? lineElement.minDistance : min(minDistance, lineElement.minDistance);
+      maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance, lineElement.maxDistance);
+
       if (lineElement.isMainLine) {
         seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "mainLine"));
         minDistance = lineElement.minDistance;
