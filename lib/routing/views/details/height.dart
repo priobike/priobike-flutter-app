@@ -143,7 +143,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
           customRendererId: "mainLine",
           stacked: true,
           includeArea: true,
-          strokeWidthPx: 3,
+          strokeWidthPx: 2,
           roundEndCaps: true,
           areaOpacity: 0.5,
           layoutPaintOrder: 2,
