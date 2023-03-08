@@ -37,10 +37,12 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
   /// The current gauge colors, if we have the necessary data.
-  Map<String,List<Color>> gaugeColors = {"default": [defaultGaugeColor]};
+  Map<String, List<Color>> gaugeColors = {
+    "default": [defaultGaugeColor]
+  };
 
   /// The current gauge stops, if we have the necessary data.
-  Map<String,List<double>> gaugeStops = {};
+  Map<String, List<double>> gaugeStops = {};
 
   /// The distance before a signal group from which it is considered for predictions and recommendations.
   static const preDistance = RideMultiLane.preDistance;
@@ -130,6 +132,9 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
 
   /// Load the gauge colors and steps, from the predictor.
   Future<void> loadGauges(RideMultiLane ride) async {
+    gaugeColors.clear();
+    gaugeStops.clear();
+
     if (ride.predictionServiceMultiLane == null) {
       for (final sg in ride.currentSignalGroups) {
         gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
@@ -159,24 +164,35 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
       // Since we want the color steps not by second, but by speed, we map the stops accordingly
       var stops = Iterable<double>.generate(
         colors.length,
-            (second) {
+        (second) {
           if (second == 0) {
             return double.infinity;
           }
+
+          final standardBarHeight = MediaQuery.of(context).size.height;
+          final offset = (getBottomOffset(standardBarHeight, sg.id) + standardBarHeight) / (2 * standardBarHeight);
+          log.i(offset);
+
           // Map the second to the needed speed
-          final distanceToSg = ride.distancesToCurrentSignalGroups[sg.id];
-          if (distanceToSg == null) {
-            gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
-            gaugeStops[sg.id] = [0.0, 1.0];
-            continue;
-          }
+          double? distanceToSg = ride.distancesToCurrentSignalGroups[sg.id];
+          distanceToSg ??= 0;
           var speedKmh = (distanceToSg / second) * 3.6;
           // Scale the speed between minSpeed and maxSpeed
           return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+
+          /*final currentUserSpeed = (positioning.lastPosition?.speed ?? 1) * 3.6;
+
+          // Depends on the relative position of the blue line (user) to the moving prediction bars/lanes.
+          final standardBarHeight = MediaQuery.of(context).size.height;
+          final offset = (getBottomOffset(standardBarHeight, sg.id) + standardBarHeight) / (2 * standardBarHeight);
+          // Such that the gradient at the specified offset always shows the color for the current speed of the user.
+          final offsetFactor = offset * (maxSpeed / currentUserSpeed);
+          // Scale the speed between minSpeed and maxSpeed
+          return (speedKmh / maxSpeed) * offsetFactor;*/
         },
       ).toList();
 
-      // Add stops and colos to indicate unavailable prediction ranges
+      // Add stops and colors to indicate unavailable prediction ranges
       if (stops.isNotEmpty) {
         stops.add(stops.last);
         stops.add(0.0);
@@ -201,8 +217,8 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
 
       // The resulting stops and colors will be from high speed -> low speed
       // Thus, we reverse both colors and stops to get the correct order
-      gaugeColors = hardEdgeColors.reversed.toList();
-      gaugeStops = hardEdgeStops.reversed.toList();
+      gaugeColors[sg.id] = hardEdgeColors.reversed.toList();
+      gaugeStops[sg.id] = hardEdgeStops.reversed.toList();
     }
   }
 
@@ -215,12 +231,13 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     final distanceToSignalGroup = ride.distancesToCurrentSignalGroups[sgId];
     if (distanceToSignalGroup == null) return 1000;
     final bottomOffset = (distanceToSignalGroup * (standardBarHeight / preDistance)) - (0.47 * standardBarHeight);
+    log.i(standardBarHeight);
     return bottomOffset;
   }
 
   @override
   Widget build(BuildContext context) {
-    final standardBarHeight = MediaQuery.of(context).size.height * 1;
+    final standardBarHeight = MediaQuery.of(context).size.height;
     final standardBarWidth = (MediaQuery.of(context).size.width / 3) - 10;
 
     final currentSgs = ride.currentSignalGroups;
@@ -336,6 +353,12 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Colors.greenAccent,
+                                    /*gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: gaugeColors[sg.id] ?? [],
+                                      stops: gaugeStops[sg.id] ?? [],
+                                    ),*/
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
