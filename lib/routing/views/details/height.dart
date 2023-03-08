@@ -31,15 +31,21 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The processed route data, which is injected by the provider.
   charts.Series<HeightData, double>? series;
 
+  /// The processed route data for the alternative routes, which is injected by the provider.
+  charts.Series<HeightData, double>? alternativeSeries;
+
   /// The minimum distance.
   double? minDistance;
 
   /// The maximum distance.
   double? maxDistance;
 
+  bool? isAlternative;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    processRouteData();
+    processRouteData(false);
+    processRouteData(true);
     setState(() {});
   }
 
@@ -50,7 +56,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     routing.addListener(update);
     settings = getIt<Settings>();
     settings.addListener(update);
-    processRouteData();
+    processRouteData(false);
+    processRouteData(true);
   }
 
   @override
@@ -61,12 +68,15 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   }
 
   /// Process the route data and create the chart series.
-  Future<void> processRouteData() async {
+  void processRouteData(bool useAlternative) {
     if (routing.selectedRoute == null) return;
+    if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) return;
 
     // Aggregate the distance along the route.
     const vincenty = Distance(roundResult: false);
-    final latlngCoords = routing.selectedRoute!.path.points.coordinates;
+    final latlngCoords = useAlternative
+        ? routing.allRoutes!.elementAt(1).path.points.coordinates
+        : routing.selectedRoute!.path.points.coordinates;
     final data = List<HeightData>.empty(growable: true);
     var prevDist = 0.0;
     for (var i = 0; i < latlngCoords.length - 1; i++) {
@@ -82,26 +92,86 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
     setState(
       () {
-        minDistance = data.first.distance;
-        maxDistance = data.last.distance;
-        series = charts.Series<HeightData, double>(
-          id: 'Height',
-          colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
-          domainFn: (HeightData data, _) => data.distance,
-          measureFn: (HeightData data, _) => data.height,
-          data: data,
-        );
+        minDistance = useAlternative ? minDistance : data.first.distance;
+        maxDistance = useAlternative ? maxDistance : data.last.distance;
+        useAlternative
+            ? alternativeSeries = charts.Series<HeightData, double>(
+                id: 'AlternativeHeight',
+                colorFn: (_, __) => charts.Color.fromHex(code: '#838991'),
+                domainFn: (HeightData data, _) => data.distance,
+                measureFn: (HeightData data, _) => data.height,
+                data: data,
+              )
+            : series = charts.Series<HeightData, double>(
+                id: 'Height',
+                colorFn: (_, __) => charts.Color.fromHex(code: '#0073FF'),
+                domainFn: (HeightData data, _) => data.distance,
+                measureFn: (HeightData data, _) => data.height,
+                data: data,
+              );
       },
+    );
+  }
+
+  Widget renderLineChart(bool useAlternative) {
+    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+        ? charts.MaterialPalette.white
+        : charts.MaterialPalette.black;
+
+    return charts.LineChart(
+      useAlternative ? [alternativeSeries!] : [series!],
+      animate: true,
+      defaultRenderer: charts.LineRendererConfig(
+        includeArea: true,
+        strokeWidthPx: 3,
+        roundEndCaps: true,
+        areaOpacity: useAlternative ? 0 : 0.5,
+      ),
+      domainAxis: charts.NumericAxisSpec(
+        viewport: charts.NumericExtents(
+          minDistance ?? 0,
+          maxDistance ?? 0,
+        ),
+        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+          desiredTickCount: 10,
+          desiredMinTickCount: 5,
+          dataIsInWholeNumbers: false,
+        ),
+        tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+          (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
+        ),
+        renderSpec: charts.GridlineRendererSpec(
+          labelStyle: charts.TextStyleSpec(
+            fontSize: 10,
+            color: chartAxesColor,
+          ),
+          lineStyle: const charts.LineStyleSpec(
+            color: charts.MaterialPalette.transparent,
+          ),
+        ),
+      ),
+      primaryMeasureAxis: charts.NumericAxisSpec(
+        showAxisLine: false,
+        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+          zeroBound: true,
+          desiredTickCount: 3,
+        ),
+        renderSpec: charts.GridlineRendererSpec(
+          labelStyle: charts.TextStyleSpec(
+            fontSize: 10,
+            color: chartAxesColor,
+          ),
+          lineStyle: const charts.LineStyleSpec(
+            color: charts.MaterialPalette.transparent,
+          ),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     if (routing.selectedRoute == null || series == null) return Container();
-
-    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-        ? charts.MaterialPalette.white
-        : charts.MaterialPalette.black;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -119,54 +189,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               Expanded(
                 child: SizedBox(
                   height: 128,
-                  child: charts.LineChart(
-                    [series!],
-                    animate: true,
-                    defaultRenderer: charts.LineRendererConfig(
-                      includeArea: true,
-                      strokeWidthPx: 3,
-                      roundEndCaps: true,
-                      areaOpacity: 0.5,
-                    ),
-                    domainAxis: charts.NumericAxisSpec(
-                      viewport: charts.NumericExtents(
-                        minDistance ?? 0,
-                        maxDistance ?? 0,
-                      ),
-                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                        desiredTickCount: 10,
-                        desiredMinTickCount: 5,
-                        dataIsInWholeNumbers: false,
-                      ),
-                      tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-                        (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
-                      ),
-                      renderSpec: charts.GridlineRendererSpec(
-                        labelStyle: charts.TextStyleSpec(
-                          fontSize: 10,
-                          color: chartAxesColor,
-                        ),
-                        lineStyle: const charts.LineStyleSpec(
-                          color: charts.MaterialPalette.transparent,
-                        ),
-                      ),
-                    ),
-                    primaryMeasureAxis: charts.NumericAxisSpec(
-                      showAxisLine: false,
-                      tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                        zeroBound: true,
-                        desiredTickCount: 3,
-                      ),
-                      renderSpec: charts.GridlineRendererSpec(
-                        labelStyle: charts.TextStyleSpec(
-                          fontSize: 10,
-                          color: chartAxesColor,
-                        ),
-                        lineStyle: const charts.LineStyleSpec(
-                          color: charts.MaterialPalette.transparent,
-                        ),
-                      ),
-                    ),
+                  child: Stack(
+                    children: [
+                      renderLineChart(false),
+                      if (alternativeSeries != null) renderLineChart(true),
+                    ],
                   ),
                 ),
               ),
