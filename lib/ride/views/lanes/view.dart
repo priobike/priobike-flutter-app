@@ -161,6 +161,19 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
         colors.add(Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ?? defaultGaugeColor);
       }
 
+      final standardBarHeight = MediaQuery.of(context).size.height;
+      var offset = (getBottomOffset(standardBarHeight, sg.id) + (standardBarHeight / 2)) / (standardBarHeight);
+      if (offset > 1) {
+        offset = 1;
+      } else if (offset < 0) {
+        offset = 0;
+      }
+
+      final currentUserSpeed = (positioning.lastPosition?.speed ?? 1) * 3.6;
+      final stopForCurrentUserSpeed = (currentUserSpeed - minSpeed) / (maxSpeed - minSpeed);
+
+      final diffOffsetCurrentUserSpeed = stopForCurrentUserSpeed - offset;
+
       // Since we want the color steps not by second, but by speed, we map the stops accordingly
       var stops = Iterable<double>.generate(
         colors.length,
@@ -169,26 +182,21 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
             return double.infinity;
           }
 
-          final standardBarHeight = MediaQuery.of(context).size.height;
-          final offset = (getBottomOffset(standardBarHeight, sg.id) + standardBarHeight) / (2 * standardBarHeight);
-          log.i(offset);
-
           // Map the second to the needed speed
           double? distanceToSg = ride.distancesToCurrentSignalGroups[sg.id];
           distanceToSg ??= 0;
           var speedKmh = (distanceToSg / second) * 3.6;
-          // Scale the speed between minSpeed and maxSpeed
-          return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
 
-          /*final currentUserSpeed = (positioning.lastPosition?.speed ?? 1) * 3.6;
-
-          // Depends on the relative position of the blue line (user) to the moving prediction bars/lanes.
-          final standardBarHeight = MediaQuery.of(context).size.height;
-          final offset = (getBottomOffset(standardBarHeight, sg.id) + standardBarHeight) / (2 * standardBarHeight);
-          // Such that the gradient at the specified offset always shows the color for the current speed of the user.
-          final offsetFactor = offset * (maxSpeed / currentUserSpeed);
           // Scale the speed between minSpeed and maxSpeed
-          return (speedKmh / maxSpeed) * offsetFactor;*/
+          final stop = (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+          final stopOffsetAndCenteredToUserSpeed = stop - diffOffsetCurrentUserSpeed;
+          if (stopOffsetAndCenteredToUserSpeed < 0) {
+            return 0.0;
+          } else if (stopOffsetAndCenteredToUserSpeed > 1) {
+            return 1.0;
+          }
+
+          return stopOffsetAndCenteredToUserSpeed;
         },
       ).toList();
 
@@ -231,7 +239,6 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     final distanceToSignalGroup = ride.distancesToCurrentSignalGroups[sgId];
     if (distanceToSignalGroup == null) return 1000;
     final bottomOffset = (distanceToSignalGroup * (standardBarHeight / preDistance)) - (0.47 * standardBarHeight);
-    log.i(standardBarHeight);
     return bottomOffset;
   }
 
@@ -352,13 +359,13 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                                 bottom: getBottomOffset(standardBarHeight, sg.id),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.greenAccent,
-                                    /*gradient: LinearGradient(
+                                    //color: Colors.greenAccent,
+                                    gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: gaugeColors[sg.id] ?? [],
                                       stops: gaugeStops[sg.id] ?? [],
-                                    ),*/
+                                    ),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),

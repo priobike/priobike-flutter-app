@@ -4,7 +4,6 @@ import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -15,7 +14,6 @@ import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
-import 'package:priobike/ride/views/lanes/view_demo.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
@@ -261,44 +259,6 @@ class HomeViewState extends State<HomeView> {
                 children: [
                   const VSpace(),
                   const BlendIn(child: StatusView()),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    child: Tile(
-                      fill: Theme.of(context).colorScheme.background,
-                      shadowIntensity: 0.05,
-                      shadow: Colors.black,
-                      onPressed: () =>
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const LanesDemoView())),
-                      content: Row(
-                        children: [
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                BoldContent(text: "Demo Lanes View", context: context),
-                                const SizedBox(height: 4),
-                                Small(text: "...", context: context),
-                              ],
-                            ),
-                          ),
-                          const SmallHSpace(),
-                          // Show a progress indicator with the pct value.
-                          const Padding(
-                            padding: EdgeInsets.only(right: 4),
-                            child: Opacity(
-                              opacity: 0.2,
-                              child: Icon(
-                                Icons.chevron_right_rounded,
-                                color: Color.fromARGB(255, 0, 255, 106),
-                                size: 42,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   BlendIn(
                     delay: const Duration(milliseconds: 250),
                     child: Row(
