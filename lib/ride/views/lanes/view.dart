@@ -37,10 +37,10 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
   /// The current gauge colors, if we have the necessary data.
-  List<Color> gaugeColors = [defaultGaugeColor];
+  Map<String,List<Color>> gaugeColors = {"default": [defaultGaugeColor]};
 
   /// The current gauge stops, if we have the necessary data.
-  List<double> gaugeStops = [];
+  Map<String,List<double>> gaugeStops = {};
 
   /// The distance before a signal group from which it is considered for predictions and recommendations.
   static const preDistance = RideMultiLane.preDistance;
@@ -58,6 +58,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
 
     if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
       positioning.needsLayout[viewId] = false;
+      loadGauges(ride);
     }
   }
 
@@ -127,20 +128,93 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     }
   }
 
+  /// Load the gauge colors and steps, from the predictor.
+  Future<void> loadGauges(RideMultiLane ride) async {
+    if (ride.predictionServiceMultiLane == null) {
+      for (final sg in ride.currentSignalGroups) {
+        gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
+        gaugeStops[sg.id] = [0.0, 1.0];
+        return;
+      }
+    }
+
+    for (final sg in ride.currentSignalGroups) {
+      final phases = ride.predictionServiceMultiLane!.recommendations[sg.id]?.calcPhasesFromNow;
+      final qualities = ride.predictionServiceMultiLane!.recommendations[sg.id]?.calcQualitiesFromNow;
+
+      if (phases == null || qualities == null) {
+        gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
+        gaugeStops[sg.id] = [0.0, 1.0];
+        continue;
+      }
+
+      var colors = <Color>[];
+      for (var i = 0; i < phases.length; i++) {
+        final phase = phases[i];
+        final quality = max(0, qualities[i]);
+        final opacity = quality;
+        colors.add(Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ?? defaultGaugeColor);
+      }
+
+      // Since we want the color steps not by second, but by speed, we map the stops accordingly
+      var stops = Iterable<double>.generate(
+        colors.length,
+            (second) {
+          if (second == 0) {
+            return double.infinity;
+          }
+          // Map the second to the needed speed
+          final distanceToSg = ride.distancesToCurrentSignalGroups[sg.id];
+          if (distanceToSg == null) {
+            gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
+            gaugeStops[sg.id] = [0.0, 1.0];
+            continue;
+          }
+          var speedKmh = (distanceToSg / second) * 3.6;
+          // Scale the speed between minSpeed and maxSpeed
+          return (speedKmh - minSpeed) / (maxSpeed - minSpeed);
+        },
+      ).toList();
+
+      // Add stops and colos to indicate unavailable prediction ranges
+      if (stops.isNotEmpty) {
+        stops.add(stops.last);
+        stops.add(0.0);
+      }
+      if (colors.isNotEmpty) {
+        colors.add(defaultGaugeColor);
+        colors.add(defaultGaugeColor);
+      }
+
+      // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
+      // Such that green 0.1, red 0.3 -> green 0.1, green 0.3, red 0.3
+      List<Color> hardEdgeColors = [];
+      List<double> hardEdgeStops = [];
+      for (var i = 0; i < colors.length; i++) {
+        hardEdgeColors.add(colors[i]);
+        hardEdgeStops.add(stops[i]);
+        if (i + 1 < colors.length) {
+          hardEdgeColors.add(colors[i]);
+          hardEdgeStops.add(stops[i + 1]);
+        }
+      }
+
+      // The resulting stops and colors will be from high speed -> low speed
+      // Thus, we reverse both colors and stops to get the correct order
+      gaugeColors = hardEdgeColors.reversed.toList();
+      gaugeStops = hardEdgeStops.reversed.toList();
+    }
+  }
+
   double getBarWidth(double standardBarWidth, int numberOfLanes) {
     if (numberOfLanes <= 3) return standardBarWidth;
     return standardBarWidth / numberOfLanes;
   }
 
-  double getBottomOffset(double standardBarHeight, double sgDistanceOnRoute) {
-    // Convert from relative to absolute distance.
-    final absSgDistance = ride.route!.path.distance * sgDistanceOnRoute;
-
-    final userDistanceOnRoute = positioning.snap?.distanceOnRoute;
-    if (userDistanceOnRoute == null) return 1000;
-    final distanceToSignalGroup = absSgDistance - userDistanceOnRoute;
-    final bottomOffset =
-        (distanceToSignalGroup * (standardBarHeight / preDistance)) - (40 * (standardBarHeight / preDistance));
+  double getBottomOffset(double standardBarHeight, String sgId) {
+    final distanceToSignalGroup = ride.distancesToCurrentSignalGroups[sgId];
+    if (distanceToSignalGroup == null) return 1000;
+    final bottomOffset = (distanceToSignalGroup * (standardBarHeight / preDistance)) - (0.47 * standardBarHeight);
     return bottomOffset;
   }
 
@@ -258,7 +332,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                                 curve: Curves.linear,
                                 width: getBarWidth(standardBarWidth - 2, currentSgsOrdered.length),
                                 height: standardBarHeight,
-                                bottom: getBottomOffset(standardBarHeight, sg.distanceOnRoute),
+                                bottom: getBottomOffset(standardBarHeight, sg.id),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Colors.greenAccent,

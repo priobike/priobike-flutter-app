@@ -43,6 +43,9 @@ class RideMultiLane with ChangeNotifier {
   /// Current signal groups.
   Set<SgMultiLane> currentSignalGroups = {};
 
+  /// The distances to the current signal groups (in meter).
+  Map<String, double> distancesToCurrentSignalGroups = {};
+
   /// The distance on the route before a signal group from which it is considered for the predictions and
   /// recommendations.
   static const preDistance = 100.0;
@@ -92,6 +95,7 @@ class RideMultiLane with ChangeNotifier {
       // when being close to the SG).
       if (absSgDistance < snap.distanceOnRoute - 20) {
         final removed = currentSignalGroups.remove(sg);
+        distancesToCurrentSignalGroups.remove(sg.id);
         if (removed) {
           predictionServiceMultiLane!.removeSg(sg);
         }
@@ -101,12 +105,14 @@ class RideMultiLane with ChangeNotifier {
       // Signal group is too far in front of the user.
       if (absSgDistance - preDistance > snap.distanceOnRoute) {
         final removed = currentSignalGroups.remove(sg);
+        distancesToCurrentSignalGroups.remove(sg.id);
         if (removed) {
           predictionServiceMultiLane!.removeSg(sg);
         }
         continue;
       }
       log.i("Signal group ${sg.id} is in range.");
+      distancesToCurrentSignalGroups[sg.id] = absSgDistance - snap.distanceOnRoute;
       final added = currentSignalGroups.add(sg);
       if (added) {
         predictionServiceMultiLane!.addSg(sg);
