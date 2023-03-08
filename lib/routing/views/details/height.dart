@@ -44,8 +44,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    processRouteData(false);
-    processRouteData(true);
+    processRouteData(useAlternative: false);
+    processRouteData(useAlternative: true);
     setState(() {});
   }
 
@@ -56,8 +56,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     routing.addListener(update);
     settings = getIt<Settings>();
     settings.addListener(update);
-    processRouteData(false);
-    processRouteData(true);
+    processRouteData(useAlternative: false);
+    processRouteData(useAlternative: true);
   }
 
   @override
@@ -68,11 +68,10 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   }
 
   /// Process the route data and create the chart series.
-  void processRouteData(bool useAlternative) {
+  void processRouteData({required bool useAlternative}) {
     if (routing.selectedRoute == null) return;
     if (useAlternative && (routing.allRoutes == null || routing.allRoutes!.length < 2)) return;
 
-    // Aggregate the distance along the route.
     const vincenty = Distance(roundResult: false);
     final latlngCoords = useAlternative
         ? routing.allRoutes!.elementAt(1).path.points.coordinates
@@ -113,20 +112,39 @@ class RouteHeightChartState extends State<RouteHeightChart> {
     );
   }
 
-  Widget renderLineChart(bool useAlternative) {
+  Widget renderLineChart() {
     final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
         ? charts.MaterialPalette.white
         : charts.MaterialPalette.black;
 
+    if (series == null && alternativeSeries == null) return Container();
+
+    final List<charts.Series<HeightData, double>> seriesList = [
+      if (series != null) series!..setAttribute(charts.rendererIdKey, "mainLine"),
+      if (alternativeSeries != null) alternativeSeries!..setAttribute(charts.rendererIdKey, "alternativeLine"),
+    ];
+
     return charts.LineChart(
-      useAlternative ? [alternativeSeries!] : [series!],
+      seriesList,
       animate: true,
-      defaultRenderer: charts.LineRendererConfig(
-        includeArea: true,
-        strokeWidthPx: 3,
-        roundEndCaps: true,
-        areaOpacity: useAlternative ? 0 : 0.5,
-      ),
+      customSeriesRenderers: [
+        charts.LineRendererConfig(
+          customRendererId: "mainLine",
+          stacked: true,
+          includeArea: true,
+          strokeWidthPx: 3,
+          roundEndCaps: true,
+          areaOpacity: 0.5,
+        ),
+        charts.LineRendererConfig(
+          customRendererId: "alternativeLine",
+          stacked: true,
+          includeArea: false,
+          strokeWidthPx: 2,
+          roundEndCaps: true,
+          areaOpacity: 0,
+        )
+      ],
       domainAxis: charts.NumericAxisSpec(
         viewport: charts.NumericExtents(
           minDistance ?? 0,
@@ -189,12 +207,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               Expanded(
                 child: SizedBox(
                   height: 128,
-                  child: Stack(
-                    children: [
-                      renderLineChart(false),
-                      if (alternativeSeries != null) renderLineChart(true),
-                    ],
-                  ),
+                  child: renderLineChart(),
                 ),
               ),
               RotatedBox(
