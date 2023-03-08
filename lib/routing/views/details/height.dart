@@ -120,8 +120,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         ? charts.MaterialPalette.white
         : charts.MaterialPalette.black;
 
-    if (lineElements.isEmpty) return Container();
-
     double? minDistance;
     double? maxDistance;
 
@@ -133,15 +131,13 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
       if (lineElement.isMainLine) {
         seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "mainLine"));
-        minDistance = lineElement.minDistance;
-        maxDistance = lineElement.maxDistance;
       } else {
         seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "alternativeLine"));
       }
     }
     return charts.LineChart(
       seriesList,
-      animate: true,
+      animate: false,
       customSeriesRenderers: [
         charts.LineRendererConfig(
           customRendererId: "mainLine",
@@ -150,14 +146,16 @@ class RouteHeightChartState extends State<RouteHeightChart> {
           strokeWidthPx: 3,
           roundEndCaps: true,
           areaOpacity: 0.5,
+          layoutPaintOrder: 2,
         ),
         charts.LineRendererConfig(
           customRendererId: "alternativeLine",
           stacked: true,
-          includeArea: false,
+          includeArea: true,
           strokeWidthPx: 2,
           roundEndCaps: true,
-          areaOpacity: 0,
+          areaOpacity: 0.2,
+          layoutPaintOrder: 1,
         )
       ],
       domainAxis: charts.NumericAxisSpec(
@@ -204,7 +202,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    // if (routing.selectedRoute == null || series == null) return Container();
+    if (lineElements.isEmpty) return Container();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
