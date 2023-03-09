@@ -42,78 +42,128 @@ class RouteHeightPainter extends CustomPainter {
   BuildContext context;
   RouteHeightChartState routeHeightChart = RouteHeightChartState();
 
+  /// The padding of the chart.
+  final paddingLeftRight = 20.0;
+  final paddingTopBottom = 14.0;
+
+  /// The Canvas to draw on. Will be initialized in the paint method.
+  late Canvas canvas;
+
+  /// The size of the canvas. Will be initialized in the paint method.
+  late Size size;
+
   RouteHeightPainter(this.context);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    // final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-    //     ? charts.MaterialPalette.white
-    //     : charts.MaterialPalette.black;
-
+  /// Draws the coordinate system.
+  void drawCoordSystem() {
     final paint = Paint()
       ..color = Colors.grey
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
-
-    const padding = 16.0;
     // x-axis
     canvas.drawLine(
-      Offset(padding, size.height - padding),
-      Offset(size.width - padding, size.height - padding),
+      Offset(paddingLeftRight, size.height - paddingTopBottom),
+      Offset(size.width - paddingLeftRight, size.height - paddingTopBottom),
       paint,
     );
     // y-axis
     canvas.drawLine(
-      const Offset(padding, padding),
-      Offset(padding, size.height - padding),
+      Offset(paddingLeftRight, paddingTopBottom),
+      Offset(paddingLeftRight, size.height - paddingTopBottom),
       paint,
     );
-    // x-axis labels
+  }
+
+  /// Draws 3 labels for the x-axis and 2 labels for the y-axis.
+  void drawCoordSystemLabels() {
     const TextStyle labelTextStyle = TextStyle(
       color: Colors.white,
       fontSize: 10,
     );
 
-    //routeHeightChart.processRouteData();
-
-    final leftLabel = TextPainter(
+    final xLeftLabel = TextPainter(
       text: const TextSpan(
         text: 'Left',
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
     );
-    leftLabel.layout(
-      minWidth: 0 + padding,
-      maxWidth: size.width - padding,
+    xLeftLabel.layout(
+      minWidth: 0 + paddingLeftRight,
+      maxWidth: size.width - paddingLeftRight,
     );
-    leftLabel.paint(canvas, Offset(0 + padding, size.height - padding + 4));
+    xLeftLabel.paint(canvas, Offset(0 + paddingLeftRight, size.height - paddingTopBottom + 4));
 
-    final rightLabel = TextPainter(
+    final xRightLabel = TextPainter(
       text: const TextSpan(
         text: 'Right',
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
     );
-    rightLabel.layout(
-      minWidth: 0 + padding,
-      maxWidth: size.width - padding,
+    xRightLabel.layout(
+      minWidth: 0 + paddingLeftRight,
+      maxWidth: size.width - paddingLeftRight,
     );
-    rightLabel.paint(canvas, Offset(size.width - padding - rightLabel.width, size.height - padding + 4));
+    xRightLabel.paint(
+        canvas, Offset(size.width - paddingLeftRight - xRightLabel.width, size.height - paddingTopBottom + 4));
 
-    final middleLabel = TextPainter(
+    final xMiddleLabel = TextPainter(
       text: const TextSpan(
         text: 'Middle',
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
     );
-    middleLabel.layout(
-      minWidth: 0 + padding,
-      maxWidth: size.width - padding,
+    xMiddleLabel.layout(
+      minWidth: 0 + paddingLeftRight,
+      maxWidth: size.width - paddingLeftRight,
     );
-    middleLabel.paint(canvas, Offset(size.width / 2 - middleLabel.width / 2, size.height - padding + 4));
+    xMiddleLabel.paint(canvas, Offset(size.width / 2 - xMiddleLabel.width / 2, size.height - paddingTopBottom + 4));
+
+    const distanceFromYAxis = 4.0;
+    final yMinLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Min',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    yMinLabel.layout(
+      minWidth: 0 + paddingLeftRight,
+      maxWidth: size.width - paddingLeftRight,
+    );
+    yMinLabel.paint(
+        canvas,
+        Offset(
+            paddingLeftRight - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - yMinLabel.height));
+
+    final yMaxLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Max',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    yMaxLabel.layout(
+      minWidth: 0 + paddingLeftRight,
+      maxWidth: size.width - paddingLeftRight,
+    );
+    yMaxLabel.paint(canvas, Offset(paddingLeftRight - yMaxLabel.width - distanceFromYAxis, paddingTopBottom - 4));
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    this.canvas = canvas;
+    this.size = size;
+    // final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+    //     ? charts.MaterialPalette.white
+    //     : charts.MaterialPalette.black;
+
+    //routeHeightChart.processRouteData();
+
+    drawCoordSystem();
+    drawCoordSystemLabels();
   }
 
   @override
