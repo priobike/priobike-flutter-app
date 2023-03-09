@@ -40,7 +40,7 @@ class LineElement {
 class RouteHeightPainter extends CustomPainter {
   List<LineElement> lineElements = RouteHeightChartState().lineElements;
   BuildContext context;
-  RouteHeightChartState routeHeightChart = RouteHeightChartState();
+  RouteHeightChartState routeHeightChart;
 
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
@@ -53,7 +53,7 @@ class RouteHeightPainter extends CustomPainter {
   /// The size of the canvas. Will be initialized in the paint method.
   late Size size;
 
-  RouteHeightPainter(this.context);
+  RouteHeightPainter(this.context, this.routeHeightChart);
 
   /// Draws the coordinate system.
   void drawCoordSystem() {
@@ -86,8 +86,8 @@ class RouteHeightPainter extends CustomPainter {
 
     // left label on x-axis
     final xLeftLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Left',
+      text: TextSpan(
+        text: "${routeHeightChart.minDistance == null ? "0.0" : routeHeightChart.minDistance!.toStringAsFixed(1)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -99,24 +99,25 @@ class RouteHeightPainter extends CustomPainter {
     xLeftLabel.paint(canvas, Offset(paddingLeft, size.height - paddingTopBottom + distanceFromXAxis));
 
     // middle label on x-axis
-    final xMiddleLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Middle',
+    final xMidLabel = TextPainter(
+      text: TextSpan(
+        text:
+            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(1)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
     );
-    xMiddleLabel.layout(
+    xMidLabel.layout(
       minWidth: 0,
       maxWidth: size.width,
     );
-    xMiddleLabel.paint(
-        canvas, Offset(size.width / 2 - xMiddleLabel.width / 2, size.height - paddingTopBottom + distanceFromXAxis));
+    xMidLabel.paint(
+        canvas, Offset(size.width / 2 - xMidLabel.width / 2, size.height - paddingTopBottom + distanceFromXAxis));
 
     // right label on x-axis
     final xRightLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Right',
+      text: TextSpan(
+        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(1)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -145,19 +146,19 @@ class RouteHeightPainter extends CustomPainter {
     yMinLabel.paint(
         canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
-    final yMiddleLabel = TextPainter(
+    final yMidLabel = TextPainter(
       text: const TextSpan(
         text: 'Middle',
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
     );
-    yMiddleLabel.layout(
+    yMidLabel.layout(
       minWidth: 0,
       maxWidth: size.width,
     );
-    yMiddleLabel.paint(canvas,
-        Offset(paddingLeft - yMiddleLabel.width - distanceFromYAxis, size.height / 2 - yMiddleLabel.height / 2));
+    yMidLabel.paint(
+        canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, size.height / 2 - yMidLabel.height / 2));
 
     // max label on y-axis
     final yMaxLabel = TextPainter(
@@ -181,8 +182,6 @@ class RouteHeightPainter extends CustomPainter {
     // final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
     //     ? charts.MaterialPalette.white
     //     : charts.MaterialPalette.black;
-
-    //routeHeightChart.processRouteData();
 
     drawCoordSystem();
     drawCoordSystemLabels();
@@ -269,7 +268,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             data.last.distance),
       );
     }
-    List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
+    seriesList = List.empty(growable: true);
     for (var lineElement in lineElements) {
       // find smallest and largest distance
       minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
@@ -376,7 +375,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                   //width: (MediaQuery.of(context).size.width - 24),
                   //renderLineChart(context),
                   child: CustomPaint(
-                    painter: RouteHeightPainter(context),
+                    painter: RouteHeightPainter(context, this),
                   ),
                 ),
               ),
