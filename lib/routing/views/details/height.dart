@@ -37,6 +37,89 @@ class LineElement {
   LineElement(this.isMainLine, this.series, this.minDistance, this.maxDistance);
 }
 
+class RouteHeightPainter extends CustomPainter {
+  List<LineElement> lineElements = RouteHeightChartState().lineElements;
+  BuildContext context;
+  RouteHeightChartState routeHeightChart = RouteHeightChartState();
+
+  RouteHeightPainter(this.context);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+    //     ? charts.MaterialPalette.white
+    //     : charts.MaterialPalette.black;
+
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    const padding = 16.0;
+    // x-axis
+    canvas.drawLine(
+      Offset(padding, size.height - padding),
+      Offset(size.width - padding, size.height - padding),
+      paint,
+    );
+    // y-axis
+    canvas.drawLine(
+      const Offset(padding, padding),
+      Offset(padding, size.height - padding),
+      paint,
+    );
+    // x-axis labels
+    const TextStyle labelTextStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 10,
+    );
+
+    //routeHeightChart.processRouteData();
+
+    final leftLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Left',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    leftLabel.layout(
+      minWidth: 0 + padding,
+      maxWidth: size.width - padding,
+    );
+    leftLabel.paint(canvas, Offset(0 + padding, size.height - padding + 4));
+
+    final rightLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Right',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    rightLabel.layout(
+      minWidth: 0 + padding,
+      maxWidth: size.width - padding,
+    );
+    rightLabel.paint(canvas, Offset(size.width - padding - rightLabel.width, size.height - padding + 4));
+
+    final middleLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Middle',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    middleLabel.layout(
+      minWidth: 0 + padding,
+      maxWidth: size.width - padding,
+    );
+    middleLabel.paint(canvas, Offset(size.width / 2 - middleLabel.width / 2, size.height - padding + 4));
+  }
+
+  @override
+  bool shouldRepaint(RouteHeightPainter oldDelegate) => false;
+}
+
 class RouteHeightChartState extends State<RouteHeightChart> {
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
@@ -46,6 +129,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   /// The lineElements for the chart.
   List<LineElement> lineElements = List.empty(growable: true);
+
+  double? minDistance;
+  double? maxDistance;
+
+  List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -109,25 +197,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             data.last.distance),
       );
     }
-
-    setState(() {
-      lineElements = lineElements;
-    });
-  }
-
-  Widget renderLineChart(BuildContext context) {
-    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-        ? charts.MaterialPalette.white
-        : charts.MaterialPalette.black;
-
-    double? minDistance;
-    double? maxDistance;
-
-    final List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
+    List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
     for (var lineElement in lineElements) {
       // find smallest and largest distance
-      minDistance = minDistance == null ? lineElement.minDistance : min(minDistance, lineElement.minDistance);
-      maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance, lineElement.maxDistance);
+      minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
+      maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance!, lineElement.maxDistance);
 
       if (lineElement.isMainLine) {
         seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "mainLine"));
@@ -135,6 +209,13 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "alternativeLine"));
       }
     }
+  }
+
+  Widget renderLineChart(BuildContext context) {
+    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+        ? charts.MaterialPalette.white
+        : charts.MaterialPalette.black;
+
     return charts.LineChart(
       seriesList,
       animate: false,
@@ -220,7 +301,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               Expanded(
                 child: SizedBox(
                   height: 128,
-                  child: renderLineChart(context),
+                  //width: (MediaQuery.of(context).size.width - 24),
+                  //renderLineChart(context),
+                  child: CustomPaint(
+                    painter: RouteHeightPainter(context),
+                  ),
                 ),
               ),
               RotatedBox(
