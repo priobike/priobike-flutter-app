@@ -196,16 +196,30 @@ class RouteHeightPainter extends CustomPainter {
 
   /// Draws the lines of the chart.
   void drawLines() {
-    Paint paint;
+    Paint paintLine;
+    Paint paintCircle;
 
-    for (LineElement element in routeHeightChart.lineElements) {
+    // create new list to make sure the main line is last, so it is always drawn on top
+    List<LineElement> sortedLineElements = List.empty(growable: true);
+    sortedLineElements.addAll(routeHeightChart.lineElements.where((element) => !element.isMainLine));
+    sortedLineElements.add(routeHeightChart.lineElements.firstWhere((element) => element.isMainLine));
+
+    for (LineElement element in sortedLineElements) {
       if (element.isMainLine) {
-        paint = Paint()
+        paintLine = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 2
+          ..style = PaintingStyle.fill;
+        paintCircle = Paint()
           ..color = Colors.blue
           ..strokeWidth = 2
           ..style = PaintingStyle.fill;
       } else {
-        paint = Paint()
+        paintLine = Paint()
+          ..color = Colors.grey
+          ..strokeWidth = 2
+          ..style = PaintingStyle.fill;
+        paintCircle = Paint()
           ..color = Colors.grey
           ..strokeWidth = 2
           ..style = PaintingStyle.fill;
@@ -220,13 +234,10 @@ class RouteHeightPainter extends CustomPainter {
         final y =
             size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
 
-        const circleSize = 3.0;
+        const circleSize = 4.0;
         if (heightData == element.series.last) {
-          canvas.drawCircle(Offset(x, y), circleSize, paint);
+          canvas.drawCircle(Offset(x, y), circleSize, paintCircle);
         } else {
-          if (heightData == element.series.first) {
-            canvas.drawCircle(Offset(x, y), circleSize, paint);
-          }
           final nextIndex = element.series.indexOf(heightData) + 1;
           final nextHeightData = element.series[nextIndex];
           final nextHeight = nextHeightData.height - routeHeightChart.minHeight!;
@@ -235,7 +246,7 @@ class RouteHeightPainter extends CustomPainter {
           final nextY = size.height -
               paddingTopBottom -
               (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
-          canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paint);
+          canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
         }
       }
     }
@@ -341,76 +352,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       }
     }
   }
-
-  // Widget renderLineChart(BuildContext context) {
-  //   final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-  //       ? charts.MaterialPalette.white
-  //       : charts.MaterialPalette.black;
-
-  //   return charts.LineChart(
-  //     seriesList,
-  //     animate: false,
-  //     customSeriesRenderers: [
-  //       charts.LineRendererConfig(
-  //         customRendererId: "mainLine",
-  //         stacked: true,
-  //         includeArea: true,
-  //         strokeWidthPx: 2,
-  //         roundEndCaps: true,
-  //         areaOpacity: 0.5,
-  //         layoutPaintOrder: 2,
-  //       ),
-  //       charts.LineRendererConfig(
-  //         customRendererId: "alternativeLine",
-  //         stacked: true,
-  //         includeArea: true,
-  //         strokeWidthPx: 2,
-  //         roundEndCaps: true,
-  //         areaOpacity: 0.2,
-  //         layoutPaintOrder: 1,
-  //       )
-  //     ],
-  //     domainAxis: charts.NumericAxisSpec(
-  //       viewport: charts.NumericExtents(
-  //         minDistance ?? 0,
-  //         maxDistance ?? 0,
-  //       ),
-  //       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-  //         desiredTickCount: 10,
-  //         desiredMinTickCount: 5,
-  //         dataIsInWholeNumbers: false,
-  //       ),
-  //       tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-  //         (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
-  //       ),
-  //       renderSpec: charts.GridlineRendererSpec(
-  //         labelStyle: charts.TextStyleSpec(
-  //           fontSize: 10,
-  //           color: chartAxesColor,
-  //         ),
-  //         lineStyle: const charts.LineStyleSpec(
-  //           color: charts.MaterialPalette.transparent,
-  //         ),
-  //       ),
-  //     ),
-  //     primaryMeasureAxis: charts.NumericAxisSpec(
-  //       showAxisLine: false,
-  //       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-  //         zeroBound: true,
-  //         desiredTickCount: 3,
-  //       ),
-  //       renderSpec: charts.GridlineRendererSpec(
-  //         labelStyle: charts.TextStyleSpec(
-  //           fontSize: 10,
-  //           color: chartAxesColor,
-  //         ),
-  //         lineStyle: const charts.LineStyleSpec(
-  //           color: charts.MaterialPalette.transparent,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
