@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -29,7 +28,7 @@ class LineElement {
   final bool isMainLine;
 
   /// The height data of the line.
-  final charts.Series<HeightData, double> series;
+  final List<HeightData> series;
 
   final double minDistance;
   final double maxDistance;
@@ -38,7 +37,6 @@ class LineElement {
 }
 
 class RouteHeightPainter extends CustomPainter {
-  List<LineElement> lineElements = RouteHeightChartState().lineElements;
   BuildContext context;
   RouteHeightChartState routeHeightChart;
 
@@ -60,7 +58,7 @@ class RouteHeightPainter extends CustomPainter {
     final paint = Paint()
       ..color = Colors.grey
       ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.fill;
     // x-axis
     canvas.drawLine(
       Offset(paddingLeft, size.height - paddingTopBottom),
@@ -75,7 +73,7 @@ class RouteHeightPainter extends CustomPainter {
     );
   }
 
-  /// Draws 3 labels for the x-axis and 3 labels for the y-axis.
+  /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
     const TextStyle labelTextStyle = TextStyle(
       color: Colors.white,
@@ -86,8 +84,8 @@ class RouteHeightPainter extends CustomPainter {
 
     // left label on x-axis
     final xLeftLabel = TextPainter(
-      text: TextSpan(
-        text: "${routeHeightChart.minDistance == null ? "0.0" : routeHeightChart.minDistance!.toStringAsFixed(1)} km",
+      text: const TextSpan(
+        text: "0.0 km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -129,12 +127,12 @@ class RouteHeightPainter extends CustomPainter {
     xRightLabel.paint(canvas,
         Offset(size.width - paddingRight - xRightLabel.width, size.height - paddingTopBottom + distanceFromXAxis));
 
-    const distanceFromYAxis = 4.0;
+    const distanceFromYAxis = 8.0;
 
     // min label on y-axis
     final yMinLabel = TextPainter(
       text: const TextSpan(
-        text: 'Min',
+        text: "0",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -147,8 +145,8 @@ class RouteHeightPainter extends CustomPainter {
         canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
     final yMidLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Middle',
+      text: TextSpan(
+        text: routeHeightChart.maxHeight == null ? "0" : (routeHeightChart.maxHeight! / 2).toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -162,8 +160,8 @@ class RouteHeightPainter extends CustomPainter {
 
     // max label on y-axis
     final yMaxLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Max',
+      text: TextSpan(
+        text: routeHeightChart.maxHeight == null ? "0" : routeHeightChart.maxHeight!.toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -193,6 +191,24 @@ class RouteHeightPainter extends CustomPainter {
     canvas.restore();
   }
 
+  /// Draws the main line of the chart.
+  void drawMainLine() {
+    final paint = Paint()
+      ..color = Colors.blue
+      ..strokeWidth = 2
+      ..style = PaintingStyle.fill;
+
+    return;
+
+    for (LineElement element in routeHeightChart.lineElements) {
+      if (element.isMainLine != true) continue;
+
+      for (HeightData heightData in element.series) {
+        ;
+      }
+    }
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     this.canvas = canvas;
@@ -203,6 +219,7 @@ class RouteHeightPainter extends CustomPainter {
 
     drawCoordSystem();
     drawCoordSystemLabels();
+    drawMainLine();
   }
 
   @override
@@ -219,10 +236,14 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The lineElements for the chart.
   List<LineElement> lineElements = List.empty(growable: true);
 
+  /// The minimum distance of a route.
   double? minDistance;
+
+  /// The maximum distance of a route.
   double? maxDistance;
 
-  List<charts.Series<HeightData, double>> seriesList = List.empty(growable: true);
+  /// The minimum height of a route.
+  double? maxHeight;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -269,106 +290,91 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       }
       final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
 
-      final String id = isMainLine ? 'Height' : 'AlternativeHeight';
-      final String colorCode = isMainLine ? '#0073FF' : '#838991';
-
       lineElements.add(
-        LineElement(
-            isMainLine,
-            charts.Series<HeightData, double>(
-              id: id,
-              colorFn: (_, __) => charts.Color.fromHex(code: colorCode),
-              domainFn: (HeightData data, _) => data.distance,
-              measureFn: (HeightData data, _) => data.height,
-              data: data,
-            ),
-            data.first.distance,
-            data.last.distance),
+        LineElement(isMainLine, data, data.first.distance, data.last.distance),
       );
     }
-    seriesList = List.empty(growable: true);
     for (var lineElement in lineElements) {
       // find smallest and largest distance
       minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
       maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance!, lineElement.maxDistance);
 
-      if (lineElement.isMainLine) {
-        seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "mainLine"));
-      } else {
-        seriesList.add(lineElement.series..setAttribute(charts.rendererIdKey, "alternativeLine"));
+      // find largest height
+      for (HeightData heightData in lineElement.series) {
+        maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
       }
     }
   }
 
-  Widget renderLineChart(BuildContext context) {
-    final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-        ? charts.MaterialPalette.white
-        : charts.MaterialPalette.black;
+  // Widget renderLineChart(BuildContext context) {
+  //   final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
+  //       ? charts.MaterialPalette.white
+  //       : charts.MaterialPalette.black;
 
-    return charts.LineChart(
-      seriesList,
-      animate: false,
-      customSeriesRenderers: [
-        charts.LineRendererConfig(
-          customRendererId: "mainLine",
-          stacked: true,
-          includeArea: true,
-          strokeWidthPx: 2,
-          roundEndCaps: true,
-          areaOpacity: 0.5,
-          layoutPaintOrder: 2,
-        ),
-        charts.LineRendererConfig(
-          customRendererId: "alternativeLine",
-          stacked: true,
-          includeArea: true,
-          strokeWidthPx: 2,
-          roundEndCaps: true,
-          areaOpacity: 0.2,
-          layoutPaintOrder: 1,
-        )
-      ],
-      domainAxis: charts.NumericAxisSpec(
-        viewport: charts.NumericExtents(
-          minDistance ?? 0,
-          maxDistance ?? 0,
-        ),
-        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-          desiredTickCount: 10,
-          desiredMinTickCount: 5,
-          dataIsInWholeNumbers: false,
-        ),
-        tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-          (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
-        ),
-        renderSpec: charts.GridlineRendererSpec(
-          labelStyle: charts.TextStyleSpec(
-            fontSize: 10,
-            color: chartAxesColor,
-          ),
-          lineStyle: const charts.LineStyleSpec(
-            color: charts.MaterialPalette.transparent,
-          ),
-        ),
-      ),
-      primaryMeasureAxis: charts.NumericAxisSpec(
-        showAxisLine: false,
-        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-          zeroBound: true,
-          desiredTickCount: 3,
-        ),
-        renderSpec: charts.GridlineRendererSpec(
-          labelStyle: charts.TextStyleSpec(
-            fontSize: 10,
-            color: chartAxesColor,
-          ),
-          lineStyle: const charts.LineStyleSpec(
-            color: charts.MaterialPalette.transparent,
-          ),
-        ),
-      ),
-    );
-  }
+  //   return charts.LineChart(
+  //     seriesList,
+  //     animate: false,
+  //     customSeriesRenderers: [
+  //       charts.LineRendererConfig(
+  //         customRendererId: "mainLine",
+  //         stacked: true,
+  //         includeArea: true,
+  //         strokeWidthPx: 2,
+  //         roundEndCaps: true,
+  //         areaOpacity: 0.5,
+  //         layoutPaintOrder: 2,
+  //       ),
+  //       charts.LineRendererConfig(
+  //         customRendererId: "alternativeLine",
+  //         stacked: true,
+  //         includeArea: true,
+  //         strokeWidthPx: 2,
+  //         roundEndCaps: true,
+  //         areaOpacity: 0.2,
+  //         layoutPaintOrder: 1,
+  //       )
+  //     ],
+  //     domainAxis: charts.NumericAxisSpec(
+  //       viewport: charts.NumericExtents(
+  //         minDistance ?? 0,
+  //         maxDistance ?? 0,
+  //       ),
+  //       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+  //         desiredTickCount: 10,
+  //         desiredMinTickCount: 5,
+  //         dataIsInWholeNumbers: false,
+  //       ),
+  //       tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+  //         (num? value) => (value ?? 0) < 0.01 ? "" : "${value?.toStringAsFixed(1)} km",
+  //       ),
+  //       renderSpec: charts.GridlineRendererSpec(
+  //         labelStyle: charts.TextStyleSpec(
+  //           fontSize: 10,
+  //           color: chartAxesColor,
+  //         ),
+  //         lineStyle: const charts.LineStyleSpec(
+  //           color: charts.MaterialPalette.transparent,
+  //         ),
+  //       ),
+  //     ),
+  //     primaryMeasureAxis: charts.NumericAxisSpec(
+  //       showAxisLine: false,
+  //       tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+  //         zeroBound: true,
+  //         desiredTickCount: 3,
+  //       ),
+  //       renderSpec: charts.GridlineRendererSpec(
+  //         labelStyle: charts.TextStyleSpec(
+  //           fontSize: 10,
+  //           color: chartAxesColor,
+  //         ),
+  //         lineStyle: const charts.LineStyleSpec(
+  //           color: charts.MaterialPalette.transparent,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
