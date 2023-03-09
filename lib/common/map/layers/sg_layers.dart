@@ -8,6 +8,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
@@ -248,6 +249,115 @@ class MultiLaneTrafficLightsLayer {
     final sourceExists = await mapController.style.styleSourceExists("crossings");
     if (sourceExists) {
       final source = await mapController.style.getSource("crossings");
+      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
+    }
+  }
+}
+
+class TrafficLightMultiLaneLayer {
+  /// The features to display.
+  final List<dynamic> features = List.empty(growable: true);
+
+  TrafficLightMultiLaneLayer(bool isDark) {
+    final ride = getIt<RideMultiLane>();
+    final currentSgs = ride.currentSignalGroups;
+
+    for (final sg in currentSgs) {
+      String sgIcon;
+      switch (ride.predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentSignalPhase) {
+        case Phase.green:
+          if (isDark) {
+            sgIcon = "trafficlightonlinegreendark";
+          } else {
+            sgIcon = "trafficlightonlinegreenlight";
+          }
+          break;
+        case Phase.amber:
+          if (isDark) {
+            sgIcon = "trafficlightonlineamberdark";
+          } else {
+            sgIcon = "trafficlightonlineamberlight";
+          }
+          break;
+        case Phase.redAmber:
+          if (isDark) {
+            sgIcon = "trafficlightonlineamberdark";
+          } else {
+            sgIcon = "trafficlightonlineamberlight";
+          }
+          break;
+        case Phase.red:
+          if (isDark) {
+            sgIcon = "trafficlightonlinereddark";
+          } else {
+            sgIcon = "trafficlightonlineredlight";
+          }
+          break;
+        default:
+          if (isDark) {
+            sgIcon = "trafficlightonlinedarkdark";
+          } else {
+            sgIcon = "trafficlightonlinedarklight";
+          }
+          break;
+      }
+
+      if (ride.predictionServiceMultiLane?.predictions[sg.id]?.predictionQuality == null) return;
+      if (ride.predictionServiceMultiLane!.predictions[sg.id]!.predictionQuality < Ride.qualityThreshold) return;
+
+      final sgPos = sg.position;
+
+      features.add(
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [sgPos.lon, sgPos.lat],
+          },
+          "properties": {
+            "sgIcon": sgIcon,
+          },
+        },
+      );
+    }
+  }
+
+  /// Install the overlay on the map controller.
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+    final sourceExists = await mapController.style.styleSourceExists("traffic-light");
+    if (!sourceExists) {
+      await mapController.style.addSource(
+        mapbox.GeoJsonSource(
+            id: "traffic-light", data: json.encode({"type": "FeatureCollection", "features": features})),
+      );
+    } else {
+      await update(mapController);
+    }
+
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists("traffic-light-icon");
+    if (!trafficLightIconsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: "traffic-light",
+            id: "traffic-light-icon",
+            iconSize: iconSize,
+            iconAllowOverlap: true,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+          ),
+          mapbox.LayerPosition(below: below));
+      await mapController.style
+          .setStyleLayerProperty("traffic-light-icon", 'icon-image', json.encode(["get", "sgIcon"]));
+    }
+
+    return "traffic-light-icon";
+  }
+
+  /// Update the overlay on the map controller (without updating the layers).
+  update(mapbox.MapboxMap mapController) async {
+    final sourceExists = await mapController.style.styleSourceExists("traffic-light");
+    if (sourceExists) {
+      final source = await mapController.style.getSource("traffic-light");
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }

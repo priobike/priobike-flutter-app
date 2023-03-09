@@ -20,11 +20,9 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
-import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/map_multi_lane.dart';
 import 'package:priobike/routing/views/sheet_multi_lane.dart';
 import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 /// Show a sheet to save the current route as a shortcut.
@@ -319,7 +317,6 @@ class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
-    final settings = getIt<Settings>();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
@@ -331,10 +328,7 @@ class RoutingMultiLaneViewState extends State<RoutingMultiLaneView> {
           },
           child: Stack(
             children: [
-              if (settings.sgSelectionMode == SGSelectionMode.single)
-                RoutingMapView(sheetMovement: sheetMovement.stream),
-              if (settings.sgSelectionMode == SGSelectionMode.crossing)
-                RoutingMapMultiLaneView(sheetMovement: sheetMovement.stream),
+              RoutingMapMultiLaneView(sheetMovement: sheetMovement.stream),
 
               if (routingMultiLane!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),

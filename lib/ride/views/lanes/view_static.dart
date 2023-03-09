@@ -7,18 +7,17 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning_multi_lane.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
+import 'package:priobike/ride/views/lanes/lane_container.dart';
 import 'package:priobike/routing/models/sg_multi_lane.dart';
-import 'package:priobike/settings/models/speed.dart';
-import 'package:priobike/settings/services/settings.dart';
 
-class LanesView extends StatefulWidget {
-  const LanesView({Key? key}) : super(key: key);
+class LanesStaticView extends StatefulWidget {
+  const LanesStaticView({Key? key}) : super(key: key);
 
   @override
-  LanesViewState createState() => LanesViewState();
+  LanesStaticViewState createState() => LanesStaticViewState();
 }
 
-class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
+class LanesStaticViewState extends State<LanesStaticView> with TickerProviderStateMixin {
   static const viewId = "ride.views.speedometer";
 
   /// The minimum speed in km/h.
@@ -33,35 +32,12 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   /// The associated positioning service, which is injected by the provider.
   late PositioningMultiLane positioning;
 
-  /// The default gauge color for the speedometer.
-  static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
-
-  /// The current gauge colors, if we have the necessary data.
-  Map<String, List<Color>> gaugeColors = {
-    "default": [defaultGaugeColor]
-  };
-
-  /// The current gauge stops, if we have the necessary data.
-  Map<String, List<double>> gaugeStops = {};
-
   /// The distance before a signal group from which it is considered for predictions and recommendations.
   static const preDistance = RideMultiLane.preDistance;
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
+  /// Called when a listener callback of a ChangeNotifier is fired. Don't rebuild when the gradient gets updated.
   void update() {
-    updateSpeedometer();
     setState(() {});
-  }
-
-  /// Update the speedometer.
-  void updateSpeedometer() {
-    // Fetch the maximum speed from the settings service.
-    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
-
-    if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
-      positioning.needsLayout[viewId] = false;
-      loadGauges(ride);
-    }
   }
 
   @override
@@ -73,8 +49,6 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     positioning.addListener(update);
     ride = getIt<RideMultiLane>();
     ride.addListener(update);
-
-    updateSpeedometer();
   }
 
   @override
@@ -130,106 +104,6 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
     }
   }
 
-  /// Load the gauge colors and steps, from the predictor.
-  Future<void> loadGauges(RideMultiLane ride) async {
-    gaugeColors.clear();
-    gaugeStops.clear();
-
-    if (ride.predictionServiceMultiLane == null) {
-      for (final sg in ride.currentSignalGroups) {
-        gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
-        gaugeStops[sg.id] = [0.0, 1.0];
-        return;
-      }
-    }
-
-    for (final sg in ride.currentSignalGroups) {
-      final phases = ride.predictionServiceMultiLane!.recommendations[sg.id]?.calcPhasesFromNow;
-      final qualities = ride.predictionServiceMultiLane!.recommendations[sg.id]?.calcQualitiesFromNow;
-
-      if (phases == null || qualities == null) {
-        gaugeColors[sg.id] = [defaultGaugeColor, defaultGaugeColor];
-        gaugeStops[sg.id] = [0.0, 1.0];
-        continue;
-      }
-
-      var colors = <Color>[];
-      for (var i = 0; i < phases.length; i++) {
-        final phase = phases[i];
-        final quality = max(0, qualities[i]);
-        final opacity = quality;
-        colors.add(Color.lerp(defaultGaugeColor, phase.color, opacity.toDouble()) ?? defaultGaugeColor);
-      }
-
-      final standardBarHeight = MediaQuery.of(context).size.height;
-      var offset = (getBottomOffset(standardBarHeight, sg.id) + (standardBarHeight / 2)) / (standardBarHeight);
-      if (offset > 1) {
-        offset = 1;
-      } else if (offset < 0) {
-        offset = 0;
-      }
-
-      final currentUserSpeed = (positioning.lastPosition?.speed ?? 1) * 3.6;
-      final stopForCurrentUserSpeed = (currentUserSpeed - minSpeed) / (maxSpeed - minSpeed);
-
-      final diffOffsetCurrentUserSpeed = stopForCurrentUserSpeed - offset;
-
-      // Since we want the color steps not by second, but by speed, we map the stops accordingly
-      var stops = Iterable<double>.generate(
-        colors.length,
-        (second) {
-          if (second == 0) {
-            return double.infinity;
-          }
-
-          // Map the second to the needed speed
-          double? distanceToSg = ride.distancesToCurrentSignalGroups[sg.id];
-          distanceToSg ??= 0;
-          var speedKmh = (distanceToSg / second) * 3.6;
-
-          // Scale the speed between minSpeed and maxSpeed
-          final stop = (speedKmh - minSpeed) / (maxSpeed - minSpeed);
-          final stopOffsetAndCenteredToUserSpeed = stop - diffOffsetCurrentUserSpeed;
-          if (stopOffsetAndCenteredToUserSpeed < 0) {
-            return 0.0;
-          } else if (stopOffsetAndCenteredToUserSpeed > 1) {
-            return 1.0;
-          }
-
-          return stopOffsetAndCenteredToUserSpeed;
-        },
-      ).toList();
-
-      // Add stops and colors to indicate unavailable prediction ranges
-      if (stops.isNotEmpty) {
-        stops.add(stops.last);
-        stops.add(0.0);
-      }
-      if (colors.isNotEmpty) {
-        colors.add(defaultGaugeColor);
-        colors.add(defaultGaugeColor);
-      }
-
-      // Duplicate each color and stop to create "hard edges" instead of a gradient between steps
-      // Such that green 0.1, red 0.3 -> green 0.1, green 0.3, red 0.3
-      List<Color> hardEdgeColors = [];
-      List<double> hardEdgeStops = [];
-      for (var i = 0; i < colors.length; i++) {
-        hardEdgeColors.add(colors[i]);
-        hardEdgeStops.add(stops[i]);
-        if (i + 1 < colors.length) {
-          hardEdgeColors.add(colors[i]);
-          hardEdgeStops.add(stops[i + 1]);
-        }
-      }
-
-      // The resulting stops and colors will be from high speed -> low speed
-      // Thus, we reverse both colors and stops to get the correct order
-      gaugeColors[sg.id] = hardEdgeColors.reversed.toList();
-      gaugeStops[sg.id] = hardEdgeStops.reversed.toList();
-    }
-  }
-
   double getBarWidth(double standardBarWidth, int numberOfLanes) {
     if (numberOfLanes <= 3) return standardBarWidth;
     return standardBarWidth / numberOfLanes;
@@ -245,8 +119,9 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final standardBarHeight = MediaQuery.of(context).size.height;
-    log.i(standardBarHeight);
     final standardBarWidth = (MediaQuery.of(context).size.width / 3) - 10;
+
+    final stopLineHeight = standardBarHeight * 0.01;
 
     final currentSgs = ride.currentSignalGroups;
     final currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
@@ -330,50 +205,59 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                         width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
                         height: standardBarHeight,
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(6),
-                            topRight: Radius.circular(6),
-                          ),
+                          borderRadius: BorderRadius.circular(6),
                           child: Stack(
                             alignment: Alignment.topCenter,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      const Color.fromARGB(255, 219, 219, 219),
-                                      Theme.of(context).primaryColor,
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: getBarWidth(standardBarWidth - 2, currentSgsOrdered.length),
-                                height: standardBarHeight,
-                                child: Container(
-                                  color: const Color.fromARGB(255, 50, 50, 50),
-                                ),
-                              ),
                               AnimatedPositioned(
                                 key: ValueKey(sg.id),
                                 duration: const Duration(seconds: 1),
                                 curve: Curves.linear,
-                                width: getBarWidth(standardBarWidth - 2, currentSgsOrdered.length),
+                                width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
                                 height: standardBarHeight,
                                 bottom: getBottomOffset(standardBarHeight, sg.id),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    //color: Colors.greenAccent,
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: gaugeColors[sg.id] ?? [],
-                                      stops: gaugeStops[sg.id] ?? [],
+                                child: Stack(
+                                  children: [
+                                    Transform.translate(
+                                      offset: Offset(0, stopLineHeight),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              const Color.fromARGB(255, 219, 219, 219),
+                                              Theme.of(context).colorScheme.primary,
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: LaneContainerWidget(sgId: sg.id),
+                                        ),
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
+                                    Container(
+                                      width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                                      height: stopLineHeight,
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(255, 219, 219, 219),
+                                        border: Border.all(
+                                          color: const Color.fromARGB(255, 225, 225, 225),
+                                        ),
+                                        borderRadius: BorderRadius.circular(6),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color.fromARGB(150, 170, 170, 170),
+                                            spreadRadius: 2,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 1), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               Padding(
@@ -382,28 +266,9 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                                   sg.direction.icon,
                                   color: Colors.white,
                                   size: 112,
-                                  shadows: const <Shadow>[Shadow(color: Colors.grey, blurRadius: 5.0)],
+                                  shadows: const <Shadow>[Shadow(color: Colors.black, blurRadius: 10.0)],
                                 ),
                               ),
-                              Container(
-                                width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
-                                height: standardBarHeight * 0.03,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 219, 219, 219),
-                                  border: Border.all(
-                                    color: const Color.fromARGB(255, 225, 225, 225),
-                                  ),
-                                  borderRadius: BorderRadius.circular(6),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color.fromARGB(150, 170, 170, 170),
-                                      spreadRadius: 2,
-                                      blurRadius: 3,
-                                      offset: Offset(0, 1), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                              )
                             ],
                           ),
                         ),
@@ -430,14 +295,14 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                     child: Container(
                       height: 0.03125 * standardBarHeight,
                       width: 0.03125 * standardBarHeight,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   Stack(
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        color: Theme.of(context).primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                         width: MediaQuery.of(context).size.width - 0.03125 * standardBarHeight,
                         height: 0.0078125 * standardBarHeight,
                       ),
@@ -449,7 +314,7 @@ class LanesViewState extends State<LanesView> with TickerProviderStateMixin {
                     child: Container(
                       height: 0.03125 * standardBarHeight,
                       width: 0.03125 * standardBarHeight,
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],

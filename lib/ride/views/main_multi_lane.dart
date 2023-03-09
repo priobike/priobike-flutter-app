@@ -12,9 +12,11 @@ import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/ride_multi_lane.dart';
 import 'package:priobike/ride/views/cancel_button_multi_lane.dart';
 import 'package:priobike/ride/views/lanes/speed_button.dart';
-import 'package:priobike/ride/views/lanes/view.dart';
+import 'package:priobike/ride/views/lanes/view_dynamic.dart';
+import 'package:priobike/ride/views/lanes/view_static.dart';
 import 'package:priobike/ride/views/map_multi_lane.dart';
 import 'package:priobike/routing/services/routing_multi_lane.dart';
+import 'package:priobike/settings/models/sg_selection_mode.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:wakelock/wakelock.dart';
@@ -146,12 +148,13 @@ class RideMultiLaneViewState extends State<RideMultiLaneView> {
             : Stack(
                 alignment: Alignment.bottomCenter,
                 clipBehavior: Clip.none,
-                children: const [
-                  RideMapMultiLaneView(),
-                  LanesView(),
-                  CancelButtonMultiLane(),
-                  SpeedButton(),
-                  DangerButton(),
+                children: [
+                  const RideMapMultiLaneView(),
+                  if (settings.sgSelectionMultiLaneMode == SGSelectionMultiLaneMode.dynamic) const LanesDynamicView(),
+                  if (settings.sgSelectionMultiLaneMode == SGSelectionMultiLaneMode.static) const LanesStaticView(),
+                  const CancelButtonMultiLane(),
+                  const SpeedButton(),
+                  const DangerButton(),
                 ],
               ),
       ),

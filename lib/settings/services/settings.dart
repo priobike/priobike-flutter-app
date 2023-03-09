@@ -59,6 +59,9 @@ class Settings with ChangeNotifier {
   /// The selected signal group selection mode.
   SGSelectionMode sgSelectionMode;
 
+  /// The selected multi lane SG selection mode.
+  SGSelectionMultiLaneMode sgSelectionMultiLaneMode;
+
   /// The bearing diff for the multi lane SG selection mode.
   SGSelectionModeBearingDiff sgSelectionModeBearingDiff;
 
@@ -322,6 +325,24 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const sgSelectionMultiLaneModeKey = "priobike.settings.sgSelectionMultiLaneMode";
+  static const defaultSGSelectionMultiLaneMode = SGSelectionMultiLaneMode.dynamic;
+
+  Future<bool> setSGSelectionMultiLaneMode(SGSelectionMultiLaneMode sgSelectionMultiLaneMode,
+      [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.sgSelectionMultiLaneMode;
+    this.sgSelectionMultiLaneMode = sgSelectionMultiLaneMode;
+    bool success = await storage.setString(sgSelectionMultiLaneModeKey, sgSelectionMultiLaneMode.name);
+    if (!success) {
+      log.e("Failed to set sgSelectionMultiLaneMode to $sgSelectionMultiLaneMode");
+      this.sgSelectionMultiLaneMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const sgSelectionModeBearingDiffKey = "priobike.settings.sgSelectionModeBearingDiff";
   static const defaultSGSelectionModeBearingDiff = SGSelectionModeBearingDiff.thirty;
 
@@ -392,6 +413,7 @@ class Settings with ChangeNotifier {
     this.connectionErrorCounter = defaultConnectionErrorCounter,
     this.sgSelector = defaultSGSelector,
     this.sgSelectionMode = defaultSGSelectionMode,
+    this.sgSelectionMultiLaneMode = defaultSGSelectionMultiLaneMode,
     this.sgSelectionModeBearingDiff = defaultSGSelectionModeBearingDiff,
     this.sgSelectionModeDistanceToRoute = defaultSGSelectionModeDistanceToRoute,
     this.routingView = defaultRoutingView,
@@ -474,6 +496,12 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      sgSelectionMultiLaneMode =
+          SGSelectionMultiLaneMode.values.byName(storage.getString(sgSelectionMultiLaneModeKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the stored settings.
@@ -527,6 +555,7 @@ class Settings with ChangeNotifier {
         "connectionErrorCounter": connectionErrorCounter,
         "sgSelector": sgSelector.name,
         "sgSelectionMode": sgSelectionMode.name,
+        "sgSelectionMultiLaneMode": sgSelectionMultiLaneMode.name,
         "sgSelectionModeBearingDiff": sgSelectionModeBearingDiff.name,
         "sgSelectionModeDistanceToRoute": sgSelectionModeDistanceToRoute.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,

@@ -127,6 +127,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a sg selection multi lane mode is selected.
+  Future<void> onSelectSGSelectionMultiLaneMode(SGSelectionMultiLaneMode mode) async {
+    // Tell the settings service that we selected the new sg selection multi lane mode.
+    await settings.setSGSelectionMultiLaneMode(mode);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   /// A callback that is executed when a bearing diff for the multi lane sg selection mode is selected.
   Future<void> onSelectBearingDiffForMultiLane(SGSelectionModeBearingDiff sgSelectionModeBearingDiff) async {
     // Tell the settings service that we selected the new bearing diff.
@@ -317,44 +325,66 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Max. Richtungsunterschied für Spuren SG-Vorhersage-Modus",
-                    subtitle: settings.sgSelectionModeBearingDiff.degree.toString(),
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                          elements: SGSelectionModeBearingDiff.values,
-                          selected: settings.sgSelectionModeBearingDiff,
-                          title: (SGSelectionModeBearingDiff e) => e.degree.toString(),
-                          callback: onSelectBearingDiffForMultiLane,
-                        );
-                      },
+                if (settings.sgSelectionMode == SGSelectionMode.crossing)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SettingsElement(
+                      title: "SG-Spuren-Modus",
+                      subtitle: settings.sgSelectionMultiLaneMode.description,
+                      icon: Icons.expand_more,
+                      callback: () => showAppSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SettingsSelection(
+                            elements: SGSelectionMultiLaneMode.values,
+                            selected: settings.sgSelectionMultiLaneMode,
+                            title: (SGSelectionMultiLaneMode e) => e.description,
+                            callback: onSelectSGSelectionMultiLaneMode,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Max. Distanz für Spuren SG-Vorhersage-Modus",
-                    subtitle: settings.sgSelectionModeDistanceToRoute.meter.toString(),
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                          elements: SGSelectionModeDistanceToRoute.values,
-                          selected: settings.sgSelectionModeDistanceToRoute,
-                          title: (SGSelectionModeDistanceToRoute e) => e.meter.toString(),
-                          callback: onSelectDistanceToRouteForMultiLane,
-                        );
-                      },
+                if (settings.sgSelectionMode == SGSelectionMode.crossing)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SettingsElement(
+                      title: "Max. Richtungsunterschied für Spuren SG-Vorhersage-Modus",
+                      subtitle: settings.sgSelectionModeBearingDiff.degree.toString(),
+                      icon: Icons.expand_more,
+                      callback: () => showAppSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SettingsSelection(
+                            elements: SGSelectionModeBearingDiff.values,
+                            selected: settings.sgSelectionModeBearingDiff,
+                            title: (SGSelectionModeBearingDiff e) => e.degree.toString(),
+                            callback: onSelectBearingDiffForMultiLane,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
+                if (settings.sgSelectionMode == SGSelectionMode.crossing)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SettingsElement(
+                      title: "Max. Distanz für Spuren SG-Vorhersage-Modus",
+                      subtitle: settings.sgSelectionModeDistanceToRoute.meter.toString(),
+                      icon: Icons.expand_more,
+                      callback: () => showAppSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SettingsSelection(
+                            elements: SGSelectionModeDistanceToRoute.values,
+                            selected: settings.sgSelectionModeDistanceToRoute,
+                            title: (SGSelectionModeDistanceToRoute e) => e.meter.toString(),
+                            callback: onSelectDistanceToRouteForMultiLane,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(

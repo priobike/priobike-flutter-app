@@ -147,7 +147,10 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
   }
 
   /// Update the view with the current data.
-  Future<void> onRideUpdate() async {}
+  Future<void> onRideUpdate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await TrafficLightMultiLaneLayer(isDark).update(mapController!);
+  }
 
   /// Update the view with the current data.
   Future<void> onDangersUpdate() async {
@@ -239,6 +242,8 @@ class RideMapMultiLaneViewState extends State<RideMapMultiLaneView> {
     await OfflineCrossingsLayer(isDark).install(mapController!, iconSize: ppi / 5);
     if (!mounted) return;
     await DangersLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
+    if (!mounted) return;
+    await TrafficLightMultiLaneLayer(isDark).install(mapController!, iconSize: ppi / 5);
 
     onRoutingUpdate();
     onPositioningUpdate();

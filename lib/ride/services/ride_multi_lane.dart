@@ -48,7 +48,7 @@ class RideMultiLane with ChangeNotifier {
 
   /// The distance on the route before a signal group from which it is considered for the predictions and
   /// recommendations.
-  static const preDistance = 1000.0;
+  static const preDistance = 500.0;
 
   /// Callback that gets called when the prediction component client established a connection.
   void onPredictionComponentClientConnected() {
@@ -138,6 +138,7 @@ class RideMultiLane with ChangeNotifier {
     predictionServiceMultiLane = null;
     needsLayout = {};
     currentSignalGroups = {};
+    distancesToCurrentSignalGroups = {};
     notifyListeners();
   }
 

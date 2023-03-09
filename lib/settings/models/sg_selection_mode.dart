@@ -25,6 +25,22 @@ extension SGSelectionModePath on SGSelectionMode {
   }
 }
 
+enum SGSelectionMultiLaneMode {
+  static,
+  dynamic,
+}
+
+extension SGSelectionMultiLaneModeDescription on SGSelectionMultiLaneMode {
+  String get description {
+    switch (this) {
+      case SGSelectionMultiLaneMode.static:
+        return "Statisch";
+      case SGSelectionMultiLaneMode.dynamic:
+        return "Dynamisch";
+    }
+  }
+}
+
 enum SGSelectionModeBearingDiff {
   five,
   ten,
