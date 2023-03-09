@@ -205,8 +205,9 @@ class RouteHeightPainter extends CustomPainter {
   void drawLines() {
     Paint paintLine;
     Paint paintCircle;
+    Paint smoothTransistion;
 
-    // create new list to make sure the main line is last, so it is always drawn on top
+    // create new list to make sure the main line is always last, so it is drawn on top
     List<LineElement> sortedLineElements = List.empty(growable: true);
     sortedLineElements.addAll(routeHeightChart.lineElements.where((element) => !element.isMainLine));
     sortedLineElements.add(routeHeightChart.lineElements.firstWhere((element) => element.isMainLine));
@@ -215,11 +216,15 @@ class RouteHeightPainter extends CustomPainter {
       if (element.isMainLine) {
         paintLine = Paint()
           ..color = Colors.blue
-          ..strokeWidth = 2
+          ..strokeWidth = 3
           ..style = PaintingStyle.fill;
         paintCircle = Paint()
           ..color = Colors.blue
-          ..strokeWidth = 2
+          ..strokeWidth = 3
+          ..style = PaintingStyle.fill;
+        smoothTransistion = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 1
           ..style = PaintingStyle.fill;
       } else {
         paintLine = Paint()
@@ -230,7 +235,13 @@ class RouteHeightPainter extends CustomPainter {
           ..color = Colors.grey
           ..strokeWidth = 2
           ..style = PaintingStyle.fill;
+        smoothTransistion = Paint()
+          ..color = Colors.grey
+          ..strokeWidth = 1
+          ..style = PaintingStyle.fill;
       }
+
+      const circleSize = 5.0;
 
       for (HeightData heightData in element.series) {
         // subtract the min height so that the chart starts at min height instead of 0
@@ -241,7 +252,6 @@ class RouteHeightPainter extends CustomPainter {
         final y =
             size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
 
-        const circleSize = 4.0;
         if (heightData == element.series.last) {
           canvas.drawCircle(Offset(x, y), circleSize, paintCircle);
         } else {
@@ -255,7 +265,7 @@ class RouteHeightPainter extends CustomPainter {
               (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
           canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
           // draw a little circle at the end of the line to make the transition smoother
-          canvas.drawCircle(Offset(nextX, nextY), 1, paintCircle);
+          canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransistion);
         }
       }
     }
