@@ -129,6 +129,9 @@ class RouteHeightPainter extends CustomPainter {
 
     const distanceFromYAxis = 8.0;
 
+    // scale the height so he coordsystem starts at minHeight not at 0
+    final maxHeight = routeHeightChart.maxHeight! - routeHeightChart.minHeight!;
+
     // min label on y-axis
     final yMinLabel = TextPainter(
       text: const TextSpan(
@@ -146,7 +149,7 @@ class RouteHeightPainter extends CustomPainter {
 
     final yMidLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null ? "0" : (routeHeightChart.maxHeight! / 2).toStringAsFixed(0),
+        text: routeHeightChart.maxHeight == null ? "0" : (maxHeight / 2).toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -161,7 +164,7 @@ class RouteHeightPainter extends CustomPainter {
     // max label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null ? "0" : routeHeightChart.maxHeight!.toStringAsFixed(0),
+        text: routeHeightChart.maxHeight == null ? "0" : maxHeight.toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -185,26 +188,55 @@ class RouteHeightPainter extends CustomPainter {
       maxWidth: size.width,
     );
     canvas.save();
-    canvas.translate(paddingLeft - rightLabel.width - distanceFromYAxis, paddingTopBottom - 2);
+    canvas.translate(paddingLeft - rightLabel.width - distanceFromYAxis, paddingTopBottom);
     canvas.rotate(-pi / 2);
-    rightLabel.paint(canvas, Offset(-size.height / 2 - 16, size.width + 28));
+    rightLabel.paint(canvas, Offset(-size.height / 2 - 12, size.width + 32));
     canvas.restore();
   }
 
-  /// Draws the main line of the chart.
-  void drawMainLine() {
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2
-      ..style = PaintingStyle.fill;
-
-    return;
+  /// Draws the lines of the chart.
+  void drawLines() {
+    Paint paint;
 
     for (LineElement element in routeHeightChart.lineElements) {
-      if (element.isMainLine != true) continue;
+      if (element.isMainLine) {
+        paint = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 2
+          ..style = PaintingStyle.fill;
+      } else {
+        paint = Paint()
+          ..color = Colors.grey
+          ..strokeWidth = 2
+          ..style = PaintingStyle.fill;
+      }
 
       for (HeightData heightData in element.series) {
-        ;
+        // subtract the min height so that the chart starts at min height instead of 0
+        final height = heightData.height - routeHeightChart.minHeight!;
+        final maxHeight = routeHeightChart.maxHeight! - routeHeightChart.minHeight!;
+        final x = paddingLeft +
+            (heightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
+        final y =
+            size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+
+        const circleSize = 3.0;
+        if (heightData == element.series.last) {
+          canvas.drawCircle(Offset(x, y), circleSize, paint);
+        } else {
+          if (heightData == element.series.first) {
+            canvas.drawCircle(Offset(x, y), circleSize, paint);
+          }
+          final nextIndex = element.series.indexOf(heightData) + 1;
+          final nextHeightData = element.series[nextIndex];
+          final nextHeight = nextHeightData.height - routeHeightChart.minHeight!;
+          final nextX = paddingLeft +
+              (nextHeightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
+          final nextY = size.height -
+              paddingTopBottom -
+              (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+          canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paint);
+        }
       }
     }
   }
@@ -219,7 +251,7 @@ class RouteHeightPainter extends CustomPainter {
 
     drawCoordSystem();
     drawCoordSystemLabels();
-    drawMainLine();
+    drawLines();
   }
 
   @override
@@ -242,8 +274,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The maximum distance of a route.
   double? maxDistance;
 
-  /// The minimum height of a route.
+  /// The maximum height of a route.
   double? maxHeight;
+
+  /// The maximum height of a route.
+  double? minHeight;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -302,6 +337,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       // find largest height
       for (HeightData heightData in lineElement.series) {
         maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
+        minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
       }
     }
   }
@@ -395,7 +431,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 128,
+                  height: 96,
                   //width: (MediaQuery.of(context).size.width - 24),
                   //renderLineChart(context),
                   child: CustomPaint(
