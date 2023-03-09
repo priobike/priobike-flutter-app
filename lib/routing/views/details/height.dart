@@ -60,7 +60,7 @@ class RouteHeightPainter extends CustomPainter {
   void drawCoordSystem() {
     final paint = Paint()
       ..color = Colors.grey
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1
       ..style = PaintingStyle.fill;
     // x-axis
     canvas.drawLine(
