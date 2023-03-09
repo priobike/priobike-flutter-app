@@ -43,8 +43,9 @@ class RouteHeightPainter extends CustomPainter {
   RouteHeightChartState routeHeightChart = RouteHeightChartState();
 
   /// The padding of the chart.
-  final paddingLeftRight = 20.0;
   final paddingTopBottom = 14.0;
+  final paddingLeft = 24.0;
+  final paddingRight = 14.0;
 
   /// The Canvas to draw on. Will be initialized in the paint method.
   late Canvas canvas;
@@ -62,25 +63,28 @@ class RouteHeightPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     // x-axis
     canvas.drawLine(
-      Offset(paddingLeftRight, size.height - paddingTopBottom),
-      Offset(size.width - paddingLeftRight, size.height - paddingTopBottom),
+      Offset(paddingLeft, size.height - paddingTopBottom),
+      Offset(size.width - paddingRight, size.height - paddingTopBottom + 1),
       paint,
     );
     // y-axis
     canvas.drawLine(
-      Offset(paddingLeftRight, paddingTopBottom),
-      Offset(paddingLeftRight, size.height - paddingTopBottom),
+      Offset(paddingLeft, paddingTopBottom),
+      Offset(paddingLeft, size.height - paddingTopBottom + 1),
       paint,
     );
   }
 
-  /// Draws 3 labels for the x-axis and 2 labels for the y-axis.
+  /// Draws 3 labels for the x-axis and 3 labels for the y-axis.
   void drawCoordSystemLabels() {
     const TextStyle labelTextStyle = TextStyle(
       color: Colors.white,
       fontSize: 10,
     );
 
+    const distanceFromXAxis = 4.0;
+
+    // left label on x-axis
     final xLeftLabel = TextPainter(
       text: const TextSpan(
         text: 'Left',
@@ -89,25 +93,12 @@ class RouteHeightPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     xLeftLabel.layout(
-      minWidth: 0 + paddingLeftRight,
-      maxWidth: size.width - paddingLeftRight,
+      minWidth: 0,
+      maxWidth: size.width,
     );
-    xLeftLabel.paint(canvas, Offset(0 + paddingLeftRight, size.height - paddingTopBottom + 4));
+    xLeftLabel.paint(canvas, Offset(paddingLeft, size.height - paddingTopBottom + distanceFromXAxis));
 
-    final xRightLabel = TextPainter(
-      text: const TextSpan(
-        text: 'Right',
-        style: labelTextStyle,
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    xRightLabel.layout(
-      minWidth: 0 + paddingLeftRight,
-      maxWidth: size.width - paddingLeftRight,
-    );
-    xRightLabel.paint(
-        canvas, Offset(size.width - paddingLeftRight - xRightLabel.width, size.height - paddingTopBottom + 4));
-
+    // middle label on x-axis
     final xMiddleLabel = TextPainter(
       text: const TextSpan(
         text: 'Middle',
@@ -116,12 +107,30 @@ class RouteHeightPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     xMiddleLabel.layout(
-      minWidth: 0 + paddingLeftRight,
-      maxWidth: size.width - paddingLeftRight,
+      minWidth: 0,
+      maxWidth: size.width,
     );
-    xMiddleLabel.paint(canvas, Offset(size.width / 2 - xMiddleLabel.width / 2, size.height - paddingTopBottom + 4));
+    xMiddleLabel.paint(
+        canvas, Offset(size.width / 2 - xMiddleLabel.width / 2, size.height - paddingTopBottom + distanceFromXAxis));
+
+    // right label on x-axis
+    final xRightLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Right',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    xRightLabel.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+    xRightLabel.paint(canvas,
+        Offset(size.width - paddingRight - xRightLabel.width, size.height - paddingTopBottom + distanceFromXAxis));
 
     const distanceFromYAxis = 4.0;
+
+    // min label on y-axis
     final yMinLabel = TextPainter(
       text: const TextSpan(
         text: 'Min',
@@ -130,14 +139,27 @@ class RouteHeightPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     yMinLabel.layout(
-      minWidth: 0 + paddingLeftRight,
-      maxWidth: size.width - paddingLeftRight,
+      minWidth: 0,
+      maxWidth: size.width,
     );
     yMinLabel.paint(
-        canvas,
-        Offset(
-            paddingLeftRight - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - yMinLabel.height));
+        canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
+    final yMiddleLabel = TextPainter(
+      text: const TextSpan(
+        text: 'Middle',
+        style: labelTextStyle,
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    yMiddleLabel.layout(
+      minWidth: 0,
+      maxWidth: size.width,
+    );
+    yMiddleLabel.paint(canvas,
+        Offset(paddingLeft - yMiddleLabel.width - distanceFromYAxis, size.height / 2 - yMiddleLabel.height / 2));
+
+    // max label on y-axis
     final yMaxLabel = TextPainter(
       text: const TextSpan(
         text: 'Max',
@@ -146,10 +168,10 @@ class RouteHeightPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     yMaxLabel.layout(
-      minWidth: 0 + paddingLeftRight,
-      maxWidth: size.width - paddingLeftRight,
+      minWidth: 0,
+      maxWidth: size.width,
     );
-    yMaxLabel.paint(canvas, Offset(paddingLeftRight - yMaxLabel.width - distanceFromYAxis, paddingTopBottom - 4));
+    yMaxLabel.paint(canvas, Offset(paddingLeft - yMaxLabel.width - distanceFromYAxis, paddingTopBottom - 2));
   }
 
   @override
