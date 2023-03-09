@@ -254,6 +254,8 @@ class RouteHeightPainter extends CustomPainter {
               paddingTopBottom -
               (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
           canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
+          // draw a little circle at the end of the line to make the transition smoother
+          canvas.drawCircle(Offset(nextX, nextY), 1, paintCircle);
         }
       }
     }
