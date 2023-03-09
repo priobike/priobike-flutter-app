@@ -59,7 +59,7 @@ class RouteHeightPainter extends CustomPainter {
   /// Draws the coordinate system.
   void drawCoordSystem() {
     final paint = Paint()
-      ..color = Colors.grey
+      ..color = Theme.of(context).colorScheme.outline
       ..strokeWidth = 1
       ..style = PaintingStyle.fill;
     // x-axis
@@ -78,8 +78,8 @@ class RouteHeightPainter extends CustomPainter {
 
   /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
-    const TextStyle labelTextStyle = TextStyle(
-      color: Colors.white,
+    TextStyle labelTextStyle = TextStyle(
+      color: Theme.of(context).colorScheme.outline,
       fontSize: 10,
     );
 
@@ -87,7 +87,7 @@ class RouteHeightPainter extends CustomPainter {
 
     // left label on x-axis
     final xLeftLabel = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: "0.0 km",
         style: labelTextStyle,
       ),
@@ -137,7 +137,7 @@ class RouteHeightPainter extends CustomPainter {
 
     // min label on y-axis
     final yMinLabel = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: "0",
         style: labelTextStyle,
       ),
@@ -180,7 +180,7 @@ class RouteHeightPainter extends CustomPainter {
 
     // right Label, rotated by 90 degrees
     final rightLabel = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: 'Höhe in Metern',
         style: labelTextStyle,
       ),
@@ -205,7 +205,7 @@ class RouteHeightPainter extends CustomPainter {
   void drawLines() {
     Paint paintLine;
     Paint paintCircle;
-    Paint smoothTransistion;
+    Paint smoothTransition;
 
     // create new list to make sure the main line is always last, so it is drawn on top
     List<LineElement> sortedLineElements = List.empty(growable: true);
@@ -215,15 +215,15 @@ class RouteHeightPainter extends CustomPainter {
     for (LineElement element in sortedLineElements) {
       if (element.isMainLine) {
         paintLine = Paint()
-          ..color = Colors.blue
+          ..color = Theme.of(context).colorScheme.primary
           ..strokeWidth = 3
           ..style = PaintingStyle.fill;
         paintCircle = Paint()
-          ..color = Colors.blue
+          ..color = Theme.of(context).colorScheme.primary
           ..strokeWidth = 3
           ..style = PaintingStyle.fill;
-        smoothTransistion = Paint()
-          ..color = Colors.blue
+        smoothTransition = Paint()
+          ..color = Theme.of(context).colorScheme.primary
           ..strokeWidth = 1
           ..style = PaintingStyle.fill;
       } else {
@@ -235,7 +235,7 @@ class RouteHeightPainter extends CustomPainter {
           ..color = Colors.grey
           ..strokeWidth = 2
           ..style = PaintingStyle.fill;
-        smoothTransistion = Paint()
+        smoothTransition = Paint()
           ..color = Colors.grey
           ..strokeWidth = 1
           ..style = PaintingStyle.fill;
@@ -265,7 +265,7 @@ class RouteHeightPainter extends CustomPainter {
               (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
           canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
           // draw a little circle at the end of the line to make the transition smoother
-          canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransistion);
+          canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransition);
         }
       }
     }
