@@ -37,13 +37,16 @@ class LineElement {
 }
 
 class RouteHeightPainter extends CustomPainter {
+  /// The BuildContext of the chart.
   BuildContext context;
+
+  /// The state of the chart.
   RouteHeightChartState routeHeightChart;
 
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
-  final paddingLeft = 24.0;
-  final paddingRight = 24.0;
+  final paddingLeft = 16.0;
+  final paddingRight = 22.0;
 
   /// The Canvas to draw on. Will be initialized in the paint method.
   late Canvas canvas;
@@ -57,7 +60,7 @@ class RouteHeightPainter extends CustomPainter {
   void drawCoordSystem() {
     final paint = Paint()
       ..color = Colors.grey
-      ..strokeWidth = 2
+      ..strokeWidth = 1.5
       ..style = PaintingStyle.fill;
     // x-axis
     canvas.drawLine(
@@ -127,7 +130,7 @@ class RouteHeightPainter extends CustomPainter {
     xRightLabel.paint(canvas,
         Offset(size.width - paddingRight - xRightLabel.width, size.height - paddingTopBottom + distanceFromXAxis));
 
-    const distanceFromYAxis = 8.0;
+    const distanceFromYAxis = 4.0;
 
     // scale the height so he coordsystem starts at minHeight not at 0
     final maxHeight = routeHeightChart.maxHeight! - routeHeightChart.minHeight!;
@@ -178,7 +181,7 @@ class RouteHeightPainter extends CustomPainter {
     // right Label, rotated by 90 degrees
     final rightLabel = TextPainter(
       text: const TextSpan(
-        text: 'Höhe in Meter',
+        text: 'Höhe in Metern',
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -190,7 +193,11 @@ class RouteHeightPainter extends CustomPainter {
     canvas.save();
     canvas.translate(paddingLeft - rightLabel.width - distanceFromYAxis, paddingTopBottom);
     canvas.rotate(-pi / 2);
-    rightLabel.paint(canvas, Offset(-size.height / 2 - 12, size.width + 32));
+
+    final x = size.width + rightLabel.width - paddingLeft - paddingRight + 12;
+    final y = -size.height / 2 - paddingTopBottom;
+    // x and y are switched because of the rotation
+    rightLabel.paint(canvas, Offset(y, x));
     canvas.restore();
   }
 
@@ -256,10 +263,6 @@ class RouteHeightPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     this.canvas = canvas;
     this.size = size;
-    // final chartAxesColor = Theme.of(context).colorScheme.brightness == Brightness.dark
-    //     ? charts.MaterialPalette.white
-    //     : charts.MaterialPalette.black;
-
     drawCoordSystem();
     drawCoordSystemLabels();
     drawLines();
@@ -340,12 +343,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
         LineElement(isMainLine, data, data.first.distance, data.last.distance),
       );
     }
+
+    // find min and max values to scale the chart
     for (var lineElement in lineElements) {
-      // find smallest and largest distance
       minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
       maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance!, lineElement.maxDistance);
-
-      // find largest height
       for (HeightData heightData in lineElement.series) {
         maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
         minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
@@ -373,8 +375,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
               Expanded(
                 child: SizedBox(
                   height: 96,
-                  //width: (MediaQuery.of(context).size.width - 24),
-                  //renderLineChart(context),
                   child: CustomPaint(
                     painter: RouteHeightPainter(context, this),
                   ),
