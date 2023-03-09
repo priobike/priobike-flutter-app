@@ -24,7 +24,7 @@ class HeightData {
 
 /// An Element of the chart. There is one main line and an arbitrary number of alternatives lines.
 class LineElement {
-  /// The main line determines the min and max distance of the coordiante system and is blue instead of grey.
+  /// The main line the currently selected line by the user.
   final bool isMainLine;
 
   /// The height data of the line.
