@@ -51,22 +51,37 @@ class RouteHeightPainter extends CustomPainter {
   /// The Canvas to draw on.
   late Canvas canvas;
 
+  /// The starting point of the y-axis. Used to set the height of the x-axis and the associated label.
+  late double yStartingPoint;
+
   /// The size of the canvas.
   late Size size;
 
+  /// The upper and lower ends of the y-axis.
+  /// Because of the way the custom painter works, the yTop is actually the smaller value.
+  late double yTop, yBottom;
+
   RouteHeightPainter(this.context, this.routeHeightChart);
 
-  /// Draws the coordinate system.
+  /// Sets the basic variables for the painter.
+  void initializePainter(Canvas canvas, Size size) {
+    this.canvas = canvas;
+    this.size = size;
+
+    yTop = paddingTopBottom;
+    yBottom = size.height - paddingTopBottom;
+
+    final scale = (routeHeightChart.hightStartPoint! - routeHeightChart.minHeight!) /
+        (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
+    yStartingPoint = yBottom - (yBottom - yTop) * scale;
+  }
+
+  /// Draws the axes of the coordinate system.
   void drawCoordSystem() {
     final paint = Paint()
       ..color = Theme.of(context).colorScheme.outline
       ..strokeWidth = 1
       ..style = PaintingStyle.fill;
-
-    // The upper and lower ends of the y-axis.
-    // Because of the way the custom painter works, the topYSize is actually the smaller value.
-    final yTop = paddingTopBottom;
-    final yBottom = size.height - paddingTopBottom;
 
     // y-axis
     final x = paddingLeft;
@@ -78,10 +93,6 @@ class RouteHeightPainter extends CustomPainter {
 
     // x-axis
     // the height of the x-axis is scaled depending on the height of the start point
-    final scale = (routeHeightChart.hightStartPoint! - routeHeightChart.minHeight!) /
-        (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
-    final yStartingPoint = yBottom - (yBottom - yTop) * scale;
-
     canvas.drawLine(
       Offset(paddingLeft, yStartingPoint),
       Offset(size.width - paddingRight, yStartingPoint),
@@ -116,7 +127,7 @@ class RouteHeightPainter extends CustomPainter {
     final xMidLabel = TextPainter(
       text: TextSpan(
         text:
-            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(0)} km",
+            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(1)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -131,7 +142,7 @@ class RouteHeightPainter extends CustomPainter {
     // right label on x-axis
     final xRightLabel = TextPainter(
       text: TextSpan(
-        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(0)} km",
+        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(1)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -163,26 +174,21 @@ class RouteHeightPainter extends CustomPainter {
         canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
     // mid label on y-axis
-    final yMidLabel = TextPainter(
-      text: TextSpan(
-        text: routeHeightChart.maxHeight == null
-            ? "0"
-            : ((routeHeightChart.maxHeight! -
-                        routeHeightChart.hightStartPoint! +
-                        routeHeightChart.minHeight! -
-                        routeHeightChart.hightStartPoint!) /
-                    2)
-                .toStringAsFixed(0),
-        style: labelTextStyle,
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    yMidLabel.layout(
-      minWidth: 0,
-      maxWidth: size.width,
-    );
-    yMidLabel.paint(
-        canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, size.height / 2 - yMidLabel.height / 2));
+    // only drawn if the mid label is not too close to the top or bottom label
+    if (yStartingPoint - 15 > yTop && yStartingPoint + 15 < yBottom) {
+      final yMidLabel = TextPainter(
+        text: TextSpan(
+          text: "0",
+          style: labelTextStyle,
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      yMidLabel.layout(
+        minWidth: 0,
+        maxWidth: size.width,
+      );
+      yMidLabel.paint(canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, yStartingPoint - 5));
+    }
 
     // top label on y-axis
     final yMaxLabel = TextPainter(
@@ -295,12 +301,7 @@ class RouteHeightPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    this.canvas = canvas;
-    this.size = size;
-
-    print(
-        "Charly starting point height: ${routeHeightChart.hightStartPoint}, max height: ${routeHeightChart.maxHeight}, min height: ${routeHeightChart.minHeight}");
-
+    initializePainter(canvas, size);
     drawCoordSystem();
     drawCoordSystemLabels();
     drawLines();
@@ -395,8 +396,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
       maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance!, lineElement.maxDistance);
       for (HeightData heightData in lineElement.series) {
-        maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
         minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
+        maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
       }
     }
   }
