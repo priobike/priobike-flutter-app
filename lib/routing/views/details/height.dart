@@ -205,28 +205,6 @@ class RouteHeightPainter extends CustomPainter {
       maxWidth: size.width,
     );
     yMaxLabel.paint(canvas, Offset(paddingLeft - yMaxLabel.width - distanceFromYAxis, paddingTopBottom - 2));
-
-    // right Label, rotated by 90 degrees
-    final rightLabel = TextPainter(
-      text: TextSpan(
-        text: 'Höhe in Metern',
-        style: labelTextStyle,
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    rightLabel.layout(
-      minWidth: 0,
-      maxWidth: size.width,
-    );
-    canvas.save();
-    canvas.translate(paddingLeft - rightLabel.width - distanceFromYAxis, paddingTopBottom);
-    canvas.rotate(-pi / 2);
-
-    final x = size.width - paddingLeft - paddingRight + rightLabel.width + 12;
-    final y = (-size.height - 2 * paddingTopBottom) / 2;
-    // x and y are switched because of the rotation
-    rightLabel.paint(canvas, Offset(y, x));
-    canvas.restore();
   }
 
   /// Draws the lines of the chart.
@@ -426,6 +404,10 @@ class RouteHeightChartState extends State<RouteHeightChart> {
                     painter: RouteHeightPainter(context, this),
                   ),
                 ),
+              ),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Small(text: "Höhe in Meter", context: context),
               ),
             ],
           ),
