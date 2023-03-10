@@ -102,17 +102,43 @@ class RouteHeightPainter extends CustomPainter {
 
   /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
-    TextStyle labelTextStyle = TextStyle(
+    final TextStyle labelTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.outline,
       fontSize: 10,
     );
-
+    // Distance for labels to the axis
     const distanceFromXAxis = 4.0;
+    const distanceFromYAxis = 6.0;
+
+    // The top and bottom labels on the y-axis
+    final double labelYTop = routeHeightChart.maxHeight! - routeHeightChart.heightStartPoint!;
+    final double labelYBottom = routeHeightChart.minHeight! - routeHeightChart.heightStartPoint!;
+
+    // How many decimal places to show on the y-axis
+    final int decimalPlaces;
+
+    // If the edge case for a very flat route is encountered, show more decimal places on y-axis
+    if (labelYTop.toStringAsFixed(0) == "0" || labelYBottom.toStringAsFixed(0) == "0") {
+      decimalPlaces = 1;
+    } else {
+      decimalPlaces = 0;
+    }
+
+    final String unit;
+    final double routeLength;
+    // if the edge case for a very short route is encoruntered, units is meters
+    if (routeHeightChart.maxDistance! < 1) {
+      unit = "m";
+      routeLength = routeHeightChart.maxDistance! * 1000;
+    } else {
+      unit = "km";
+      routeLength = routeHeightChart.maxDistance!;
+    }
 
     // Left label on x-axis
     final xLeftLabel = TextPainter(
       text: TextSpan(
-        text: "0.0 km",
+        text: "0.0 $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -126,8 +152,7 @@ class RouteHeightPainter extends CustomPainter {
     // Middle label on x-axis
     final xMidLabel = TextPainter(
       text: TextSpan(
-        text:
-            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(1)} km",
+        text: "${(routeLength / 2).toStringAsFixed(1)} $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -142,7 +167,7 @@ class RouteHeightPainter extends CustomPainter {
     // Right label on x-axis
     final xRightLabel = TextPainter(
       text: TextSpan(
-        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(1)} km",
+        text: "${routeLength.toStringAsFixed(1)} $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -154,14 +179,10 @@ class RouteHeightPainter extends CustomPainter {
     xRightLabel.paint(canvas,
         Offset(size.width - paddingRight - xRightLabel.width, size.height - paddingTopBottom + distanceFromXAxis));
 
-    const distanceFromYAxis = 6.0;
-
     // Bottom label on y-axis
     final yMinLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.minHeight == null
-            ? "0"
-            : (routeHeightChart.minHeight! - routeHeightChart.heightStartPoint!).toStringAsFixed(0),
+        text: routeHeightChart.minHeight == null ? "0" : labelYBottom.toStringAsFixed(decimalPlaces),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -194,9 +215,7 @@ class RouteHeightPainter extends CustomPainter {
     // Top label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null
-            ? "0"
-            : (routeHeightChart.maxHeight! - routeHeightChart.heightStartPoint!).toStringAsFixed(0),
+        text: routeHeightChart.maxHeight == null ? "0" : labelYTop.toStringAsFixed(decimalPlaces),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -301,16 +320,16 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The lineElements for the chart.
   List<LineElement> lineElements = List.empty(growable: true);
 
-  /// The minimum distance of a route.
+  /// The minimum distance of a route in km.
   double? minDistance;
 
-  /// The maximum distance of a route.
+  /// The maximum distance of a route in km.
   double? maxDistance;
 
-  /// The maximum height of a route.
+  /// The maximum height of a route in m.
   double? maxHeight;
 
-  /// The maximum height of a route.
+  /// The maximum height of a route in m.
   double? minHeight;
 
   /// The start point of the route. Used to orient the chart.
