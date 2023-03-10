@@ -46,7 +46,7 @@ class RouteHeightPainter extends CustomPainter {
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
   final paddingLeft = 16.0;
-  final paddingRight = 22.0;
+  final paddingRight = 16.0;
 
   /// The Canvas to draw on.
   late Canvas canvas;
@@ -92,7 +92,7 @@ class RouteHeightPainter extends CustomPainter {
     );
 
     // X-axis
-    // The height of the x-axis is scaled depending on the height of the start point
+    // The height of the x-axis is set by the height of the start point
     canvas.drawLine(
       Offset(paddingLeft, yStartingPoint),
       Offset(size.width - paddingRight, yStartingPoint),
@@ -154,7 +154,7 @@ class RouteHeightPainter extends CustomPainter {
     xRightLabel.paint(canvas,
         Offset(size.width - paddingRight - xRightLabel.width, size.height - paddingTopBottom + distanceFromXAxis));
 
-    const distanceFromYAxis = 4.0;
+    const distanceFromYAxis = 6.0;
 
     // Bottom label on y-axis
     final yMinLabel = TextPainter(
@@ -187,7 +187,8 @@ class RouteHeightPainter extends CustomPainter {
         minWidth: 0,
         maxWidth: size.width,
       );
-      yMidLabel.paint(canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, yStartingPoint - 5));
+      yMidLabel.paint(
+          canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, yStartingPoint - yMidLabel.height / 2));
     }
 
     // Top label on y-axis
