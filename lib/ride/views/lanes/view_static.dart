@@ -35,9 +35,22 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
   /// The distance before a signal group from which it is considered for predictions and recommendations.
   static const preDistance = RideMultiLane.preDistance;
 
-  /// Called when a listener callback of a ChangeNotifier is fired. Don't rebuild when the gradient gets updated.
-  void update() {
+  List<SgMultiLane> currentOrderedSignalGroups = [];
+
+  /// Called when a listener callback of the positioning ChangeNotifier is fired.
+  void updatePos() {
     setState(() {});
+  }
+
+  /// Called when a listener callback of the ride ChangeNotifier is fired.
+  void updateRide() {
+    final currentSgs = ride.currentSignalGroups;
+    var currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
+    currentSgsOrdered.sort((a, b) => a.direction.compareTo(b.direction));
+    if (currentSgsOrdered != currentOrderedSignalGroups) {
+      currentOrderedSignalGroups = currentSgsOrdered;
+      setState(() {});
+    }
   }
 
   @override
@@ -46,15 +59,15 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
     super.initState();
 
     positioning = getIt<PositioningMultiLane>();
-    positioning.addListener(update);
+    positioning.addListener(updatePos);
     ride = getIt<RideMultiLane>();
-    ride.addListener(update);
+    ride.addListener(updateRide);
   }
 
   @override
   void dispose() {
-    positioning.removeListener(update);
-    ride.removeListener(update);
+    positioning.removeListener(updatePos);
+    ride.removeListener(updateRide);
     super.dispose();
   }
 
@@ -105,8 +118,11 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
   }
 
   double getBarWidth(double standardBarWidth, int numberOfLanes) {
-    if (numberOfLanes <= 3) return standardBarWidth;
-    return standardBarWidth / numberOfLanes;
+    if (numberOfLanes <= 3) {
+      standardBarWidth = standardBarWidth / 3 - 10;
+      return standardBarWidth;
+    }
+    return standardBarWidth / numberOfLanes - 10;
   }
 
   double getBottomOffset(double standardBarHeight, String sgId) {
@@ -116,16 +132,40 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
     return bottomOffset;
   }
 
+  double getDirectionIconSize(int numberOfLanes) {
+    if (numberOfLanes <= 3) {
+      return 112;
+    }
+    return 336 / numberOfLanes;
+  }
+
+  double getLaneTypeIconPadding(int numberOfLanes) {
+    if (numberOfLanes <= 3) {
+      return 12;
+    }
+    return 24 / numberOfLanes;
+  }
+
+  double getLaneTypeIconScale(int numberOfLanes) {
+    if (numberOfLanes <= 3) {
+      return 1;
+    }
+    return 2 / numberOfLanes;
+  }
+
+  double getLaneTypeIconContainerPadding(int numberOfLanes) {
+    if (numberOfLanes <= 3) {
+      return 4;
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final standardBarHeight = MediaQuery.of(context).size.height;
-    final standardBarWidth = (MediaQuery.of(context).size.width / 3) - 10;
+    final standardBarWidth = MediaQuery.of(context).size.width;
 
     final stopLineHeight = standardBarHeight * 0.01;
-
-    final currentSgs = ride.currentSignalGroups;
-    final currentSgsOrdered = List<SgMultiLane>.from(currentSgs);
-    currentSgsOrdered.sort((a, b) => a.direction.compareTo(b.direction));
 
     // For standardBarHeight of 640, -45 works well
     // For standardBarHeight of 896, -39 works well
@@ -144,7 +184,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
-        if (currentSgsOrdered.isNotEmpty)
+        if (currentOrderedSignalGroups.isNotEmpty)
           Container(
             height: MediaQuery.of(context).size.height * 0.45,
             width: MediaQuery.of(context).size.width,
@@ -161,25 +201,29 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
               ),
             ),
           ),
-        if (currentSgsOrdered.isNotEmpty)
+        if (currentOrderedSignalGroups.isNotEmpty)
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.38,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.from(
-                currentSgsOrdered.map(
+                currentOrderedSignalGroups.map(
                   (sg) {
                     final phase =
                         ride.predictionServiceMultiLane?.recommendations[sg.id]?.calcCurrentSignalPhase ?? Phase.dark;
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: getLaneTypeIconPadding(currentOrderedSignalGroups.length)),
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(getLaneTypeIconContainerPadding(currentOrderedSignalGroups.length)),
                         decoration: BoxDecoration(
                           color: getColor(phase),
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        child: sg.laneType.icon(Colors.white),
+                        child: Transform.scale(
+                          scale: getLaneTypeIconScale(currentOrderedSignalGroups.length),
+                          child: sg.laneType.icon(Colors.white),
+                        ),
                       ),
                     );
                   },
@@ -187,7 +231,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
               ),
             ),
           ),
-        if (currentSgsOrdered.isNotEmpty)
+        if (currentOrderedSignalGroups.isNotEmpty)
           Transform(
             alignment: FractionalOffset.bottomCenter,
             transform: perspective.scaled(1.0, 1.0, 1.0)
@@ -197,12 +241,12 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.from(
-                currentSgsOrdered.map(
+                currentOrderedSignalGroups.map(
                   (sg) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 2),
                       child: SizedBox(
-                        width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                        width: getBarWidth(standardBarWidth, currentOrderedSignalGroups.length),
                         height: standardBarHeight,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
@@ -213,7 +257,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
                                 key: ValueKey(sg.id),
                                 duration: const Duration(seconds: 1),
                                 curve: Curves.linear,
-                                width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                                width: getBarWidth(standardBarWidth, currentOrderedSignalGroups.length),
                                 height: standardBarHeight,
                                 bottom: getBottomOffset(standardBarHeight, sg.id),
                                 child: Stack(
@@ -239,7 +283,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
                                       ),
                                     ),
                                     Container(
-                                      width: getBarWidth(standardBarWidth, currentSgsOrdered.length),
+                                      width: getBarWidth(standardBarWidth, currentOrderedSignalGroups.length),
                                       height: stopLineHeight,
                                       decoration: BoxDecoration(
                                         color: const Color.fromARGB(255, 219, 219, 219),
@@ -265,7 +309,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
                                 child: Icon(
                                   sg.direction.icon,
                                   color: Colors.white,
-                                  size: 112,
+                                  size: getDirectionIconSize(currentOrderedSignalGroups.length),
                                   shadows: const <Shadow>[Shadow(color: Colors.black, blurRadius: 10.0)],
                                 ),
                               ),
@@ -279,7 +323,7 @@ class LanesStaticViewState extends State<LanesStaticView> with TickerProviderSta
               ),
             ),
           ),
-        if (currentSgsOrdered.isNotEmpty)
+        if (currentOrderedSignalGroups.isNotEmpty)
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.2,
             child: Transform(

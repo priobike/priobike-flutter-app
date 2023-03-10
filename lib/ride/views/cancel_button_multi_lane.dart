@@ -109,28 +109,31 @@ class CancelButtonMulitLaneState extends State<CancelButtonMultiLane> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.flag_rounded),
-        label: BoldSmall(
-          text: widget.text,
-          context: context,
-          color: Colors.white,
-        ),
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => askForConfirmation(context),
-        ),
-        style: ButtonStyle(
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
-            ),
+    return SafeArea(
+      bottom: true,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.flag_rounded),
+          label: BoldSmall(
+            text: widget.text,
+            context: context,
+            color: Colors.white,
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
-          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => askForConfirmation(context),
+          ),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
+              ),
+            ),
+            foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
+            backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
+          ),
         ),
       ),
     );
