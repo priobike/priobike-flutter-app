@@ -80,7 +80,7 @@ class LaneContainerWidgetState extends State<LaneContainerWidget> {
     stops = Iterable<double>.generate(
       colors.length,
       (second) {
-        // 0.005m/ms = 5m/s = 18km/h
+        // 5m/s = 18km/h
         final distanceInMeterBeforeStopLine = second * 5;
         final relativeDistance = distanceInMeterBeforeStopLine / RideMultiLane.preDistance;
         final clampedRelativeDistance = relativeDistance.clamp(0.0, 1.0);
@@ -99,8 +99,8 @@ class LaneContainerWidgetState extends State<LaneContainerWidget> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: colors ?? [],
-          stops: stops ?? [],
+          colors: colors,
+          stops: stops,
         ),
         borderRadius: BorderRadius.circular(6),
       ),
