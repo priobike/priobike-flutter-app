@@ -24,7 +24,7 @@ class HeightData {
 
 /// An Element of the chart. There is one main line and an arbitrary number of alternatives lines.
 class LineElement {
-  /// The main line the currently selected line by the user.
+  /// The route currently selected line by the user.
   final bool isMainLine;
 
   /// The height data of the line.
@@ -48,10 +48,10 @@ class RouteHeightPainter extends CustomPainter {
   final paddingLeft = 16.0;
   final paddingRight = 22.0;
 
-  /// The Canvas to draw on. Will be initialized in the paint method.
+  /// The Canvas to draw on.
   late Canvas canvas;
 
-  /// The size of the canvas. Will be initialized in the paint method.
+  /// The size of the canvas.
   late Size size;
 
   RouteHeightPainter(this.context, this.routeHeightChart);
@@ -62,16 +62,29 @@ class RouteHeightPainter extends CustomPainter {
       ..color = Theme.of(context).colorScheme.outline
       ..strokeWidth = 1
       ..style = PaintingStyle.fill;
-    // x-axis
+
+    // The upper and lower ends of the y-axis.
+    // Because of the way the custom painter works, the topYSize is actually the smaller value.
+    final yTop = paddingTopBottom;
+    final yBottom = size.height - paddingTopBottom;
+
+    // y-axis
+    final x = paddingLeft;
     canvas.drawLine(
-      Offset(paddingLeft, size.height - paddingTopBottom),
-      Offset(size.width - paddingRight, size.height - paddingTopBottom + 1),
+      Offset(x, yTop),
+      Offset(x, yBottom),
       paint,
     );
-    // y-axis
+
+    // x-axis
+    // the height of the x-axis is scaled depending on the height of the start point
+    final scale = (routeHeightChart.hightStartPoint! - routeHeightChart.minHeight!) /
+        (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
+    final yStartingPoint = yBottom - (yBottom - yTop) * scale;
+
     canvas.drawLine(
-      Offset(paddingLeft, paddingTopBottom),
-      Offset(paddingLeft, size.height - paddingTopBottom + 1),
+      Offset(paddingLeft, yStartingPoint),
+      Offset(size.width - paddingRight, yStartingPoint),
       paint,
     );
   }
@@ -103,7 +116,7 @@ class RouteHeightPainter extends CustomPainter {
     final xMidLabel = TextPainter(
       text: TextSpan(
         text:
-            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(1)} km",
+            "${routeHeightChart.maxDistance == null ? "0.0" : (routeHeightChart.maxDistance! / 2).toStringAsFixed(0)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -118,7 +131,7 @@ class RouteHeightPainter extends CustomPainter {
     // right label on x-axis
     final xRightLabel = TextPainter(
       text: TextSpan(
-        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(1)} km",
+        text: "${routeHeightChart.maxDistance == null ? "0.0" : routeHeightChart.maxDistance!.toStringAsFixed(0)} km",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -132,13 +145,12 @@ class RouteHeightPainter extends CustomPainter {
 
     const distanceFromYAxis = 4.0;
 
-    // scale the height so he coordsystem starts at minHeight not at 0
-    final maxHeight = routeHeightChart.maxHeight! - routeHeightChart.minHeight!;
-
-    // min label on y-axis
+    // bottom label on y-axis
     final yMinLabel = TextPainter(
       text: TextSpan(
-        text: "0",
+        text: routeHeightChart.minHeight == null
+            ? "0"
+            : (routeHeightChart.minHeight! - routeHeightChart.hightStartPoint!).toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -150,9 +162,17 @@ class RouteHeightPainter extends CustomPainter {
     yMinLabel.paint(
         canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
+    // mid label on y-axis
     final yMidLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null ? "0" : (maxHeight / 2).toStringAsFixed(0),
+        text: routeHeightChart.maxHeight == null
+            ? "0"
+            : ((routeHeightChart.maxHeight! -
+                        routeHeightChart.hightStartPoint! +
+                        routeHeightChart.minHeight! -
+                        routeHeightChart.hightStartPoint!) /
+                    2)
+                .toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -164,10 +184,12 @@ class RouteHeightPainter extends CustomPainter {
     yMidLabel.paint(
         canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, size.height / 2 - yMidLabel.height / 2));
 
-    // max label on y-axis
+    // top label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null ? "0" : maxHeight.toStringAsFixed(0),
+        text: routeHeightChart.maxHeight == null
+            ? "0"
+            : (routeHeightChart.maxHeight! - routeHeightChart.hightStartPoint!).toStringAsFixed(0),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -194,8 +216,8 @@ class RouteHeightPainter extends CustomPainter {
     canvas.translate(paddingLeft - rightLabel.width - distanceFromYAxis, paddingTopBottom);
     canvas.rotate(-pi / 2);
 
-    final x = size.width + rightLabel.width - paddingLeft - paddingRight + 12;
-    final y = -size.height / 2 - paddingTopBottom;
+    final x = size.width - paddingLeft - paddingRight + rightLabel.width + 12;
+    final y = (-size.height - 2 * paddingTopBottom) / 2;
     // x and y are switched because of the rotation
     rightLabel.paint(canvas, Offset(y, x));
     canvas.restore();
@@ -275,6 +297,10 @@ class RouteHeightPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     this.canvas = canvas;
     this.size = size;
+
+    print(
+        "Charly starting point height: ${routeHeightChart.hightStartPoint}, max height: ${routeHeightChart.maxHeight}, min height: ${routeHeightChart.minHeight}");
+
     drawCoordSystem();
     drawCoordSystemLabels();
     drawLines();
@@ -305,6 +331,9 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   /// The maximum height of a route.
   double? minHeight;
+
+  /// The start point of the route. Used to orient the chart.
+  double? hightStartPoint;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -354,6 +383,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       lineElements.add(
         LineElement(isMainLine, data, data.first.distance, data.last.distance),
       );
+
+      // save the start point of the main line to orient the chart
+      if (isMainLine) {
+        hightStartPoint = data.first.height;
+      }
     }
 
     // find min and max values to scale the chart
@@ -386,7 +420,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 96,
+                  height: 114,
                   child: CustomPaint(
                     painter: RouteHeightPainter(context, this),
                   ),
