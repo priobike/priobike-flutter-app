@@ -74,8 +74,6 @@ class RouteHeightPainter extends CustomPainter {
     final scale = (routeHeightChart.heightStartPoint! - routeHeightChart.minHeight!) /
         (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
     yStartingPoint = yBottom - (yBottom - yTop) * scale;
-
-    print("Charly distance ${routeHeightChart.maxDistance}");
   }
 
   /// Draws the axes of the coordinate system.
@@ -400,7 +398,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (lineElements.isEmpty || maxDistance == 0.0) return Container();
+    // if maxHeight == minHeight (which can only happen at very short distances), the chart would not make sence and break
+    if (lineElements.isEmpty || maxDistance == 0.0 || maxHeight == minHeight) return Container();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
