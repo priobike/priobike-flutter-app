@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/qr_code_show.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -195,6 +196,16 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                         ),
                                       ],
                                     ),
+                                  ),
+                                  const HSpace(),
+                                  SmallIconButton(
+                                    icon: Icons.qr_code_2_rounded,
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (BuildContext context) => ShowQRCodeView(shortcut: entry.value),
+                                      ),
+                                    ),
+                                    fill: Theme.of(context).colorScheme.surface,
                                   ),
                                   const HSpace(),
                                   AnimatedSwitcher(
