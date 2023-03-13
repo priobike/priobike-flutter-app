@@ -389,7 +389,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       const vincenty = Distance(roundResult: false);
       final data = List<HeightData>.empty(growable: true);
       var prevDist = 0.0;
-      for (var i = 0; i < latlngCoords.length - 1; i++) {
+      for (var i = 0; i < latlngCoords.length; i++) {
         var dist = 0.0;
         final p = latlngCoords[i];
         if (i > 0) {
@@ -397,11 +397,11 @@ class RouteHeightChartState extends State<RouteHeightChart> {
           dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
         }
         prevDist += dist;
-        data.add(HeightData(p.elevation ?? 0, prevDist / 1000));
+        data.add(HeightData(p.elevation ?? 0.0, prevDist / 1000));
       }
       final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
 
-      // the last element in data stores the total distance of the route
+      // The last item of the data stores the total distance of the route
       lineElements.add(LineElement(isMainLine, data, data.last.distance));
 
       // save the start point of the main line to orient the chart
