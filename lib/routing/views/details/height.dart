@@ -24,16 +24,16 @@ class HeightData {
 
 /// An Element of the chart. There is one main line and an arbitrary number of alternatives lines.
 class LineElement {
-  /// The route currently selected line by the user.
+  /// Whether the route is currently selected line by the user.
   final bool isMainLine;
 
-  /// The height data of the line.
+  /// The height data of the route.
   final List<HeightData> series;
 
-  final double minDistance;
-  final double maxDistance;
+  /// The length of the route.
+  final double routeLength;
 
-  LineElement(this.isMainLine, this.series, this.minDistance, this.maxDistance);
+  LineElement(this.isMainLine, this.series, this.routeLength);
 }
 
 class RouteHeightPainter extends CustomPainter {
@@ -51,14 +51,14 @@ class RouteHeightPainter extends CustomPainter {
   /// The Canvas to draw on.
   late Canvas canvas;
 
-  /// The starting point of the y-axis. Used to set the height of the x-axis and the associated label.
-  late double yStartingPoint;
-
   /// The size of the canvas.
   late Size size;
 
+  /// The starting point of the y-axis. Used to set the height of the x-axis and the associated label.
+  late double yStartingPoint;
+
   /// The upper and lower ends of the y-axis.
-  /// Because of the way the custom painter works, the yTop is actually the smaller value.
+  /// The custom painter has the coords (0,0) on the top left corner, so the yTop is actually the smaller value.
   late double yTop, yBottom;
 
   RouteHeightPainter(this.context, this.routeHeightChart);
@@ -74,6 +74,8 @@ class RouteHeightPainter extends CustomPainter {
     final scale = (routeHeightChart.heightStartPoint! - routeHeightChart.minHeight!) /
         (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
     yStartingPoint = yBottom - (yBottom - yTop) * scale;
+
+    print("Charly distance ${routeHeightChart.maxDistance}");
   }
 
   /// Draws the axes of the coordinate system.
@@ -320,9 +322,6 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   /// The lineElements for the chart.
   List<LineElement> lineElements = List.empty(growable: true);
 
-  /// The minimum distance of a route in km.
-  double? minDistance;
-
   /// The maximum distance of a route in km.
   double? maxDistance;
 
@@ -380,9 +379,8 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       }
       final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
 
-      lineElements.add(
-        LineElement(isMainLine, data, data.first.distance, data.last.distance),
-      );
+      // the last element in data stores the total distance of the route
+      lineElements.add(LineElement(isMainLine, data, data.last.distance));
 
       // save the start point of the main line to orient the chart
       if (isMainLine) {
@@ -392,8 +390,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
     // find min and max values to scale the chart
     for (var lineElement in lineElements) {
-      minDistance = minDistance == null ? lineElement.minDistance : min(minDistance!, lineElement.minDistance);
-      maxDistance = maxDistance == null ? lineElement.maxDistance : max(maxDistance!, lineElement.maxDistance);
+      maxDistance = maxDistance == null ? lineElement.routeLength : max(maxDistance!, lineElement.routeLength);
       for (HeightData heightData in lineElement.series) {
         minHeight = minHeight == null ? heightData.height : min(minHeight!, heightData.height);
         maxHeight = maxHeight == null ? heightData.height : max(maxHeight!, heightData.height);
@@ -403,7 +400,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (lineElements.isEmpty) return Container();
+    if (lineElements.isEmpty || maxDistance == 0.0) return Container();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
