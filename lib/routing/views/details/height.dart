@@ -61,6 +61,12 @@ class RouteHeightPainter extends CustomPainter {
   /// The custom painter has the coords (0,0) on the top left corner, so the yTop is actually the smaller value.
   late double yTop, yBottom;
 
+  /// The minimum height of the route -1.0 as padding for the y-axis.
+  late double minHeight;
+
+  /// The maximum height of the route +1.0 as padding for the y-axis.
+  late double maxHeight;
+
   RouteHeightPainter(this.context, this.routeHeightChart);
 
   /// Sets the basic variables for the painter.
@@ -71,9 +77,18 @@ class RouteHeightPainter extends CustomPainter {
     yTop = paddingTopBottom;
     yBottom = size.height - paddingTopBottom;
 
-    final scale = (routeHeightChart.heightStartPoint! - routeHeightChart.minHeight!) /
-        (routeHeightChart.maxHeight! - routeHeightChart.minHeight!);
-    yStartingPoint = yBottom - (yBottom - yTop) * scale;
+    // set 1 as padding for the y-axis
+    minHeight = routeHeightChart.minHeight! - 1.0;
+    maxHeight = routeHeightChart.maxHeight! + 1.0;
+
+    // If maxHeight == minHeight (which can only happen at very short distances), the following calculations fails
+    // To display it anyway, we set the scale to 0.5
+    if (routeHeightChart.maxHeight == routeHeightChart.minHeight) {
+      yStartingPoint = yBottom - (yBottom - yTop) * 0.5;
+    } else {
+      final scale = (routeHeightChart.heightStartPoint! - minHeight) / (maxHeight - minHeight);
+      yStartingPoint = yBottom - (yBottom - yTop) * scale;
+    }
   }
 
   /// Draws the axes of the coordinate system.
@@ -111,13 +126,13 @@ class RouteHeightPainter extends CustomPainter {
     const distanceFromYAxis = 6.0;
 
     // The top and bottom labels on the y-axis
-    final double labelYTop = routeHeightChart.maxHeight! - routeHeightChart.heightStartPoint!;
-    final double labelYBottom = routeHeightChart.minHeight! - routeHeightChart.heightStartPoint!;
+    final double labelYTop = maxHeight - routeHeightChart.heightStartPoint!;
+    final double labelYBottom = minHeight - routeHeightChart.heightStartPoint!;
 
     // How many decimal places to show on the y-axis
     final int decimalPlaces;
 
-    // If the edge case for a very flat route is encountered, show more decimal places on y-axis
+    // If a very flat route is encountered, show more decimal places on y-axis
     if (labelYTop.toStringAsFixed(0) == "0" || labelYBottom.toStringAsFixed(0) == "0") {
       decimalPlaces = 1;
     } else {
@@ -126,7 +141,7 @@ class RouteHeightPainter extends CustomPainter {
 
     final String unit;
     final double routeLength;
-    // if the edge case for a very short route is encoruntered, units is meters
+    // If a very short route is encountered, units for distance is meters
     if (routeHeightChart.maxDistance! < 1) {
       unit = "m";
       routeLength = routeHeightChart.maxDistance! * 1000;
@@ -182,7 +197,7 @@ class RouteHeightPainter extends CustomPainter {
     // Bottom label on y-axis
     final yMinLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.minHeight == null ? "0" : labelYBottom.toStringAsFixed(decimalPlaces),
+        text: labelYBottom.toStringAsFixed(decimalPlaces),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -215,7 +230,7 @@ class RouteHeightPainter extends CustomPainter {
     // Top label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
-        text: routeHeightChart.maxHeight == null ? "0" : labelYTop.toStringAsFixed(decimalPlaces),
+        text: labelYTop.toStringAsFixed(decimalPlaces),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -271,12 +286,12 @@ class RouteHeightPainter extends CustomPainter {
 
       for (HeightData heightData in element.series) {
         // Calculate the coordinates of the current height data
-        final height = heightData.height - routeHeightChart.minHeight!;
-        final maxHeight = routeHeightChart.maxHeight! - routeHeightChart.minHeight!;
+        final height = heightData.height - minHeight;
+        final spectrum = maxHeight - minHeight;
         final x = paddingLeft +
             (heightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
         final y =
-            size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+            size.height - paddingTopBottom - (height / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
 
         if (heightData == element.series.last) {
           canvas.drawCircle(Offset(x, y), circleSize, paintCircle);
@@ -284,12 +299,12 @@ class RouteHeightPainter extends CustomPainter {
           // Get next height data to draw a line to
           final nextIndex = element.series.indexOf(heightData) + 1;
           final nextHeightData = element.series[nextIndex];
-          final nextHeight = nextHeightData.height - routeHeightChart.minHeight!;
+          final nextHeight = nextHeightData.height - minHeight;
           final nextX = paddingLeft +
               (nextHeightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
           final nextY = size.height -
               paddingTopBottom -
-              (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+              (nextHeight / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
           canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
           // Draw a little circle at the end of the line to make the transition smoother
           canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransition);
@@ -398,8 +413,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
 
   @override
   Widget build(BuildContext context) {
-    // if maxHeight == minHeight (which can only happen at very short distances), the chart would not make sence and break
-    if (lineElements.isEmpty || maxDistance == 0.0 || maxHeight == minHeight) return Container();
+    if (lineElements.isEmpty || maxDistance == 0.0) return Container();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
