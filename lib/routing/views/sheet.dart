@@ -182,7 +182,9 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
-    final distInfo = "${((routing.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km";
+    final distInfo = routing.selectedRoute!.path.distance >= 1000
+        ? "${((routing.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km"
+        : "${routing.selectedRoute!.path.distance.toStringAsFixed(0)} m";
     final seconds = routing.selectedRoute!.path.time / 1000;
     // Get the full hours needed to cover the route.
     final hours = seconds ~/ 3600;
