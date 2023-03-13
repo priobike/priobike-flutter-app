@@ -130,30 +130,39 @@ class RouteHeightPainter extends CustomPainter {
     final double labelYBottom = minHeight - routeHeightChart.heightStartPoint!;
 
     // How many decimal places to show on the y-axis
-    final int decimalPlaces;
+    final int decimalPlacesY;
+
+    // How many decimal places to show on the x-axis
+    final int decimalPlacesX;
+
+    // The unit for the x-axis
+    final String unit;
+
+    // The length of the route
+    final double routeLength;
 
     // If a very flat route is encountered, show more decimal places on y-axis
     if (labelYTop.toStringAsFixed(0) == "0" || labelYBottom.toStringAsFixed(0) == "0") {
-      decimalPlaces = 1;
+      decimalPlacesY = 1;
     } else {
-      decimalPlaces = 0;
+      decimalPlacesY = 0;
     }
 
-    final String unit;
-    final double routeLength;
     // If a very short route is encountered, units for distance is meters
     if (routeHeightChart.maxDistance! < 1) {
       unit = "m";
       routeLength = routeHeightChart.maxDistance! * 1000;
+      decimalPlacesX = 0;
     } else {
       unit = "km";
       routeLength = routeHeightChart.maxDistance!;
+      decimalPlacesX = 1;
     }
 
     // Left label on x-axis
     final xLeftLabel = TextPainter(
       text: TextSpan(
-        text: "0.0 $unit",
+        text: "0 $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -167,7 +176,7 @@ class RouteHeightPainter extends CustomPainter {
     // Middle label on x-axis
     final xMidLabel = TextPainter(
       text: TextSpan(
-        text: "${(routeLength / 2).toStringAsFixed(1)} $unit",
+        text: "${(routeLength / 2).toStringAsFixed(decimalPlacesX)} $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -182,7 +191,7 @@ class RouteHeightPainter extends CustomPainter {
     // Right label on x-axis
     final xRightLabel = TextPainter(
       text: TextSpan(
-        text: "${routeLength.toStringAsFixed(1)} $unit",
+        text: "${routeLength.toStringAsFixed(decimalPlacesX)} $unit",
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -197,7 +206,7 @@ class RouteHeightPainter extends CustomPainter {
     // Bottom label on y-axis
     final yMinLabel = TextPainter(
       text: TextSpan(
-        text: labelYBottom.toStringAsFixed(decimalPlaces),
+        text: labelYBottom.toStringAsFixed(decimalPlacesY),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -230,7 +239,7 @@ class RouteHeightPainter extends CustomPainter {
     // Top label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
-        text: labelYTop.toStringAsFixed(decimalPlaces),
+        text: labelYTop.toStringAsFixed(decimalPlacesY),
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
