@@ -401,7 +401,10 @@ class RouteHeightChartState extends State<RouteHeightChart> {
       }
     }
 
-    // find min and max values to scale the chart
+    // find min and max values to scale the chart, reset variables first
+    maxDistance = null;
+    maxHeight = null;
+    minHeight = null;
     for (var lineElement in lineElements) {
       maxDistance = maxDistance == null ? lineElement.routeLength : max(maxDistance!, lineElement.routeLength);
       for (HeightData heightData in lineElement.series) {
