@@ -45,7 +45,6 @@ dependencies:
   device_info_plus: ^8.0.0 # Fetch info about the device, don't upgrade to 4.0.0+ due to missing android device id
   package_info_plus: ^3.0.1 # Fetch info about the package
   battery_plus: ^3.0.2 # Fetch info about the battery state
-  charts_flutter: ^0.12.0 # Display minimalistic charts 
   share_plus: ^6.2.0 # Used for debugging to share example requests/responses via e-mail/airdrop
   firebase_core: ^2.1.1 # Used to initialize the connection to Firebase
   firebase_messaging: ^14.0.4 # Used to receive push notifications of news service
