@@ -17,6 +17,7 @@ import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
@@ -98,6 +99,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
+  /// The associated mapController service, which is injected by the provider.
+  late MapSettings mapSettings;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -142,6 +146,8 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
+    mapSettings = getIt<MapSettings>();
+    mapSettings.addListener(update);
   }
 
   @override
@@ -152,6 +158,7 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.removeListener(update);
     layers.removeListener(update);
     sheetMovement.close();
+    mapSettings.removeListener(update);
     super.dispose();
   }
 
@@ -314,6 +321,11 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
+  /// Private GPS Centralization Function which calls mapControllerService
+  void _gpsCentralization() {
+    mapSettings.setCameraCenterOnUserLocation(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -328,7 +340,7 @@ class RoutingViewState extends State<RoutingView> {
           },
           child: Stack(
             children: [
-              RoutingMapView(sheetMovement: sheetMovement.stream),
+              RoutingMapView(sheetMovement: sheetMovement.stream, controllerType: ControllerType.main),
 
               if (routing!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
@@ -377,6 +389,31 @@ class RoutingViewState extends State<RoutingView> {
                       ),
                     )
                   : Container(),
+
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 150, right: 8),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: 58,
+                          height: 58,
+                          child: Tile(
+                            fill: Theme.of(context).colorScheme.background,
+                            onPressed: _gpsCentralization,
+                            content: Icon(
+                              Icons.gps_not_fixed,
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,

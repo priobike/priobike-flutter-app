@@ -27,7 +27,10 @@ class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
 
-  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
+  /// The selected ControllerType.
+  final ControllerType controllerType;
+
+  const RoutingMapView({required this.sheetMovement, required this.controllerType, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
@@ -128,6 +131,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       loadRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
+
+    if (mapSettings.centerCameraOnUserLocation) {
+      displayCurrentUserLocation();
+      fitCameraToUserPosition();
+      mapSettings.setCameraCenterOnUserLocation(false);
+    }
   }
 
   @override
@@ -180,6 +189,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     status.removeListener(update);
     mapSettings.removeListener(update);
     super.dispose();
+  }
+
+  /// Fit the camera to the current user position.
+  fitCameraToUserPosition() async {
+    if (mapController == null || !mounted) return;
+    await mapController?.flyTo(
+      CameraOptions(
+        center: Point(
+            coordinates: Position(
+              positioning.lastPosition!.longitude,
+              positioning.lastPosition!.latitude,
+            )).toJson(),
+        zoom: 15,
+        pitch: 0,
+        bearing: 0,
+      ),
+      MapAnimationOptions(duration: 1000),
+    );
   }
 
   /// Fit the camera to the current route.
@@ -395,6 +422,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
+    switch (widget.controllerType) {
+      case ControllerType.main:
+        mapSettings.controller = controller;
+        break;
+      case ControllerType.selectOnMap:
+        mapSettings.controllerSelectOnMap = controller;
+        break;
+    }
+
     mapController = controller;
   }
 
