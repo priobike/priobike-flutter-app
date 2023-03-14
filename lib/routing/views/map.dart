@@ -198,9 +198,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       CameraOptions(
         center: Point(
             coordinates: Position(
-              positioning.lastPosition!.longitude,
-              positioning.lastPosition!.latitude,
-            )).toJson(),
+          positioning.lastPosition!.longitude,
+          positioning.lastPosition!.latitude,
+        )).toJson(),
         zoom: 15,
         pitch: 0,
         bearing: 0,
