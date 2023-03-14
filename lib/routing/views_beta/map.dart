@@ -436,14 +436,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   fitAttributionPosition({double? sheetHeightRelative}) {
     if (mapController == null) return;
     final frame = MediaQuery.of(context);
-    final bottomPadding = 50 / frame.size.height;
 
     final ppi = frame.devicePixelRatio;
-    final sheetHeightAbs = sheetHeightRelative == null
-        ? 124 + frame.padding.bottom + sheetPadding // Default value.
-        // 1 - relative is used to equalize the difference in the height relative of the bottom sheet (which has padding) and the map.
-        // If this should be applied to the standard route view, just remove the 1 - ... part.
-        : (sheetHeightRelative + (1 - sheetHeightRelative) * bottomPadding) * frame.size.height + sheetPadding;
+    final sheetHeightAbs = frame.padding.bottom + sheetPadding;
 
     final attributionMargins = math.Point(20 * ppi, sheetHeightAbs * ppi);
     mapController!.attribution.updateSettings(AttributionSettings(
