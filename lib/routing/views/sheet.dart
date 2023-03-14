@@ -182,7 +182,6 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
   /// Render an info section on top of the bottom sheet.
   Widget renderTopInfoSection(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
-    // round to meters, because we don't need centimeters
     final distInfo = routing.selectedRoute!.path.distance.round() >= 1000
         ? "${((routing.selectedRoute!.path.distance) / 1000).toStringAsFixed(1)} km"
         : "${routing.selectedRoute!.path.distance.toStringAsFixed(0)} m";
