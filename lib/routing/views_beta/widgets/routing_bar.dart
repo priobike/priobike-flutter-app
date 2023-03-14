@@ -384,12 +384,6 @@ class RoutingBarState extends State<RoutingBar> {
       }
     }
 
-    print(calculateRoutingBarHeight(
-        frame,
-        widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
-        false,
-        routing.minimized));
-
     return Material(
       elevation: 5,
       child: Container(
