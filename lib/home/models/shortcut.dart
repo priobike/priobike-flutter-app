@@ -36,6 +36,25 @@ class Shortcut {
     );
   }
 
+  Shortcut trim() => Shortcut(
+        name: name,
+        waypoints: waypoints.map((e) {
+          String? address;
+          if (e.address == null) {
+            address = null;
+          } else if (e.address!.length <= 10) {
+            address = e.address;
+          } else {
+            address = "${e.address?.substring(0, 10)}...";
+          }
+          return Waypoint(
+            e.lat,
+            e.lon,
+            address: address,
+          );
+        }).toList(),
+      );
+
   Map<String, dynamic> toJson() => {
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),

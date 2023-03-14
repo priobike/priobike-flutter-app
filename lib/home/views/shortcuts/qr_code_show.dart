@@ -1,11 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShowQRCodeView extends StatelessWidget {
@@ -16,76 +14,50 @@ class ShowQRCodeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                ],
-              ),
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
-                child: SubHeader(text: shortcut.name, context: context),
-              ),
-              const SmallVSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
-                child: Stack(
-                  children: [
-                    Tile(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        stops: [
-                          0.1,
-                          0.9,
-                        ],
-                        colors: [
-                          CI.lightBlue,
-                          CI.blue,
-                        ],
-                      ),
-                      showShadow: true,
-                      shadowIntensity: 0.6,
-                      shadow: Theme.of(context).colorScheme.primary,
-                      content: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
-                          shadowIntensity: 0.05,
-                          shadow: Colors.black,
-                          borderRadius: BorderRadius.circular(16),
-                          content: Column(
-                            children: [
-                              QrImage(
-                                data: shortcut.toJson().toString(),
-                                version: QrVersions.auto,
-                                padding: const EdgeInsets.all(8),
-                                backgroundColor: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const VSpace(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
-                child: Content(text: "${shortcut.waypoints.length} Stationen", context: context),
-              ),
-            ],
-          ),
-        ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    int totalAddressCharacterCount = 0;
+    for (final waypoint in shortcut.waypoints) {
+      totalAddressCharacterCount += waypoint.address?.length ?? 0;
+    }
+
+    Shortcut shortcutCopy = Shortcut(name: shortcut.name, waypoints: []);
+
+    // If the total address character count is too large, we need to trim the addresses
+    // such that the total character length is max. 300.
+    if (totalAddressCharacterCount > 300) {
+      final double factor = 300 / totalAddressCharacterCount;
+      for (final waypoint in shortcut.waypoints) {
+        String? address = waypoint.address;
+        if (address != null) {
+          final int newLength = (address.length * factor).round();
+          if (factor == 1) {
+            address = address.substring(0, newLength);
+          } else {
+            address = "${address.substring(0, newLength)}..";
+          }
+        }
+        shortcutCopy.waypoints.add(Waypoint(
+          waypoint.lat,
+          waypoint.lon,
+          address: address,
+        ));
+      }
+    } else {
+      shortcutCopy = shortcut;
+    }
+
+    final enCodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
+    final gZipJson = gzip.encode(enCodedJson);
+    final base64Json = base64.encode(gZipJson);
+
+    return QrImage(
+      data: base64Json,
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.L,
+      foregroundColor: isDark ? Colors.white : Colors.black,
+      eyeStyle: const QrEyeStyle(
+        eyeShape: QrEyeShape.circle,
       ),
     );
   }

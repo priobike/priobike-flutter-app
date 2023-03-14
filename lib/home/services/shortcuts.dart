@@ -45,6 +45,17 @@ class Shortcuts with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Save a new shortcut (Shortcut object given).
+  Future<void> saveNewShortcutObject(Shortcut shortcut) async {
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+    shortcuts = [shortcut] + shortcuts!;
+    await storeShortcuts();
+
+    ToastMessage.showSuccess("Route gespeichert!");
+    notifyListeners();
+  }
+
   /// Update the shortcuts.
   Future<void> updateShortcuts(List<Shortcut> newShortcuts) async {
     shortcuts = newShortcuts;
