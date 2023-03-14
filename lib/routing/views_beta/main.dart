@@ -351,7 +351,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// Private Function which is executed when search is executed.
-  Future<void> _startSearch(MediaQueryData frame) async {
+  Future<void> _startSearch() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute, fromRouteSearch: false),
@@ -371,7 +371,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch(
-      Routing routing, int? index, Function onPressed, bool fromRouteSearch, MediaQueryData frame) async {
+      Routing routing, int? index, Function onPressed, bool fromRouteSearch) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),

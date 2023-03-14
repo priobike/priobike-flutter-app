@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/services/profile.dart';
@@ -92,7 +93,10 @@ class RoutingBarState extends State<RoutingBar> {
     bottomSheetState = getIt<BottomSheetState>();
     bottomSheetState.addListener(update);
 
-    updateWaypoint();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      updateWaypoint();
+      updateRoutingBarItems();
+    });
   }
 
   @override
@@ -109,7 +113,7 @@ class RoutingBarState extends State<RoutingBar> {
   /// update the routingBarItems when selected route switched and initially sets routing Items for RouteSearchView.
   updateRoutingBarItems() {
     // Update items after selected route switch.
-    if (routing.selectedWaypoints != null) {
+    if (routing.selectedWaypoints != null && !widget.fromRoutingSearch) {
       routingBarItems = [];
       for (int i = 0; i < routing.selectedWaypoints!.length; i++) {
         routingBarItems
@@ -379,6 +383,12 @@ class RoutingBarState extends State<RoutingBar> {
         }
       }
     }
+
+    print(calculateRoutingBarHeight(
+        frame,
+        widget.fromRoutingSearch ? routing.routingItems.length : routing.selectedWaypoints!.length,
+        false,
+        routing.minimized));
 
     return Material(
       elevation: 5,
