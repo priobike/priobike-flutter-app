@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -101,6 +102,16 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     const HSpace(),
                     SubHeader(text: "Strecken", context: context),
                     Expanded(child: Container()),
+                    SmallIconButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const QRCodeView(),
+                        ),
+                      ),
+                      icon: Icons.qr_code_scanner_rounded,
+                      fill: Theme.of(context).colorScheme.surface,
+                    ),
+                    const SmallHSpace(),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: deleteMode
@@ -175,7 +186,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             ),
                             Tile(
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                                topLeft: Radius.circular(24),
+                                bottomLeft: Radius.circular(24),
+                              ),
+                              showShadow: false,
                               content: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -189,7 +203,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                         ),
                                         const SmallVSpace(),
                                         BoldSmall(
-                                          text: "${entry.value.waypoints.length} Stationen",
+                                          text: "${entry.value.waypoints.length} Wegpunkte",
                                           context: context,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),
@@ -197,18 +211,33 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                     ),
                                   ),
                                   const HSpace(),
-                                  AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 300),
-                                    child: deleteMode
-                                        ? SmallIconButton(
-                                            icon: Icons.delete,
-                                            onPressed: () => onDeleteShortcut(entry.key),
-                                            fill: Theme.of(context).colorScheme.surface,
-                                          )
-                                        : const Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: Icon(Icons.list_rounded),
+                                  Row(
+                                    children: [
+                                      const HSpace(),
+                                      SmallIconButton(
+                                        icon: Icons.qr_code_2_rounded,
+                                        onPressed: () => Navigator.of(context).push(
+                                          MaterialPageRoute<void>(
+                                            builder: (BuildContext context) => QRCodeView(shortcut: entry.value),
                                           ),
+                                        ),
+                                        fill: Theme.of(context).colorScheme.background,
+                                      ),
+                                      const SmallHSpace(),
+                                      AnimatedSwitcher(
+                                        duration: const Duration(milliseconds: 300),
+                                        child: deleteMode
+                                            ? SmallIconButton(
+                                                icon: Icons.delete,
+                                                onPressed: () => onDeleteShortcut(entry.key),
+                                                fill: Theme.of(context).colorScheme.surface,
+                                              )
+                                            : const Padding(
+                                                padding: EdgeInsets.all(12),
+                                                child: Icon(Icons.list_rounded),
+                                              ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

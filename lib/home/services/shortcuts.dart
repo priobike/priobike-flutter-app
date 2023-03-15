@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -42,6 +43,17 @@ class Shortcuts with ChangeNotifier {
     shortcuts = [newShortcut] + shortcuts!;
     await storeShortcuts();
 
+    notifyListeners();
+  }
+
+  /// Save a new shortcut (Shortcut object given).
+  Future<void> saveNewShortcutObject(Shortcut shortcut) async {
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+    shortcuts = [shortcut] + shortcuts!;
+    await storeShortcuts();
+
+    ToastMessage.showSuccess("Route gespeichert!");
     notifyListeners();
   }
 

@@ -29,6 +29,9 @@ class Tile extends StatelessWidget {
   /// The border radius of the tile.
   final BorderRadius borderRadius;
 
+  /// The gradient of the tile.
+  final Gradient? gradient;
+
   const Tile({
     Key? key,
     required this.content,
@@ -39,6 +42,7 @@ class Tile extends StatelessWidget {
     this.shadowIntensity = 0.05,
     this.showShadow = true,
     this.padding = const EdgeInsets.all(16),
+    this.gradient,
     this.borderRadius = const BorderRadius.all(
       Radius.circular(24),
     ),
@@ -50,6 +54,7 @@ class Tile extends StatelessWidget {
       decoration: BoxDecoration(
         color: fill,
         borderRadius: borderRadius,
+        gradient: gradient,
         boxShadow: showShadow
             ? [
                 BoxShadow(
