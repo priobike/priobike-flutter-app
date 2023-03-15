@@ -49,6 +49,7 @@ class QRCodeViewState extends State<QRCodeView> {
   @override
   Widget build(BuildContext context) {
     final bool scanQRMode = shortcut == null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
@@ -66,12 +67,22 @@ class QRCodeViewState extends State<QRCodeView> {
                   if (scanQRMode && cameraController != null && hasTorch)
                     Padding(
                       padding: const EdgeInsets.only(right: 12),
-                      child: SmallIconButton(
-                        color: Colors.white,
-                        icon: cameraController!.torchState == TorchState.on
-                            ? Icons.flashlight_on_rounded
-                            : Icons.flashlight_off_rounded,
-                        onPressed: () => cameraController!.toggleTorch(),
+                      child: ValueListenableBuilder(
+                        valueListenable: cameraController!.torchState,
+                        builder: (context, state, child) {
+                          switch (state as TorchState) {
+                            case TorchState.off:
+                              return SmallIconButton(
+                                icon: Icons.flashlight_on_rounded,
+                                onPressed: () => cameraController!.toggleTorch(),
+                              );
+                            case TorchState.on:
+                              return SmallIconButton(
+                                icon: Icons.flashlight_off_rounded,
+                                onPressed: () => cameraController!.toggleTorch(),
+                              );
+                          }
+                        },
                       ),
                     ),
                 ],
