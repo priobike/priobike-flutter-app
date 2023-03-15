@@ -120,7 +120,7 @@ class RoutingViewState extends State<RoutingView> {
   void initState() {
     super.initState();
 
-    // Register Service in Routing scope.
+    // Register Service.
     getIt.registerSingleton<MapFunctions>(MapFunctions());
 
     SchedulerBinding.instance.addPostFrameCallback(
