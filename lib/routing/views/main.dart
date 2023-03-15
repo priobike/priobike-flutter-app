@@ -38,11 +38,12 @@ void showSaveShortcutSheet(context) {
           context: context,
         ),
         content: SizedBox(
-          height: 54,
+          height: 78,
           child: Column(
             children: [
               TextFormField(
                 controller: nameController,
+                maxLength: 20,
                 decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
               ),
             ],

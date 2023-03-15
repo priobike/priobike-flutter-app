@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -26,9 +24,6 @@ class Shortcuts with ChangeNotifier {
   /// Save a new shortcut.
   Future<void> saveNewShortcut(String name) async {
     final routing = getIt<Routing>();
-
-    final bottomSheetState = getIt<BottomSheetState>();
-
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
     // Check if waypoint contains "Standort" as address and change it to geolocation
@@ -47,9 +42,6 @@ class Shortcuts with ChangeNotifier {
     shortcuts = [newShortcut] + shortcuts!;
     await storeShortcuts();
 
-    bottomSheetState.reset();
-    routing.reset();
-    ToastMessage.showSuccess("Route gespeichert!");
     notifyListeners();
   }
 
