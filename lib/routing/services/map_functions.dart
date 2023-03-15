@@ -3,7 +3,7 @@ import 'package:priobike/logging/logger.dart';
 
 class MapFunctions with ChangeNotifier {
   /// A bool specifying whether the map should get centered on the user position.
-  bool centeringNeeded = false;
+  bool needsCentering = false;
 
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
