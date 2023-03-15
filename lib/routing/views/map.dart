@@ -184,6 +184,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.removeListener(update);
     discomforts.removeListener(update);
     status.removeListener(update);
+    mapFunctions.removeListener(update);
     super.dispose();
   }
 
