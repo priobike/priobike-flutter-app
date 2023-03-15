@@ -22,6 +22,17 @@ class QRCodeView extends StatefulWidget {
   QRCodeViewState createState() => QRCodeViewState();
 }
 
+enum QRCodeViewMode {
+  /// The QR code is scanning.
+  scanning,
+
+  /// The QR code is showing.
+  showing,
+
+  /// The QR code has been scanned.
+  scanned,
+}
+
 class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
@@ -31,12 +42,21 @@ class QRCodeViewState extends State<QRCodeView> {
   /// Whether the camera has a flashlight.
   bool hasTorch = false;
 
+  /// The current mode of the view.
+  QRCodeViewMode? state;
+
   @override
   void initState() {
     super.initState();
     shortcut = widget.shortcut;
+    if (shortcut == null) {
+      state = QRCodeViewMode.scanning;
+    } else {
+      state = QRCodeViewMode.showing;
+    }
   }
 
+  /// Callback that is called when the scanner is initialized.
   onScannerInit(MobileScannerController controller, bool hasTorch) {
     this.hasTorch = hasTorch;
     if (cameraController != null) {
@@ -46,11 +66,17 @@ class QRCodeViewState extends State<QRCodeView> {
     setState(() {});
   }
 
+  /// Called when a saved shortcut should be scanned.
+  saveShortCut() {
+    if (shortcut == null) return;
+    getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut!);
+    setState(() {
+      state = QRCodeViewMode.showing;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool scanQRMode = shortcut == null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -64,7 +90,7 @@ class QRCodeViewState extends State<QRCodeView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
-                  if (scanQRMode && cameraController != null && hasTorch)
+                  if (state == QRCodeViewMode.scanning && cameraController != null && hasTorch)
                     Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: ValueListenableBuilder(
@@ -95,7 +121,7 @@ class QRCodeViewState extends State<QRCodeView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: SubHeader(
-                        text: scanQRMode ? "Scanne einen QR Code" : shortcut!.name,
+                        text: state == QRCodeViewMode.scanning ? "Scanne einen QR Code" : shortcut!.name,
                         context: context,
                       ),
                     ),
@@ -138,7 +164,7 @@ class QRCodeViewState extends State<QRCodeView> {
                                     Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
                                         .animate(animation);
 
-                                if (scanQRMode) {
+                                if (state == QRCodeViewMode.scanning) {
                                   return ClipRect(
                                     child: SlideTransition(
                                       position: inAnimation,
@@ -160,13 +186,13 @@ class QRCodeViewState extends State<QRCodeView> {
                                   );
                                 }
                               },
-                              child: scanQRMode
+                              child: state == QRCodeViewMode.scanning
                                   ? ScanQRCodeView(
                                       onScan: (shortcut) {
                                         setState(
                                           () {
                                             this.shortcut = shortcut;
-                                            getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut);
+                                            state = QRCodeViewMode.scanned;
                                           },
                                         );
                                       },
@@ -181,8 +207,10 @@ class QRCodeViewState extends State<QRCodeView> {
                     const VSpace(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
-                      child: scanQRMode
-                          ? Column(
+                      child: Column(
+                        children: [
+                          if (state == QRCodeViewMode.scanning)
+                            Column(
                               children: [
                                 const VSpace(),
                                 BoldContent(
@@ -191,8 +219,9 @@ class QRCodeViewState extends State<QRCodeView> {
                                   textAlign: TextAlign.center,
                                 ),
                               ],
-                            )
-                          : Column(
+                            ),
+                          if (state == QRCodeViewMode.showing)
+                            Column(
                               children: [
                                 Content(text: "${shortcut!.waypoints.length} Stationen", context: context),
                                 const VSpace(),
@@ -203,6 +232,21 @@ class QRCodeViewState extends State<QRCodeView> {
                                 ),
                               ],
                             ),
+                          if (state == QRCodeViewMode.scanned)
+                            Column(
+                              children: [
+                                Content(text: "${shortcut!.waypoints.length} Stationen", context: context),
+                                const VSpace(),
+                                BigButton(
+                                  iconColor: Colors.white,
+                                  label: "Speichern!",
+                                  onPressed: () => saveShortCut(),
+                                  boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
