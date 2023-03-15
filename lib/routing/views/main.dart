@@ -100,7 +100,7 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
-  /// The associated mapController service, which is injected by the provider.
+  /// The associated MapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
