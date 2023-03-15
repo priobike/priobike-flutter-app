@@ -36,7 +36,7 @@ class Shortcut {
     );
   }
 
-  /// Trim the addresses of the waypoints. A factor < 1 will shorten the addresses.
+  /// Trim the addresses of the waypoints, if a factor < 1 is given.
   Shortcut trim(double factor) => Shortcut(
         name: name,
         waypoints: waypoints.map(

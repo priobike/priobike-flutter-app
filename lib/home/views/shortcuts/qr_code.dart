@@ -25,8 +25,10 @@ class QRCodeView extends StatefulWidget {
 class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
+  /// The controller for the camera.
   MobileScannerController? cameraController;
 
+  /// Whether the camera has a flashlight.
   bool hasTorch = false;
 
   @override
@@ -36,7 +38,6 @@ class QRCodeViewState extends State<QRCodeView> {
   }
 
   onScannerInit(MobileScannerController controller, bool hasTorch) {
-    print("sregsergserges");
     this.hasTorch = hasTorch;
     if (cameraController != null) {
       return;
@@ -63,10 +64,15 @@ class QRCodeViewState extends State<QRCodeView> {
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
                   if (scanQRMode && cameraController != null && hasTorch)
-                    SmallIconButton(
-                      color: Colors.white,
-                      icon: (cameraController!.torchState == TorchState.off) ? Icons.flash_off : Icons.flash_on,
-                      onPressed: () => cameraController!.toggleTorch(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: SmallIconButton(
+                        color: Colors.white,
+                        icon: cameraController!.torchState == TorchState.on
+                            ? Icons.flashlight_on_rounded
+                            : Icons.flashlight_off_rounded,
+                        onPressed: () => cameraController!.toggleTorch(),
+                      ),
                     ),
                 ],
               ),

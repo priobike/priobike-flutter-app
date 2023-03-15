@@ -22,8 +22,13 @@ class ScanQRCodeView extends StatefulWidget {
 class ScanQRCodeViewState extends State<ScanQRCodeView> {
   final log = Logger("QRScanner");
 
+  // The result of the scan.
   Barcode? result;
+
+  // The controller for the camera.
   MobileScannerController cameraController = MobileScannerController();
+
+  // The shortcut that has been scanned.
   Shortcut? shortcut;
 
   @override

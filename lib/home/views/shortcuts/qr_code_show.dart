@@ -34,6 +34,7 @@ class ShowQRCodeView extends StatelessWidget {
       shortcutCopy = shortcut;
     }
 
+    // Encode the JSON and compress it
     final enCodedJson = utf8.encode(json.encode(shortcutCopy.toJson()));
     final gZipJson = gzip.encode(enCodedJson);
     final base64Json = base64.encode(gZipJson);
