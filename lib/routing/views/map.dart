@@ -58,7 +58,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
-   /// The associated mapFunctions service, which is injected by the provider.
+  /// The associated mapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
   /// A map controller for the map.
