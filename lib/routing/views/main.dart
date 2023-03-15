@@ -347,7 +347,7 @@ class RoutingViewState extends State<RoutingView> {
           },
           child: Stack(
             children: [
-              RoutingMapView(sheetMovement: sheetMovement.stream, controllerType: ControllerType.main),
+              RoutingMapView(sheetMovement: sheetMovement.stream),
 
               if (routing!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
