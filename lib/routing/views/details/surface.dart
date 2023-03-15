@@ -201,8 +201,8 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
               ),
               const SizedBox(width: 4),
               showSurfaceTypeDetails
-                  ? Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-                  : Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
+                  ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
+                  : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
             ]),
           ]),
         ),
