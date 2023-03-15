@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
 
 class MapFunctions with ChangeNotifier {
-  /// A bool specifying whether the camera should be/is centered on the user location.
-  bool centerCameraOnUserLocation = false;
+  /// A bool specifying whether the map should get centered on the user position.
+  bool centeringNeeded = false;
 
   /// The logger for this service.
   final Logger log = Logger("MapFunctionsService");
