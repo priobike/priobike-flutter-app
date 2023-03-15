@@ -19,6 +19,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -57,8 +58,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The associated status service, which is injected by the provider.
   late PredictionSGStatus status;
 
-  /// The associated mapController service, which is injected by the provider.
-  late MapSettings mapSettings;
+   /// The associated mapFunctions service, which is injected by the provider.
+  late MapFunctions mapFunctions;
 
   /// A map controller for the map.
   MapboxMap? mapController;
@@ -132,10 +133,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       status.needsLayout[viewId] = false;
     }
 
-    if (mapSettings.centerCameraOnUserLocation) {
+    if (mapFunctions.centerCameraOnUserLocation) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
-      mapSettings.setCameraCenterOnUserLocation(false);
+      mapFunctions.setCameraCenterOnUserLocation(false);
     }
   }
 
@@ -170,8 +171,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     discomforts.addListener(update);
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
-    mapSettings = getIt<MapSettings>();
-    mapSettings.addListener(update);
+    mapFunctions = getIt<MapFunctions>();
+    mapFunctions.addListener(update);
 
     updateMap();
   }
@@ -187,7 +188,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     routing.removeListener(update);
     discomforts.removeListener(update);
     status.removeListener(update);
-    mapSettings.removeListener(update);
     super.dispose();
   }
 
@@ -201,9 +201,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           positioning.lastPosition!.longitude,
           positioning.lastPosition!.latitude,
         )).toJson(),
-        zoom: 15,
-        pitch: 0,
-        bearing: 0,
       ),
       MapAnimationOptions(duration: 1000),
     );
@@ -273,7 +270,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     });
   }
 
-  /// Load the map desgin.
+  /// Load the map design.
   loadMapDesign() async {
     if (mapController == null) return;
 
@@ -422,15 +419,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
-    switch (widget.controllerType) {
-      case ControllerType.main:
-        mapSettings.controller = controller;
-        break;
-      case ControllerType.selectOnMap:
-        mapSettings.controllerSelectOnMap = controller;
-        break;
-    }
-
     mapController = controller;
   }
 

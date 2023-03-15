@@ -17,6 +17,7 @@ import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
@@ -100,7 +101,7 @@ class RoutingViewState extends State<RoutingView> {
   late Layers layers;
 
   /// The associated mapController service, which is injected by the provider.
-  late MapSettings mapSettings;
+  late MapFunctions mapFunctions;
 
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
@@ -118,6 +119,9 @@ class RoutingViewState extends State<RoutingView> {
   @override
   void initState() {
     super.initState();
+
+    // Register Service in Routing scope.
+    getIt.registerSingleton<MapFunctions>(MapFunctions());
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -146,8 +150,8 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
-    mapSettings = getIt<MapSettings>();
-    mapSettings.addListener(update);
+    mapFunctions = getIt<MapFunctions>();
+    mapFunctions.addListener(update);
   }
 
   @override
@@ -158,7 +162,10 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.removeListener(update);
     layers.removeListener(update);
     sheetMovement.close();
-    mapSettings.removeListener(update);
+    mapFunctions.removeListener(update);
+
+    // Unregister Service since the app will run out of the needed scope.
+    getIt.unregister<MapFunctions>(instance: mapFunctions);
     super.dispose();
   }
 
@@ -323,7 +330,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapSettings.setCameraCenterOnUserLocation(true);
+    mapFunctions.setCameraCenterOnUserLocation(true);
   }
 
   @override
@@ -391,26 +398,23 @@ class RoutingViewState extends State<RoutingView> {
                   : Container(),
 
               SafeArea(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 150, right: 8),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: 58,
-                          height: 58,
-                          child: Tile(
-                            fill: Theme.of(context).colorScheme.background,
-                            onPressed: _gpsCentralization,
-                            content: Icon(
-                              Icons.gps_not_fixed,
-                              color: Theme.of(context).colorScheme.onBackground,
-                            ),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 145, left: 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: 58,
+                        height: 58,
+                        child: Tile(
+                          fill: Theme.of(context).colorScheme.background,
+                          onPressed: _gpsCentralization,
+                          content: Icon(
+                            Icons.gps_not_fixed,
+                            color: Theme.of(context).colorScheme.onBackground,
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),
