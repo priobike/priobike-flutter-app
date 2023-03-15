@@ -326,9 +326,14 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
-  /// Private GPS Centralization Function which calls mapControllerService
+  /// Private GPS Centralization Function which calls mapFunctionsService
   void _gpsCentralization() {
     mapFunctions.setCameraCenterOnUserLocation();
+  }
+
+  /// Private center north Function which calls mapFunctionsService
+  void _centerNorth() {
+    mapFunctions.setCameraCenterNorth();
   }
 
   @override
@@ -408,6 +413,28 @@ class RoutingViewState extends State<RoutingView> {
                           onPressed: _gpsCentralization,
                           content: Icon(
                             Icons.gps_not_fixed_rounded,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 210, left: 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: 58,
+                        height: 58,
+                        child: Tile(
+                          fill: Theme.of(context).colorScheme.background,
+                          onPressed: _centerNorth,
+                          content: Icon(
+                            Icons.explore_rounded,
                             color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),

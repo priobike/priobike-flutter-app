@@ -134,6 +134,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       fitCameraToUserPosition();
       mapFunctions.needsCentering = false;
     }
+
+    if (mapFunctions.needsCenteringNorth) {
+      centerCameraToNorth();
+      mapFunctions.needsCenteringNorth = false;
+    }
   }
 
   @override
@@ -201,6 +206,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
       MapAnimationOptions(duration: 1000),
     );
+  }
+
+  /// Center the camera to north.
+  centerCameraToNorth() async {
+    if (mapController == null || !mounted) return;
+    mapController?.flyTo(CameraOptions(bearing: 0), MapAnimationOptions(duration: 1000));
   }
 
   /// Fit the camera to the current route.
