@@ -354,8 +354,6 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private Function which is executed when search is executed.
   Future<void> _startSearch() async {
-    final frame = MediaQuery.of(context);
-    final bottomPadding = 50 / frame.size.height;
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: null, onPressed: _loadShortcutsRoute, fromRouteSearch: false),
@@ -368,15 +366,13 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       // Set the mapbox logo.
       if (mounted) {
         sheetMovement.add(DraggableScrollableNotification(
-            minExtent: 0, context: context, extent: 0.18 - bottomPadding, initialExtent: 0.2, maxExtent: 0.2));
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
       }
     }
   }
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch(Routing routing, int? index, Function onPressed, bool fromRouteSearch) async {
-    final frame = MediaQuery.of(context);
-    final bottomPadding = 50 / frame.size.height;
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchView(index: index, onPressed: onPressed, fromRouteSearch: fromRouteSearch),
@@ -389,7 +385,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       // Set the mapbox logo.
       if (mounted) {
         sheetMovement.add(DraggableScrollableNotification(
-            minExtent: 0, context: context, extent: 0.18 - bottomPadding, initialExtent: 0.2, maxExtent: 0.2));
+            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
       }
     }
   }
