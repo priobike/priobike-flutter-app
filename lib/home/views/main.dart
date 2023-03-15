@@ -121,7 +121,7 @@ class HomeViewState extends State<HomeView> {
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectWaypoints(shortcut.waypoints);
+    routing.selectWaypoints(List.from(shortcut.waypoints));
     Navigator.of(context)
         .push(MaterialPageRoute(
             builder: (_) =>
