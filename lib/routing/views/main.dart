@@ -17,6 +17,7 @@ import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
+import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
@@ -99,6 +100,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated layers service, which is injected by the provider.
   late Layers layers;
 
+  /// The associated MapFunctions service, which is injected by the provider.
+  late MapFunctions mapFunctions;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -115,6 +119,9 @@ class RoutingViewState extends State<RoutingView> {
   @override
   void initState() {
     super.initState();
+
+    // Register Service.
+    getIt.registerSingleton<MapFunctions>(MapFunctions());
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -143,6 +150,7 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.addListener(update);
     layers = getIt<Layers>();
     layers.addListener(update);
+    mapFunctions = getIt<MapFunctions>();
   }
 
   @override
@@ -153,6 +161,9 @@ class RoutingViewState extends State<RoutingView> {
     positioning!.removeListener(update);
     layers.removeListener(update);
     sheetMovement.close();
+
+    // Unregister Service since the app will run out of the needed scope.
+    getIt.unregister<MapFunctions>(instance: mapFunctions);
     super.dispose();
   }
 
@@ -315,6 +326,11 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
+  /// Private GPS Centralization Function which calls mapControllerService
+  void _gpsCentralization() {
+    mapFunctions.setCameraCenterOnUserLocation();
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -378,6 +394,28 @@ class RoutingViewState extends State<RoutingView> {
                       ),
                     )
                   : Container(),
+
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 145, left: 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: 58,
+                        height: 58,
+                        child: Tile(
+                          fill: Theme.of(context).colorScheme.background,
+                          onPressed: _gpsCentralization,
+                          content: Icon(
+                            Icons.gps_not_fixed_rounded,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
 
               RouteDetailsBottomSheet(
                 onSelectStartButton: onStartRide,
