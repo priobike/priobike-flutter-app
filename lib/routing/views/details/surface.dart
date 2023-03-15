@@ -192,7 +192,7 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
             });
           },
           child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Content(text: "Oberfäche", context: context),
+            Content(text: "Oberfläche", context: context),
             Row(children: [
               Content(
                 text: "Details",
