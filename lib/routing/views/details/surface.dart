@@ -51,7 +51,7 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
   late Routing routing;
 
   /// The details state of road class.
-  bool showSurfaceTypeDetails = false;
+  bool showSurfaceTypeDetails = true;
 
   /// The chart data.
   Map<String, double> surfaceTypeDistances = {};

@@ -65,7 +65,7 @@ class RoadClassChartState extends State<RoadClassChart> {
   late Routing routing;
 
   /// The details state of road class.
-  bool showRoadClassDetails = false;
+  bool showRoadClassDetails = true;
 
   /// The chart data.
   Map<String, double> roadClassDistances = {};
