@@ -330,6 +330,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Private Function which is executed when FAB is pressed.
   Future<void> _startRoutingSearch() async {
+    final frame = MediaQuery.of(context);
+    final bottomPadding = 50 / frame.size.height;
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => RouteSearchView(
@@ -345,7 +347,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
       // Set the mapbox logo.
       if (mounted) {
         sheetMovement.add(DraggableScrollableNotification(
-            minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+            minExtent: 0, context: context, extent: 0.18 - bottomPadding, initialExtent: 0.2, maxExtent: 0.2));
       }
     }
   }
@@ -394,7 +396,8 @@ class RoutingViewNewState extends State<RoutingViewNew> {
   }
 
   /// ShowLessDetails moves the draggableScrollView back to the initial height
-  _showLessDetails(MediaQueryData frame) {
+  _showLessDetails() {
+    final frame = MediaQuery.of(context);
     final bottomPadding = 50 / frame.size.height;
     bottomSheetState.animateController(0.175, bottomPadding);
 
@@ -405,12 +408,14 @@ class RoutingViewNewState extends State<RoutingViewNew> {
 
   /// Function which loads Routes from shortcuts view.
   _loadShortcutsRoute(List<Waypoint> waypoints) async {
+    final frame = MediaQuery.of(context);
+    final bottomPadding = 50 / frame.size.height;
     await routing.selectWaypoints(waypoints);
     await routing.loadRoutes();
     // Set the mapbox logo.
     if (mounted) {
       sheetMovement.add(DraggableScrollableNotification(
-          minExtent: 0, context: context, extent: 0.18, initialExtent: 0.2, maxExtent: 0.2));
+          minExtent: 0, context: context, extent: 0.18 - bottomPadding, initialExtent: 0.2, maxExtent: 0.2));
     }
   }
 
@@ -542,7 +547,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                                       top: 20 + frame.padding.top,
                                       left: showRoutingBar ? -64 : 0,
                                       duration: const Duration(milliseconds: 250),
-                                      child: AppBackButton(onPressed: () => _showLessDetails(frame)),
+                                      child: AppBackButton(onPressed: _showLessDetails),
                                     ),
                                     AnimatedPositioned(
                                       // top calculates from padding + systemBar.
@@ -651,7 +656,7 @@ class RoutingViewNewState extends State<RoutingViewNew> {
                       height: 15,
                     ),
                     FloatingActionButton(
-                      onPressed: () => _startRoutingSearch(),
+                      onPressed: _startRoutingSearch,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
                       ),
