@@ -409,7 +409,7 @@ class RoutingViewState extends State<RoutingView> {
                           fill: Theme.of(context).colorScheme.background,
                           onPressed: _gpsCentralization,
                           content: Icon(
-                            Icons.gps_not_fixed,
+                            Icons.gps_not_fixed_rounded,
                             color: Theme.of(context).colorScheme.onBackground,
                           ),
                         ),
