@@ -437,7 +437,7 @@ class DetailsState extends State<Details> {
     return DraggableScrollableSheet(
         key: _bottomSheetKey,
         initialChildSize: bottomSheetState.initialHeight - bottomPadding,
-        minChildSize: bottomSnapRatio - bottomPadding - 0.01,
+        minChildSize: bottomSnapRatio - bottomPadding,
         maxChildSize: routing.selectedRoute != null ? topSnapRatio : bottomSnapRatio,
         snap: true,
         snapSizes: routing.selectedRoute != null ? [0.66 - bottomPadding] : [],

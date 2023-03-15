@@ -434,23 +434,21 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Fit the attribution position to the position of the bottom sheet.
   fitAttributionPosition({double? sheetHeightRelative}) {
+    if (mapController == null) return;
     final frame = MediaQuery.of(context);
-    final sheetHeightAbs = sheetHeightRelative == null
-        ? frame.padding.bottom + sheetPadding // Default value.
-        : sheetHeightRelative * frame.size.height + sheetPadding;
-    final maxBottomInset = frame.size.height - frame.padding.top - 100;
-    double newBottomInset = math.min(maxBottomInset, sheetHeightAbs);
-    setState(
-      () {
-        bottomSheetOffset = newBottomInset;
-        // On Android, the bottom inset needs to be added to the attribution margins.
-        if (Platform.isAndroid) {
-          attributionMargins = math.Point(20, newBottomInset);
-        } else {
-          attributionMargins = const math.Point(20, 0);
-        }
-      },
-    );
+
+    final ppi = frame.devicePixelRatio;
+    final sheetHeightAbs = frame.padding.bottom + sheetPadding;
+
+    final attributionMargins = math.Point(20 * ppi, sheetHeightAbs * ppi);
+    mapController!.attribution.updateSettings(AttributionSettings(
+        marginBottom: attributionMargins.y.toDouble(),
+        marginRight: attributionMargins.x.toDouble(),
+        position: OrnamentPosition.BOTTOM_RIGHT));
+    mapController!.logo.updateSettings(LogoSettings(
+        marginBottom: attributionMargins.y.toDouble(),
+        marginLeft: attributionMargins.x.toDouble(),
+        position: OrnamentPosition.BOTTOM_LEFT));
   }
 
   /// A callback which is executed when the map was created.
