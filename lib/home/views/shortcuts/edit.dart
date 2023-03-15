@@ -242,7 +242,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ],
                               ),
                               onPressed: () {
-                                routing.selectWaypoints(entry.value.waypoints);
+                                routing.selectWaypoints(List.from(entry.value.waypoints));
 
                                 Navigator.of(context)
                                     .push(MaterialPageRoute(
