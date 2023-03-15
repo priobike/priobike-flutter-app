@@ -151,7 +151,6 @@ class RoutingViewState extends State<RoutingView> {
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
   }
 
   @override
