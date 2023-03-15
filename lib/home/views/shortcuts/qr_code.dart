@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -24,10 +25,24 @@ class QRCodeView extends StatefulWidget {
 class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
+  MobileScannerController? cameraController;
+
+  bool hasTorch = false;
+
   @override
   void initState() {
     super.initState();
     shortcut = widget.shortcut;
+  }
+
+  onScannerInit(MobileScannerController controller, bool hasTorch) {
+    print("sregsergserges");
+    this.hasTorch = hasTorch;
+    if (cameraController != null) {
+      return;
+    }
+    cameraController = controller;
+    setState(() {});
   }
 
   @override
@@ -43,7 +58,18 @@ class QRCodeViewState extends State<QRCodeView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              AppBackButton(onPressed: () => Navigator.pop(context)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppBackButton(onPressed: () => Navigator.pop(context)),
+                  if (scanQRMode && cameraController != null && hasTorch)
+                    SmallIconButton(
+                      color: Colors.white,
+                      icon: (cameraController!.torchState == TorchState.off) ? Icons.flash_off : Icons.flash_on,
+                      onPressed: () => cameraController!.toggleTorch(),
+                    ),
+                ],
+              ),
               const SmallVSpace(),
               Expanded(
                 child: Column(
@@ -57,86 +83,83 @@ class QRCodeViewState extends State<QRCodeView> {
                       ),
                     ),
                     const SmallVSpace(),
-                    Stack(
-                      children: [
-                        Tile(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                            stops: [
-                              0.1,
-                              0.9,
-                            ],
-                            colors: [
-                              CI.lightBlue,
-                              CI.blue,
-                            ],
-                          ),
-                          showShadow: true,
-                          shadowIntensity: 0.3,
-                          shadow: Theme.of(context).colorScheme.primary,
-                          content: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Tile(
-                              fill: Theme.of(context).colorScheme.background,
-                              shadowIntensity: 0.05,
-                              shadow: Colors.black,
-                              borderRadius: BorderRadius.circular(16),
-                              content: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.65,
-                                height: MediaQuery.of(context).size.width * 0.65,
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 750),
-                                  switchInCurve: Curves.easeInCubic,
-                                  switchOutCurve: Curves.easeOutCubic,
-                                  transitionBuilder: (Widget child, Animation<double> animation) {
-                                    final inAnimation =
-                                        Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                            .animate(animation);
-                                    final outAnimation =
-                                        Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                            .animate(animation);
+                    Tile(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                        stops: [
+                          0.1,
+                          0.9,
+                        ],
+                        colors: [
+                          CI.lightBlue,
+                          CI.blue,
+                        ],
+                      ),
+                      showShadow: true,
+                      shadowIntensity: 0.3,
+                      shadow: Theme.of(context).colorScheme.primary,
+                      content: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Tile(
+                          fill: Theme.of(context).colorScheme.background,
+                          shadowIntensity: 0.05,
+                          shadow: Colors.black,
+                          borderRadius: BorderRadius.circular(16),
+                          content: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.65,
+                            height: MediaQuery.of(context).size.width * 0.65,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 750),
+                              switchInCurve: Curves.easeInCubic,
+                              switchOutCurve: Curves.easeOutCubic,
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                final inAnimation =
+                                    Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
+                                        .animate(animation);
+                                final outAnimation =
+                                    Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
+                                        .animate(animation);
 
-                                    if (scanQRMode) {
-                                      return ClipRect(
-                                        child: SlideTransition(
-                                          position: inAnimation,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: child,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return ClipRect(
-                                        child: SlideTransition(
-                                          position: outAnimation,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: child,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: scanQRMode
-                                      ? ScanQRCodeView(
-                                          onScan: (shortcut) {
-                                            setState(
-                                              () {
-                                                this.shortcut = shortcut;
-                                                getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut);
-                                              },
-                                            );
+                                if (scanQRMode) {
+                                  return ClipRect(
+                                    child: SlideTransition(
+                                      position: inAnimation,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: child,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return ClipRect(
+                                    child: SlideTransition(
+                                      position: outAnimation,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: child,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: scanQRMode
+                                  ? ScanQRCodeView(
+                                      onScan: (shortcut) {
+                                        setState(
+                                          () {
+                                            this.shortcut = shortcut;
+                                            getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut);
                                           },
-                                        )
-                                      : ShowQRCodeView(shortcut: shortcut!),
-                                ),
-                              ),
+                                        );
+                                      },
+                                      onInit: onScannerInit,
+                                    )
+                                  : ShowQRCodeView(shortcut: shortcut!),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                     const VSpace(),
                     Padding(

@@ -10,7 +10,10 @@ class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
   final void Function(Shortcut shortcut) onScan;
 
-  const ScanQRCodeView({Key? key, required this.onScan}) : super(key: key);
+  /// Called when the scanner is initialized.
+  final void Function(MobileScannerController controller, bool hasTorch)? onInit;
+
+  const ScanQRCodeView({Key? key, required this.onScan, this.onInit}) : super(key: key);
 
   @override
   ScanQRCodeViewState createState() => ScanQRCodeViewState();
@@ -29,6 +32,8 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       borderRadius: BorderRadius.circular(8),
       child: MobileScanner(
         controller: cameraController,
+        onScannerStarted: (MobileScannerArguments? args) =>
+            widget.onInit?.call(cameraController, args?.hasTorch ?? false),
         onDetect: (capture) {
           if (shortcut != null) {
             return;
