@@ -327,7 +327,7 @@ class RoutingViewState extends State<RoutingView> {
 
   /// Private GPS Centralization Function which calls mapControllerService
   void _gpsCentralization() {
-    mapFunctions.setCameraCenterOnUserLocation(true);
+    mapFunctions.setCameraCenterOnUserLocation();
   }
 
   @override
