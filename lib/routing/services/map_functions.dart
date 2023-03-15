@@ -12,11 +12,9 @@ class MapFunctions with ChangeNotifier {
     log.i("MapFunctionsService started.");
   }
 
-  /// Change value of centerCameraOnUserLocation (only notify listeners on a change from false to true
-  /// (which means that a centering needs to be performed)).
-  void setCameraCenterOnUserLocation(bool center) {
-    final currentState = centerCameraOnUserLocation;
-    centerCameraOnUserLocation = center;
-    if (!currentState) notifyListeners();
+  /// Apply centering.
+  void setCameraCenterOnUserLocation() {
+    needsCentering = true;
+    notifyListeners();
   }
 }
