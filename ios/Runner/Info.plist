@@ -73,10 +73,7 @@
 	<key>FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED</key>
     <true/>
     <key>NSCameraUsageDescription</key>
-    <string>This app needs camera access to scan QR codes</string>
-
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app needs photos access to get QR code from photo library</string>
+    <string>Diese App nutzt die Kamera, um QR-Codes zu scannen.</string>
 </dict>
 </plist>
 
