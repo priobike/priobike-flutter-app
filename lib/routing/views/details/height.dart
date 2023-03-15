@@ -96,6 +96,7 @@ class RouteHeightPainter extends CustomPainter {
     final paint = Paint()
       ..color = Theme.of(context).colorScheme.outline
       ..strokeWidth = 1
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
 
     // Y-axis
@@ -119,7 +120,7 @@ class RouteHeightPainter extends CustomPainter {
   void drawCoordSystemLabels() {
     final TextStyle labelTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.outline,
-      fontSize: 10,
+      fontSize: 12,
     );
     // Distance for labels to the axis
     const distanceFromXAxis = 4.0;
@@ -427,8 +428,12 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   Widget build(BuildContext context) {
     if (lineElements.isEmpty || maxDistance == 0.0) return Container();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -442,7 +447,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 114,
+                  height: 116,
                   child: CustomPaint(
                     painter: RouteHeightPainter(context, this),
                   ),

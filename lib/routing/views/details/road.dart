@@ -33,24 +33,24 @@ final roadClassTranslation = {
 final roadClassColor = {
   "Autobahn": const Color(0xFF5B81FF),
   "Fernstraße": const Color(0xFF90A9FF),
-  "Hauptstraße": const Color(0xFF3758FF),
-  "Landstraße": const Color(0xFFACC7FF),
-  "???": const Color(0xFFFFFFFF),
-  "Wohnstraße": const Color(0xFFFFE4F8),
-  "Nicht klassifiziert": const Color(0xFF686868),
-  "Zufahrtsstraße": const Color(0xFF282828),
-  "Straße": const Color(0xFF282828),
-  "Rennstrecke": const Color(0xFFB74093),
-  "Reitweg": const Color(0xFF572B28),
-  "Treppen": const Color(0xFFB74093),
-  "Fahrradweg": const Color(0xFF993D4C),
-  "Weg": const Color(0xFF362626),
-  "Spielstraße": const Color(0xFF1A4BFF),
-  "Fußweg": const Color(0xFF8E8E8E),
-  "Fußgängerzone": const Color(0xFF192765),
-  "Bahnsteig": const Color(0xFF2A0029),
-  "Korridor": const Color(0xFFB74093),
-  "Sonstiges": const Color(0xFFB74093)
+  "Hauptstraße": const Color(0xFF7f8c8d),
+  "Landstraße": const Color(0xFFbdc3c7),
+  "???": const Color(0xFFc0392b),
+  "Wohnstraße": const Color(0xFFd35400),
+  "Nicht klassifiziert": const Color(0xFFf39c12),
+  "Zufahrtsstraße": const Color(0xFF95a5a6),
+  "Straße": const Color(0xFFecf0f1),
+  "Rennstrecke": const Color(0xFFf1c40f),
+  "Reitweg": const Color(0xFF2c3e50),
+  "Treppen": const Color(0xFF8e44ad),
+  "Fahrradweg": const Color(0xFF2980b9),
+  "Weg": const Color(0xFF27ae60),
+  "Spielstraße": const Color(0xFF16a085),
+  "Fußweg": const Color(0xFF34495e),
+  "Fußgängerzone": const Color(0xFF9b59b6),
+  "Bahnsteig": const Color(0xFF3498db),
+  "Korridor": const Color(0xFF2ecc71),
+  "Sonstiges": const Color(0xFF1abc9c)
 };
 
 class RoadClassChart extends StatefulWidget {
@@ -65,7 +65,7 @@ class RoadClassChartState extends State<RoadClassChart> {
   late Routing routing;
 
   /// The details state of road class.
-  bool showRoadClassDetails = false;
+  bool showRoadClassDetails = true;
 
   /// The chart data.
   Map<String, double> roadClassDistances = {};
@@ -116,7 +116,7 @@ class RoadClassChartState extends State<RoadClassChart> {
   Widget renderBar(BuildContext context) {
     if (roadClassDistances.isEmpty) return Container();
     if (routing.selectedRoute == null) return Container();
-    final availableWidth = (MediaQuery.of(context).size.width - 24);
+    final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
     for (int i = 0; i < roadClassDistances.length; i++) {
       final e = roadClassDistances.entries.elementAt(i);
@@ -125,19 +125,15 @@ class RoadClassChartState extends State<RoadClassChart> {
       pct = pct > 1 ? 1 : pct;
       elements.add(Container(
         width: (availableWidth * pct).floorToDouble(),
-        height: 42,
+        height: 32,
         decoration: BoxDecoration(
           color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              spreadRadius: 0,
-              blurRadius: 2,
-              offset: const Offset(1, 0.5), // changes position of shadow
-            ),
-          ],
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.07)
+                : Colors.black.withOpacity(0.07),
+          ),
+          borderRadius: BorderRadius.circular(4),
         ),
       ));
     }
@@ -158,24 +154,21 @@ class RoadClassChartState extends State<RoadClassChart> {
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
       elements.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.only(top: 4),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 18,
-              width: 18,
+              height: 14,
+              width: 14,
               decoration: BoxDecoration(
                 color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.black),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    spreadRadius: 0,
-                    blurRadius: 2,
-                    offset: const Offset(1, 0.5), // changes position of shadow
-                  ),
-                ],
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.07)
+                      : Colors.black.withOpacity(0.07),
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -183,7 +176,7 @@ class RoadClassChartState extends State<RoadClassChart> {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Content(text: "${pct.toStringAsFixed(2)}%", context: context),
+                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
               ),
             ),
           ],
@@ -197,53 +190,60 @@ class RoadClassChartState extends State<RoadClassChart> {
   Widget build(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: () => setState(() {
-            showRoadClassDetails = !showRoadClassDetails;
-          }),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Content(text: "Wegtypen", context: context),
-            Row(children: [
-              Content(
-                text: "Details",
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 4),
-              showRoadClassDetails
-                  ? Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-                  : Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-            ]),
-          ]),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => setState(() {
-            showRoadClassDetails = !showRoadClassDetails;
-          }),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              renderBar(context),
-              AnimatedCrossFade(
-                firstCurve: Curves.easeInOutCubic,
-                secondCurve: Curves.easeInOutCubic,
-                sizeCurve: Curves.easeInOutCubic,
-                duration: const Duration(milliseconds: 1000),
-                firstChild: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                  child: renderDetails(context),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () => setState(() {
+              showRoadClassDetails = !showRoadClassDetails;
+            }),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Content(text: "Wegtypen", context: context),
+              Row(children: [
+                Content(
+                  text: "Details",
+                  context: context,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                secondChild: Container(),
-                crossFadeState: showRoadClassDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-              ),
-            ],
+                const SizedBox(width: 4),
+                showRoadClassDetails
+                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
+                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
+              ]),
+            ]),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => setState(() {
+              showRoadClassDetails = !showRoadClassDetails;
+            }),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                renderBar(context),
+                AnimatedCrossFade(
+                  firstCurve: Curves.easeInOutCubic,
+                  secondCurve: Curves.easeInOutCubic,
+                  sizeCurve: Curves.easeInOutCubic,
+                  duration: const Duration(milliseconds: 1000),
+                  firstChild: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: renderDetails(context),
+                  ),
+                  secondChild: Container(),
+                  crossFadeState: showRoadClassDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
