@@ -113,93 +113,86 @@ class QRCodeViewState extends State<QRCodeView> {
                     ),
                 ],
               ),
-              const SmallVSpace(),
+              const SizedBox(height: 16),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
-                      child: SubHeader(
-                        text: state == QRCodeViewMode.scanning ? "Scanne einen QR Code" : shortcut!.name,
-                        context: context,
+                      child: SizedBox(
+                        height: 48,
+                        child: FittedBox(
+                          // Scale the text to fit the width.
+                          fit: BoxFit.fitWidth,
+                          child: SubHeader(
+                            text: state == QRCodeViewMode.scanning
+                                ? "Strecke von einem anderem Gerät importieren"
+                                : shortcut!.name,
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ),
-                    const SmallVSpace(),
-                    Tile(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                        stops: [
-                          0.1,
-                          0.9,
-                        ],
-                        colors: [
-                          CI.lightBlue,
-                          CI.blue,
-                        ],
+                    const VSpace(),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 1000),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          stops: const [0.3, 0.9],
+                          colors:
+                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.lightBlue, CI.blue],
+                        ),
+                        borderRadius: BorderRadius.circular(48),
+                        boxShadow: state == QRCodeViewMode.scanning
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  spreadRadius: 4,
+                                  blurRadius: 32,
+                                  offset: const Offset(0, 20), // changes position of shadow
+                                ),
+                              ]
+                            : [
+                                BoxShadow(
+                                  color: CI.blue.withOpacity(0.3),
+                                  spreadRadius: 4,
+                                  blurRadius: 32,
+                                  offset: const Offset(0, 24), // changes position of shadow
+                                ),
+                              ],
                       ),
-                      showShadow: true,
-                      shadowIntensity: 0.3,
-                      shadow: Theme.of(context).colorScheme.primary,
-                      content: Padding(
-                        padding: const EdgeInsets.all(5),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
                         child: Tile(
                           fill: Theme.of(context).colorScheme.background,
                           shadowIntensity: 0.05,
                           shadow: Colors.black,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(32),
+                          padding: const EdgeInsets.all(0),
                           content: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.65,
                             height: MediaQuery.of(context).size.width * 0.65,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 750),
-                              switchInCurve: Curves.easeInCubic,
-                              switchOutCurve: Curves.easeOutCubic,
-                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                final inAnimation =
-                                    Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                        .animate(animation);
-                                final outAnimation =
-                                    Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                        .animate(animation);
-
-                                if (state == QRCodeViewMode.scanning) {
-                                  return ClipRect(
-                                    child: SlideTransition(
-                                      position: inAnimation,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: child,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  return ClipRect(
-                                    child: SlideTransition(
-                                      position: outAnimation,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: child,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: state == QRCodeViewMode.scanning
-                                  ? ScanQRCodeView(
-                                      onScan: (shortcut) {
-                                        setState(
-                                          () {
-                                            this.shortcut = shortcut;
-                                            state = QRCodeViewMode.scanned;
-                                          },
-                                        );
-                                      },
-                                      onInit: onScannerInit,
-                                    )
-                                  : ShowQRCodeView(shortcut: shortcut!),
-                            ),
+                            child: state == QRCodeViewMode.scanning
+                                ? ScanQRCodeView(
+                                    onScan: (shortcut) {
+                                      setState(
+                                        () {
+                                          this.shortcut = shortcut;
+                                          state = QRCodeViewMode.scanned;
+                                        },
+                                      );
+                                    },
+                                    onInit: onScannerInit,
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: ShowQRCodeView(shortcut: shortcut!),
+                                  ),
                           ),
                         ),
                       ),
@@ -213,17 +206,18 @@ class QRCodeViewState extends State<QRCodeView> {
                             Column(
                               children: [
                                 const VSpace(),
-                                BoldContent(
+                                Content(
                                   text: "Scanne den QR-Code einer anderen PrioBike-App, um die Route zu erhalten.",
                                   context: context,
                                   textAlign: TextAlign.center,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                                 ),
                               ],
                             ),
                           if (state == QRCodeViewMode.showing)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Stationen", context: context),
+                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
                                 const VSpace(),
                                 BoldSmall(
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",
@@ -235,7 +229,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.scanned)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Stationen", context: context),
+                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
                                 const VSpace(),
                                 BigButton(
                                   iconColor: Colors.white,

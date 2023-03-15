@@ -10,6 +10,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
+import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -237,12 +238,23 @@ class HomeViewState extends State<HomeView> {
                         ),
                         Expanded(child: Container()),
                         SmallIconButton(
-                          icon: Icons.edit_rounded,
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (BuildContext context) => const QRCodeView(),
+                            ),
+                          ),
+                          icon: Icons.qr_code_scanner_rounded,
+                          fill: Theme.of(context).colorScheme.background,
+                          splash: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        SmallIconButton(
+                          icon: Icons.list_rounded,
                           fill: Theme.of(context).colorScheme.background,
                           splash: Colors.white,
                           onPressed: onOpenShortcutEditView,
                         ),
-                        const SizedBox(width: 40),
+                        const SizedBox(width: 24),
                       ],
                     ),
                   ),

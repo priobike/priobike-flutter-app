@@ -186,7 +186,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             ),
                             Tile(
                               borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                                topLeft: Radius.circular(24),
+                                bottomLeft: Radius.circular(24),
+                              ),
+                              showShadow: false,
                               content: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -200,7 +203,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                         ),
                                         const SmallVSpace(),
                                         BoldSmall(
-                                          text: "${entry.value.waypoints.length} Stationen",
+                                          text: "${entry.value.waypoints.length} Wegpunkte",
                                           context: context,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),
@@ -218,8 +221,9 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                             builder: (BuildContext context) => QRCodeView(shortcut: entry.value),
                                           ),
                                         ),
-                                        fill: Theme.of(context).colorScheme.surface,
+                                        fill: Theme.of(context).colorScheme.background,
                                       ),
+                                      const SmallHSpace(),
                                       AnimatedSwitcher(
                                         duration: const Duration(milliseconds: 300),
                                         child: deleteMode

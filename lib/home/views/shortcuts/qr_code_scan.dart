@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/logger.dart';
 
@@ -165,44 +166,72 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: MobileScanner(
-        controller: cameraController,
-        onScannerStarted: (MobileScannerArguments? args) {
-          if (cameraController == null) {
-            return;
-          }
-          widget.onInit?.call(cameraController!, args?.hasTorch ?? false);
-        },
-        onDetect: (capture) {
-          if (shortcut != null) {
-            return;
-          }
-          final List<Barcode> barcodes = capture.barcodes;
-          for (final barcode in barcodes) {
-            if (barcode.rawValue == null) {
-              continue;
+    return Stack(children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: MobileScanner(
+          controller: cameraController,
+          onScannerStarted: (MobileScannerArguments? args) {
+            if (cameraController == null) {
+              return;
             }
-            if (barcode.format != BarcodeFormat.qrCode) {
-              continue;
+            widget.onInit?.call(cameraController!, args?.hasTorch ?? false);
+          },
+          onDetect: (capture) {
+            if (shortcut != null) {
+              return;
             }
-            try {
-              final decodeBase64Json = base64.decode(barcode.rawValue!);
-              final decodedZipJson = gzip.decode(decodeBase64Json);
-              final originalJson = utf8.decode(decodedZipJson);
+            final List<Barcode> barcodes = capture.barcodes;
+            for (final barcode in barcodes) {
+              if (barcode.rawValue == null) {
+                continue;
+              }
+              if (barcode.format != BarcodeFormat.qrCode) {
+                continue;
+              }
+              try {
+                final decodeBase64Json = base64.decode(barcode.rawValue!);
+                final decodedZipJson = gzip.decode(decodeBase64Json);
+                final originalJson = utf8.decode(decodedZipJson);
 
-              final shortcut = Shortcut.fromJson(json.decode(originalJson));
-              this.shortcut = shortcut;
-              widget.onScan(shortcut);
-              break;
-            } catch (e) {
-              log.e('Failed to parse QR code into shortcut object: ${barcode.rawValue}');
+                final shortcut = Shortcut.fromJson(json.decode(originalJson));
+                this.shortcut = shortcut;
+                widget.onScan(shortcut);
+                break;
+              } catch (e) {
+                log.e('Failed to parse QR code into shortcut object: ${barcode.rawValue}');
+              }
             }
-          }
-        },
+          },
+        ),
       ),
-    );
+      Shimmer(
+        linearGradient: const LinearGradient(
+          colors: [
+            Colors.black,
+            Colors.white,
+            Colors.black,
+          ],
+          stops: [0, 0.3, 0.35],
+          begin: Alignment(0.0, -1.0),
+          end: Alignment(1.0, 2.0),
+          tileMode: TileMode.clamp,
+        ),
+        child: ShimmerLoading(
+          isLoading: true,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: Colors.white,
+                width: 4,
+              ),
+              color: Colors.white.withOpacity(0.05),
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 
   @override

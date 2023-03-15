@@ -47,6 +47,9 @@ class ShowQRCodeView extends StatelessWidget {
       eyeStyle: const QrEyeStyle(
         eyeShape: QrEyeShape.circle,
       ),
+      dataModuleStyle: const QrDataModuleStyle(
+        dataModuleShape: QrDataModuleShape.circle,
+      ),
     );
   }
 }
