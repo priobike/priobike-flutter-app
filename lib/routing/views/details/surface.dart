@@ -24,19 +24,19 @@ final surfaceTypeTranslation = {
 
 /// The color translation of the surface.
 final surfaceTypeColor = {
-  "Asphalt": const Color(0xFF323232),
-  "Kopfsteinpflaster": const Color(0xFF434849),
+  "Asphalt": const Color(0xFF8e44ad),
+  "Kopfsteinpflaster": const Color(0xFF2980b9),
   "Fester Boden": const Color(0xFFEEB072),
-  "Beton": const Color(0xFFBFBFBF),
+  "Beton": const Color(0xFF7f8c8d),
   "Erde": const Color(0xFF402F22),
   "Feiner Kies": const Color(0xFF7B7B7B),
-  "Graß": const Color(0xFF2B442F),
-  "Kies": const Color(0xFFB6C5FA),
-  "Boden": const Color(0xFFDEE5FD),
-  "Sonstiges": const Color(0xFF00056D),
-  "Pflastersteine": const Color(0xFF4C4C4C),
-  "Sand": const Color(0xFFFFE74E),
-  "Unbefestigter Boden": const Color(0xFF473E36),
+  "Graß": const Color(0xFF2ecc71),
+  "Kies": const Color(0xFF2980b9),
+  "Boden": const Color(0xFF2c3e50),
+  "Sonstiges": const Color(0xFF27ae60),
+  "Pflastersteine": const Color(0xFF95a5a6),
+  "Sand": const Color(0xFFf39c12),
+  "Unbefestigter Boden": const Color(0xFFc0392b),
 };
 
 class SurfaceTypeChart extends StatefulWidget {
@@ -102,7 +102,7 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
   Widget renderBar() {
     if (surfaceTypeDistances.isEmpty) return Container();
     if (routing.selectedRoute == null) return Container();
-    final availableWidth = (MediaQuery.of(context).size.width - 24);
+    final availableWidth = (MediaQuery.of(context).size.width - 62);
     var elements = <Widget>[];
     for (int i = 0; i < surfaceTypeDistances.length; i++) {
       final e = surfaceTypeDistances.entries.elementAt(i);
@@ -111,19 +111,15 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
       pct = pct > 1 ? 1 : pct;
       elements.add(Container(
         width: (availableWidth * pct).floorToDouble(),
-        height: 42,
+        height: 32,
         decoration: BoxDecoration(
           color: surfaceTypeColor[surfaceTypeTranslation[e.key] ?? "???"],
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              spreadRadius: 0,
-              blurRadius: 2,
-              offset: const Offset(1, 0.5), // changes position of shadow
-            ),
-          ],
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.07)
+                : Colors.black.withOpacity(0.07),
+          ),
+          borderRadius: BorderRadius.circular(4),
         ),
       ));
     }
@@ -141,24 +137,21 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
       elements.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.only(top: 4),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 18,
-              width: 18,
+              height: 14,
+              width: 14,
               decoration: BoxDecoration(
                 color: surfaceTypeColor[surfaceTypeTranslation[e.key] ?? "???"],
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.black),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    spreadRadius: 0,
-                    blurRadius: 2,
-                    offset: const Offset(1, 0.5), // changes position of shadow
-                  ),
-                ],
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.07)
+                      : Colors.black.withOpacity(0.07),
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -182,55 +175,62 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
   Widget build(BuildContext context) {
     if (routing.selectedRoute == null) return Container();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              showSurfaceTypeDetails = !showSurfaceTypeDetails;
-            });
-          },
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Content(text: "Oberfläche", context: context),
-            Row(children: [
-              Content(
-                text: "Details",
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 4),
-              showSurfaceTypeDetails
-                  ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
-                  : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
-            ]),
-          ]),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => setState(() {
-            showSurfaceTypeDetails = !showSurfaceTypeDetails;
-          }),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              renderBar(),
-              AnimatedCrossFade(
-                firstCurve: Curves.easeInOutCubic,
-                secondCurve: Curves.easeInOutCubic,
-                sizeCurve: Curves.easeInOutCubic,
-                duration: const Duration(milliseconds: 1000),
-                firstChild: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-                  child: renderDetails(),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                showSurfaceTypeDetails = !showSurfaceTypeDetails;
+              });
+            },
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Content(text: "Oberfläche", context: context),
+              Row(children: [
+                Content(
+                  text: "Details",
+                  context: context,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                secondChild: Container(),
-                crossFadeState: showSurfaceTypeDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-              ),
-            ],
+                const SizedBox(width: 4),
+                showSurfaceTypeDetails
+                    ? Icon(Icons.keyboard_arrow_up_sharp, color: Theme.of(context).colorScheme.primary)
+                    : Icon(Icons.keyboard_arrow_down_sharp, color: Theme.of(context).colorScheme.primary)
+              ]),
+            ]),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => setState(() {
+              showSurfaceTypeDetails = !showSurfaceTypeDetails;
+            }),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                renderBar(),
+                AnimatedCrossFade(
+                  firstCurve: Curves.easeInOutCubic,
+                  secondCurve: Curves.easeInOutCubic,
+                  sizeCurve: Curves.easeInOutCubic,
+                  duration: const Duration(milliseconds: 1000),
+                  firstChild: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: renderDetails(),
+                  ),
+                  secondChild: Container(),
+                  crossFadeState: showSurfaceTypeDetails ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

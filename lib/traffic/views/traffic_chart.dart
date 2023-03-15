@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 
@@ -44,33 +47,67 @@ class TrafficChartState extends State<TrafficChart> {
     // Invert the value, so that more traffic flow = less congestion.
     final height = availableHeight * (1 - scaledTrafficFlow);
 
+    // A wrapper that adds a shimmering animation to the bar, if it is the current time.
+    Widget Function(Widget) wrapper = (widget) => widget;
+    if (isNow && trafficService.scoreNow != null) {
+      // Show the current score in a shimmering animation.
+      final scaledTrafficFlowNow = min(1, max(0, (((trafficService.scoreNow!) - 0.94) / (0.05))));
+      final nowHeight = availableHeight * (1 - scaledTrafficFlowNow);
+      wrapper = (widget) => Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              widget,
+              SizedBox(
+                height: nowHeight,
+                child: Shimmer(
+                  linearGradient: const LinearGradient(
+                    colors: [CI.blue, CI.lightBlue, CI.blue],
+                    stops: [0, 0.3, 0.4],
+                    begin: Alignment(-1.0, -0.3),
+                    end: Alignment(1.0, 0.3),
+                    tileMode: TileMode.clamp,
+                  ),
+                  child: ShimmerLoading(
+                    isLoading: true,
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(1),
+                          topRight: Radius.circular(1),
+                          bottomRight: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+    }
+
     return Expanded(
       child: Column(
         children: [
-          Container(
-            height: height,
-            margin: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withOpacity(0.07)
-                    : Colors.black.withOpacity(0.07),
+          wrapper(
+            Container(
+              height: height,
+              margin: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.07)
+                      : Colors.black.withOpacity(0.07),
+                ),
+                color: Colors.grey.withOpacity(0.2),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(4),
               ),
-              color: isNow ? null : const Color.fromARGB(255, 225, 225, 225),
-              gradient: isNow
-                  ? LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.secondary,
-                      ],
-                    )
-                  : null,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(4),
             ),
           ),
+          const SizedBox(height: 4),
           Small(
             text: "$hour:00",
             context: context,
@@ -84,8 +121,12 @@ class TrafficChartState extends State<TrafficChart> {
   @override
   Widget build(BuildContext context) {
     if (trafficService.hasLoaded == false) return Container();
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, left: 4, right: 4),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Column(
         children: [
           Row(
@@ -98,12 +139,12 @@ class TrafficChartState extends State<TrafficChart> {
               Content(
                 text: trafficService.trafficStatus!,
                 context: context,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               for (int hour in trafficService.trafficData!.keys)
