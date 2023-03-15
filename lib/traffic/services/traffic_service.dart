@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -32,13 +33,41 @@ class Traffic with ChangeNotifier {
   /// If the service has loaded the status.
   bool hasLoaded = false;
 
-  /// The status of the score right now compared to the historic average.
-  String? trafficStatus;
+  /// The classification of the current traffic flow.
+  String? get trafficClass {
+    if (scoreNow == null || historicScore == null) {
+      return "Keine Daten";
+    }
+    if (historicScore == 0) {
+      return "Keine Daten";
+    }
+    if (scoreNow! > 0.98) {
+      return "Kaum Verkehr";
+    } else if (scoreNow! > 0.97) {
+      return "Leichter Verkehr";
+    } else if (scoreNow! > 0.96) {
+      return "Mäßiger Verkehr";
+    } else if (scoreNow! > 0.95) {
+      return "Starker Verkehr";
+    } else {
+      return "Sehr starker Verkehr";
+    }
+  }
 
-  Traffic();
+  /// The color of the current traffic flow.
+  Color? get trafficColor {
+    if (scoreNow == null) {
+      return null;
+    }
+    if (scoreNow! > 0.96) {
+      return CI.blue;
+    } else {
+      return CI.red;
+    }
+  }
 
-  /// Evaluate the traffic status by comparing the current score to the historic average.
-  String evaluateTraffic() {
+  /// The difference of the current traffic flow compared to the historic average.
+  String? get trafficDifference {
     if (scoreNow == null || historicScore == null) {
       return "Keine Daten";
     }
@@ -55,9 +84,11 @@ class Traffic with ChangeNotifier {
     } else if (difference < 0.95) {
       return "Deutlich mehr als gewöhnlich";
     } else {
-      return "Wie gewöhnlich";
+      return "Wie immer zu dieser Zeit";
     }
   }
+
+  Traffic();
 
   /// Fetch the status of the prediction.
   Future<void> fetch() async {
@@ -92,7 +123,6 @@ class Traffic with ChangeNotifier {
       }
       scoreNow = data["now"];
       historicScore = trafficData![DateTime.now().hour];
-      trafficStatus = evaluateTraffic();
       isLoading = false;
       hadError = false;
       hasLoaded = true;

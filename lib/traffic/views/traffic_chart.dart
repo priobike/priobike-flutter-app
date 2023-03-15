@@ -52,6 +52,7 @@ class TrafficChartState extends State<TrafficChart> {
       // Show the current score in a shimmering animation.
       final scaledTrafficFlowNow = min(1, max(0, (((trafficService.scoreNow!) - 0.94) / (0.05))));
       final nowHeight = availableHeight * (1 - scaledTrafficFlowNow);
+      final baseGradientColor = trafficService.trafficColor ?? CI.blue;
       wrapper = (widget) => Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -59,11 +60,15 @@ class TrafficChartState extends State<TrafficChart> {
               SizedBox(
                 height: nowHeight,
                 child: Shimmer(
-                  linearGradient: const LinearGradient(
-                    colors: [CI.blue, CI.lightBlue, CI.blue],
-                    stops: [0, 0.3, 0.4],
-                    begin: Alignment(-1.0, -0.3),
-                    end: Alignment(1.0, 0.3),
+                  linearGradient: LinearGradient(
+                    colors: [
+                      baseGradientColor,
+                      HSLColor.fromColor(baseGradientColor).withLightness(0.7).toColor(),
+                      baseGradientColor,
+                    ],
+                    stops: const [0, 0.3, 0.4],
+                    begin: const Alignment(-1.0, -0.3),
+                    end: const Alignment(1.0, 0.3),
                     tileMode: TileMode.clamp,
                   ),
                   child: ShimmerLoading(
@@ -73,8 +78,8 @@ class TrafficChartState extends State<TrafficChart> {
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(1),
-                          topRight: Radius.circular(1),
+                          topLeft: Radius.circular(4),
+                          topRight: Radius.circular(4),
                           bottomRight: Radius.circular(4),
                           bottomLeft: Radius.circular(4),
                         ),
@@ -131,14 +136,16 @@ class TrafficChartState extends State<TrafficChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Content(
-                text: "Verkehr",
+              BoldContent(
+                text: trafficService.trafficClass!,
                 context: context,
               ),
-              Content(
-                text: trafficService.trafficStatus!,
-                context: context,
-                color: Theme.of(context).colorScheme.primary,
+              Flexible(
+                child: Content(
+                  text: trafficService.trafficDifference!,
+                  context: context,
+                  textAlign: TextAlign.end,
+                ),
               ),
             ],
           ),
