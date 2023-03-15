@@ -270,8 +270,26 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
               child: Column(
                 children: [
                   renderDragIndicator(context),
-                  renderTopInfoSection(context),
-                  renderStartRideButton(context),
+                  AnimatedCrossFade(
+                    firstCurve: Curves.easeInOutCubic,
+                    secondCurve: Curves.easeInOutCubic,
+                    sizeCurve: Curves.easeInOutCubic,
+                    duration: const Duration(milliseconds: 1000),
+                    firstChild: Container(),
+                    secondChild: renderTopInfoSection(context),
+                    crossFadeState:
+                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  ),
+                  AnimatedCrossFade(
+                    firstCurve: Curves.easeInOutCubic,
+                    secondCurve: Curves.easeInOutCubic,
+                    sizeCurve: Curves.easeInOutCubic,
+                    duration: const Duration(milliseconds: 1000),
+                    firstChild: Container(),
+                    secondChild: renderStartRideButton(context),
+                    crossFadeState:
+                        routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                  ),
                   renderBottomSheetWaypoints(context),
                   const Padding(padding: EdgeInsets.only(top: 8, left: 4, right: 4), child: RoadClassChart()),
                   const TrafficChart(),
