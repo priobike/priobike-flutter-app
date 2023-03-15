@@ -132,7 +132,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapFunctions.centerCameraOnUserLocation) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
-      mapFunctions.setCameraCenterOnUserLocation(false);
+      mapFunctions.needsCentering = false;
     }
   }
 
