@@ -120,8 +120,11 @@ class RoadClassChartState extends State<RoadClassChart> {
     var elements = <Widget>[];
     for (int i = 0; i < roadClassDistances.length; i++) {
       final e = roadClassDistances.entries.elementAt(i);
+      var pct = (e.value / routing.selectedRoute!.path.distance);
+      // Catch case pct > 1.
+      pct = pct > 1 ? 1 : pct;
       elements.add(Container(
-        width: (availableWidth * e.value / routing.selectedRoute!.path.distance).floorToDouble(),
+        width: (availableWidth * pct).floorToDouble(),
         height: 42,
         decoration: BoxDecoration(
           color: roadClassColor[roadClassTranslation[e.key] ?? "???"],
@@ -151,7 +154,9 @@ class RoadClassChartState extends State<RoadClassChart> {
     var elements = <Widget>[];
     for (int i = 0; i < roadClassDistances.length; i++) {
       final e = roadClassDistances.entries.elementAt(i);
-      final pct = (e.value / routing.selectedRoute!.path.distance) * 100;
+      var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
+      // Catch case pct > 100.
+      pct = pct > 100 ? 100 : pct;
       elements.add(Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
