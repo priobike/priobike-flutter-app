@@ -36,6 +36,31 @@ class Shortcut {
     );
   }
 
+  /// Trim the addresses of the waypoints. A factor < 1 will shorten the addresses.
+  Shortcut trim(double factor) => Shortcut(
+        name: name,
+        waypoints: waypoints.map(
+          (e) {
+            String? address;
+            if (e.address == null) {
+              address = null;
+            } else {
+              final int newLength = (e.address!.length * factor).round();
+              if (factor >= 1) {
+                address = e.address;
+              } else {
+                address = "${e.address?.substring(0, newLength)}...";
+              }
+            }
+            return Waypoint(
+              e.lat,
+              e.lon,
+              address: address,
+            );
+          },
+        ).toList(),
+      );
+
   Map<String, dynamic> toJson() => {
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
