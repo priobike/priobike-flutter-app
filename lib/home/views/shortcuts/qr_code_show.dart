@@ -21,7 +21,10 @@ class ShowQRCodeView extends StatelessWidget {
       totalAddressCharacterCount += waypoint.address?.length ?? 0;
     }
 
-    Shortcut shortcutCopy = Shortcut(name: shortcut.name, waypoints: []);
+    Shortcut shortcutCopy = Shortcut(
+      name: shortcut.name,
+      waypoints: [],
+    );
 
     // If the total address character count is too large, we need to trim the addresses
     // such that the total character length is max. 300.
@@ -31,17 +34,19 @@ class ShowQRCodeView extends StatelessWidget {
         String? address = waypoint.address;
         if (address != null) {
           final int newLength = (address.length * factor).round();
-          if (factor == 1) {
+          if (factor >= 1) {
             address = address.substring(0, newLength);
           } else {
-            address = "${address.substring(0, newLength)}..";
+            address = "${address.substring(0, newLength)}...";
           }
         }
-        shortcutCopy.waypoints.add(Waypoint(
-          waypoint.lat,
-          waypoint.lon,
-          address: address,
-        ));
+        shortcutCopy.waypoints.add(
+          Waypoint(
+            waypoint.lat,
+            waypoint.lon,
+            address: address,
+          ),
+        );
       }
     } else {
       shortcutCopy = shortcut;

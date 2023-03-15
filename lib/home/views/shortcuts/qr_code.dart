@@ -52,7 +52,7 @@ class QRCodeViewState extends State<QRCodeView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: SubHeader(
-                        text: scanQRMode ? "Scan QR Code" : shortcut!.name,
+                        text: scanQRMode ? "Scanne einen QR Code" : shortcut!.name,
                         context: context,
                       ),
                     ),
@@ -83,55 +83,56 @@ class QRCodeViewState extends State<QRCodeView> {
                               shadow: Colors.black,
                               borderRadius: BorderRadius.circular(16),
                               content: SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.65,
-                                  height: MediaQuery.of(context).size.width * 0.65,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 750),
-                                    switchInCurve: Curves.easeInCubic,
-                                    switchOutCurve: Curves.easeOutCubic,
-                                    transitionBuilder: (Widget child, Animation<double> animation) {
-                                      final inAnimation =
-                                          Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                              .animate(animation);
-                                      final outAnimation =
-                                          Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
-                                              .animate(animation);
+                                width: MediaQuery.of(context).size.width * 0.65,
+                                height: MediaQuery.of(context).size.width * 0.65,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 750),
+                                  switchInCurve: Curves.easeInCubic,
+                                  switchOutCurve: Curves.easeOutCubic,
+                                  transitionBuilder: (Widget child, Animation<double> animation) {
+                                    final inAnimation =
+                                        Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
+                                            .animate(animation);
+                                    final outAnimation =
+                                        Tween<Offset>(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0))
+                                            .animate(animation);
 
-                                      if (scanQRMode) {
-                                        return ClipRect(
-                                          child: SlideTransition(
-                                            position: inAnimation,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: child,
-                                            ),
+                                    if (scanQRMode) {
+                                      return ClipRect(
+                                        child: SlideTransition(
+                                          position: inAnimation,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: child,
                                           ),
-                                        );
-                                      } else {
-                                        return ClipRect(
-                                          child: SlideTransition(
-                                            position: outAnimation,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: child,
-                                            ),
+                                        ),
+                                      );
+                                    } else {
+                                      return ClipRect(
+                                        child: SlideTransition(
+                                          position: outAnimation,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: child,
                                           ),
-                                        );
-                                      }
-                                    },
-                                    child: scanQRMode
-                                        ? ScanQRCodeView(
-                                            onScan: (shortcut) {
-                                              setState(
-                                                () {
-                                                  this.shortcut = shortcut;
-                                                  getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut);
-                                                },
-                                              );
-                                            },
-                                          )
-                                        : ShowQRCodeView(shortcut: shortcut!),
-                                  )),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: scanQRMode
+                                      ? ScanQRCodeView(
+                                          onScan: (shortcut) {
+                                            setState(
+                                              () {
+                                                this.shortcut = shortcut;
+                                                getIt<shortcuts_service.Shortcuts>().saveNewShortcutObject(shortcut);
+                                              },
+                                            );
+                                          },
+                                        )
+                                      : ShowQRCodeView(shortcut: shortcut!),
+                                ),
+                              ),
                             ),
                           ),
                         ),

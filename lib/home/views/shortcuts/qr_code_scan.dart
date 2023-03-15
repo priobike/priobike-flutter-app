@@ -47,7 +47,6 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
               final originalJson = utf8.decode(decodedZipJson);
 
               final shortcut = Shortcut.fromJson(json.decode(originalJson));
-              log.i('Shortcut QR code found: ${barcode.rawValue}');
               this.shortcut = shortcut;
               widget.onScan(shortcut);
               break;
