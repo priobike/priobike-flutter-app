@@ -8,13 +8,13 @@ class Shortcut {
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
 
-  /// Get the linebreaked name of the shortcut. The name is split into at most 3 lines, by a limit of 15 characters.
+  /// Get the linebreaked name of the shortcut. The name is split into at most 2 lines, by a limit of 15 characters.
   String get linebreakedName {
     var result = name;
     var insertedLinebreaks = 0;
     for (var i = 0; i < name.length; i++) {
       if (i % 15 == 0 && i != 0) {
-        if (insertedLinebreaks == 2) {
+        if (insertedLinebreaks == 1) {
           // Truncate the name if it is too long
           result = result.substring(0, i);
           result += '...';
