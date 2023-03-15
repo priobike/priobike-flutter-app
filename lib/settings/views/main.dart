@@ -240,10 +240,12 @@ class SettingsViewState extends State<SettingsView> {
                   child: Row(
                     children: [
                       Content(text: "Version: ", context: context),
-                      BoldContent(
-                        text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
-                        context: context,
-                        color: Theme.of(context).colorScheme.primary,
+                      Flexible(
+                        child: BoldContent(
+                          text: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+                          context: context,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                       Content(text: ", App-ID: ", context: context),
                       Content(text: userId, context: context),
