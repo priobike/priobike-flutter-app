@@ -28,10 +28,7 @@ class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
   final Stream<DraggableScrollableNotification>? sheetMovement;
 
-  /// The selected ControllerType.
-  final ControllerType controllerType;
-
-  const RoutingMapView({required this.sheetMovement, required this.controllerType, Key? key}) : super(key: key);
+  const RoutingMapView({required this.sheetMovement, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RoutingMapViewState();
