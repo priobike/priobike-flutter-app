@@ -159,7 +159,7 @@ class SurfaceTypeChartState extends State<SurfaceTypeChart> {
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: Content(text: "${pct.toStringAsFixed(2)}%", context: context),
+                child: Content(text: "${pct < 1 ? pct.toStringAsFixed(2) : pct.toStringAsFixed(0)}%", context: context),
               ),
             ),
           ],
