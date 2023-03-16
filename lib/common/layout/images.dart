@@ -81,3 +81,19 @@ class WaypointIcon extends Image {
           alignment: Alignment.center,
         );
 }
+
+/// A compass icon.
+class CompassIcon extends Image {
+  CompassIcon({double width = 24, double height = 24, required BuildContext context, Key? key})
+      : super(
+          key: key,
+          image: Theme.of(context).brightness == Brightness.dark
+              ? const AssetImage("assets/images/compass-dark.png")
+              : const AssetImage("assets/images/compass-light.png"),
+          width: width,
+          height: height,
+          color: null,
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+        );
+}

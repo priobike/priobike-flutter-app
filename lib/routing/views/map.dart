@@ -20,6 +20,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
@@ -56,6 +57,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated mapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
+
+  /// The associated mapValues service, which is injected by the provider.
+  late MapValues mapValues;
 
   /// A map controller for the map.
   MapboxMap? mapController;
@@ -174,6 +178,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     status.addListener(update);
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
+    mapValues = getIt<MapValues>();
 
     updateMap();
   }
@@ -196,6 +201,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current user position.
   fitCameraToUserPosition() async {
     if (mapController == null || !mounted) return;
+    // Animation duration.
+    const duration = 1000;
     await mapController?.flyTo(
       CameraOptions(
         center: Point(
@@ -204,7 +211,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           positioning.lastPosition!.latitude,
         )).toJson(),
       ),
-      MapAnimationOptions(duration: 1000),
+      MapAnimationOptions(duration: duration),
     );
   }
 
@@ -510,6 +517,33 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await routing.loadRoutes();
   }
 
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    if (mapController == null) return;
+    final CameraState camera = await mapController!.getCameraState();
+
+    // Set bearing in mapFunctions.
+    mapValues.setCameraBearing(camera.bearing);
+
+    // When the camera position changed, set not centered.
+    if (camera.center["coordinates"] == null) return;
+    // Cast from Object to List [lon, lat].
+    final List coordinates = camera.center["coordinates"] as List;
+    if (coordinates.length != 2) return;
+    if (positioning.lastPosition == null) return;
+    // To make the values comparable.
+    final double lat = double.parse(coordinates[1].toStringAsFixed(4));
+    final double lon = double.parse(coordinates[0].toStringAsFixed(4));
+    final double latUser = double.parse(positioning.lastPosition!.latitude.toStringAsFixed(4));
+    final double lonUser = double.parse(positioning.lastPosition!.longitude.toStringAsFixed(4));
+
+    if (lat == latUser && lon == lonUser) {
+      mapValues.setCameraCentered();
+    } else {
+      mapValues.setCameraNotCentered();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -532,6 +566,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           child: AppMap(
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
+            onCameraChanged: onCameraChanged,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,

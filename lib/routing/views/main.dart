@@ -18,11 +18,14 @@ import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
+import 'package:priobike/routing/views/widgets/center_button.dart';
+import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -103,6 +106,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated MapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
+  /// The associated MapValues service, which is injected by the provider.
+  late MapValues mapValues;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -122,6 +128,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // Register Service.
     getIt.registerSingleton<MapFunctions>(MapFunctions());
+    getIt.registerSingleton<MapValues>(MapValues());
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -151,6 +158,7 @@ class RoutingViewState extends State<RoutingView> {
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
+    mapValues = getIt<MapValues>();
   }
 
   @override
@@ -164,6 +172,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
+    getIt.unregister<MapValues>(instance: mapValues);
     super.dispose();
   }
 
@@ -326,16 +335,6 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
-  /// Private GPS Centralization Function which calls mapFunctionsService
-  void _gpsCentralization() {
-    mapFunctions.setCameraCenterOnUserLocation();
-  }
-
-  /// Private center north Function which calls mapFunctionsService
-  void _centerNorth() {
-    mapFunctions.setCameraCenterNorth();
-  }
-
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -402,44 +401,9 @@ class RoutingViewState extends State<RoutingView> {
 
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 145, left: 8),
+                  padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
                   child: Column(
-                    children: [
-                      SizedBox(
-                        width: 58,
-                        height: 58,
-                        child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
-                          onPressed: _gpsCentralization,
-                          content: Icon(
-                            Icons.gps_not_fixed_rounded,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 210, left: 8),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: 58,
-                        height: 58,
-                        child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
-                          onPressed: _centerNorth,
-                          content: Icon(
-                            Icons.explore_rounded,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                        ),
-                      )
-                    ],
+                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
                   ),
                 ),
               ),
