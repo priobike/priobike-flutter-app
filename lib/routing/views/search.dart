@@ -24,14 +24,14 @@ class WaypointListItemView extends StatefulWidget {
   /// A callback function that is called when the user taps on the item.
   final void Function(Waypoint) onTap;
 
-  /// The color of the text.
-  final Color textColor;
+  /// If the history icon should be shown.
+  final bool? showHistoryIcon;
 
   const WaypointListItemView({
     this.isCurrentPosition = false,
     required this.waypoint,
     required this.onTap,
-    required this.textColor,
+    this.showHistoryIcon,
     Key? key,
   }) : super(key: key);
 
@@ -90,6 +90,16 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
+        leading: (widget.showHistoryIcon == null) || (!widget.showHistoryIcon!)
+            ? null
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.history,
+                  ),
+                ],
+              ),
         title: widget.waypoint == null
             ? null
             : widget.isCurrentPosition
@@ -101,7 +111,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 : BoldSmall(
                     text: widget.waypoint!.address!,
                     context: context,
-                    color: widget.textColor,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
         subtitle: widget.isCurrentPosition
             ? null
@@ -189,7 +199,6 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       isCurrentPosition: true,
       waypoint: waypoint,
       onTap: widget.onTap,
-      textColor: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -350,6 +359,7 @@ class RouteSearchState extends State<RouteSearch> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
@@ -359,15 +369,22 @@ class RouteSearchState extends State<RouteSearch> {
                       WaypointListItemView(
                         waypoint: waypoint,
                         onTap: onWaypointTapped,
-                        textColor: Theme.of(context).colorScheme.onBackground,
                       )
                     ]
                   ] else if (searchHistory != null && searchHistory!.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 16),
+                      child: BoldContent(
+                        text: "Letzte Suchergebnisse",
+                        context: context,
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
                     for (final waypoint in searchHistory!.reversed) ...[
                       WaypointListItemView(
                         waypoint: waypoint,
                         onTap: onHistoryItemTapped,
-                        textColor: Colors.grey,
+                        showHistoryIcon: true,
                       )
                     ]
                   ] else
