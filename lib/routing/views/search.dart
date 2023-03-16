@@ -396,7 +396,7 @@ class RouteSearchState extends State<RouteSearch> {
                       )
                     ],
                     Padding(
-                      padding: const EdgeInsets.only(left: 28, bottom: 28),
+                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 16),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
                   ],
