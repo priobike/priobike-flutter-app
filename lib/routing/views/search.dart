@@ -269,9 +269,9 @@ class RouteSearchState extends State<RouteSearch> {
   /// Initialize the search history from the shared preferences by decoding it from a String List.
   Future<void> initializeSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    List<String> tempList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
     searchHistory = [];
-    for (String waypoint in tempList) {
+    for (String waypoint in savedList) {
       searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
     }
     setState(() {});
@@ -281,11 +281,11 @@ class RouteSearchState extends State<RouteSearch> {
   Future<void> saveSearchHistory() async {
     if (searchHistory.isEmpty) return;
     final preferences = await SharedPreferences.getInstance();
-    List<String> tempList = [];
+    List<String> newList = [];
     for (Waypoint waypoint in searchHistory) {
-      tempList.add(json.encode(waypoint.toJSON()));
+      newList.add(json.encode(waypoint.toJSON()));
     }
-    await preferences.setStringList("priobike.routing.searchHistory", tempList);
+    await preferences.setStringList("priobike.routing.searchHistory", newList);
     setState(() {});
   }
 
@@ -395,11 +395,11 @@ class RouteSearchState extends State<RouteSearch> {
                         onTap: onWaypointTapped,
                       )
                     ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 28, bottom: 28),
+                      child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                    )
                   ],
-                  Padding(
-                    padding: const EdgeInsets.only(left: 26, bottom: 26),
-                    child: Small(text: "Keine weiteren Ergebnisse", context: context),
-                  )
                 ],
               ),
             ),
