@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
@@ -10,7 +11,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
-import 'package:priobike/home/views/shortcuts/qr_code.dart';
+import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -238,12 +239,11 @@ class HomeViewState extends State<HomeView> {
                         ),
                         Expanded(child: Container()),
                         SmallIconButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) => const QRCodeView(),
-                            ),
+                          onPressed: () => showAppSheet(
+                            context: context,
+                            builder: (context) => const ImportShortcutDialog(),
                           ),
-                          icon: Icons.qr_code_scanner_rounded,
+                          icon: Icons.download_rounded,
                           fill: Theme.of(context).colorScheme.background,
                           splash: Colors.white,
                         ),

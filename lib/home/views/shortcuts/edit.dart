@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
@@ -103,12 +105,11 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     SubHeader(text: "Strecken", context: context),
                     Expanded(child: Container()),
                     SmallIconButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) => const QRCodeView(),
-                        ),
+                      onPressed: () => showAppSheet(
+                        context: context,
+                        builder: (context) => const ImportShortcutDialog(),
                       ),
-                      icon: Icons.qr_code_scanner_rounded,
+                      icon: Icons.download_rounded,
                       fill: Theme.of(context).colorScheme.surface,
                     ),
                     const SmallHSpace(),
