@@ -65,4 +65,7 @@ class Shortcut {
         'name': name,
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
       };
+
+  /// Copy the shortcut with another name.
+  Shortcut copyWith({String? name}) => Shortcut(name: name ?? this.name, waypoints: waypoints);
 }
