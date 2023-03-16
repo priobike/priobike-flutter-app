@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
-import 'package:priobike/common/layout/images.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -24,9 +23,10 @@ import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/routing/views/sheet.dart';
+import 'package:priobike/routing/views/widgets/center_button.dart';
+import 'package:priobike/routing/views/widgets/compass_button.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'dart:math' as math;
 
 /// Show a sheet to save the current route as a shortcut.
 void showSaveShortcutSheet(context) {
@@ -153,7 +153,6 @@ class RoutingViewState extends State<RoutingView> {
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
   }
 
   @override
@@ -163,7 +162,6 @@ class RoutingViewState extends State<RoutingView> {
     shortcuts!.removeListener(update);
     positioning!.removeListener(update);
     layers.removeListener(update);
-    mapFunctions.removeListener(update);
     sheetMovement.close();
 
     // Unregister Service since the app will run out of the needed scope.
@@ -330,16 +328,6 @@ class RoutingViewState extends State<RoutingView> {
     );
   }
 
-  /// Private GPS Centralization Function which calls mapFunctionsService
-  void _gpsCentralization() {
-    mapFunctions.setCameraCenterOnUserLocation();
-  }
-
-  /// Private center north Function which calls mapFunctionsService
-  void _centerNorth() {
-    mapFunctions.setCameraCenterNorth();
-  }
-
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -408,20 +396,7 @@ class RoutingViewState extends State<RoutingView> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 145, left: 8),
                   child: Column(
-                    children: [
-                      SizedBox(
-                        width: 58,
-                        height: 58,
-                        child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
-                          onPressed: _gpsCentralization,
-                          content: Icon(
-                            mapFunctions.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                        ),
-                      )
-                    ],
+                    children: const [CenterButton()],
                   ),
                 ),
               ),
@@ -430,23 +405,7 @@ class RoutingViewState extends State<RoutingView> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 210, left: 8),
                   child: Column(
-                    children: [
-                      SizedBox(
-                        width: 58,
-                        height: 58,
-                        child: Tile(
-                          fill: Theme.of(context).colorScheme.background,
-                          onPressed: _centerNorth,
-                          content: Transform.rotate(
-                            angle: mapFunctions.cameraBearing.toInt() * math.pi / 180,
-                            child: CompassIcon(
-                              context: context,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(10),
-                        ),
-                      )
-                    ],
+                    children: const [CompassButton()],
                   ),
                 ),
               ),
