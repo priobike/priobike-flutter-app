@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -213,7 +214,7 @@ class RouteSearchState extends State<RouteSearch> {
   late Positioning positioning;
 
   /// The last search queries.
-  late List<String>? searchHistory;
+  late List<Waypoint>? searchHistory;
 
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
@@ -248,39 +249,46 @@ class RouteSearchState extends State<RouteSearch> {
     geosearch.removeListener(update);
     positioning.removeListener(update);
     saveSearchHistory();
-    print("Charly disposed searchHistory $searchHistory");
     super.dispose();
   }
 
+  /// Initialize the search history from the shared preferences by decoding it from a String List.
   Future<void> initializeSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    searchHistory = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    List<String> tempList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    searchHistory = [];
+    for (String waypoint in tempList) {
+      searchHistory!.add(Waypoint.fromJson(json.decode(waypoint)));
+    }
     setState(() {});
-    print("Charly initizialized searchHistory $searchHistory");
   }
 
+  /// Save the search history to the shared preferences by encoding it as a String List.
   Future<void> saveSearchHistory() async {
     if (searchHistory == null) return;
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setStringList("priobike.routing.searchHistory", searchHistory!);
-    print("Charly saved searchHistory $searchHistory");
+    List<String> tempList = [];
+    for (Waypoint waypoint in searchHistory!) {
+      tempList.add(json.encode(waypoint.toJSON()));
+    }
+    await preferences.setStringList("priobike.routing.searchHistory", tempList);
     setState(() {});
   }
 
-  void addToSearchHistory(String query) {
-    if (query.isEmpty || searchHistory == null) return;
+  /// Add a waypoint to the search history.
+  void addToSearchHistory(Waypoint waypoint) {
+    if (searchHistory == null) return;
 
     // Remove the search from the history if it already exists.
-    if (searchHistory!.any((element) => element == query)) {
-      searchHistory!.removeWhere((element) => element == query);
+    if (searchHistory!.any((element) => element.address == waypoint.address)) {
+      searchHistory!.removeWhere((element) => element.address == waypoint.address);
     }
 
     // Only keep the last 10 searches.
     if (searchHistory!.length > 10) searchHistory!.removeAt(0);
 
-    searchHistory!.add(query);
+    searchHistory!.add(waypoint);
     setState(() {});
-    print("Charly updated searchHistory $searchHistory");
   }
 
   /// A callback that is fired when the search is updated.
@@ -293,17 +301,15 @@ class RouteSearchState extends State<RouteSearch> {
     );
   }
 
+  /// A callback that is fired when a history item is tapped.
   void onHistoryItemTapped(Waypoint waypoint) {
-    print("Charly tapped history item ${waypoint.address}");
-    if (waypoint.address != null) addToSearchHistory(waypoint.address!);
     geosearch.results?.clear();
     Navigator.of(context).pop(waypoint);
   }
 
   /// A callback that is fired when a waypoint is tapped.
   void onWaypointTapped(Waypoint waypoint) {
-    print("Charly tapped waypoint ${waypoint.address}");
-    if (waypoint.address != null) addToSearchHistory(waypoint.address!);
+    addToSearchHistory(waypoint);
     geosearch.results?.clear();
     Navigator.of(context).pop(waypoint);
   }
@@ -357,10 +363,9 @@ class RouteSearchState extends State<RouteSearch> {
                       )
                     ]
                   ] else if (searchHistory != null && searchHistory!.isNotEmpty) ...[
-                    for (final query in searchHistory!) ...[
-                      log.i("Charly query $query"),
+                    for (final waypoint in searchHistory!.reversed) ...[
                       WaypointListItemView(
-                        waypoint: Waypoint(0, 0, address: query),
+                        waypoint: waypoint,
                         onTap: onHistoryItemTapped,
                         textColor: Colors.grey,
                       )
@@ -370,10 +375,6 @@ class RouteSearchState extends State<RouteSearch> {
                       padding: const EdgeInsets.only(top: 16),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
-                  // Padding(
-                  //   padding: const EdgeInsets.only(top: 16),
-                  //   child: Small(text: "Keine weiteren Ergebnisse", context: context),
-                  // )
                 ],
               ),
             ),
