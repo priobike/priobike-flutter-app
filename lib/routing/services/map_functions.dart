@@ -39,13 +39,13 @@ class MapFunctions with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set centered to false.
+  /// Set centered state to false.
   void setCameraNotCentered() {
     isCentered = false;
     notifyListeners();
   }
 
-  /// Set centered to true.
+  /// Set centered state to true.
   void setCameraCentered() {
     isCentered = true;
     notifyListeners();
