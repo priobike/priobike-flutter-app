@@ -91,7 +91,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the map.
-  void updateMap() {
+  void updateMap() async {
     // Check if the selected map layers have changed.
     if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
@@ -196,6 +196,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Fit the camera to the current user position.
   fitCameraToUserPosition() async {
     if (mapController == null || !mounted) return;
+    // Animation duration.
+    const duration = 1000;
     await mapController?.flyTo(
       CameraOptions(
         center: Point(
@@ -204,8 +206,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           positioning.lastPosition!.latitude,
         )).toJson(),
       ),
-      MapAnimationOptions(duration: 1000),
+      MapAnimationOptions(duration: duration),
     );
+    // Delayed by animation duration to prevent checking the position during animation.
+    Future.delayed(const Duration(milliseconds: duration), () {
+      mapFunctions.setCameraCentered();
+    });
   }
 
   /// Center the camera to north.
@@ -510,6 +516,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await routing.loadRoutes();
   }
 
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    if (mapController == null) return;
+    final CameraState camera = await mapController!.getCameraState();
+
+    // Set bearing in mapFunctions.
+    if (camera.bearing != mapFunctions.cameraBearing) mapFunctions.setCameraBearing(camera.bearing);
+
+    // When the camera position changed, set not centered.
+    if (!mapFunctions.isCentered) return;
+    if (camera.center["coordinates"] == null) return;
+    // Cast from Object to List [lon, lat].
+    final List coordinates = camera.center["coordinates"] as List;
+    if (coordinates.length != 2) return;
+    final double lat = double.parse(coordinates[1].toStringAsFixed(6));
+    final double lon = double.parse(coordinates[0].toStringAsFixed(6));
+
+    if (lon != positioning.lastPosition?.longitude && lat != positioning.lastPosition?.latitude) {
+      mapFunctions.setCameraNotCentered();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -532,6 +560,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
           child: AppMap(
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
+            onCameraChanged: onCameraChanged,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
