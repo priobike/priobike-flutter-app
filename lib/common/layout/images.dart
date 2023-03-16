@@ -84,10 +84,12 @@ class WaypointIcon extends Image {
 
 /// A waypoint icon.
 class CompassIcon extends Image {
-  const CompassIcon({double width = 24, double height = 24, Key? key})
+  CompassIcon({double width = 24, double height = 24, required BuildContext context, Key? key})
       : super(
           key: key,
-          image: const AssetImage("assets/images/compass.png"),
+          image: Theme.of(context).brightness == Brightness.dark
+              ? const AssetImage("assets/images/compass-dark.png")
+              : const AssetImage("assets/images/compass-light.png"),
           width: width,
           height: height,
           color: null,

@@ -439,7 +439,9 @@ class RoutingViewState extends State<RoutingView> {
                           onPressed: _centerNorth,
                           content: Transform.rotate(
                             angle: mapFunctions.cameraBearing.toInt() * math.pi / 180,
-                            child: const CompassIcon(),
+                            child: CompassIcon(
+                              context: context,
+                            ),
                           ),
                           padding: const EdgeInsets.all(10),
                         ),
