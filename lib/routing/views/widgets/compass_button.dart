@@ -29,9 +29,14 @@ class CompassButtonState extends State<CompassButton> {
     super.initState();
 
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
     mapValues.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    mapValues.removeListener(update);
+    super.dispose();
   }
 
   /// Private center north Function which calls mapFunctionsService

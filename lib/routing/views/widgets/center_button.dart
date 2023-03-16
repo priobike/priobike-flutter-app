@@ -27,9 +27,14 @@ class CenterButtonState extends State<CenterButton> {
     super.initState();
 
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
     mapValues.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    mapValues.removeListener(update);
+    super.dispose();
   }
 
   /// Private GPS Centralization Function which calls mapFunctionsService
