@@ -155,6 +155,20 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
                           context: context,
                           color: Theme.of(context).colorScheme.onBackground,
                         ),
+                        const SizedBox(height: 4),
+                        Container(
+                          height: 20,
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: BoldSmall(
+                            text: "BETA",
+                            context: context,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
