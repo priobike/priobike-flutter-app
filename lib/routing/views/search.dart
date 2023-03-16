@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,6 +11,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WaypointListItemView extends StatefulWidget {
   /// If the item is displaying the current position.
@@ -23,10 +23,14 @@ class WaypointListItemView extends StatefulWidget {
   /// A callback function that is called when the user taps on the item.
   final void Function(Waypoint) onTap;
 
+  /// The color of the text.
+  final Color textColor;
+
   const WaypointListItemView({
     this.isCurrentPosition = false,
     required this.waypoint,
     required this.onTap,
+    required this.textColor,
     Key? key,
   }) : super(key: key);
 
@@ -96,7 +100,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 : BoldSmall(
                     text: widget.waypoint!.address!,
                     context: context,
-                    color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
+                    color: widget.textColor,
                   ),
         subtitle: widget.isCurrentPosition
             ? null
@@ -184,6 +188,7 @@ class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWayp
       isCurrentPosition: true,
       waypoint: waypoint,
       onTap: widget.onTap,
+      textColor: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -206,6 +211,9 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// The positioning service that is injected by the provider.
   late Positioning positioning;
+
+  /// The last search queries.
+  late List<String>? searchHistory;
 
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
@@ -232,13 +240,47 @@ class RouteSearchState extends State<RouteSearch> {
     geosearch.addListener(update);
     positioning = getIt<Positioning>();
     positioning.addListener(update);
+    initializeSearchHistory();
   }
 
   @override
   void dispose() {
     geosearch.removeListener(update);
     positioning.removeListener(update);
+    saveSearchHistory();
+    print("Charly disposed searchHistory $searchHistory");
     super.dispose();
+  }
+
+  Future<void> initializeSearchHistory() async {
+    final preferences = await SharedPreferences.getInstance();
+    searchHistory = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    setState(() {});
+    print("Charly initizialized searchHistory $searchHistory");
+  }
+
+  Future<void> saveSearchHistory() async {
+    if (searchHistory == null) return;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList("priobike.routing.searchHistory", searchHistory!);
+    print("Charly saved searchHistory $searchHistory");
+    setState(() {});
+  }
+
+  void addToSearchHistory(String query) {
+    if (query.isEmpty || searchHistory == null) return;
+
+    // Remove the search from the history if it already exists.
+    if (searchHistory!.any((element) => element == query)) {
+      searchHistory!.removeWhere((element) => element == query);
+    }
+
+    // Only keep the last 10 searches.
+    if (searchHistory!.length > 10) searchHistory!.removeAt(0);
+
+    searchHistory!.add(query);
+    setState(() {});
+    print("Charly updated searchHistory $searchHistory");
   }
 
   /// A callback that is fired when the search is updated.
@@ -251,8 +293,18 @@ class RouteSearchState extends State<RouteSearch> {
     );
   }
 
+  void onHistoryItemTapped(Waypoint waypoint) {
+    print("Charly tapped history item ${waypoint.address}");
+    if (waypoint.address != null) addToSearchHistory(waypoint.address!);
+    geosearch.results?.clear();
+    Navigator.of(context).pop(waypoint);
+  }
+
   /// A callback that is fired when a waypoint is tapped.
-  Future<void> onWaypointTapped(Waypoint waypoint) async {
+  void onWaypointTapped(Waypoint waypoint) {
+    print("Charly tapped waypoint ${waypoint.address}");
+    if (waypoint.address != null) addToSearchHistory(waypoint.address!);
+    geosearch.results?.clear();
     Navigator.of(context).pop(waypoint);
   }
 
@@ -298,14 +350,30 @@ class RouteSearchState extends State<RouteSearch> {
                     CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
                   if (geosearch.results?.isNotEmpty == true) ...[
                     for (final waypoint in geosearch.results!) ...[
-                      WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
+                      WaypointListItemView(
+                        waypoint: waypoint,
+                        onTap: onWaypointTapped,
+                        textColor: Theme.of(context).colorScheme.onBackground,
+                      )
                     ]
-                  ] else ...[
+                  ] else if (searchHistory != null && searchHistory!.isNotEmpty) ...[
+                    for (final query in searchHistory!) ...[
+                      log.i("Charly query $query"),
+                      WaypointListItemView(
+                        waypoint: Waypoint(0, 0, address: query),
+                        onTap: onHistoryItemTapped,
+                        textColor: Colors.grey,
+                      )
+                    ]
+                  ] else
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
-                  ],
+                  // Padding(
+                  //   padding: const EdgeInsets.only(top: 16),
+                  //   child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                  // )
                 ],
               ),
             ),
