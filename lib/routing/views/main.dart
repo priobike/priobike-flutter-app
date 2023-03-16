@@ -18,6 +18,7 @@ import 'package:priobike/ride/views/main.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/layers.dart';
@@ -105,6 +106,9 @@ class RoutingViewState extends State<RoutingView> {
   /// The associated MapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
+  /// The associated MapValues service, which is injected by the provider.
+  late MapValues mapValues;
+
   /// The stream that receives notifications when the bottom sheet is dragged.
   final sheetMovement = StreamController<DraggableScrollableNotification>();
 
@@ -124,6 +128,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // Register Service.
     getIt.registerSingleton<MapFunctions>(MapFunctions());
+    getIt.registerSingleton<MapValues>(MapValues());
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -153,6 +158,7 @@ class RoutingViewState extends State<RoutingView> {
     layers = getIt<Layers>();
     layers.addListener(update);
     mapFunctions = getIt<MapFunctions>();
+    mapValues = getIt<MapValues>();
   }
 
   @override
@@ -166,6 +172,7 @@ class RoutingViewState extends State<RoutingView> {
 
     // Unregister Service since the app will run out of the needed scope.
     getIt.unregister<MapFunctions>(instance: mapFunctions);
+    getIt.unregister<MapValues>(instance: mapValues);
     super.dispose();
   }
 
@@ -394,18 +401,9 @@ class RoutingViewState extends State<RoutingView> {
 
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 145, left: 8),
+                  padding: EdgeInsets.only(top: layers.layersCanBeEnabled ? 145 : 80, left: 8),
                   child: Column(
-                    children: const [CenterButton()],
-                  ),
-                ),
-              ),
-
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 210, left: 8),
-                  child: Column(
-                    children: const [CompassButton()],
+                    children: const [CenterButton(), SmallVSpace(), CompassButton()],
                   ),
                 ),
               ),

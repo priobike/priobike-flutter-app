@@ -20,6 +20,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 
@@ -56,6 +57,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated mapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
+
+  /// The associated mapValues service, which is injected by the provider.
+  late MapValues mapValues;
 
   /// A map controller for the map.
   MapboxMap? mapController;
@@ -174,6 +178,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     status.addListener(update);
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
+    mapValues = getIt<MapValues>();
 
     updateMap();
   }
@@ -208,10 +213,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
       MapAnimationOptions(duration: duration),
     );
-    // Delayed by animation duration to prevent checking the position during animation.
-    Future.delayed(const Duration(milliseconds: duration), () {
-      mapFunctions.setCameraCentered();
-    });
   }
 
   /// Center the camera to north.
@@ -522,19 +523,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final CameraState camera = await mapController!.getCameraState();
 
     // Set bearing in mapFunctions.
-    if (camera.bearing != mapFunctions.cameraBearing) mapFunctions.setCameraBearing(camera.bearing);
+    mapValues.setCameraBearing(camera.bearing);
 
     // When the camera position changed, set not centered.
-    if (!mapFunctions.isCentered) return;
     if (camera.center["coordinates"] == null) return;
     // Cast from Object to List [lon, lat].
     final List coordinates = camera.center["coordinates"] as List;
     if (coordinates.length != 2) return;
-    final double lat = double.parse(coordinates[1].toStringAsFixed(6));
-    final double lon = double.parse(coordinates[0].toStringAsFixed(6));
+    if (positioning.lastPosition == null) return;
+    // To make the values comparable.
+    final double lat = double.parse(coordinates[1].toStringAsFixed(4));
+    final double lon = double.parse(coordinates[0].toStringAsFixed(4));
+    final double latUser = double.parse(positioning.lastPosition!.latitude.toStringAsFixed(4));
+    final double lonUser = double.parse(positioning.lastPosition!.longitude.toStringAsFixed(4));
 
-    if (lon != positioning.lastPosition?.longitude && lat != positioning.lastPosition?.latitude) {
-      mapFunctions.setCameraNotCentered();
+    if (lat == latUser && lon == lonUser) {
+      mapValues.setCameraCentered();
+    } else {
+      mapValues.setCameraNotCentered();
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:priobike/main.dart';
 import 'dart:math' as math;
 
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 
 class CompassButton extends StatefulWidget {
   const CompassButton({Key? key}) : super(key: key);
@@ -17,6 +18,9 @@ class CompassButtonState extends State<CompassButton> {
   /// The associated MapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
+  /// The associated MapValues service, which is injected by the provider.
+  late MapValues mapValues;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -26,6 +30,8 @@ class CompassButtonState extends State<CompassButton> {
 
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
+    mapValues = getIt<MapValues>();
+    mapValues.addListener(update);
   }
 
   /// Private center north Function which calls mapFunctionsService
@@ -42,7 +48,7 @@ class CompassButtonState extends State<CompassButton> {
         fill: Theme.of(context).colorScheme.background,
         onPressed: _centerNorth,
         content: Transform.rotate(
-          angle: mapFunctions.cameraBearing.toInt() * math.pi / 180,
+          angle: mapValues.cameraBearing.toInt() * math.pi / -180,
           child: CompassIcon(
             context: context,
           ),

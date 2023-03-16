@@ -3,6 +3,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 
 import 'package:priobike/routing/services/map_functions.dart';
+import 'package:priobike/routing/services/map_values.dart';
 
 class CenterButton extends StatefulWidget {
   const CenterButton({Key? key}) : super(key: key);
@@ -15,6 +16,9 @@ class CenterButtonState extends State<CenterButton> {
   /// The associated MapFunctions service, which is injected by the provider.
   late MapFunctions mapFunctions;
 
+  /// The associated MapValues service, which is injected by the provider.
+  late MapValues mapValues;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -24,6 +28,8 @@ class CenterButtonState extends State<CenterButton> {
 
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
+    mapValues = getIt<MapValues>();
+    mapValues.addListener(update);
   }
 
   /// Private GPS Centralization Function which calls mapFunctionsService
@@ -40,7 +46,7 @@ class CenterButtonState extends State<CenterButton> {
         fill: Theme.of(context).colorScheme.background,
         onPressed: _gpsCentralization,
         content: Icon(
-          mapFunctions.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
+          mapValues.isCentered ? Icons.gps_fixed_rounded : Icons.gps_not_fixed_rounded,
           color: Theme.of(context).colorScheme.onBackground,
         ),
       ),
