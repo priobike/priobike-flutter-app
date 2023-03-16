@@ -82,7 +82,7 @@ class WaypointIcon extends Image {
         );
 }
 
-/// A waypoint icon.
+/// A compass icon.
 class CompassIcon extends Image {
   CompassIcon({double width = 24, double height = 24, required BuildContext context, Key? key})
       : super(
