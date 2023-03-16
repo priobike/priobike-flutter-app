@@ -222,11 +222,14 @@ class RouteSearchState extends State<RouteSearch> {
   /// The positioning service that is injected by the provider.
   late Positioning positioning;
 
-  /// The last search queries.
-  late List<Waypoint>? searchHistory;
-
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
+
+  /// The last search queries.
+  List<Waypoint> searchHistory = [];
+
+  /// The current search query in the search field.
+  String searchQuery = "";
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -251,6 +254,8 @@ class RouteSearchState extends State<RouteSearch> {
     positioning = getIt<Positioning>();
     positioning.addListener(update);
     initializeSearchHistory();
+    // Don't show old search results
+    geosearch.results?.clear();
   }
 
   @override
@@ -267,17 +272,17 @@ class RouteSearchState extends State<RouteSearch> {
     List<String> tempList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
     searchHistory = [];
     for (String waypoint in tempList) {
-      searchHistory!.add(Waypoint.fromJson(json.decode(waypoint)));
+      searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
     }
     setState(() {});
   }
 
   /// Save the search history to the shared preferences by encoding it as a String List.
   Future<void> saveSearchHistory() async {
-    if (searchHistory == null) return;
+    if (searchHistory.isEmpty) return;
     final preferences = await SharedPreferences.getInstance();
     List<String> tempList = [];
-    for (Waypoint waypoint in searchHistory!) {
+    for (Waypoint waypoint in searchHistory) {
       tempList.add(json.encode(waypoint.toJSON()));
     }
     await preferences.setStringList("priobike.routing.searchHistory", tempList);
@@ -286,26 +291,25 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// Add a waypoint to the search history.
   void addToSearchHistory(Waypoint waypoint) {
-    if (searchHistory == null) return;
-
-    // Remove the search from the history if it already exists.
-    if (searchHistory!.any((element) => element.address == waypoint.address)) {
-      searchHistory!.removeWhere((element) => element.address == waypoint.address);
+    // Remove the waypoint from the history if it already exists.
+    if (searchHistory.any((element) => element.address == waypoint.address)) {
+      searchHistory.removeWhere((element) => element.address == waypoint.address);
     }
 
     // Only keep the last 10 searches.
-    if (searchHistory!.length > 10) searchHistory!.removeAt(0);
+    if (searchHistory.length > 10) searchHistory.removeAt(0);
 
-    searchHistory!.add(waypoint);
+    searchHistory.add(waypoint);
     setState(() {});
   }
 
   /// A callback that is fired when the search is updated.
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
+    searchQuery = query;
     debouncer.run(
       () {
-        geosearch.geosearch(query);
+        geosearch.geosearch(searchQuery);
       },
     );
   }
@@ -364,34 +368,38 @@ class RouteSearchState extends State<RouteSearch> {
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
                     CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
-                  if (geosearch.results?.isNotEmpty == true) ...[
-                    for (final waypoint in geosearch.results!) ...[
-                      WaypointListItemView(
-                        waypoint: waypoint,
-                        onTap: onWaypointTapped,
-                      )
-                    ]
-                  ] else if (searchHistory != null && searchHistory!.isNotEmpty) ...[
+
+                  // Search History
+                  if (searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(left: 16, top: 16),
                       child: BoldContent(
                         text: "Letzte Suchergebnisse",
                         context: context,
-                        textAlign: TextAlign.start,
                       ),
                     ),
-                    for (final waypoint in searchHistory!.reversed) ...[
+                    for (final waypoint in searchHistory.reversed) ...[
                       WaypointListItemView(
                         waypoint: waypoint,
                         onTap: onHistoryItemTapped,
                         showHistoryIcon: true,
                       )
                     ]
-                  ] else
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Small(text: "Keine weiteren Ergebnisse", context: context),
-                    )
+                  ],
+
+                  // Search Results
+                  if (geosearch.results?.isNotEmpty == true) ...[
+                    for (final waypoint in geosearch.results!) ...[
+                      WaypointListItemView(
+                        waypoint: waypoint,
+                        onTap: onWaypointTapped,
+                      )
+                    ],
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 26, bottom: 26),
+                    child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                  )
                 ],
               ),
             ),
