@@ -441,7 +441,7 @@ class RoutingViewState extends State<RoutingView> {
                             angle: mapFunctions.cameraBearing.toInt() * math.pi / 180,
                             child: const CompassIcon(),
                           ),
-                          padding: const EdgeInsets.all(7.5),
+                          padding: const EdgeInsets.all(10),
                         ),
                       )
                     ],
