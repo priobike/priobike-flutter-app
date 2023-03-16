@@ -91,7 +91,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// Updates the map.
-  void updateMap() async {
+  void updateMap() {
     // Check if the selected map layers have changed.
     if (layers.needsLayout[viewId] != false) {
       loadGeoLayers();
