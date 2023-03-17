@@ -51,10 +51,8 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
 
-    // Find shortcut and update name.
-    final index = shortcuts!.indexWhere((value) => value == shortcuts![idx]);
-    if (index == -1) return;
-    shortcuts![index] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
+    // update name.
+    shortcuts![idx] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
 
     await storeShortcuts();
     notifyListeners();
