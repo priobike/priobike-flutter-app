@@ -9,6 +9,7 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Geosearch with ChangeNotifier {
   /// The logger for this service.
@@ -22,6 +23,9 @@ class Geosearch with ChangeNotifier {
 
   /// The list of results.
   List<Waypoint>? results;
+
+  /// The search history, saved in the shared preferences.
+  List<Waypoint> searchHistory = [];
 
   Geosearch();
 
@@ -80,8 +84,55 @@ class Geosearch with ChangeNotifier {
     }
   }
 
+  /// Clear the search results.
   void clearGeosearch() {
     results = [];
+    notifyListeners();
+  }
+
+  /// Delete the search history from the device.
+  Future<void> deleteSearchHistory() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove("priobike.routing.searchHistory");
+    searchHistory = [];
+    notifyListeners();
+  }
+
+  /// Initialize the search history from the shared preferences by decoding it from a String List.
+  Future<void> loadSearchHistory() async {
+    final preferences = await SharedPreferences.getInstance();
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    searchHistory = [];
+    for (String waypoint in savedList) {
+      searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
+    }
+    notifyListeners();
+  }
+
+  /// Save the search history to the shared preferences by encoding it as a String List.
+  Future<void> saveSearchHistory() async {
+    if (searchHistory.isEmpty) return;
+    final preferences = await SharedPreferences.getInstance();
+    List<String> newList = [];
+    for (Waypoint waypoint in searchHistory) {
+      newList.add(json.encode(waypoint.toJSON()));
+    }
+    await preferences.setStringList("priobike.routing.searchHistory", newList);
+    notifyListeners();
+  }
+
+  /// Add a waypoint to the search history.
+  void addToSearchHistory(Waypoint waypoint) {
+    // Remove the waypoint from the history if it already exists.
+    // It still should be added again, to be shown as the last search.
+    if (searchHistory.any((element) => element.address == waypoint.address)) {
+      searchHistory.removeWhere((element) => element.address == waypoint.address);
+    }
+
+    // Only keep the last 10 searches.
+    if (searchHistory.length > 10) searchHistory.removeAt(0);
+
+    searchHistory.add(waypoint);
     notifyListeners();
   }
 }

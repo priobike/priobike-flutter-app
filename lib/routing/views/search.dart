@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,7 +11,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class WaypointListItemView extends StatefulWidget {
   /// If the item is displaying the current position.
@@ -225,9 +223,6 @@ class RouteSearchState extends State<RouteSearch> {
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
-  /// The last search queries.
-  List<Waypoint> searchHistory = [];
-
   /// The current search query in the search field.
   String searchQuery = "";
 
@@ -253,54 +248,17 @@ class RouteSearchState extends State<RouteSearch> {
     geosearch.addListener(update);
     positioning = getIt<Positioning>();
     positioning.addListener(update);
-    initializeSearchHistory();
-    // Don't show old search results
-    geosearch.results?.clear();
+    geosearch.loadSearchHistory();
+    geosearch.clearGeosearch();
   }
 
   @override
   void dispose() {
+    geosearch.saveSearchHistory();
+    geosearch.clearGeosearch();
     geosearch.removeListener(update);
     positioning.removeListener(update);
-    saveSearchHistory();
     super.dispose();
-  }
-
-  /// Initialize the search history from the shared preferences by decoding it from a String List.
-  Future<void> initializeSearchHistory() async {
-    final preferences = await SharedPreferences.getInstance();
-    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
-    searchHistory = [];
-    for (String waypoint in savedList) {
-      searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
-    }
-    setState(() {});
-  }
-
-  /// Save the search history to the shared preferences by encoding it as a String List.
-  Future<void> saveSearchHistory() async {
-    if (searchHistory.isEmpty) return;
-    final preferences = await SharedPreferences.getInstance();
-    List<String> newList = [];
-    for (Waypoint waypoint in searchHistory) {
-      newList.add(json.encode(waypoint.toJSON()));
-    }
-    await preferences.setStringList("priobike.routing.searchHistory", newList);
-    setState(() {});
-  }
-
-  /// Add a waypoint to the search history.
-  void addToSearchHistory(Waypoint waypoint) {
-    // Remove the waypoint from the history if it already exists.
-    if (searchHistory.any((element) => element.address == waypoint.address)) {
-      searchHistory.removeWhere((element) => element.address == waypoint.address);
-    }
-
-    // Only keep the last 10 searches.
-    if (searchHistory.length > 10) searchHistory.removeAt(0);
-
-    searchHistory.add(waypoint);
-    setState(() {});
   }
 
   /// A callback that is fired when the search is updated.
@@ -316,14 +274,22 @@ class RouteSearchState extends State<RouteSearch> {
 
   /// A callback that is fired when a history item is tapped.
   void onHistoryItemTapped(Waypoint waypoint) {
-    geosearch.results?.clear();
+    geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
   }
 
   /// A callback that is fired when a waypoint is tapped.
   void onWaypointTapped(Waypoint waypoint) {
-    addToSearchHistory(waypoint);
-    geosearch.results?.clear();
+    geosearch.addToSearchHistory(waypoint);
+    geosearch.clearGeosearch();
+    Navigator.of(context).pop(waypoint);
+  }
+
+  /// A callback that is fired when the current position is tapped.
+  /// The current position is not saved in the search history.
+  void onCurrentPositionTapped(Waypoint waypoint) {
+    if (positioning.lastPosition == null) return;
+    geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
   }
 
@@ -367,10 +333,12 @@ class RouteSearchState extends State<RouteSearch> {
                 children: [
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
-                    CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
+                    CurrentPositionWaypointListItemView(
+                      onTap: onCurrentPositionTapped,
+                    ),
 
                   // Search History
-                  if (searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
+                  if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(left: 16, top: 16),
                       child: BoldContent(
@@ -378,7 +346,7 @@ class RouteSearchState extends State<RouteSearch> {
                         context: context,
                       ),
                     ),
-                    for (final waypoint in searchHistory.reversed) ...[
+                    for (Waypoint waypoint in geosearch.searchHistory.reversed) ...[
                       WaypointListItemView(
                         waypoint: waypoint,
                         onTap: onHistoryItemTapped,
