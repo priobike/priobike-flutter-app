@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
@@ -21,7 +20,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
 /// Show a sheet to edit the current shortcuts name.
-void showEditShortcutSheet(context, Shortcut shortcut) {
+void showEditShortcutSheet(context, int idx) {
   final shortcuts = GetIt.instance.get<Shortcuts>();
   showDialog(
     context: context,
@@ -55,7 +54,7 @@ void showEditShortcutSheet(context, Shortcut shortcut) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.updateShortcutName(name, shortcut);
+              await shortcuts.updateShortcutName(name, idx);
               ToastMessage.showSuccess("Routen Name gespeichert!");
               Navigator.pop(context);
             },
@@ -145,7 +144,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   Future<void> onEditShortcut(int idx) async {
     if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length < idx) return;
 
-    showEditShortcutSheet(context, shortcuts.shortcuts![idx]);
+    showEditShortcutSheet(context, idx);
   }
 
   @override
