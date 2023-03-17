@@ -46,6 +46,20 @@ class Shortcuts with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update a shortcuts name.
+  Future<void> updateShortcutName(String name, int idx) async {
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+
+    // Find shortcut and update name.
+    final index = shortcuts!.indexWhere((value) => value == shortcuts![idx]);
+    if (index == -1) return;
+    shortcuts![index] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
+
+    await storeShortcuts();
+    notifyListeners();
+  }
+
   /// Save a new shortcut (Shortcut object given).
   Future<void> saveNewShortcutObject(Shortcut shortcut) async {
     if (shortcuts == null) await loadShortcuts();

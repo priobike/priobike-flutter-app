@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -8,6 +9,7 @@ import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -16,6 +18,57 @@ import 'package:priobike/routing/views_beta/main.dart';
 import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+
+/// Show a sheet to edit the current shortcuts name.
+void showEditShortcutSheet(context, int idx) {
+  final shortcuts = GetIt.instance.get<Shortcuts>();
+  showDialog(
+    context: context,
+    builder: (_) {
+      final nameController = TextEditingController();
+      return AlertDialog(
+        title: BoldContent(
+          text: 'Bitte gib einen neuen Namen an, unter dem die Strecke gespeichert werden soll.',
+          context: context,
+        ),
+        content: SizedBox(
+          height: 78,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: nameController,
+                maxLength: 20,
+                decoration: const InputDecoration(hintText: 'Heimweg, Zur Arbeit, ...'),
+              ),
+            ],
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.trim().isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+                return;
+              }
+              await shortcuts.updateShortcutName(name, idx);
+              ToastMessage.showSuccess("Routen Name gespeichert!");
+              Navigator.pop(context);
+            },
+            child: BoldContent(
+              text: 'Speichern',
+              color: Theme.of(context).colorScheme.primary,
+              context: context,
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 class ShortcutsEditView extends StatefulWidget {
   const ShortcutsEditView({Key? key}) : super(key: key);
@@ -37,7 +90,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   late PredictionSGStatus predictionSGStatus;
 
   /// If the view is in the state to delete a shortcut.
-  bool deleteMode = false;
+  bool editMode = false;
 
   /// The associcated settings service, which is injected by the provider.
   late Settings settings;
@@ -87,11 +140,18 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     shortcuts.updateShortcuts(newShortcuts);
   }
 
+  /// A callback that is executed when a shortcut should be edited.
+  Future<void> onEditShortcut(int idx) async {
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length < idx) return;
+
+    showEditShortcutSheet(context, idx);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: SingleChildScrollView(
           child: SafeArea(
@@ -115,15 +175,15 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     const SmallHSpace(),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
-                      child: deleteMode
+                      child: editMode
                           ? SmallIconButton(
                               icon: Icons.check_rounded,
-                              onPressed: () => setState(() => deleteMode = false),
+                              onPressed: () => setState(() => editMode = false),
                               fill: Theme.of(context).colorScheme.primary,
                             )
                           : SmallIconButton(
                               icon: Icons.edit_rounded,
-                              onPressed: () => setState(() => deleteMode = true),
+                              onPressed: () => setState(() => editMode = true),
                               fill: Theme.of(context).colorScheme.surface,
                             ),
                     ),
@@ -215,19 +275,25 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                   Row(
                                     children: [
                                       const HSpace(),
-                                      SmallIconButton(
-                                        icon: Icons.qr_code_2_rounded,
-                                        onPressed: () => Navigator.of(context).push(
-                                          MaterialPageRoute<void>(
-                                            builder: (BuildContext context) => QRCodeView(shortcut: entry.value),
-                                          ),
-                                        ),
-                                        fill: Theme.of(context).colorScheme.background,
-                                      ),
+                                      editMode
+                                          ? SmallIconButton(
+                                              icon: Icons.edit,
+                                              onPressed: () => onEditShortcut(entry.key),
+                                              fill: Theme.of(context).colorScheme.surface,
+                                            )
+                                          : SmallIconButton(
+                                              icon: Icons.qr_code_2_rounded,
+                                              onPressed: () => Navigator.of(context).push(
+                                                MaterialPageRoute<void>(
+                                                  builder: (BuildContext context) => QRCodeView(shortcut: entry.value),
+                                                ),
+                                              ),
+                                              fill: Theme.of(context).colorScheme.background,
+                                            ),
                                       const SmallHSpace(),
                                       AnimatedSwitcher(
                                         duration: const Duration(milliseconds: 300),
-                                        child: deleteMode
+                                        child: editMode
                                             ? SmallIconButton(
                                                 icon: Icons.delete,
                                                 onPressed: () => onDeleteShortcut(entry.key),
