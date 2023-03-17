@@ -52,11 +52,9 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
 
     // Find shortcut and update name.
-    for (var i = 0; i < shortcuts!.length; i++) {
-      if (shortcuts![i] == shortcut) {
-        shortcuts![i] = Shortcut(name: name, waypoints: shortcut.waypoints);
-      }
-    }
+    final index = shortcuts!.indexWhere((value) => value == shortcut);
+    if (index == -1) return;
+    shortcuts![index] = Shortcut(name: name, waypoints: shortcut.waypoints);
 
     await storeShortcuts();
     notifyListeners();
