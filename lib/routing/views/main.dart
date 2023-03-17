@@ -37,6 +37,8 @@ void showSaveShortcutSheet(context) {
     builder: (_) {
       final nameController = TextEditingController();
       return AlertDialog(
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        insetPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40.0),
         title: BoldContent(
           text: 'Bitte gib einen Namen an, unter dem die Strecke gespeichert werden soll.',
           context: context,
