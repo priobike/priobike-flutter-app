@@ -118,7 +118,6 @@ class Geosearch with ChangeNotifier {
       newList.add(json.encode(waypoint.toJSON()));
     }
     await preferences.setStringList("priobike.routing.searchHistory", newList);
-    notifyListeners();
   }
 
   /// Add a waypoint to the search history.
