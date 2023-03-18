@@ -93,7 +93,12 @@ class Geosearch with ChangeNotifier {
   /// Delete the search history from the device.
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove("priobike.routing.searchHistory");
+    final backend = getIt<Settings>().backend;
+    if (backend == Backend.production) {
+      await preferences.remove("priobike.routing.searchHistory.production");
+    } else if (backend == Backend.staging) {
+      await preferences.remove("priobike.routing.searchHistory.staging");
+    }
     searchHistory = [];
     notifyListeners();
   }
@@ -101,7 +106,13 @@ class Geosearch with ChangeNotifier {
   /// Initialize the search history from the shared preferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
-    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory") ?? [];
+    final backend = getIt<Settings>().backend;
+    List<String> savedList = [];
+    if (backend == Backend.production) {
+      savedList = preferences.getStringList("priobike.routing.searchHistory.production") ?? [];
+    } else if (backend == Backend.staging) {
+      savedList = preferences.getStringList("priobike.routing.searchHistory.staging") ?? [];
+    }
     searchHistory = [];
     for (String waypoint in savedList) {
       searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
@@ -113,11 +124,16 @@ class Geosearch with ChangeNotifier {
   Future<void> saveSearchHistory() async {
     if (searchHistory.isEmpty) return;
     final preferences = await SharedPreferences.getInstance();
+    final backend = getIt<Settings>().backend;
     List<String> newList = [];
     for (Waypoint waypoint in searchHistory) {
       newList.add(json.encode(waypoint.toJSON()));
     }
-    await preferences.setStringList("priobike.routing.searchHistory", newList);
+    if (backend == Backend.production) {
+      await preferences.setStringList("priobike.routing.searchHistory.production", newList);
+    } else if (backend == Backend.staging) {
+      await preferences.setStringList("priobike.routing.searchHistory.staging", newList);
+    }
   }
 
   /// Add a waypoint to the search history.
