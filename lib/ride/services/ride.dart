@@ -193,10 +193,12 @@ class Ride with ChangeNotifier {
       if (route!.crossingsDistancesOnRoute[i] > snap.distanceOnRoute) {
         if (route!.crossings[i].connected) continue;
         // The crossing is not connected, so we can use it.
-        routeDistanceOfDisconnectedCrossing = route!.crossingsDistancesOnRoute[i];
-        break;
+        if (route!.crossingsDistancesOnRoute[i] < routeDistanceOfDisconnectedCrossing) {
+          routeDistanceOfDisconnectedCrossing = route!.crossingsDistancesOnRoute[i];
+        }
       }
     }
+
     // If the next disconnected crossing is closer, don't select the next sg just yet.
     if (routeDistanceOfDisconnectedCrossing < routeDistanceOfNextSg) {
       nextSg = null;
