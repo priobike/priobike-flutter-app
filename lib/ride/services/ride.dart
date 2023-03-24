@@ -197,7 +197,6 @@ class Ride with ChangeNotifier {
         break;
       }
     }
-
     // If the next disconnected crossing is closer, don't select the next sg just yet.
     if (routeDistanceOfDisconnectedCrossing < routeDistanceOfNextSg) {
       nextSg = null;
