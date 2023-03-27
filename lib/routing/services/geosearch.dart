@@ -121,7 +121,7 @@ class Geosearch with ChangeNotifier {
         final hint =
             "Waypoint could not be decoded from json: $e -> Deleting history because of a change in the waypoint model.";
         log.e(hint);
-        deleteSearchHistory();
+        await deleteSearchHistory();
         return;
       }
     }
