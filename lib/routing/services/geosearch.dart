@@ -116,12 +116,13 @@ class Geosearch with ChangeNotifier {
     searchHistory = [];
     for (String waypoint in savedList) {
       try {
-          searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
-      } catch (e, stack) {
-          final hint = "Waypoint could not be decoded from json: $e -> Deleting history because of a change in the waypoint model.";
-          log.e(hint);
-          deleteSearchHistory();
-          return;
+        searchHistory.add(Waypoint.fromJson(json.decode(waypoint)));
+      } catch (e) {
+        final hint =
+            "Waypoint could not be decoded from json: $e -> Deleting history because of a change in the waypoint model.";
+        log.e(hint);
+        deleteSearchHistory();
+        return;
       }
     }
     notifyListeners();
