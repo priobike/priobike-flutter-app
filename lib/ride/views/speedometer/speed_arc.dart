@@ -19,7 +19,8 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           maxSpeed,
         );
 
-  void paintSpeedArcFlowGlow(Canvas canvas, Size size) {
+  /// Paints the tail of the pointer
+  void paintSpeedArcTail(Canvas canvas, Size size) {
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 34;
@@ -50,6 +51,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     }();
   }
 
+  /// Paints the inner part of the pointer.
   void paintSpeedPointer(Canvas canvas, Size size) {
     const double rectangleHeight = 56;
     const double rectangleWidth = 14;
@@ -96,6 +98,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     canvas.restore();
   }
 
+  /// Paints the blurry background of the pointer.
   void paintSpeedPointerBackground(Canvas canvas, Size size) {
     const double rectangleHeight = 60;
     const double rectangleWidth = 17;
@@ -138,7 +141,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    paintSpeedArcFlowGlow(canvas, size);
+    paintSpeedArcTail(canvas, size);
     paintSpeedPointerBackground(canvas, size);
     paintSpeedPointer(canvas, size);
   }
