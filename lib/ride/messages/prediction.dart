@@ -279,7 +279,27 @@ class PredictionServicePrediction implements Prediction {
         }
       },
     ).toList();
-    calcQualitiesFromNow = currentVector.map((_) => (predictionQuality)).toList();
+
+    // Calculate the qualities from now. The quality is incorporated in the prediction vector.
+    // For example, when the prediction is: [0, 0, 25, 75, 75, 75, 100] and the threshold is 50,
+    // then the qualities are: [1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 1.0], scaled between min and max.
+    final minQuality = currentVector.reduce(min);
+    final maxQuality = currentVector.reduce(max);
+    if (minQuality == maxQuality) {
+      // All values are the same.
+      calcQualitiesFromNow = currentVector.map((_) => (predictionQuality)).toList();
+    } else {
+      calcQualitiesFromNow = currentVector.map((value) {
+        // If the value is below the threshold, scale between min (quality = 1) and threshold (quality = 0).
+        if (value < greentimeThreshold) {
+          return (1 - (value - minQuality) / (greentimeThreshold - minQuality));
+        } else {
+          // If the value is above the threshold, scale between threshold (quality = 0) and max (quality = 1).
+          return (1 - (maxQuality - value) / (maxQuality - greentimeThreshold));
+        }
+      }).toList();
+    }
+
     if (phaseChangeWithinVector) {
       // Only calculate the phase change time if the phase changes within the current vector.
       // Otherwise the countdown will be shown, counting down to the end of the prediction (into the "unknown").
