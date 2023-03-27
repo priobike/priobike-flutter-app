@@ -50,6 +50,7 @@ class Shortcuts with ChangeNotifier {
   Future<void> updateShortcutName(String name, int idx) async {
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
+    if (shortcuts!.length <= idx) return;
 
     // update name.
     shortcuts![idx] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
