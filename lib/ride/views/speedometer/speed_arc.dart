@@ -89,7 +89,6 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
         ..strokeWidth = 60
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1)
         ..strokeCap = StrokeCap.butt
-        ..blendMode = BlendMode.srcATop
         ..style = PaintingStyle.stroke;
       canvas.drawArc(rect, startAngle - 0.03, sweepAngle, false, paint);
     }();
