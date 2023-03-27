@@ -19,54 +19,10 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           maxSpeed,
         );
 
-  void paintSpeedArcGlow(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 32;
-    const startAngle = -5 * pi / 4;
-    const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
-    final sweepAngle = pct * (endAngle - startAngle);
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final paint = Paint()
-      ..color = CI.blue
-      ..strokeWidth = 60
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1)
-      ..strokeCap = StrokeCap.butt
-      ..style = PaintingStyle.stroke;
-    canvas.drawArc(rect, sweepAngle + startAngle - 0.05, 0.1, false, paint);
-  }
-
-  void paintSpeedArc(Canvas canvas, Size size) {
-    // Scale the opacity of the glow based on the speed.
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 32;
-    const startAngle = -5 * pi / 4;
-    const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
-    final angle = startAngle + pct * (endAngle - startAngle);
-    final sweepAngle = angle - startAngle;
-    () {
-      final rect = Rect.fromCircle(center: center, radius: radius);
-      final paint = Paint()
-        ..shader = RadialGradient(
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(1),
-          ],
-          radius: 0.6,
-        ).createShader(rect)
-        ..strokeWidth = 55
-        ..strokeCap = StrokeCap.butt
-        ..blendMode = BlendMode.srcATop
-        ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, sweepAngle + startAngle - 0.035, 0.07, false, paint);
-    }();
-  }
-
   void paintSpeedArcFlowGlow(Canvas canvas, Size size) {
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 32;
+    final radius = size.width / 2 - 34;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
@@ -94,11 +50,97 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     }();
   }
 
+  void paintSpeedPointer(Canvas canvas, Size size) {
+    const double rectangleHeight = 56;
+    const double rectangleWidth = 14;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 34;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
+    final angle = startAngle + pct * (endAngle - startAngle);
+
+    final Offset rectanglePosition = Offset(
+      center.dx + radius * cos(angle) - rectangleHeight / 2,
+      center.dy + radius * sin(angle) - rectangleWidth / 2,
+    );
+
+    canvas.save();
+    canvas.translate(rectanglePosition.dx + rectangleHeight / 2, rectanglePosition.dy + rectangleWidth / 2);
+    canvas.rotate(angle);
+    canvas.translate(-rectangleHeight / 2, -rectangleWidth / 2);
+
+    final rect = RRect.fromLTRBR(
+      0,
+      0,
+      rectangleHeight,
+      rectangleWidth,
+      const Radius.circular(2),
+    );
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.6),
+          Colors.white.withOpacity(1),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(rect.middleRect);
+
+    canvas.drawRRect(
+      rect,
+      paint,
+    );
+
+    canvas.restore();
+  }
+
+  void paintSpeedPointerBackground(Canvas canvas, Size size) {
+    const double rectangleHeight = 60;
+    const double rectangleWidth = 17;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 34;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
+    final angle = startAngle + pct * (endAngle - startAngle);
+
+    final Offset rectanglePosition = Offset(
+      center.dx + radius * cos(angle) - rectangleHeight / 2,
+      center.dy + radius * sin(angle) - rectangleWidth / 2,
+    );
+
+    canvas.save();
+    canvas.translate(rectanglePosition.dx + rectangleHeight / 2, rectanglePosition.dy + rectangleWidth / 2);
+    canvas.rotate(angle);
+    canvas.translate(-rectangleHeight / 2, -rectangleWidth / 2);
+
+    final rect = RRect.fromLTRBR(
+      0,
+      0,
+      rectangleHeight,
+      rectangleWidth,
+      const Radius.circular(4),
+    );
+
+    final paint = Paint()
+      ..color = CI.blue
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1);
+
+    canvas.drawRRect(
+      rect,
+      paint,
+    );
+
+    canvas.restore();
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     paintSpeedArcFlowGlow(canvas, size);
-    paintSpeedArcGlow(canvas, size);
-    paintSpeedArc(canvas, size);
+    paintSpeedPointerBackground(canvas, size);
+    paintSpeedPointer(canvas, size);
   }
 
   @override

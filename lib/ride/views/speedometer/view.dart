@@ -276,6 +276,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
+                            CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               painter: SpeedometerBackgroundPainter(
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
@@ -305,7 +306,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 speed: speedkmh,
                               ),
                             ),
-                            CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               painter: SpeedometerLabelsPainter(
                                 minSpeed: minSpeed,
