@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -23,10 +22,14 @@ class WaypointListItemView extends StatefulWidget {
   /// A callback function that is called when the user taps on the item.
   final void Function(Waypoint) onTap;
 
+  /// If the history icon should be shown.
+  final bool? showHistoryIcon;
+
   const WaypointListItemView({
     this.isCurrentPosition = false,
     required this.waypoint,
     required this.onTap,
+    this.showHistoryIcon,
     Key? key,
   }) : super(key: key);
 
@@ -85,6 +88,16 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
       child: ListTile(
+        leading: (widget.showHistoryIcon == null) || (!widget.showHistoryIcon!)
+            ? null
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.history,
+                  ),
+                ],
+              ),
         title: widget.waypoint == null
             ? null
             : widget.isCurrentPosition
@@ -96,7 +109,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 : BoldSmall(
                     text: widget.waypoint!.address!,
                     context: context,
-                    color: widget.isCurrentPosition ? Theme.of(context).colorScheme.onPrimary : null,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
         subtitle: widget.isCurrentPosition
             ? null
@@ -210,6 +223,9 @@ class RouteSearchState extends State<RouteSearch> {
   /// The debouncer for the search.
   final debouncer = Debouncer(milliseconds: 100);
 
+  /// The current search query in the search field.
+  String searchQuery = "";
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -232,10 +248,13 @@ class RouteSearchState extends State<RouteSearch> {
     geosearch.addListener(update);
     positioning = getIt<Positioning>();
     positioning.addListener(update);
+    geosearch.loadSearchHistory();
+    geosearch.clearGeosearch();
   }
 
   @override
   void dispose() {
+    geosearch.saveSearchHistory();
     geosearch.removeListener(update);
     positioning.removeListener(update);
     super.dispose();
@@ -244,15 +263,32 @@ class RouteSearchState extends State<RouteSearch> {
   /// A callback that is fired when the search is updated.
   Future<void> onSearchUpdated(String? query) async {
     if (query == null) return;
+    searchQuery = query;
     debouncer.run(
       () {
-        geosearch.geosearch(query);
+        geosearch.geosearch(searchQuery);
       },
     );
   }
 
+  /// A callback that is fired when a history item is tapped.
+  void onHistoryItemTapped(Waypoint waypoint) {
+    geosearch.clearGeosearch();
+    Navigator.of(context).pop(waypoint);
+  }
+
   /// A callback that is fired when a waypoint is tapped.
-  Future<void> onWaypointTapped(Waypoint waypoint) async {
+  void onWaypointTapped(Waypoint waypoint) {
+    geosearch.addToSearchHistory(waypoint);
+    geosearch.clearGeosearch();
+    Navigator.of(context).pop(waypoint);
+  }
+
+  /// A callback that is fired when the current position is tapped.
+  /// The current position is not saved in the search history.
+  void onCurrentPositionTapped(Waypoint waypoint) {
+    if (positioning.lastPosition == null) return;
+    geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
   }
 
@@ -292,17 +328,42 @@ class RouteSearchState extends State<RouteSearch> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
-                    CurrentPositionWaypointListItemView(onTap: onWaypointTapped),
+                    CurrentPositionWaypointListItemView(
+                      onTap: onCurrentPositionTapped,
+                    ),
+
+                  // Search History
+                  if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 16),
+                      child: BoldContent(
+                        text: "Letzte Suchergebnisse",
+                        context: context,
+                      ),
+                    ),
+                    for (Waypoint waypoint in geosearch.searchHistory.reversed) ...[
+                      WaypointListItemView(
+                        waypoint: waypoint,
+                        onTap: onHistoryItemTapped,
+                        showHistoryIcon: true,
+                      )
+                    ]
+                  ],
+
+                  // Search Results
                   if (geosearch.results?.isNotEmpty == true) ...[
                     for (final waypoint in geosearch.results!) ...[
-                      WaypointListItemView(waypoint: waypoint, onTap: onWaypointTapped)
-                    ]
-                  ] else ...[
+                      WaypointListItemView(
+                        waypoint: waypoint,
+                        onTap: onWaypointTapped,
+                      )
+                    ],
                     Padding(
-                      padding: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 16),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
                   ],
