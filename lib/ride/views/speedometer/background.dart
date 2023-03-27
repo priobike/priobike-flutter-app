@@ -19,7 +19,7 @@ class SpeedometerBackgroundPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
     () {
       final paint = Paint()
-        ..color = isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.4)
+        ..color = Colors.black.withOpacity(0.4)
         ..strokeWidth = 40
         ..style = PaintingStyle.stroke;
       canvas.drawArc(rect, startAngle, sweepAngle, false, paint);

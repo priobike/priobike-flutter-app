@@ -19,7 +19,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           maxSpeed,
         );
 
-  void paintSpeedArc(Canvas canvas, Size size) {
+  void paintSpeedArcGlow(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
@@ -28,22 +28,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     final sweepAngle = pct * (endAngle - startAngle);
     final rect = Rect.fromCircle(center: center, radius: radius);
     final paint = Paint()
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: pct * (endAngle - startAngle),
-        tileMode: TileMode.mirror,
-        colors: isDark
-            ? const [
-                CI.blue,
-                CI.lightBlue,
-              ]
-            : [
-                HSLColor.fromColor(CI.blue).withLightness(0.5).withSaturation(1.0).toColor(),
-                CI.blue,
-              ],
-        stops: const [0.0, 1.0],
-        transform: const GradientRotation(startAngle),
-      ).createShader(rect)
+      ..color = CI.blue
       ..strokeWidth = 60
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1)
       ..strokeCap = StrokeCap.butt
@@ -51,7 +36,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     canvas.drawArc(rect, sweepAngle + startAngle - 0.05, 0.1, false, paint);
   }
 
-  void paintSpeedArcGlows(Canvas canvas, Size size) {
+  void paintSpeedArc(Canvas canvas, Size size) {
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 32;
@@ -61,30 +46,32 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     final angle = startAngle + pct * (endAngle - startAngle);
     final sweepAngle = angle - startAngle;
     () {
-      final rect = Rect.fromCircle(center: center, radius: radius + 6);
+      final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
-        ..shader = SweepGradient(
-          startAngle: 0,
-          endAngle: pct * (endAngle - startAngle),
-          tileMode: TileMode.mirror,
-          colors: isDark
-              ? [
-                  CI.lightBlue.withOpacity(0.0),
-                  CI.lightBlue.withOpacity(0.6),
-                ]
-              : [
-                  CI.blue.withOpacity(0.0),
-                  CI.blue.withOpacity(0.6),
-                ],
-          stops: const [0.75, 1.0],
-          transform: const GradientRotation(startAngle),
+        ..shader = RadialGradient(
+          colors: [
+            Colors.white.withOpacity(0.1),
+            Colors.white.withOpacity(1),
+          ],
+          radius: 0.6,
         ).createShader(rect)
-        ..strokeWidth = 60
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12)
+        ..strokeWidth = 55
         ..strokeCap = StrokeCap.butt
+        ..blendMode = BlendMode.srcATop
         ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, sweepAngle + startAngle - 0.05, 0.1, false, paint);
+      canvas.drawArc(rect, sweepAngle + startAngle - 0.035, 0.07, false, paint);
     }();
+  }
+
+  void paintSpeedArcFlowGlow(Canvas canvas, Size size) {
+    // Scale the opacity of the glow based on the speed.
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 32;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
+    final angle = startAngle + pct * (endAngle - startAngle);
+    final sweepAngle = angle - startAngle;
     () {
       final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
@@ -92,31 +79,27 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           startAngle: 0,
           endAngle: pct * (endAngle - startAngle),
           tileMode: TileMode.mirror,
-          colors: isDark
-              ? [
-                  Colors.white.withOpacity(0.0),
-                  Colors.white.withOpacity(1),
-                ]
-              : [
-                  Colors.white.withOpacity(0.0),
-                  Colors.white.withOpacity(0.3),
-                ],
+          colors: [
+            Colors.white.withOpacity(0.0),
+            CI.blue.withOpacity(0.2),
+          ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
         ).createShader(rect)
         ..strokeWidth = 60
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1)
         ..strokeCap = StrokeCap.butt
         ..blendMode = BlendMode.srcATop
         ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, sweepAngle + startAngle - 0.05, 0.1, false, paint);
+      canvas.drawArc(rect, startAngle - 0.03, sweepAngle, false, paint);
     }();
   }
 
   @override
   void paint(Canvas canvas, Size size) {
+    paintSpeedArcFlowGlow(canvas, size);
+    paintSpeedArcGlow(canvas, size);
     paintSpeedArc(canvas, size);
-    paintSpeedArcGlows(canvas, size);
   }
 
   @override
