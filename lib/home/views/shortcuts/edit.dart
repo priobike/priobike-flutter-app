@@ -142,7 +142,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
 
   /// A callback that is executed when a shortcut should be edited.
   Future<void> onEditShortcut(int idx) async {
-    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length < idx) return;
+    if (shortcuts.shortcuts == null || shortcuts.shortcuts!.isEmpty || shortcuts.shortcuts!.length <= idx) return;
 
     showEditShortcutSheet(context, idx);
   }
