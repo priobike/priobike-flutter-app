@@ -19,73 +19,16 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           maxSpeed,
         );
 
-  void paintSpeedArc(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 32;
-    const startAngle = -5 * pi / 4;
-    const endAngle = pi / 4;
-    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
-    final angle = startAngle + pct * (endAngle - startAngle);
-    final sweepAngle = angle - startAngle;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final paint = Paint()
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: pct * (endAngle - startAngle),
-        tileMode: TileMode.mirror,
-        colors: isDark
-            ? const [
-                CI.blue,
-                CI.lightBlue,
-              ]
-            : [
-                HSLColor.fromColor(CI.blue).withLightness(0.5).withSaturation(1.0).toColor(),
-                CI.blue,
-              ],
-        stops: const [0.0, 1.0],
-        transform: const GradientRotation(startAngle),
-      ).createShader(rect)
-      ..strokeWidth = 18
-      ..strokeCap = StrokeCap.butt
-      ..style = PaintingStyle.stroke;
-    canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
-  }
-
-  void paintSpeedArcGlows(Canvas canvas, Size size) {
+  /// Paints the tail of the pointer
+  void paintSpeedArcTail(Canvas canvas, Size size) {
     // Scale the opacity of the glow based on the speed.
-    final glowOpacity = (speed - minSpeed) / (maxSpeed - minSpeed);
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 32;
+    final radius = size.width / 2 - 34;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
     final angle = startAngle + pct * (endAngle - startAngle);
     final sweepAngle = angle - startAngle;
-    () {
-      final rect = Rect.fromCircle(center: center, radius: radius + 6);
-      final paint = Paint()
-        ..shader = SweepGradient(
-          startAngle: 0,
-          endAngle: pct * (endAngle - startAngle),
-          tileMode: TileMode.mirror,
-          colors: isDark
-              ? [
-                  CI.lightBlue.withOpacity(0.0 * glowOpacity),
-                  CI.lightBlue.withOpacity(1.0 * glowOpacity),
-                ]
-              : [
-                  CI.blue.withOpacity(0.0 * glowOpacity),
-                  CI.blue.withOpacity(1.0 * glowOpacity),
-                ],
-          stops: const [0.75, 1.0],
-          transform: const GradientRotation(startAngle),
-        ).createShader(rect)
-        ..strokeWidth = 24
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12)
-        ..strokeCap = StrokeCap.butt
-        ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, startAngle, sweepAngle - 0.03, false, paint);
-    }();
     () {
       final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
@@ -93,31 +36,114 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
           startAngle: 0,
           endAngle: pct * (endAngle - startAngle),
           tileMode: TileMode.mirror,
-          colors: isDark
-              ? [
-                  Colors.white.withOpacity(0.0 * glowOpacity),
-                  Colors.white.withOpacity(1.0 * glowOpacity),
-                ]
-              : [
-                  Colors.white.withOpacity(0.0 * glowOpacity),
-                  Colors.white.withOpacity(0.2 * glowOpacity),
-                ],
+          colors: [
+            Colors.white.withOpacity(0.0),
+            CI.blue.withOpacity(0.2),
+          ],
           stops: const [0.75, 1.0],
           transform: const GradientRotation(startAngle),
         ).createShader(rect)
-        ..strokeWidth = 12
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+        ..strokeWidth = 60
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1)
         ..strokeCap = StrokeCap.butt
-        ..blendMode = BlendMode.srcATop
         ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      canvas.drawArc(rect, startAngle - 0.03, sweepAngle, false, paint);
     }();
+  }
+
+  /// Paints the inner part of the pointer.
+  void paintSpeedPointer(Canvas canvas, Size size) {
+    const double rectangleHeight = 56;
+    const double rectangleWidth = 14;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 34;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
+    final angle = startAngle + pct * (endAngle - startAngle);
+
+    final Offset rectanglePosition = Offset(
+      center.dx + radius * cos(angle) - rectangleHeight / 2,
+      center.dy + radius * sin(angle) - rectangleWidth / 2,
+    );
+
+    canvas.save();
+    canvas.translate(rectanglePosition.dx + rectangleHeight / 2, rectanglePosition.dy + rectangleWidth / 2);
+    canvas.rotate(angle);
+    canvas.translate(-rectangleHeight / 2, -rectangleWidth / 2);
+
+    final rect = RRect.fromLTRBR(
+      0,
+      0,
+      rectangleHeight,
+      rectangleWidth,
+      const Radius.circular(2),
+    );
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.white.withOpacity(0.6),
+          Colors.white.withOpacity(1),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(rect.middleRect);
+
+    canvas.drawRRect(
+      rect,
+      paint,
+    );
+
+    canvas.restore();
+  }
+
+  /// Paints the blurry background of the pointer.
+  void paintSpeedPointerBackground(Canvas canvas, Size size) {
+    const double rectangleHeight = 60;
+    const double rectangleWidth = 17;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 34;
+    const startAngle = -5 * pi / 4;
+    const endAngle = pi / 4;
+    final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
+    final angle = startAngle + pct * (endAngle - startAngle);
+
+    final Offset rectanglePosition = Offset(
+      center.dx + radius * cos(angle) - rectangleHeight / 2,
+      center.dy + radius * sin(angle) - rectangleWidth / 2,
+    );
+
+    canvas.save();
+    canvas.translate(rectanglePosition.dx + rectangleHeight / 2, rectanglePosition.dy + rectangleWidth / 2);
+    canvas.rotate(angle);
+    canvas.translate(-rectangleHeight / 2, -rectangleWidth / 2);
+
+    final rect = RRect.fromLTRBR(
+      0,
+      0,
+      rectangleHeight,
+      rectangleWidth,
+      const Radius.circular(4),
+    );
+
+    final paint = Paint()
+      ..color = CI.blue
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1);
+
+    canvas.drawRRect(
+      rect,
+      paint,
+    );
+
+    canvas.restore();
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    paintSpeedArc(canvas, size);
-    paintSpeedArcGlows(canvas, size);
+    paintSpeedArcTail(canvas, size);
+    paintSpeedPointerBackground(canvas, size);
+    paintSpeedPointer(canvas, size);
   }
 
   @override
