@@ -35,7 +35,6 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary];
     final stops = [0.0, 0.8];
     const radius = 120.0;
