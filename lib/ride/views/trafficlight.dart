@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/cancel_button.dart';
 
 class RideTrafficLightView extends StatefulWidget {
   const RideTrafficLightView({Key? key}) : super(key: key);
@@ -34,17 +34,19 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   @override
   Widget build(BuildContext context) {
     final alternativeView = Container(
-      width: 148,
-      height: 148,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: const CancelButton(
-        borderRadius: 128,
-        text: "Fertig",
-      ),
-    );
+        width: 148,
+        height: 148,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Center(
+            child: BoldContent(
+          textAlign: TextAlign.center,
+          text: "Keine\nPrognosen",
+          color: Colors.white,
+          context: context,
+        )));
 
     // Don't show a countdown if...
     if (ride.calcCurrentSG == null) return alternativeView;
@@ -82,33 +84,21 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
         borderRadius: BorderRadius.circular(64),
       ),
       child: Center(
-        child: Stack(
-          alignment: AlignmentDirectional.center,
-          children: [
-            Transform.translate(
-              offset: const Offset(0, -24),
-              child: Text(
-                countdownLabel,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 64,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 32,
-                      offset: Offset(0, 0),
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
-                  ],
-                  fontWeight: FontWeight.w500,
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
+        child: Text(
+          countdownLabel,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 64,
+            shadows: [
+              Shadow(
+                blurRadius: 32,
+                offset: Offset(0, 0),
+                color: Color.fromARGB(255, 0, 0, 0),
               ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, 24),
-              child: const CancelButton(),
-            ),
-          ],
+            ],
+            fontWeight: FontWeight.w500,
+            color: Color.fromARGB(255, 255, 255, 255),
+          ),
         ),
       ),
     );

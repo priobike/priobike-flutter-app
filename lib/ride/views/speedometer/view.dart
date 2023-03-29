@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -217,6 +218,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final originalSpeedometerHeight = MediaQuery.of(context).size.width;
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
 
+    final remainingDistance =
+        (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
+    final remainingMinutes = remainingDistance / (18 / 60);
+    final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -324,14 +330,27 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 26),
-                      child: BoldSubHeader(
-                        text: '${speedkmh.toStringAsFixed(0)} km/h',
-                        context: context,
-                        color: Colors.white,
+                    if (ride.userSelectedSG == null) ...[
+                      Padding(
+                          padding: const EdgeInsets.only(bottom: 62),
+                          child: BoldContent(
+                            text:
+                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                            context: context,
+                            color: Theme.of(context).colorScheme.primary,
+                          )),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                     Padding(
                       padding: const EdgeInsets.only(bottom: 18),
                       child: Text(
