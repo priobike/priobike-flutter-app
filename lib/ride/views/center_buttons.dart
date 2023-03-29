@@ -51,7 +51,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // RIGHT BUTTON
           if (signalGroupsAvailable)
             Transform.translate(
-              offset: const Offset(radius * 0.575, -radius * 0.175),
+              offset: const Offset(radius * 0.75, 0),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -92,7 +92,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // BOTTOM BUTTON
           if (ride.userSelectedSG != null)
             Transform.translate(
-              offset: const Offset(radius * 0.175, (radius * 0.575)),
+              offset: const Offset(0, (radius * 0.75)),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -113,7 +113,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // LEFT BUTTON
           if (signalGroupsAvailable)
             Transform.translate(
-              offset: const Offset(-(radius * 0.575), radius * 0.175),
+              offset: const Offset(-radius * 0.75, 0),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -152,7 +152,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
             ),
           // TOP BUTTON
           Transform.translate(
-            offset: const Offset(-radius * 0.175, -(radius * 0.575)),
+            offset: const Offset(0, -radius * 0.75),
             child: CenterButton(
               radius: radius,
               gradient: LinearGradient(
@@ -204,32 +204,37 @@ class CenterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Transform.rotate(
-          angle: rotation,
-          child: SizedBox(
-            width: radius,
-            height: radius / 2,
-            child: GestureDetector(
-              onTap: () => onPressed(),
-              child: CustomPaint(
-                size: Size(radius, radius / 2),
-                painter: CenterButtonPainter(
-                  gradient: gradient,
-                ),
-                child: Transform.translate(
-                  offset: Offset(0, radius * 0.25),
-                  child: Transform.rotate(
-                    angle: -rotation,
-                    child: child,
+    return SizedBox(
+      width: radius,
+      height: radius,
+      child: Transform.rotate(
+        angle: rotation,
+        child: GestureDetector(
+          onTap: () => onPressed(),
+          child: Stack(
+            children: [
+              Container(color: Colors.transparent),
+              SizedBox(
+                width: radius,
+                height: radius / 2,
+                child: CustomPaint(
+                  size: Size(radius, radius / 2),
+                  painter: CenterButtonPainter(
+                    gradient: gradient,
+                  ),
+                  child: Transform.translate(
+                    offset: Offset(0, radius * 0.25),
+                    child: Transform.rotate(
+                      angle: -rotation,
+                      child: child,
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -238,6 +243,9 @@ class CenterButton extends StatelessWidget {
 class CenterButtonPainter extends CustomPainter {
   /// The gradient of the shape.
   final LinearGradient gradient;
+
+  /// The path of the shape.
+  Path? buttonPath;
 
   CenterButtonPainter({required this.gradient});
 
@@ -312,9 +320,18 @@ class CenterButtonPainter extends CustomPainter {
       radius: const Radius.circular(borderRadius),
       clockwise: true,
     );
+    path.close();
+
+    buttonPath = path;
 
     drawButtonShadow(canvas, size, path);
     drawButton(canvas, size, path);
+  }
+
+  @override
+  bool hitTest(Offset position) {
+    if (buttonPath == null) return false;
+    return buttonPath!.contains(position);
   }
 
   @override
