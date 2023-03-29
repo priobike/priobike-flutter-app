@@ -8,6 +8,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
@@ -19,7 +20,9 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
-  const RideSpeedometerView({Key? key}) : super(key: key);
+  final Function onTapDanger;
+
+  const RideSpeedometerView({Key? key, required this.onTapDanger}) : super(key: key);
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
@@ -312,7 +315,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            const Center(child: RideTrafficLightView())
+                            const Center(child: RideTrafficLightView()),
+                            Center(
+                                child: RideCenterButtonsView(
+                              onTapDanger: widget.onTapDanger,
+                            ))
                           ],
                         ),
                       ),

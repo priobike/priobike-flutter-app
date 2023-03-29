@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
-import 'package:priobike/dangers/views/button.dart';
+import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/datastream.dart';
+import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
-import 'package:priobike/ride/views/sg_button.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -37,6 +39,12 @@ class RideViewState extends State<RideView> {
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
+
+  /// If the modal is currently shown.
+  bool showModal = false;
+
+  /// The snapped danger position for the modal.
+  Snap? dangerPosition;
 
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
@@ -178,6 +186,29 @@ class RideViewState extends State<RideView> {
     super.dispose();
   }
 
+  /// A callback that is called when the button is tapped.
+  Future<void> onTapDanger() async {
+    HapticFeedback.lightImpact();
+    if (!showModal /* Prepare to show modal. */) {
+      log.i("Caching the current position.");
+      // Get the current snapped position.
+      final snap = getIt<Positioning>().snap;
+      if (snap == null) {
+        log.w("Cannot report a danger without a current snapped position.");
+        return;
+      }
+      setState(() {
+        dangerPosition = snap;
+        showModal = true;
+      });
+    } else {
+      setState(() {
+        dangerPosition = null;
+        showModal = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Keep the device active during navigation.
@@ -214,10 +245,26 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              const RideSpeedometerView(),
+              RideSpeedometerView(onTapDanger: onTapDanger),
               const DatastreamView(),
-              const RideSGButton(),
-              const DangerButton(),
+              const FinishRideButton(),
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                firstCurve: Curves.easeInOutCubicEmphasized,
+                secondCurve: Curves.easeInOutCubicEmphasized,
+                sizeCurve: Curves.easeInOutCubicEmphasized,
+                firstChild: Container(),
+                secondChild: DangerModal(
+                  position: dangerPosition,
+                  onExit: () {
+                    setState(() {
+                      dangerPosition = null;
+                      showModal = false;
+                    });
+                  },
+                ),
+                crossFadeState: showModal ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              ),
             ],
           ),
         ),
