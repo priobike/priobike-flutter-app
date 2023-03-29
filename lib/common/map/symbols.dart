@@ -48,8 +48,15 @@ class SymbolLoader {
     await add("repairlight", "assets/images/repair-light.png", 201, 201);
     await add("accidentdark", "assets/images/accident-dark.png", 201, 201);
     await add("accidentlight", "assets/images/accident-light.png", 201, 201);
-    await add("route-label-pmm", "assets/images/route-label-pmm.png", 201, 201);
-    await add("route-label-smm", "assets/images/route-label-smm.png", 201, 201);
+
+    await add("route-label-primary-bottom-left", "assets/images/route-label-primary-bottom-left.png", 201, 201);
+    await add("route-label-primary-bottom-right", "assets/images/route-label-primary-bottom-right.png", 201, 201);
+    await add("route-label-primary-top-left", "assets/images/route-label-primary-top-left.png", 201, 200);
+    await add("route-label-primary-top-right", "assets/images/route-label-primary-top-right.png", 201, 201);
+    await add("route-label-secondary-bottom-left", "assets/images/route-label-secondary-bottom-left.png", 201, 201);
+    await add("route-label-secondary-bottom-right", "assets/images/route-label-secondary-bottom-right.png", 201, 201);
+    await add("route-label-secondary-top-left", "assets/images/route-label-secondary-top-left.png", 201, 200);
+    await add("route-label-secondary-top-right", "assets/images/route-label-secondary-top-right.png", 201, 200);
 
     await add("potholes", "assets/images/potholes-map.png", 201, 201);
     await add("obstacle", "assets/images/obstacle-map.png", 201, 201);

@@ -359,8 +359,8 @@ class RouteLabelLayer {
           json.encode([
             "case",
             ["get", "isPrimary"],
-            "route-label-pmm",
-            "route-label-smm"
+            "route-label-primary-bottom-left",
+            "route-label-secondary-bottom-left"
           ]));
       await mapController.style
           .setStyleLayerProperty("routeLabels-clicklayer", 'icon-opacity', json.encode(showAfter(zoom: 10)));
@@ -379,6 +379,15 @@ class RouteLabelLayer {
           json.encode([
             "literal",
             [0, -1]
+          ]));
+      await mapController.style.setStyleLayerProperty(
+          "routeLabels-clicklayer",
+          'text-color',
+          json.encode([
+            "case",
+            ["get", "isPrimary"],
+            "#ffffff",
+            "#000000"
           ]));
       await mapController.style.setStyleLayerProperty(
           "routeLabels-clicklayer",
