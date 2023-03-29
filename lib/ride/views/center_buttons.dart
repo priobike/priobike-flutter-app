@@ -5,6 +5,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 
 class RideCenterButtonsView extends StatefulWidget {
+  /// A callback that is called when the danger button is tapped.
   final Function onTapDanger;
 
   const RideCenterButtonsView({Key? key, required this.onTapDanger}) : super(key: key);
@@ -88,7 +89,6 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                 ),
               ),
             ),
-
           // BOTTOM BUTTON
           if (ride.userSelectedSG != null)
             Transform.translate(
@@ -150,7 +150,6 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                 ),
               ),
             ),
-
           // TOP BUTTON
           Transform.translate(
             offset: const Offset(-radius * 0.175, -(radius * 0.575)),
@@ -177,12 +176,23 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
   }
 }
 
+/// A single button in the center of the speedometer.
 class CenterButton extends StatelessWidget {
+  /// The radius of the circle that the button is made of.
   final double radius;
+
+  /// The gradient of the button.
   final LinearGradient gradient;
+
+  /// The callback that is called when the button is pressed.
   final Function onPressed;
+
+  /// The rotation of the button.
   final double rotation;
+
+  /// The child of the button.
   final Widget child;
+
   const CenterButton(
       {Key? key,
       required this.radius,
@@ -191,6 +201,7 @@ class CenterButton extends StatelessWidget {
       required this.rotation,
       required this.child})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -205,9 +216,7 @@ class CenterButton extends StatelessWidget {
               child: CustomPaint(
                 size: Size(radius, radius / 2),
                 painter: CenterButtonPainter(
-                  rotation: rotation,
                   gradient: gradient,
-                  isDark: Theme.of(context).brightness == Brightness.dark,
                 ),
                 child: Transform.translate(
                   offset: Offset(0, radius * 0.25),
@@ -225,13 +234,14 @@ class CenterButton extends StatelessWidget {
   }
 }
 
+/// The painter for the special shape of the center buttons.
 class CenterButtonPainter extends CustomPainter {
+  /// The gradient of the shape.
   final LinearGradient gradient;
-  final double rotation;
-  final bool isDark;
 
-  CenterButtonPainter({required this.isDark, required this.rotation, required this.gradient});
+  CenterButtonPainter({required this.gradient});
 
+  /// Draws the shadow of the button.
   void drawButtonShadow(Canvas canvas, Size size, Path path) {
     final paint = Paint()
       ..color = Colors.black
@@ -239,6 +249,7 @@ class CenterButtonPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// Draws the the button.
   void drawButton(Canvas canvas, Size size, Path path) {
     // Draw the main shape
     final paint = Paint()..shader = gradient.createShader(Rect.fromCircle(center: Offset.zero, radius: size.width));

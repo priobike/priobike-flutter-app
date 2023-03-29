@@ -40,8 +40,8 @@ class RideViewState extends State<RideView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
-  /// If the modal is currently shown.
-  bool showModal = false;
+  /// If the danger modal is currently shown.
+  bool showDangerModal = false;
 
   /// The snapped danger position for the modal.
   Snap? dangerPosition;
@@ -189,7 +189,7 @@ class RideViewState extends State<RideView> {
   /// A callback that is called when the button is tapped.
   Future<void> onTapDanger() async {
     HapticFeedback.lightImpact();
-    if (!showModal /* Prepare to show modal. */) {
+    if (!showDangerModal /* Prepare to show modal. */) {
       log.i("Caching the current position.");
       // Get the current snapped position.
       final snap = getIt<Positioning>().snap;
@@ -199,12 +199,12 @@ class RideViewState extends State<RideView> {
       }
       setState(() {
         dangerPosition = snap;
-        showModal = true;
+        showDangerModal = true;
       });
     } else {
       setState(() {
         dangerPosition = null;
-        showModal = false;
+        showDangerModal = false;
       });
     }
   }
@@ -259,11 +259,11 @@ class RideViewState extends State<RideView> {
                   onExit: () {
                     setState(() {
                       dangerPosition = null;
-                      showModal = false;
+                      showDangerModal = false;
                     });
                   },
                 ),
-                crossFadeState: showModal ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                crossFadeState: showDangerModal ? CrossFadeState.showSecond : CrossFadeState.showFirst,
               ),
             ],
           ),

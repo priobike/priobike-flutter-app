@@ -21,6 +21,7 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
+  /// A callback that is called when the danger button is tapped.
   final Function onTapDanger;
 
   const RideSpeedometerView({Key? key, required this.onTapDanger}) : super(key: key);
@@ -323,22 +324,24 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                             ),
                             const Center(child: RideTrafficLightView()),
                             Center(
-                                child: RideCenterButtonsView(
-                              onTapDanger: widget.onTapDanger,
-                            ))
+                              child: RideCenterButtonsView(
+                                onTapDanger: widget.onTapDanger,
+                              ),
+                            )
                           ],
                         ),
                       ),
                     ),
                     if (ride.userSelectedSG == null) ...[
                       Padding(
-                          padding: const EdgeInsets.only(bottom: 62),
-                          child: BoldContent(
-                            text:
-                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
-                            context: context,
-                            color: Theme.of(context).colorScheme.primary,
-                          )),
+                        padding: const EdgeInsets.only(bottom: 62),
+                        child: BoldContent(
+                          text:
+                              "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                          context: context,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
