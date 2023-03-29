@@ -62,7 +62,7 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final countdown = recommendation.calcCurrentPhaseChangeTime!.difference(DateTime.now()).inSeconds;
     // If the countdown is 0 (or negative), we hide the countdown. In this way the user
     // is not confused if the countdown is at 0 for a few seconds.
-    var countdownLabel = countdown > 0 ? "$countdown" : "";
+    var countdownLabel = countdown > 5 ? "$countdown" : "";
     // Show no countdown label for amber and redamber.
     if (recommendation.calcCurrentSignalPhase == Phase.amber) countdownLabel = "";
     if (recommendation.calcCurrentSignalPhase == Phase.redAmber) countdownLabel = "";
