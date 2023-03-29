@@ -11,6 +11,7 @@ import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/messages/sgselector.dart';
+import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -95,6 +96,14 @@ extension RoutingProfileExtension on RoutingProfile {
         return "Mountainbike - Schnellste Strecke";
     }
   }
+}
+
+/// A typed tuple for a crossing and its distance.
+class TupleCrossingsDistances {
+  final Crossing crossing;
+  final double distance;
+
+  TupleCrossingsDistances(this.crossing, this.distance);
 }
 
 class Routing with ChangeNotifier {
@@ -440,14 +449,28 @@ class Routing with ChangeNotifier {
             ).snap();
             crossingsDistancesOnRoute.add(snappedCrossingPos.distanceOnRoute);
           }
+
+          // Order the crossings by distance.
+          final tuples = List<TupleCrossingsDistances>.empty(growable: true);
+          for (var i = 0; i < crossingsDistancesOnRoute.length; i++) {
+            tuples.add(TupleCrossingsDistances(sgSelectorResponse.crossings[i], crossingsDistancesOnRoute[i]));
+          }
+          tuples.sort((a, b) => a.distance.compareTo(b.distance));
+          final orderedCrossings = List<Crossing>.empty(growable: true);
+          final orderedCrossingsDistancesOnRoute = List<double>.empty(growable: true);
+          for (final tuple in tuples) {
+            orderedCrossings.add(tuple.crossing);
+            orderedCrossingsDistancesOnRoute.add(tuple.distance);
+          }
+
           var route = r.Route(
             id: i,
             path: path,
             route: sgSelectorResponse.route,
             signalGroups: sgsInOrderOfRoute,
             signalGroupsDistancesOnRoute: signalGroupsDistancesOnRoute,
-            crossings: sgSelectorResponse.crossings,
-            crossingsDistancesOnRoute: crossingsDistancesOnRoute,
+            crossings: orderedCrossings,
+            crossingsDistancesOnRoute: orderedCrossingsDistancesOnRoute,
           );
           // Connect the route to the start and end points.
           route = route.connected(selectedWaypoints!.first, selectedWaypoints!.last);
