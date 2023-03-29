@@ -322,13 +322,21 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            const Center(child: RideTrafficLightView()),
-                            Center(
-                              child: RideCenterButtonsView(
-                                onTapDanger: widget.onTapDanger,
-                              ),
-                            )
                           ],
+                        ),
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: const Center(
+                        child: RideTrafficLightView(),
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: Center(
+                        child: RideCenterButtonsView(
+                          onTapDanger: widget.onTapDanger,
                         ),
                       ),
                     ),
