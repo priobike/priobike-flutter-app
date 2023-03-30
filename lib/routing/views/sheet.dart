@@ -199,7 +199,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline;
     if (allTrafficLights > 0) {
-      text += " - $okTrafficLights/$allTrafficLights Ampeln verbunden";
+      text += " - $okTrafficLights von $allTrafficLights Ampeln verbunden";
     } else {
       text += " - Es befinden sich keine Ampeln auf der Route";
     }
