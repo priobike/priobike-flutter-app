@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
+import 'package:priobike/common/map/layers/prio_layers.dart';
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -342,6 +343,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       if (!mounted) return;
       await AccidentHotspotsLayer.remove(mapController!);
+    }
+    if (layers.showGreenWaveLayer) {
+      if (!mounted) return;
+      await GreenWaveLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await GreenWaveLayer.remove(mapController!);
     }
   }
 
