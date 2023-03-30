@@ -140,8 +140,8 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// The route label coords.
-  List<GHCoordinate> routeLabelCoords = [];
+  /// The route label coordinates.
+  List<Map> routeLabelCoordinates = [];
 
   /// Variable that holds the state of which the item should be minimized to max 3 items.
   bool minimized = false;
@@ -168,15 +168,15 @@ class Routing with ChangeNotifier {
   }
 
   /// Add new route label coords.
-  void addRouteLabelCoords(GHCoordinate coordinate) {
-    routeLabelCoords.add(coordinate);
+  void addRouteLabelCoords(GHCoordinate coordinate, Map feature) {
+    routeLabelCoordinates.add({"coordinate": coordinate, "feature": feature});
     // Use original notifyListeners to prevent setting camera to route bounds.
     super.notifyListeners();
   }
 
   /// Add new route label coords.
   void resetRouteLabelCoords() {
-    routeLabelCoords = [];
+    routeLabelCoordinates = [];
     // Use original notifyListeners to prevent setting camera to route bounds.
     super.notifyListeners();
   }
@@ -233,7 +233,7 @@ class Routing with ChangeNotifier {
     nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
-    routeLabelCoords = [];
+    routeLabelCoordinates = [];
     minimized = false;
     notifyListeners();
   }
@@ -491,7 +491,7 @@ class Routing with ChangeNotifier {
     await status.fetch(routes.first);
 
     // Force new route label coords.
-    routeLabelCoords = [];
+    routeLabelCoordinates = [];
     notifyListeners();
     return routes;
   }

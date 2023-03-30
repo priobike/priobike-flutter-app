@@ -49,14 +49,14 @@ class SymbolLoader {
     await add("accidentdark", "assets/images/accident-dark.png", 201, 201);
     await add("accidentlight", "assets/images/accident-light.png", 201, 201);
 
-    await add("route-label-primary-bottom-left", "assets/images/route-label-primary-bottom-left.png", 201, 201);
-    await add("route-label-primary-bottom-right", "assets/images/route-label-primary-bottom-right.png", 201, 201);
-    await add("route-label-primary-top-left", "assets/images/route-label-primary-top-left.png", 201, 200);
-    await add("route-label-primary-top-right", "assets/images/route-label-primary-top-right.png", 201, 201);
-    await add("route-label-secondary-bottom-left", "assets/images/route-label-secondary-bottom-left.png", 201, 201);
-    await add("route-label-secondary-bottom-right", "assets/images/route-label-secondary-bottom-right.png", 201, 201);
-    await add("route-label-secondary-top-left", "assets/images/route-label-secondary-top-left.png", 201, 200);
-    await add("route-label-secondary-top-right", "assets/images/route-label-secondary-top-right.png", 201, 200);
+    await add("route-label-primary-left", "assets/images/route-label-primary-left.png", 201, 63);
+    await add("route-label-primary-right", "assets/images/route-label-primary-right.png", 201, 63);
+    await add("route-label-primary-top", "assets/images/route-label-primary-top.png", 151, 113);
+    await add("route-label-primary-bottom", "assets/images/route-label-primary-bottom.png", 151, 113);
+    await add("route-label-secondary-left", "assets/images/route-label-secondary-left.png", 200, 63);
+    await add("route-label-secondary-right", "assets/images/route-label-secondary-right.png", 200, 63);
+    await add("route-label-secondary-top", "assets/images/route-label-secondary-top.png", 150, 113);
+    await add("route-label-secondary-bottom", "assets/images/route-label-secondary-bottom.png", 150, 113);
 
     await add("potholes", "assets/images/potholes-map.png", 201, 201);
     await add("obstacle", "assets/images/obstacle-map.png", 201, 201);

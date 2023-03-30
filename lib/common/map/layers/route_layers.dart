@@ -15,10 +15,45 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
+
+String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirst) {
+  if (routeDiffLat < routeDiffLon) {
+    // Case route is more horizontal.
+    // Only consider top and bottom.
+    if (diffLat > 0 && isFirst || diffLat < 0 && !isFirst) {
+      // C1 is above of C2.
+      return "bottom";
+    } else {
+      return "top";
+    }
+  } else {
+    // Case route is more vertical.
+    // Only consider left and right.
+    if (diffLon > 0 && isFirst || diffLon < 0 && !isFirst) {
+      // C1 is right of C2.
+      return "left";
+    } else {
+      return "right";
+    }
+  }
+}
+
+List<double> getTextOffsetFromOrientation(String orientation) {
+  switch (orientation) {
+    case "top":
+      return [0, 1];
+    case "bottom":
+      return [0, -1];
+    case "left":
+      return [1.5, 0];
+    case "right":
+      return [-1.5, 0];
+  }
+  return [1.5, 0];
+}
 
 class AllRoutesLayer {
   /// The features to display.
@@ -193,13 +228,9 @@ class RouteLabelLayer {
 
   RouteLabelLayer(double deviceWidth, double deviceHeight, CameraState cameraState) {
     final routing = getIt<Routing>();
-    final mapController = getIt<MapSettings>();
 
-    // Conditions for having route labels.
-    if (mapController.controller != null &&
-        routing.allRoutes != null &&
-        routing.allRoutes!.length >= 2 &&
-        routing.selectedRoute != null) {
+    // Conditions for having route labels. Limited to 2 route alternatives.
+    if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
       var distance = const Distance();
 
       double meterPerPixel = zoomToGeographicalDistance[cameraState.zoom.toInt()] ?? 0;
@@ -218,13 +249,13 @@ class RouteLabelLayer {
 
       bool allInBounds = true;
       // Check if current route labels are in bounds still.
-      if (routing.routeLabelCoords.isNotEmpty) {
-        for (GHCoordinate ghCoordinate in routing.routeLabelCoords) {
+      if (routing.routeLabelCoordinates.isNotEmpty) {
+        for (Map data in routing.routeLabelCoordinates) {
           // Check out of new bounds.
-          if (ghCoordinate.lat < south.latitude ||
-              ghCoordinate.lat > north.latitude ||
-              ghCoordinate.lon < west.longitude ||
-              ghCoordinate.lon > east.longitude) {
+          if (data["coordinate"].lat < south.latitude ||
+              data["coordinate"].lat > north.latitude ||
+              data["coordinate"].lon < west.longitude ||
+              data["coordinate"].lon > east.longitude) {
             // Not in new bounds.
             allInBounds = false;
           }
@@ -233,28 +264,27 @@ class RouteLabelLayer {
 
       // If all in bounds then we don't have to calculate new positions.
       // But update route labels in case the selected route changed.
-      if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoords.length) {
+      if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoordinates.length) {
         for (var i = 0; i < routing.allRoutes!.length; i++) {
-          features.add(
-            {
-              "id": "routeLabel-${routing.allRoutes![i].id}", // Required for click listener.
-              "type": "Feature",
-              "geometry": {
-                "type": "Point",
-                "coordinates": [routing.routeLabelCoords[i].lon, routing.routeLabelCoords[i].lat],
-              },
-              "properties": {
-                "isPrimary": routing.selectedRoute!.id == routing.allRoutes![i].id,
-                "text": "${((routing.allRoutes![i].path.time * 0.001) * 0.016).round()} min"
-              },
-            },
-          );
+          String imageSource = routing.routeLabelCoordinates[i]["feature"]["properties"]["imageSource"];
+          // Check if the image source needs to change.
+          if (routing.selectedRoute!.id == routing.allRoutes![i].id) {
+            imageSource = imageSource.replaceFirst(RegExp(r'secondary'), "primary");
+          } else {
+            imageSource = imageSource.replaceFirst(RegExp(r'primary'), "secondary");
+          }
+          routing.routeLabelCoordinates[i]["feature"]["properties"]["isPrimary"] =
+              routing.selectedRoute!.id == routing.allRoutes![i].id;
+          routing.routeLabelCoordinates[i]["feature"]["properties"]["imageSource"] = imageSource;
+          features.add(routing.routeLabelCoordinates[i]["feature"]);
         }
         return;
       }
 
-      // Reset the old coords before adding the new ones.
+      // Reset the old coordinates before adding the new ones.
       routing.resetRouteLabelCoords();
+      // Chosen coordinates and feature object.
+      List<Map> chosenCoordinates = [];
 
       // Search appropriate Point in Route
       for (r.Route route in routing.allRoutes!) {
@@ -294,14 +324,14 @@ class RouteLabelLayer {
 
         // Determine which coordinate to use.
         if (uniqueInBounceCoordinates.isNotEmpty) {
-          // Use the middlest coordinate.
+          // Use the middlemost coordinate.
           chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
         }
 
         if (chosenCoordinate != null) {
-          // Found coordinate and add Label with time.
-          features.add(
-            {
+          chosenCoordinates.add({
+            "coordinate": chosenCoordinate,
+            "feature": {
               "id": "routeLabel-${route.id}", // Required for click listener.
               "type": "Feature",
               "geometry": {
@@ -312,12 +342,56 @@ class RouteLabelLayer {
                 "isPrimary": routing.selectedRoute!.id == route.id,
                 "text": "${((route.path.time * 0.001) * 0.016).round()} min"
               },
-            },
-          );
-          // Add to routing coords.
-          routing.addRouteLabelCoords(GHCoordinate(lon: chosenCoordinate.lon, lat: chosenCoordinate.lat));
+            }
+          });
         }
       }
+      // Determine the relation between the chosenCoordinate.
+      // Will be calculated for 2 coordinates only.
+      if (chosenCoordinates.length != 2) return;
+      final GHCoordinate coordinate1 = chosenCoordinates[0]["coordinate"];
+      final GHCoordinate coordinate2 = chosenCoordinates[1]["coordinate"];
+
+      final coordinates = routing.allRoutes![0].path.points.coordinates;
+
+      // Prerequisite that location is hamburg and therefore only positive lat and lon values.
+      // Also orientation is lon: the greater the further right, lat: the greater the more top.
+      final double diffLat = coordinate1.lat - coordinate2.lat;
+      final double diffLon = coordinate1.lon - coordinate2.lon;
+
+      final double diffLatRoute = (coordinates[0].lat - coordinates[coordinates.length - 1].lat).abs();
+      final double diffLonRoute = (coordinates[0].lon - coordinates[coordinates.length - 1].lon).abs();
+
+      String coordinate1Orientation = "left"; //Standard orientation.
+      String coordinate2Orientation = "right"; //Standard orientation.
+
+      coordinate1Orientation = calculateOrientation(diffLat, diffLon, diffLatRoute, diffLonRoute, true);
+      coordinate2Orientation = calculateOrientation(diffLat, diffLon, diffLatRoute, diffLonRoute, false);
+
+      // Set the correct image and text offset.
+      chosenCoordinates[0]["feature"]["properties"]["imageSource"] =
+          "route-label-${chosenCoordinates[0]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate1Orientation";
+      chosenCoordinates[0]["feature"]["properties"]["textOffset"] =
+          getTextOffsetFromOrientation(coordinate1Orientation);
+      chosenCoordinates[0]["feature"]["properties"]["anchor"] = coordinate1Orientation;
+
+      chosenCoordinates[1]["feature"]["properties"]["imageSource"] =
+          "route-label-${chosenCoordinates[1]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate2Orientation";
+      chosenCoordinates[1]["feature"]["properties"]["textOffset"] =
+          getTextOffsetFromOrientation(coordinate2Orientation);
+      chosenCoordinates[1]["feature"]["properties"]["anchor"] = coordinate2Orientation;
+
+      // Adding feature to feature list.
+      features.add(chosenCoordinates[0]["feature"]);
+      features.add(chosenCoordinates[1]["feature"]);
+
+      // Adding data to routing label coordinates.
+      routing.addRouteLabelCoords(
+          GHCoordinate(lon: chosenCoordinates[0]["coordinate"].lon, lat: chosenCoordinates[0]["coordinate"].lat),
+          chosenCoordinates[0]["feature"]);
+      routing.addRouteLabelCoords(
+          GHCoordinate(lon: chosenCoordinates[1]["coordinate"].lon, lat: chosenCoordinates[1]["coordinate"].lat),
+          chosenCoordinates[1]["feature"]);
     }
   }
 
@@ -353,33 +427,18 @@ class RouteLabelLayer {
             textIgnorePlacement: true,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style.setStyleLayerProperty(
-          "routeLabels-clicklayer",
-          'icon-image',
-          json.encode([
-            "case",
-            ["get", "isPrimary"],
-            "route-label-primary-bottom-left",
-            "route-label-secondary-bottom-left"
-          ]));
+      await mapController.style
+          .setStyleLayerProperty("routeLabels-clicklayer", 'icon-image', json.encode(["get", "imageSource"]));
       await mapController.style
           .setStyleLayerProperty("routeLabels-clicklayer", 'icon-opacity', json.encode(showAfter(zoom: 10)));
-      await mapController.style.setStyleLayerProperty(
-          "routeLabels-clicklayer",
-          'icon-offset',
-          json.encode([
-            "literal",
-            [0, -20]
-          ]));
+      await mapController.style
+          .setStyleLayerProperty("routeLabels-clicklayer", 'icon-anchor', json.encode(["get", "anchor"]));
+      await mapController.style
+          .setStyleLayerProperty("routeLabels-clicklayer", 'text-anchor', json.encode(["get", "anchor"]));
       await mapController.style
           .setStyleLayerProperty("routeLabels-clicklayer", 'text-field', json.encode(["get", "text"]));
-      await mapController.style.setStyleLayerProperty(
-          "routeLabels-clicklayer",
-          'text-offset',
-          json.encode([
-            "literal",
-            [0, -1]
-          ]));
+      await mapController.style
+          .setStyleLayerProperty("routeLabels-clicklayer", 'text-offset', json.encode(["get", "textOffset"]));
       await mapController.style.setStyleLayerProperty(
           "routeLabels-clicklayer",
           'text-color',

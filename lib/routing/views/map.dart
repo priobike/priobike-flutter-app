@@ -88,10 +88,16 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The current mode (dark/light).
   bool isDark = false;
 
+  double? deviceWidth;
+  double? deviceHeight;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     updateMap();
-    setState(() {});
+    setState(() {
+      deviceWidth = MediaQuery.of(context).size.width;
+      deviceHeight = MediaQuery.of(context).size.height;
+    });
   }
 
   /// Updates the map.
@@ -384,6 +390,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       mapController!,
       below: selectedRoute,
     );
+    if (!mounted) return;
+    await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
+            await mapController!.getCameraState())
+        .install(mapController!, iconSize: ppi / 8);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -398,6 +408,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final discomfortIdx = int.tryParse(id.split("-")[1]);
       if (discomfortIdx == null) return;
       discomforts.selectDiscomfort(discomfortIdx);
+    } else if (id.startsWith("routeLabel")) {
+      final routeLabelIdx = int.tryParse(id.split("-")[1]);
+      if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+        return;
+      }
+      routing.switchToRoute(routeLabelIdx);
     }
   }
 
@@ -482,7 +498,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: ['routes-layer', 'discomforts-layer'],
+        layerIds: ['routes-layer', 'discomforts-layer', 'routeLabels-clicklayer'],
       ),
     );
 
@@ -544,6 +560,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// A callback that is executed when the camera movement of the user stopped.
+  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
+    // Check if the route labels have to be positionally adjusted.
+    if (mapController != null &&
+        !(await mapController!.isUserAnimationInProgress()) &&
+        deviceWidth != null &&
+        deviceHeight != null) {
+      await (RouteLabelLayer(deviceWidth!, deviceHeight!, await mapController!.getCameraState()))
+          .update(mapController!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -567,6 +595,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
+            onCameraIdle: onCameraIdle,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,
