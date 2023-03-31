@@ -38,7 +38,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
   Widget build(BuildContext context) {
     final colors = [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary];
     final stops = [0.0, 0.8];
-    const radius = 120.0;
+    final radius = MediaQuery.of(context).size.width * 0.3;
 
     final signalGroupsAvailable = ride.route?.signalGroups != null && ride.route!.signalGroups.isNotEmpty;
 
@@ -51,7 +51,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // RIGHT BUTTON
           if (signalGroupsAvailable)
             Transform.translate(
-              offset: const Offset(radius * 0.75, 0),
+              offset: Offset(radius * 0.75, 0),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -65,7 +65,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(width: radius * 0.15),
+                    SizedBox(width: radius * 0.15),
                     SizedBox(
                       width: 40,
                       height: 40,
@@ -78,7 +78,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                       ),
                     ),
                     Transform.translate(
-                      offset: const Offset(-radius * 0.08, 0),
+                      offset: Offset(-radius * 0.08, 0),
                       child: const Icon(
                         Icons.arrow_upward_rounded,
                         size: 30,
@@ -92,7 +92,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // BOTTOM BUTTON
           if (ride.userSelectedSG != null)
             Transform.translate(
-              offset: const Offset(0, (radius * 0.75)),
+              offset: Offset(0, (radius * 0.75)),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -113,7 +113,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           // LEFT BUTTON
           if (signalGroupsAvailable)
             Transform.translate(
-              offset: const Offset(-radius * 0.75, 0),
+              offset: Offset(-radius * 0.75, 0),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
@@ -139,7 +139,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                       ),
                     ),
                     Transform.translate(
-                      offset: const Offset(-radius * 0.08, 0),
+                      offset: Offset(-radius * 0.08, 0),
                       child: const Icon(
                         Icons.arrow_downward_rounded,
                         size: 30,
@@ -152,7 +152,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
             ),
           // TOP BUTTON
           Transform.translate(
-            offset: const Offset(0, -radius * 0.75),
+            offset: Offset(0, -radius * 0.75),
             child: CenterButton(
               radius: radius,
               gradient: LinearGradient(
