@@ -186,27 +186,27 @@ class Ride with ChangeNotifier {
     // that is closer to the user. Otherwise we just use the next upcoming signal group on the route.
     final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
     for (int i = 0; i < route!.signalGroups.length; i++) {
-      final distanceOnRoute = route!.signalGroupsDistancesOnRoute[i];
+      final routeDistanceSg = route!.signalGroupsDistancesOnRoute[i];
       if (speed < 2) {
         // Get the previous signal group closest to the user if it exists.
-        if (distanceOnRoute < snap.distanceOnRoute) {
-          if (distanceOnRoute > routeDistanceOfPreviousSg) {
+        if (routeDistanceSg < snap.distanceOnRoute) {
+          if (routeDistanceSg > routeDistanceOfPreviousSg) {
             previousSg = route!.signalGroups[i];
             previousSgIndex = i;
-            routeDistanceOfPreviousSg = distanceOnRoute;
+            routeDistanceOfPreviousSg = routeDistanceSg;
           }
         }
       }
       // Get the next upcoming signal group on the route.
-      if (distanceOnRoute > snap.distanceOnRoute) {
+      if (routeDistanceSg > snap.distanceOnRoute) {
         nextSg = route!.signalGroups[i];
         nextSgIndex = i;
         routeDistanceOfNextSg = route!.signalGroupsDistancesOnRoute[i];
         break;
       }
     }
-    if ((routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() < 10 &&
-        previousSg != null &&
+    if (previousSg != null &&
+        (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() < 10 &&
         (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() <
             (routeDistanceOfNextSg - snap.distanceOnRoute).abs()) {
       nextSg = previousSg;
