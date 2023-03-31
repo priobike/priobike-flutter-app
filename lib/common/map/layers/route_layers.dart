@@ -44,13 +44,13 @@ String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirs
 List<double> getTextOffsetFromOrientation(String orientation) {
   switch (orientation) {
     case "top":
-      return [0, 1];
+      return [0, 1.1];
     case "bottom":
-      return [0, -1];
+      return [0, -1.1];
     case "left":
-      return [1.5, 0];
+      return [1.6, 0];
     case "right":
-      return [-1.5, 0];
+      return [-1.6, 0];
   }
   return [1.5, 0];
 }
@@ -399,6 +399,7 @@ class RouteLabelLayer {
   Future<String> install(
     mapbox.MapboxMap mapController, {
     iconSize = 0.75,
+    textSize = 12,
     String? below,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists("routeLabels");
@@ -422,7 +423,7 @@ class RouteLabelLayer {
             textOpacity: 0,
             iconAllowOverlap: true,
             iconIgnorePlacement: true,
-            textSize: 12,
+            textSize: textSize,
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),

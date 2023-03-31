@@ -393,7 +393,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
             await mapController!.getCameraState())
-        .install(mapController!, iconSize: ppi / 8);
+        .install(mapController!, iconSize: ppi / 8, textSize: ppi * 4);
   }
 
   /// A callback that is called when the user taps a feature.
