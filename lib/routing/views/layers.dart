@@ -115,6 +115,14 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   selected: layers.showGreenWaveLayer,
                   onTap: () => layers.setShowGreenWaveLayer(!layers.showGreenWaveLayer),
                 ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/velo-routes-light.png")
+                      : Image.asset("assets/images/velo-routes-dark.png"),
+                  title: 'Velorouten',
+                  selected: layers.showVeloRoutesLayer,
+                  onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
+                ),
               ],
             ),
             Content(text: "Kartendesign", context: context),
