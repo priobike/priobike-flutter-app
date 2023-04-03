@@ -260,6 +260,8 @@ class Ride with ChangeNotifier {
     navigationIsActive = false;
     await predictionComponent?.reset();
     predictionComponent = null;
+    userSelectedSG = null;
+    userSelectedSGIndex = null;
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
     calcDistanceToNextSG = null;
