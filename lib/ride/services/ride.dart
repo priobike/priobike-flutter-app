@@ -178,13 +178,40 @@ class Ride with ChangeNotifier {
     Sg? nextSg;
     int? nextSgIndex;
     double routeDistanceOfNextSg = double.infinity;
+    Sg? previousSg;
+    int? previousSgIndex;
+    double routeDistanceOfPreviousSg = 0;
+    // Sometimes the GPS position may unintendedly jump after the signal group. If the user
+    // is slow (< 2 m/s) and the previous signal group is < 10m away, we use the signal group
+    // that is closer to the user. Otherwise we just use the next upcoming signal group on the route.
+    final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
     for (int i = 0; i < route!.signalGroups.length; i++) {
-      if (route!.signalGroupsDistancesOnRoute[i] > snap.distanceOnRoute) {
+      final routeDistanceSg = route!.signalGroupsDistancesOnRoute[i];
+      if (speed < 2) {
+        // Get the previous signal group closest to the user if it exists.
+        if (routeDistanceSg < snap.distanceOnRoute) {
+          if (routeDistanceSg > routeDistanceOfPreviousSg) {
+            previousSg = route!.signalGroups[i];
+            previousSgIndex = i;
+            routeDistanceOfPreviousSg = routeDistanceSg;
+          }
+        }
+      }
+      // Get the next upcoming signal group on the route.
+      if (routeDistanceSg > snap.distanceOnRoute) {
         nextSg = route!.signalGroups[i];
         nextSgIndex = i;
         routeDistanceOfNextSg = route!.signalGroupsDistancesOnRoute[i];
         break;
       }
+    }
+    if (previousSg != null &&
+        (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() < 10 &&
+        (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() <
+            (routeDistanceOfNextSg - snap.distanceOnRoute).abs()) {
+      nextSg = previousSg;
+      nextSgIndex = previousSgIndex;
+      routeDistanceOfNextSg = routeDistanceOfPreviousSg;
     }
 
     // Find the next crossing that is not connected on the route.
