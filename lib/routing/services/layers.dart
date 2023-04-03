@@ -26,6 +26,12 @@ class Layers with ChangeNotifier {
   /// If accident hotspots are currently visible.
   bool showAccidentHotspots;
 
+  /// If the green wave layer is currently visible.
+  bool showGreenWaveLayer;
+
+  /// If the velo routes layer is currently visible.
+  bool showVeloRoutesLayer;
+
   /// Whether the layers can be enabled.
   bool layersCanBeEnabled;
 
@@ -63,6 +69,16 @@ class Layers with ChangeNotifier {
     await storePreferences();
   }
 
+  Future<void> setShowGreenWaveLayer(bool showGreenWaveLayer) async {
+    this.showGreenWaveLayer = showGreenWaveLayer;
+    await storePreferences();
+  }
+
+  Future<void> setShowVeloRoutesLayer(bool showVeloRoutesLayer) async {
+    this.showVeloRoutesLayer = showVeloRoutesLayer;
+    await storePreferences();
+  }
+
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
@@ -70,6 +86,8 @@ class Layers with ChangeNotifier {
     this.showAirStations = false,
     this.showRepairStations = false,
     this.showAccidentHotspots = true,
+    this.showGreenWaveLayer = false,
+    this.showVeloRoutesLayer = false,
     this.layersCanBeEnabled = false,
   });
 
@@ -89,6 +107,8 @@ class Layers with ChangeNotifier {
       showAirStations = storage.getBool("priobike.layers.showAirStations") ?? false;
       showRepairStations = storage.getBool("priobike.layers.showRepairStations") ?? false;
       showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
+      showGreenWaveLayer = storage.getBool("priobike.layers.showGreenWaveLayer") ?? false;
+      showVeloRoutesLayer = storage.getBool("priobike.layers.showVeloRoutesLayer") ?? false;
     }
     notifyListeners();
   }
@@ -103,6 +123,8 @@ class Layers with ChangeNotifier {
     await storage.setBool("priobike.layers.showAirStations", showAirStations);
     await storage.setBool("priobike.layers.showRepairStations", showRepairStations);
     await storage.setBool("priobike.layers.showAccidentHotspots", showAccidentHotspots);
+    await storage.setBool("priobike.layers.showGreenWaveLayer", showGreenWaveLayer);
+    await storage.setBool("priobike.layers.showVeloRoutesLayer", showVeloRoutesLayer);
 
     notifyListeners();
   }
