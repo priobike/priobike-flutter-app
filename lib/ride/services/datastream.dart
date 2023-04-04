@@ -11,7 +11,6 @@ import 'package:priobike/ride/messages/observations.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Datastream with ChangeNotifier {
   /// Logger for this class.
@@ -117,13 +116,10 @@ class Datastream with ChangeNotifier {
           notifyListeners();
         },
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       client = null;
       final hint = "Failed to connect the Frost MQTT client: $e";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
-      }
     }
   }
 
@@ -155,12 +151,9 @@ class Datastream with ChangeNotifier {
           log.i("MQTT: Received signalProgram: #${signalProgram!.program}");
         }
         notifyListeners();
-      } catch (e, stackTrace) {
+      } catch (e) {
         final hint = "MQTT: Error while parsing message: $e";
         log.e(hint);
-        if (!kDebugMode) {
-          Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
-        }
       }
     }
   }
