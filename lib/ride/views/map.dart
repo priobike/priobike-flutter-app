@@ -55,7 +55,6 @@ class RideMapViewState extends State<RideMapView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     updateMap();
-    setState(() {});
   }
 
   /// Update the map.
