@@ -180,8 +180,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
-
-    updateMap();
   }
 
   @override
@@ -456,10 +454,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
-    displayCurrentUserLocation();
-
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+
+    displayCurrentUserLocation();
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
