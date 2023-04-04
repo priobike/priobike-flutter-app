@@ -136,8 +136,8 @@ class AppMapState extends State<AppMap> {
         contextMode: mapbox.ContextMode.UNIQUE,
         // Has to be set if we set the MapOptions (thus, if we remove the contextMode we can also remove the
         // pixelRatio)
-        pixelRatio: MediaQuery.of(context).devicePixelRatio,
         crossSourceCollisions: false,
+        pixelRatio: MediaQuery.of(context).devicePixelRatio / 1.5,
       ),
       cameraOptions: mapbox.CameraOptions(
         center: mapbox.Point(

@@ -125,12 +125,21 @@ class RideViewState extends State<RideView> {
           child: Stack(
             alignment: Alignment.bottomCenter,
             clipBehavior: Clip.none,
-            children: const [
-              RideMapView(),
-              RideSpeedometerView(),
-              DatastreamView(),
-              RideSGButton(),
-              DangerButton(),
+            children: [
+              Transform.scale(
+                scale: MediaQuery.of(context).devicePixelRatio,
+                child: Center(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: const RideMapView(),
+                  ),
+                ),
+              ),
+              const RideSpeedometerView(),
+              const DatastreamView(),
+              const RideSGButton(),
+              const DangerButton(),
             ],
           ),
         ),
