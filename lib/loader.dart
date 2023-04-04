@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +22,6 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,10 +58,6 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Initialize Sentry.
-    const dsn = "https://f794ea046ecf420fb65b5964b3edbf53@priobike-sentry.inf.tu-dresden.de/2";
-    await SentryFlutter.init((options) => options.dsn = dsn);
-
     // Load the feature.
     final feature = getIt<Feature>();
     await feature.load();
@@ -91,10 +85,7 @@ class LoaderState extends State<Loader> {
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
       final weather = getIt<Weather>();
       await weather.fetch();
-    } catch (e, stackTrace) {
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stackTrace);
-      }
+    } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
       settings.incrementConnectionErrorCounter();

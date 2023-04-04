@@ -8,7 +8,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/summary.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionStatusSummary with ChangeNotifier {
   /// The logger for this service.
@@ -54,14 +53,11 @@ class PredictionStatusSummary with ChangeNotifier {
       isLoading = false;
       hadError = false;
       notifyListeners();
-    } catch (e, stack) {
+    } catch (e) {
       isLoading = false;
       hadError = true;
       notifyListeners();
       final hint = "Error while fetching prediction status: $e";
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
       log.e(hint);
     }
   }

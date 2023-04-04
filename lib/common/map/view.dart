@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -9,7 +8,6 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppMap extends StatefulWidget {
   /// Sideload prefetched mapbox tiles.
@@ -21,12 +19,9 @@ class AppMap extends StatefulWidget {
 
       // await installOfflineMapTiles("assets/offline/hamburg-light.db");
       // await installOfflineMapTiles("assets/offline/hamburg-dark.db");
-    } catch (err, stacktrace) {
+    } catch (err) {
       final hint = "Failed to load offline tiles: $err";
       Logger("AppMap").e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(err, stackTrace: stacktrace, hint: hint);
-      }
     }
   }
 

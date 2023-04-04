@@ -9,7 +9,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
@@ -81,12 +80,9 @@ class PredictionSGStatus with ChangeNotifier {
           },
         );
         pending.add(future);
-      } catch (e, stack) {
+      } catch (e) {
         final hint = "Error while fetching prediction status: $e";
         log.e(hint);
-        if (!kDebugMode) {
-          Sentry.captureException(e, stackTrace: stack, hint: hint);
-        }
       }
     }
 

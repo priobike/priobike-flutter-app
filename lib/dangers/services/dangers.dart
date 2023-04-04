@@ -15,7 +15,6 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Dangers with ChangeNotifier {
   final log = Logger("Dangers");
@@ -74,12 +73,9 @@ class Dangers with ChangeNotifier {
             .toList();
         notifyListeners();
       }
-    } catch (error, stackTrace) {
+    } catch (error) {
       final hint = "Error fetching dangers from $endpoint: $error";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
-      }
     }
   }
 
@@ -109,12 +105,9 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Sent danger to $endpoint");
       }
-    } catch (error, stackTrace) {
+    } catch (error) {
       final hint = "Error sending danger to $endpoint: $error";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
-      }
     }
     // Add the danger to the list.
     dangers.add(danger);
@@ -182,12 +175,9 @@ class Dangers with ChangeNotifier {
       } else {
         log.i("Voted for danger $danger");
       }
-    } catch (error, stackTrace) {
+    } catch (error) {
       final hint = "Error voting for danger $danger: $error";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
-      }
     }
     if (vote == 1) {
       ToastMessage.showSuccess("Gefahr bestätigt!");

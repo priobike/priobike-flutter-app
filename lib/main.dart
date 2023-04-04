@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback, Shortcuts;
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
@@ -36,7 +35,6 @@ import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 final log = Logger("main.dart");
 
@@ -89,8 +87,6 @@ Future<void> main() async {
     // Log the error to the console.
     log.e(error.toString());
     log.e(stack.toString());
-    // Send the error to Sentry, but only if we are not in debug mode.
-    if (!kDebugMode) Sentry.captureException(error, stackTrace: stack);
   });
 }
 
