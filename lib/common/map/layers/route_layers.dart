@@ -21,6 +21,15 @@ import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class AllRoutesLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "routes";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "routes-layer";
+
+  /// The ID of the click Mapbox layer.
+  static const layerIdClick = "routes-clicklayer";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -48,21 +57,21 @@ class AllRoutesLayer {
     clickLineWidth = 25.0,
     String? below,
   }) async {
-    final sourceExists = await mapController.style.styleSourceExists("routes");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "routes", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
     // Add another layer that makes it easier to click on the route.
-    final routeClickLayerExists = await mapController.style.styleLayerExists("routes-clicklayer");
+    final routeClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
     if (!routeClickLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "routes",
-            id: "routes-clicklayer",
+            sourceId: sourceId,
+            id: layerIdClick,
             lineColor: Colors.pink.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineWidth: clickLineWidth,
@@ -70,33 +79,42 @@ class AllRoutesLayer {
           ),
           mapbox.LayerPosition(below: below));
     }
-    final routesLayerExists = await mapController.style.styleLayerExists("routes-layer");
+    final routesLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routesLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "routes",
-            id: "routes-layer",
+            sourceId: sourceId,
+            id: layerId,
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineWidth: lineWidth,
           ),
-          mapbox.LayerPosition(below: "routes-clicklayer"));
+          mapbox.LayerPosition(below: layerIdClick));
     }
 
-    return "routes-layer";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("routes");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("routes");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
 }
 
 class SelectedRouteLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "route";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "route-layer";
+
+  /// The ID of the background Mapbox layer.
+  static const layerIdBackground = "route-background-layer";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -140,20 +158,20 @@ class SelectedRouteLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("route");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "route", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
-    final routeBackgroundLayerExists = await mapController.style.styleLayerExists("route-background-layer");
+    final routeBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
     if (!routeBackgroundLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "route",
-            id: "route-background-layer",
+            sourceId: sourceId,
+            id: layerIdBackground,
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
@@ -161,27 +179,27 @@ class SelectedRouteLayer {
           ),
           mapbox.LayerPosition(below: below));
     }
-    final routeLayerExists = await mapController.style.styleLayerExists("route-layer");
+    final routeLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routeLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "route",
-            id: "route-layer",
+            sourceId: sourceId,
+            id: layerId,
             lineColor: const Color(0xFFC6C6C6).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: fgLineWidth,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style.setStyleLayerProperty("route-layer", 'line-color', json.encode(["get", "color"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
     }
-    return "route-layer";
+    return layerId;
   }
 
   update(mapbox.MapboxMap mapController, {String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("route");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("route");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
@@ -402,6 +420,18 @@ class RouteLabelLayer {
 }
 
 class DiscomfortsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "discomforts";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "discomforts-layer";
+
+  /// The ID of the click Mapbox layer.
+  static const layerIdClick = "discomforts-clicklayer";
+
+  /// The ID of the marker Mapbox layer.
+  static const layerIdMarker = "discomforts-markers";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -435,20 +465,20 @@ class DiscomfortsLayer {
     clickWidth = 35.0,
     String? below,
   }) async {
-    final sourceExists = await mapController.style.styleSourceExists("discomforts");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "discomforts", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
-    final discomfortsClickLayerExists = await mapController.style.styleLayerExists("discomforts-clicklayer");
+    final discomfortsClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
     if (!discomfortsClickLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "discomforts",
-            id: "discomforts-clicklayer",
+            sourceId: sourceId,
+            id: layerIdClick,
             lineColor: Colors.pink.value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineWidth: clickWidth,
@@ -456,12 +486,12 @@ class DiscomfortsLayer {
           ),
           mapbox.LayerPosition(below: below));
     }
-    final discomfortsLayerExists = await mapController.style.styleLayerExists("discomforts-layer");
+    final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!discomfortsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.LineLayer(
-            sourceId: "discomforts",
-            id: "discomforts-layer",
+            sourceId: sourceId,
+            id: layerId,
             lineColor: const Color(0xFFE63328).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
@@ -469,12 +499,12 @@ class DiscomfortsLayer {
           ),
           mapbox.LayerPosition(below: below));
     }
-    final discomfortsMarkersExist = await mapController.style.styleLayerExists("discomforts-markers");
+    final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
     if (!discomfortsMarkersExist) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "discomforts",
-            id: "discomforts-markers",
+            sourceId: sourceId,
+            id: layerIdMarker,
             iconImage: "alert",
             iconSize: iconSize,
             iconAllowOverlap: true,
@@ -483,23 +513,28 @@ class DiscomfortsLayer {
             textIgnorePlacement: true,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style
-          .setStyleLayerProperty("discomforts-markers", 'text-field', json.encode(["get", "number"]));
+      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "number"]));
     }
-    return "discomforts-layer";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("discomforts");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("discomforts");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
 }
 
 class WaypointsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "waypoints";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "waypoints-icons";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -525,27 +560,27 @@ class WaypointsLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("waypoints");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "waypoints", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
-    final waypointsIconsLayerExists = await mapController.style.styleLayerExists("waypoints-icons");
+    final waypointsIconsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!waypointsIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-              sourceId: "waypoints",
-              id: "waypoints-icons",
+              sourceId: sourceId,
+              id: layerId,
               iconSize: iconSize,
               textAllowOverlap: true,
               textIgnorePlacement: true,
               iconAllowOverlap: true),
           mapbox.LayerPosition(below: below));
       await mapController.style.setStyleLayerProperty(
-          "waypoints-icons",
+          layerId,
           'icon-image',
           json.encode([
             "case",
@@ -557,20 +592,26 @@ class WaypointsLayer {
           ]));
     }
 
-    return "waypoints-icons";
+    return layerId;
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("waypoints");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("waypoints");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
 }
 
 class DangersLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "dangers";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "dangers-icons";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -616,30 +657,30 @@ class DangersLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("dangers");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "dangers", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
 
-    final dangersIconsLayerExists = await mapController.style.styleLayerExists("dangers-icons");
+    final dangersIconsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!dangersIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "dangers",
-            id: "dangers-icons",
+            sourceId: sourceId,
+            id: layerId,
             iconSize: iconSize,
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style.setStyleLayerProperty("dangers-icons", 'icon-image', json.encode(["get", "icon"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "icon"]));
       await mapController.style.setStyleLayerProperty(
-          "dangers-icons",
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 16, opacity: [
@@ -669,14 +710,14 @@ class DangersLayer {
           ));
     }
 
-    return "dangers-icons";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("dangers");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("dangers");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
