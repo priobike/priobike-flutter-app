@@ -495,13 +495,18 @@ class Tracking with ChangeNotifier {
       }
     } catch (e, stack) {
       final hint = "Failed to send track with id ${track.sessionId}: $e $stack.";
-      log.e(hint);
       if (!kDebugMode) {
         Sentry.captureException(e, stackTrace: stack, hint: hint);
       }
-      uploadingTracks.remove(track.sessionId);
-      notifyListeners();
-      return false;
+      log.e(hint);
+      // If a track file is missing and thus can't be uploaded,
+      // we want to continue as it got sent such that it does not try to send it again.
+      if (e is! PathNotFoundException) {
+        uploadingTracks.remove(track.sessionId);
+        notifyListeners();
+        return false;
+      }
+      log.w("Track with id ${track.sessionId} is missing files, skipping.");
     }
 
     uploadingTracks.remove(track.sessionId);
