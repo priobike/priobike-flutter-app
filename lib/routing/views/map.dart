@@ -117,20 +117,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Check if route-related stuff has changed.
     if (routing.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
     }
 
     // Check if the discomforts have changed.
     if (discomforts.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
     }
 
     // Check if the status has changed.
     if (status.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
 
@@ -268,7 +268,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         await mapController!.style
             .setStyleTransition(TransitionOptions(duration: 1000, enablePlacementTransitions: false));
       } else {
-        mapController!.style.updateLayer(
+        await mapController!.style.updateLayer(
           LocationIndicatorLayer(
             id: "user-location-puck",
             bearing: positioning.lastPosition!.heading,
@@ -358,7 +358,27 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
-  /// Update all map layers.
+  /// Update all route map layers.
+  updateRouteMapLayers() async {
+    if (mapController == null) return;
+    final ppi = MediaQuery.of(context).devicePixelRatio;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (!mounted) return;
+    await OfflineCrossingsLayer(isDark).update(mapController!);
+    if (!mounted) return;
+    await TrafficLightsLayer(isDark).update(mapController!);
+    if (!mounted) return;
+    await WaypointsLayer().update(mapController!);
+    if (!mounted) return;
+    await DiscomfortsLayer().update(mapController!);
+    if (!mounted) return;
+    await SelectedRouteLayer().update(mapController!);
+    if (!mounted) return;
+    await AllRoutesLayer().update(mapController!);
+  }
+
+  /// Load all route map layers.
   loadRouteMapLayers() async {
     if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
@@ -457,7 +477,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    displayCurrentUserLocation();
+    await displayCurrentUserLocation();
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
@@ -465,9 +485,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Load the boundary layer.
     await BoundaryLayer(isDark).install(mapController!);
 
-    fitCameraToRouteBounds();
-    loadGeoLayers();
-    loadRouteMapLayers();
+    await fitCameraToRouteBounds();
+    await loadRouteMapLayers();
+    // The delay is necessary to make sure that the user location indicator is completely loaded
+    // (the veloroutes layers needs to be below the user location indicator layer and to provide the id of
+    // the user location indicator layer to the velo routes layer it needs to be loaded completely).
+    await Future.delayed(const Duration(milliseconds: 500));
+    await loadGeoLayers();
   }
 
   /// A callback which is executed when a tap on the map is registered.

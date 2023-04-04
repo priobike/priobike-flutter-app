@@ -100,12 +100,6 @@ class VeloRoutesLayer {
               lineColor: CI.lightBlue.value,
               lineWidth: 1.9),
           mapbox.LayerPosition(below: "user-location-puck"));
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'icon-opacity',
-          json.encode(
-            showAfter(zoom: 12),
-          ));
     }
   }
 

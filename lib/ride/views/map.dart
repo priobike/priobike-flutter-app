@@ -98,8 +98,6 @@ class RideMapViewState extends State<RideMapView> {
     dangers.addListener(update);
     predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(update);
-
-    updateMap();
   }
 
   @override
