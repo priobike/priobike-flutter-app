@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -109,6 +110,15 @@ class AppMapState extends State<AppMap> {
 
   @override
   Widget build(BuildContext context) {
+    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    if (settings.saveBatteryModeEnabled) {
+      if (Platform.isIOS) {
+        devicePixelRatio = devicePixelRatio / 2;
+      } else {
+        devicePixelRatio = devicePixelRatio / 4;
+      }
+    }
+
     return mapbox.MapWidget(
       resourceOptions: mapbox.ResourceOptions(
           accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
@@ -137,7 +147,7 @@ class AppMapState extends State<AppMap> {
         // Has to be set if we set the MapOptions (thus, if we remove the contextMode we can also remove the
         // pixelRatio)
         crossSourceCollisions: false,
-        pixelRatio: MediaQuery.of(context).devicePixelRatio / 1.5,
+        pixelRatio: devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
         center: mapbox.Point(
@@ -161,13 +171,13 @@ class AppMapState extends State<AppMap> {
         position: widget.attributionButtonOrnamentPosition,
         marginTop: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.TOP_RIGHT &&
                 widget.attributionButtonMargins != null
-            ? widget.attributionButtonMargins?.y.toDouble()
+            ? widget.attributionButtonMargins!.y.toDouble()
             : 0,
         marginBottom: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_RIGHT &&
                 widget.attributionButtonMargins != null
             ? widget.attributionButtonMargins?.y.toDouble()
             : 0,
-        marginRight: widget.attributionButtonMargins?.x.toDouble()));
+        marginRight: widget.attributionButtonMargins!.x.toDouble()));
     controller.logo.updateSettings(mapbox.LogoSettings(
         position: widget.logoViewOrnamentPosition,
         marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT && widget.logoViewMargins != null

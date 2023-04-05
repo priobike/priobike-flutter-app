@@ -209,6 +209,14 @@ class SettingsViewState extends State<SettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when the save battery mode is changed.
+  Future<void> onChangeSaveBatteryMode(bool saveBatteryModeEnabled) async {
+    // Tell the settings service that we selected the new save battery mode.
+    await settings.setSaveBatteryModeEnabled(saveBatteryModeEnabled);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -347,6 +355,20 @@ class SettingsViewState extends State<SettingsView> {
                           },
                         );
                       }),
+                ),
+                const SmallVSpace(),
+                SettingsElement(
+                  title: "Akku schonen",
+                  icon: settings.saveBatteryModeEnabled ? Icons.check_box : Icons.check_box_outline_blank,
+                  callback: () => settings.setSaveBatteryModeEnabled(!settings.saveBatteryModeEnabled),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Hinweis: Wenn aktiviert, wird die Qualität der Kartendarstellung während der Fahrt reduziert.",
+                    context: context,
+                  ),
                 ),
                 const VSpace(),
                 Padding(

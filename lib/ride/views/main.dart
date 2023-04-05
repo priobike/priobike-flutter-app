@@ -126,16 +126,12 @@ class RideViewState extends State<RideView> {
             alignment: Alignment.bottomCenter,
             clipBehavior: Clip.none,
             children: [
-              Transform.scale(
-                scale: MediaQuery.of(context).devicePixelRatio,
-                child: Center(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: const RideMapView(),
-                  ),
-                ),
-              ),
+              settings.saveBatteryModeEnabled
+                  ? Transform.scale(
+                      scale: 2,
+                      child: const RideMapView(),
+                    )
+                  : const RideMapView(),
               const RideSpeedometerView(),
               const DatastreamView(),
               const RideSGButton(),
