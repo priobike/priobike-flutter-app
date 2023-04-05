@@ -1,9 +1,7 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
@@ -136,33 +134,39 @@ class RideViewState extends State<RideView> {
     ];
     const title = "Powered by Mapbox Maps";
 
-    if (Platform.isIOS) {
-      showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) => CupertinoActionSheet(
-          title: const Text(title),
-          cancelButton: CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          actions: <CupertinoActionSheetAction>[
-            for (final entry in attributionEntries)
-              CupertinoActionSheetAction(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
-                },
-                child: Text(entry['title']!),
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              BoldContent(
+                text: title,
+                context: context,
               ),
-          ],
+              for (final entry in attributionEntries)
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
+                  },
+                  child: Text(entry['title']!),
+                ),
+              const SizedBox(height: 15),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
         ),
-      );
-      return;
-    }
-
-    if (Platform.isAndroid) {
-      return;
-    }
+      ),
+    );
   }
 
   @override
@@ -196,7 +200,7 @@ class RideViewState extends State<RideView> {
                 ),
               if (settings.saveBatteryModeEnabled)
                 Positioned(
-                  top: 55,
+                  top: 45,
                   right: 10,
                   child: IconButton(
                     onPressed: showAttribution,
