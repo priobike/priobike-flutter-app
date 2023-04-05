@@ -321,6 +321,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
+      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
   }
 }

@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/lock.dart';
+import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/dangers/views/button.dart';
 import 'package:priobike/main.dart';
@@ -18,6 +23,7 @@ import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock/wakelock.dart';
 
 class RideView extends StatefulWidget {
@@ -107,6 +113,58 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  void showAttribution() {
+    final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
+    final List<Map<String, dynamic>> attributionEntries = [
+      {
+        'title': 'Mapbox',
+        'url': Uri.parse('https://www.mapbox.com/about/maps/'),
+      },
+      {
+        'title': 'OpenStreetMap',
+        'url': Uri.parse('https://www.openstreetmap.org/copyright'),
+      },
+      {
+        'title': 'Improve this map',
+        'url': Uri.parse('https://www.mapbox.com/map-feedback/'),
+      },
+      if (satelliteAttributionRequired)
+        {
+          'title': 'Maxar',
+          'url': Uri.parse('https://www.maxar.com/'),
+        },
+    ];
+    const title = "Powered by Mapbox Maps";
+
+    if (Platform.isIOS) {
+      showCupertinoModalPopup<void>(
+        context: context,
+        builder: (BuildContext context) => CupertinoActionSheet(
+          title: const Text(title),
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          actions: <CupertinoActionSheetAction>[
+            for (final entry in attributionEntries)
+              CupertinoActionSheetAction(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
+                },
+                child: Text(entry['title']!),
+              ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (Platform.isAndroid) {
+      return;
+    }
+  }
+
   @override
   void dispose() {
     settings.removeListener(update);
@@ -126,12 +184,29 @@ class RideViewState extends State<RideView> {
             alignment: Alignment.bottomCenter,
             clipBehavior: Clip.none,
             children: [
-              settings.saveBatteryModeEnabled
-                  ? Transform.scale(
-                      scale: 2,
-                      child: const RideMapView(),
-                    )
-                  : const RideMapView(),
+              const RideMapView(),
+              if (settings.saveBatteryModeEnabled)
+                const Positioned(
+                  top: 60,
+                  left: 10,
+                  child: Image(
+                    width: 100,
+                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
+                  ),
+                ),
+              if (settings.saveBatteryModeEnabled)
+                Positioned(
+                  top: 55,
+                  right: 10,
+                  child: IconButton(
+                    onPressed: showAttribution,
+                    icon: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 25,
+                      color: CI.blue,
+                    ),
+                  ),
+                ),
               const RideSpeedometerView(),
               const DatastreamView(),
               const RideSGButton(),

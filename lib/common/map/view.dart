@@ -63,6 +63,9 @@ class AppMap extends StatefulWidget {
   /// The ornament position for the atrribution button.
   final mapbox.OrnamentPosition? attributionButtonOrnamentPosition;
 
+  /// If the energy saving mode should be used.
+  final bool saveBatteryModeEnabled;
+
   const AppMap(
       {this.onMapCreated,
       this.onStyleLoaded,
@@ -74,6 +77,7 @@ class AppMap extends StatefulWidget {
       this.logoViewOrnamentPosition,
       this.attributionButtonMargins,
       this.attributionButtonOrnamentPosition,
+      this.saveBatteryModeEnabled = false,
       Key? key})
       : super(key: key);
 
@@ -111,15 +115,15 @@ class AppMapState extends State<AppMap> {
   @override
   Widget build(BuildContext context) {
     double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-    if (settings.saveBatteryModeEnabled) {
+    if (widget.saveBatteryModeEnabled) {
       if (Platform.isIOS) {
         devicePixelRatio = devicePixelRatio / 2;
       } else {
-        devicePixelRatio = devicePixelRatio / 4;
+        devicePixelRatio = devicePixelRatio / 2.5;
       }
     }
 
-    return mapbox.MapWidget(
+    final Widget map = mapbox.MapWidget(
       resourceOptions: mapbox.ResourceOptions(
           accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
       key: const ValueKey("mapbox-map"),
@@ -158,6 +162,15 @@ class AppMapState extends State<AppMap> {
         zoom: 12,
       ),
     );
+
+    // Render map with double size if battery saving mode is enabled.
+    // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
+    return widget.saveBatteryModeEnabled
+        ? Transform.scale(
+            scale: 2,
+            child: map,
+          )
+        : map;
   }
 
   /// A wrapper for the default onMapCreated callback.
@@ -177,15 +190,15 @@ class AppMapState extends State<AppMap> {
                 widget.attributionButtonMargins != null
             ? widget.attributionButtonMargins?.y.toDouble()
             : 0,
-        marginRight: widget.attributionButtonMargins!.x.toDouble()));
+        marginRight: widget.attributionButtonMargins?.x.toDouble()));
     controller.logo.updateSettings(mapbox.LogoSettings(
         position: widget.logoViewOrnamentPosition,
         marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT && widget.logoViewMargins != null
-            ? widget.logoViewMargins?.y.toDouble()
+            ? widget.logoViewMargins!.y.toDouble()
             : 0,
         marginBottom:
             widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_LEFT && widget.logoViewMargins != null
-                ? widget.logoViewMargins?.y.toDouble()
+                ? widget.logoViewMargins!.y.toDouble()
                 : 0,
         marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);
