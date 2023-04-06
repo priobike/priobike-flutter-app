@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -115,12 +114,9 @@ class AppMapState extends State<AppMap> {
   @override
   Widget build(BuildContext context) {
     double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    const scalingFactor = 2.5;
     if (widget.saveBatteryModeEnabled) {
-      if (Platform.isIOS) {
-        devicePixelRatio = devicePixelRatio / 2.5;
-      } else {
-        devicePixelRatio = devicePixelRatio / 3;
-      }
+      devicePixelRatio = devicePixelRatio / scalingFactor;
     }
 
     final Widget map = mapbox.MapWidget(
@@ -166,7 +162,7 @@ class AppMapState extends State<AppMap> {
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
     return widget.saveBatteryModeEnabled
         ? Transform.scale(
-            scale: 2.5,
+            scale: scalingFactor,
             child: map,
           )
         : map;
