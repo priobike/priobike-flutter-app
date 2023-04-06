@@ -8,7 +8,9 @@ class RideCenterButtonsView extends StatefulWidget {
   /// A callback that is called when the danger button is tapped.
   final Function onTapDanger;
 
-  const RideCenterButtonsView({Key? key, required this.onTapDanger}) : super(key: key);
+  final double heightToPuck;
+
+  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.heightToPuck}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -36,141 +38,149 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary];
+    final colors = [Colors.black.withOpacity(0.4), Colors.black.withOpacity(0.4)];
     final stops = [0.0, 0.8];
-    final radius = MediaQuery.of(context).size.width * 0.3;
+    double radius = widget.heightToPuck;
+
+    const spacing = 0.73;
 
     final signalGroupsAvailable = ride.route?.signalGroups != null && ride.route!.signalGroups.isNotEmpty;
 
-    return SizedBox(
-      width: 2 * radius,
-      height: 2 * radius,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // RIGHT BUTTON
-          if (signalGroupsAvailable)
-            Transform.translate(
-              offset: Offset(radius * 0.75, 0),
-              child: CenterButton(
-                radius: radius,
-                gradient: LinearGradient(
-                  colors: colors,
-                  stops: stops,
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.topRight,
-                ),
-                onPressed: () => ride.jumpToSG(step: 1), // Jump forward.
-                rotation: -pi / 4,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(width: radius * 0.15),
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Image(
-                        image: AssetImage(
-                          Theme.of(context).brightness == Brightness.light
-                              ? "assets/images/trafficlights/traffic-light-light.png"
-                              : "assets/images/trafficlights/traffic-light-dark.png",
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: SizedBox(
+        width: 2 * radius,
+        height: 2 * radius,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              color: Colors.pink,
+            ),
+            // RIGHT BUTTON
+            if (signalGroupsAvailable)
+              Transform.translate(
+                offset: Offset(radius * spacing, 0),
+                child: CenterButton(
+                  radius: radius,
+                  gradient: LinearGradient(
+                    colors: colors,
+                    stops: stops,
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                  ),
+                  onPressed: () => ride.jumpToSG(step: 1), // Jump forward.
+                  rotation: -pi / 4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: radius * 0.15),
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Image(
+                          image: AssetImage(
+                            Theme.of(context).brightness == Brightness.light
+                                ? "assets/images/trafficlights/traffic-light-light.png"
+                                : "assets/images/trafficlights/traffic-light-dark.png",
+                          ),
                         ),
                       ),
-                    ),
-                    Transform.translate(
-                      offset: Offset(-radius * 0.08, 0),
-                      child: const Icon(
-                        Icons.arrow_upward_rounded,
-                        size: 30,
-                        color: Colors.white,
+                      Transform.translate(
+                        offset: Offset(-radius * 0.08, 0),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          size: 30,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          // BOTTOM BUTTON
-          if (ride.userSelectedSG != null)
+            // BOTTOM BUTTON
+            if (ride.userSelectedSG != null)
+              Transform.translate(
+                offset: Offset(0, (radius * spacing)),
+                child: CenterButton(
+                  radius: radius,
+                  gradient: LinearGradient(
+                    colors: colors,
+                    stops: stops,
+                    begin: Alignment.bottomRight,
+                    end: Alignment.topLeft,
+                  ),
+                  onPressed: ride.unselectSG,
+                  rotation: pi / 4,
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            // LEFT BUTTON
+            if (signalGroupsAvailable)
+              Transform.translate(
+                offset: Offset(-radius * spacing, 0),
+                child: CenterButton(
+                  radius: radius,
+                  gradient: LinearGradient(
+                    colors: colors,
+                    stops: stops,
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                  ),
+                  onPressed: () => ride.jumpToSG(step: -1), // Jump backward.
+                  rotation: 3 * (pi / 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Image(
+                          image: AssetImage(
+                            Theme.of(context).brightness == Brightness.light
+                                ? "assets/images/trafficlights/traffic-light-light.png"
+                                : "assets/images/trafficlights/traffic-light-dark.png",
+                          ),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: Offset(-radius * 0.08, 0),
+                        child: const Icon(
+                          Icons.arrow_downward_rounded,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            // TOP BUTTON
             Transform.translate(
-              offset: Offset(0, (radius * 0.75)),
+              offset: Offset(0, -radius * spacing),
               child: CenterButton(
                 radius: radius,
                 gradient: LinearGradient(
                   colors: colors,
                   stops: stops,
-                  begin: Alignment.bottomRight,
-                  end: Alignment.topLeft,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                onPressed: ride.unselectSG,
-                rotation: pi / 4,
+                onPressed: widget.onTapDanger,
+                rotation: -3 * (pi / 4),
                 child: const Icon(
-                  Icons.close_rounded,
-                  size: 30,
+                  Icons.warning_rounded,
+                  size: 35,
                   color: Colors.white,
                 ),
               ),
             ),
-          // LEFT BUTTON
-          if (signalGroupsAvailable)
-            Transform.translate(
-              offset: Offset(-radius * 0.75, 0),
-              child: CenterButton(
-                radius: radius,
-                gradient: LinearGradient(
-                  colors: colors,
-                  stops: stops,
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                onPressed: () => ride.jumpToSG(step: -1), // Jump backward.
-                rotation: 3 * (pi / 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Image(
-                        image: AssetImage(
-                          Theme.of(context).brightness == Brightness.light
-                              ? "assets/images/trafficlights/traffic-light-light.png"
-                              : "assets/images/trafficlights/traffic-light-dark.png",
-                        ),
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: Offset(-radius * 0.08, 0),
-                      child: const Icon(
-                        Icons.arrow_downward_rounded,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          // TOP BUTTON
-          Transform.translate(
-            offset: Offset(0, -radius * 0.75),
-            child: CenterButton(
-              radius: radius,
-              gradient: LinearGradient(
-                colors: colors,
-                stops: stops,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              onPressed: widget.onTapDanger,
-              rotation: -3 * (pi / 4),
-              child: const Icon(
-                Icons.warning_rounded,
-                size: 35,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -259,15 +269,8 @@ class CenterButtonPainter extends CustomPainter {
 
   /// Draws the the button.
   void drawButton(Canvas canvas, Size size, Path path) {
-    // Draw the main shape
     final paint = Paint()..shader = gradient.createShader(Rect.fromCircle(center: Offset.zero, radius: size.width));
-    // Draw the border
-    final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.7)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
     canvas.drawPath(path, paint);
-    canvas.drawPath(path, borderPaint);
   }
 
   @override
@@ -324,7 +327,7 @@ class CenterButtonPainter extends CustomPainter {
 
     buttonPath = path;
 
-    drawButtonShadow(canvas, size, path);
+    //drawButtonShadow(canvas, size, path);
     drawButton(canvas, size, path);
   }
 

@@ -266,6 +266,18 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                   children: [
                     Transform.translate(
                       offset: const Offset(0, 42),
+                      child: Transform.scale(
+                        scale: 0.7,
+                        child: Center(
+                          child: RideCenterButtonsView(
+                            onTapDanger: widget.onTapDanger,
+                            heightToPuck: heightToPuckBoundingBox,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         // When the user taps on the speedometer, we want to set the speed to the tapped speed.
@@ -289,6 +301,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                             CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               painter: SpeedometerBackgroundPainter(
+                                strokeScale: (heightToPuckBoundingBox / MediaQuery.of(context).size.height) + 0.3,
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
                             ),
@@ -304,6 +317,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                                 colors: gaugeColors,
                                 stops: gaugeStops,
+                                strokeScale: (heightToPuckBoundingBox / MediaQuery.of(context).size.height) + 0.3,
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
                             ),
@@ -332,14 +346,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         child: RideTrafficLightView(),
                       ),
                     ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: Center(
-                        child: RideCenterButtonsView(
-                          onTapDanger: widget.onTapDanger,
-                        ),
-                      ),
-                    ),
                     if (ride.userSelectedSG == null) ...[
                       Padding(
                         padding: const EdgeInsets.only(bottom: 62),
@@ -347,7 +353,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                           text:
                               "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
                           context: context,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Colors.white.withOpacity(0.8),
                         ),
                       ),
                       Padding(

@@ -7,6 +7,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
   final double maxSpeed;
   final List<Color> colors;
   final List<double> stops;
+  final double strokeScale;
   bool isDark;
 
   SpeedometerPredictionArcPainter({
@@ -14,6 +15,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
     required this.maxSpeed,
     required this.colors,
     required this.stops,
+    required this.strokeScale,
     required this.isDark,
   });
 
@@ -23,7 +25,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
     const endAngle = pi / 4;
     const angle = startAngle + (endAngle - startAngle);
     const sweepAngle = angle - startAngle;
-    final radius = size.width / 2 - 36;
+    final radius = size.width / 2 - (36 * strokeScale);
     final rect = Rect.fromCircle(center: center, radius: radius);
     () {
       final paint = Paint()
@@ -35,7 +37,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
           stops: stops,
           transform: const GradientRotation(startAngle),
         ).createShader(rect)
-        ..strokeWidth = 28
+        ..strokeWidth = 42 * strokeScale
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 0)
         ..strokeCap = StrokeCap.butt
         ..isAntiAlias = true

@@ -155,18 +155,20 @@ class FinishRideButtonState extends State<FinishRideButton> {
                 bottomLeft: Radius.circular(24),
               ),
               padding: const EdgeInsets.all(4),
-              fill: Theme.of(context).colorScheme.background,
+              fill: Colors.black.withOpacity(0.4),
               content: Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
-                child: Row(
+                child: Column(
                   children: [
                     const Icon(
                       Icons.flag_rounded,
+                      color: Colors.white,
                     ),
                     const SmallHSpace(),
                     BoldSmall(
                       text: "Ende",
                       context: context,
+                      color: Colors.white,
                     ),
                   ],
                 ),

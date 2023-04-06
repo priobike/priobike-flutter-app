@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class SpeedometerBackgroundPainter extends CustomPainter {
+  double strokeScale;
   bool isDark;
 
   SpeedometerBackgroundPainter({
+    required this.strokeScale,
     required this.isDark,
   });
 
@@ -15,30 +17,12 @@ class SpeedometerBackgroundPainter extends CustomPainter {
     const endAngle = pi / 4;
     const angle = startAngle + (endAngle - startAngle);
     const sweepAngle = angle - startAngle;
-    final radius = size.width / 2 - 36;
+    final radius = size.width / 2 - (36 * strokeScale);
     final rect = Rect.fromCircle(center: center, radius: radius);
     () {
       final paint = Paint()
         ..color = Colors.black.withOpacity(0.4)
-        ..strokeWidth = 28
-        ..style = PaintingStyle.stroke;
-      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
-    }();
-  }
-
-  void speedPointerBackground(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    const startAngle = -5 * pi / 4;
-    const endAngle = pi / 4;
-    const angle = startAngle + (endAngle - startAngle);
-    const sweepAngle = angle - startAngle;
-    final radius = size.width / 2 - 36;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    () {
-      final paint = Paint()
-        ..color = Colors.black.withOpacity(0.6)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
-        ..strokeWidth = 52
+        ..strokeWidth = 46 * strokeScale
         ..style = PaintingStyle.stroke;
       canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
     }();
@@ -46,7 +30,6 @@ class SpeedometerBackgroundPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    speedPointerBackground(canvas, size);
     paintPredictionArcBackground(canvas, size);
   }
 

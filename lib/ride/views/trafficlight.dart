@@ -70,8 +70,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
-      width: 148,
-      height: 148,
+      width: 158,
+      height: 158,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],
