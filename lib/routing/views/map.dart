@@ -300,6 +300,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
+    if (layers.showVeloRoutesLayer) {
+      if (!mounted) return;
+      await VeloRoutesLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await VeloRoutesLayer.remove(mapController!);
+    }
     if (layers.showAirStations) {
       if (!mounted) return;
       await BikeAirStationLayer(isDark).install(mapController!);
@@ -348,13 +355,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
-    }
-    if (layers.showVeloRoutesLayer) {
-      if (!mounted) return;
-      await VeloRoutesLayer(isDark).install(mapController!);
-    } else {
-      if (!mounted) return;
-      await VeloRoutesLayer.remove(mapController!);
     }
   }
 
