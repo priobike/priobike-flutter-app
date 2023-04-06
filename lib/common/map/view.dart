@@ -117,9 +117,9 @@ class AppMapState extends State<AppMap> {
     double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     if (widget.saveBatteryModeEnabled) {
       if (Platform.isIOS) {
-        devicePixelRatio = devicePixelRatio / 2;
-      } else {
         devicePixelRatio = devicePixelRatio / 2.5;
+      } else {
+        devicePixelRatio = devicePixelRatio / 3;
       }
     }
 
@@ -162,7 +162,7 @@ class AppMapState extends State<AppMap> {
       ),
     );
 
-    // Render map with double size if battery saving mode is enabled.
+    // Render map with 2.5x size if battery saving mode is enabled.
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
     return widget.saveBatteryModeEnabled
         ? Transform.scale(
