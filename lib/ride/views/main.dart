@@ -111,6 +111,9 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  /// Used to show the attribution dialog.
+  /// (Only if the battery saving mode is used because otherwise the Mapbox native dialog is used.)
+  /// (In the battery saving mode the Mapbox native dialog can't be used because it is outside of the visible display area.)
   void showAttribution() {
     final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
     final List<Map<String, dynamic>> attributionEntries = [
@@ -138,7 +141,7 @@ class RideViewState extends State<RideView> {
       context: context,
       builder: (BuildContext context) => Dialog(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -190,17 +193,17 @@ class RideViewState extends State<RideView> {
             children: [
               const RideMapView(),
               if (settings.saveBatteryModeEnabled)
-                const Positioned(
-                  top: 60,
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.07,
                   left: 10,
-                  child: Image(
+                  child: const Image(
                     width: 100,
                     image: AssetImage('assets/images/mapbox-logo-transparent.png'),
                   ),
                 ),
               if (settings.saveBatteryModeEnabled)
                 Positioned(
-                  top: 45,
+                  top: MediaQuery.of(context).size.height * 0.05,
                   right: 10,
                   child: IconButton(
                     onPressed: showAttribution,
