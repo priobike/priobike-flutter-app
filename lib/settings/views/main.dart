@@ -358,7 +358,7 @@ class SettingsViewState extends State<SettingsView> {
                 ),
                 const SmallVSpace(),
                 SettingsElement(
-                  title: "Akku schonen",
+                  title: "Akkuverbrauch reduzieren",
                   icon: settings.saveBatteryModeEnabled ? Icons.check_box : Icons.check_box_outline_blank,
                   callback: () => settings.setSaveBatteryModeEnabled(!settings.saveBatteryModeEnabled),
                 ),
