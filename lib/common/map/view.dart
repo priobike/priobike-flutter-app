@@ -148,8 +148,6 @@ class AppMapState extends State<AppMap> {
         // Setting this to UNIQUE allows Mapbox to perform optimizations (only possible if the GL context is not
         // shared (not used by other frameworks/code except Mapbox))
         contextMode: mapbox.ContextMode.UNIQUE,
-        // Has to be set if we set the MapOptions (thus, if we remove the contextMode we can also remove the
-        // pixelRatio)
         crossSourceCollisions: false,
         pixelRatio: devicePixelRatio,
       ),
