@@ -55,7 +55,6 @@ class RideMapViewState extends State<RideMapView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     updateMap();
-    setState(() {});
   }
 
   /// Update the map.
@@ -322,6 +321,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
+      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
   }
 }

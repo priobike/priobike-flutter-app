@@ -57,6 +57,9 @@ class AppMap extends StatefulWidget {
   /// The ornament position for the atrribution button.
   final mapbox.OrnamentPosition? attributionButtonOrnamentPosition;
 
+  /// If the energy saving mode should be used.
+  final bool saveBatteryModeEnabled;
+
   const AppMap(
       {this.onMapCreated,
       this.onStyleLoaded,
@@ -68,6 +71,7 @@ class AppMap extends StatefulWidget {
       this.logoViewOrnamentPosition,
       this.attributionButtonMargins,
       this.attributionButtonOrnamentPosition,
+      this.saveBatteryModeEnabled = false,
       Key? key})
       : super(key: key);
 
@@ -104,7 +108,13 @@ class AppMapState extends State<AppMap> {
 
   @override
   Widget build(BuildContext context) {
-    return mapbox.MapWidget(
+    double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    const scalingFactor = 2.5;
+    if (widget.saveBatteryModeEnabled) {
+      devicePixelRatio = devicePixelRatio / scalingFactor;
+    }
+
+    final Widget map = mapbox.MapWidget(
       resourceOptions: mapbox.ResourceOptions(
           accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
       key: const ValueKey("mapbox-map"),
@@ -129,9 +139,9 @@ class AppMapState extends State<AppMap> {
         // Setting this to UNIQUE allows Mapbox to perform optimizations (only possible if the GL context is not
         // shared (not used by other frameworks/code except Mapbox))
         contextMode: mapbox.ContextMode.UNIQUE,
-        // Has to be set if we set the MapOptions (thus, if we remove the contextMode we can also remove the
-        // pixelRatio)
-        pixelRatio: MediaQuery.of(context).devicePixelRatio,
+        crossSourceCollisions: false,
+        optimizeForTerrain: false,
+        pixelRatio: devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
         center: mapbox.Point(
@@ -142,11 +152,21 @@ class AppMapState extends State<AppMap> {
         zoom: 12,
       ),
     );
+
+    // Render map with 2.5x size if battery saving mode is enabled.
+    // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
+    return widget.saveBatteryModeEnabled
+        ? Transform.scale(
+            scale: scalingFactor,
+            child: map,
+          )
+        : map;
   }
 
   /// A wrapper for the default onMapCreated callback.
   /// In this callback we configure the default settings.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
+    controller.location.updateSettings(mapbox.LocationComponentSettings(enabled: false));
     controller.compass.updateSettings(mapbox.CompassSettings(enabled: false));
     controller.scaleBar.updateSettings(mapbox.ScaleBarSettings(enabled: false));
     controller.attribution.updateSettings(mapbox.AttributionSettings(
@@ -154,7 +174,7 @@ class AppMapState extends State<AppMap> {
         position: widget.attributionButtonOrnamentPosition,
         marginTop: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.TOP_RIGHT &&
                 widget.attributionButtonMargins != null
-            ? widget.attributionButtonMargins?.y.toDouble()
+            ? widget.attributionButtonMargins!.y.toDouble()
             : 0,
         marginBottom: widget.attributionButtonOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_RIGHT &&
                 widget.attributionButtonMargins != null
@@ -164,11 +184,11 @@ class AppMapState extends State<AppMap> {
     controller.logo.updateSettings(mapbox.LogoSettings(
         position: widget.logoViewOrnamentPosition,
         marginTop: widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.TOP_LEFT && widget.logoViewMargins != null
-            ? widget.logoViewMargins?.y.toDouble()
+            ? widget.logoViewMargins!.y.toDouble()
             : 0,
         marginBottom:
             widget.logoViewOrnamentPosition == mapbox.OrnamentPosition.BOTTOM_LEFT && widget.logoViewMargins != null
-                ? widget.logoViewMargins?.y.toDouble()
+                ? widget.logoViewMargins!.y.toDouble()
                 : 0,
         marginLeft: widget.logoViewMargins?.x.toDouble()));
     widget.onMapCreated?.call(controller);
