@@ -149,6 +149,7 @@ class AppMapState extends State<AppMap> {
         // shared (not used by other frameworks/code except Mapbox))
         contextMode: mapbox.ContextMode.UNIQUE,
         crossSourceCollisions: false,
+        optimizeForTerrain: false,
         pixelRatio: devicePixelRatio,
       ),
       cameraOptions: mapbox.CameraOptions(
