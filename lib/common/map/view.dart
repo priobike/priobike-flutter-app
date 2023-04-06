@@ -166,7 +166,7 @@ class AppMapState extends State<AppMap> {
     // This results in the end in a lower resolution of the map and thus a lower GPU load and energy consumption.
     return widget.saveBatteryModeEnabled
         ? Transform.scale(
-            scale: 2,
+            scale: 2.5,
             child: map,
           )
         : map;
