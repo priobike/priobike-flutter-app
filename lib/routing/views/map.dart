@@ -361,7 +361,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Update all route map layers.
   updateRouteMapLayers() async {
     if (mapController == null) return;
-    final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!mounted) return;
