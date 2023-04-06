@@ -12,6 +12,12 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class TrafficLightsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "traffic-lights";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "traffic-lights-icons";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -47,22 +53,21 @@ class TrafficLightsLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("traffic-lights");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(
-            id: "traffic-lights", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
 
-    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists("traffic-lights-icons");
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!trafficLightIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "traffic-lights",
-            id: "traffic-lights-icons",
+            sourceId: sourceId,
+            id: layerId,
             iconSize: iconSize,
             iconAllowOverlap: true,
             textAllowOverlap: true,
@@ -71,7 +76,7 @@ class TrafficLightsLayer {
           ),
           mapbox.LayerPosition(below: below));
       await mapController.style.setStyleLayerProperty(
-          "traffic-lights-icons",
+          layerId,
           'icon-image',
           json.encode([
             "case",
@@ -80,7 +85,7 @@ class TrafficLightsLayer {
             "trafficlightonlinelightnocheck",
           ]));
       await mapController.style.setStyleLayerProperty(
-          "traffic-lights-icons",
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 16, opacity: [
@@ -109,7 +114,7 @@ class TrafficLightsLayer {
             ]),
           ));
       await mapController.style.setStyleLayerProperty(
-          "traffic-lights-icons",
+          layerId,
           'text-field',
           json.encode([
             "case",
@@ -118,20 +123,26 @@ class TrafficLightsLayer {
             ""
           ]));
     }
-    return "traffic-lights-icons";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("traffic-lights");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("traffic-lights");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
 }
 
 class TrafficLightLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "traffic-light";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "traffic-light-icon";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -196,46 +207,50 @@ class TrafficLightLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("traffic-light");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(
-            id: "traffic-light", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
 
-    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists("traffic-light-icon");
+    final trafficLightIconsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!trafficLightIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "traffic-light",
-            id: "traffic-light-icon",
+            sourceId: sourceId,
+            id: layerId,
             iconSize: iconSize,
             iconAllowOverlap: true,
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style
-          .setStyleLayerProperty("traffic-light-icon", 'icon-image', json.encode(["get", "sgIcon"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "sgIcon"]));
     }
 
-    return "traffic-light-icon";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("traffic-light");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("traffic-light");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
 }
 
 class OfflineCrossingsLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "offline-crossings";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "offline-crossings-icons";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
@@ -272,22 +287,21 @@ class OfflineCrossingsLayer {
 
   /// Install the overlay on the map controller.
   Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists("offline-crossings");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(
-            id: "offline-crossings", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
 
-    final offlineCrossingsIconsLayerExists = await mapController.style.styleLayerExists("offline-crossings-icons");
+    final offlineCrossingsIconsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!offlineCrossingsIconsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "offline-crossings",
-            id: "offline-crossings-icons",
+            sourceId: sourceId,
+            id: layerId,
             iconSize: iconSize,
             iconOpacity: 0.0,
             iconAllowOverlap: true,
@@ -296,7 +310,7 @@ class OfflineCrossingsLayer {
           ),
           mapbox.LayerPosition(below: below));
       await mapController.style.setStyleLayerProperty(
-          "offline-crossings-icons",
+          layerId,
           'icon-image',
           json.encode([
             "case",
@@ -305,7 +319,7 @@ class OfflineCrossingsLayer {
             "trafficlightdisconnectedlight",
           ]));
       await mapController.style.setStyleLayerProperty(
-          "offline-crossings-icons",
+          layerId,
           'icon-opacity',
           json.encode(
             showAfter(zoom: 16, opacity: [
@@ -334,7 +348,7 @@ class OfflineCrossingsLayer {
             ]),
           ));
       await mapController.style.setStyleLayerProperty(
-          "offline-crossings-icons",
+          layerId,
           'text-field',
           json.encode([
             "case",
@@ -344,14 +358,14 @@ class OfflineCrossingsLayer {
           ]));
     }
 
-    return "offline-crossings-icons";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("offline-crossings");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("offline-crossings");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }
