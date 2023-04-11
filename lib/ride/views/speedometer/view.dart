@@ -13,7 +13,6 @@ import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
-import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
@@ -301,7 +300,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                             CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
                               painter: SpeedometerBackgroundPainter(
-                                strokeScale: (heightToPuckBoundingBox / MediaQuery.of(context).size.height) + 0.3,
+                                strokeScale: (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
                             ),
@@ -311,7 +310,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            CustomPaint(
+                            /*CustomPaint(
                               painter: SpeedometerPredictionArcPainter(
                                 minSpeed: minSpeed,
                                 maxSpeed: maxSpeed,
@@ -320,7 +319,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 strokeScale: (heightToPuckBoundingBox / MediaQuery.of(context).size.height) + 0.3,
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
-                            ),
+                            ),*/
                             CustomPaint(
                               painter: SpeedometerSpeedArcPainter(
                                 minSpeed: minSpeed,

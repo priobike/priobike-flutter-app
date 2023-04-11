@@ -17,12 +17,12 @@ class SpeedometerBackgroundPainter extends CustomPainter {
     const endAngle = pi / 4;
     const angle = startAngle + (endAngle - startAngle);
     const sweepAngle = angle - startAngle;
-    final radius = size.width / 2 - (36 * strokeScale);
+    final radius = size.width / 2 - (16 * strokeScale);
     final rect = Rect.fromCircle(center: center, radius: radius);
     () {
       final paint = Paint()
         ..color = Colors.black.withOpacity(0.4)
-        ..strokeWidth = 46 * strokeScale
+        ..strokeWidth = 22 * strokeScale
         ..style = PaintingStyle.stroke;
       canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
     }();
