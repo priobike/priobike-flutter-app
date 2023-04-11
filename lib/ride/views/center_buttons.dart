@@ -10,7 +10,10 @@ class RideCenterButtonsView extends StatefulWidget {
 
   final double heightToPuck;
 
-  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.heightToPuck}) : super(key: key);
+  final Size size;
+
+  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.heightToPuck, required this.size})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -46,299 +49,204 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
 
     final signalGroupsAvailable = ride.route?.signalGroups != null && ride.route!.signalGroups.isNotEmpty;
 
-    return FittedBox(
-      fit: BoxFit.contain,
-      child: SizedBox(
-        width: 2 * radius,
-        height: 2 * radius,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              color: Colors.pink,
-            ),
-            // RIGHT BUTTON
-            if (signalGroupsAvailable)
-              Transform.translate(
-                offset: Offset(radius * spacing, 0),
-                child: CenterButton(
-                  radius: radius,
-                  gradient: LinearGradient(
-                    colors: colors,
-                    stops: stops,
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                  ),
-                  onPressed: () => ride.jumpToSG(step: 1), // Jump forward.
-                  rotation: -pi / 4,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(width: radius * 0.15),
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Image(
-                          image: AssetImage(
-                            Theme.of(context).brightness == Brightness.light
-                                ? "assets/images/trafficlights/traffic-light-light.png"
-                                : "assets/images/trafficlights/traffic-light-dark.png",
-                          ),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: Offset(-radius * 0.08, 0),
-                        child: const Icon(
-                          Icons.arrow_upward_rounded,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            // BOTTOM BUTTON
-            if (ride.userSelectedSG != null)
-              Transform.translate(
-                offset: Offset(0, (radius * spacing)),
-                child: CenterButton(
-                  radius: radius,
-                  gradient: LinearGradient(
-                    colors: colors,
-                    stops: stops,
-                    begin: Alignment.bottomRight,
-                    end: Alignment.topLeft,
-                  ),
-                  onPressed: ride.unselectSG,
-                  rotation: pi / 4,
-                  child: const Icon(
-                    Icons.close_rounded,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            // LEFT BUTTON
-            if (signalGroupsAvailable)
-              Transform.translate(
-                offset: Offset(-radius * spacing, 0),
-                child: CenterButton(
-                  radius: radius,
-                  gradient: LinearGradient(
-                    colors: colors,
-                    stops: stops,
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                  ),
-                  onPressed: () => ride.jumpToSG(step: -1), // Jump backward.
-                  rotation: 3 * (pi / 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Image(
-                          image: AssetImage(
-                            Theme.of(context).brightness == Brightness.light
-                                ? "assets/images/trafficlights/traffic-light-light.png"
-                                : "assets/images/trafficlights/traffic-light-dark.png",
-                          ),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: Offset(-radius * 0.08, 0),
-                        child: const Icon(
-                          Icons.arrow_downward_rounded,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            // TOP BUTTON
-            Transform.translate(
-              offset: Offset(0, -radius * spacing),
-              child: CenterButton(
-                radius: radius,
-                gradient: LinearGradient(
-                  colors: colors,
-                  stops: stops,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                onPressed: widget.onTapDanger,
-                rotation: -3 * (pi / 4),
-                child: const Icon(
-                  Icons.warning_rounded,
-                  size: 35,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// A single button in the center of the speedometer.
-class CenterButton extends StatelessWidget {
-  /// The radius of the circle that the button is made of.
-  final double radius;
-
-  /// The gradient of the button.
-  final LinearGradient gradient;
-
-  /// The callback that is called when the button is pressed.
-  final Function onPressed;
-
-  /// The rotation of the button.
-  final double rotation;
-
-  /// The child of the button.
-  final Widget child;
-
-  const CenterButton(
-      {Key? key,
-      required this.radius,
-      required this.onPressed,
-      required this.gradient,
-      required this.rotation,
-      required this.child})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: radius,
-      height: radius,
-      child: Transform.rotate(
-        angle: rotation,
-        child: GestureDetector(
-          onTap: () => onPressed(),
-          child: Stack(
-            children: [
-              Container(color: Colors.transparent),
-              SizedBox(
-                width: radius,
-                height: radius / 2,
-                child: CustomPaint(
-                  size: Size(radius, radius / 2),
-                  painter: CenterButtonPainter(
-                    gradient: gradient,
-                  ),
-                  child: Transform.translate(
-                    offset: Offset(0, radius * 0.25),
-                    child: Transform.rotate(
-                      angle: -rotation,
-                      child: child,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    return Stack(
+      children: [
+        CustomPaint(
+          size: widget.size,
+          painter: CenterButtonPaint(
+            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+            rotation: 0,
           ),
         ),
-      ),
+        CustomPaint(
+          size: widget.size,
+          painter: CenterButtonPaint(
+            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+            rotation: pi / 2,
+          ),
+        ),
+        CustomPaint(
+          size: widget.size,
+          painter: CenterButtonPaint(
+            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+            rotation: pi,
+          ),
+        ),
+        CustomPaint(
+          size: widget.size,
+          painter: CenterButtonPaint(
+            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+            rotation: pi + pi / 2,
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// The painter for the special shape of the center buttons.
-class CenterButtonPainter extends CustomPainter {
-  /// The gradient of the shape.
-  final LinearGradient gradient;
+class CenterButtonPaint extends CustomPainter {
+  bool isDark;
+  double rotation;
 
-  /// The path of the shape.
-  Path? buttonPath;
-
-  CenterButtonPainter({required this.gradient});
-
-  /// Draws the shadow of the button.
-  void drawButtonShadow(Canvas canvas, Size size, Path path) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
-    canvas.drawPath(path, paint);
-  }
+  CenterButtonPaint({
+    required this.isDark,
+    this.rotation = 0,
+  });
 
   /// Draws the the button.
   void drawButton(Canvas canvas, Size size, Path path) {
-    final paint = Paint()..shader = gradient.createShader(Rect.fromCircle(center: Offset.zero, radius: size.width));
+    final paint = Paint()..color = Colors.red;
     canvas.drawPath(path, paint);
+  }
+
+  Offset addPaddingOnCircle(double originalX, double originalY, double radius, Offset center, double paddingAngle) {
+    final originalAngle = atan2(originalY - center.dy, originalX - center.dx);
+    final paddedAngle = originalAngle + paddingAngle;
+
+    final paddedPointXOffset = radius * cos(paddedAngle);
+    final paddedPointYOffset = radius * sin(paddedAngle);
+    final paddedPointX = center.dx + paddedPointXOffset;
+    final paddedPointY = center.dy + paddedPointYOffset;
+
+    return Offset(paddedPointX, paddedPointY);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path();
-    final holeRadius = size.width / 2;
-    final outerRadius = size.width;
+    final center = Offset(size.width / 2, size.height / 2);
+    final outerRadius = size.width / 2 - 52;
+    final holeRadius = outerRadius / 2;
 
-    const borderRadius = 5.0;
+    const paddingPct = 0.3;
+    const paddingAngleOuter = 2 * pi * paddingPct / 100;
+    const paddingAngleHole = 2 * pi * (paddingPct * 2) / 100;
 
-    // Starting point
-    path.moveTo(0, size.height * 2 - borderRadius);
-    // Line
-    path.lineTo(0, holeRadius + borderRadius);
-    // Rounded corner
+    const borderRadiusPct = 0.5;
+    const borderRadiusAngle = 2 * pi * borderRadiusPct / 100;
+    final borderRadiusDistance = (2 * pi * outerRadius) * ((borderRadiusAngle * (180 / pi)) / 360);
+
+    final outerDistance = sqrt(outerRadius * outerRadius + outerRadius * outerRadius);
+    final innerDistance = sqrt(holeRadius * holeRadius + holeRadius * holeRadius);
+
+    final topLeftX = center.dx - outerDistance / 2;
+    final topLeftY = center.dy - outerDistance / 2;
+
+    final paddedTopLeft = addPaddingOnCircle(topLeftX, topLeftY, outerRadius, center, paddingAngleOuter);
+    final borderRadiusTopLeft2 =
+        addPaddingOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center, borderRadiusAngle);
+
+    path.moveTo(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy);
+
+    final topRightX = topLeftX + outerDistance;
+    final topRightY = topLeftY + 0;
+
+    final paddedTopRight = addPaddingOnCircle(topRightX, topRightY, outerRadius, center, -paddingAngleOuter);
+    final borderRadiusTopRight1 =
+        addPaddingOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center, -borderRadiusAngle);
+
     path.arcToPoint(
-      Offset(borderRadius, holeRadius),
-      radius: const Radius.circular(borderRadius),
-      clockwise: true,
-    );
-    // Inner arc
-    path.arcToPoint(
-      Offset(holeRadius, 0 + borderRadius),
-      radius: Radius.circular(holeRadius),
-      clockwise: false,
-    );
-    // Rounded corner
-    path.arcToPoint(
-      Offset(holeRadius + borderRadius, 0),
-      radius: const Radius.circular(borderRadius),
-      clockwise: true,
-    );
-    // Line
-    path.lineTo(size.width - borderRadius, 0);
-    // Rounded corner
-    path.arcToPoint(
-      Offset(size.width, borderRadius),
-      radius: const Radius.circular(borderRadius),
-      clockwise: true,
-    );
-    // Outer arc
-    path.arcToPoint(
-      Offset(0 + borderRadius, size.height * 2),
+      Offset(borderRadiusTopRight1.dx, borderRadiusTopRight1.dy),
       radius: Radius.circular(outerRadius),
       clockwise: true,
     );
-    // Rounded corner
+
+    final distanceTopRightToCenter =
+        sqrt(pow(paddedTopRight.dx - center.dx, 2) + pow(paddedTopRight.dy - center.dy, 2));
+    final borderRadiusTopRight2X =
+        center.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center.dx));
+    final borderRadiusTopRight2Y =
+        center.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center.dy));
+
     path.arcToPoint(
-      Offset(0, size.height * 2 - borderRadius),
-      radius: const Radius.circular(borderRadius),
+      Offset(borderRadiusTopRight2X, borderRadiusTopRight2Y),
+      radius: Radius.circular(borderRadiusDistance),
       clockwise: true,
     );
+
+    final bottomRightX = topRightX - ((outerDistance - innerDistance) / 2);
+    final bottomRightY = topRightY + (outerDistance - innerDistance) / 2;
+
+    final paddedBottomRight = addPaddingOnCircle(bottomRightX, bottomRightY, holeRadius, center, -paddingAngleHole);
+
+    final distanceBottomRightToTopRight =
+        sqrt(pow(paddedTopRight.dx - paddedBottomRight.dx, 2) + pow(paddedTopRight.dy - paddedBottomRight.dy, 2));
+    final borderRadiusBottomRight1X = paddedBottomRight.dx +
+        ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dx - paddedBottomRight.dx));
+    final borderRadiusBottomRight1Y = paddedBottomRight.dy +
+        ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dy - paddedBottomRight.dy));
+
+    path.lineTo(borderRadiusBottomRight1X, borderRadiusBottomRight1Y);
+
+    final borderRadiusBottomRight2 = addPaddingOnCircle(
+      paddedBottomRight.dx,
+      paddedBottomRight.dy,
+      holeRadius,
+      center,
+      -borderRadiusAngle,
+    );
+
+    path.arcToPoint(
+      Offset(borderRadiusBottomRight2.dx, borderRadiusBottomRight2.dy),
+      radius: Radius.circular(borderRadiusDistance),
+      clockwise: true,
+    );
+
+    final bottomLeftX = bottomRightX - innerDistance;
+    final bottomLeftY = bottomRightY - 0;
+
+    final paddedBottomLeft = addPaddingOnCircle(bottomLeftX, bottomLeftY, holeRadius, center, paddingAngleHole);
+
+    final borderRadiusBottomLeft1 = addPaddingOnCircle(
+      paddedBottomLeft.dx,
+      paddedBottomLeft.dy,
+      holeRadius,
+      center,
+      borderRadiusAngle,
+    );
+
+    path.arcToPoint(
+      Offset(borderRadiusBottomLeft1.dx, borderRadiusBottomLeft1.dy),
+      radius: Radius.circular(holeRadius),
+      clockwise: false,
+    );
+
+    final distanceBottomLeftToTopLeft =
+        sqrt(pow(paddedTopLeft.dx - paddedBottomLeft.dx, 2) + pow(paddedTopLeft.dy - paddedBottomLeft.dy, 2));
+    final borderRadiusBottomLeft2X = paddedBottomLeft.dx +
+        ((borderRadiusDistance / distanceBottomLeftToTopLeft) * (paddedTopLeft.dx - paddedBottomLeft.dx));
+    final borderRadiusBottomLeft2Y = paddedBottomLeft.dy +
+        ((borderRadiusDistance / distanceBottomLeftToTopLeft) * (paddedTopLeft.dy - paddedBottomLeft.dy));
+
+    path.arcToPoint(
+      Offset(borderRadiusBottomLeft2X, borderRadiusBottomLeft2Y),
+      radius: Radius.circular(borderRadiusDistance),
+      clockwise: true,
+    );
+
+    final borderRadiusTopLeft1X = paddedBottomLeft.dx +
+        ((1 - (borderRadiusDistance / distanceBottomLeftToTopLeft)) * (paddedTopLeft.dx - paddedBottomLeft.dx));
+    final borderRadiusTopLeft1Y = paddedBottomLeft.dy +
+        ((1 - (borderRadiusDistance / distanceBottomLeftToTopLeft)) * (paddedTopLeft.dy - paddedBottomLeft.dy));
+
+    path.lineTo(borderRadiusTopLeft1X, borderRadiusTopLeft1Y);
+
+    path.arcToPoint(
+      Offset(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy),
+      radius: Radius.circular(borderRadiusDistance),
+      clockwise: true,
+    );
+
     path.close();
-
-    buttonPath = path;
-
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation);
+    canvas.translate(-center.dx, -center.dy);
     //drawButtonShadow(canvas, size, path);
     drawButton(canvas, size, path);
+    canvas.restore();
   }
 
   @override
-  bool hitTest(Offset position) {
-    if (buttonPath == null) return false;
-    return buttonPath!.contains(position);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CenterButtonPaint oldDelegate) => false;
 }

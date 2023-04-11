@@ -223,6 +223,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final remainingMinutes = remainingDistance / (18 / 60);
     final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
 
+    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -265,14 +267,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                   children: [
                     Transform.translate(
                       offset: const Offset(0, 42),
-                      child: Transform.scale(
-                        scale: 0.7,
-                        child: Center(
-                          child: RideCenterButtonsView(
-                            onTapDanger: widget.onTapDanger,
-                            heightToPuck: heightToPuckBoundingBox,
-                          ),
-                        ),
+                      child: RideCenterButtonsView(
+                        size: size,
+                        onTapDanger: widget.onTapDanger,
+                        heightToPuck: heightToPuckBoundingBox,
                       ),
                     ),
                     Transform.translate(
@@ -299,8 +297,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                           children: [
                             CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
+                              size: size,
                               painter: SpeedometerBackgroundPainter(
-                                strokeScale: (MediaQuery.of(context).size.height / MediaQuery.of(context).size.width),
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
                             ),
