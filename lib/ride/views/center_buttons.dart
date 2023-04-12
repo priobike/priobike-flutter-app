@@ -99,7 +99,9 @@ class CenterButtonPaint extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  Offset addPaddingOnCircle(double originalX, double originalY, double radius, Offset center, double paddingAngle) {
+  /// Moves a point on a circle by a given angle. For positive angles the point is moved clockwise.
+  /// For negative angles the point is moved counter-clockwise.
+  Offset movePointOnCircle(double originalX, double originalY, double radius, Offset center, double paddingAngle) {
     final originalAngle = atan2(originalY - center.dy, originalX - center.dx);
     final paddedAngle = originalAngle + paddingAngle;
 
@@ -113,72 +115,125 @@ class CenterButtonPaint extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Roughly creates the following path (we start at the top left point and go clockwise):
+    /*
+                                   outer arc
+                                  xxxxxxxxxxxx
+                            xxxxx           xxxxxxxx
+                        xxxxx                       xxxxx
+                     xxxx                               xx
+                   xxx                                    xx
+                 xxx                                        xxx
+       topLeft xx                                            xxx  topRight
+                xx                 xxxxxxxxxxx                xxx
+                  xx          xxxxx          xxxx           xxxxx
+                    xxx    xxxx     inner arc  xxx       xxx
+                      xxx xx                      xxx  xx
+             bottomLeft xxx                         xxxx bottomRight
+   */
     final path = Path();
     final center = Offset(size.width / 2, size.height / 2);
+    // The radius for the outside of the arc.
     final outerRadius = size.width / 2 - 52;
+    // The radius for the inside of the arc.
     final holeRadius = outerRadius / 2;
 
+    // The padding that gets subtracted from the buttons such that they are not exactly 1/4 of a circle but instead less.
+    // Given in percent of the hole circle. When using multiple buttons, this results in a gap between the buttons.
     const paddingPct = 0.3;
+    // Resulting angle in radians.
     const paddingAngleOuter = 2 * pi * paddingPct / 100;
+    // Resulting angle in radians (angle needs to be bigger in the middle,
+    // this is because the radius is less and thus the same angle would result in a padding of less physical units).
     const paddingAngleHole = 2 * pi * (paddingPct * 2) / 100;
 
+    // The border radius of the buttons. Given in percent.
     const borderRadiusPct = 0.5;
+    // For the border radius on the arcs (outside and inside), we need to transform it to an angle (radian).
     const borderRadiusAngle = 2 * pi * borderRadiusPct / 100;
+    // For the border radius on the straight lines, we need to calculate the distance.
     final borderRadiusDistance = (2 * pi * outerRadius) * ((borderRadiusAngle * (180 / pi)) / 360);
 
+    // The distance between topLeft and topRight.
     final outerDistance = sqrt(outerRadius * outerRadius + outerRadius * outerRadius);
+    // The distance between bottomLeft and bottomRight.
     final innerDistance = sqrt(holeRadius * holeRadius + holeRadius * holeRadius);
 
+    // The coordinates of the top left point (without padding and border radius).
     final topLeftX = center.dx - outerDistance / 2;
     final topLeftY = center.dy - outerDistance / 2;
 
-    final paddedTopLeft = addPaddingOnCircle(topLeftX, topLeftY, outerRadius, center, paddingAngleOuter);
+    // The coordinates of the top left point (with padding).
+    final paddedTopLeft = movePointOnCircle(topLeftX, topLeftY, outerRadius, center, paddingAngleOuter);
+    // For the border radius, we need to find two new points.
+    // 1. The first one is in clockwise direction before the original paddedTopLeft corner
+    // (calculated at the end of the path). Thus, it is on the left straight line.
+    // 2. The second one is in clockwise direction after the original paddedTopLeft corner. Thus, it is on the outer arc.
+    //
+    // In between thos points we draw an arc for the border radius.
+    // Thus, we don't use the original paddedTopLeft corner in the path, but only for intermediate calculation steps.
     final borderRadiusTopLeft2 =
-        addPaddingOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center, borderRadiusAngle);
+        movePointOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center, borderRadiusAngle);
 
+    // MOVE TO START OF PATH (not drawing anything yet)
     path.moveTo(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy);
 
+    // The coordinates of the top right point (without padding and border radius).
     final topRightX = topLeftX + outerDistance;
     final topRightY = topLeftY + 0;
 
-    final paddedTopRight = addPaddingOnCircle(topRightX, topRightY, outerRadius, center, -paddingAngleOuter);
+    // The coordinates of the top right point (with padding).
+    final paddedTopRight = movePointOnCircle(topRightX, topRightY, outerRadius, center, -paddingAngleOuter);
+    // The first point for the border radius on the top right corner (in clockwise direction before the paddedTopRight point).
+    // (same concept as for the top left corner,
+    // only if the first and second point are lying on an arc or straight line may be different and depends on the specific corner)
     final borderRadiusTopRight1 =
-        addPaddingOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center, -borderRadiusAngle);
+        movePointOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center, -borderRadiusAngle);
 
+    // DRAW OUTER ARC
     path.arcToPoint(
       Offset(borderRadiusTopRight1.dx, borderRadiusTopRight1.dy),
       radius: Radius.circular(outerRadius),
       clockwise: true,
     );
 
+    // Helper calculation.
     final distanceTopRightToCenter =
         sqrt(pow(paddedTopRight.dx - center.dx, 2) + pow(paddedTopRight.dy - center.dy, 2));
+    // The second point for the border radius on the top right corner.
     final borderRadiusTopRight2X =
         center.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center.dx));
     final borderRadiusTopRight2Y =
         center.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center.dy));
 
+    // DRAW BORDER RADIUS AT THE TOP RIGHT CORNER
     path.arcToPoint(
       Offset(borderRadiusTopRight2X, borderRadiusTopRight2Y),
       radius: Radius.circular(borderRadiusDistance),
       clockwise: true,
     );
 
+    // The coordinates of the bottom right point (without padding and border radius).
     final bottomRightX = topRightX - ((outerDistance - innerDistance) / 2);
     final bottomRightY = topRightY + (outerDistance - innerDistance) / 2;
 
-    final paddedBottomRight = addPaddingOnCircle(bottomRightX, bottomRightY, holeRadius, center, -paddingAngleHole);
+    // The coordinates of the bottom right point (with padding).
+    final paddedBottomRight = movePointOnCircle(bottomRightX, bottomRightY, holeRadius, center, -paddingAngleHole);
 
+    // Helper calculation.
     final distanceBottomRightToTopRight =
         sqrt(pow(paddedTopRight.dx - paddedBottomRight.dx, 2) + pow(paddedTopRight.dy - paddedBottomRight.dy, 2));
+    // The first point for the border radius on the bottom right corner (in clockwise direction before paddedBottomRight).
     final borderRadiusBottomRight1X = paddedBottomRight.dx +
         ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dx - paddedBottomRight.dx));
     final borderRadiusBottomRight1Y = paddedBottomRight.dy +
         ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dy - paddedBottomRight.dy));
 
+    // DRAW THE STRAIGHT LINE ON THE RIGHT SIDE.
     path.lineTo(borderRadiusBottomRight1X, borderRadiusBottomRight1Y);
 
-    final borderRadiusBottomRight2 = addPaddingOnCircle(
+    // The second point for the border radius on the bottom right corner (in clockwise direction after paddedBottomRight).
+    final borderRadiusBottomRight2 = movePointOnCircle(
       paddedBottomRight.dx,
       paddedBottomRight.dy,
       holeRadius,
@@ -186,18 +241,22 @@ class CenterButtonPaint extends CustomPainter {
       -borderRadiusAngle,
     );
 
+    // DRAW THE BORDER RADIUS ON THE BOTTOM RIGHT CORNER.
     path.arcToPoint(
       Offset(borderRadiusBottomRight2.dx, borderRadiusBottomRight2.dy),
       radius: Radius.circular(borderRadiusDistance),
       clockwise: true,
     );
 
+    // The coordinates of the bottom left point (without padding and border radius).
     final bottomLeftX = bottomRightX - innerDistance;
     final bottomLeftY = bottomRightY - 0;
 
-    final paddedBottomLeft = addPaddingOnCircle(bottomLeftX, bottomLeftY, holeRadius, center, paddingAngleHole);
+    // The coordinates of the bottom left point (with padding).
+    final paddedBottomLeft = movePointOnCircle(bottomLeftX, bottomLeftY, holeRadius, center, paddingAngleHole);
 
-    final borderRadiusBottomLeft1 = addPaddingOnCircle(
+    // The first point for the border radius on the bottom left corner (in clockwise direction before paddedBottomLeft).
+    final borderRadiusBottomLeft1 = movePointOnCircle(
       paddedBottomLeft.dx,
       paddedBottomLeft.dy,
       holeRadius,
@@ -205,32 +264,39 @@ class CenterButtonPaint extends CustomPainter {
       borderRadiusAngle,
     );
 
+    // DRAW INNER ARC
     path.arcToPoint(
       Offset(borderRadiusBottomLeft1.dx, borderRadiusBottomLeft1.dy),
       radius: Radius.circular(holeRadius),
       clockwise: false,
     );
 
+    // Helper calculation.
     final distanceBottomLeftToTopLeft =
         sqrt(pow(paddedTopLeft.dx - paddedBottomLeft.dx, 2) + pow(paddedTopLeft.dy - paddedBottomLeft.dy, 2));
+    // The second point for the border radius on the bottom left corner (in clockwise direction after paddedBottomLeft).
     final borderRadiusBottomLeft2X = paddedBottomLeft.dx +
         ((borderRadiusDistance / distanceBottomLeftToTopLeft) * (paddedTopLeft.dx - paddedBottomLeft.dx));
     final borderRadiusBottomLeft2Y = paddedBottomLeft.dy +
         ((borderRadiusDistance / distanceBottomLeftToTopLeft) * (paddedTopLeft.dy - paddedBottomLeft.dy));
 
+    // DRAW THE BORDER RADIUS ON THE BOTTOM LEFT CORNER.
     path.arcToPoint(
       Offset(borderRadiusBottomLeft2X, borderRadiusBottomLeft2Y),
       radius: Radius.circular(borderRadiusDistance),
       clockwise: true,
     );
 
+    // The first point for the border radius on the top left corner (in clockwise direction before paddedTopLeft).
     final borderRadiusTopLeft1X = paddedBottomLeft.dx +
         ((1 - (borderRadiusDistance / distanceBottomLeftToTopLeft)) * (paddedTopLeft.dx - paddedBottomLeft.dx));
     final borderRadiusTopLeft1Y = paddedBottomLeft.dy +
         ((1 - (borderRadiusDistance / distanceBottomLeftToTopLeft)) * (paddedTopLeft.dy - paddedBottomLeft.dy));
 
+    // DRAW THE STRAIGHT LINE ON THE LEFT SIDE.
     path.lineTo(borderRadiusTopLeft1X, borderRadiusTopLeft1Y);
 
+    // DRAW THE BORDER RADIUS ON THE TOP LEFT CORNER.
     path.arcToPoint(
       Offset(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy),
       radius: Radius.circular(borderRadiusDistance),
@@ -238,11 +304,14 @@ class CenterButtonPaint extends CustomPainter {
     );
 
     path.close();
+
+    // Rotate the path with the given angle.
+    // The translation is necessary such that the rotation is done around the center of the button.
+    // Thus it sets the anchor.
     canvas.save();
     canvas.translate(center.dx, center.dy);
     canvas.rotate(rotation);
     canvas.translate(-center.dx, -center.dy);
-    //drawButtonShadow(canvas, size, path);
     drawButton(canvas, size, path);
     canvas.restore();
   }
