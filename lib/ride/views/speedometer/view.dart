@@ -13,6 +13,7 @@ import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
+import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
@@ -267,14 +268,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                   children: [
                     Transform.translate(
                       offset: const Offset(0, 42),
-                      child: RideCenterButtonsView(
-                        size: size,
-                        onTapDanger: widget.onTapDanger,
-                        heightToPuck: heightToPuckBoundingBox,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         // When the user taps on the speedometer, we want to set the speed to the tapped speed.
@@ -308,23 +301,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            /*CustomPaint(
+                            CustomPaint(
                               painter: SpeedometerPredictionArcPainter(
                                 minSpeed: minSpeed,
                                 maxSpeed: maxSpeed,
                                 colors: gaugeColors,
                                 stops: gaugeStops,
-                                strokeScale: (heightToPuckBoundingBox / MediaQuery.of(context).size.height) + 0.3,
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                              ),
-                            ),*/
-                            CustomPaint(
-                              painter: SpeedometerSpeedArcPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                                // Scale the animation pct between minSpeed and maxSpeed
-                                speed: speedkmh,
                               ),
                             ),
                             CustomPaint(
@@ -339,8 +322,32 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                     ),
                     Transform.translate(
                       offset: const Offset(0, 42),
-                      child: const Center(
-                        child: RideTrafficLightView(),
+                      child: Center(
+                        child: RideTrafficLightView(
+                          size: size,
+                        ),
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: RideCenterButtonsView(
+                        size: size,
+                        onTapDanger: widget.onTapDanger,
+                      ),
+                    ),
+                    IgnorePointer(
+                      child: Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: CustomPaint(
+                          size: size,
+                          painter: SpeedometerSpeedArcPainter(
+                            minSpeed: minSpeed,
+                            maxSpeed: maxSpeed,
+                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            // Scale the animation pct between minSpeed and maxSpeed
+                            speed: speedkmh,
+                          ),
+                        ),
                       ),
                     ),
                     if (ride.userSelectedSG == null) ...[

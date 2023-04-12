@@ -5,7 +5,10 @@ import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 
 class RideTrafficLightView extends StatefulWidget {
-  const RideTrafficLightView({Key? key}) : super(key: key);
+  /// The size of the speedometer.
+  final Size size;
+
+  const RideTrafficLightView({Key? key, required this.size}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideTrafficLightViewState();
@@ -34,8 +37,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
   @override
   Widget build(BuildContext context) {
     final alternativeView = Container(
-        width: 148,
-        height: 148,
+        width: widget.size.width * 0.35,
+        height: widget.size.width * 0.35,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
           borderRadius: BorderRadius.circular(100),
@@ -70,8 +73,8 @@ class RideTrafficLightViewState extends State<RideTrafficLightView> {
     final currentPhase = recommendation.calcCurrentSignalPhase;
 
     final trafficLight = Container(
-      width: 158,
-      height: 158,
+      width: widget.size.width * 0.35,
+      height: widget.size.width * 0.35,
       decoration: BoxDecoration(
         gradient: RadialGradient(
           stops: const [0.2, 0.8, 1],

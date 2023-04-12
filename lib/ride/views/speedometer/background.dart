@@ -28,8 +28,6 @@ class SpeedometerBackgroundPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    print("asefaerfa");
-    print(size);
     paintPredictionArcBackground(canvas, size);
   }
 

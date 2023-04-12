@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/ride/services/ride.dart';
 
@@ -8,12 +9,10 @@ class RideCenterButtonsView extends StatefulWidget {
   /// A callback that is called when the danger button is tapped.
   final Function onTapDanger;
 
-  final double heightToPuck;
-
+  /// The size of the canvas for the custom painter.
   final Size size;
 
-  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.heightToPuck, required this.size})
-      : super(key: key);
+  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.size}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -41,62 +40,220 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = [Colors.black.withOpacity(0.4), Colors.black.withOpacity(0.4)];
-    final stops = [0.0, 0.8];
-    double radius = widget.heightToPuck;
+    Widget nextSignalGroupButtonIcons = Padding(
+      padding: EdgeInsets.only(right: widget.size.width * 0.12),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: widget.size.width * 0.06,
+            ),
+            SizedBox(
+              width: widget.size.width * 0.09,
+              height: widget.size.width * 0.09,
+              child: Image(
+                image: AssetImage(
+                  Theme.of(context).brightness == Brightness.light
+                      ? "assets/images/trafficlights/traffic-light-light.png"
+                      : "assets/images/trafficlights/traffic-light-dark.png",
+                ),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-10, 0),
+              child: const Icon(
+                Icons.arrow_upward_rounded,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
 
-    const spacing = 0.73;
+    Widget previousSignalGroupButtonIcons = Padding(
+      padding: EdgeInsets.only(left: widget.size.width * 0.12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: widget.size.width * 0.03,
+            ),
+            SizedBox(
+              width: widget.size.width * 0.09,
+              height: widget.size.width * 0.09,
+              child: Image(
+                image: AssetImage(
+                  Theme.of(context).brightness == Brightness.light
+                      ? "assets/images/trafficlights/traffic-light-light.png"
+                      : "assets/images/trafficlights/traffic-light-dark.png",
+                ),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-10, 0),
+              child: const Icon(
+                Icons.arrow_downward_rounded,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Widget warningsButtonIcon = Padding(
+      padding: EdgeInsets.only(top: widget.size.height * 0.18),
+      child: const Align(
+        alignment: Alignment.topCenter,
+        child: Icon(
+          Icons.warning_rounded,
+          size: 40,
+          color: Colors.white,
+        ),
+      ),
+    );
+
+    Widget cancelSGSelectionButtonIcon = Padding(
+      padding: EdgeInsets.only(bottom: widget.size.height * 0.19),
+      child: const Align(
+        alignment: Alignment.bottomCenter,
+        child: Icon(
+          Icons.close_rounded,
+          size: 40,
+          color: Colors.white,
+        ),
+      ),
+    );
 
     final signalGroupsAvailable = ride.route?.signalGroups != null && ride.route!.signalGroups.isNotEmpty;
 
     return Stack(
+      alignment: Alignment.center,
       children: [
-        CustomPaint(
-          size: widget.size,
-          painter: CenterButtonPaint(
-            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-            rotation: 0,
-          ),
-        ),
-        CustomPaint(
-          size: widget.size,
-          painter: CenterButtonPaint(
-            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+        // RIGHT BUTTON
+        if (signalGroupsAvailable)
+          CenterButton(
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              ride.jumpToSG(step: 1);
+            },
             rotation: pi / 2,
+            size: widget.size,
+            child: nextSignalGroupButtonIcons,
           ),
-        ),
-        CustomPaint(
-          size: widget.size,
-          painter: CenterButtonPaint(
-            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-            rotation: pi,
-          ),
-        ),
-        CustomPaint(
-          size: widget.size,
-          painter: CenterButtonPaint(
-            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+        // LEFT BUTTON
+        if (signalGroupsAvailable)
+          CenterButton(
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              ride.jumpToSG(step: -1);
+            },
             rotation: pi + pi / 2,
+            size: widget.size,
+            child: previousSignalGroupButtonIcons,
           ),
+        // TOP BUTTON
+        CenterButton(
+          onPressed: () {
+            HapticFeedback.heavyImpact();
+            widget.onTapDanger();
+          },
+          rotation: 0,
+          size: widget.size,
+          child: warningsButtonIcon,
         ),
+        // BOTTOM BUTTON
+        if (ride.userSelectedSG != null)
+          CenterButton(
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              ride.unselectSG();
+            },
+            rotation: pi,
+            size: widget.size,
+            child: cancelSGSelectionButtonIcon,
+          ),
       ],
     );
   }
 }
 
+/// A single button in the center of the speedometer.
+class CenterButton extends StatelessWidget {
+  /// The callback that is called when the button is pressed.
+  final Function onPressed;
+
+  /// The rotation of the button.
+  final double rotation;
+
+  /// The child of the button.
+  final Widget child;
+
+  /// The canvas size for the custom painter.
+  final Size size;
+
+  const CenterButton({
+    Key? key,
+    required this.onPressed,
+    required this.rotation,
+    required this.child,
+    required this.size,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onPressed(),
+      child: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: CustomPaint(
+          size: size,
+          painter: CenterButtonPaint(
+            rotation: rotation,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// The painter for the special shape of the center buttons.
 class CenterButtonPaint extends CustomPainter {
-  bool isDark;
-  double rotation;
+  /// The rotation of the button.
+  final double rotation;
+
+  /// The path of the shape (gets set when the paint method is called).
+  Path? buttonPath;
+
+  /// The center of the shape (gets set when the paint method is called).
+  Offset? center;
 
   CenterButtonPaint({
-    required this.isDark,
     this.rotation = 0,
   });
 
   /// Draws the the button.
   void drawButton(Canvas canvas, Size size, Path path) {
-    final paint = Paint()..color = Colors.red;
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(0.4)
+      ..style = PaintingStyle.fill;
+    final paintStroke = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
     canvas.drawPath(path, paint);
+    canvas.drawPath(path, paintStroke);
   }
 
   /// Moves a point on a circle by a given angle. For positive angles the point is moved clockwise.
@@ -132,7 +289,7 @@ class CenterButtonPaint extends CustomPainter {
              bottomLeft xxx                         xxxx bottomRight
    */
     final path = Path();
-    final center = Offset(size.width / 2, size.height / 2);
+    center = Offset(size.width / 2, size.height / 2);
     // The radius for the outside of the arc.
     final outerRadius = size.width / 2 - 52;
     // The radius for the inside of the arc.
@@ -160,11 +317,11 @@ class CenterButtonPaint extends CustomPainter {
     final innerDistance = sqrt(holeRadius * holeRadius + holeRadius * holeRadius);
 
     // The coordinates of the top left point (without padding and border radius).
-    final topLeftX = center.dx - outerDistance / 2;
-    final topLeftY = center.dy - outerDistance / 2;
+    final topLeftX = center!.dx - outerDistance / 2;
+    final topLeftY = center!.dy - outerDistance / 2;
 
     // The coordinates of the top left point (with padding).
-    final paddedTopLeft = movePointOnCircle(topLeftX, topLeftY, outerRadius, center, paddingAngleOuter);
+    final paddedTopLeft = movePointOnCircle(topLeftX, topLeftY, outerRadius, center!, paddingAngleOuter);
     // For the border radius, we need to find two new points.
     // 1. The first one is in clockwise direction before the original paddedTopLeft corner
     // (calculated at the end of the path). Thus, it is on the left straight line.
@@ -173,7 +330,7 @@ class CenterButtonPaint extends CustomPainter {
     // In between thos points we draw an arc for the border radius.
     // Thus, we don't use the original paddedTopLeft corner in the path, but only for intermediate calculation steps.
     final borderRadiusTopLeft2 =
-        movePointOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center, borderRadiusAngle);
+        movePointOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center!, borderRadiusAngle);
 
     // MOVE TO START OF PATH (not drawing anything yet)
     path.moveTo(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy);
@@ -183,12 +340,12 @@ class CenterButtonPaint extends CustomPainter {
     final topRightY = topLeftY + 0;
 
     // The coordinates of the top right point (with padding).
-    final paddedTopRight = movePointOnCircle(topRightX, topRightY, outerRadius, center, -paddingAngleOuter);
+    final paddedTopRight = movePointOnCircle(topRightX, topRightY, outerRadius, center!, -paddingAngleOuter);
     // The first point for the border radius on the top right corner (in clockwise direction before the paddedTopRight point).
     // (same concept as for the top left corner,
     // only if the first and second point are lying on an arc or straight line may be different and depends on the specific corner)
     final borderRadiusTopRight1 =
-        movePointOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center, -borderRadiusAngle);
+        movePointOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center!, -borderRadiusAngle);
 
     // DRAW OUTER ARC
     path.arcToPoint(
@@ -199,12 +356,12 @@ class CenterButtonPaint extends CustomPainter {
 
     // Helper calculation.
     final distanceTopRightToCenter =
-        sqrt(pow(paddedTopRight.dx - center.dx, 2) + pow(paddedTopRight.dy - center.dy, 2));
+        sqrt(pow(paddedTopRight.dx - center!.dx, 2) + pow(paddedTopRight.dy - center!.dy, 2));
     // The second point for the border radius on the top right corner.
     final borderRadiusTopRight2X =
-        center.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center.dx));
+        center!.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center!.dx));
     final borderRadiusTopRight2Y =
-        center.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center.dy));
+        center!.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center!.dy));
 
     // DRAW BORDER RADIUS AT THE TOP RIGHT CORNER
     path.arcToPoint(
@@ -218,7 +375,7 @@ class CenterButtonPaint extends CustomPainter {
     final bottomRightY = topRightY + (outerDistance - innerDistance) / 2;
 
     // The coordinates of the bottom right point (with padding).
-    final paddedBottomRight = movePointOnCircle(bottomRightX, bottomRightY, holeRadius, center, -paddingAngleHole);
+    final paddedBottomRight = movePointOnCircle(bottomRightX, bottomRightY, holeRadius, center!, -paddingAngleHole);
 
     // Helper calculation.
     final distanceBottomRightToTopRight =
@@ -237,7 +394,7 @@ class CenterButtonPaint extends CustomPainter {
       paddedBottomRight.dx,
       paddedBottomRight.dy,
       holeRadius,
-      center,
+      center!,
       -borderRadiusAngle,
     );
 
@@ -253,14 +410,14 @@ class CenterButtonPaint extends CustomPainter {
     final bottomLeftY = bottomRightY - 0;
 
     // The coordinates of the bottom left point (with padding).
-    final paddedBottomLeft = movePointOnCircle(bottomLeftX, bottomLeftY, holeRadius, center, paddingAngleHole);
+    final paddedBottomLeft = movePointOnCircle(bottomLeftX, bottomLeftY, holeRadius, center!, paddingAngleHole);
 
     // The first point for the border radius on the bottom left corner (in clockwise direction before paddedBottomLeft).
     final borderRadiusBottomLeft1 = movePointOnCircle(
       paddedBottomLeft.dx,
       paddedBottomLeft.dy,
       holeRadius,
-      center,
+      center!,
       borderRadiusAngle,
     );
 
@@ -309,13 +466,29 @@ class CenterButtonPaint extends CustomPainter {
     // The translation is necessary such that the rotation is done around the center of the button.
     // Thus it sets the anchor.
     canvas.save();
-    canvas.translate(center.dx, center.dy);
+    canvas.translate(center!.dx, center!.dy);
     canvas.rotate(rotation);
-    canvas.translate(-center.dx, -center.dy);
+    canvas.translate(-center!.dx, -center!.dy);
     drawButton(canvas, size, path);
     canvas.restore();
+
+    buttonPath = path;
   }
 
   @override
-  bool shouldRepaint(covariant CenterButtonPaint oldDelegate) => false;
+  bool hitTest(Offset position) {
+    if (buttonPath == null) return false;
+    if (center == null) return false;
+
+    // IMPORTANT: Because we also rotate the buttons but don't apply the rotation directly to the path but instead
+    // rotate the canvas (not possible otherwise), we have to rotate the tap position to
+    // perform a hit test that also considers the rotation of the paths.
+    final distanceToCenter = sqrt(pow(position.dx - center!.dx, 2) + pow(position.dy - center!.dy, 2));
+    Offset rotatedPosition = movePointOnCircle(position.dx, position.dy, distanceToCenter, center!, rotation);
+
+    return buttonPath!.contains(rotatedPosition);
+  }
+
+  @override
+  bool shouldRepaint(covariant CenterButtonPaint oldDelegate) => true;
 }
