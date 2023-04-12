@@ -211,16 +211,17 @@ class CenterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onPressed(),
-      child: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: CustomPaint(
-          size: size,
-          painter: CenterButtonPaint(
-            rotation: rotation,
-          ),
+    return Transform.rotate(
+      angle: rotation,
+      origin: const Offset(0, 0),
+      child: RawMaterialButton(
+        shape: const CenterButtonBorder(),
+        onPressed: () => onPressed(),
+        fillColor: Colors.black.withOpacity(0.4),
+        elevation: 0,
+        child: Transform.rotate(
+          angle: -rotation,
+          origin: const Offset(0, 0),
           child: child,
         ),
       ),
@@ -228,33 +229,45 @@ class CenterButton extends StatelessWidget {
   }
 }
 
-/// The painter for the special shape of the center buttons.
-class CenterButtonPaint extends CustomPainter {
-  /// The rotation of the button.
-  final double rotation;
+/// A custom border for the center buttons.
+class CenterButtonBorder extends OutlinedBorder {
+  const CenterButtonBorder({BorderSide side = BorderSide.none}) : super(side: side);
 
-  /// The path of the shape (gets set when the paint method is called).
-  Path? buttonPath;
-
-  /// The center of the shape (gets set when the paint method is called).
-  Offset? center;
-
-  CenterButtonPaint({
-    this.rotation = 0,
-  });
-
-  /// Draws the the button.
-  void drawButton(Canvas canvas, Size size, Path path) {
-    final paint = Paint()
-      ..color = Colors.black.withOpacity(0.4)
-      ..style = PaintingStyle.fill;
-    final paintStroke = Paint()
-      ..color = Colors.black.withOpacity(0.3)
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-    canvas.drawPath(path, paint);
-    canvas.drawPath(path, paintStroke);
+  @override
+  OutlinedBorder copyWith({BorderSide? side}) {
+    return CenterButtonBorder(side: side ?? this.side);
   }
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.all(side.width);
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    return getCenterButtonShape(Size(rect.width, rect.height));
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    return getCenterButtonShape(Size(rect.width, rect.height));
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    switch (side.style) {
+      case BorderStyle.none:
+        break;
+      case BorderStyle.solid:
+        canvas.drawPath(
+            getCenterButtonShape(Size(rect.width, rect.height)),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..color = Colors.black
+              ..strokeWidth = 1.0);
+    }
+  }
+
+  @override
+  ShapeBorder scale(double t) => CenterButtonBorder(side: side.scale(t));
 
   /// Moves a point on a circle by a given angle. For positive angles the point is moved clockwise.
   /// For negative angles the point is moved counter-clockwise.
@@ -270,8 +283,8 @@ class CenterButtonPaint extends CustomPainter {
     return Offset(paddedPointX, paddedPointY);
   }
 
-  @override
-  void paint(Canvas canvas, Size size) {
+  /// Returns the path of the center button.
+  Path getCenterButtonShape(Size size) {
     // Roughly creates the following path (we start at the top left point and go clockwise):
     /*
                                    outer arc
@@ -289,7 +302,7 @@ class CenterButtonPaint extends CustomPainter {
              bottomLeft xxx                         xxxx bottomRight
    */
     final path = Path();
-    center = Offset(size.width / 2, size.height / 2);
+    Offset center = Offset(size.width / 2, size.height / 2);
     // The radius for the outside of the arc.
     final outerRadius = size.width / 2 - 52;
     // The radius for the inside of the arc.
@@ -317,11 +330,11 @@ class CenterButtonPaint extends CustomPainter {
     final innerDistance = sqrt(holeRadius * holeRadius + holeRadius * holeRadius);
 
     // The coordinates of the top left point (without padding and border radius).
-    final topLeftX = center!.dx - outerDistance / 2;
-    final topLeftY = center!.dy - outerDistance / 2;
+    final topLeftX = center.dx - outerDistance / 2;
+    final topLeftY = center.dy - outerDistance / 2;
 
     // The coordinates of the top left point (with padding).
-    final paddedTopLeft = movePointOnCircle(topLeftX, topLeftY, outerRadius, center!, paddingAngleOuter);
+    final paddedTopLeft = movePointOnCircle(topLeftX, topLeftY, outerRadius, center, paddingAngleOuter);
     // For the border radius, we need to find two new points.
     // 1. The first one is in clockwise direction before the original paddedTopLeft corner
     // (calculated at the end of the path). Thus, it is on the left straight line.
@@ -330,7 +343,7 @@ class CenterButtonPaint extends CustomPainter {
     // In between thos points we draw an arc for the border radius.
     // Thus, we don't use the original paddedTopLeft corner in the path, but only for intermediate calculation steps.
     final borderRadiusTopLeft2 =
-        movePointOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center!, borderRadiusAngle);
+        movePointOnCircle(paddedTopLeft.dx, paddedTopLeft.dy, outerRadius, center, borderRadiusAngle);
 
     // MOVE TO START OF PATH (not drawing anything yet)
     path.moveTo(borderRadiusTopLeft2.dx, borderRadiusTopLeft2.dy);
@@ -340,12 +353,12 @@ class CenterButtonPaint extends CustomPainter {
     final topRightY = topLeftY + 0;
 
     // The coordinates of the top right point (with padding).
-    final paddedTopRight = movePointOnCircle(topRightX, topRightY, outerRadius, center!, -paddingAngleOuter);
+    final paddedTopRight = movePointOnCircle(topRightX, topRightY, outerRadius, center, -paddingAngleOuter);
     // The first point for the border radius on the top right corner (in clockwise direction before the paddedTopRight point).
     // (same concept as for the top left corner,
     // only if the first and second point are lying on an arc or straight line may be different and depends on the specific corner)
     final borderRadiusTopRight1 =
-        movePointOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center!, -borderRadiusAngle);
+        movePointOnCircle(paddedTopRight.dx, paddedTopRight.dy, outerRadius, center, -borderRadiusAngle);
 
     // DRAW OUTER ARC
     path.arcToPoint(
@@ -356,12 +369,12 @@ class CenterButtonPaint extends CustomPainter {
 
     // Helper calculation.
     final distanceTopRightToCenter =
-        sqrt(pow(paddedTopRight.dx - center!.dx, 2) + pow(paddedTopRight.dy - center!.dy, 2));
+        sqrt(pow(paddedTopRight.dx - center.dx, 2) + pow(paddedTopRight.dy - center.dy, 2));
     // The second point for the border radius on the top right corner.
     final borderRadiusTopRight2X =
-        center!.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center!.dx));
+        center.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center.dx));
     final borderRadiusTopRight2Y =
-        center!.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center!.dy));
+        center.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center.dy));
 
     // DRAW BORDER RADIUS AT THE TOP RIGHT CORNER
     path.arcToPoint(
@@ -375,7 +388,7 @@ class CenterButtonPaint extends CustomPainter {
     final bottomRightY = topRightY + (outerDistance - innerDistance) / 2;
 
     // The coordinates of the bottom right point (with padding).
-    final paddedBottomRight = movePointOnCircle(bottomRightX, bottomRightY, holeRadius, center!, -paddingAngleHole);
+    final paddedBottomRight = movePointOnCircle(bottomRightX, bottomRightY, holeRadius, center, -paddingAngleHole);
 
     // Helper calculation.
     final distanceBottomRightToTopRight =
@@ -394,7 +407,7 @@ class CenterButtonPaint extends CustomPainter {
       paddedBottomRight.dx,
       paddedBottomRight.dy,
       holeRadius,
-      center!,
+      center,
       -borderRadiusAngle,
     );
 
@@ -410,14 +423,14 @@ class CenterButtonPaint extends CustomPainter {
     final bottomLeftY = bottomRightY - 0;
 
     // The coordinates of the bottom left point (with padding).
-    final paddedBottomLeft = movePointOnCircle(bottomLeftX, bottomLeftY, holeRadius, center!, paddingAngleHole);
+    final paddedBottomLeft = movePointOnCircle(bottomLeftX, bottomLeftY, holeRadius, center, paddingAngleHole);
 
     // The first point for the border radius on the bottom left corner (in clockwise direction before paddedBottomLeft).
     final borderRadiusBottomLeft1 = movePointOnCircle(
       paddedBottomLeft.dx,
       paddedBottomLeft.dy,
       holeRadius,
-      center!,
+      center,
       borderRadiusAngle,
     );
 
@@ -462,33 +475,6 @@ class CenterButtonPaint extends CustomPainter {
 
     path.close();
 
-    // Rotate the path with the given angle.
-    // The translation is necessary such that the rotation is done around the center of the button.
-    // Thus it sets the anchor.
-    canvas.save();
-    canvas.translate(center!.dx, center!.dy);
-    canvas.rotate(rotation);
-    canvas.translate(-center!.dx, -center!.dy);
-    drawButton(canvas, size, path);
-    canvas.restore();
-
-    buttonPath = path;
+    return path;
   }
-
-  @override
-  bool hitTest(Offset position) {
-    if (buttonPath == null) return false;
-    if (center == null) return false;
-
-    // IMPORTANT: Because we also rotate the buttons but don't apply the rotation directly to the path but instead
-    // rotate the canvas (not possible otherwise), we have to rotate the tap position to
-    // perform a hit test that also considers the rotation of the paths.
-    final distanceToCenter = sqrt(pow(position.dx - center!.dx, 2) + pow(position.dy - center!.dy, 2));
-    Offset rotatedPosition = movePointOnCircle(position.dx, position.dy, distanceToCenter, center!, rotation);
-
-    return buttonPath!.contains(rotatedPosition);
-  }
-
-  @override
-  bool shouldRepaint(covariant CenterButtonPaint oldDelegate) => true;
 }
