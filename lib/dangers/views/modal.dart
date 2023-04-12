@@ -61,7 +61,7 @@ class DangerModalState extends State<DangerModal> {
       ),
       SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 48, left: 82, right: 16), // Fit the danger button.
+          padding: const EdgeInsets.only(top: 48, left: 16, right: 16), // Fit the danger button.
           child: Tile(
             fill: Theme.of(context).colorScheme.background,
             content: Column(

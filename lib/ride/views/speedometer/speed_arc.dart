@@ -23,7 +23,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
   void paintSpeedArcTail(Canvas canvas, Size size) {
     // Scale the opacity of the glow based on the speed.
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 34;
+    final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
@@ -56,7 +56,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     const double rectangleHeight = 56;
     const double rectangleWidth = 14;
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 34;
+    final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
@@ -77,7 +77,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
       0,
       rectangleHeight,
       rectangleWidth,
-      const Radius.circular(2),
+      const Radius.circular(8),
     );
 
     final paint = Paint()
@@ -103,7 +103,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
     const double rectangleHeight = 60;
     const double rectangleWidth = 17;
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 34;
+    final radius = size.width / 2 - 32;
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     final pct = (speed - minSpeed) / (maxSpeed - minSpeed);
@@ -124,7 +124,7 @@ class SpeedometerSpeedArcPainter extends CustomPainter {
       0,
       rectangleHeight,
       rectangleWidth,
-      const Radius.circular(4),
+      const Radius.circular(8),
     );
 
     final paint = Paint()

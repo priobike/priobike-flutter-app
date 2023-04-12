@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -11,22 +14,16 @@ import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
-class CancelButton extends StatefulWidget {
-  /// The border radius of the button.
-  final double borderRadius;
-
-  /// The text of the button.
-  final String text;
-
-  /// Create a new cancel button.
-  const CancelButton({this.borderRadius = 32, this.text = "Fertig", Key? key}) : super(key: key);
+class FinishRideButton extends StatefulWidget {
+  const FinishRideButton({Key? key}) : super(key: key);
 
   @override
-  CancelButtonState createState() => CancelButtonState();
+  FinishRideButtonState createState() => FinishRideButtonState();
 }
 
-/// A cancel button to cancel the ride.
-class CancelButtonState extends State<CancelButton> {
+class FinishRideButtonState extends State<FinishRideButton> {
+  final log = Logger("FinishButton");
+
   Widget askForConfirmation(BuildContext context) {
     return AlertDialog(
       //contentPadding: const EdgeInsets.all(30),
@@ -142,30 +139,44 @@ class CancelButtonState extends State<CancelButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.flag_rounded),
-        label: BoldSmall(
-          text: widget.text,
-          context: context,
-          color: Colors.white,
-        ),
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => askForConfirmation(context),
-        ),
-        style: ButtonStyle(
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              side: const BorderSide(color: Color.fromARGB(255, 236, 240, 241)),
+    return Stack(
+      children: [
+        Positioned(
+          top: 48, // Below the MapBox attribution.
+          right: 0,
+          child: SafeArea(
+            child: Tile(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => askForConfirmation(context),
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                bottomLeft: Radius.circular(24),
+              ),
+              padding: const EdgeInsets.all(4),
+              fill: Colors.black.withOpacity(0.4),
+              content: Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.flag_rounded,
+                      color: Colors.white,
+                    ),
+                    const SmallHSpace(),
+                    BoldSmall(
+                      text: "Ende",
+                      context: context,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 236, 240, 241)),
-          backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
         ),
-      ),
+      ],
     );
   }
 }

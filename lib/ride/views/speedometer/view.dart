@@ -3,11 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
@@ -19,7 +21,10 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
-  const RideSpeedometerView({Key? key}) : super(key: key);
+  /// A callback that is called when the danger button is tapped.
+  final Function onTapDanger;
+
+  const RideSpeedometerView({Key? key, required this.onTapDanger}) : super(key: key);
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
@@ -214,6 +219,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final originalSpeedometerHeight = MediaQuery.of(context).size.width;
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
 
+    final remainingDistance =
+        (((ride.route?.path.distance ?? 0.0) - (positioning.snap?.distanceOnRoute ?? 0.0)) / 1000).abs();
+    final remainingMinutes = remainingDistance / (18 / 60);
+    final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
+
+    final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -278,6 +290,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                           children: [
                             CustomPaint(painter: SpeedometerCoverPainter()),
                             CustomPaint(
+                              size: size,
                               painter: SpeedometerBackgroundPainter(
                                 isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
                               ),
@@ -298,33 +311,67 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                               ),
                             ),
                             CustomPaint(
-                              painter: SpeedometerSpeedArcPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
-                                // Scale the animation pct between minSpeed and maxSpeed
-                                speed: speedkmh,
-                              ),
-                            ),
-                            CustomPaint(
                               painter: SpeedometerLabelsPainter(
                                 minSpeed: minSpeed,
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            const Center(child: RideTrafficLightView())
                           ],
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 26),
-                      child: BoldSubHeader(
-                        text: '${speedkmh.toStringAsFixed(0)} km/h',
-                        context: context,
-                        color: Colors.white,
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: Center(
+                        child: RideTrafficLightView(
+                          size: size,
+                        ),
                       ),
                     ),
+                    Transform.translate(
+                      offset: const Offset(0, 42),
+                      child: RideCenterButtonsView(
+                        size: size,
+                        onTapDanger: widget.onTapDanger,
+                      ),
+                    ),
+                    IgnorePointer(
+                      child: Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: CustomPaint(
+                          size: size,
+                          painter: SpeedometerSpeedArcPainter(
+                            minSpeed: minSpeed,
+                            maxSpeed: maxSpeed,
+                            isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            // Scale the animation pct between minSpeed and maxSpeed
+                            speed: speedkmh,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (ride.userSelectedSG == null) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 62),
+                        child: BoldContent(
+                          text:
+                              "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                          context: context,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 26),
+                        child: Text(
+                          '${speedkmh.toStringAsFixed(0)} km/h',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                     Padding(
                       padding: const EdgeInsets.only(bottom: 18),
                       child: Text(

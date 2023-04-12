@@ -23,7 +23,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
     const endAngle = pi / 4;
     const angle = startAngle + (endAngle - startAngle);
     const sweepAngle = angle - startAngle;
-    final radius = size.width / 2 - 36;
+    final radius = size.width / 2 - 32;
     final rect = Rect.fromCircle(center: center, radius: radius);
     () {
       final paint = Paint()
@@ -35,7 +35,7 @@ class SpeedometerPredictionArcPainter extends CustomPainter {
           stops: stops,
           transform: const GradientRotation(startAngle),
         ).createShader(rect)
-        ..strokeWidth = 28
+        ..strokeWidth = 32
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 0)
         ..strokeCap = StrokeCap.butt
         ..isAntiAlias = true
