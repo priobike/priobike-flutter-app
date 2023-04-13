@@ -6,9 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/utils.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -596,124 +594,6 @@ class WaypointsLayer {
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
-  update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (sourceExists) {
-      final source = await mapController.style.getSource(sourceId);
-      (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
-    }
-  }
-}
-
-class DangersLayer {
-  /// The ID of the Mapbox source.
-  static const sourceId = "dangers";
-
-  /// The ID of the Mapbox layer.
-  static const layerId = "dangers-icons";
-
-  /// The features to display.
-  final List<dynamic> features = List.empty(growable: true);
-
-  DangersLayer(bool isDark, {hideBehindPosition = false}) {
-    final dangers = getIt<Dangers>();
-    final routing = getIt<Routing>();
-    final userPosSnap = getIt<Positioning>().snap;
-    if (routing.selectedRoute == null) return;
-    for (int i = 0; i < dangers.dangers.length; i++) {
-      final danger = dangers.dangers[i];
-      final dangerDistanceOnRoute = dangers.dangersDistancesOnRoute[i];
-      // Clamp the value to not unnecessarily update the source.
-      final distanceToDangerOnRoute = max(-5, min(0, dangerDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
-      String icon;
-      switch (danger.category) {
-        case "obstacle":
-          icon = "obstacle";
-          break;
-        case "potholes":
-          icon = "potholes";
-          break;
-        default:
-          icon = "dangerspot";
-          break;
-      }
-      features.add(
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [danger.lon, danger.lat],
-          },
-          "properties": {
-            "icon": icon,
-            "isDark": isDark,
-            "distanceToDangerOnRoute": distanceToDangerOnRoute,
-            "hideBehindPosition": hideBehindPosition,
-          },
-        },
-      );
-    }
-  }
-
-  /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
-    final sourceExists = await mapController.style.styleSourceExists(sourceId);
-    if (!sourceExists) {
-      await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
-      );
-    } else {
-      await update(mapController);
-    }
-
-    final dangersIconsLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!dangersIconsLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: layerId,
-            iconSize: iconSize,
-            iconAllowOverlap: true,
-            textAllowOverlap: true,
-            textIgnorePlacement: true,
-          ),
-          mapbox.LayerPosition(below: below));
-      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "icon"]));
-      await mapController.style.setStyleLayerProperty(
-          layerId,
-          'icon-opacity',
-          json.encode(
-            showAfter(zoom: 16, opacity: [
-              "case",
-              ["get", "hideBehindPosition"],
-              [
-                "case",
-                [
-                  "<",
-                  ["get", "distanceToDangerOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                ],
-                0,
-                // Interpolate between -5 (opacity=0) and 0 (opacity=1) meters
-                [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "distanceToDangerOnRoute"],
-                  -5, // See above - this is clamped to [-5, 0]
-                  0,
-                  0,
-                  1
-                ],
-              ],
-              1
-            ]),
-          ));
-    }
-
-    return layerId;
-  }
-
-  /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {

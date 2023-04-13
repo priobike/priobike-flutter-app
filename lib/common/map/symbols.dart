@@ -52,10 +52,6 @@ class SymbolLoader {
     await add("accidentlight", "assets/images/accident-light.png", 201, 201);
     await add("route-label-pmm", "assets/images/route-label-pmm.png", 201, 201);
     await add("route-label-smm", "assets/images/route-label-smm.png", 201, 201);
-
-    await add("potholes", "assets/images/potholes-map.png", 201, 201);
-    await add("obstacle", "assets/images/obstacle-map.png", 201, 201);
-    await add("dangerspot", "assets/images/dangerspot-map.png", 200, 201);
   }
 
   /// Adds an asset image to the currently displayed style

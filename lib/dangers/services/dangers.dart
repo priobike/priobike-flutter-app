@@ -80,7 +80,7 @@ class Dangers with ChangeNotifier {
   }
 
   /// Report a new danger.
-  Future<void> submitNew(Snap? snap, String category) async {
+  Future<void> submitNew(Snap? snap) async {
     if (snap == null) {
       log.w("Cannot report a danger without a position.");
       return;
@@ -91,7 +91,6 @@ class Dangers with ChangeNotifier {
       pk: null, // The server will assign a pk.
       lat: snap.position.latitude,
       lon: snap.position.longitude,
-      category: category,
     );
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;

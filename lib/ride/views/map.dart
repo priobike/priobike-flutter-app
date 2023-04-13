@@ -71,10 +71,6 @@ class RideMapViewState extends State<RideMapView> {
       onPositioningUpdate();
       positioning.needsLayout[viewId] = false;
     }
-    if (dangers.needsLayout[viewId] != false && mapController != null) {
-      onDangersUpdate();
-      dangers.needsLayout[viewId] = false;
-    }
     if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
       onStatusUpdate();
       predictionSGStatus.needsLayout[viewId] = false;
@@ -138,8 +134,6 @@ class RideMapViewState extends State<RideMapView> {
     await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
-    if (!mounted) return;
-    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
@@ -158,13 +152,6 @@ class RideMapViewState extends State<RideMapView> {
         mapbox.MapAnimationOptions(duration: 200),
       );
     }
-  }
-
-  /// Update the view with the current data.
-  Future<void> onDangersUpdate() async {
-    if (!mounted) return;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -286,8 +273,6 @@ class RideMapViewState extends State<RideMapView> {
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 5);
-    if (!mounted) return;
-    await DangersLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
     if (!mounted) return;
     await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5);
 

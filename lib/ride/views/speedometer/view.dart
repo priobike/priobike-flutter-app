@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
@@ -21,10 +23,7 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
-  /// A callback that is called when the danger button is tapped.
-  final Function onTapDanger;
-
-  const RideSpeedometerView({Key? key, required this.onTapDanger}) : super(key: key);
+  const RideSpeedometerView({Key? key}) : super(key: key);
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
@@ -332,7 +331,19 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                       offset: const Offset(0, 42),
                       child: RideCenterButtonsView(
                         size: size,
-                        onTapDanger: widget.onTapDanger,
+                        onTapDanger: () {
+                          HapticFeedback.lightImpact();
+                          // Get the current snapped position.
+                          final snap = getIt<Positioning>().snap;
+                          if (snap == null) {
+                            log.w("Cannot report a danger without a current snapped position.");
+                            return;
+                          }
+
+                          final dangers = getIt<Dangers>();
+                          dangers.submitNew(snap);
+                          ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
+                        },
                       ),
                     ),
                     IgnorePointer(
