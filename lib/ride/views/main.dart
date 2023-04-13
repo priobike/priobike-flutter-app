@@ -6,9 +6,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
-import 'package:priobike/dangers/views/modal.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
@@ -39,12 +37,6 @@ class RideViewState extends State<RideView> {
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
-
-  /// If the danger modal is currently shown.
-  bool showDangerModal = false;
-
-  /// The snapped danger position for the modal.
-  Snap? dangerPosition;
 
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
@@ -189,24 +181,7 @@ class RideViewState extends State<RideView> {
   /// A callback that is called when the button is tapped.
   Future<void> onTapDanger() async {
     HapticFeedback.lightImpact();
-    if (!showDangerModal /* Prepare to show modal. */) {
-      log.i("Caching the current position.");
-      // Get the current snapped position.
-      final snap = getIt<Positioning>().snap;
-      if (snap == null) {
-        log.w("Cannot report a danger without a current snapped position.");
-        return;
-      }
-      setState(() {
-        dangerPosition = snap;
-        showDangerModal = true;
-      });
-    } else {
-      setState(() {
-        dangerPosition = null;
-        showDangerModal = false;
-      });
-    }
+    // TODO Send danger directly to the backend.
   }
 
   @override
@@ -245,26 +220,9 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              RideSpeedometerView(onTapDanger: onTapDanger),
+              RideSpeedometerView(),
               const DatastreamView(),
               const FinishRideButton(),
-              AnimatedCrossFade(
-                duration: const Duration(milliseconds: 200),
-                firstCurve: Curves.easeInOutCubicEmphasized,
-                secondCurve: Curves.easeInOutCubicEmphasized,
-                sizeCurve: Curves.easeInOutCubicEmphasized,
-                firstChild: Container(),
-                secondChild: DangerModal(
-                  position: dangerPosition,
-                  onExit: () {
-                    setState(() {
-                      dangerPosition = null;
-                      showDangerModal = false;
-                    });
-                  },
-                ),
-                crossFadeState: showDangerModal ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              ),
             ],
           ),
         ),
