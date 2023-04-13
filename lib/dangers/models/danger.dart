@@ -10,14 +10,8 @@ class Danger {
   final double lon;
 
   /// The category of danger. In the past we had multiple categories.
-  /// To maintain backwards compatibility, we keep this field, but set it with a const value.
+  /// To maintain backwards compatibility, we keep this field, but set it with a const generic value.
   static const category = "dangerspot";
-
-  /// The icon of the danger.
-  static const icon = "assets/images/dangerspot.png";
-
-  /// The translation of the category.
-  static const description = "Gefahrenstelle";
 
   const Danger({
     required this.pk,
