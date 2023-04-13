@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
@@ -176,12 +175,6 @@ class RideViewState extends State<RideView> {
   void dispose() {
     settings.removeListener(update);
     super.dispose();
-  }
-
-  /// A callback that is called when the button is tapped.
-  Future<void> onTapDanger() async {
-    HapticFeedback.lightImpact();
-    // TODO Send danger directly to the backend.
   }
 
   @override
