@@ -220,7 +220,7 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              RideSpeedometerView(),
+              const RideSpeedometerView(),
               const DatastreamView(),
               const FinishRideButton(),
             ],
