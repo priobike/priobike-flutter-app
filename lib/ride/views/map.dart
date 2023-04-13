@@ -154,7 +154,9 @@ class RideMapViewState extends State<RideMapView> {
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
         mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+          center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+          zoom: 16,
+        ),
         mapbox.MapAnimationOptions(duration: 200),
       );
     }
