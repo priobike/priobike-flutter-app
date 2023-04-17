@@ -85,7 +85,7 @@ class VeloRoutesLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15, below = "user-location-puck"}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -99,7 +99,7 @@ class VeloRoutesLayer {
               lineCap: mapbox.LineCap.ROUND,
               lineColor: CI.lightBlue.value,
               lineWidth: 1.9),
-          mapbox.LayerPosition(below: "user-location-puck"));
+          mapbox.LayerPosition(below: below));
     }
   }
 

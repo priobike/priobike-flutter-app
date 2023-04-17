@@ -516,13 +516,13 @@ class TrafficLayer {
                 "low",
                 ["get", "congestion"]
               ],
-              "#aab7ef",
+              "transparent",
               [
                 "==",
                 "moderate",
                 ["get", "congestion"]
               ],
-              "#4264fb",
+              "transparent",
               [
                 "==",
                 "heavy",

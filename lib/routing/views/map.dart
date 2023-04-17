@@ -299,10 +299,24 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    const delay = Duration(milliseconds: 100);
     // Load the map features.
+    if (layers.showTrafficLayer) {
+      if (!mounted) return;
+      await TrafficLayer(isDark).install(mapController!);
+      await Future.delayed(delay);
+    } else {
+      if (!mounted) return;
+      await TrafficLayer.remove(mapController!);
+    }
     if (layers.showVeloRoutesLayer) {
       if (!mounted) return;
-      await VeloRoutesLayer(isDark).install(mapController!);
+      var below = "user-location-puck";
+      if (layers.showTrafficLayer) {
+        below = TrafficLayer.layerId;
+      }
+      await VeloRoutesLayer(isDark).install(mapController!, below: below);
+      await Future.delayed(delay);
     } else {
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
@@ -355,13 +369,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
-    }
-    if (layers.showTrafficLayer) {
-      if (!mounted) return;
-      await TrafficLayer(isDark).install(mapController!);
-    } else {
-      if (!mounted) return;
-      await TrafficLayer.remove(mapController!);
     }
   }
 
