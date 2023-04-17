@@ -175,8 +175,8 @@ class QRCodeViewState extends State<QRCodeView> {
                           borderRadius: BorderRadius.circular(32),
                           padding: const EdgeInsets.all(0),
                           content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.65,
-                            height: MediaQuery.of(context).size.width * 0.65,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.width * 0.8,
                             child: state == QRCodeViewMode.scanning
                                 ? ScanQRCodeView(
                                     onScan: (shortcut) {

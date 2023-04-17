@@ -9,42 +9,14 @@ class Danger {
   /// The GPS longitude of the location.
   final double lon;
 
-  /// The category of danger.
-  final String category;
-
-  /// The icon of the danger.
-  String get icon {
-    switch (category) {
-      case "potholes":
-        return "assets/images/potholes.png";
-      case "obstacle":
-        return "assets/images/obstacle.png";
-      case "dangerspot":
-        return "assets/images/dangerspot.png";
-      default:
-        return "assets/images/dangerspot.png";
-    }
-  }
-
-  /// The translation of the category.
-  String get description {
-    switch (category) {
-      case "potholes":
-        return "Schlechte Straße";
-      case "obstacle":
-        return "Hindernis";
-      case "dangerspot":
-        return "Gefahrenstelle";
-      default:
-        return "Gefahrenstelle";
-    }
-  }
+  /// The category of danger. In the past we had multiple categories.
+  /// To maintain backwards compatibility, we keep this field, but set it with a const generic value.
+  static const category = "dangerspot";
 
   const Danger({
     required this.pk,
     required this.lat,
     required this.lon,
-    required this.category,
   });
 
   /// Create a new danger from a json object.
@@ -52,7 +24,6 @@ class Danger {
         pk: json['pk'] as int?,
         lat: json['lat'] as double,
         lon: json['lon'] as double,
-        category: json['category'] as String,
       );
 
   /// Convert this danger to a json object.

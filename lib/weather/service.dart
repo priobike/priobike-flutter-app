@@ -7,7 +7,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/weather/messages.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Weather with ChangeNotifier {
   /// The logger for this service.
@@ -62,9 +61,6 @@ class Weather with ChangeNotifier {
     } catch (e, stacktrace) {
       final hint = "Failed to fetch weather: $e $stacktrace";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
-      }
     }
 
     hasLoaded = true;

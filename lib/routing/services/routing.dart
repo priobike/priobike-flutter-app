@@ -21,7 +21,6 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 enum RoutingProfile {
   bikeDefault, // Bike doesn't consider elevation data.
@@ -272,13 +271,9 @@ class Routing with ChangeNotifier {
         log.e("Failed to load SG-Selector response: ${response.statusCode} ${response.body}");
         return null;
       }
-    } catch (e, stack) {
+    } catch (e) {
       final hint = "Failed to load SG-Selector response: $e";
       log.e(hint);
-
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
       return null;
     }
   }
@@ -363,12 +358,9 @@ class Routing with ChangeNotifier {
         log.e("Failed to load GraphHopper response: ${response.statusCode} ${response.body}");
         return null;
       }
-    } catch (e, stacktrace) {
+    } catch (e) {
       final hint = "Failed to load GraphHopper response: $e";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stacktrace, hint: hint);
-      }
       return null;
     }
   }

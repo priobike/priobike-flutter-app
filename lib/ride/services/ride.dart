@@ -43,6 +43,9 @@ class Ride with ChangeNotifier {
   /// The current signal group index, calculated periodically.
   int? calcCurrentSGIndex;
 
+  /// The next connected signal group index, calculated periodically.
+  int? calcNextConnectedSGIndex;
+
   /// The current signal group index, selected by the user.
   int? userSelectedSGIndex;
 
@@ -86,13 +89,13 @@ class Ride with ChangeNotifier {
   void jumpToSG({required int step}) {
     if (route == null) return;
     if (route!.signalGroups.isEmpty) return;
-    if (userSelectedSGIndex == null && calcCurrentSGIndex == null) {
+    if (userSelectedSGIndex == null && calcNextConnectedSGIndex == null) {
       // If there is no next signal group, select the first one if moving forward.
       // If moving backward, select the last one.
       userSelectedSGIndex = step > 0 ? 0 : route!.signalGroups.length - 1;
     } else if (userSelectedSGIndex == null) {
       // User did not manually select a signal group yet.
-      userSelectedSGIndex = (calcCurrentSGIndex! + step) % route!.signalGroups.length;
+      userSelectedSGIndex = (calcNextConnectedSGIndex! + step) % route!.signalGroups.length;
     } else {
       // User manually selected a signal group.
       userSelectedSGIndex = (userSelectedSGIndex! + step) % route!.signalGroups.length;
@@ -178,13 +181,41 @@ class Ride with ChangeNotifier {
     Sg? nextSg;
     int? nextSgIndex;
     double routeDistanceOfNextSg = double.infinity;
+    Sg? previousSg;
+    int? previousSgIndex;
+    double routeDistanceOfPreviousSg = 0;
+    // Sometimes the GPS position may unintendedly jump after the signal group. If the user
+    // is slow (< 2 m/s) and the previous signal group is < 10m away, we use the signal group
+    // that is closer to the user. Otherwise we just use the next upcoming signal group on the route.
+    final speed = getIt<Positioning>().lastPosition?.speed ?? 0;
     for (int i = 0; i < route!.signalGroups.length; i++) {
-      if (route!.signalGroupsDistancesOnRoute[i] > snap.distanceOnRoute) {
+      final routeDistanceSg = route!.signalGroupsDistancesOnRoute[i];
+      if (speed < 2) {
+        // Get the previous signal group closest to the user if it exists.
+        if (routeDistanceSg < snap.distanceOnRoute) {
+          if (routeDistanceSg > routeDistanceOfPreviousSg) {
+            previousSg = route!.signalGroups[i];
+            previousSgIndex = i;
+            routeDistanceOfPreviousSg = routeDistanceSg;
+          }
+        }
+      }
+      // Get the next upcoming signal group on the route.
+      if (routeDistanceSg > snap.distanceOnRoute) {
         nextSg = route!.signalGroups[i];
         nextSgIndex = i;
+        calcNextConnectedSGIndex = i;
         routeDistanceOfNextSg = route!.signalGroupsDistancesOnRoute[i];
         break;
       }
+    }
+    if (previousSg != null &&
+        (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() < 10 &&
+        (routeDistanceOfPreviousSg - snap.distanceOnRoute).abs() <
+            (routeDistanceOfNextSg - snap.distanceOnRoute).abs()) {
+      nextSg = previousSg;
+      nextSgIndex = previousSgIndex;
+      routeDistanceOfNextSg = routeDistanceOfPreviousSg;
     }
 
     // Find the next crossing that is not connected on the route.
@@ -233,8 +264,11 @@ class Ride with ChangeNotifier {
     navigationIsActive = false;
     await predictionComponent?.reset();
     predictionComponent = null;
+    userSelectedSG = null;
+    userSelectedSGIndex = null;
     calcCurrentSG = null;
     calcCurrentSGIndex = null;
+    calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
     needsLayout = {};
     notifyListeners();

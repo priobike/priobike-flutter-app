@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/logging/logger.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:priobike/logging/logger.dart';
+
 import '../models/routing_view.dart';
 
 class Settings with ChangeNotifier {
@@ -59,6 +60,9 @@ class Settings with ChangeNotifier {
 
   /// The counter of connection error in a row.
   int connectionErrorCounter;
+
+  /// If the save battery mode is enabled.
+  bool saveBatteryModeEnabled;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -314,6 +318,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const saveBatteryModeEnabledKey = "priobike.settings.saveBatteryModeEnabled";
+  static const defaultSaveBatteryModeEnabled = true;
+
+  Future<bool> setSaveBatteryModeEnabled(bool saveBatteryModeEnabled, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.saveBatteryModeEnabled;
+    this.saveBatteryModeEnabled = saveBatteryModeEnabled;
+    bool success = await storage.setBool(saveBatteryModeEnabledKey, saveBatteryModeEnabled);
+    if (!success) {
+      log.e("Failed to set saveBatteryModeEnabled to $saveBatteryModeEnabled");
+      this.saveBatteryModeEnabled = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
@@ -329,6 +350,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.routingView = defaultRoutingView,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
+    this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
   });
 
   /// Load the backend from the shared
@@ -422,6 +444,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      saveBatteryModeEnabled = storage.getBool(saveBatteryModeEnabledKey) ?? defaultSaveBatteryModeEnabled;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -443,5 +470,6 @@ class Settings with ChangeNotifier {
         "connectionErrorCounter": connectionErrorCounter,
         "sgSelector": sgSelector.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
+        "saveBatteryModeEnabled": saveBatteryModeEnabled,
       };
 }

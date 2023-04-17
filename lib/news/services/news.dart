@@ -11,7 +11,6 @@ import 'package:priobike/news/models/article.dart';
 import 'package:priobike/news/models/category.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class News with ChangeNotifier {
@@ -77,12 +76,9 @@ class News with ChangeNotifier {
           articlesFromServer.add(article);
         },
       );
-    } catch (e, stack) {
+    } catch (e) {
       final hint = "Failed to load articles: $e";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
     }
 
     articles = [...articlesFromServer, ...localSavedArticles];
@@ -138,12 +134,9 @@ class News with ChangeNotifier {
       }
 
       await _storeCategory(category);
-    } catch (e, stack) {
+    } catch (e) {
       final hint = "Failed to load category: $e";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
     }
   }
 

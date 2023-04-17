@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
+import 'package:priobike/common/map/layers/prio_layers.dart';
 import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/map_design.dart';
@@ -122,20 +123,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Check if route-related stuff has changed.
     if (routing.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
     }
 
     // Check if the discomforts have changed.
     if (discomforts.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
     }
 
     // Check if the status has changed.
     if (status.needsLayout[viewId] != false) {
-      loadRouteMapLayers(); // Update all layers to keep them in z-order.
+      updateRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
 
@@ -185,8 +186,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
-
-    updateMap();
   }
 
   @override
@@ -275,7 +274,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         await mapController!.style
             .setStyleTransition(TransitionOptions(duration: 1000, enablePlacementTransitions: false));
       } else {
-        mapController!.style.updateLayer(
+        await mapController!.style.updateLayer(
           LocationIndicatorLayer(
             id: "user-location-puck",
             bearing: positioning.lastPosition!.heading,
@@ -307,6 +306,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
+    if (layers.showVeloRoutesLayer) {
+      if (!mounted) return;
+      await VeloRoutesLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await VeloRoutesLayer.remove(mapController!);
+    }
     if (layers.showAirStations) {
       if (!mounted) return;
       await BikeAirStationLayer(isDark).install(mapController!);
@@ -349,9 +355,42 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await AccidentHotspotsLayer.remove(mapController!);
     }
+    if (layers.showGreenWaveLayer) {
+      if (!mounted) return;
+      await GreenWaveLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await GreenWaveLayer.remove(mapController!);
+    }
+    if (layers.showTrafficLayer) {
+      if (!mounted) return;
+      await TrafficLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await TrafficLayer.remove(mapController!);
+    }
   }
 
-  /// Update all map layers.
+  /// Update all route map layers.
+  updateRouteMapLayers() async {
+    if (mapController == null) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (!mounted) return;
+    await OfflineCrossingsLayer(isDark).update(mapController!);
+    if (!mounted) return;
+    await TrafficLightsLayer(isDark).update(mapController!);
+    if (!mounted) return;
+    await WaypointsLayer().update(mapController!);
+    if (!mounted) return;
+    await DiscomfortsLayer().update(mapController!);
+    if (!mounted) return;
+    await SelectedRouteLayer().update(mapController!);
+    if (!mounted) return;
+    await AllRoutesLayer().update(mapController!);
+  }
+
+  /// Load all route map layers.
   loadRouteMapLayers() async {
     if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
@@ -393,7 +432,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
             await mapController!.getCameraState())
-        .install(mapController!, iconSize: ppi / 8, textSize: ppi * 4);
+        .install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -457,10 +496,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
-    displayCurrentUserLocation();
-
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+
+    await displayCurrentUserLocation();
 
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
@@ -468,9 +507,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Load the boundary layer.
     await BoundaryLayer(isDark).install(mapController!);
 
-    fitCameraToRouteBounds();
-    loadGeoLayers();
-    loadRouteMapLayers();
+    await fitCameraToRouteBounds();
+    await loadRouteMapLayers();
+    // The delay is necessary to make sure that the user location indicator is completely loaded
+    // (the veloroutes layers needs to be below the user location indicator layer and to provide the id of
+    // the user location indicator layer to the velo routes layer it needs to be loaded completely).
+    await Future.delayed(const Duration(milliseconds: 500));
+    await loadGeoLayers();
   }
 
   /// A callback which is executed when a tap on the map is registered.

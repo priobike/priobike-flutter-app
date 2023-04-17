@@ -8,7 +8,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Geocoding with ChangeNotifier {
   /// The logger for this service.
@@ -69,12 +68,9 @@ class Geocoding with ChangeNotifier {
       hadErrorDuringFetch = false;
       notifyListeners();
       return geocodeResponse.displayName;
-    } catch (error, stacktrace) {
+    } catch (error) {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(error, stackTrace: stacktrace, hint: hint);
-      }
       isFetchingAddress = false;
       hadErrorDuringFetch = true;
       notifyListeners();

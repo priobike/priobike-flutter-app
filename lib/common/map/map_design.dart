@@ -65,13 +65,6 @@ class MapDesign {
   static const designs = [
     standard,
     MapDesign(
-      name: 'Verkehr',
-      lightStyle: MapboxStyles.TRAFFIC_DAY,
-      lightScreenshot: 'assets/images/screenshots/traffic-light.png',
-      darkStyle: MapboxStyles.TRAFFIC_NIGHT,
-      darkScreenshot: 'assets/images/screenshots/traffic-dark.png',
-    ),
-    MapDesign(
       name: 'Satellit',
       lightStyle: MapboxStyles.SATELLITE_STREETS,
       lightScreenshot: 'assets/images/screenshots/satellite-streets.png',

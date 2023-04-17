@@ -11,7 +11,6 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/user.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Feedback with ChangeNotifier {
   final log = Logger("Feedback");
@@ -70,12 +69,9 @@ class Feedback with ChangeNotifier {
         } else {
           log.i("Sent feedback to $endpoint (${entry.key + 1}/${pending.length})");
         }
-      } catch (error, stackTrace) {
+      } catch (error) {
         final hint = "Error sending feedback to $endpoint: $error";
         log.e(hint);
-        if (!kDebugMode) {
-          Sentry.captureException(error, stackTrace: stackTrace, hint: hint);
-        }
       }
     }
 
