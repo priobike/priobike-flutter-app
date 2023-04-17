@@ -441,7 +441,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(QueriedFeature queriedFeature) async {
-    print("Feature tapped: ${queriedFeature.feature['id']}");
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
     if ((id as String).startsWith("route-")) {
@@ -450,7 +449,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routing.switchToRoute(routeIdx);
     } else if (id.startsWith("discomfort-")) {
       final discomfortIdx = int.tryParse(id.split("-")[1]);
-      print("Discomfort tapped: $discomfortIdx");
       if (discomfortIdx == null) return;
       discomforts.selectDiscomfort(discomfortIdx);
     } else if (id.startsWith("routeLabel-")) {
