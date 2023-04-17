@@ -15,43 +15,6 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/messages/sg.dart';
 import 'package:priobike/status/services/sg.dart';
 
-String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirst) {
-  if (routeDiffLat < routeDiffLon) {
-    // Case route is more horizontal.
-    // Only consider top and bottom.
-    if (diffLat > 0 && isFirst || diffLat < 0 && !isFirst) {
-      // C1 is above of C2.
-      return "bottom";
-    } else {
-      return "top";
-    }
-  } else {
-    // Case route is more vertical.
-    // Only consider left and right.
-    if (diffLon > 0 && isFirst || diffLon < 0 && !isFirst) {
-      // C1 is right of C2.
-      return "left";
-    } else {
-      return "right";
-    }
-  }
-}
-
-List<double> getTextOffsetFromOrientation(String orientation, int digits) {
-  // Careful: values may need to be adjusted on size changes to the route label.
-  switch (orientation) {
-    case "top":
-      return [0, 1.0];
-    case "bottom":
-      return [0, -1.1];
-    case "left":
-      return [1.6 - (0.3 * (digits - 1)), 0]; // 1.0 for 3 digits, 1.3 for 2 digits, 1.6 for 1 digit.
-    case "right":
-      return [-1.7 + (0.3 * (digits - 1)), 0]; // -1.1 for 3 digits, -1.4 for 2 digits, -1.7 for 1 digit.
-  }
-  return [1.5, 0];
-}
-
 class AllRoutesLayer {
   /// The ID of the Mapbox source.
   static const sourceId = "routes";
@@ -360,6 +323,45 @@ class RouteLabelLayer {
       final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
+  }
+
+  /// Returns the orientation of the route label.
+  String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirst) {
+    if (routeDiffLat < routeDiffLon) {
+      // Case route is more horizontal.
+      // Only consider top and bottom.
+      if (diffLat > 0 && isFirst || diffLat < 0 && !isFirst) {
+        // C1 is above of C2.
+        return "bottom";
+      } else {
+        return "top";
+      }
+    } else {
+      // Case route is more vertical.
+      // Only consider left and right.
+      if (diffLon > 0 && isFirst || diffLon < 0 && !isFirst) {
+        // C1 is right of C2.
+        return "left";
+      } else {
+        return "right";
+      }
+    }
+  }
+
+  /// Returns the text offset of the route label.
+  List<double> getTextOffsetFromOrientation(String orientation, int digits) {
+    // Careful: values may need to be adjusted on size changes to the route label.
+    switch (orientation) {
+      case "top":
+        return [0, 1.0];
+      case "bottom":
+        return [0, -1.1];
+      case "left":
+        return [1.6 - (0.3 * (digits - 1)), 0]; // 1.0 for 3 digits, 1.3 for 2 digits, 1.6 for 1 digit.
+      case "right":
+        return [-1.7 + (0.3 * (digits - 1)), 0]; // -1.1 for 3 digits, -1.4 for 2 digits, -1.7 for 1 digit.
+    }
+    return [1.5, 0];
   }
 }
 

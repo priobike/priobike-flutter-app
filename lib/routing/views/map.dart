@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -440,6 +441,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// A callback that is called when the user taps a feature.
   onFeatureTapped(QueriedFeature queriedFeature) async {
+    print("Feature tapped: ${queriedFeature.feature['id']}");
     // Map the id of the layer to the corresponding feature.
     final id = queriedFeature.feature['id'];
     if ((id as String).startsWith("route-")) {
@@ -448,9 +450,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       routing.switchToRoute(routeIdx);
     } else if (id.startsWith("discomfort-")) {
       final discomfortIdx = int.tryParse(id.split("-")[1]);
+      print("Discomfort tapped: $discomfortIdx");
       if (discomfortIdx == null) return;
       discomforts.selectDiscomfort(discomfortIdx);
-    } else if (id.startsWith("routeLabel")) {
+    } else if (id.startsWith("routeLabel-")) {
       final routeLabelIdx = int.tryParse(id.split("-")[1]);
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
         return;
@@ -544,11 +547,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: ['routes-layer', 'discomforts-layer', 'routeLabels-clicklayer'],
+        layerIds: [AllRoutesLayer.layerIdClick, DiscomfortsLayer.layerIdClick, RouteLabelLayer.layerId],
       ),
     );
 
     if (features.isNotEmpty) {
+      // Prioritize discomforts if there are multiple features.
+      final discomfortFeature =
+          features.firstWhereOrNull((element) => element?.feature['id']?.toString().startsWith("discomfort-") ?? false);
+      if (discomfortFeature != null) {
+        onFeatureTapped(discomfortFeature);
+        return;
+      }
       onFeatureTapped(features[0]!);
     }
   }

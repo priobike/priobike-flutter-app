@@ -424,7 +424,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else if (id.startsWith("traffic-light")) {
       discomforts.selectTrafficLight();
       discomforts.unselectDiscomfort();
-    } else if (id.startsWith("routeLabel")) {
+    } else if (id.startsWith(RouteLabelLayer.layerId)) {
       final routeLabelIdx = int.tryParse(id.split("-")[1]);
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
         return;
@@ -539,11 +539,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       ),
       RenderedQueryOptions(
         layerIds: [
-          'routes-layer',
-          'discomforts-layer',
+          AllRoutesLayer.layerIdClick,
+          DiscomfortsLayer.layerIdClick,
           'traffic-lights-icons',
-          'offline-crossings-icons',
-          'routeLabels-clicklayer'
+          OfflineCrossingsLayer.layerId,
+          RouteLabelLayer.layerId,
         ],
       ),
     );
