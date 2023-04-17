@@ -163,6 +163,7 @@ class Routing with ChangeNotifier {
       allRoutes = null;
       fetchedWaypoints = null;
     }
+    routeLabelCoordinates = [];
     notifyListeners();
   }
 
@@ -188,6 +189,7 @@ class Routing with ChangeNotifier {
       allRoutes = null;
       fetchedWaypoints = null;
     }
+    routeLabelCoordinates = [];
     notifyListeners();
   }
 

@@ -673,27 +673,25 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check if the route labels have to be positionally adjusted.
     if (mapController != null && !(await mapController!.isUserAnimationInProgress())) {
       // Check if changes are needed.
-      if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
-        bool allInBounds = true;
-        // Check if current route labels are in bounds still.
-        if (routing.routeLabelCoordinates.isNotEmpty) {
-          for (Map data in routing.routeLabelCoordinates) {
-            // Check out of new bounds.
-            ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
-              "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
-            });
-            if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
-              allInBounds = false;
-            }
+      bool allInBounds = true;
+      // Check if current route labels are in bounds still.
+      if (routing.routeLabelCoordinates.isNotEmpty) {
+        for (Map data in routing.routeLabelCoordinates) {
+          // Check out of new bounds.
+          ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
+            "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
+          });
+          if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
+            allInBounds = false;
           }
-        } else {
-          allInBounds = false;
         }
-        if (!allInBounds) {
-          // Calculate Chosen Coordinates
-          List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
-          await (RouteLabelLayer(chosenCoordinates)).update(mapController!);
-        }
+      } else {
+        allInBounds = false;
+      }
+      if (!allInBounds) {
+        // Calculate Chosen Coordinates
+        List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
+        await (RouteLabelLayer(chosenCoordinates)).update(mapController!);
       }
     }
   }
