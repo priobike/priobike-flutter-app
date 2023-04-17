@@ -469,3 +469,83 @@ class AccidentHotspotsLayer {
     }
   }
 }
+
+class TrafficLayer {
+  /// The ID of the Mapbox source.
+  static const sourceId = "traffic-layer";
+
+  /// The ID of the Mapbox layer.
+  static const layerId = "traffic-layer-lines";
+
+  /// If the dark mode is enabled.
+  final bool isDark;
+
+  TrafficLayer(this.isDark);
+
+  /// Install the source of the layer on the map controller.
+  _installSource(mapbox.MapboxMap mapController) async {
+    await mapController.style.addSource(
+      mapbox.VectorSource(id: sourceId, url: "mapbox://mapbox.mapbox-traffic-v1"),
+    );
+  }
+
+  /// Install the layer on the map controller.
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15}) async {
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
+    if (!sourceExists) await _installSource(mapController);
+
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (!layerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+              sourceId: sourceId,
+              sourceLayer: "traffic",
+              id: layerId,
+              lineJoin: mapbox.LineJoin.ROUND,
+              lineCap: mapbox.LineCap.ROUND,
+              lineWidth: 1.9),
+          mapbox.LayerPosition(below: "user-location-puck"));
+      await mapController.style.setStyleLayerProperty(
+          layerId,
+          'line-color',
+          json.encode(
+            [
+              "case",
+              [
+                "==",
+                "low",
+                ["get", "congestion"]
+              ],
+              "#aab7ef",
+              [
+                "==",
+                "moderate",
+                ["get", "congestion"]
+              ],
+              "#4264fb",
+              [
+                "==",
+                "heavy",
+                ["get", "congestion"]
+              ],
+              "#ee4e8b",
+              [
+                "==",
+                "severe",
+                ["get", "congestion"]
+              ],
+              "#b43b71",
+              "#000000"
+            ],
+          ));
+    }
+  }
+
+  /// Remove the layer from the map controller.
+  static remove(mapbox.MapboxMap mapController) async {
+    final layerExists = await mapController.style.styleLayerExists(layerId);
+    if (layerExists) {
+      await mapController.style.removeStyleLayer(layerId);
+    }
+  }
+}
