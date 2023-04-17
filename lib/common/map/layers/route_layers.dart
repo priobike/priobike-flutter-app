@@ -241,14 +241,17 @@ class RouteLabelLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
+  /// The ID of the Mapbox source.
+  static const sourceId = "route-label";
+
+  /// The ID of the main Mapbox layer.
+  static const layerId = "route-label-layer";
+
   RouteLabelLayer(List<Map> chosenCoordinates) {
     final routing = getIt<Routing>();
 
     // // Conditions for having route labels. Limited to 2 route alternatives.
     if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
-      // Reset the old coordinates before adding the new ones.
-      routing.resetRouteLabelCoords();
-
       // Determine the relation between the chosenCoordinate.
       // Will be calculated for 2 coordinates only.
       if (chosenCoordinates.length != 2) return;
@@ -287,40 +290,31 @@ class RouteLabelLayer {
       // Adding feature to feature list.
       features.add(chosenCoordinates[0]["feature"]);
       features.add(chosenCoordinates[1]["feature"]);
-
-      // Adding data to routing label coordinates.
-      routing.addRouteLabelCoords(
-          GHCoordinate(lon: chosenCoordinates[0]["coordinate"].lon, lat: chosenCoordinates[0]["coordinate"].lat),
-          chosenCoordinates[0]["feature"]);
-      routing.addRouteLabelCoords(
-          GHCoordinate(lon: chosenCoordinates[1]["coordinate"].lon, lat: chosenCoordinates[1]["coordinate"].lat),
-          chosenCoordinates[1]["feature"]);
     }
   }
 
   /// Install the overlay on the layer controller.
   Future<String> install(
     mapbox.MapboxMap mapController, {
-    iconSize = 0.75,
-    textSize = 12,
+    iconSize = 0.4,
+    textSize = 14.0,
     String? below,
   }) async {
-    final sourceExists = await mapController.style.styleSourceExists("routeLabels");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
-        mapbox.GeoJsonSource(id: "routeLabels", data: json.encode({"type": "FeatureCollection", "features": features})),
+        mapbox.GeoJsonSource(id: sourceId, data: json.encode({"type": "FeatureCollection", "features": features})),
       );
     } else {
       await update(mapController);
     }
 
-    // Make it easier to click on the route.
-    final routeLabelsClickLayerExists = await mapController.style.styleLayerExists("routeLabels-clicklayer");
-    if (!routeLabelsClickLayerExists) {
+    final routeLabelsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!routeLabelsLayerExists) {
       await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
-            sourceId: "routeLabels",
-            id: "routeLabels-clicklayer",
+            sourceId: sourceId,
+            id: layerId,
             iconSize: iconSize,
             iconOpacity: 0,
             textOpacity: 0,
@@ -333,20 +327,14 @@ class RouteLabelLayer {
             textRotationAlignment: TextRotationAlignment.VIEWPORT,
           ),
           mapbox.LayerPosition(below: below));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'icon-image', json.encode(["get", "imageSource"]));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'icon-opacity', json.encode(showAfter(zoom: 10)));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'icon-anchor', json.encode(["get", "anchor"]));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'text-anchor', json.encode(["get", "anchor"]));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'text-field', json.encode(["get", "text"]));
-      await mapController.style
-          .setStyleLayerProperty("routeLabels-clicklayer", 'text-offset', json.encode(["get", "textOffset"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "imageSource"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-opacity', json.encode(showAfter(zoom: 10)));
+      await mapController.style.setStyleLayerProperty(layerId, 'icon-anchor', json.encode(["get", "anchor"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-anchor', json.encode(["get", "anchor"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-field', json.encode(["get", "text"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'text-offset', json.encode(["get", "textOffset"]));
       await mapController.style.setStyleLayerProperty(
-          "routeLabels-clicklayer",
+          layerId,
           'text-color',
           json.encode([
             "case",
@@ -355,21 +343,21 @@ class RouteLabelLayer {
             "#000000"
           ]));
       await mapController.style.setStyleLayerProperty(
-          "routeLabels-clicklayer",
+          layerId,
           'text-opacity',
           json.encode(
             showAfter(zoom: 10),
           ));
     }
 
-    return "routeLabels-layer";
+    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
   update(mapbox.MapboxMap mapController) async {
-    final sourceExists = await mapController.style.styleSourceExists("routeLabels");
+    final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (sourceExists) {
-      final source = await mapController.style.getSource("routeLabels");
+      final source = await mapController.style.getSource(sourceId);
       (source as mapbox.GeoJsonSource).updateGeoJSON(json.encode({"type": "FeatureCollection", "features": features}));
     }
   }

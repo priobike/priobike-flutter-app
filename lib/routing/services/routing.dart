@@ -139,9 +139,6 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
-  /// The route label coordinates.
-  List<Map> routeLabelCoordinates = [];
-
   /// Variable that holds the state of which the item should be minimized to max 3 items.
   bool minimized = false;
 
@@ -163,22 +160,7 @@ class Routing with ChangeNotifier {
       allRoutes = null;
       fetchedWaypoints = null;
     }
-    routeLabelCoordinates = [];
     notifyListeners();
-  }
-
-  /// Add new route label coords.
-  void addRouteLabelCoords(GHCoordinate coordinate, Map feature) {
-    routeLabelCoordinates.add({"coordinate": coordinate, "feature": feature});
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
-  }
-
-  /// Add new route label coords.
-  void resetRouteLabelCoords() {
-    routeLabelCoordinates = [];
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
   }
 
   /// Select new waypoints.
@@ -189,7 +171,6 @@ class Routing with ChangeNotifier {
       allRoutes = null;
       fetchedWaypoints = null;
     }
-    routeLabelCoordinates = [];
     notifyListeners();
   }
 
@@ -234,7 +215,6 @@ class Routing with ChangeNotifier {
     nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
-    routeLabelCoordinates = [];
     minimized = false;
     notifyListeners();
   }
@@ -484,8 +464,6 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     await status.fetch(routes.first);
 
-    // Force new route label coords.
-    routeLabelCoordinates = [];
     notifyListeners();
     return routes;
   }
@@ -501,9 +479,6 @@ class Routing with ChangeNotifier {
 
     final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
-
-    // Reset route label coordinates to change primary status.
-    routeLabelCoordinates = [];
 
     notifyListeners();
   }

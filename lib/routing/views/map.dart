@@ -17,6 +17,7 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -25,7 +26,6 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -90,6 +90,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The current mode (dark/light).
   bool isDark = false;
+
+  /// The route label coordinates.
+  List<Map> routeLabelCoordinates = [];
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -384,6 +387,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
+    if (!mounted) return;
+    routeLabelCoordinates = await getCoordinatesForRouteLabels();
+    await (RouteLabelLayer(routeLabelCoordinates)).update(mapController!);
   }
 
   /// Load all route map layers.
@@ -426,8 +432,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       below: selectedRoute,
     );
     if (!mounted) return;
-    List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
-    await RouteLabelLayer(chosenCoordinates).install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
+    routeLabelCoordinates = await getCoordinatesForRouteLabels();
+    await RouteLabelLayer(routeLabelCoordinates).install(
+      mapController!,
+    );
   }
 
   /// A callback that is called when the user taps a feature.
@@ -571,9 +579,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await routing.loadRoutes();
   }
 
-  /// A callback that is executed when the camera movement changes.
-  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+  /// Updates the bearing and centering button.
+  Future<void> updateBearingAndCenteringButtons() async {
     if (mapController == null) return;
+
     final CameraState camera = await mapController!.getCameraState();
 
     // Set bearing in mapFunctions.
@@ -598,7 +607,40 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
-  Future<List<Map>> getChosenCoordinates(MapboxMap mapController) async {
+  /// Updates the route labels.
+  Future<void> updateRouteLabels() async {
+    if (mapController == null) return;
+    if (routeLabelCoordinates.isEmpty) return;
+    // Check if the route labels have to be positionally adjusted (if they got moved out of the display).
+    bool allInBounds = true;
+    for (Map data in routeLabelCoordinates) {
+      // Check out of new bounds.
+      ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
+        "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
+      });
+      if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
+        allInBounds = false;
+      }
+    }
+
+    if (!allInBounds) {
+      // Calculate Chosen Coordinates
+      routeLabelCoordinates = await getCoordinatesForRouteLabels();
+      await (RouteLabelLayer(routeLabelCoordinates)).update(mapController!);
+    }
+  }
+
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    if (mapController == null) return;
+
+    updateBearingAndCenteringButtons();
+    updateRouteLabels();
+  }
+
+  Future<List<Map>> getCoordinatesForRouteLabels() async {
+    if (mapController == null) return [];
+
     // Check if routes are loaded.
     if (routing.allRoutes == null) return [];
 
@@ -609,7 +651,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       GHCoordinate? chosenCoordinate;
       List<GHCoordinate> uniqueInBounceCoordinates = [];
 
-      // go through all coordinates.
+      // Go through all coordinates.
       for (GHCoordinate coordinate in route.path.points.coordinates) {
         // Check if the coordinate is unique and not on the same line.
         bool unique = true;
@@ -631,7 +673,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
         if (unique) {
           // Check coordinates in screen bounds.
-          ScreenCoordinate screenCoordinate = await mapController.pixelForCoordinate({
+          ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
             "coordinates": [coordinate.lon, coordinate.lat]
           });
           if (screenCoordinate.x != -1 || screenCoordinate.y != -1) {
@@ -668,34 +710,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return chosenCoordinates;
   }
 
-  /// A callback that is executed when the camera movement of the user stopped.
-  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
-    // Check if the route labels have to be positionally adjusted.
-    if (mapController != null && !(await mapController!.isUserAnimationInProgress())) {
-      // Check if changes are needed.
-      bool allInBounds = true;
-      // Check if current route labels are in bounds still.
-      if (routing.routeLabelCoordinates.isNotEmpty) {
-        for (Map data in routing.routeLabelCoordinates) {
-          // Check out of new bounds.
-          ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
-            "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
-          });
-          if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
-            allInBounds = false;
-          }
-        }
-      } else {
-        allInBounds = false;
-      }
-      if (!allInBounds) {
-        // Calculate Chosen Coordinates
-        List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
-        await (RouteLabelLayer(chosenCoordinates)).update(mapController!);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     isDark = Theme.of(context).brightness == Brightness.dark;
@@ -719,7 +733,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapCreated: onMapCreated,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
-            onCameraIdle: onCameraIdle,
             onMapTap: onMapTap,
             logoViewOrnamentPosition: OrnamentPosition.BOTTOM_LEFT,
             attributionButtonOrnamentPosition: OrnamentPosition.BOTTOM_RIGHT,

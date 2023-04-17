@@ -16,6 +16,7 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -24,7 +25,6 @@ import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views_beta/widgets/calculate_routing_bar_height.dart';
 import 'package:priobike/status/services/sg.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -630,7 +630,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   /// A callback that is executed when the camera movement of the user stopped.
-  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
+/*  Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
     // Check if the route labels have to be positionally adjusted.
     if (mapController != null && !(await mapController!.isUserAnimationInProgress())) {
       // Check if changes are needed.
@@ -657,7 +657,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         }
       }
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -682,7 +682,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             onMapTap: onMapTap,
             onStyleLoaded: onStyleLoaded,
             onCameraChanged: onCameraChanged,
-            onCameraIdle: onCameraIdle,
+            // onCameraIdle: onCameraIdle,
             // On iOS, the logoViewMargins and attributionButtonMargins will be set by
             // updateContentInsets. This is why we set them to 0 here.
             logoViewMargins: attributionMargins,
