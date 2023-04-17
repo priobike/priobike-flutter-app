@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
-import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:priobike/common/map/layers/utils.dart';
@@ -10,7 +9,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
-import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
@@ -242,126 +240,15 @@ class RouteLabelLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  RouteLabelLayer(double deviceWidth, double deviceHeight, CameraState cameraState) {
+  RouteLabelLayer(List<Map> chosenCoordinates) {
     final routing = getIt<Routing>();
 
-    // Conditions for having route labels. Limited to 2 route alternatives.
+    // // Conditions for having route labels. Limited to 2 route alternatives.
     if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
-      var distance = const Distance();
-
-      double meterPerPixel = zoomToGeographicalDistance[cameraState.zoom.toInt()] ?? 0;
-      double cameraPosLat = (cameraState.center["coordinates"] as List)[1];
-      double cameraPosLong = (cameraState.center["coordinates"] as List)[0];
-
-      // Cast to LatLng2 format.
-      LatLng cameraPos = LatLng(cameraPosLat, cameraPosLong);
-
-      // Getting the bounds north, east, south, west.
-      // Calculation of Bounding Points: Distance between camera position and the distance to the edge of the screen.
-      LatLng north = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 0);
-      LatLng east = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 90);
-      LatLng south = distance.offset(cameraPos, deviceHeight / 2 * meterPerPixel, 180);
-      LatLng west = distance.offset(cameraPos, deviceWidth / 2 * meterPerPixel, 270);
-
-      bool allInBounds = true;
-      // Check if current route labels are in bounds still.
-      if (routing.routeLabelCoordinates.isNotEmpty) {
-        for (Map data in routing.routeLabelCoordinates) {
-          // Check out of new bounds.
-          if (data["coordinate"].lat < south.latitude ||
-              data["coordinate"].lat > north.latitude ||
-              data["coordinate"].lon < west.longitude ||
-              data["coordinate"].lon > east.longitude) {
-            // Not in new bounds.
-            allInBounds = false;
-          }
-        }
-      }
-
-      // If all in bounds then we don't have to calculate new positions.
-      // But update route labels in case the selected route changed.
-      if (allInBounds && routing.allRoutes!.length == routing.routeLabelCoordinates.length) {
-        for (var i = 0; i < routing.allRoutes!.length; i++) {
-          String imageSource = routing.routeLabelCoordinates[i]["feature"]["properties"]["imageSource"];
-          // Check if the image source needs to change.
-          if (routing.selectedRoute!.id == routing.allRoutes![i].id) {
-            imageSource = imageSource.replaceFirst(RegExp(r'secondary'), "primary");
-          } else {
-            imageSource = imageSource.replaceFirst(RegExp(r'primary'), "secondary");
-          }
-          routing.routeLabelCoordinates[i]["feature"]["properties"]["isPrimary"] =
-              routing.selectedRoute!.id == routing.allRoutes![i].id;
-          routing.routeLabelCoordinates[i]["feature"]["properties"]["imageSource"] = imageSource;
-          features.add(routing.routeLabelCoordinates[i]["feature"]);
-        }
-        return;
-      }
 
       // Reset the old coordinates before adding the new ones.
       routing.resetRouteLabelCoords();
-      // Chosen coordinates and feature object.
-      List<Map> chosenCoordinates = [];
 
-      // Search appropriate Point in Route
-      for (r.Route route in routing.allRoutes!) {
-        GHCoordinate? chosenCoordinate;
-        List<GHCoordinate> uniqueInBounceCoordinates = [];
-
-        // go through all coordinates.
-        for (GHCoordinate coordinate in route.path.points.coordinates) {
-          // Check if the coordinate is unique and not on the same line.
-          bool unique = true;
-          // Loop through all route coordinates.
-          for (r.Route routeToBeChecked in routing.allRoutes!) {
-            // Would always be not unique without this check.
-            if (routeToBeChecked.id != route.id) {
-              // Compare coordinate to all coordinates in other route.
-              for (GHCoordinate coordinateToBeChecked in routeToBeChecked.path.points.coordinates) {
-                if (!unique) {
-                  break;
-                }
-                if (coordinateToBeChecked.lon == coordinate.lon && coordinateToBeChecked.lat == coordinate.lat) {
-                  unique = false;
-                }
-              }
-            }
-          }
-
-          if (unique) {
-            // Check bounds, no check for side of earth needed since in Hamburg.
-            if (coordinate.lat > south.latitude &&
-                coordinate.lat < north.latitude &&
-                coordinate.lon > west.longitude &&
-                coordinate.lon < east.longitude) {
-              uniqueInBounceCoordinates.add(coordinate);
-            }
-          }
-        }
-
-        // Determine which coordinate to use.
-        if (uniqueInBounceCoordinates.isNotEmpty) {
-          // Use the middlemost coordinate.
-          chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
-        }
-
-        if (chosenCoordinate != null) {
-          chosenCoordinates.add({
-            "coordinate": chosenCoordinate,
-            "feature": {
-              "id": "routeLabel-${route.id}", // Required for click listener.
-              "type": "Feature",
-              "geometry": {
-                "type": "Point",
-                "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
-              },
-              "properties": {
-                "isPrimary": routing.selectedRoute!.id == route.id,
-                "text": "${((route.path.time * 0.001) * 0.016).round()} min"
-              },
-            }
-          });
-        }
-      }
       // Determine the relation between the chosenCoordinate.
       // Will be calculated for 2 coordinates only.
       if (chosenCoordinates.length != 2) return;

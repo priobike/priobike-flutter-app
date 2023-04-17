@@ -500,6 +500,8 @@ class Routing with ChangeNotifier {
     final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
 
+    routeLabelCoordinates = [];
+
     notifyListeners();
   }
 

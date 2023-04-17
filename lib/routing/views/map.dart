@@ -16,6 +16,7 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -24,6 +25,7 @@ import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -89,16 +91,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The current mode (dark/light).
   bool isDark = false;
 
-  double? deviceWidth;
-  double? deviceHeight;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     updateMap();
-    setState(() {
-      deviceWidth = MediaQuery.of(context).size.width;
-      deviceHeight = MediaQuery.of(context).size.height;
-    });
+    setState(() {});
   }
 
   /// Updates the map.
@@ -430,9 +426,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       below: selectedRoute,
     );
     if (!mounted) return;
-    await RouteLabelLayer(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,
-            await mapController!.getCameraState())
-        .install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
+    List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
+    await RouteLabelLayer(chosenCoordinates).install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
   }
 
   /// A callback that is called when the user taps a feature.
@@ -603,15 +598,100 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  Future<List<Map>> getChosenCoordinates(MapboxMap mapController) async {
+    // Chosen coordinates and feature object.
+    List<Map> chosenCoordinates = [];
+
+    // Search appropriate Point in Route
+    for (r.Route route in routing.allRoutes!) {
+      GHCoordinate? chosenCoordinate;
+      List<GHCoordinate> uniqueInBounceCoordinates = [];
+
+      // go through all coordinates.
+      for (GHCoordinate coordinate in route.path.points.coordinates) {
+        // Check if the coordinate is unique and not on the same line.
+        bool unique = true;
+        // Loop through all route coordinates.
+        for (r.Route routeToBeChecked in routing.allRoutes!) {
+          // Would always be not unique without this check.
+          if (routeToBeChecked.id != route.id) {
+            // Compare coordinate to all coordinates in other route.
+            for (GHCoordinate coordinateToBeChecked in routeToBeChecked.path.points.coordinates) {
+              if (!unique) {
+                break;
+              }
+              if (coordinateToBeChecked.lon == coordinate.lon && coordinateToBeChecked.lat == coordinate.lat) {
+                unique = false;
+              }
+            }
+          }
+        }
+
+        if (unique) {
+          // Check coordinates in screen bounds.
+          ScreenCoordinate screenCoordinate = await mapController.pixelForCoordinate({
+            "coordinates": [coordinate.lon, coordinate.lat]
+          });
+          if (screenCoordinate.x != -1 || screenCoordinate.y != -1) {
+            uniqueInBounceCoordinates.add(coordinate);
+          }
+        }
+      }
+
+      // Determine which coordinate to use.
+      if (uniqueInBounceCoordinates.isNotEmpty) {
+        // Use the middlemost coordinate.
+        chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
+      }
+
+      if (chosenCoordinate != null) {
+        chosenCoordinates.add({
+          "coordinate": chosenCoordinate,
+          "feature": {
+            "id": "routeLabel-${route.id}", // Required for click listener.
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
+            },
+            "properties": {
+              "isPrimary": routing.selectedRoute!.id == route.id,
+              "text": "${((route.path.time * 0.001) * 0.016).round()} min"
+            },
+          }
+        });
+      }
+    }
+    return chosenCoordinates;
+  }
+
   /// A callback that is executed when the camera movement of the user stopped.
   Future<void> onCameraIdle(MapIdleEventData mapIdleEventData) async {
     // Check if the route labels have to be positionally adjusted.
-    if (mapController != null &&
-        !(await mapController!.isUserAnimationInProgress()) &&
-        deviceWidth != null &&
-        deviceHeight != null) {
-      await (RouteLabelLayer(deviceWidth!, deviceHeight!, await mapController!.getCameraState()))
-          .update(mapController!);
+    if (mapController != null && !(await mapController!.isUserAnimationInProgress())) {
+      // Check if changes are needed.
+      if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
+        bool allInBounds = true;
+        // Check if current route labels are in bounds still.
+        if (routing.routeLabelCoordinates.isNotEmpty) {
+          for (Map data in routing.routeLabelCoordinates) {
+            // Check out of new bounds.
+            ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
+              "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
+            });
+            if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
+              allInBounds = false;
+            }
+          }
+        } else {
+          allInBounds = false;
+        }
+        if (!allInBounds) {
+          // Calculate Chosen Coordinates
+          List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
+          await (RouteLabelLayer(chosenCoordinates)).update(mapController!);
+        }
+      }
     }
   }
 
