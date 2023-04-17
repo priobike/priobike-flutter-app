@@ -38,6 +38,8 @@ class RoutingMapView extends StatefulWidget {
 class RoutingMapViewState extends State<RoutingMapView> with TickerProviderStateMixin {
   static const viewId = "routing.views.map";
 
+  static const userLocationLayerId = "user-location-puck";
+
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
@@ -246,11 +248,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null || !mounted) return;
     if (positioning.lastPosition == null) return;
 
-    await mapController?.style.styleLayerExists("user-location-puck").then((value) async {
+    await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (!value) {
         await mapController!.style.addLayer(
           LocationIndicatorLayer(
-            id: "user-location-puck",
+            id: userLocationLayerId,
             bearingImage:
                 Theme.of(context).brightness == Brightness.dark ? "positionstaticdark" : "positionstaticlight",
             bearingImageSize: 0.15,
@@ -270,7 +272,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       } else {
         await mapController!.style.updateLayer(
           LocationIndicatorLayer(
-            id: "user-location-puck",
+            id: userLocationLayerId,
             bearing: positioning.lastPosition!.heading,
             location: [
               positioning.lastPosition!.latitude,
@@ -299,69 +301,79 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   loadGeoLayers() async {
     if (mapController == null || !mounted) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    var below = userLocationLayerId;
     // Load the map features.
-    if (layers.showVeloRoutesLayer) {
-      if (!mounted) return;
-      await VeloRoutesLayer(isDark).install(mapController!);
-    } else {
-      if (!mounted) return;
-      await VeloRoutesLayer.remove(mapController!);
-    }
     if (layers.showAirStations) {
       if (!mounted) return;
-      await BikeAirStationLayer(isDark).install(mapController!);
+      await BikeAirStationLayer(isDark).install(mapController!, below: below);
+      below = BikeAirStationLayer.layerId;
     } else {
       if (!mounted) return;
       await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
       if (!mounted) return;
-      await ConstructionSitesLayer(isDark).install(mapController!);
+      await ConstructionSitesLayer(isDark).install(mapController!, below: below);
+      below = ConstructionSitesLayer.layerId;
     } else {
       if (!mounted) return;
       await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
       if (!mounted) return;
-      await ParkingStationsLayer(isDark).install(mapController!);
+      await ParkingStationsLayer(isDark).install(mapController!, below: below);
+      below = ParkingStationsLayer.layerId;
     } else {
       if (!mounted) return;
       await ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
       if (!mounted) return;
-      await RentalStationsLayer(isDark).install(mapController!);
+      await RentalStationsLayer(isDark).install(mapController!, below: below);
+      below = RentalStationsLayer.layerId;
     } else {
       if (!mounted) return;
       await RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
       if (!mounted) return;
-      await BikeShopLayer(isDark).install(mapController!);
+      await BikeShopLayer(isDark).install(mapController!, below: below);
+      below = BikeShopLayer.layerId;
     } else {
       if (!mounted) return;
       await BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
       if (!mounted) return;
-      await AccidentHotspotsLayer(isDark).install(mapController!);
+      await AccidentHotspotsLayer(isDark).install(mapController!, below: below);
+      below = AccidentHotspotsLayer.layerId;
     } else {
       if (!mounted) return;
       await AccidentHotspotsLayer.remove(mapController!);
     }
     if (layers.showGreenWaveLayer) {
       if (!mounted) return;
-      await GreenWaveLayer(isDark).install(mapController!);
+      await GreenWaveLayer(isDark).install(mapController!, below: below);
+      below = GreenWaveLayer.layerId;
     } else {
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
     }
     if (layers.showTrafficLayer) {
       if (!mounted) return;
-      await TrafficLayer(isDark).install(mapController!);
+      await TrafficLayer(isDark).install(mapController!, below: below);
+      below = TrafficLayer.layerId;
     } else {
       if (!mounted) return;
       await TrafficLayer.remove(mapController!);
+    }
+    if (layers.showVeloRoutesLayer) {
+      if (!mounted) return;
+      await VeloRoutesLayer(isDark).install(mapController!, below: below);
+      below = VeloRoutesLayer.layerId;
+    } else {
+      if (!mounted) return;
+      await VeloRoutesLayer.remove(mapController!);
     }
   }
 
@@ -389,11 +401,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     if (!mounted) return;
     final offlineCrossings = await OfflineCrossingsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
+      below: userLocationLayerId,
     );
     if (!mounted) return;
     final trafficLights = await TrafficLightsLayer(isDark).install(
@@ -492,11 +504,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await BoundaryLayer(isDark).install(mapController!);
 
     await fitCameraToRouteBounds();
-    await loadRouteMapLayers();
-    // The delay is necessary to make sure that the user location indicator is completely loaded
-    // (the veloroutes layers needs to be below the user location indicator layer and to provide the id of
-    // the user location indicator layer to the velo routes layer it needs to be loaded completely).
+    // Some of the following layers are placed below the user location indicator and to make sure
+    // that they are displayed correctly we need to wait for the user location indicator to be
+    // completely loaded.
     await Future.delayed(const Duration(milliseconds: 500));
+    await loadRouteMapLayers();
     await loadGeoLayers();
   }
 
