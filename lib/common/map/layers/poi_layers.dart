@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -29,20 +30,22 @@ class ParkingStationsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "parkdark" : "parklight",
-        iconSize: iconSize,
-        iconOpacity: 0,
-        iconAllowOverlap: true,
-      ));
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: layerId,
+            iconImage: isDark ? "parkdark" : "parklight",
+            iconSize: iconSize,
+            iconOpacity: 0,
+            iconAllowOverlap: true,
+          ),
+          mapbox.LayerPosition(below: below));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -83,28 +86,31 @@ class RentalStationsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "rentdark" : "rentlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: 0,
-        textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-        textHaloWidth: 1,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: mapbox.TextAnchor.CENTER,
-        textColor: const Color(0xFF0075FF).value,
-        textAllowOverlap: true,
-        textOpacity: 0,
-      ));
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerId,
+          iconImage: isDark ? "rentdark" : "rentlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -169,28 +175,31 @@ class BikeShopLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "repairdark" : "repairlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: 0,
-        textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-        textHaloWidth: 1,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: mapbox.TextAnchor.CENTER,
-        textColor: const Color(0xFF0075FF).value,
-        textAllowOverlap: true,
-        textOpacity: 0,
-      ));
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerId,
+          iconImage: isDark ? "repairdark" : "repairlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -260,28 +269,31 @@ class BikeAirStationLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "airdark" : "airlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: 0,
-        textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-        textHaloWidth: 1,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: mapbox.TextAnchor.CENTER,
-        textColor: const Color(0xFF0075FF).value,
-        textAllowOverlap: true,
-        textOpacity: 0,
-      ));
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerId,
+          iconImage: isDark ? "airdark" : "airlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFF0075FF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -346,28 +358,31 @@ class ConstructionSitesLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "constructiondark" : "constructionlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: 0,
-        textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-        textHaloWidth: 1,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: mapbox.TextAnchor.CENTER,
-        textColor: const Color(0xFFE67E22).value,
-        textAllowOverlap: true,
-        textOpacity: 0,
-      ));
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerId,
+          iconImage: isDark ? "constructiondark" : "constructionlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFFE67E22).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -419,28 +434,31 @@ class AccidentHotspotsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
-      await mapController.style.addLayer(mapbox.SymbolLayer(
-        sourceId: sourceId,
-        id: layerId,
-        iconImage: isDark ? "accidentdark" : "accidentlight",
-        iconSize: iconSize,
-        iconAllowOverlap: true,
-        iconOpacity: 0,
-        textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
-        textHaloWidth: 1,
-        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        textSize: 12,
-        textAnchor: mapbox.TextAnchor.CENTER,
-        textColor: const Color(0xFFFF4757).value,
-        textAllowOverlap: true,
-        textOpacity: 0,
-      ));
+      await mapController.style.addLayerAt(
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerId,
+          iconImage: isDark ? "accidentdark" : "accidentlight",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: isDark ? const Color(0xFF000000).value : const Color(0xFFFFFFFF).value,
+          textHaloWidth: 1,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFFFF4757).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -490,21 +508,22 @@ class TrafficLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15, below = RoutingMapViewState.userLocationLayerId}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
     final layerExists = await mapController.style.styleLayerExists(layerId);
     if (!layerExists) {
       await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-              sourceId: sourceId,
-              sourceLayer: "traffic",
-              id: layerId,
-              lineJoin: mapbox.LineJoin.ROUND,
-              lineCap: mapbox.LineCap.ROUND,
-              lineWidth: 1.9),
-          mapbox.LayerPosition(below: "user-location-puck"));
+        mapbox.LineLayer(
+            sourceId: sourceId,
+            sourceLayer: "traffic",
+            id: layerId,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: 1.9),
+        mapbox.LayerPosition(below: below),
+      );
       await mapController.style.setStyleLayerProperty(
           layerId,
           'line-color',
