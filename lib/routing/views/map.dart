@@ -500,9 +500,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     await fitCameraToRouteBounds();
     await loadRouteMapLayers();
-    // The delay is necessary to make sure that the user location indicator is completely loaded
-    // (the veloroutes layers needs to be below the user location indicator layer and to provide the id of
-    // the user location indicator layer to the velo routes layer it needs to be loaded completely).
+    // Some of the following layers are placed below the user location indicator and to make sure
+    // that they are displayed correctly we need to wait for the user location indicator to be
+    // completely loaded.
     await Future.delayed(const Duration(milliseconds: 500));
     await loadGeoLayers();
   }
