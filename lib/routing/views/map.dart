@@ -649,6 +649,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (chosenCoordinate != null) {
         chosenCoordinates.add({
           "coordinate": chosenCoordinate,
+          "time": ((route.path.time * 0.001) * 0.016).round(),
           "feature": {
             "id": "routeLabel-${route.id}", // Required for click listener.
             "type": "Feature",

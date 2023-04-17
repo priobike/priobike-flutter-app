@@ -37,16 +37,17 @@ String calculateOrientation(diffLat, diffLon, routeDiffLat, routeDiffLon, isFirs
   }
 }
 
-List<double> getTextOffsetFromOrientation(String orientation) {
+List<double> getTextOffsetFromOrientation(String orientation, int digits) {
+  // Careful: values may need to be adjusted on size changes to the route label.
   switch (orientation) {
     case "top":
-      return [0, 1.1];
+      return [0, 1.0];
     case "bottom":
       return [0, -1.1];
     case "left":
-      return [1.6, 0];
+      return [1.6 - (0.3 * (digits - 1)), 0]; // 1.0 for 3 digits, 1.3 for 2 digits, 1.6 for 1 digit.
     case "right":
-      return [-1.6, 0];
+      return [-1.7 + (0.3 * (digits - 1)), 0]; // -1.1 for 3 digits, -1.4 for 2 digits, -1.7 for 1 digit.
   }
   return [1.5, 0];
 }
@@ -274,13 +275,13 @@ class RouteLabelLayer {
       chosenCoordinates[0]["feature"]["properties"]["imageSource"] =
           "route-label-${chosenCoordinates[0]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate1Orientation";
       chosenCoordinates[0]["feature"]["properties"]["textOffset"] =
-          getTextOffsetFromOrientation(coordinate1Orientation);
+          getTextOffsetFromOrientation(coordinate1Orientation, chosenCoordinates[0]["time"].toString().length);
       chosenCoordinates[0]["feature"]["properties"]["anchor"] = coordinate1Orientation;
 
       chosenCoordinates[1]["feature"]["properties"]["imageSource"] =
           "route-label-${chosenCoordinates[1]["feature"]["properties"]["isPrimary"] ? "primary" : "secondary"}-$coordinate2Orientation";
       chosenCoordinates[1]["feature"]["properties"]["textOffset"] =
-          getTextOffsetFromOrientation(coordinate2Orientation);
+          getTextOffsetFromOrientation(coordinate2Orientation, chosenCoordinates[1]["time"].toString().length);
       chosenCoordinates[1]["feature"]["properties"]["anchor"] = coordinate2Orientation;
 
       // Adding feature to feature list.
@@ -328,6 +329,8 @@ class RouteLabelLayer {
             textSize: textSize,
             textAllowOverlap: true,
             textIgnorePlacement: true,
+            textTranslateAnchor: TextTranslateAnchor.VIEWPORT,
+            textRotationAlignment: TextRotationAlignment.VIEWPORT,
           ),
           mapbox.LayerPosition(below: below));
       await mapController.style
