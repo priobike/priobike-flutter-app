@@ -646,6 +646,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     updateRouteLabels();
   }
 
+  /// Calculates the coordinates for the route labels.
   Future<List<Map>> getCoordinatesForRouteLabels() async {
     if (mapController == null) return [];
 
