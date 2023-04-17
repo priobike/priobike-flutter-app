@@ -427,7 +427,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     if (!mounted) return;
     List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
-    print(chosenCoordinates);
     await RouteLabelLayer(chosenCoordinates).install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
   }
 
