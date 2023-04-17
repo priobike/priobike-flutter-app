@@ -653,6 +653,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Check if routes are loaded.
     if (routing.allRoutes == null) return [];
 
+    if (routing.allRoutes!.length != 2) return [];
+
     // Chosen coordinates and feature object.
     List<Map> chosenCoordinates = [];
     // Search appropriate Point in Route
