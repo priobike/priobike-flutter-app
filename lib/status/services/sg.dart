@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -10,7 +9,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionSGStatus with ChangeNotifier {
   /// An indicator if the data of this notifier changed.
@@ -36,9 +34,6 @@ class PredictionSGStatus with ChangeNotifier {
 
   /// The number of disconnected sgs.
   int disconnected = 0;
-
-  /// The percentage of the route that is ok.
-  double okPercentage = 0;
 
   PredictionSGStatus();
 
@@ -85,12 +80,9 @@ class PredictionSGStatus with ChangeNotifier {
           },
         );
         pending.add(future);
-      } catch (e, stack) {
+      } catch (e) {
         final hint = "Error while fetching prediction status: $e";
         log.e(hint);
-        if (!kDebugMode) {
-          Sentry.captureException(e, stackTrace: stack, hint: hint);
-        }
       }
     }
 
@@ -121,23 +113,6 @@ class PredictionSGStatus with ChangeNotifier {
 
     disconnected = route?.crossings.where((c) => !c.connected).length ?? 0;
 
-    // Calculate the percentage of the route that is ok.
-    final navNodes = route?.route;
-    const vincenty = Distance(roundResult: false);
-    var distanceOk = 0.0;
-    for (var i = 0; i < navNodes!.length - 1; i++) {
-      final n1 = navNodes[i];
-      final n2 = navNodes[i + 1];
-      if (cache[n1.signalGroupId]?.predictionState == SGPredictionState.ok) {
-        distanceOk += vincenty.distance(LatLng(n1.lat, n1.lon), LatLng(n2.lat, n2.lon));
-      }
-    }
-    if (route?.path.distance != null && route?.path.distance != 0) {
-      okPercentage = distanceOk / route!.path.distance;
-    } else {
-      okPercentage = 0;
-    }
-
     log.i("Fetched sg status for ${route?.signalGroups.length} sgs and ${route?.crossings.length} crossings.");
     isLoading = false;
     notifyListeners();
@@ -162,7 +137,6 @@ class PredictionSGStatus with ChangeNotifier {
     disconnected = 0;
     ok = 0;
     isLoading = false;
-    okPercentage = 0;
     notifyListeners();
   }
 

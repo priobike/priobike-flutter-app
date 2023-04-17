@@ -26,6 +26,8 @@ class SymbolLoader {
     await add("trafficlightonlineamberlight", "assets/images/trafficlights/online-amber-light.png", 400, 400);
     await add("trafficlightonlinedarkdark", "assets/images/trafficlights/online-dark-dark.png", 400, 400);
     await add("trafficlightonlinedarklight", "assets/images/trafficlights/online-dark-light.png", 400, 400);
+    await add("trafficlightgreenwavedark", "assets/images/green-wave-dark.png", 400, 400);
+    await add("trafficlightgreenwavelight", "assets/images/green-wave-light.png", 400, 400);
 
     await add("alert", "assets/images/alert.drawio.png", 104, 104);
     await add("start", "assets/images/start.drawio.png", 83, 83);
@@ -50,10 +52,6 @@ class SymbolLoader {
     await add("accidentlight", "assets/images/accident-light.png", 201, 201);
     await add("route-label-pmm", "assets/images/route-label-pmm.png", 201, 201);
     await add("route-label-smm", "assets/images/route-label-smm.png", 201, 201);
-
-    await add("potholes", "assets/images/potholes-map.png", 201, 201);
-    await add("obstacle", "assets/images/obstacle-map.png", 201, 201);
-    await add("dangerspot", "assets/images/dangerspot-map.png", 200, 201);
   }
 
   /// Adds an asset image to the currently displayed style

@@ -74,15 +74,17 @@ class Traffic with ChangeNotifier {
     if (historicScore == 0) {
       return "Keine Daten";
     }
-    double difference = scoreNow! / historicScore!;
-    if (difference > 1.05) {
+    double difference = scoreNow! - historicScore!;
+    // difference > 0 => less traffic than usual
+    // difference < 0 => more traffic than usual
+    if (difference > 0.006) {
       return "Deutlich weniger als gewöhnlich";
-    } else if (difference > 1.03) {
+    } else if (difference > 0.001) {
       return "Weniger als gewöhnlich";
-    } else if (difference < 0.97) {
-      return "Mehr als gewöhnlich";
-    } else if (difference < 0.95) {
+    } else if (difference < -0.006) {
       return "Deutlich mehr als gewöhnlich";
+    } else if (difference < -0.001) {
+      return "Mehr als gewöhnlich";
     } else {
       return "Wie immer zu dieser Zeit";
     }

@@ -55,7 +55,6 @@ class RideMapViewState extends State<RideMapView> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
     updateMap();
-    setState(() {});
   }
 
   /// Update the map.
@@ -71,10 +70,6 @@ class RideMapViewState extends State<RideMapView> {
     if (positioning.needsLayout[viewId] != false && mapController != null) {
       onPositioningUpdate();
       positioning.needsLayout[viewId] = false;
-    }
-    if (dangers.needsLayout[viewId] != false && mapController != null) {
-      onDangersUpdate();
-      dangers.needsLayout[viewId] = false;
     }
     if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
       onStatusUpdate();
@@ -98,8 +93,6 @@ class RideMapViewState extends State<RideMapView> {
     dangers.addListener(update);
     predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(update);
-
-    updateMap();
   }
 
   @override
@@ -141,8 +134,6 @@ class RideMapViewState extends State<RideMapView> {
     await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
-    if (!mounted) return;
-    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
     await adaptToChangedPosition();
   }
 
@@ -157,17 +148,12 @@ class RideMapViewState extends State<RideMapView> {
       final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
       await mapController?.flyTo(
         mapbox.CameraOptions(
-            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson()),
+          center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+          zoom: 16,
+        ),
         mapbox.MapAnimationOptions(duration: 200),
       );
     }
-  }
-
-  /// Update the view with the current data.
-  Future<void> onDangersUpdate() async {
-    if (!mounted) return;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    await DangersLayer(isDark, hideBehindPosition: true).update(mapController!);
   }
 
   /// Adapt the map controller to a changed position.
@@ -290,8 +276,6 @@ class RideMapViewState extends State<RideMapView> {
     await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 5);
     if (!mounted) return;
-    await DangersLayer(isDark, hideBehindPosition: true).install(mapController!, iconSize: ppi / 5);
-    if (!mounted) return;
     await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5);
 
     onRoutingUpdate();
@@ -322,6 +306,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
+      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
     );
   }
 }

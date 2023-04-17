@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
 
@@ -52,41 +51,23 @@ class TrafficChartState extends State<TrafficChart> {
       // Show the current score in a shimmering animation.
       final scaledTrafficFlowNow = min(1, max(0, (((trafficService.scoreNow!) - 0.94) / (0.05))));
       final nowHeight = availableHeight * (1 - scaledTrafficFlowNow);
-      final baseGradientColor = trafficService.trafficColor ?? CI.blue;
+      final color = trafficService.trafficColor ?? CI.blue;
       wrapper = (widget) => Stack(
             alignment: Alignment.bottomCenter,
             children: [
               widget,
-              SizedBox(
-                height: nowHeight,
-                child: Shimmer(
-                  linearGradient: LinearGradient(
-                    colors: [
-                      baseGradientColor,
-                      HSLColor.fromColor(baseGradientColor).withLightness(0.7).toColor(),
-                      baseGradientColor,
-                    ],
-                    stops: const [0, 0.3, 0.4],
-                    begin: const Alignment(-1.0, -0.3),
-                    end: const Alignment(1.0, 0.3),
-                    tileMode: TileMode.clamp,
-                  ),
-                  child: ShimmerLoading(
-                    isLoading: true,
-                    child: Container(
-                      margin: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4),
-                          bottomRight: Radius.circular(4),
-                          bottomLeft: Radius.circular(4),
-                        ),
-                      ),
-                    ),
+              Container(
+                margin: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                    bottomRight: Radius.circular(4),
+                    bottomLeft: Radius.circular(4),
                   ),
                 ),
+                height: nowHeight,
               ),
             ],
           );

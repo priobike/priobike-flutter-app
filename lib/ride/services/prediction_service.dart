@@ -14,7 +14,6 @@ import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 class PredictionService implements PredictionComponent {
   /// The current prediction.
@@ -131,13 +130,10 @@ class PredictionService implements PredictionComponent {
       calcTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         calculateRecommendation();
       });
-    } catch (e, stackTrace) {
+    } catch (e) {
       client = null;
       final hint = "Failed to connect the prediction MQTT client: $e";
       log.e(hint);
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stackTrace, hint: hint);
-      }
       final ride = getIt<Ride>();
       if (ride.navigationIsActive) {
         await Future.delayed(const Duration(seconds: 10));

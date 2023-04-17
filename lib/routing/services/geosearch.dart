@@ -8,7 +8,6 @@ import 'package:priobike/routing/messages/nominatim.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Geosearch with ChangeNotifier {
@@ -71,15 +70,12 @@ class Geosearch with ChangeNotifier {
       isFetchingAddress = false;
       results = addresses.map((e) => Waypoint(e.lat, e.lon, address: e.displayName)).toList();
       notifyListeners();
-    } catch (e, stack) {
+    } catch (e) {
       isFetchingAddress = false;
       notifyListeners();
       hadErrorDuringFetch = true;
       notifyListeners();
       final hint = "Addresses could not be fetched: $e";
-      if (!kDebugMode) {
-        Sentry.captureException(e, stackTrace: stack, hint: hint);
-      }
       log.e(hint);
     }
   }

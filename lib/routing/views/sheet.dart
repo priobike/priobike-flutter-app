@@ -196,7 +196,13 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     if (routing.selectedProfile?.explanation != null) {
       text = routing.selectedProfile!.explanation;
     }
-    text += " - ${(status.okPercentage * 100).toInt()}% Grüne Welle möglich";
+    final int okTrafficLights = status.ok;
+    final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
+    if (allTrafficLights > 0) {
+      text += " - $okTrafficLights von $allTrafficLights Ampeln verbunden";
+    } else {
+      text += " - Es befinden sich keine Ampeln auf der Route";
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(

@@ -20,7 +20,7 @@ class SpeedometerTicksPainter extends CustomPainter {
     const startAngle = -5 * pi / 4;
     const endAngle = pi / 4;
     () {
-      final radius = size.width / 2 - 12;
+      final radius = size.width / 2 - 8;
       final paint = Paint()
         ..color = Colors.black.withOpacity(0.2)
         ..strokeWidth = 4
@@ -38,7 +38,7 @@ class SpeedometerTicksPainter extends CustomPainter {
       }
     }();
     () {
-      final radius = size.width / 2 - 12;
+      final radius = size.width / 2 - 8;
       final paint = Paint()
         ..color = Colors.white
         ..strokeWidth = 2
@@ -55,7 +55,7 @@ class SpeedometerTicksPainter extends CustomPainter {
       }
     }();
     () {
-      final radius = size.width / 2 - 14;
+      final radius = size.width / 2 - 10;
       final paint = Paint()
         ..color = Colors.white.withOpacity(0.2)
         ..strokeWidth = 1
