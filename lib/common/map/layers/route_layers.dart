@@ -245,7 +245,6 @@ class RouteLabelLayer {
 
     // // Conditions for having route labels. Limited to 2 route alternatives.
     if (routing.allRoutes != null && routing.allRoutes!.length == 2 && routing.selectedRoute != null) {
-
       // Reset the old coordinates before adding the new ones.
       routing.resetRouteLabelCoords();
 

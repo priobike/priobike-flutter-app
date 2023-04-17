@@ -427,6 +427,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     if (!mounted) return;
     List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
+    print(chosenCoordinates);
     await RouteLabelLayer(chosenCoordinates).install(mapController!, iconSize: ppi / 7, textSize: ppi * 5);
   }
 
@@ -599,9 +600,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   }
 
   Future<List<Map>> getChosenCoordinates(MapboxMap mapController) async {
+    // Check if routes are loaded.
+    if (routing.allRoutes == null) return [];
+
     // Chosen coordinates and feature object.
     List<Map> chosenCoordinates = [];
-
     // Search appropriate Point in Route
     for (r.Route route in routing.allRoutes!) {
       GHCoordinate? chosenCoordinate;
