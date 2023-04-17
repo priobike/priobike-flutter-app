@@ -618,7 +618,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Updates the route labels.
   Future<void> updateRouteLabels() async {
     if (mapController == null) return;
-    if (routeLabelCoordinates.isEmpty) return;
+    if (routing.allRoutes == null) return;
+    if (routing.allRoutes!.length != 2) return;
     // Check if the route labels have to be positionally adjusted (if they got moved out of the display).
     bool allInBounds = true;
     for (Map data in routeLabelCoordinates) {
@@ -631,8 +632,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       }
     }
 
-    if (!allInBounds) {
-      // Calculate Chosen Coordinates
+    if (!allInBounds || routeLabelCoordinates.length != 2) {
       routeLabelCoordinates = await getCoordinatesForRouteLabels();
       await (RouteLabelLayer(routeLabelCoordinates)).update(mapController!);
     }
