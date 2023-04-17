@@ -123,6 +123,14 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                   selected: layers.showVeloRoutesLayer,
                   onTap: () => layers.setShowVeloRoutesLayer(!layers.showVeloRoutesLayer),
                 ),
+                LayerSelectionItem(
+                  icon: Theme.of(context).colorScheme.brightness == Brightness.light
+                      ? Image.asset("assets/images/traffic-layer-light.png")
+                      : Image.asset("assets/images/traffic-layer-dark.png"),
+                  title: 'Verkehr',
+                  selected: layers.showTrafficLayer,
+                  onTap: () => layers.setShowTrafficLayer(!layers.showTrafficLayer),
+                ),
               ],
             ),
             Content(text: "Kartendesign", context: context),

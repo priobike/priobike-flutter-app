@@ -356,6 +356,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
     }
+    if (layers.showTrafficLayer) {
+      if (!mounted) return;
+      await TrafficLayer(isDark).install(mapController!);
+    } else {
+      if (!mounted) return;
+      await TrafficLayer.remove(mapController!);
+    }
   }
 
   /// Update all route map layers.

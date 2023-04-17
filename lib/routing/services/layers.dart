@@ -32,6 +32,9 @@ class Layers with ChangeNotifier {
   /// If the velo routes layer is currently visible.
   bool showVeloRoutesLayer;
 
+  /// If the traffic layer is currently visible.
+  bool showTrafficLayer;
+
   /// Whether the layers can be enabled.
   bool layersCanBeEnabled;
 
@@ -79,6 +82,11 @@ class Layers with ChangeNotifier {
     await storePreferences();
   }
 
+  Future<void> setShowTrafficLayer(bool showTrafficLayer) async {
+    this.showTrafficLayer = showTrafficLayer;
+    await storePreferences();
+  }
+
   Layers({
     this.showRentalStations = false,
     this.showParkingStations = false,
@@ -88,6 +96,7 @@ class Layers with ChangeNotifier {
     this.showAccidentHotspots = true,
     this.showGreenWaveLayer = false,
     this.showVeloRoutesLayer = false,
+    this.showTrafficLayer = false,
     this.layersCanBeEnabled = false,
   });
 
@@ -109,6 +118,7 @@ class Layers with ChangeNotifier {
       showAccidentHotspots = storage.getBool("priobike.layers.showAccidentHotspots") ?? false;
       showGreenWaveLayer = storage.getBool("priobike.layers.showGreenWaveLayer") ?? false;
       showVeloRoutesLayer = storage.getBool("priobike.layers.showVeloRoutesLayer") ?? false;
+      showTrafficLayer = storage.getBool("priobike.layers.showTrafficLayer") ?? false;
     }
     notifyListeners();
   }
@@ -125,6 +135,7 @@ class Layers with ChangeNotifier {
     await storage.setBool("priobike.layers.showAccidentHotspots", showAccidentHotspots);
     await storage.setBool("priobike.layers.showGreenWaveLayer", showGreenWaveLayer);
     await storage.setBool("priobike.layers.showVeloRoutesLayer", showVeloRoutesLayer);
+    await storage.setBool("priobike.layers.showTrafficLayer", showTrafficLayer);
 
     notifyListeners();
   }
