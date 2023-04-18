@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
 import 'package:priobike/common/map/layers/prio_layers.dart';
@@ -94,6 +95,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The route label coordinates.
   List<Map> routeLabelCoordinates = [];
+
+  /// A lock that avoids rapid relocating of route labels.
+  final lock = Lock(milliseconds: 500);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -643,7 +647,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
 
     updateBearingAndCenteringButtons();
-    updateRouteLabels();
+
+    lock.run(() {
+      updateRouteLabels();
+    });
   }
 
   /// Calculates the coordinates for the route labels.

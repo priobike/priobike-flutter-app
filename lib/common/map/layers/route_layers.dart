@@ -286,8 +286,6 @@ class RouteLabelLayer {
             textSize: textSize,
             textAllowOverlap: true,
             textIgnorePlacement: true,
-            textTranslateAnchor: TextTranslateAnchor.VIEWPORT,
-            textRotationAlignment: TextRotationAlignment.VIEWPORT,
           ),
           mapbox.LayerPosition(below: below));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "imageSource"]));
