@@ -97,7 +97,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   List<Map> routeLabelCoordinates = [];
 
   /// A lock that avoids rapid relocating of route labels.
-  final lock = Lock(milliseconds: 500);
+  final routeLabelLock = Lock(milliseconds: 500);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -648,7 +648,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     updateBearingAndCenteringButtons();
 
-    lock.run(() {
+    routeLabelLock.run(() {
       updateRouteLabels();
     });
   }
