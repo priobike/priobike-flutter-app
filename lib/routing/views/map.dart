@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
 import 'package:priobike/common/map/layers/prio_layers.dart';
@@ -16,6 +18,8 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/messages/graphhopper.dart';
+import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
@@ -90,6 +94,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The current mode (dark/light).
   bool isDark = false;
+
+  /// The route label coordinates.
+  List<Map> routeLabelCoordinates = [];
+
+  /// A lock that avoids rapid relocating of route labels.
+  final routeLabelLock = Lock(milliseconds: 500);
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -394,6 +404,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await SelectedRouteLayer().update(mapController!);
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
+    if (!mounted) return;
+    routeLabelCoordinates = await getCoordinatesForRouteLabels();
+    await (RouteLabelLayer(routeLabelCoordinates)).update(mapController!);
   }
 
   /// Load all route map layers.
@@ -435,6 +448,11 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       mapController!,
       below: selectedRoute,
     );
+    if (!mounted) return;
+    routeLabelCoordinates = await getCoordinatesForRouteLabels();
+    await RouteLabelLayer(routeLabelCoordinates).install(
+      mapController!,
+    );
   }
 
   /// A callback that is called when the user taps a feature.
@@ -449,6 +467,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final discomfortIdx = int.tryParse(id.split("-")[1]);
       if (discomfortIdx == null) return;
       discomforts.selectDiscomfort(discomfortIdx);
+    } else if (id.startsWith("routeLabel-")) {
+      final routeLabelIdx = int.tryParse(id.split("-")[1]);
+      if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
+        return;
+      }
+      routing.switchToRoute(routeLabelIdx);
     }
   }
 
@@ -537,11 +561,18 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: ['routes-layer', 'discomforts-layer'],
+        layerIds: [AllRoutesLayer.layerIdClick, DiscomfortsLayer.layerIdClick, RouteLabelLayer.layerId],
       ),
     );
 
     if (features.isNotEmpty) {
+      // Prioritize discomforts if there are multiple features.
+      final discomfortFeature =
+          features.firstWhereOrNull((element) => element?.feature['id']?.toString().startsWith("discomfort-") ?? false);
+      if (discomfortFeature != null) {
+        onFeatureTapped(discomfortFeature);
+        return;
+      }
       onFeatureTapped(features[0]!);
     }
   }
@@ -572,9 +603,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await routing.loadRoutes();
   }
 
-  /// A callback that is executed when the camera movement changes.
-  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+  /// Updates the bearing and centering button.
+  Future<void> updateBearingAndCenteringButtons() async {
     if (mapController == null) return;
+
     final CameraState camera = await mapController!.getCameraState();
 
     // Set bearing in mapFunctions.
@@ -597,6 +629,115 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     } else {
       mapValues.setCameraNotCentered();
     }
+  }
+
+  /// Updates the route labels.
+  Future<void> updateRouteLabels() async {
+    if (mapController == null) return;
+    if (routing.allRoutes == null) return;
+    if (routing.allRoutes!.length != 2) return;
+    // Check if the route labels have to be positionally adjusted (if they got moved out of the display).
+    bool allInBounds = true;
+    for (Map data in routeLabelCoordinates) {
+      // Check out of new bounds.
+      ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
+        "coordinates": [data["coordinate"].lon, data["coordinate"].lat]
+      });
+      if (screenCoordinate.x == -1 || screenCoordinate.y == -1) {
+        allInBounds = false;
+      }
+    }
+
+    if (!allInBounds || routeLabelCoordinates.length != 2) {
+      routeLabelCoordinates = await getCoordinatesForRouteLabels();
+      await (RouteLabelLayer(routeLabelCoordinates)).update(mapController!);
+    }
+  }
+
+  /// A callback that is executed when the camera movement changes.
+  Future<void> onCameraChanged(CameraChangedEventData cameraChangedEventData) async {
+    if (mapController == null) return;
+
+    updateBearingAndCenteringButtons();
+
+    routeLabelLock.run(() {
+      updateRouteLabels();
+    });
+  }
+
+  /// Calculates the coordinates for the route labels.
+  Future<List<Map>> getCoordinatesForRouteLabels() async {
+    if (mapController == null) return [];
+
+    // Check if routes are loaded.
+    if (routing.allRoutes == null) return [];
+
+    if (routing.allRoutes!.length != 2) return [];
+
+    // Chosen coordinates and feature object.
+    List<Map> chosenCoordinates = [];
+    // Search appropriate Point in Route
+    for (r.Route route in routing.allRoutes!) {
+      GHCoordinate? chosenCoordinate;
+      List<GHCoordinate> uniqueInBounceCoordinates = [];
+
+      // Go through all coordinates.
+      for (GHCoordinate coordinate in route.path.points.coordinates) {
+        // Check if the coordinate is unique and not on the same line.
+        bool unique = true;
+        // Loop through all route coordinates.
+        for (r.Route routeToBeChecked in routing.allRoutes!) {
+          // Would always be not unique without this check.
+          if (routeToBeChecked.id != route.id) {
+            // Compare coordinate to all coordinates in other route.
+            for (GHCoordinate coordinateToBeChecked in routeToBeChecked.path.points.coordinates) {
+              if (!unique) {
+                break;
+              }
+              if (coordinateToBeChecked.lon == coordinate.lon && coordinateToBeChecked.lat == coordinate.lat) {
+                unique = false;
+              }
+            }
+          }
+        }
+
+        if (unique) {
+          // Check coordinates in screen bounds.
+          ScreenCoordinate screenCoordinate = await mapController!.pixelForCoordinate({
+            "coordinates": [coordinate.lon, coordinate.lat]
+          });
+          if (screenCoordinate.x != -1 || screenCoordinate.y != -1) {
+            uniqueInBounceCoordinates.add(coordinate);
+          }
+        }
+      }
+
+      // Determine which coordinate to use.
+      if (uniqueInBounceCoordinates.isNotEmpty) {
+        // Use the middlemost coordinate.
+        chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
+      }
+
+      if (chosenCoordinate != null) {
+        chosenCoordinates.add({
+          "coordinate": chosenCoordinate,
+          "time": ((route.path.time * 0.001) * 0.016).round(),
+          "feature": {
+            "id": "routeLabel-${route.id}", // Required for click listener.
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
+            },
+            "properties": {
+              "isPrimary": routing.selectedRoute!.id == route.id,
+              "text": "${((route.path.time * 0.001) * 0.016).round()} min"
+            },
+          }
+        });
+      }
+    }
+    return chosenCoordinates;
   }
 
   @override
