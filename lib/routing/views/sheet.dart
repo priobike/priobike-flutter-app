@@ -297,7 +297,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                         routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                   ),
                   renderBottomSheetWaypoints(context),
-                  const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
+                  const Padding(padding: EdgeInsets.only(top: 8), child: RoadClassChart()),
                   const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                   const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),
                   const Padding(padding: EdgeInsets.only(top: 8), child: SurfaceTypeChart()),
