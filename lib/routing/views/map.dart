@@ -496,7 +496,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     final ppi = frame.devicePixelRatio;
     final attributionMargins =
-        math.Point(20 * ppi, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 165 * ppi);
+        math.Point(10 * ppi, 116 / frame.size.height + (frame.padding.bottom / frame.size.height) + 170 * ppi);
     mapController!.attribution.updateSettings(AttributionSettings(
         marginBottom: attributionMargins.y.toDouble(),
         marginRight: attributionMargins.x.toDouble(),

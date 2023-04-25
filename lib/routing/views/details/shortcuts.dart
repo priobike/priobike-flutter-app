@@ -50,12 +50,12 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   Widget shortCutItem(Shortcut shortcut) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.symmetric(vertical: 0),
+      margin: const EdgeInsets.only(left: 8),
       child: Tile(
         onPressed: () => _loadShortcutsRoute(shortcut.waypoints),
         fill: Theme.of(context).colorScheme.background,
         splash: Theme.of(context).brightness == Brightness.light ? Colors.grey : Colors.white,
+        shadowIntensity: 0,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         borderRadius: BorderRadius.circular(12),
         content: Center(
@@ -74,6 +74,8 @@ class ShortcutsState extends State<ShortcutsRow> {
     if (shortcuts.shortcuts == null) return Container();
 
     List<Widget> shortCutWidgets = shortcuts.shortcuts!.map((e) => shortCutItem(e)).toList();
+    // Padding on the right side.
+    shortCutWidgets.add(const SizedBox(width: 8));
 
     return SizedBox(
       width: frame.size.width,

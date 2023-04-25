@@ -411,9 +411,14 @@ class RoutingViewState extends State<RoutingView> {
                 ),
               ),
 
-              const Positioned(
-                bottom: 120,
-                child: ShortcutsRow(),
+              const SafeArea(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 124),
+                    child: ShortcutsRow(),
+                  ),
+                ),
               ),
 
               RouteDetailsBottomSheet(
