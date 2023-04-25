@@ -236,13 +236,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   fitCameraToRouteBounds() async {
     if (mapController == null || !mounted) return;
     if (routing.selectedRoute == null) return;
+    final frame = MediaQuery.of(context);
     // The delay is necessary, otherwise sometimes the camera won't move.
     await Future.delayed(const Duration(milliseconds: 500));
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
+
+    MbxEdgeInsets insetsAndroid = MbxEdgeInsets(
+        // (AppBackButton height + top padding) * devicePixelRatio
+        top: (64 + 16 + frame.padding.top) * frame.devicePixelRatio,
+        left: 0,
+        // (BottomSheet height + bottom padding) * devicePixelRatio
+        bottom: (116 + frame.padding.bottom) * frame.devicePixelRatio,
+        right: 0);
+
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
-      currentCameraOptions.padding,
+      Platform.isIOS ? currentCameraOptions.padding : insetsAndroid,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
