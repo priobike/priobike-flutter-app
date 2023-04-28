@@ -483,11 +483,12 @@ packages:
   mapbox_maps_flutter:
     dependency: "direct main"
     description:
-      name: mapbox_maps_flutter
-      sha256: c0178773300058ab92b58e06da9cc47f3b25072bfe6a7178560ca4455ae70726
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.1"
+      path: "."
+      ref: yds-fix-memory-leaks
+      resolved-ref: ae8c9d2f56184bf72ba5ddbc1ebeedfb39ed9dc9
+      url: "https://github.com/mapbox/mapbox-maps-flutter"
+    source: git
+    version: "0.4.2"
   matcher:
     dependency: transitive
     description:
