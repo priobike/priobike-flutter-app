@@ -486,7 +486,7 @@ packages:
       path: "."
       ref: yds-fix-memory-leaks
       resolved-ref: ae8c9d2f56184bf72ba5ddbc1ebeedfb39ed9dc9
-      url: "git@github.com:mapbox/mapbox-maps-flutter.git"
+      url: "https://github.com/mapbox/mapbox-maps-flutter"
     source: git
     version: "0.4.2"
   matcher:
