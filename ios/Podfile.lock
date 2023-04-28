@@ -89,7 +89,7 @@ PODS:
   - GoogleUtilitiesComponents (1.1.0):
     - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.7.2)
-  - mapbox_maps_flutter (0.4.1):
+  - mapbox_maps_flutter (0.4.2):
     - Flutter
     - MapboxMaps (~> 10.10.0)
   - MapboxCommon (23.2.1)
@@ -267,7 +267,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
-  mapbox_maps_flutter: e1e956d927c4cdbfc88add67bd8e375f735c0908
+  mapbox_maps_flutter: be1a16ff33006fff69d5c21b1cec8ed82be9c02d
   MapboxCommon: 235bb9c27a8985d982e17f216795b1f7ab526782
   MapboxCoreMaps: 4075a9e415b9b3ab6229d09623fef5f791826a5b
   MapboxMaps: 0c2f7722016bc56aa27b5e6bcf72ae4df7a98670
