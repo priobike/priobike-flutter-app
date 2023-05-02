@@ -33,6 +33,7 @@ import 'package:priobike/status/views/status.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
+import 'package:priobike/wiki/view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -257,6 +258,11 @@ class HomeViewState extends State<HomeView> {
                         const SizedBox(width: 24),
                       ],
                     ),
+                  ),
+                  const VSpace(),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 500),
+                    child: WikiView(),
                   ),
                   const VSpace(),
                   BlendIn(
