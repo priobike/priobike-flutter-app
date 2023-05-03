@@ -50,7 +50,7 @@ class AllRoutesLayer {
     mapbox.MapboxMap mapController, {
     lineWidth = 9.0,
     clickLineWidth = 25.0,
-    String? below,
+    at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
@@ -72,7 +72,7 @@ class AllRoutesLayer {
             lineWidth: clickLineWidth,
             lineOpacity: 0.001,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
     }
     final routesLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routesLayerExists) {
@@ -152,7 +152,7 @@ class SelectedRouteLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, String? below}) async {
+  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -160,19 +160,6 @@ class SelectedRouteLayer {
       );
     } else {
       await update(mapController);
-    }
-    final routeBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
-    if (!routeBackgroundLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerIdBackground,
-            lineColor: const Color(0xFFC6C6C6).value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: bgLineWidth,
-          ),
-          mapbox.LayerPosition(below: below));
     }
     final routeLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!routeLayerExists) {
@@ -185,8 +172,21 @@ class SelectedRouteLayer {
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: fgLineWidth,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
+    }
+    final routeBackgroundLayerExists = await mapController.style.styleLayerExists(layerIdBackground);
+    if (!routeBackgroundLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerIdBackground,
+            lineColor: const Color(0xFFC6C6C6).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: bgLineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
     }
     return layerId;
   }
@@ -261,7 +261,7 @@ class RouteLabelLayer {
     mapbox.MapboxMap mapController, {
     iconSize = 0.4,
     textSize = 14.0,
-    String? below,
+    at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
@@ -287,7 +287,7 @@ class RouteLabelLayer {
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "imageSource"]));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-opacity', json.encode(showAfter(zoom: 10)));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-anchor', json.encode(["get", "anchor"]));
@@ -407,7 +407,7 @@ class DiscomfortsLayer {
     iconSize = 0.25,
     lineWidth = 7.0,
     clickWidth = 35.0,
-    String? below,
+    at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
@@ -428,7 +428,7 @@ class DiscomfortsLayer {
             lineWidth: clickWidth,
             lineOpacity: 0.001,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
     }
     final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!discomfortsLayerExists) {
@@ -441,7 +441,7 @@ class DiscomfortsLayer {
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: lineWidth,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
     }
     final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
     if (!discomfortsMarkersExist) {
@@ -456,7 +456,7 @@ class DiscomfortsLayer {
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "number"]));
     }
     return layerId;
@@ -503,7 +503,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, String? below}) async {
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -522,7 +522,7 @@ class WaypointsLayer {
               textAllowOverlap: true,
               textIgnorePlacement: true,
               iconAllowOverlap: true),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-image',

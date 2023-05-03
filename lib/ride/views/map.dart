@@ -266,9 +266,8 @@ class RideMapViewState extends State<RideMapView> {
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
     if (!mounted) return;
-    await SelectedRouteLayer()
-        .install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
-    await WaypointsLayer().install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
+    await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0);
+    await WaypointsLayer().install(mapController!, iconSize: ppi / 8);
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
         .install(mapController!, iconSize: ppi / 5);

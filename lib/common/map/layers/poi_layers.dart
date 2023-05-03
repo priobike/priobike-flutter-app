@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -30,7 +29,7 @@ class ParkingStationsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -45,7 +44,7 @@ class ParkingStationsLayer {
             iconOpacity: 0,
             iconAllowOverlap: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -86,7 +85,7 @@ class RentalStationsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -109,7 +108,7 @@ class RentalStationsLayer {
           textAllowOverlap: true,
           textOpacity: 0,
         ),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -175,7 +174,7 @@ class BikeShopLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -198,7 +197,7 @@ class BikeShopLayer {
           textAllowOverlap: true,
           textOpacity: 0,
         ),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -269,7 +268,7 @@ class BikeAirStationLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -292,7 +291,7 @@ class BikeAirStationLayer {
           textAllowOverlap: true,
           textOpacity: 0,
         ),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -358,7 +357,7 @@ class ConstructionSitesLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -381,7 +380,7 @@ class ConstructionSitesLayer {
           textAllowOverlap: true,
           textOpacity: 0,
         ),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -434,7 +433,7 @@ class AccidentHotspotsLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.3, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.3, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -457,7 +456,7 @@ class AccidentHotspotsLayer {
           textAllowOverlap: true,
           textOpacity: 0,
         ),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,
@@ -508,7 +507,7 @@ class TrafficLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -522,7 +521,7 @@ class TrafficLayer {
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: 1.9),
-        mapbox.LayerPosition(below: below),
+        mapbox.LayerPosition(at: at),
       );
       await mapController.style.setStyleLayerProperty(
           layerId,

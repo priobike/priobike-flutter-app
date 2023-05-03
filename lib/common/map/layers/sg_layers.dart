@@ -52,7 +52,7 @@ class TrafficLightsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -74,7 +74,7 @@ class TrafficLightsLayer {
             textIgnorePlacement: true,
             iconOpacity: 0,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-image',
@@ -206,7 +206,7 @@ class TrafficLightLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -227,7 +227,7 @@ class TrafficLightLayer {
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "sgIcon"]));
     }
 
@@ -286,7 +286,7 @@ class OfflineCrossingsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, String? below}) async {
+  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -308,7 +308,7 @@ class OfflineCrossingsLayer {
             textAllowOverlap: true,
             textIgnorePlacement: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-image',

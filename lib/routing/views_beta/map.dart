@@ -369,37 +369,32 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (!mounted) return;
-    final offlineCrossings = await OfflineCrossingsLayer(isDark).install(
+    await OfflineCrossingsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
     );
     if (!mounted) return;
-    final trafficLights = await TrafficLightsLayer(isDark).install(
+    await TrafficLightsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
-      below: offlineCrossings,
     );
     if (!mounted) return;
-    final waypoints = await WaypointsLayer().install(
+    await WaypointsLayer().install(
       mapController!,
       iconSize: 0.2,
-      below: trafficLights,
     );
     if (!mounted) return;
-    final discomforts = await DiscomfortsLayer().install(
+    await DiscomfortsLayer().install(
       mapController!,
       iconSize: ppi / 8,
-      below: waypoints,
     );
     if (!mounted) return;
-    final selectedRoute = await SelectedRouteLayer().install(
+    await SelectedRouteLayer().install(
       mapController!,
-      below: discomforts,
     );
     if (!mounted) return;
     await AllRoutesLayer().install(
       mapController!,
-      below: selectedRoute,
     );
     if (!mounted) return;
     List<Map> chosenCoordinates = await getChosenCoordinates(mapController!);
