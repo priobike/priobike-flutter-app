@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/wiki/articles.dart';
 import 'package:priobike/wiki/widgets/wikiCard.dart';
 
 class WikiView extends StatefulWidget {
@@ -18,19 +19,16 @@ class WikiViewState extends State<WikiView> {
   /// Int that holds the state of the current page.
   int currentPage = 0;
 
-  int articles = 3;
-
   /// Widget that displays the current page.
-  Widget _pageIndicator() {
+  Widget _pageIndicator(int articles) {
     List<Widget> indicators = List<Widget>.generate(
       articles,
       (index) => Container(
         margin: const EdgeInsets.all(2.5),
-        width: 15,
-        height: 15,
+        width: 10,
+        height: 10,
         decoration: BoxDecoration(
-            color: currentPage == index ? Colors.lightBlue : Colors.grey,
-            shape: BoxShape.circle),
+            color: currentPage == index ? Theme.of(context).colorScheme.primary : Colors.grey, shape: BoxShape.circle),
       ),
     );
 
@@ -45,11 +43,11 @@ class WikiViewState extends State<WikiView> {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 225,
-      child: Column(
+      child: Stack(
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: 200,
+            height: 215,
             child: PageView(
               controller: pageController,
               onPageChanged: (int index) {
@@ -57,23 +55,31 @@ class WikiViewState extends State<WikiView> {
                   currentPage = index;
                 });
               },
-              children: const [
+              children: [
                 WikiCard(
-                  title: "First",
-                  subTitle: "first",
+                  article: articleDataFailures,
+                  imagePadding: 50,
                 ),
                 WikiCard(
-                  title: "Second",
-                  subTitle: "second",
+                  article: articleSwitchingPrograms,
+                  imagePadding: 75,
                 ),
                 WikiCard(
-                  title: "Second",
-                  subTitle: "second",
+                  article: articleSGSelector,
+                  imagePadding: 50,
+                ),
+                WikiCard(
+                  article: articlePrioBike,
+                  imagePadding: 55,
                 ),
               ],
             ),
           ),
-          _pageIndicator(),
+          Container(
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _pageIndicator(4),
+          ),
         ],
       ),
     );

@@ -260,11 +260,6 @@ class HomeViewState extends State<HomeView> {
                     ),
                   ),
                   const VSpace(),
-                  const BlendIn(
-                    delay: Duration(milliseconds: 500),
-                    child: WikiView(),
-                  ),
-                  const VSpace(),
                   BlendIn(
                     delay: const Duration(milliseconds: 500),
                     child: Column(
@@ -290,8 +285,13 @@ class HomeViewState extends State<HomeView> {
                     child: TotalStatisticsView(),
                   ),
                   const VSpace(),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 1250),
+                    child: WikiView(),
+                  ),
+                  const VSpace(),
                   BlendIn(
-                    delay: const Duration(milliseconds: 1250),
+                    delay: const Duration(milliseconds: 1500),
                     child: renderDebugHint(),
                   ),
                   const SizedBox(height: 128),
