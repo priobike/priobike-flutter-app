@@ -395,6 +395,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
     }
+    final cameraState = await mapController!.getCameraState();
+    mapController!.flyTo(
+      CameraOptions(
+        zoom: cameraState.zoom + 0.001,
+      ),
+      MapAnimationOptions(duration: 100),
+    );
   }
 
   /// Update all route map layers.
