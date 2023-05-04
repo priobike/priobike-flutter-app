@@ -398,19 +398,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     /*
     * Only applies to Android. Due to a data leak on Android, we use a
-    * TextureView instead of the SurfaceView, which causes the problem that
-    * the changes sometimes only become active after interacting with the map
+    * TextureView instead of the SurfaceView (for the Mapbox map), which causes the problem that
+    * the layer changes sometimes only become active after interacting with the map
     * again. To solve this, the following workaround was introduced.
     * More Details: https://trello.com/c/xIeOXzZU
     * */
-
-    final cameraState = await mapController!.getCameraState();
-    mapController!.flyTo(
-      CameraOptions(
-        zoom: cameraState.zoom + 0.001,
-      ),
-      MapAnimationOptions(duration: 100),
-    );
+    if (Platform.isAndroid) {
+      final cameraState = await mapController!.getCameraState();
+      mapController!.flyTo(
+        CameraOptions(
+          zoom: cameraState.zoom + 0.001,
+        ),
+        MapAnimationOptions(duration: 100),
+      );
+    }
   }
 
   /// Update all route map layers.
