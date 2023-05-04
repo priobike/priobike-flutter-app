@@ -4,7 +4,6 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/layers/utils.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/views/map.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -30,7 +29,7 @@ class GreenWaveLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -45,7 +44,7 @@ class GreenWaveLayer {
             iconOpacity: 0,
             iconAllowOverlap: true,
           ),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(
           layerId,
           'icon-opacity',
@@ -86,7 +85,7 @@ class VeloRoutesLayer {
   }
 
   /// Install the layer on the map controller.
-  install(mapbox.MapboxMap mapController, {iconSize = 0.15, below = RoutingMapViewState.userLocationLayerId}) async {
+  install(mapbox.MapboxMap mapController, {iconSize = 0.15, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) await _installSource(mapController);
 
@@ -100,7 +99,7 @@ class VeloRoutesLayer {
               lineCap: mapbox.LineCap.ROUND,
               lineColor: CI.lightBlue.value,
               lineWidth: 1.9),
-          mapbox.LayerPosition(below: below));
+          mapbox.LayerPosition(at: at));
     }
   }
 

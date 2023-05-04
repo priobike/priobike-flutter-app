@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
@@ -25,6 +26,8 @@ class RideMapView extends StatefulWidget {
 
 class RideMapViewState extends State<RideMapView> {
   static const viewId = "ride.views.map";
+
+  static const userLocationLayerId = "user-ride-location-puck";
 
   late Routing routing;
 
@@ -51,6 +54,37 @@ class RideMapViewState extends State<RideMapView> {
 
   /// If the upcoming traffic light is green.
   bool? upcomingTrafficLightIsGreen;
+
+  /// The index of the basemap layers where the first label layer is located (the label layers are top most).
+  var firstBaseMapLabelLayerIndex = 0;
+
+  /// The index in the list represents the layer order in z axis.
+  final List layerOrder = [
+    SelectedRouteLayer.layerIdBackground,
+    SelectedRouteLayer.layerId,
+    WaypointsLayer.layerId,
+    userLocationLayerId,
+    OfflineCrossingsLayer.layerId,
+    TrafficLightsLayer.layerId,
+    TrafficLightLayer.layerId,
+  ];
+
+  /// Returns the index where the layer should be added in the Mapbox layer stack.
+  Future<int> getIndex(String layerId) async {
+    final currentLayers = await mapController!.style.getStyleLayers();
+    // Find out how many of our layers are before the layer that should be added.
+    var layersBeforeAdded = 0;
+    for (final layer in layerOrder) {
+      if (currentLayers.firstWhereOrNull((element) => element?.id == layer) != null) {
+        layersBeforeAdded++;
+      }
+      if (layer == layerId) {
+        break;
+      }
+    }
+    // Add the layer on top of our layers that are before it and below the label layers.
+    return firstBaseMapLabelLayerIndex + layersBeforeAdded;
+  }
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -216,11 +250,11 @@ class RideMapViewState extends State<RideMapView> {
           mapbox.MapAnimationOptions(duration: 1500));
     }
 
-    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
+    await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (value) {
         mapController!.style.updateLayer(
           mapbox.LocationIndicatorLayer(
-            id: "user-ride-location-puck",
+            id: userLocationLayerId,
             bearing: userPos.heading,
             location: [userPosSnap.position.latitude, userPosSnap.position.longitude, userPos.altitude],
             accuracyRadius: userPos.accuracy,
@@ -230,15 +264,36 @@ class RideMapViewState extends State<RideMapView> {
     });
   }
 
+  /// Used to get the index of the first label layer in the layer stack. This is used to place our layers below the
+  /// label layers such that they are still readable.
+  getFirstLabelLayer() async {
+    if (mapController == null) return;
+
+    final layers = await mapController!.style.getStyleLayers();
+    final firstLabel = layers.firstWhereOrNull((layer) {
+      final layerId = layer?.id ?? "";
+      return layerId.contains("-label");
+    });
+    final firstLabelIndex = layers.indexOf(firstLabel);
+    // If there are no label layers in the style we want to start adding on top of the last layer.
+    if (firstLabelIndex != -1) {
+      firstBaseMapLabelLayerIndex = firstLabelIndex;
+    } else {
+      firstBaseMapLabelLayerIndex = layers.length - 1;
+    }
+  }
+
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
 
-    await mapController?.style.styleLayerExists("user-ride-location-puck").then((value) async {
+    await getFirstLabelLayer();
+
+    await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (!value) {
         await mapController!.style.addLayer(
           mapbox.LocationIndicatorLayer(
-            id: "user-ride-location-puck",
+            id: userLocationLayerId,
             bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
             bearingImageSize: 0.35,
             accuracyRadiusColor: const Color(0x00000000).value,
@@ -265,18 +320,23 @@ class RideMapViewState extends State<RideMapView> {
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+    var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
-    await SelectedRouteLayer()
-        .install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, below: "user-ride-location-puck");
-    await WaypointsLayer().install(mapController!, iconSize: ppi / 8, below: "user-ride-location-puck");
+    await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
+    index = await getIndex(WaypointsLayer.layerId);
+    if (!mounted) return;
+    await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
+    index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 5);
+        .install(mapController!, iconSize: ppi / 5, at: index);
+    index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 5);
+        .install(mapController!, iconSize: ppi / 5, at: index);
+    index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
-    await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5);
+    await TrafficLightLayer(isDark).install(mapController!, iconSize: ppi / 5, at: index);
 
     onRoutingUpdate();
     onPositioningUpdate();
