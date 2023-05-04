@@ -101,6 +101,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A lock that avoids rapid relocating of route labels.
   final routeLabelLock = Lock(milliseconds: 500);
 
+  /// The index of the basemap layers where the first label layer is located (the label layers are top most).
+  var firstBaseMapLabelLayerIndex = 0;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -122,12 +125,28 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     RouteLabelLayer.layerId,
   ];
 
-  int getIndex(String layerId) {
-    int index = layerOrder.indexOf(layerId);
-    // Index 0 to 49 are used by the basemap layers (eg roads, buildings, etc).
-    // Therefore we add 50 to the index to make sure the layers are above the basemap.
-    // By the MapBox architecture index 99 is the highest index. Everything above 99 throws an exception.
-    return index + 50 > 99 ? 99 : index + 50;
+  /// Returns the index where the layer should be added in the Mapbox layer stack.
+  Future<int> getIndex(String layerId) async {
+    final currentLayers = await mapController!.style.getStyleLayers();
+
+    // Place the route label layer on top of all other layers.
+    if (layerId == RouteLabelLayer.layerId) {
+      return currentLayers.length - 1;
+    }
+
+    // Find out how many of our layers are before the layer that should be added.
+    var layersBeforeAdded = 0;
+    for (final layer in layerOrder) {
+      if (currentLayers.firstWhereOrNull((element) => element?.id == layer) != null) {
+        layersBeforeAdded++;
+      }
+      if (layer == layerId) {
+        break;
+      }
+    }
+
+    // Add the layer on top of our layers that are before it and below the label layers.
+    return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -299,6 +318,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (!value) {
+        final index = await getIndex(userLocationLayerId);
+        if (!mounted) return;
         await mapController!.style.addLayerAt(
             LocationIndicatorLayer(
               id: userLocationLayerId,
@@ -315,7 +336,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               ],
               accuracyRadius: positioning.lastPosition!.accuracy,
             ),
-            LayerPosition(at: getIndex(userLocationLayerId)));
+            LayerPosition(at: index));
         await mapController!.style
             .setStyleTransition(TransitionOptions(duration: 1000, enablePlacementTransitions: false));
       } else {
@@ -352,64 +373,73 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Load the map features.
     if (layers.showAirStations) {
+      final index = await getIndex(BikeAirStationLayer.layerId);
       if (!mounted) return;
-      await BikeAirStationLayer(isDark).install(mapController!, at: getIndex(BikeAirStationLayer.layerId));
+      await BikeAirStationLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await BikeAirStationLayer.remove(mapController!);
     }
     if (layers.showConstructionSites) {
+      final index = await getIndex(ConstructionSitesLayer.layerId);
       if (!mounted) return;
-      await ConstructionSitesLayer(isDark).install(mapController!, at: getIndex(ConstructionSitesLayer.layerId));
+      await ConstructionSitesLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await ConstructionSitesLayer.remove(mapController!);
     }
     if (layers.showParkingStations) {
+      final index = await getIndex(ParkingStationsLayer.layerId);
       if (!mounted) return;
-      await ParkingStationsLayer(isDark).install(mapController!, at: getIndex(ParkingStationsLayer.layerId));
+      await ParkingStationsLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await ParkingStationsLayer.remove(mapController!);
     }
     if (layers.showRentalStations) {
+      final index = await getIndex(RentalStationsLayer.layerId);
       if (!mounted) return;
-      await RentalStationsLayer(isDark).install(mapController!, at: getIndex(RentalStationsLayer.layerId));
+      await RentalStationsLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await RentalStationsLayer.remove(mapController!);
     }
     if (layers.showRepairStations) {
+      final index = await getIndex(BikeShopLayer.layerId);
       if (!mounted) return;
-      await BikeShopLayer(isDark).install(mapController!, at: getIndex(BikeShopLayer.layerId));
+      await BikeShopLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await BikeShopLayer.remove(mapController!);
     }
     if (layers.showAccidentHotspots) {
+      final index = await getIndex(AccidentHotspotsLayer.layerId);
       if (!mounted) return;
-      await AccidentHotspotsLayer(isDark).install(mapController!, at: getIndex(AccidentHotspotsLayer.layerId));
+      await AccidentHotspotsLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await AccidentHotspotsLayer.remove(mapController!);
     }
     if (layers.showGreenWaveLayer) {
+      final index = await getIndex(GreenWaveLayer.layerId);
       if (!mounted) return;
-      await GreenWaveLayer(isDark).install(mapController!, at: getIndex(GreenWaveLayer.layerId));
+      await GreenWaveLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await GreenWaveLayer.remove(mapController!);
     }
     if (layers.showTrafficLayer) {
+      final index = await getIndex(TrafficLayer.layerId);
       if (!mounted) return;
-      await TrafficLayer(isDark).install(mapController!, at: getIndex(TrafficLayer.layerId));
+      await TrafficLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await TrafficLayer.remove(mapController!);
     }
     if (layers.showVeloRoutesLayer) {
+      final index = await getIndex(VeloRoutesLayer.layerId);
       if (!mounted) return;
-      await VeloRoutesLayer(isDark).install(mapController!, at: getIndex(VeloRoutesLayer.layerId));
+      await VeloRoutesLayer(isDark).install(mapController!, at: index);
     } else {
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
@@ -443,45 +473,52 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
     final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    var index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
-      at: getIndex(OfflineCrossingsLayer.layerId),
+      at: index,
     );
+    index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
     await TrafficLightsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 10,
-      at: getIndex(TrafficLightsLayer.layerId),
+      at: index,
     );
+    index = await getIndex(WaypointsLayer.layerId);
     if (!mounted) return;
     await WaypointsLayer().install(
       mapController!,
       iconSize: 0.2,
-      at: getIndex(WaypointsLayer.layerId),
+      at: index,
     );
+    index = await getIndex(DiscomfortsLayer.layerId);
     if (!mounted) return;
     await DiscomfortsLayer().install(
       mapController!,
       iconSize: ppi / 8,
-      at: getIndex(DiscomfortsLayer.layerId),
+      at: index,
     );
+    index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     await SelectedRouteLayer().install(
       mapController!,
-      at: getIndex(SelectedRouteLayer.layerId),
+      at: index,
     );
+    index = await getIndex(AllRoutesLayer.layerId);
     if (!mounted) return;
     await AllRoutesLayer().install(
       mapController!,
-      at: getIndex(AllRoutesLayer.layerId),
+      at: index,
     );
+    index = await getIndex(RouteLabelLayer.layerId);
     if (!mounted) return;
     routeLabelCoordinates = await getCoordinatesForRouteLabels();
     await RouteLabelLayer(routeLabelCoordinates).install(
       mapController!,
-      at: getIndex(RouteLabelLayer.layerId),
+      at: index,
     );
   }
 
@@ -537,9 +574,30 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         position: OrnamentPosition.BOTTOM_LEFT));
   }
 
+  /// Used to get the index of the first label layer in the layer stack. This is used to place our layers below the
+  /// label layers such that they are still readable.
+  analyzeMapboxBaseLayers() async {
+    if (mapController == null) return;
+
+    final layers = await mapController!.style.getStyleLayers();
+    final firstLabel = layers.firstWhereOrNull((layer) {
+      final layerId = layer?.id ?? "";
+      return layerId.contains("-label");
+    });
+    final firstLabelIndex = layers.indexOf(firstLabel);
+    // If there are no label layers in the style we want to start adding on top of the last layer.
+    if (firstLabelIndex != -1) {
+      firstBaseMapLabelLayerIndex = firstLabelIndex;
+    } else {
+      firstBaseMapLabelLayerIndex = layers.length - 1;
+    }
+  }
+
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
     mapController = controller;
+
+    analyzeMapboxBaseLayers();
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
@@ -549,21 +607,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
 
-    await displayCurrentUserLocation();
-
     // Fit the content below the top and the bottom stuff.
     fitAttributionPosition();
+
+    await displayCurrentUserLocation();
+    await loadGeoLayers();
 
     // Load the boundary layer.
     await BoundaryLayer(isDark).install(mapController!);
 
     await fitCameraToRouteBounds();
-    // Some of the following layers are placed below the user location indicator and to make sure
-    // that they are displayed correctly we need to wait for the user location indicator to be
-    // completely loaded.
-    await Future.delayed(const Duration(milliseconds: 500));
     await loadRouteMapLayers();
-    await loadGeoLayers();
   }
 
   /// A callback which is executed when a tap on the map is registered.

@@ -417,32 +417,6 @@ class DiscomfortsLayer {
     } else {
       await update(mapController);
     }
-    final discomfortsClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
-    if (!discomfortsClickLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerIdClick,
-            lineColor: Colors.pink.value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineWidth: clickWidth,
-            lineOpacity: 0.001,
-          ),
-          mapbox.LayerPosition(at: at));
-    }
-    final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
-    if (!discomfortsLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerId,
-            lineColor: const Color(0xFFE63328).value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineCap: mapbox.LineCap.ROUND,
-            lineWidth: lineWidth,
-          ),
-          mapbox.LayerPosition(at: at));
-    }
     final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
     if (!discomfortsMarkersExist) {
       await mapController.style.addLayerAt(
@@ -458,6 +432,32 @@ class DiscomfortsLayer {
           ),
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "number"]));
+    }
+    final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
+    if (!discomfortsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerId,
+            lineColor: const Color(0xFFE63328).value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineCap: mapbox.LineCap.ROUND,
+            lineWidth: lineWidth,
+          ),
+          mapbox.LayerPosition(at: at));
+    }
+    final discomfortsClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
+    if (!discomfortsClickLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.LineLayer(
+            sourceId: sourceId,
+            id: layerIdClick,
+            lineColor: Colors.pink.value,
+            lineJoin: mapbox.LineJoin.ROUND,
+            lineWidth: clickWidth,
+            lineOpacity: 0.001,
+          ),
+          mapbox.LayerPosition(at: at));
     }
     return layerId;
   }
