@@ -395,6 +395,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       if (!mounted) return;
       await VeloRoutesLayer.remove(mapController!);
     }
+
+    /*
+    * Only applies to Android. Due to a data leak on Android, we use a
+    * TextureView instead of the SurfaceView, which causes the problem that
+    * the changes sometimes only become active after interacting with the map
+    * again. To solve this, the following workaround was introduced.
+    * More Details: https://trello.com/c/xIeOXzZU
+    * */
+
     final cameraState = await mapController!.getCameraState();
     mapController!.flyTo(
       CameraOptions(
