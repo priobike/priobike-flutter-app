@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/wiki/articles.dart';
-import 'package:priobike/wiki/widgets/wikiCard.dart';
+import 'package:priobike/wiki/widgets/wiki_card.dart';
 
 class WikiView extends StatefulWidget {
   const WikiView({Key? key}) : super(key: key);

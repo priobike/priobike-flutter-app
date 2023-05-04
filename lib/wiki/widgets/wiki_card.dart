@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/wiki/detail.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiCard extends StatefulWidget {
@@ -28,7 +29,7 @@ class WikiCardState extends State<WikiCard> {
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         fill: Theme.of(context).colorScheme.background,
         onPressed: () {
-          // TODO implement detail screen.
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WikiDetailView(article: widget.article)));
         },
         content: Column(children: [
           Expanded(
