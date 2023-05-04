@@ -397,8 +397,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
 
     /*
-    * Only applies to Android. Due to a data leak on Android, we use a
-    * TextureView instead of the SurfaceView (for the Mapbox map), which causes the problem that
+    * Only applies to Android. Due to a data leak on Android-Flutter (https://github.com/flutter/flutter/issues/118384),
+    * we use a TextureView instead of the SurfaceView (for the Mapbox map), which causes the problem that
     * the layer changes sometimes only become active after interacting with the map
     * again. To solve this, the following workaround was introduced.
     * More Details: https://trello.com/c/xIeOXzZU
