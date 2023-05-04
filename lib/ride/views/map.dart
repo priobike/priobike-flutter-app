@@ -71,9 +71,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
-    print("getIndex: $layerId");
     final currentLayers = await mapController!.style.getStyleLayers();
-
     // Find out how many of our layers are before the layer that should be added.
     var layersBeforeAdded = 0;
     for (final layer in layerOrder) {
@@ -84,7 +82,6 @@ class RideMapViewState extends State<RideMapView> {
         break;
       }
     }
-    print(firstBaseMapLabelLayerIndex + layersBeforeAdded);
     // Add the layer on top of our layers that are before it and below the label layers.
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }

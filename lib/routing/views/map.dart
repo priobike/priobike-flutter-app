@@ -132,12 +132,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
     final currentLayers = await mapController!.style.getStyleLayers();
-
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
       return currentLayers.length - 1;
     }
-
     // Find out how many of our layers are before the layer that should be added.
     var layersBeforeAdded = 0;
     for (final layer in layerOrder) {
@@ -148,7 +146,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         break;
       }
     }
-
     // Add the layer on top of our layers that are before it and below the label layers.
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
