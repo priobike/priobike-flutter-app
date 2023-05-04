@@ -109,8 +109,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     VeloRoutesLayer.layerId,
     TrafficLayer.layerId,
     AllRoutesLayer.layerId,
+    AllRoutesLayer.layerIdClick,
+    SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     DiscomfortsLayer.layerId,
+    DiscomfortsLayer.layerIdClick,
+    DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
@@ -576,7 +580,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Used to get the index of the first label layer in the layer stack. This is used to place our layers below the
   /// label layers such that they are still readable.
-  analyzeMapboxBaseLayers() async {
+  getFirstLabelLayer() async {
     if (mapController == null) return;
 
     final layers = await mapController!.style.getStyleLayers();
@@ -597,7 +601,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onMapCreated(MapboxMap controller) async {
     mapController = controller;
 
-    analyzeMapboxBaseLayers();
+    getFirstLabelLayer();
   }
 
   /// A callback which is executed when the map style was (re-)loaded.

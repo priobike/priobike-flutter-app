@@ -84,7 +84,7 @@ class AllRoutesLayer {
             lineJoin: mapbox.LineJoin.ROUND,
             lineWidth: lineWidth,
           ),
-          mapbox.LayerPosition(below: layerIdClick));
+          mapbox.LayerPosition(at: at));
     }
 
     return layerId;
