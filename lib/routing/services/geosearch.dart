@@ -169,7 +169,6 @@ class Geosearch with ChangeNotifier {
 
     searchHistory.add(waypoint);
     await saveSearchHistory();
-    notifyListeners();
   }
 
   /// The BoundingBox is used to limit the geosearch-results to a certain area, i.e. Hamburg or Dresden.
