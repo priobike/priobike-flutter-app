@@ -267,6 +267,7 @@ class RouteSearchState extends State<RouteSearch> {
   /// A callback that is fired when a waypoint is tapped.
   void onWaypointTapped(Waypoint waypoint) {
     geosearch.addToSearchHistory(waypoint);
+    geosearch.saveSearchHistory();
     geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
   }
