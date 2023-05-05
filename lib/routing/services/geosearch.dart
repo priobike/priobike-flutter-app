@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/photon.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
@@ -42,6 +43,14 @@ class Geosearch with ChangeNotifier {
 
       var url = "https://$baseUrl/photon/api";
       url += "?q=$query";
+
+      // Bias search results to current position
+      final positionLat = getIt<Positioning>().lastPosition?.latitude;
+      final positionLon = getIt<Positioning>().lastPosition?.longitude;
+      if (positionLat != null && positionLon != null) {
+        url += "&lat=$positionLat";
+        url += "&lon=$positionLon";
+      }
 
       // Add custom bounding box to limit search results
       final boundingBox = getBoundingBox();
