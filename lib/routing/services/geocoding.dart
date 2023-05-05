@@ -56,22 +56,7 @@ class Geocoding with ChangeNotifier {
       final decoded = json.decode(response.body);
       final geocodeResponse = PhotonAddress.fromJson(decoded["features"][0]);
 
-      // Example DisplayName: "Andreas-Pfitzmann-Bau, Nöthnitzer Straße 46, Räcknitz, 01187, Dresden, Sachsen, Deutschland"
-      var displayName = "";
-      if (geocodeResponse.name != null) displayName += "${geocodeResponse.name}, ";
-
-      // Only show house number if street is also present
-      if (geocodeResponse.street != null && geocodeResponse.houseNumber != null) {
-        displayName += "${geocodeResponse.street} ${geocodeResponse.houseNumber}, ";
-      } else if (geocodeResponse.street != null) {
-        displayName += "${geocodeResponse.street}, ";
-      }
-      if (geocodeResponse.district != null) displayName += "${geocodeResponse.district}, ";
-      if (geocodeResponse.postcode != null) displayName += "${geocodeResponse.postcode}, ";
-      if (geocodeResponse.city != null) displayName += "${geocodeResponse.city}, ";
-      if (geocodeResponse.state != null) displayName += "${geocodeResponse.state}, ";
-      if (geocodeResponse.country != null) displayName += "${geocodeResponse.country}";
-
+      final displayName = geocodeResponse.getDisplayName();
       isFetchingAddress = false;
       hadErrorDuringFetch = false;
       notifyListeners();

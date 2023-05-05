@@ -73,21 +73,7 @@ class Geosearch with ChangeNotifier {
 
       isFetchingAddress = false;
       results = addresses.map((e) {
-        // Example DisplayName: "Andreas-Pfitzmann-Bau, Nöthnitzer Straße 46, Räcknitz, 01187, Dresden, Sachsen, Deutschland"
-        var displayName = "";
-        if (e.name != null) displayName += "${e.name}, ";
-        // only show house number if street is also present
-        if (e.street != null && e.houseNumber != null) {
-          displayName += "${e.street} ${e.houseNumber}, ";
-        } else if (e.street != null) {
-          displayName += "${e.street}, ";
-        }
-        if (e.district != null) displayName += "${e.district}, ";
-        if (e.postcode != null) displayName += "${e.postcode}, ";
-        if (e.city != null) displayName += "${e.city}, ";
-        if (e.state != null) displayName += "${e.state}, ";
-        if (e.country != null) displayName += "${e.country}";
-
+        final displayName = e.getDisplayName();
         return Waypoint(
           e.lat,
           e.lon,

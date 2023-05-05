@@ -72,4 +72,23 @@ class PhotonAddress {
       name: json["properties"]["name"] as String?,
     );
   }
+
+  /// Returns the formatted display name of the address.
+  /// Example: "Andreas-Pfitzmann-Bau, Nöthnitzer Straße 46, Räcknitz, 01187, Dresden, Sachsen, Deutschland"
+  String getDisplayName() {
+    var displayName = "";
+    if (name != null) displayName += "$name, ";
+    // only show house number if street is also present
+    if (street != null && houseNumber != null) {
+      displayName += "$street $houseNumber, ";
+    } else if (street != null) {
+      displayName += "$street, ";
+    }
+    if (district != null) displayName += "$district, ";
+    if (postcode != null) displayName += "$postcode, ";
+    if (city != null) displayName += "$city, ";
+    if (state != null) displayName += "$state, ";
+    if (country != null) displayName += "$country";
+    return displayName;
+  }
 }
