@@ -5,7 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/messages/nominatim.dart';
+import 'package:priobike/routing/messages/photon.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -22,13 +22,11 @@ class Geocoding with ChangeNotifier {
   Geocoding();
 
   /// Fetch the address to a given coordinate.
-  /// See: https://nominatim.org/release-docs/develop/api/Reverse/
   Future<String?> reverseGeocodeLatLng(double lat, double lng) async {
     return await reverseGeocode(LatLng(lat, lng));
   }
 
   /// Fetch the address to a given coordinate.
-  /// See: https://nominatim.org/release-docs/develop/api/Reverse/
   Future<String?> reverseGeocode(LatLng coordinate) async {
     if (isFetchingAddress) return null;
 
@@ -40,16 +38,10 @@ class Geocoding with ChangeNotifier {
     try {
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
-      var url = "https://$baseUrl/nominatim/reverse";
-      url += "?accept-language=de";
+
+      var url = "https://$baseUrl/photon/reverse";
+      url += "?lon=${coordinate.longitude}";
       url += "&lat=${coordinate.latitude}";
-      url += "&lon=${coordinate.longitude}";
-      url += "&format=json";
-      url += "&zoom=18";
-      url += "&addressdetails=1";
-      url += "&extratags=1";
-      url += "&namedetails=1";
-      url += "&polygon_geojson=1";
       final endpoint = Uri.parse(url);
 
       final response = await Http.get(endpoint);
@@ -62,12 +54,28 @@ class Geocoding with ChangeNotifier {
       }
 
       final decoded = json.decode(response.body);
-      final geocodeResponse = NominatimAddress.fromJson(decoded);
+      final geocodeResponse = PhotonAddress.fromJson(decoded["features"][0]);
+
+      // Example DisplayName: "Andreas-Pfitzmann-Bau, Nöthnitzer Straße 46, Räcknitz, 01187, Dresden, Sachsen, Deutschland"
+      var displayName = "";
+      if (geocodeResponse.name != null) displayName += "${geocodeResponse.name}, ";
+
+      // Only show house number if street is also present
+      if (geocodeResponse.street != null && geocodeResponse.houseNumber != null) {
+        displayName += "${geocodeResponse.street} ${geocodeResponse.houseNumber}, ";
+      } else if (geocodeResponse.street != null) {
+        displayName += "${geocodeResponse.street}, ";
+      }
+      if (geocodeResponse.district != null) displayName += "${geocodeResponse.district}, ";
+      if (geocodeResponse.postcode != null) displayName += "${geocodeResponse.postcode}, ";
+      if (geocodeResponse.city != null) displayName += "${geocodeResponse.city}, ";
+      if (geocodeResponse.state != null) displayName += "${geocodeResponse.state}, ";
+      if (geocodeResponse.country != null) displayName += "${geocodeResponse.country}";
 
       isFetchingAddress = false;
       hadErrorDuringFetch = false;
       notifyListeners();
-      return geocodeResponse.displayName;
+      return displayName;
     } catch (error) {
       final hint = "Error during reverse geocode: $error";
       log.e(hint);

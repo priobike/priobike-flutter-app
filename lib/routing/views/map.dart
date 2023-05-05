@@ -23,6 +23,7 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
@@ -701,7 +702,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
-    await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
+    final waypoint = Waypoint(latitude, longitude, address: address);
+    await routing.addWaypoint(waypoint);
+    await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
   }
 
