@@ -104,7 +104,7 @@ class Geosearch with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Delete the search history from the device.
+  /// Delete the search history from the SharedPreferences.
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
@@ -116,10 +116,9 @@ class Geosearch with ChangeNotifier {
       log.e("Unknown backend used for geosearch: $backend");
     }
     searchHistory = [];
-    notifyListeners();
   }
 
-  /// Initialize the search history from the shared preferences by decoding it from a String List.
+  /// Initialize the search history from the SharedPreferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
