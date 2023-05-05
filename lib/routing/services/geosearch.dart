@@ -46,18 +46,11 @@ class Geosearch with ChangeNotifier {
 
       // Add custom bounding box to limit search results
       final boundingBox = getBoundingBox();
-      final positionLat = getIt<Positioning>().lastPosition?.latitude;
-      final positionLon = getIt<Positioning>().lastPosition?.longitude;
-
-      if (positionLat != null && positionLon != null && boundingBox.isNotEmpty) {
-        url += "&lat=$positionLat";
-        url += "&lon=$positionLon";
-
+      if (boundingBox.isNotEmpty) {
         final minLon = boundingBox["minLon"];
         final maxLon = boundingBox["maxLon"];
         final minLat = boundingBox["minLat"];
         final maxLat = boundingBox["maxLat"];
-
         url += "&bbox=$minLon,$minLat,$maxLon,$maxLat";
       }
 
