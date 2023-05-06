@@ -991,6 +991,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1"
+  wearable_communicator:
+    dependency: "direct main"
+    description:
+      name: wearable_communicator
+      sha256: "67ca73507651316d9ba8047a5ef1dddc044a9f3b41d500fb0f2a3866bb0b1759"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   win32:
     dependency: transitive
     description:

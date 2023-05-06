@@ -19,6 +19,7 @@ import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/settings/views/wear_communication_test.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
@@ -171,6 +172,15 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     const HSpace(),
                     SubHeader(text: "Interne Features", context: context),
                   ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Wear OS Communication test",
+                    icon: Icons.tab_outlined,
+                    callback: () => Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => const WearCommunicationTestView())),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
