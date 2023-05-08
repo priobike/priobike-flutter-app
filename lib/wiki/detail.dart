@@ -39,10 +39,35 @@ class WikiDetailViewState extends State<WikiDetailView> {
   /// Timer used for the delay of startAnimation function.
   Timer? startAnimationTimer;
 
+  /// Timer used for the delay of startAnimation function.
+  Timer? bikeAnimationTimer;
+
+  /// Bike image number for bike animation.
+  int bikeImageNumber = 0;
+
+  /// Bike position left used for animation.
+  double posLeft = -5;
+
+  /// Int used for the page number.
+  int page = 0;
+
+  /// Duration used for the bike and statusBar animation.
+  final Duration animationDuration = const Duration(milliseconds: 2250);
+
   @override
   void initState() {
     super.initState();
     _showAnimation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // PreCache images for bike animation.
+    for (int i = 0; i <= 8; i++) {
+      precacheImage(AssetImage("assets/images/wiki/bike$i.png"), context);
+    }
   }
 
   /// Functions that checks if a hint for the page slide is needed.
@@ -68,6 +93,22 @@ class WikiDetailViewState extends State<WikiDetailView> {
         });
       });
     }
+  }
+
+  /// Function that starts the bike animation.
+  _startBikeAnimation() {
+    if (bikeAnimationTimer != null && bikeAnimationTimer!.isActive) {
+      bikeAnimationTimer!.cancel();
+    }
+    // Timer going through the 9 animations and stopping after.
+    bikeAnimationTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+      if (bikeImageNumber + 1 == 9) {
+        timer.cancel();
+      }
+      setState(() {
+        bikeImageNumber = (bikeImageNumber + 1) % 9;
+      });
+    });
   }
 
   /// Widget that displays the text.
@@ -104,14 +145,65 @@ class WikiDetailViewState extends State<WikiDetailView> {
     );
   }
 
-  /// Widget that displays the final page.
-  Widget _finalPageItem() {
-    return Padding(
-      // Padding bottom 20 + AppBackButton height.
-      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20 + 64),
-      child: Center(
-        child: SubHeader(text: "Final Page", context: context),
+  /// Widget that displays a statusBar item.
+  Widget _statusBarItem(int index) {
+    return Expanded(
+      child: AnimatedContainer(
+        height: 10,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          color: index <= page
+              ? Theme.of(context).brightness == Brightness.light
+                  ? Colors.black
+                  : Colors.white
+              : Colors.transparent,
+        ),
+        duration: animationDuration,
       ),
+    );
+  }
+
+  /// Widget that displays the statusBar.
+  Widget _statusBar(MediaQueryData frame) {
+    List<Widget> statusBarItems =
+        widget.article.paragraphs.map((e) => _statusBarItem(widget.article.paragraphs.indexOf(e))).toList();
+
+    // Add title page.
+    statusBarItems.add(_statusBarItem(widget.article.paragraphs.length));
+
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              AnimatedPositioned(
+                left: posLeft,
+                bottom: -8,
+                duration: animationDuration,
+                curve: Curves.easeInOutCubic,
+                child: Image(
+                  height: 54,
+                  width: 54,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                  image: AssetImage(
+                    "assets/images/wiki/bike$bikeImageNumber.png",
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+          width: frame.size.width,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: statusBarItems,
+          ),
+        )
+      ],
     );
   }
 
@@ -122,13 +214,15 @@ class WikiDetailViewState extends State<WikiDetailView> {
     // Cancel timer.
     showAnimationTimer?.cancel();
     startAnimationTimer?.cancel();
+    bikeAnimationTimer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> pageViewItems = [_titleItem(widget.article.title, widget.article.subTitle)];
     pageViewItems.addAll(widget.article.paragraphs.map((text) => _textItem(text)).toList());
-    pageViewItems.add(_finalPageItem());
+
+    final frame = MediaQuery.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
@@ -143,8 +237,14 @@ class WikiDetailViewState extends State<WikiDetailView> {
               Row(
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
-                  const HSpace(),
-                  SubHeader(text: "Statusbar", context: context),
+                  Expanded(
+                    child: SizedBox(
+                      height: 64,
+                      width: frame.size.width,
+                      child: _statusBar(frame),
+                    ),
+                  ),
+                  const SmallHSpace(),
                 ],
               ),
               Expanded(
@@ -156,8 +256,12 @@ class WikiDetailViewState extends State<WikiDetailView> {
                         didSlidePage = true;
                         showIcon = false;
                         positionRight = startPositionRight;
+                        // ((( screen width - AppBackButton - 4 padding) / number of pages ) * index ) - padding left (caused by image animation).
+                        posLeft = (((frame.size.width - 64 - 4) / (widget.article.paragraphs.length + 1)) * index) - 5;
+                        page = index;
                       });
                       startAnimationTimer?.cancel();
+                      _startBikeAnimation();
                     },
                   ),
                   AnimatedPositioned(
