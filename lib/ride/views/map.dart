@@ -203,7 +203,7 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
-    if (userPosSnap == null || userPos == null) {
+    if (userPos == null || userPosSnap == null) {
       final startPointLon = routing.selectedRoute!.route.first.lon;
       final startPointLat = routing.selectedRoute!.route.first.lat;
       final secondPointLon = routing.selectedRoute!.route[1].lon;
