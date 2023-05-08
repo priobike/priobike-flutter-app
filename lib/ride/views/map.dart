@@ -201,8 +201,25 @@ class RideMapViewState extends State<RideMapView> {
     final userPos = getIt<Positioning>().lastPosition;
     final userPosSnap = positioning.snap;
 
-    if (userPos == null || userPosSnap == null) {
-      await mapController?.setBounds(mapbox.CameraBoundsOptions(bounds: routing.selectedRoute!.paddedBounds));
+    if (userPosSnap == null || userPos == null) {
+      final currentCameraOptions = await mapController!.getCameraState();
+      final cameraOptionsForBounds = await mapController!.cameraForCoordinateBounds(
+        routing.selectedRoute!.paddedBounds,
+        currentCameraOptions.padding,
+        currentCameraOptions.bearing,
+        currentCameraOptions.pitch,
+      );
+      final adaptedCameraOptionsForBounds = mapbox.CameraOptions(
+        center: cameraOptionsForBounds.center,
+        zoom: (cameraOptionsForBounds.zoom ?? 16) * (settings.saveBatteryModeEnabled ? 0.85 : 1),
+        bearing: cameraOptionsForBounds.bearing,
+        pitch: cameraOptionsForBounds.pitch,
+        padding: cameraOptionsForBounds.padding,
+      );
+      await mapController?.flyTo(
+        adaptedCameraOptionsForBounds,
+        mapbox.MapAnimationOptions(duration: 1000),
+      );
       return;
     }
 
