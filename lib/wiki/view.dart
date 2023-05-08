@@ -12,7 +12,7 @@ class WikiView extends StatefulWidget {
 class WikiViewState extends State<WikiView> {
   /// PageController.
   final PageController pageController = PageController(
-    viewportFraction: 0.85,
+    viewportFraction: 0.9,
     initialPage: 0,
   );
 

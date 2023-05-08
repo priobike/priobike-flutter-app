@@ -21,7 +21,7 @@ class WikiCardState extends State<WikiCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      margin: const EdgeInsets.only(left: 5, right: 5, bottom: 20),
       child: Tile(
         borderRadius: const BorderRadius.all(
           Radius.circular(14),
