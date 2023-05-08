@@ -17,25 +17,32 @@ class WearCommunicationTestViewState extends State<WearCommunicationTestView> {
 
   final textController = TextEditingController();
 
+  Function? stopListening;
+
   @override
   void initState() {
     super.initState();
     _startListening();
   }
 
-  void _startListening() {
-    // msg is either a Map<String, dynamic> or a string (make sure to check for that when using the library)
-    WearableListener.listenForMessage((msg) {
+  Future<void> _startListening() async {
+    stopListening = await WearableListener.listenForMessage((msg) {
       setState(() {
         messageReceived = msg;
       });
     });
   }
 
-  void _onSend(){
+  void _onSend() {
     WearableCommunicator.sendMessage({
       "text": textController.text,
     });
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    stopListening != null ? stopListening!() : null;
   }
 
   @override
