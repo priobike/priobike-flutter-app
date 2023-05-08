@@ -201,12 +201,23 @@ class RideMapViewState extends State<RideMapView> {
     final userPos = getIt<Positioning>().lastPosition;
     final userPosSnap = positioning.snap;
 
+    const vincenty = Distance(roundResult: false);
+
     if (userPos == null || userPosSnap == null) {
-      await mapController?.setBounds(mapbox.CameraBoundsOptions(bounds: routing.selectedRoute!.paddedBounds));
+      final startPointLon = routing.selectedRoute!.route.first.lon;
+      final startPointLat = routing.selectedRoute!.route.first.lat;
+      final secondPointLon = routing.selectedRoute!.route[1].lon;
+      final secondPointLat = routing.selectedRoute!.route[1].lat;
+      final bearingStart =
+          vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
+      final cameraOptions = mapbox.CameraOptions(
+        center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
+        zoom: 16,
+        bearing: bearingStart,
+      );
+      await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
       return;
     }
-
-    const vincenty = Distance(roundResult: false);
 
     // Calculate the bearing to the next traffic light.
     double? sgBearing = sgPosLatLng == null ? null : vincenty.bearing(userPosSnap.position, sgPosLatLng);
