@@ -208,12 +208,12 @@ class RideMapViewState extends State<RideMapView> {
       final startPointLat = routing.selectedRoute!.route.first.lat;
       final secondPointLon = routing.selectedRoute!.route[1].lon;
       final secondPointLat = routing.selectedRoute!.route[1].lat;
-      final snappedBearing =
+      final bearingStart =
           vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
       final cameraOptions = mapbox.CameraOptions(
         center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
         zoom: 16,
-        bearing: snappedBearing,
+        bearing: bearingStart,
       );
       await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
       return;
