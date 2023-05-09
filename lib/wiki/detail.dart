@@ -52,7 +52,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
   int page = 0;
 
   /// Duration used for the bike and statusBar animation.
-  final Duration animationDuration = const Duration(milliseconds: 2250);
+  final Duration animationDuration = const Duration(milliseconds: 1000);
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
       bikeAnimationTimer!.cancel();
     }
     // Timer going through the 9 animations and stopping after.
-    bikeAnimationTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+    bikeAnimationTimer = Timer.periodic(const Duration(milliseconds: 125), (timer) {
       if (bikeImageNumber + 1 == 9) {
         timer.cancel();
       }
@@ -260,7 +260,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                           showIcon = false;
                           positionRight = startPositionRight;
                           // ((( screen width - 20 padding) / number of pages ) * index ) + padding left.
-                          posLeft = (((frame.size.width - 20) / (widget.article.paragraphs.length)) * index) + 5;
+                          posLeft = (((frame.size.width - 50) / (widget.article.paragraphs.length)) * index) + 3;
                           page = index;
                         });
                         startAnimationTimer?.cancel();
@@ -290,8 +290,8 @@ class WikiDetailViewState extends State<WikiDetailView> {
                 Container(
                   height: 64,
                   width: frame.size.width,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  margin: const EdgeInsets.only(bottom: 10),
+                  color: Theme.of(context).colorScheme.background,
+                  padding: const EdgeInsets.only(left: 25, right: 25, bottom: 10, top: 0),
                   child: _statusBar(frame),
                 ),
               ],
