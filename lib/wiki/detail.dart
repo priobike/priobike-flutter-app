@@ -115,7 +115,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
   Widget _textItem(String text) {
     return Padding(
       // Padding bottom 20 + AppBackButton height.
-      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20 + 64),
+      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20),
       child: Center(
         child: SubHeader(
           text: text,
@@ -227,7 +227,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                         child: Container(
                           width: frame.size.width,
                           color: Theme.of(context).colorScheme.background,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -237,7 +237,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                                 context: context,
                                 textAlign: TextAlign.left,
                               ),
-                              Content(
+                              Small(
                                 text: widget.article.subtitle,
                                 context: context,
                                 textAlign: TextAlign.left,
@@ -268,7 +268,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
                       },
                     ),
                     AnimatedPositioned(
-                      bottom: 100,
+                      bottom: 50,
                       right: positionRight,
                       onEnd: () {
                         setState(() {
