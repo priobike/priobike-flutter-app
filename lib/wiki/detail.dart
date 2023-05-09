@@ -46,7 +46,7 @@ class WikiDetailViewState extends State<WikiDetailView> {
   int bikeImageNumber = 0;
 
   /// Bike position left used for animation.
-  double posLeft = -5;
+  double posLeft = 5;
 
   /// Int used for the page number.
   int page = 0;
@@ -224,33 +224,29 @@ class WikiDetailViewState extends State<WikiDetailView> {
                     children: [
                       AppBackButton(onPressed: () => Navigator.pop(context)),
                       Expanded(
-                        child: SizedBox(
-                          height: 64,
+                        child: Container(
                           width: frame.size.width,
-                          child: _statusBar(frame),
+                          color: Theme.of(context).colorScheme.background,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              BoldContent(
+                                text: widget.article.title,
+                                context: context,
+                                textAlign: TextAlign.left,
+                              ),
+                              Content(
+                                text: widget.article.subtitle,
+                                context: context,
+                                textAlign: TextAlign.left,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SmallHSpace(),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: frame.size.width,
-                  color: Theme.of(context).colorScheme.background,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BoldContent(
-                        text: widget.article.title,
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
-                      Content(
-                        text: widget.article.subtitle,
-                        context: context,
-                        textAlign: TextAlign.center,
-                      ),
                     ],
                   ),
                 ),
@@ -263,8 +259,8 @@ class WikiDetailViewState extends State<WikiDetailView> {
                           didSlidePage = true;
                           showIcon = false;
                           positionRight = startPositionRight;
-                          // ((( screen width - AppBackButton - 4 padding) / number of pages ) * index ) - padding left (caused by image animation).
-                          posLeft = (((frame.size.width - 64 - 4) / (widget.article.paragraphs.length)) * index) - 5;
+                          // ((( screen width - 20 padding) / number of pages ) * index ) + padding left.
+                          posLeft = (((frame.size.width - 20) / (widget.article.paragraphs.length)) * index) + 5;
                           page = index;
                         });
                         startAnimationTimer?.cancel();
@@ -290,6 +286,13 @@ class WikiDetailViewState extends State<WikiDetailView> {
                           : Container(),
                     ),
                   ]),
+                ),
+                Container(
+                  height: 64,
+                  width: frame.size.width,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: _statusBar(frame),
                 ),
               ],
             ),
