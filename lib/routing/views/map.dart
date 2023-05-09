@@ -291,17 +291,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
 
-    MbxEdgeInsets insetsAndroid = MbxEdgeInsets(
-        // (AppBackButton height + top padding) * devicePixelRatio
-        top: (64 + 16 + frame.padding.top) * frame.devicePixelRatio,
-        left: 0,
-        // (BottomSheet height + bottom padding) * devicePixelRatio
-        bottom: (116 + frame.padding.bottom) * frame.devicePixelRatio,
-        right: 0);
+    MbxEdgeInsets padding = MbxEdgeInsets(
+      // (AppBackButton height + top padding) * devicePixelRatio
+      top: (80 + frame.padding.top) * frame.devicePixelRatio,
+      // AppBackButton width * devicePixelRatio
+      left: 75 * frame.devicePixelRatio,
+      // (BottomSheet + bottom padding) * devicePixelRatio
+      bottom: (140 + frame.padding.bottom) * frame.devicePixelRatio,
+      right: 0,
+    );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
-      Platform.isIOS ? currentCameraOptions.padding : insetsAndroid,
+      padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
