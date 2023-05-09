@@ -12,8 +12,8 @@ final Article articleDataFailures =
 ]);
 
 /// Article about switching programs.
-final Article articleSwitchingPrograms = Article("Der Tanz mit Ampeln",
-    "Statische und Dynamische Schaltprogramme", "3 min.", "assets/images/wiki/traffic_light_dance.png", [
+final Article articleSwitchingPrograms = Article("Der Tanz mit Ampeln", "Statische und Dynamische Schaltprogramme",
+    "4 min.", "assets/images/wiki/traffic_light_dance.png", [
   "Hast du schon mal versucht, eine Ampel zu überlisten, indem du schneller fährst, als es das Gelblicht erlaubt? Ich meine, wer hat das nicht schon mal gemacht, oder? Aber wusstest du, dass es einen großen Unterschied zwischen statischen und dynamischen Ampelprogrammen gibt und dass das deine Fähigkeit, eine Ampel zu überlisten, beeinflussen kann?",
   "Bei statischen Ampelprogrammen weißt du genau, wann das Grünlicht kommt und wie lange es dauert. Das bedeutet, dass du mit der PrioBike-App genau berechnen kannst, wie schnell du fahren musst, um die Ampel bei Grün zu erreichen. Es ist wie ein perfekter Tanz, bei dem du genau weißt, wann du die Schritte machen musst.",
   "Aber bei dynamischen Ampelprogrammen ist das Ganze viel schwieriger. Denn hier weißt du nicht immer genau, wann das Grünlicht kommt. Manchmal ändert sich die Dauer der Grünphase aufgrund von Bussen oder anderen Verkehrsteilnehmern, die die Ampel anfordern. Es ist wie eine unvorhersehbare Tanzparty, bei der du nie weißt, wann das Lied endet oder wer als nächstes tanzen wird.",
@@ -23,8 +23,8 @@ final Article articleSwitchingPrograms = Article("Der Tanz mit Ampeln",
 ]);
 
 /// Article about the SG selector.
-final Article articleSGSelector = Article("Die Ampel-Fee",
-    "Wie unsere App die richtigen Ampeln für dich auswählt", "4 min.", "assets/images/wiki/traffic_light_fairy.png", [
+final Article articleSGSelector = Article("Die Ampel-Fee", "Wie unsere App die richtigen Ampeln für dich auswählt",
+    "2 min.", "assets/images/wiki/traffic_light_fairy.png", [
   "Wisst ihr eigentlich, wie wir bei unserer Fahrradfahrer-App die Ampeln entlang eurer Route auswählen? Keine Sorge, wir haben nicht etwa eine Horde an Affen mit Dartscheiben beauftragt, sondern setzen auf modernste Technologie.",
   "Hier kommt unser spezielles Verfahren zum Einsatz, welches automatisch die passenden Ampeln auswählt. Dabei nutzen wir immer die Radfahrerampeln, um euch die bestmöglichen Empfehlungen zu geben.",
   "Aber Vorsicht: Solltet ihr mal auf der Straße statt dem Fahrradweg fahren, kann es sein, dass ihr Empfehlungen für die daneben stehende Fahrradfahrerampel bekommt. Kein Grund zur Panik, das ist kein Fehler - wir wollen schließlich sicherstellen, dass ihr immer auf dem richtigen Weg seid.",
@@ -34,7 +34,7 @@ final Article articleSGSelector = Article("Die Ampel-Fee",
 
 /// Article about PrioBike
 final Article articlePrioBike = Article(
-    "PrioBike", "Wenn Radfahren zur Raketenwissenschaft wird", "4 min.", "assets/images/wiki/rocket_science.png", [
+    "PrioBike", "Wenn Radfahren zur Raketenwissenschaft wird", "3 min.", "assets/images/wiki/rocket_science.png", [
   "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will. Das Projekt ist ist so cool, dass man fast vergisst, dass es sich um Stadtplanung handelt.",
   "Unser neuestes Feature ist die \"Grüne Welle\" entlang dreier Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer dynamischen Ampelschaltung, die euch bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen, weiß ich auch nicht weiter.",
   "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung. Das bedeutet, dass ihr nicht nur wisst, wie schnell ihr fahren sollt, um möglichst viele Grünsignale zu erwischen, sondern auch wie lange ihr für eure Strecke braucht. Das ist fast so cool wie ein Fahrrad mit Raketenantrieb.",

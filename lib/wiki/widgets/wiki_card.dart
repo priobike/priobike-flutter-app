@@ -57,7 +57,10 @@ class WikiCardState extends State<WikiCard> {
                         ),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Small(text: "${widget.article.subtitle} - ${widget.article.estimatedTime}", color: Colors.grey, context: context),
+                          child: Small(
+                              text: "${widget.article.subtitle} - ${widget.article.estimatedTime}",
+                              color: Colors.grey,
+                              context: context),
                         ),
                       ],
                     ),
