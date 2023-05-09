@@ -133,6 +133,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
               ],
             ),
+            const VSpace(),
             Content(text: "Kartendesign", context: context),
             const SmallVSpace(),
             GridView.count(
