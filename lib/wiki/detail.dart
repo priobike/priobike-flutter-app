@@ -70,9 +70,9 @@ class WikiDetailViewState extends State<WikiDetailView> {
     }
   }
 
-  /// Functions that checks if a hint for the page slide is needed.
+  /// Function that checks if a hint for the page slide is needed and starts the animation if so.
   _showAnimation() {
-    showAnimationTimer = Timer(const Duration(milliseconds: 3000), () {
+    showAnimationTimer = Timer(const Duration(seconds: 15), () {
       if (!didSlidePage) {
         setState(() {
           showIcon = true;
@@ -101,7 +101,8 @@ class WikiDetailViewState extends State<WikiDetailView> {
       bikeAnimationTimer!.cancel();
     }
     // Timer going through the 9 animations and stopping after.
-    bikeAnimationTimer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+    bikeAnimationTimer =
+        Timer.periodic(const Duration(milliseconds: 250), (timer) {
       if (bikeImageNumber + 1 == 9) {
         timer.cancel();
       }
@@ -111,36 +112,18 @@ class WikiDetailViewState extends State<WikiDetailView> {
     });
   }
 
-  /// Widget that displays the text.
+  /// Widget that displays the text item.
   Widget _textItem(String text) {
     return Padding(
       // Padding bottom 20 + AppBackButton height.
-      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20 + 64),
+      padding:
+          const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20 + 64),
       child: Center(
         child: SubHeader(
           text: text,
           context: context,
+          textAlign: TextAlign.center,
         ),
-      ),
-    );
-  }
-
-  /// Widget that displays the title.
-  Widget _titleItem(String title, String subTitle) {
-    return Padding(
-      // Padding bottom 20 + AppBackButton height.
-      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20 + 64),
-      child: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Header(
-              text: title,
-              context: context,
-            ),
-          ),
-          SubHeader(text: subTitle, context: context),
-        ]),
       ),
     );
   }
@@ -152,7 +135,10 @@ class WikiDetailViewState extends State<WikiDetailView> {
         height: 10,
         margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
+          border: Border.all(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.black
+                  : Colors.white),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           color: index <= page
               ? Theme.of(context).brightness == Brightness.light
@@ -167,11 +153,9 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
   /// Widget that displays the statusBar.
   Widget _statusBar(MediaQueryData frame) {
-    List<Widget> statusBarItems =
-        widget.article.paragraphs.map((e) => _statusBarItem(widget.article.paragraphs.indexOf(e))).toList();
-
-    // Add title page.
-    statusBarItems.add(_statusBarItem(widget.article.paragraphs.length));
+    List<Widget> statusBarItems = widget.article.paragraphs
+        .map((e) => _statusBarItem(widget.article.paragraphs.indexOf(e)))
+        .toList();
 
     return Column(
       children: [
@@ -186,7 +170,9 @@ class WikiDetailViewState extends State<WikiDetailView> {
                 child: Image(
                   height: 54,
                   width: 54,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
                   image: AssetImage(
                     "assets/images/wiki/bike$bikeImageNumber.png",
                   ),
@@ -219,74 +205,104 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> pageViewItems = [_titleItem(widget.article.title, widget.article.subTitle)];
-    pageViewItems.addAll(widget.article.paragraphs.map((text) => _textItem(text)).toList());
+    List<Widget> pageViewItems =
+        widget.article.paragraphs.map((text) => _textItem(text)).toList();
 
     final frame = MediaQuery.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark
+          : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                  Expanded(
-                    child: SizedBox(
-                      height: 64,
-                      width: frame.size.width,
-                      child: _statusBar(frame),
-                    ),
-                  ),
-                  const SmallHSpace(),
-                ],
-              ),
-              Expanded(
-                child: Stack(children: [
-                  PageView(
-                    children: pageViewItems,
-                    onPageChanged: (index) {
-                      setState(() {
-                        didSlidePage = true;
-                        showIcon = false;
-                        positionRight = startPositionRight;
-                        // ((( screen width - AppBackButton - 4 padding) / number of pages ) * index ) - padding left (caused by image animation).
-                        posLeft = (((frame.size.width - 64 - 4) / (widget.article.paragraphs.length + 1)) * index) - 5;
-                        page = index;
-                      });
-                      startAnimationTimer?.cancel();
-                      _startBikeAnimation();
-                    },
-                  ),
-                  AnimatedPositioned(
-                    bottom: 100,
-                    right: positionRight,
-                    onEnd: () {
-                      setState(() {
-                        positionRight = startPositionRight;
-                      });
-                      _startAnimation(const Duration(milliseconds: 500));
-                    },
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOut,
-                    child: showIcon
-                        ? const Icon(
-                            Icons.arrow_forward,
-                            size: 64,
-                          )
-                        : Container(),
-                  ),
-                ]),
-              ),
-            ],
+        body: Stack(children: [
+          Container(
+            // Top bar + padding.
+            height: frame.padding.top + 8,
+            width: frame.size.width,
+            color: Theme.of(context).colorScheme.background,
           ),
-        ),
+          SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Container(
+                  color: Theme.of(context).colorScheme.background,
+                  child: Row(
+                    children: [
+                      AppBackButton(onPressed: () => Navigator.pop(context)),
+                      Expanded(
+                        child: SizedBox(
+                          height: 64,
+                          width: frame.size.width,
+                          child: _statusBar(frame),
+                        ),
+                      ),
+                      const SmallHSpace(),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 64,
+                  width: frame.size.width,
+                  color: Theme.of(context).colorScheme.background,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BoldContent(text: widget.article.title, context: context),
+                      Content(text: widget.article.subtitle, context: context),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Stack(children: [
+                    PageView(
+                      children: pageViewItems,
+                      onPageChanged: (index) {
+                        setState(() {
+                          didSlidePage = true;
+                          showIcon = false;
+                          positionRight = startPositionRight;
+                          // ((( screen width - AppBackButton - 4 padding) / number of pages ) * index ) - padding left (caused by image animation).
+                          posLeft = (((frame.size.width - 64 - 4) /
+                                      (widget.article.paragraphs.length)) *
+                                  index) -
+                              5;
+                          page = index;
+                        });
+                        startAnimationTimer?.cancel();
+                        _startBikeAnimation();
+                      },
+                    ),
+                    AnimatedPositioned(
+                      bottom: 100,
+                      right: positionRight,
+                      onEnd: () {
+                        setState(() {
+                          positionRight = startPositionRight;
+                        });
+                        _startAnimation(const Duration(milliseconds: 500));
+                      },
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOut,
+                      child: showIcon
+                          ? const Icon(
+                              Icons.arrow_forward,
+                              size: 64,
+                            )
+                          : Container(),
+                    ),
+                  ]),
+                ),
+              ],
+            ),
+          ),
+        ]),
       ),
     );
   }
