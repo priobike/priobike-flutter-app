@@ -268,8 +268,6 @@ class Routing with ChangeNotifier {
     if (profile.bikeType == BikeType.mountainbike) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.mtbFastest;
-      } else if (profile.preferenceType == PreferenceType.short) {
-        return RoutingProfile.mtbShortest;
       } else {
         return RoutingProfile.mtbDefault;
       }
@@ -277,8 +275,6 @@ class Routing with ChangeNotifier {
     if (profile.bikeType == BikeType.racingbike) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.racingbikeFastest;
-      } else if (profile.preferenceType == PreferenceType.short) {
-        return RoutingProfile.racingbikeShortest;
       } else {
         return RoutingProfile.racingbikeDefault;
       }
@@ -288,8 +284,6 @@ class Routing with ChangeNotifier {
     if (profile.activityType == ActivityType.allowIncline) {
       if (profile.preferenceType == PreferenceType.fast) {
         return RoutingProfile.bikeFastest;
-      } else if (profile.preferenceType == PreferenceType.short) {
-        return RoutingProfile.bikeShortest;
       } else {
         return RoutingProfile.bikeDefault;
       }
@@ -297,8 +291,6 @@ class Routing with ChangeNotifier {
 
     if (profile.preferenceType == PreferenceType.fast) {
       return RoutingProfile.bike2Fastest;
-    } else if (profile.preferenceType == PreferenceType.short) {
-      return RoutingProfile.bike2Shortest;
     } else {
       return RoutingProfile.bike2Default;
     }

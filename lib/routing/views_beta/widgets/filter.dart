@@ -236,34 +236,6 @@ class FilterSelectionViewState extends State<FilterSelectionView> {
               child: TextButton(
                 onPressed: () {
                   setState(() {
-                    profile.preferenceType = PreferenceType.short;
-                    profile.store();
-                  });
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: profile.preferenceType == PreferenceType.short
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.background,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(0),
-                    ),
-                  ),
-                  side: const BorderSide(width: 1, color: Colors.black),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Content(
-                      text: "Kurz",
-                      context: context,
-                      color: profile.preferenceType == PreferenceType.short ? Colors.white : null),
-                ),
-              ),
-            ),
-            Expanded(
-              child: TextButton(
-                onPressed: () {
-                  setState(() {
                     profile.preferenceType = PreferenceType.comfortible;
                     profile.store();
                   });

@@ -60,13 +60,31 @@ class Profile with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final bikeTypeStr = storage.getString("priobike.home.profile.bike");
-    if (bikeTypeStr != null) bikeType = BikeType.values.byName(bikeTypeStr);
+    if (bikeTypeStr != null) {
+      try {
+        bikeType = BikeType.values.byName(bikeTypeStr);
+      } catch (e) {
+        bikeType = null;
+      }
+    }
 
     final preferenceTypeStr = storage.getString("priobike.home.profile.preferences");
-    if (preferenceTypeStr != null) preferenceType = PreferenceType.values.byName(preferenceTypeStr);
+    if (preferenceTypeStr != null) {
+      try {
+        preferenceType = PreferenceType.values.byName(preferenceTypeStr);
+      } catch (e) {
+        preferenceType = null;
+      }
+    }
 
     final activityTypeStr = storage.getString("priobike.home.profile.activity");
-    if (activityTypeStr != null) activityType = ActivityType.values.byName(activityTypeStr);
+    if (activityTypeStr != null) {
+      try {
+        activityType = ActivityType.values.byName(activityTypeStr);
+      } catch (e) {
+        activityType = null;
+      }
+    }
 
     final searchHistoryStr = storage.getString("priobike.home.profile.searchHistory");
     if (searchHistoryStr != null) {

@@ -54,7 +54,6 @@ extension BikeTypeIcon on BikeType {
 
 enum PreferenceType {
   fast,
-  short,
   comfortible,
 }
 
@@ -63,8 +62,6 @@ extension PreferenceTypeDescription on PreferenceType {
     switch (this) {
       case PreferenceType.fast:
         return "Zeit";
-      case PreferenceType.short:
-        return "Distanz";
       case PreferenceType.comfortible:
         return "Komfort";
     }
@@ -76,8 +73,6 @@ extension PreferenceTypeColor on PreferenceType {
     switch (this) {
       case PreferenceType.fast:
         return const Color.fromRGBO(234, 32, 39, 1.0);
-      case PreferenceType.short:
-        return const Color.fromRGBO(6, 82, 221, 1.0);
       case PreferenceType.comfortible:
         return const Color.fromRGBO(163, 203, 56, 1.0);
     }
@@ -89,8 +84,6 @@ extension PreferenceTypeIcon on PreferenceType {
     switch (this) {
       case PreferenceType.fast:
         return Icons.access_time_rounded;
-      case PreferenceType.short:
-        return Icons.straighten_rounded;
       case PreferenceType.comfortible:
         return Icons.chair_rounded;
     }
