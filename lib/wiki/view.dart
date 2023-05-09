@@ -9,33 +9,24 @@ class WikiView extends StatefulWidget {
   WikiViewState createState() => WikiViewState();
 }
 
-class WikiViewState extends State<WikiView> {
+class WikiViewState extends State<WikiView> with TickerProviderStateMixin {
   /// PageController.
   final PageController pageController = PageController(
     viewportFraction: 0.9,
     initialPage: 0,
   );
 
+  /// TabController.
+  late TabController? tabController;
+
   /// Int that holds the state of the current page.
   int currentPage = 0;
 
-  /// Widget that displays the current page.
-  Widget _pageIndicator(int articles) {
-    List<Widget> indicators = List<Widget>.generate(
-      articles,
-      (index) => Container(
-        margin: const EdgeInsets.all(2.5),
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(
-            color: currentPage == index ? Theme.of(context).colorScheme.primary : Colors.grey, shape: BoxShape.circle),
-      ),
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: indicators,
-    );
+  @override
+  void initState() {
+    super.initState();
+    // tabController with number of articles.
+    tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -53,6 +44,7 @@ class WikiViewState extends State<WikiView> {
               onPageChanged: (int index) {
                 setState(() {
                   currentPage = index;
+                  tabController?.index = index;
                 });
               },
               children: [
@@ -78,7 +70,12 @@ class WikiViewState extends State<WikiView> {
           Container(
             alignment: Alignment.bottomCenter,
             padding: const EdgeInsets.only(bottom: 10),
-            child: _pageIndicator(4),
+            child: TabPageSelector(
+              controller: tabController,
+              selectedColor: Theme.of(context).colorScheme.primary,
+              borderStyle: BorderStyle.none,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),
