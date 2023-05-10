@@ -146,11 +146,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         break;
       }
     }
-    log.i("layersBeforeAdded: $layersBeforeAdded");
-    log.i("firstBaseMapLabelLayerIndex: $firstBaseMapLabelLayerIndex");
-    for (final layer in currentLayers) {
-      log.i("layer: ${layer?.id}");
-    }
     // Add the layer on top of our layers that are before it and below the label layers.
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
