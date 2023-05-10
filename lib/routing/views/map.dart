@@ -602,7 +602,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final layerId = layer?.id ?? "";
       return layerId.contains("-label");
     });
-    log.i("First label: $firstLabel");
     // If there are no label layers in the style we want to start adding on top of the last layer.
     if (firstLabel == null) {
       firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
