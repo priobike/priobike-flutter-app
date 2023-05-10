@@ -605,25 +605,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final layerId = layer?.id ?? "";
       return layerId.contains("-label");
     });
+    // If there are no label layers in the style we want to start adding on top of the last layer.
+    if (firstLabel == null) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
+    }
     final firstLabelIndex = layers.indexOf(firstLabel);
     // If there are no label layers in the style we want to start adding on top of the last layer.
-    if (firstLabelIndex != -1) {
-      firstBaseMapLabelLayerIndex = firstLabelIndex;
-    } else {
-      firstBaseMapLabelLayerIndex = layers.length - 1;
+    if (firstLabelIndex == -1) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
     }
+
+    firstBaseMapLabelLayerIndex = firstLabelIndex;
   }
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
     mapController = controller;
-
-    getFirstLabelLayer();
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+
+    await getFirstLabelLayer();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
