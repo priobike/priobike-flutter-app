@@ -30,6 +30,7 @@ class WaypointListItemView extends StatefulWidget {
     required this.waypoint,
     this.distance,
     required this.showHistoryIcon,
+    this.distance,
     Key? key,
   }) : super(key: key);
 
