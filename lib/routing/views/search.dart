@@ -27,8 +27,8 @@ class WaypointListItemView extends StatefulWidget {
 
   const WaypointListItemView({
     this.isCurrentPosition = false,
-    required this.waypoint,
     this.distance,
+    required this.waypoint,
     required this.showHistoryIcon,
     Key? key,
   }) : super(key: key);
@@ -84,11 +84,10 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   }
 
   /// A callback that is fired when a waypoint is tapped.
-  void tappedWaypoint(Waypoint waypoint) {
+  Future<void> tappedWaypoint(Waypoint waypoint) async {
     /// The current position is not saved in the search history.
-    if (!widget.isCurrentPosition) geosearch.addToSearchHistory(waypoint);
+    if (!widget.isCurrentPosition) await geosearch.addToSearchHistory(waypoint);
     geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
   }
 
   /// Delete a waypoint from the search history.
@@ -155,6 +154,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
             widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         onTap: () {
           tappedWaypoint(widget.waypoint);
+          Navigator.of(context).pop(widget.waypoint);
         },
         onLongPress: () {
           longPressWaypoint(widget.waypoint);
@@ -281,7 +281,7 @@ class RouteSearchState extends State<RouteSearch> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Gesamten Suchverlauf löschen"),
-          content: const Text("Möchtest du den gesamten Suchverlauf wirklich löschen?"),
+          content: const Text("Möchtest du den Suchverlauf wirklich löschen?"),
           actions: [
             TextButton(
               onPressed: () {
