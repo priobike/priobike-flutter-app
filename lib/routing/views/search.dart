@@ -72,6 +72,8 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   /// A callback that is fired when a history item is long pressed.
   Future<void> longPressWaypoint(Waypoint waypoint) async {
+    // Long press is only available for history items, not search results.
+    if (widget.showHistoryIcon == false) return;
     showDeleteIcon = true;
     setState(() {});
 
@@ -89,83 +91,96 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     Navigator.of(context).pop(waypoint);
   }
 
-  void deleteWaypointFromHistory(Waypoint waypoint) {
-    geosearch.removeItemFromSearchHistory(waypoint);
+  /// Delete a waypoint from the search history.
+  Future<void> deleteWaypointFromHistory(Waypoint waypoint) async {
+    await geosearch.removeItemFromSearchHistory(waypoint);
     setState(() {});
+  }
+
+  /// Generic function to render history items, search results and current position.
+  Widget renderItem() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 12),
+      child: ListTile(
+        leading: (widget.showHistoryIcon)
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.history,
+                  ),
+                ],
+              )
+            : null,
+        title: (widget.isCurrentPosition)
+            ? BoldSubHeader(
+                text: "Aktueller Standort",
+                context: context,
+                color: Colors.white,
+              )
+            : BoldSmall(
+                text: widget.waypoint.address!,
+                context: context,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+        subtitle: widget.isCurrentPosition
+            ? null
+            : (widget.distance == null)
+                ? null
+                : (widget.distance! >= 1000)
+                    ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                    : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
+        trailing: (showDeleteIcon == true && widget.isCurrentPosition == false && widget.showHistoryIcon == true)
+            // if trying to delete item
+            ? IconButton(
+                onPressed: () {
+                  deleteWaypointFromHistory(widget.waypoint);
+                },
+                icon: Icon(
+                  Icons.delete,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            // if ready to use item (default)
+            : Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Icon(
+                  widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
+                  color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
+                ),
+              ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        tileColor:
+            widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
+        onTap: () {
+          tappedWaypoint(widget.waypoint);
+        },
+        onLongPress: () {
+          longPressWaypoint(widget.waypoint);
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: Key(widget.waypoint.hashCode.toString()),
-      onDismissed: (direction) {
-        deleteWaypointFromHistory(widget.waypoint);
-      },
-      background: Container(color: Theme.of(context).colorScheme.primary),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListTile(
-          leading: (widget.showHistoryIcon)
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(
-                      Icons.history,
-                    ),
-                  ],
-                )
-              : null,
-          title: widget.isCurrentPosition
-              ? BoldSubHeader(
-                  text: "Aktueller Standort",
-                  context: context,
-                  color: Colors.white,
-                )
-              : BoldSmall(
-                  text: widget.waypoint.address!,
-                  context: context,
-                  color: Theme.of(context).colorScheme.onBackground,
-                ),
-          subtitle: widget.isCurrentPosition
-              ? null
-              : (widget.distance == null
-                  ? null
-                  : (widget.distance! >= 1000
-                      ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                      : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)))),
-          trailing: (showDeleteIcon == true && widget.isCurrentPosition == false)
-              // if trying to delete item
-              ? IconButton(
-                  onPressed: () {
-                    deleteWaypointFromHistory(widget.waypoint);
-                  },
-                  icon: Icon(
-                    Icons.delete,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                )
-              // if ready to use item (default)
-              : Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Icon(
-                    widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
-                    color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-          tileColor: widget.isCurrentPosition
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.background,
-          onTap: () {
-            tappedWaypoint(widget.waypoint);
-          },
-          onLongPress: () {
-            longPressWaypoint(widget.waypoint);
-          },
-        ),
-      ),
-    );
+    // Don't show history items if the user is already there
+    if (widget.showHistoryIcon == true && widget.distance != null && widget.distance! <= 10) return Container();
+
+    // If item is a history item, wrap it with dismissible
+    // If item is search result, just render it
+    return (widget.showHistoryIcon == true)
+        ? Dismissible(
+            key: Key(widget.waypoint.hashCode.toString()),
+            onDismissed: (direction) {
+              deleteWaypointFromHistory(widget.waypoint);
+            },
+            direction: DismissDirection.endToStart,
+            background: Container(color: Theme.of(context).colorScheme.primary),
+            child: renderItem(),
+          )
+        : renderItem();
   }
 }
 
@@ -259,6 +274,34 @@ class RouteSearchState extends State<RouteSearch> {
     return dictionary;
   }
 
+  /// Ask the user for confirmation if he wants to delete all waypoints from the search history.
+  Future<void> deleteSearchHistoryDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Gesamten Suchverlauf löschen"),
+          content: const Text("Möchtest du den gesamten Suchverlauf wirklich löschen?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Abbrechen"),
+            ),
+            TextButton(
+              onPressed: () {
+                geosearch.deleteSearchHistory();
+                Navigator.of(context).pop();
+              },
+              child: const Text("Löschen"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -311,10 +354,24 @@ class RouteSearchState extends State<RouteSearch> {
                   // Search History (sorted by recency of searches)
                   if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
-                      child: BoldContent(
-                        text: "Letzte Suchergebnisse",
-                        context: context,
+                      padding: const EdgeInsets.only(left: 16, right: 24, top: 4, bottom: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BoldContent(
+                            text: "Letzte Suchergebnisse",
+                            context: context,
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              deleteSearchHistoryDialog();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     for (final entry in calculateDistanceToWaypoints(
