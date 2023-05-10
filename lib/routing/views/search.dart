@@ -30,7 +30,6 @@ class WaypointListItemView extends StatefulWidget {
     required this.waypoint,
     this.distance,
     required this.showHistoryIcon,
-    this.distance,
     Key? key,
   }) : super(key: key);
 
@@ -97,66 +96,74 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListTile(
-        leading: (widget.showHistoryIcon)
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.history,
+    return Dismissible(
+      key: Key(widget.waypoint.hashCode.toString()),
+      onDismissed: (direction) {
+        deleteWaypointFromHistory(widget.waypoint);
+      },
+      background: Container(color: Theme.of(context).colorScheme.primary),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListTile(
+          leading: (widget.showHistoryIcon)
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.history,
+                    ),
+                  ],
+                )
+              : null,
+          title: widget.isCurrentPosition
+              ? BoldSubHeader(
+                  text: "Aktueller Standort",
+                  context: context,
+                  color: Colors.white,
+                )
+              : BoldSmall(
+                  text: widget.waypoint.address!,
+                  context: context,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+          subtitle: widget.isCurrentPosition
+              ? null
+              : (widget.distance == null
+                  ? null
+                  : (widget.distance! >= 1000
+                      ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                      : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)))),
+          trailing: (showDeleteIcon == true && widget.isCurrentPosition == false)
+              // if trying to delete item
+              ? IconButton(
+                  onPressed: () {
+                    deleteWaypointFromHistory(widget.waypoint);
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                ],
-              )
-            : null,
-        title: widget.isCurrentPosition
-            ? BoldSubHeader(
-                text: "Aktueller Standort",
-                context: context,
-                color: Colors.white,
-              )
-            : BoldSmall(
-                text: widget.waypoint.address!,
-                context: context,
-                color: Theme.of(context).colorScheme.onBackground,
-              ),
-        subtitle: widget.isCurrentPosition
-            ? null
-            : (widget.distance == null
-                ? null
-                : (widget.distance! >= 1000
-                    ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                    : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)))),
-        trailing: (showDeleteIcon == true && widget.isCurrentPosition == false)
-            // if trying to delete item
-            ? IconButton(
-                onPressed: () {
-                  deleteWaypointFromHistory(widget.waypoint);
-                },
-                icon: Icon(
-                  Icons.delete,
-                  color: Theme.of(context).colorScheme.primary,
+                )
+              // if ready to use item (default)
+              : Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Icon(
+                    widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
+                    color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
+                  ),
                 ),
-              )
-            // if ready to use item (default)
-            : Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Icon(
-                  widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
-                  color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
-                ),
-              ),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tileColor:
-            widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-        onTap: () {
-          tappedWaypoint(widget.waypoint);
-        },
-        onLongPress: () {
-          longPressWaypoint(widget.waypoint);
-        },
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          tileColor: widget.isCurrentPosition
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.background,
+          onTap: () {
+            tappedWaypoint(widget.waypoint);
+          },
+          onLongPress: () {
+            longPressWaypoint(widget.waypoint);
+          },
+        ),
       ),
     );
   }
