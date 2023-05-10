@@ -241,7 +241,6 @@ class RouteSearchState extends State<RouteSearch> {
 
   @override
   void dispose() {
-    geosearch.saveSearchHistory();
     geosearch.removeListener(update);
     positioning.removeListener(update);
     super.dispose();

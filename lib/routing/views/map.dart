@@ -705,7 +705,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final waypoint = Waypoint(latitude, longitude, address: address);
     await routing.addWaypoint(waypoint);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
-    await getIt<Geosearch>().saveSearchHistory();
     await routing.loadRoutes();
   }
 
