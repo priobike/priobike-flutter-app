@@ -25,10 +25,14 @@ class WaypointListItemView extends StatefulWidget {
   /// If the history icon should be shown.
   final bool? showHistoryIcon;
 
+  /// The distance to the waypoint in meters.
+  final double? distance;
+
   const WaypointListItemView({
     this.isCurrentPosition = false,
     required this.waypoint,
     required this.onTap,
+    this.distance,
     this.showHistoryIcon,
     Key? key,
   }) : super(key: key);
@@ -44,13 +48,8 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// The associated geosearch service, which is injected by the provider.
   late Geosearch geosearch;
 
-  /// The distance to the waypoint in meters.
-  double? distance;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    // Update the distance to the waypoint.
-    updateDistance();
     setState(() {});
   }
 
@@ -62,8 +61,6 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     geosearch.addListener(update);
     positioning = getIt<Positioning>();
     positioning.addListener(update);
-
-    updateDistance();
   }
 
   @override
@@ -73,20 +70,10 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     super.dispose();
   }
 
-  /// Update the distance to the waypoint.
-  void updateDistance() {
-    if (positioning.lastPosition == null) return;
-    if (widget.waypoint == null) return;
-    final lastPos = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
-    final waypointPos = LatLng(widget.waypoint!.lat, widget.waypoint!.lon);
-    const vincenty = Distance(roundResult: false);
-    distance = vincenty.distance(lastPos, waypointPos);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListTile(
         leading: (widget.showHistoryIcon == null) || (!widget.showHistoryIcon!)
             ? null
@@ -113,11 +100,11 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                   ),
         subtitle: widget.isCurrentPosition
             ? null
-            : (distance == null
+            : (widget.distance == null
                 ? null
-                : (distance! > 1000
-                    ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                    : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)))),
+                : (widget.distance! >= 1000
+                    ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                    : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)))),
         trailing: widget.waypoint == null
             ? CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.onPrimary,
@@ -127,7 +114,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
               ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         tileColor:
             widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
         onTap: () {
@@ -254,7 +241,6 @@ class RouteSearchState extends State<RouteSearch> {
 
   @override
   void dispose() {
-    geosearch.saveSearchHistory();
     geosearch.removeListener(update);
     positioning.removeListener(update);
     super.dispose();
@@ -290,6 +276,27 @@ class RouteSearchState extends State<RouteSearch> {
     if (positioning.lastPosition == null) return;
     geosearch.clearGeosearch();
     Navigator.of(context).pop(waypoint);
+  }
+
+  /// Calculate distance to the user for each waypoint and optionally sorts the results in ascending order.
+  /// Returns map with waypoint as key and distance as value.
+  Map<Waypoint, double?> calculateDistanceToWaypoints(
+      {required List<Waypoint> waypoints, required bool sortByDistance}) {
+    if (positioning.lastPosition == null) return waypoints.asMap().map((key, value) => MapEntry(value, null));
+
+    final lastPos = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
+    var dictionary = <Waypoint, double>{};
+    for (final waypoint in waypoints) {
+      final waypointPos = LatLng(waypoint.lat, waypoint.lon);
+      const vincenty = Distance(roundResult: false);
+      final distance = vincenty.distance(lastPos, waypointPos);
+      dictionary[waypoint] = distance;
+    }
+
+    if (sortByDistance) {
+      return Map.fromEntries(dictionary.entries.toList()..sort((e1, e2) => e1.value.compareTo(e2.value)));
+    }
+    return dictionary;
   }
 
   @override
@@ -332,38 +339,47 @@ class RouteSearchState extends State<RouteSearch> {
                 children: [
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
-                    CurrentPositionWaypointListItemView(
-                      onTap: onCurrentPositionTapped,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: CurrentPositionWaypointListItemView(
+                        onTap: onCurrentPositionTapped,
+                      ),
                     ),
 
-                  // Search History
+                  // Search History (sorted by recency of searches)
                   if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 16),
+                      padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
                       child: BoldContent(
                         text: "Letzte Suchergebnisse",
                         context: context,
                       ),
                     ),
-                    for (Waypoint waypoint in geosearch.searchHistory.reversed) ...[
+                    for (final entry in calculateDistanceToWaypoints(
+                            waypoints: geosearch.searchHistory.reversed.toList(), sortByDistance: false)
+                        .entries) ...[
                       WaypointListItemView(
-                        waypoint: waypoint,
+                        waypoint: entry.key,
+                        distance: entry.value,
                         onTap: onHistoryItemTapped,
                         showHistoryIcon: true,
                       )
                     ]
                   ],
 
-                  // Search Results
+                  // Search Results (sorted by distance to user)
                   if (geosearch.results?.isNotEmpty == true) ...[
-                    for (final waypoint in geosearch.results!) ...[
+                    for (final entry
+                        in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true)
+                            .entries) ...[
                       WaypointListItemView(
-                        waypoint: waypoint,
+                        waypoint: entry.key,
+                        distance: entry.value,
                         onTap: onWaypointTapped,
                       )
                     ],
                     Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 16),
+                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
                   ],

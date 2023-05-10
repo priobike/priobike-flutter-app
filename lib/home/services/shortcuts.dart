@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
@@ -32,7 +31,10 @@ class Shortcuts with ChangeNotifier {
       if (waypoint.address == null) {
         final geocoding = getIt<Geocoding>();
         final String? address = await geocoding.reverseGeocodeLatLng(waypoint.lat, waypoint.lon);
-        if (address == null) return;
+        // address can (but usually should not) be null
+        if (address == null) {
+          log.i("Address for waypoint with reverseGeocode not found");
+        }
         waypoint.address = address;
       }
     }
