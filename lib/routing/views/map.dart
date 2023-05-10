@@ -598,7 +598,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (mapController == null) return;
 
     final layers = await mapController!.style.getStyleLayers();
-    log.i("Layer-length: ${layers.length}");
     final firstLabel = layers.firstWhereOrNull((layer) {
       final layerId = layer?.id ?? "";
       return layerId.contains("-label");
