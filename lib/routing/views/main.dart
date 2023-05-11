@@ -294,6 +294,8 @@ class RoutingViewState extends State<RoutingView> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
+                    // Remove the invalid waypoint.
+                    routing?.selectedWaypoints?.removeLast();
                     await routing?.loadRoutes();
                   },
                 ),
