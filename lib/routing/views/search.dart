@@ -101,7 +101,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        leading: (widget.showHistoryIcon)
+        leading: widget.showHistoryIcon
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
@@ -111,7 +111,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 ],
               )
             : null,
-        title: (widget.isCurrentPosition)
+        title: widget.isCurrentPosition
             ? BoldSubHeader(
                 text: "Aktueller Standort",
                 context: context,
@@ -129,7 +129,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
                 : (widget.distance! >= 1000)
                     ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
                     : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
-        trailing: (showDeleteIcon == true && widget.isCurrentPosition == false && widget.showHistoryIcon == true)
+        trailing: (showDeleteIcon == true && widget.showHistoryIcon == true && widget.isCurrentPosition == false)
             // if trying to delete item
             ? IconButton(
                 onPressed: () {
