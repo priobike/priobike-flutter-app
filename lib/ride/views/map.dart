@@ -285,24 +285,32 @@ class RideMapViewState extends State<RideMapView> {
       final layerId = layer?.id ?? "";
       return layerId.contains("-label");
     });
+    // If there are no label layers in the style we want to start adding on top of the last layer.
+    if (firstLabel == null) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
+    }
     final firstLabelIndex = layers.indexOf(firstLabel);
     // If there are no label layers in the style we want to start adding on top of the last layer.
-    if (firstLabelIndex != -1) {
-      firstBaseMapLabelLayerIndex = firstLabelIndex;
-    } else {
-      firstBaseMapLabelLayerIndex = layers.length - 1;
+    if (firstLabelIndex == -1) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
     }
+
+    firstBaseMapLabelLayerIndex = firstLabelIndex;
   }
 
   /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
+  }
 
-    await getFirstLabelLayer();
-
+  /// Show the user location on the map.
+  Future<void> showUserLocationIndicator() async {
+    final index = await getIndex(userLocationLayerId);
     await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
       if (!value) {
-        await mapController!.style.addLayer(
+        await mapController!.style.addLayerAt(
           mapbox.LocationIndicatorLayer(
             id: userLocationLayerId,
             bearingImage: Theme.of(context).brightness == Brightness.dark ? "positiondark" : "positionlight",
@@ -310,6 +318,7 @@ class RideMapViewState extends State<RideMapView> {
             accuracyRadiusColor: const Color(0x00000000).value,
             accuracyRadiusBorderColor: const Color(0x00000000).value,
           ),
+          mapbox.LayerPosition(at: index),
         );
         // On iOS it seems like the duration is being given in seconds while on Android in milliseconds.
         if (Platform.isAndroid) {
@@ -329,8 +338,13 @@ class RideMapViewState extends State<RideMapView> {
     final ppi = MediaQuery.of(context).devicePixelRatio;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    await getFirstLabelLayer();
+
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
+
+    await showUserLocationIndicator();
+
     var index = await getIndex(SelectedRouteLayer.layerId);
     if (!mounted) return;
     await SelectedRouteLayer().install(mapController!, bgLineWidth: 16.0, fgLineWidth: 14.0, at: index);
