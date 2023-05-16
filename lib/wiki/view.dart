@@ -23,7 +23,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
   void initState() {
     super.initState();
     // tabController with number of articles.
-    tabController = TabController(length: 4, vsync: this, animationDuration: const Duration(milliseconds: 2000));
+    tabController = TabController(length: 4, vsync: this);
   }
 
   @override
