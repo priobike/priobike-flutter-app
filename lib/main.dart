@@ -23,7 +23,6 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/routing/services/map_settings.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/services/features.dart';
@@ -76,7 +75,6 @@ Future<void> main() async {
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<MapSettings>(MapSettings());
   getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<Traffic>(Traffic());

@@ -15,7 +15,6 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
@@ -144,14 +143,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
-  /// A callback that is executed when a routing is selected.
-  Future<void> onSelectRoutingView(RoutingViewOption routingView) async {
-    // Tell the settings service that we selected the new routing.
-    await settings.selectRoutingView(routingView);
-
-    if (mounted) Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -231,24 +222,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                           title: (PositioningMode e) => e.description,
                           callback: onSelectPositioningMode,
                         );
-                      },
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Routenansicht",
-                    subtitle: settings.routingView.description,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: RoutingViewOption.values,
-                            selected: settings.routingView,
-                            title: (RoutingViewOption e) => e.description,
-                            callback: onSelectRoutingView);
                       },
                     ),
                   ),

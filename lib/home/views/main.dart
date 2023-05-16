@@ -19,10 +19,8 @@ import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
-import 'package:priobike/routing/views_beta/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -125,11 +123,7 @@ class HomeViewState extends State<HomeView> {
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(List.from(shortcut.waypoints));
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
-        .then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
@@ -144,11 +138,7 @@ class HomeViewState extends State<HomeView> {
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (_) =>
-                settings.routingView == RoutingViewOption.stable ? const RoutingView() : const RoutingViewNew()))
-        .then(
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
