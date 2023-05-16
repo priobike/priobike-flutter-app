@@ -148,3 +148,6 @@ flutter:
 
     # Screenshots
     - assets/images/screenshots/
+
+    # wiki images
+    - assets/images/wiki/
