@@ -23,6 +23,7 @@ import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
@@ -291,17 +292,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
 
-    MbxEdgeInsets insetsAndroid = MbxEdgeInsets(
-        // (AppBackButton height + top padding) * devicePixelRatio
-        top: (64 + 16 + frame.padding.top) * frame.devicePixelRatio,
-        left: 0,
-        // (BottomSheet height + bottom padding) * devicePixelRatio
-        bottom: (116 + frame.padding.bottom) * frame.devicePixelRatio,
-        right: 0);
+    MbxEdgeInsets padding = MbxEdgeInsets(
+      // (AppBackButton height + top padding) * devicePixelRatio
+      top: (80 + frame.padding.top) * frame.devicePixelRatio,
+      // AppBackButton width * devicePixelRatio
+      left: 75 * frame.devicePixelRatio,
+      // (BottomSheet + bottom padding) * devicePixelRatio
+      bottom: (140 + frame.padding.bottom) * frame.devicePixelRatio,
+      right: 0,
+    );
 
     final cameraOptionsForBounds = await mapController?.cameraForCoordinateBounds(
       routing.selectedRoute!.paddedBounds,
-      Platform.isIOS ? currentCameraOptions.padding : insetsAndroid,
+      padding,
       currentCameraOptions.bearing,
       currentCameraOptions.pitch,
     );
@@ -602,25 +605,31 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final layerId = layer?.id ?? "";
       return layerId.contains("-label");
     });
+    // If there are no label layers in the style we want to start adding on top of the last layer.
+    if (firstLabel == null) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
+    }
     final firstLabelIndex = layers.indexOf(firstLabel);
     // If there are no label layers in the style we want to start adding on top of the last layer.
-    if (firstLabelIndex != -1) {
-      firstBaseMapLabelLayerIndex = firstLabelIndex;
-    } else {
-      firstBaseMapLabelLayerIndex = layers.length - 1;
+    if (firstLabelIndex == -1) {
+      firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
+      return;
     }
+
+    firstBaseMapLabelLayerIndex = firstLabelIndex;
   }
 
   /// A callback which is executed when the map was created.
   onMapCreated(MapboxMap controller) async {
     mapController = controller;
-
-    getFirstLabelLayer();
   }
 
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+
+    await getFirstLabelLayer();
 
     // Load all symbols that will be displayed on the map.
     await SymbolLoader(mapController!).loadSymbols();
@@ -701,7 +710,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
-    await routing.addWaypoint(Waypoint(latitude, longitude, address: address));
+    final waypoint = Waypoint(latitude, longitude, address: address);
+    await routing.addWaypoint(waypoint);
+    await getIt<Geosearch>().addToSearchHistory(waypoint);
     await routing.loadRoutes();
   }
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/routing/messages/nominatim.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/routing/messages/photon.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -29,7 +29,6 @@ class Geosearch with ChangeNotifier {
   Geosearch();
 
   /// Fetch addresses to a given query.
-  /// See: https://nominatim.org/release-docs/develop/api/Search/
   Future<void> geosearch(String query) async {
     if (isFetchingAddress) return;
 
@@ -41,16 +40,30 @@ class Geosearch with ChangeNotifier {
     try {
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
-      var url = "https://$baseUrl/nominatim/search";
-      url += "?accept-language=de";
-      url += "&q=$query";
-      url += "&format=json";
+
+      var url = "https://$baseUrl/photon/api";
+      url += "?q=$query";
+
+      // Bias search results to current position
+      final positionLat = getIt<Positioning>().lastPosition?.latitude;
+      final positionLon = getIt<Positioning>().lastPosition?.longitude;
+      if (positionLat != null && positionLon != null) {
+        url += "&lat=$positionLat";
+        url += "&lon=$positionLon";
+      }
+
+      // Add custom bounding box to limit search results
+      final boundingBox = getBoundingBox();
+      if (boundingBox.isNotEmpty) {
+        final minLon = boundingBox["minLon"];
+        final maxLon = boundingBox["maxLon"];
+        final minLat = boundingBox["minLat"];
+        final maxLat = boundingBox["maxLat"];
+        url += "&bbox=$minLon,$minLat,$maxLon,$maxLat";
+      }
+
+      url += "&lang=de";
       url += "&limit=10";
-      url += "&addressdetails=1";
-      url += "&extratags=1";
-      url += "&namedetails=1";
-      url += "&dedupe=1";
-      url += "&polygon_geojson=1";
       final endpoint = Uri.parse(url);
 
       final response = await Http.get(endpoint);
@@ -60,19 +73,24 @@ class Geosearch with ChangeNotifier {
         final err = "Addresses could not be fetched from $endpoint: ${response.body}";
         throw Exception(err);
       }
-
-      final List<NominatimAddress> addresses = [];
+      final List<PhotonAddress> addresses = [];
       final json = jsonDecode(response.body);
-      for (var i = 0; i < json.length; i++) {
-        addresses.add(NominatimAddress.fromJson(json[i]));
+      for (var jsonItem in json["features"]) {
+        addresses.add(PhotonAddress.fromJson(jsonItem));
       }
 
       isFetchingAddress = false;
-      results = addresses.map((e) => Waypoint(e.lat, e.lon, address: e.displayName)).toList();
+      results = addresses.map((e) {
+        final displayName = e.getDisplayName();
+        return Waypoint(
+          e.lat,
+          e.lon,
+          address: displayName,
+        );
+      }).toList();
       notifyListeners();
     } catch (e) {
       isFetchingAddress = false;
-      notifyListeners();
       hadErrorDuringFetch = true;
       notifyListeners();
       final hint = "Addresses could not be fetched: $e";
@@ -86,7 +104,7 @@ class Geosearch with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Delete the search history from the device.
+  /// Delete the search history from the SharedPreferences.
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
@@ -94,12 +112,13 @@ class Geosearch with ChangeNotifier {
       await preferences.remove("priobike.routing.searchHistory.production");
     } else if (backend == Backend.staging) {
       await preferences.remove("priobike.routing.searchHistory.staging");
+    } else {
+      log.e("Unknown backend used for geosearch: $backend");
     }
     searchHistory = [];
-    notifyListeners();
   }
 
-  /// Initialize the search history from the shared preferences by decoding it from a String List.
+  /// Initialize the search history from the SharedPreferences by decoding it from a String List.
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
@@ -108,6 +127,8 @@ class Geosearch with ChangeNotifier {
       savedList = preferences.getStringList("priobike.routing.searchHistory.production") ?? [];
     } else if (backend == Backend.staging) {
       savedList = preferences.getStringList("priobike.routing.searchHistory.staging") ?? [];
+    } else {
+      log.e("Unknown backend used for geosearch: $backend");
     }
     searchHistory = [];
     for (String waypoint in savedList) {
@@ -137,11 +158,14 @@ class Geosearch with ChangeNotifier {
       await preferences.setStringList("priobike.routing.searchHistory.production", newList);
     } else if (backend == Backend.staging) {
       await preferences.setStringList("priobike.routing.searchHistory.staging", newList);
+    } else {
+      log.e("Unknown backend used for geosearch: $backend");
     }
   }
 
   /// Add a waypoint to the search history.
-  void addToSearchHistory(Waypoint waypoint) {
+  Future<void> addToSearchHistory(Waypoint waypoint) async {
+    await loadSearchHistory();
     // Remove the waypoint from the history if it already exists.
     // It still should be added again, to be shown as the last search.
     if (searchHistory.any((element) => element.address == waypoint.address)) {
@@ -152,6 +176,33 @@ class Geosearch with ChangeNotifier {
     if (searchHistory.length > 10) searchHistory.removeAt(0);
 
     searchHistory.add(waypoint);
-    notifyListeners();
+    await saveSearchHistory();
+  }
+
+  /// The BoundingBox is used to limit the geosearch-results to a certain area, i.e. Hamburg or Dresden.
+  /// It doesn't exactly match the borders of the city, but uses a rectangle as an approximation.
+  Map<String, double> getBoundingBox() {
+    final backend = getIt<Settings>().backend;
+
+    if (backend == Backend.production) {
+      // See: http://bboxfinder.com/#53.350000,9.650000,53.750000,10.400000
+      return {
+        "minLon": 9.65,
+        "maxLon": 10.4,
+        "minLat": 53.35,
+        "maxLat": 53.75,
+      };
+    } else if (backend == Backend.staging) {
+      // See: http://bboxfinder.com/#50.900000,13.500000,51.200000,14.000000
+      return {
+        "minLon": 13.5,
+        "maxLon": 14.0,
+        "minLat": 50.9,
+        "maxLat": 51.2,
+      };
+    } else {
+      log.e("Unknown backend used for trying to access BoundingBox: $backend");
+      return {};
+    }
   }
 }

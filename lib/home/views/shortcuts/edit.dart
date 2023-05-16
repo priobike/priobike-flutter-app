@@ -14,8 +14,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
-import 'package:priobike/routing/views_beta/main.dart';
-import 'package:priobike/settings/models/routing_view.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
@@ -311,12 +309,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                               onPressed: () {
                                 routing.selectWaypoints(List.from(entry.value.waypoints));
 
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: (_) => settings.routingView == RoutingViewOption.stable
-                                            ? const RoutingView()
-                                            : const RoutingViewNew()))
-                                    .then(
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
                                   (_) {
                                     routing.reset();
                                     discomforts.reset();
