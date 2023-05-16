@@ -9,7 +9,7 @@ class WikiView extends StatefulWidget {
   WikiViewState createState() => WikiViewState();
 }
 
-class WikiViewState extends State<WikiView> with TickerProviderStateMixin {
+class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin {
   /// PageController.
   final PageController pageController = PageController(
     viewportFraction: 0.9,
@@ -19,14 +19,11 @@ class WikiViewState extends State<WikiView> with TickerProviderStateMixin {
   /// TabController.
   late TabController? tabController;
 
-  /// Int that holds the state of the current page.
-  int currentPage = 0;
-
   @override
   void initState() {
     super.initState();
     // tabController with number of articles.
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 4, vsync: this, animationDuration: const Duration(milliseconds: 2000));
   }
 
   @override
@@ -43,7 +40,6 @@ class WikiViewState extends State<WikiView> with TickerProviderStateMixin {
               controller: pageController,
               onPageChanged: (int index) {
                 setState(() {
-                  currentPage = index;
                   tabController?.index = index;
                 });
               },
@@ -75,6 +71,7 @@ class WikiViewState extends State<WikiView> with TickerProviderStateMixin {
               selectedColor: Theme.of(context).colorScheme.primary,
               borderStyle: BorderStyle.none,
               color: Colors.grey,
+              key: GlobalKey(),
             ),
           ),
         ],

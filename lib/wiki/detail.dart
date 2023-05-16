@@ -213,6 +213,15 @@ class WikiDetailViewState extends State<WikiDetailView> {
             width: frame.size.width,
             color: Theme.of(context).colorScheme.background,
           ),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              // Bottom bar.
+              height: frame.padding.bottom,
+              width: frame.size.width,
+              color: Theme.of(context).colorScheme.background,
+            ),
+          ),
           SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
