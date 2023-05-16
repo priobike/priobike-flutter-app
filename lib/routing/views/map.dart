@@ -831,10 +831,17 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         chosenCoordinate = uniqueInBounceCoordinates[uniqueInBounceCoordinates.length ~/ 2];
       }
 
+      // Get the seconds to cover the route.
+      final seconds = route.path.time / 1000;
+      // Get the full hours needed to cover the route.
+      final hours = seconds ~/ 3600;
+      // Get the remaining minutes.
+      final minutes = (seconds - hours * 3600) ~/ 60;
+
       if (chosenCoordinate != null) {
         chosenCoordinates.add({
           "coordinate": chosenCoordinate,
-          "time": ((route.path.time * 0.001) * 0.016).round(),
+          "time": minutes,
           "feature": {
             "id": "routeLabel-${route.id}", // Required for click listener.
             "type": "Feature",
@@ -842,10 +849,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               "type": "Point",
               "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
             },
-            "properties": {
-              "isPrimary": routing.selectedRoute!.id == route.id,
-              "text": "${((route.path.time * 0.001) * 0.016).round()} min"
-            },
+            "properties": {"isPrimary": routing.selectedRoute!.id == route.id, "text": "$minutes min"},
           }
         });
       }
