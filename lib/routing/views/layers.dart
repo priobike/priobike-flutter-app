@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -133,7 +135,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
               ],
             ),
-            const VSpace(),
+            Platform.isAndroid ? const VSpace() : Container(),
             Content(text: "Kartendesign", context: context),
             const SmallVSpace(),
             GridView.count(
