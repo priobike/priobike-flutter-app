@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/photon.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/ray_casting_algo.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,9 @@ class Geosearch with ChangeNotifier {
 
   /// The search history, saved in the shared preferences.
   List<Waypoint> searchHistory = [];
+
+  /// The exact geojson of the city boundries.
+  String geojsonBoundingBox = "";
 
   Geosearch();
 
@@ -52,8 +57,11 @@ class Geosearch with ChangeNotifier {
         url += "&lon=$positionLon";
       }
 
-      // Add custom bounding box to limit search results
-      final boundingBox = getBoundingBox();
+      // There needs to be a rough bounding box (just a rectangle) here
+      // and a finer one below by checking if the point is inside the boundingBox (with the exakt geojson of the city).
+      // The rough bounding box is nessessary for photon to limit the search results
+      // while the finer one discards results outside the city boundries
+      final boundingBox = getRoughBoundingBox();
       if (boundingBox.isNotEmpty) {
         final minLon = boundingBox["minLon"];
         final maxLon = boundingBox["maxLon"];
@@ -64,8 +72,8 @@ class Geosearch with ChangeNotifier {
 
       url += "&lang=de";
       url += "&limit=10";
-      final endpoint = Uri.parse(url);
 
+      final endpoint = Uri.parse(url);
       final response = await Http.get(endpoint);
       if (response.statusCode != 200) {
         isFetchingAddress = false;
@@ -80,14 +88,22 @@ class Geosearch with ChangeNotifier {
       }
 
       isFetchingAddress = false;
-      results = addresses.map((e) {
-        final displayName = e.getDisplayName();
-        return Waypoint(
-          e.lat,
-          e.lon,
-          address: displayName,
+      results = [];
+      for (final address in addresses) {
+        final pointIsInside = await checkIfPointIsInBoundingBox(address.lon, address.lat);
+        // ignore addresses that are not inside the bounding box
+        if (!pointIsInside) {
+          continue;
+        }
+        final displayName = address.getDisplayName();
+        results!.add(
+          Waypoint(
+            address.lat,
+            address.lon,
+            address: displayName,
+          ),
         );
-      }).toList();
+      }
       notifyListeners();
     } catch (e) {
       isFetchingAddress = false;
@@ -181,7 +197,7 @@ class Geosearch with ChangeNotifier {
 
   /// The BoundingBox is used to limit the geosearch-results to a certain area, i.e. Hamburg or Dresden.
   /// It doesn't exactly match the borders of the city, but uses a rectangle as an approximation.
-  Map<String, double> getBoundingBox() {
+  Map<String, double> getRoughBoundingBox() {
     final backend = getIt<Settings>().backend;
 
     if (backend == Backend.production) {
@@ -212,5 +228,36 @@ class Geosearch with ChangeNotifier {
     searchHistory.removeWhere((element) => element.address == waypoint.address);
     await saveSearchHistory();
     notifyListeners();
+  }
+
+  /// Check if a point is inside the bounding box given via saved assets.
+  Future<bool> checkIfPointIsInBoundingBox(double lon, double lat) async {
+    final backend = getIt<Settings>().backend;
+
+    if (geojsonBoundingBox.isEmpty) {
+      switch (backend) {
+        case Backend.production:
+          // Load Hamburg's boundary as a geojson from the assets.
+          geojsonBoundingBox = await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
+          break;
+        case Backend.staging:
+          // Load Dresden's boundary as a geojson from the assets.
+          geojsonBoundingBox = await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
+          break;
+        default:
+          log.e("Unknown backend used for geosearch: $backend");
+          return false;
+      }
+    }
+
+    final geojsonDecoded = jsonDecode(geojsonBoundingBox);
+    final coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
+
+    List<Point> boundingBox = List.empty(growable: true);
+    for (final coord in coords) {
+      boundingBox.add(Point(x: coord[0], y: coord[1]));
+    }
+    final point = Point(x: lon, y: lat);
+    return Poly.isPointInPolygon(point, boundingBox);
   }
 }
