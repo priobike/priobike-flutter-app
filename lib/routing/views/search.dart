@@ -417,8 +417,17 @@ class RouteSearchState extends State<RouteSearch> {
                         onTapped: tappedWaypoint,
                       ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 20),
+                      padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
+                    )
+                  ] else ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12, left: 28),
+                      child: Content(text: "Es konnten leider keine Ziele gefunden werden.", context: context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12, left: 28),
+                      child: Content(text: "Versuche es mit einer anderen Suchanfrage.", context: context),
                     )
                   ],
                 ],
