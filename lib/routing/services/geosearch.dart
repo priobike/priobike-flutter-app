@@ -232,9 +232,8 @@ class Geosearch with ChangeNotifier {
 
   /// Check if a point is inside the bounding box given via saved assets.
   Future<bool> checkIfPointIsInBoundingBox(double lon, double lat) async {
-    final backend = getIt<Settings>().backend;
-
     if (boundingBox.isEmpty) {
+      final backend = getIt<Settings>().backend;
       String geojsonBoundingBox;
       switch (backend) {
         case Backend.production:
