@@ -28,8 +28,8 @@ class Geosearch with ChangeNotifier {
   /// The search history, saved in the shared preferences.
   List<Waypoint> searchHistory = [];
 
-  /// The exact geojson of the city boundries.
-  String geojsonBoundingBox = "";
+  /// The exact coordiantes of the boundries of the city.
+  List<Point> boundingBox = List.empty(growable: true);
 
   Geosearch();
 
@@ -234,7 +234,8 @@ class Geosearch with ChangeNotifier {
   Future<bool> checkIfPointIsInBoundingBox(double lon, double lat) async {
     final backend = getIt<Settings>().backend;
 
-    if (geojsonBoundingBox.isEmpty) {
+    if (boundingBox.isEmpty) {
+      String geojsonBoundingBox;
       switch (backend) {
         case Backend.production:
           // Load Hamburg's boundary as a geojson from the assets.
@@ -248,15 +249,15 @@ class Geosearch with ChangeNotifier {
           log.e("Unknown backend used for geosearch: $backend");
           return false;
       }
+
+      final geojsonDecoded = jsonDecode(geojsonBoundingBox);
+      final coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
+
+      for (final coord in coords) {
+        boundingBox.add(Point(x: coord[0], y: coord[1]));
+      }
     }
 
-    final geojsonDecoded = jsonDecode(geojsonBoundingBox);
-    final coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
-
-    List<Point> boundingBox = List.empty(growable: true);
-    for (final coord in coords) {
-      boundingBox.add(Point(x: coord[0], y: coord[1]));
-    }
     final point = Point(x: lon, y: lat);
     return Poly.isPointInPolygon(point, boundingBox);
   }
