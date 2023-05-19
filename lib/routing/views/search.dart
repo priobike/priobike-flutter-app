@@ -93,6 +93,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   /// Delete a waypoint from the search history.
   Future<void> deleteWaypointFromHistory(Waypoint waypoint) async {
     await geosearch.removeItemFromSearchHistory(waypoint);
+    showDeleteIcon = false;
     setState(() {});
   }
 
@@ -275,7 +276,7 @@ class RouteSearchState extends State<RouteSearch> {
   }
 
   /// Ask the user for confirmation if he wants to delete all waypoints from the search history.
-  Future<void> deleteSearchHistoryDialog() async {
+  Future<void> deleteWholeSearchHistoryDialog() async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -368,7 +369,7 @@ class RouteSearchState extends State<RouteSearch> {
                               size: 20,
                             ),
                             onPressed: () {
-                              deleteSearchHistoryDialog();
+                              deleteWholeSearchHistoryDialog();
                             },
                           ),
                         ],
