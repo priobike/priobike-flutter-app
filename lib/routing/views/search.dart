@@ -6,6 +6,7 @@ import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -71,7 +72,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   }
 
   /// A callback that is fired when a history item is long pressed.
-  Future<void> longPressWaypoint(Waypoint waypoint) async {
+  Future<void> temporarilyShowDeleteIcon(Waypoint waypoint) async {
     // Long press is only available for history items, not search results.
     if (widget.showHistoryIcon == false) return;
     showDeleteIcon = true;
@@ -158,7 +159,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
           Navigator.of(context).pop(widget.waypoint);
         },
         onLongPress: () {
-          longPressWaypoint(widget.waypoint);
+          temporarilyShowDeleteIcon(widget.waypoint);
         },
       ),
     );
@@ -176,6 +177,7 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
             key: Key(widget.waypoint.hashCode.toString()),
             onDismissed: (direction) {
               deleteWaypointFromHistory(widget.waypoint);
+              ToastMessage.showSuccess("Eintrag gelöscht");
             },
             direction: DismissDirection.endToStart,
             background: Container(color: Theme.of(context).colorScheme.primary),
