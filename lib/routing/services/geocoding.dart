@@ -6,6 +6,7 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/messages/photon.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -36,6 +37,13 @@ class Geocoding with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
+      // Discard the request if the point is not inside the bounding box (ie. not in Hamburg/Dresden)
+      final pointIsInside =
+          await getIt<Geosearch>().checkIfPointIsInBoundingBox(coordinate.longitude, coordinate.latitude);
+      if (!pointIsInside) {
+        throw Exception("Coordiantes are not inside bounding box");
+      }
+
       final settings = getIt<Settings>();
       final baseUrl = settings.backend.path;
 
@@ -69,5 +77,12 @@ class Geocoding with ChangeNotifier {
       notifyListeners();
       return null;
     }
+  }
+
+  /// Reset the state of the service.
+  void reset() {
+    isFetchingAddress = false;
+    hadErrorDuringFetch = false;
+    notifyListeners();
   }
 }

@@ -296,6 +296,7 @@ class RoutingViewState extends State<RoutingView> {
                   onPressed: () async {
                     // Remove the invalid waypoint.
                     routing?.selectedWaypoints?.removeLast();
+                    geocoding!.reset();
                     await routing?.loadRoutes();
                   },
                 ),
@@ -359,6 +360,7 @@ class RoutingViewState extends State<RoutingView> {
               if (routing!.isFetchingRoute) renderLoadingIndicator(),
               if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
               if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
+              if (geocoding!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar
               SafeArea(

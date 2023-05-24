@@ -718,8 +718,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (address != fallback) {
       await getIt<Geosearch>().addToSearchHistory(waypoint);
     }
-
-    await routing.loadRoutes();
+    if (!geocoding.hadErrorDuringFetch) {
+      await routing.loadRoutes();
+    }
   }
 
   /// Updates the bearing and centering button.
