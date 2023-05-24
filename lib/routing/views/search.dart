@@ -58,16 +58,12 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
     super.initState();
 
     geosearch = getIt<Geosearch>();
-    geosearch.addListener(update);
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
     showDeleteIcon = false;
   }
 
   @override
   void dispose() {
-    geosearch.removeListener(update);
-    positioning.removeListener(update);
     super.dispose();
   }
 
