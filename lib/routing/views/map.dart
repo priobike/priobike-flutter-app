@@ -712,7 +712,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
     final waypoint = Waypoint(latitude, longitude, address: address);
     await routing.addWaypoint(waypoint);
-    await getIt<Geosearch>().addToSearchHistory(waypoint);
+
+    // Only add waypoints with a valid address to the search history.
+    // Having "Wegpunkt 1" in the search history is not useful.
+    if (address != fallback) {
+      await getIt<Geosearch>().addToSearchHistory(waypoint);
+    }
+
     await routing.loadRoutes();
   }
 
