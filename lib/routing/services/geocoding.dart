@@ -41,7 +41,7 @@ class Geocoding with ChangeNotifier {
       final pointIsInside =
           await getIt<Geosearch>().checkIfPointIsInBoundingBox(coordinate.longitude, coordinate.latitude);
       if (!pointIsInside) {
-        throw Exception("Coordiantes are not inside bounding box");
+        throw Exception("Coordinates are not inside bounding box");
       }
 
       final settings = getIt<Settings>();
