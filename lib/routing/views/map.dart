@@ -256,6 +256,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     discomforts.removeListener(update);
     status.removeListener(update);
     mapFunctions.removeListener(update);
+    getIt<Geocoding>().reset();
     super.dispose();
   }
 
