@@ -91,7 +91,6 @@ class WaypointListItemViewState extends State<WaypointListItemView> {
   Future<void> deleteWaypointFromHistory(Waypoint waypoint) async {
     await geosearch.removeItemFromSearchHistory(waypoint);
     showDeleteIcon = false;
-    setState(() {});
   }
 
   /// Generic function to render history items, search results and current position.
