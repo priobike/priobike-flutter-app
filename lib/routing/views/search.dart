@@ -420,25 +420,29 @@ class RouteSearchState extends State<RouteSearch> {
                       padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
-                  ] else if (geosearch.results?.isEmpty == true && geosearch.isFetchingAddress == false) ...[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const VSpace(),
-                        Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
-                        const VSpace(),
-                        BoldSmall(
-                          text: "Es konnten leider keine Ziele gefunden werden.",
-                          context: context,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SmallVSpace(),
-                        Small(
-                          text: "Versuche es mit einer anderen Suchanfrage.",
-                          context: context,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                  ] else if (geosearch.results?.isEmpty == true &&
+                      geosearch.isFetchingAddress == false &&
+                      searchQuery.isNotEmpty) ...[
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const VSpace(),
+                          Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                          const VSpace(),
+                          BoldSmall(
+                            text: "Es konnten leider keine Ziele gefunden werden.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SmallVSpace(),
+                          Small(
+                            text: "Versuche es mit einer anderen Suchanfrage.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ],
