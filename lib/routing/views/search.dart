@@ -89,7 +89,7 @@ class HistoryItemState extends State<HistoryItem> {
   /// If user long presses the item, show delete icon.
   bool showDeleteIcon = false;
 
-  /// Show delete icon for a short time.
+  /// A callback that is fired when a history item is long pressed.
   Future<void> temporarilyShowDeleteIcon(Waypoint waypoint) async {
     setState(() {
       showDeleteIcon = true;
@@ -105,6 +105,10 @@ class HistoryItemState extends State<HistoryItem> {
   @override
   Widget build(BuildContext context) {
     if (widget.waypoint.address == null) return Container();
+
+    // Don't show history items if the user is already there
+    if (widget.distance != null && widget.distance! <= 10) return Container();
+
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
@@ -384,20 +388,20 @@ class RouteSearchState extends State<RouteSearch> {
                         ],
                       ),
                     ),
-                    for (final waypointsWithDistance in calculateDistanceToWaypoints(
+                    for (final waypointWithDistance in calculateDistanceToWaypoints(
                             waypoints: geosearch.searchHistory.reversed.toList(), sortByDistance: false)
                         .entries)
                       Dismissible(
-                        key: Key(waypointsWithDistance.key.hashCode.toString()),
+                        key: Key(waypointWithDistance.key.hashCode.toString()),
                         onDismissed: (direction) {
-                          getIt<Geosearch>().removeItemFromSearchHistory(waypointsWithDistance.key);
+                          getIt<Geosearch>().removeItemFromSearchHistory(waypointWithDistance.key);
                           ToastMessage.showSuccess("Eintrag gelöscht");
                         },
                         direction: DismissDirection.endToStart,
                         background: Container(color: Theme.of(context).colorScheme.primary),
                         child: HistoryItem(
-                          waypoint: waypointsWithDistance.key,
-                          distance: waypointsWithDistance.value,
+                          waypoint: waypointWithDistance.key,
+                          distance: waypointWithDistance.value,
                           onTapped: tappedWaypoint,
                         ),
                       ),
@@ -405,11 +409,11 @@ class RouteSearchState extends State<RouteSearch> {
 
                   // Search Results (sorted by distance to user)
                   if (geosearch.results?.isNotEmpty == true) ...[
-                    for (final waypointsWithDistance
+                    for (final waypointWithDistance
                         in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true).entries)
                       SearchItem(
-                        waypoint: waypointsWithDistance.key,
-                        distance: waypointsWithDistance.value,
+                        waypoint: waypointWithDistance.key,
+                        distance: waypointWithDistance.value,
                         onTapped: tappedWaypoint,
                       ),
                     Padding(
