@@ -106,7 +106,6 @@ class HistoryItemState extends State<HistoryItem> {
   @override
   Widget build(BuildContext context) {
     if (widget.waypoint.address == null) return Container();
-
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
