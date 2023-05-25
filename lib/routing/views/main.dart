@@ -284,12 +284,21 @@ class RoutingViewState extends State<RoutingView> {
                   textAlign: TextAlign.center,
                 ),
                 const SmallVSpace(),
-                Small(
-                  text:
-                      "Achte darauf, dass du mit dem Internet verbunden bist. Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
+
+                // if point is outside of supported bounding box
+                (geocoding!.pointIsInside == false)
+                    ? Small(
+                        text:
+                            "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
+                        context: context,
+                        textAlign: TextAlign.center,
+                      )
+                    : Small(
+                        text:
+                            "Achte darauf, dass du mit dem Internet verbunden bist und versuche es später noch einmal.",
+                        context: context,
+                        textAlign: TextAlign.center,
+                      ),
                 const VSpace(),
                 BigButton(
                   label: "Erneut versuchen",
@@ -355,10 +364,8 @@ class RoutingViewState extends State<RoutingView> {
             children: [
               RoutingMapView(sheetMovement: sheetMovement.stream),
 
-              if (routing!.isFetchingRoute) renderLoadingIndicator(),
-              if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
-              if (geocoding!.hadErrorDuringFetch) renderTryAgainButton(),
+              if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
+              if (routing!.hadErrorDuringFetch || geocoding!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar
               SafeArea(

@@ -20,6 +20,9 @@ class Geocoding with ChangeNotifier {
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
 
+  /// A boolean indicating if the coordinates are inside the bounding box of the city.
+  bool pointIsInside = true;
+
   Geocoding();
 
   /// Fetch the address to a given coordinate.
@@ -38,8 +41,7 @@ class Geocoding with ChangeNotifier {
 
     try {
       // Discard the request if the point is not inside the bounding box (ie. not in Hamburg/Dresden)
-      final pointIsInside =
-          await getIt<Geosearch>().checkIfPointIsInBoundingBox(coordinate.longitude, coordinate.latitude);
+      pointIsInside = await getIt<Geosearch>().checkIfPointIsInBoundingBox(coordinate.longitude, coordinate.latitude);
       if (!pointIsInside) {
         throw Exception("Coordinates are not inside bounding box");
       }
@@ -83,6 +85,7 @@ class Geocoding with ChangeNotifier {
   void reset() {
     isFetchingAddress = false;
     hadErrorDuringFetch = false;
+    pointIsInside = true;
     notifyListeners();
   }
 }
