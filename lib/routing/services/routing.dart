@@ -170,6 +170,9 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
+
+      final discomforts = getIt<Discomforts>();
+      await discomforts.reset();
     }
     notifyListeners();
   }
