@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
@@ -194,9 +195,11 @@ class CurrentPosition extends StatelessWidget {
 
 /// A search page for waypoints.
 class RouteSearch extends StatefulWidget {
-  const RouteSearch({
-    Key? key,
-  }) : super(key: key);
+  /// A bool which can be set by the parent widget to determine whether the
+  /// current user position should be a suggested waypoint.
+  final bool showCurrentPositionAsWaypoint;
+
+  const RouteSearch({Key? key, required this.showCurrentPositionAsWaypoint}) : super(key: key);
 
   @override
   RouteSearchState createState() => RouteSearchState();
@@ -355,7 +358,7 @@ class RouteSearchState extends State<RouteSearch> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SmallVSpace(),
-                  if (positioning.lastPosition != null)
+                  if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
                     Column(
                       children: [
                         CurrentPosition(
