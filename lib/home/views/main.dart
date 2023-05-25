@@ -6,7 +6,6 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -67,17 +66,8 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
-  /// The associated feedback service, which is injected by the provider.
-  late Feedback feedback;
-
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    if (feedback.shouldRateApp) {
-      rateApp();
-      feedback.setShouldRateApp(false);
-    }
-    setState(() {});
-  }
+  void update() => setState(() {});
 
   @override
   void initState() {
@@ -91,13 +81,16 @@ class HomeViewState extends State<HomeView> {
     settings.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-    feedback = getIt<Feedback>();
-    feedback.addListener(update);
 
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
+
+    // Rate app after 4 or more uses.
+    if (settings.useCounter >= 4) {
+      rateApp();
+    }
   }
 
   Future<void> rateApp() async {
@@ -114,7 +107,6 @@ class HomeViewState extends State<HomeView> {
     profile.removeListener(update);
     settings.removeListener(update);
     shortcuts.removeListener(update);
-    feedback.removeListener(update);
     super.dispose();
   }
 

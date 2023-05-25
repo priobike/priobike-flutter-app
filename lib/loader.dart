@@ -85,6 +85,7 @@ class LoaderState extends State<Loader> {
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
       final weather = getIt<Weather>();
       await weather.fetch();
+      settings.incrementUseCounter();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);

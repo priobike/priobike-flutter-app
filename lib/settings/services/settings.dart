@@ -56,6 +56,9 @@ class Settings with ChangeNotifier {
   /// The counter of connection error in a row.
   int connectionErrorCounter;
 
+  /// The counter of use of the app.
+  int useCounter;
+
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
 
@@ -246,6 +249,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const useCounterKey = "priobike.settings.useCounter";
+  static const defaultUseCounter = 0;
+
+  Future<bool> incrementUseCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = useCounter;
+    useCounter += 1;
+    bool success = await storage.setInt(useCounterKey, useCounter);
+    if (!success) {
+      log.e("Failed to increment useCounter to $useCounter");
+      useCounter = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Future<bool> resetConnectionErrorCounter([SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
@@ -329,6 +349,7 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.useCounter = defaultUseCounter,
   });
 
   /// Load the backend from the shared
@@ -403,6 +424,7 @@ class Settings with ChangeNotifier {
 
     // All remaining settings.
     connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
+    useCounter = storage.getInt(useCounterKey) ?? defaultUseCounter;
     try {
       colorMode = ColorMode.values.byName(storage.getString(colorModeKey)!);
     } catch (e) {
@@ -442,6 +464,7 @@ class Settings with ChangeNotifier {
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
         "connectionErrorCounter": connectionErrorCounter,
+        "useCounter": useCounter,
         "sgSelector": sgSelector.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
