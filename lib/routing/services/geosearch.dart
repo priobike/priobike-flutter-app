@@ -205,4 +205,12 @@ class Geosearch with ChangeNotifier {
       return {};
     }
   }
+
+  /// Remove a waypoint from the search history.
+  Future<void> removeItemFromSearchHistory(Waypoint waypoint) async {
+    if (searchHistory.isEmpty) return;
+    searchHistory.removeWhere((element) => element.address == waypoint.address);
+    await saveSearchHistory();
+    notifyListeners();
+  }
 }
