@@ -97,7 +97,7 @@ class VeloRoutesLayer {
               id: layerId,
               lineJoin: mapbox.LineJoin.ROUND,
               lineCap: mapbox.LineCap.ROUND,
-              lineColor: CI.lightBlue.value,
+              lineColor: CI.blueLight.value,
               lineWidth: 1.9),
           mapbox.LayerPosition(at: at));
     }

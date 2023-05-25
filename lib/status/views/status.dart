@@ -207,19 +207,17 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
                       child: CircularProgressIndicator(
                         value: predictionStatusSummary.isLoading ? null : goodPct,
                         strokeWidth: 6,
-                        backgroundColor: isProblem
-                            ? const Color.fromARGB(255, 161, 35, 28)
-                            : const Color.fromARGB(255, 0, 255, 106).withOpacity(0.2),
+                        backgroundColor: isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
                         valueColor: isProblem
                             ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                            : const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 0, 255, 106)),
+                            : const AlwaysStoppedAnimation<Color>(CI.green),
                       ),
                     ),
                     Opacity(
                       opacity: 0.2,
                       child: Icon(
                         Icons.chevron_right_rounded,
-                        color: isProblem ? Colors.white : const Color.fromARGB(255, 0, 255, 106),
+                        color: isProblem ? Colors.white : CI.green,
                         size: 42,
                       ),
                     ),

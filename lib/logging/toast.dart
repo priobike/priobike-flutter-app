@@ -7,10 +7,10 @@ class ToastMessage {
   static showError(String message) {
     HapticFeedback.heavyImpact();
     Fluttertoast.showToast(
-      msg: message,
+      msg: "⚠️ $message",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.TOP,
-      backgroundColor: CI.red,
+      backgroundColor: CI.blue,
       textColor: Colors.white,
       fontSize: 20.0,
     );
@@ -19,10 +19,10 @@ class ToastMessage {
   static showSuccess(String message) {
     HapticFeedback.heavyImpact();
     Fluttertoast.showToast(
-      msg: message,
+      msg: "✅ $message",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.TOP,
-      backgroundColor: CI.green,
+      backgroundColor: Colors.black.withOpacity(0.75),
       textColor: Colors.white,
       fontSize: 20.0,
     );

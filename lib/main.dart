@@ -108,7 +108,7 @@ class App extends StatelessWidget {
             colorScheme: const ColorScheme.light(
               background: Color(0xFFFFFFFF),
               primary: CI.blue,
-              secondary: CI.lightBlue,
+              secondary: CI.blueLight,
               surface: Color(0xFFF6F6FF),
               brightness: Brightness.light,
             ),
@@ -164,7 +164,7 @@ class App extends StatelessWidget {
             colorScheme: const ColorScheme.dark(
               background: Color.fromARGB(255, 31, 31, 31),
               primary: CI.blue,
-              secondary: CI.lightBlue,
+              secondary: CI.blueLight,
               surface: Color.fromARGB(255, 42, 42, 42),
               surfaceTint: Color.fromARGB(255, 42, 42, 42),
               brightness: Brightness.dark,

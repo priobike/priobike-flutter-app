@@ -325,7 +325,7 @@ class RoutingViewState extends State<RoutingView> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Content(
+              child: BoldContent(
                 text: 'Okay',
                 context: context,
                 color: Theme.of(context).colorScheme.primary,

@@ -99,7 +99,7 @@ class ShortcutView extends StatelessWidget {
                           // Scale the text to fit the width.
                           fit: BoxFit.fitWidth,
                           child: Content(
-                            text: shortcut == null ? 'Freies Routing\nstarten' : shortcut!.linebreakedName,
+                            text: shortcut == null ? 'Neue Route' : shortcut!.linebreakedName,
                             color: shortcut == null
                                 ? Colors.white
                                 : Theme.of(context).colorScheme.brightness == Brightness.dark
@@ -115,7 +115,7 @@ class ShortcutView extends StatelessWidget {
             ),
           ),
         ]),
-        fill: shortcut == null ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
+        fill: shortcut == null ? CI.blue : Theme.of(context).colorScheme.background,
         splash: shortcut == null ? Colors.white : Theme.of(context).colorScheme.primary,
       ),
     );

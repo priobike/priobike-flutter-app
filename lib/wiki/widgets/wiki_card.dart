@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/wiki/detail.dart';
 import 'package:priobike/wiki/models/article.dart';
 
 class WikiCard extends StatefulWidget {
-  const WikiCard({Key? key, required this.article, required this.imagePadding}) : super(key: key);
+  const WikiCard({Key? key, required this.article}) : super(key: key);
 
   /// The article of the WikiCard.
   final Article article;
-
-  /// The bottom Padding applied to the image.
-  final double imagePadding;
 
   @override
   WikiCardState createState() => WikiCardState();
@@ -21,66 +19,51 @@ class WikiCardState extends State<WikiCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 5, right: 5, bottom: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Tile(
         borderRadius: const BorderRadius.all(
-          Radius.circular(14),
+          Radius.circular(24),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         fill: Theme.of(context).colorScheme.background,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => WikiDetailView(article: widget.article)));
         },
-        content: Column(children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 10, right: 10, bottom: widget.imagePadding),
-                    child: Image(
-                      image: AssetImage(widget.article.image),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BoldSubHeader(text: widget.article.title, context: context, textAlign: TextAlign.left),
+                    Small(
+                      text: "${widget.article.subtitle} - ${widget.article.estimatedTime}",
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                      context: context,
                     ),
-                  ),
+                  ],
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: BoldSubHeader(text: widget.article.title, context: context),
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Small(
-                              text: "${widget.article.subtitle} - ${widget.article.estimatedTime}",
-                              color: Colors.grey,
-                              context: context),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 14,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(14),
-                bottomRight: Radius.circular(14),
               ),
-              color: Theme.of(context).colorScheme.primary,
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 64,
+                height: 64,
+                child: Image(image: AssetImage(widget.article.image), fit: BoxFit.cover),
+              ),
+            ]),
+            const SizedBox(height: 16),
+            Container(
+              height: 8,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                color: CI.blue,
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

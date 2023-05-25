@@ -145,7 +145,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           end: Alignment.bottomLeft,
                           stops: const [0.3, 0.9],
                           colors:
-                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.lightBlue, CI.blue],
+                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.blueLight, CI.blue],
                         ),
                         borderRadius: BorderRadius.circular(48),
                         boxShadow: state == QRCodeViewMode.scanning
