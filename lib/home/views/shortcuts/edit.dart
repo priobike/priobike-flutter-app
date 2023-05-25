@@ -307,13 +307,16 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                                 ],
                               ),
                               onPressed: () {
-                                routing.selectWaypoints(List.from(entry.value.waypoints));
+                                HapticFeedback.mediumImpact();
 
+                                routing.selectWaypoints(List.from(entry.value.waypoints));
                                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                                  (_) {
-                                    routing.reset();
-                                    discomforts.reset();
-                                    predictionSGStatus.reset();
+                                  (comingNotFromRoutingView) {
+                                    if (comingNotFromRoutingView == null) {
+                                      routing.reset();
+                                      discomforts.reset();
+                                      predictionSGStatus.reset();
+                                    }
                                   },
                                 );
                               },
