@@ -84,9 +84,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
   /// A callback that is executed when the search page is opened.
   Future<void> onSearch() async {
-    final bool showOwnLocationInSearch = routing.selectedWaypoints != null ? true : false;
-    final result = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => RouteSearch(showCurrentPositionAsWaypoint: showOwnLocationInSearch)));
+    final result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RouteSearch()));
     if (result == null) return;
 
     final waypoint = result as Waypoint;
