@@ -24,6 +24,9 @@ class Feedback with ChangeNotifier {
   /// A boolean indicating if the feedback service will send feedback.
   get willSendFeedback => pending.isNotEmpty;
 
+  /// If the user should get asked to rate the app.
+  bool shouldRateApp = false;
+
   /// Update a question by the question id.
   Future<void> update({required String id, required Question question}) async {
     pending[id] = question;
@@ -60,6 +63,11 @@ class Feedback with ChangeNotifier {
         value: entry.value.answer,
       );
 
+      // Ask for feedback when 5 stars where given no matter the request success.
+      if (entry.value.answer != null && entry.value.answer!.contains("5")) {
+        shouldRateApp = true;
+      }
+
       try {
         final response =
             await Http.post(endpoint, body: json.encode(request.toJson())).timeout(const Duration(seconds: 4));
@@ -80,5 +88,11 @@ class Feedback with ChangeNotifier {
     notifyListeners();
 
     return true;
+  }
+
+  /// Set should rate app.
+  void setShouldRateApp(bool shouldRateApp) {
+    this.shouldRateApp = shouldRateApp;
+    notifyListeners();
   }
 }
