@@ -227,7 +227,7 @@ class WeatherViewState extends State<WeatherView> {
                     width: 16,
                     height: 16,
                     decoration: const BoxDecoration(
-                      color: CI.red,
+                      color: CI.blue,
                       borderRadius: BorderRadius.all(Radius.circular(4)),
                     ),
                     child: const Icon(Icons.warning_rounded, size: 12, color: Colors.white),

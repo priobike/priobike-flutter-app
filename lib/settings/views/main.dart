@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -53,8 +54,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null)
-                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
                 ],
               ),
             ),

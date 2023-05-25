@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -157,7 +158,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Theme.of(context).colorScheme.primary,
+          color: CI.blue,
         ),
       ),
       Column(

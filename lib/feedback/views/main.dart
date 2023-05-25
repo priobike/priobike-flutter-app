@@ -338,7 +338,7 @@ class FeedbackViewState extends State<FeedbackView> {
                         child: TrackPictogram(
                           track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
-                          maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
+                          maxSpeedColor: CI.blue,
                         ),
                       ),
                     ),

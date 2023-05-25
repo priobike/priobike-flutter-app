@@ -519,7 +519,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (!mounted) return;
     await DiscomfortsLayer().install(
       mapController!,
-      iconSize: ppi / 8,
+      iconSize: ppi / 14,
       at: index,
     );
     index = await getIndex(SelectedRouteLayer.layerId);

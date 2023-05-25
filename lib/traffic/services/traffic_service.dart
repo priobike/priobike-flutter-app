@@ -62,7 +62,7 @@ class Traffic with ChangeNotifier {
     if (scoreNow! > 0.96) {
       return CI.blue;
     } else {
-      return CI.red;
+      return CI.blue;
     }
   }
 

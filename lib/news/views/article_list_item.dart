@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/news/models/article.dart';
@@ -45,7 +46,7 @@ class ArticleListItem extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: CI.red,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: const Text("NEU", style: TextStyle(fontSize: 16, color: Colors.white)),
@@ -55,7 +56,7 @@ class ArticleListItem extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: CI.blue,
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: Text(category!.title, style: const TextStyle(fontSize: 16, color: Colors.white)),

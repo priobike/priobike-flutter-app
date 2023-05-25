@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
@@ -34,7 +35,7 @@ class ProfileElementButton extends StatelessWidget {
       builder: (context, constraints) {
         return Tile(
           fill: backgroundColor ?? theme.colorScheme.background,
-          splash: touchColor ?? theme.colorScheme.primary,
+          splash: touchColor ?? CI.blue,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           padding: const EdgeInsets.all(8),
           showShadow: false,
@@ -211,7 +212,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.bikeType!.icon(),
                               title: profileService.bikeType!.description(),
                               color: Colors.white,
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: CI.blue,
                               touchColor: Colors.white,
                               onPressed: toggleBikeSelection,
                             ),
@@ -235,7 +236,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.preferenceType!.icon(),
                               title: profileService.preferenceType!.description(),
                               color: Colors.white,
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: CI.blue,
                               touchColor: Colors.white,
                               onPressed: togglePreferenceSelection,
                             ),
@@ -259,7 +260,7 @@ class ProfileViewState extends State<ProfileView> {
                               icon: profileService.activityType!.icon(),
                               title: profileService.activityType!.description(),
                               color: Colors.white,
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: CI.blue,
                               touchColor: Colors.white,
                               onPressed: toggleActivitySelection,
                             ),
@@ -341,7 +342,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: bikeType.icon(),
                       title: bikeType.description(),
                       color: Colors.white,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: CI.blue,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.bikeType = bikeType;
@@ -410,7 +411,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: preferenceType.icon(),
                       title: preferenceType.description(),
                       color: Colors.white,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: CI.blue,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.preferenceType = preferenceType;
@@ -481,7 +482,7 @@ class ProfileViewState extends State<ProfileView> {
                       icon: activityType.icon(),
                       title: activityType.description(),
                       color: Colors.white,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: CI.blue,
                       touchColor: Colors.white,
                       onPressed: () {
                         profileService.activityType = activityType;

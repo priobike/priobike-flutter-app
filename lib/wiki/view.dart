@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/wiki/articles.dart';
 import 'package:priobike/wiki/widgets/wiki_card.dart';
 
@@ -28,54 +30,57 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 225,
-      child: Stack(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: 215,
-            child: PageView(
-              controller: pageController,
-              onPageChanged: (int index) {
-                setState(() {
-                  tabController?.index = index;
-                });
-              },
-              children: [
-                WikiCard(
-                  article: articleDataFailures,
-                  imagePadding: 50,
-                ),
-                WikiCard(
-                  article: articleSwitchingPrograms,
-                  imagePadding: 75,
-                ),
-                WikiCard(
-                  article: articleSGSelector,
-                  imagePadding: 50,
-                ),
-                WikiCard(
-                  article: articlePrioBike,
-                  imagePadding: 55,
-                ),
-              ],
+    return Column(children: [
+      Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            BoldContent(
+              text: "Wie funktioniert PrioBike?",
+              context: context,
+              textAlign: TextAlign.center,
             ),
-          ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.only(bottom: 10),
-            child: TabPageSelector(
-              controller: tabController,
-              selectedColor: Theme.of(context).colorScheme.primary,
-              borderStyle: BorderStyle.none,
-              color: Colors.grey,
-              key: GlobalKey(),
+            const SizedBox(height: 4),
+            Small(
+              text: "Erfahre mehr über die App.",
+              context: context,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
+      SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: 164,
+        child: PageView(
+          controller: pageController,
+          onPageChanged: (int index) {
+            setState(() {
+              tabController?.index = index;
+            });
+          },
+          children: [
+            WikiCard(article: articlePrioBike),
+            WikiCard(article: articleDataFailures),
+            WikiCard(article: articleSwitchingPrograms),
+            WikiCard(article: articleSGSelector),
+          ],
+        ),
+      ),
+      Container(
+        alignment: Alignment.bottomCenter,
+        padding: const EdgeInsets.only(top: 8),
+        child: TabPageSelector(
+          controller: tabController,
+          selectedColor: CI.blue,
+          indicatorSize: 12,
+          borderStyle: BorderStyle.none,
+          color: Theme.of(context).colorScheme.background,
+          key: GlobalKey(),
+        ),
+      ),
+    ]);
   }
 }

@@ -194,7 +194,7 @@ class LoaderState extends State<Loader> {
                         0.1,
                         0.9,
                       ],
-                      colors: [CI.lightBlue, CI.blue],
+                      colors: [CI.blueLight, CI.blue],
                     ),
                   )
                 : const BoxDecoration(

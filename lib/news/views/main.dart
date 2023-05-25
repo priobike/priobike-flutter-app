@@ -40,7 +40,8 @@ class NewsViewState extends State<NewsView> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Show status bar in opposite color of the background.
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         body: Fade(
           child: SingleChildScrollView(

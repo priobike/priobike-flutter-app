@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -19,8 +20,6 @@ import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -154,37 +153,6 @@ class HomeViewState extends State<HomeView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
-  Widget renderDebugHint() {
-    String? description;
-    if (settings.backend != Backend.production) {
-      description = "Testort ist gewählt.";
-    }
-    if (settings.positioningMode != PositioningMode.gnss) {
-      description = "Testortung ist aktiv.";
-    }
-    if (description == null) return Container();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(246, 230, 51, 40),
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-        child: HPad(
-          child: Row(
-            children: [
-              const Icon(Icons.warning_rounded, color: Colors.white),
-              const SmallHSpace(),
-              Flexible(child: Content(text: description, context: context, color: Colors.white)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -268,23 +236,52 @@ class HomeViewState extends State<HomeView> {
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
-                  const VSpace(),
-                  const SmallVSpace(),
+                  const SizedBox(height: 48),
                   const BlendIn(
                     delay: Duration(milliseconds: 1000),
                     child: TotalStatisticsView(),
                   ),
+                  const SizedBox(height: 48),
                   const VSpace(),
-                  const BlendIn(
-                    delay: Duration(milliseconds: 1250),
-                    child: WikiView(),
-                  ),
-                  const VSpace(),
-                  BlendIn(
-                    delay: const Duration(milliseconds: 1500),
-                    child: renderDebugHint(),
-                  ),
-                  const SizedBox(height: 128),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.surface.withOpacity(0),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const BlendIn(
+                          delay: Duration(milliseconds: 1250),
+                          child: WikiView(),
+                        ),
+                        const SizedBox(height: 32),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+                          decoration: const BoxDecoration(
+                            color: CI.blueDark,
+                            borderRadius: BorderRadius.all(Radius.circular(6)),
+                          ),
+                          child: BoldSmall(
+                            text: "radkultur hamburg",
+                            context: context,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
