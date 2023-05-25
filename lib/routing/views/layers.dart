@@ -135,7 +135,7 @@ class LayerSelectionViewState extends State<LayerSelectionView> {
                 ),
               ],
             ),
-            Platform.isAndroid ? const VSpace() : Container(),
+            if (Platform.isAndroid) const VSpace(),
             Content(text: "Kartendesign", context: context),
             const SmallVSpace(),
             GridView.count(
