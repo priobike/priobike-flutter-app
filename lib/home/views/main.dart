@@ -267,16 +267,9 @@ class HomeViewState extends State<HomeView> {
                           child: WikiView(),
                         ),
                         const SizedBox(height: 32),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
-                          decoration: const BoxDecoration(
-                            color: CI.blueDark,
-                            borderRadius: BorderRadius.all(Radius.circular(6)),
-                          ),
-                          child: BoldSmall(
-                            text: "radkultur hamburg",
-                            context: context,
-                          ),
+                        BoldSmall(
+                          text: "radkultur hamburg",
+                          context: context,
                         ),
                         const SizedBox(height: 32),
                       ],

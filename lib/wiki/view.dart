@@ -77,7 +77,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
           selectedColor: CI.blue,
           indicatorSize: 12,
           borderStyle: BorderStyle.none,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
           key: GlobalKey(),
         ),
       ),
