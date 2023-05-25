@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/logging/toast.dart';
@@ -397,7 +398,7 @@ class RouteSearchState extends State<RouteSearch> {
                           ToastMessage.showSuccess("Eintrag gelöscht");
                         },
                         direction: DismissDirection.endToStart,
-                        background: Container(color: Theme.of(context).colorScheme.primary),
+                        background: Container(color: CI.red),
                         child: HistoryItem(
                           waypoint: waypointWithDistance.key,
                           distance: waypointWithDistance.value,
