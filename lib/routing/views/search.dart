@@ -106,9 +106,6 @@ class HistoryItemState extends State<HistoryItem> {
   Widget build(BuildContext context) {
     if (widget.waypoint.address == null) return Container();
 
-    // Don't show history items if the user is already there
-    if (widget.distance != null && widget.distance! <= 10) return Container();
-
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
