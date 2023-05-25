@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -18,7 +17,6 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/services/bottom_sheet_state.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -62,7 +60,6 @@ Future<void> main() async {
   getIt.registerSingleton<Profile>(Profile());
   getIt.registerSingleton<News>(News());
   getIt.registerSingleton<Shortcuts>(Shortcuts());
-  getIt.registerSingleton<Places>(Places());
   getIt.registerSingleton<Discomforts>(Discomforts());
   getIt.registerSingleton<Geocoding>(Geocoding());
   getIt.registerSingleton<Geosearch>(Geosearch());
@@ -75,7 +72,6 @@ Future<void> main() async {
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<Traffic>(Traffic());
 

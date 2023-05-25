@@ -127,20 +127,11 @@ class Routing with ChangeNotifier {
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
 
-  /// The list of waypoints for SearchRoutingView.
-  List<Waypoint?> routingItems = [];
-
-  /// The index which routingBarItem gets highlighted next.
-  int nextItem = -1;
-
   /// The currently selected route, if one fetched.
   r.Route? selectedRoute;
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
-
-  /// Variable that holds the state of which the item should be minimized to max 3 items.
-  bool minimized = false;
 
   Routing({
     this.fetchedWaypoints,
@@ -177,12 +168,6 @@ class Routing with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Select new waypoints.
-  Future<void> selectRoutingItems(List<Waypoint?> waypoints) async {
-    routingItems = waypoints;
-    notifyListeners();
-  }
-
   /// Select the remaining waypoints.
   Future<void> selectRemainingWaypoints() async {
     final userPos = getIt<Positioning>().lastPosition;
@@ -214,11 +199,8 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
-    routingItems = [];
-    nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
-    minimized = false;
     notifyListeners();
   }
 
@@ -476,18 +458,6 @@ class Routing with ChangeNotifier {
     await status.fetch(selectedRoute!);
 
     notifyListeners();
-  }
-
-  void switchMinimized() {
-    minimized = !minimized;
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
-  }
-
-  void setMinimized() {
-    minimized = false;
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
   }
 
   @override
