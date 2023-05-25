@@ -13,6 +13,7 @@ import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
+import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
@@ -180,6 +181,8 @@ class HomeViewState extends State<HomeView> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey) const BlendIn(child: SurveyView()),
                   const VSpace(),
                   const BlendIn(child: StatusView()),
                   BlendIn(
