@@ -50,8 +50,8 @@ class StarRatingViewState extends State<StarRatingView> {
   /// A custom Path to paint confetti stripes.
   Path drawConfetti(Size size) {
     Path path = Path();
-    path.addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width / 2, size.height / 2), const Radius.circular(0)));
+    path.addRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width / 2, size.height / 2), const Radius.circular(0)));
 
     return path;
   }
