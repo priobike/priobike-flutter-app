@@ -47,7 +47,6 @@ class SurveyViewState extends State<SurveyView> {
       fill: Theme.of(context).colorScheme.background,
       onPressed: () {
         _launchSurvey();
-        settings.setDismissedSurvey(true);
       },
       content: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
