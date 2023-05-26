@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
@@ -368,6 +369,17 @@ class SettingsViewState extends State<SettingsView> {
                     text:
                         "Hinweis: Wenn aktiviert, wird die Qualität der Kartendarstellung während der Fahrt reduziert.",
                     context: context,
+                  ),
+                ),
+                const VSpace(),
+                const Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: SurveyView(
+                    dismissible: false,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      bottomLeft: Radius.circular(24),
+                    ),
                   ),
                 ),
                 const VSpace(),

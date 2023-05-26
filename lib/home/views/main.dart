@@ -182,7 +182,15 @@ class HomeViewState extends State<HomeView> {
               child: Column(
                 children: [
                   if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
-                  if (settings.useCounter >= 3 && !settings.dismissedSurvey) const BlendIn(child: SurveyView()),
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey)
+                    BlendIn(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: const SurveyView(
+                          dismissible: true,
+                        ),
+                      ),
+                    ),
                   const VSpace(),
                   const BlendIn(child: StatusView()),
                   BlendIn(
