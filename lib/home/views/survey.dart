@@ -6,7 +6,11 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SurveyView extends StatefulWidget {
-  const SurveyView({Key? key}) : super(key: key);
+  final bool dismissible;
+
+  final BorderRadius? borderRadius;
+
+  const SurveyView({Key? key, required this.dismissible, this.borderRadius}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SurveyViewState();
@@ -34,50 +38,62 @@ class SurveyViewState extends State<SurveyView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Tile(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(24),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fill: Theme.of(context).colorScheme.background,
-        onPressed: () {
-          _launchSurvey();
-          settings.setDismissedSurvey(true);
-        },
-        content: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(children: [
-              Flexible(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BoldContent(
-                        text: "Vielen Dank für’s Ausprobieren der PrioBike-App. Klappt alles?",
-                        context: context,
-                        textAlign: TextAlign.left),
-                    Small(
-                      text:
-                          "Wenn nicht — umso besser. Wir sind auf Dein Feedback gespannt. Bitte nimm Dir etwa 10 Minuten Zeit für unsere Umfrage",
-                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+    return Tile(
+      borderRadius: widget.borderRadius ??
+          const BorderRadius.all(
+            Radius.circular(24),
+          ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      fill: Theme.of(context).colorScheme.background,
+      onPressed: () {
+        _launchSurvey();
+        settings.setDismissedSurvey(true);
+      },
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(children: [
+            Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoldContent(
+                      text: "Vielen Dank für’s Ausprobieren der PrioBike-App. Klappt alles?",
                       context: context,
-                    ),
-                  ],
-                ),
+                      textAlign: TextAlign.left),
+                  Small(
+                    text:
+                        "Wenn nicht — umso besser. Wir sind auf Dein Feedback gespannt. Bitte nimm Dir etwa 10 Minuten Zeit für unsere Umfrage.",
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.75),
+                    context: context,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
+            ),
+            if (widget.dismissible) const SizedBox(width: 8),
+            if (widget.dismissible)
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () {
                   settings.setDismissedSurvey(true);
                 },
               ),
-            ]),
-          ],
-        ),
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Small(
+              context: context,
+              text: "Zur Umfrage",
+            ),
+            const SizedBox(
+              width: 4,
+            ),
+            const Icon(
+              Icons.redo,
+              size: 12,
+            )
+          ]),
+        ],
       ),
     );
   }
