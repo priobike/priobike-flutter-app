@@ -93,6 +93,7 @@ class HomeViewState extends State<HomeView> {
     }
   }
 
+  /// Function that starts the inAppReview.
   Future<void> rateApp() async {
     final InAppReview inAppReview = InAppReview.instance;
 
