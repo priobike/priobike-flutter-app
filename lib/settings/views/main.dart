@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
@@ -53,8 +55,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null)
-                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
                 ],
               ),
             ),
@@ -368,6 +369,17 @@ class SettingsViewState extends State<SettingsView> {
                     text:
                         "Hinweis: Wenn aktiviert, wird die Qualität der Kartendarstellung während der Fahrt reduziert.",
                     context: context,
+                  ),
+                ),
+                const VSpace(),
+                const Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: SurveyView(
+                    dismissible: false,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      bottomLeft: Radius.circular(24),
+                    ),
                   ),
                 ),
                 const VSpace(),

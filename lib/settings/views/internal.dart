@@ -288,6 +288,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () => getIt<Settings>().setDidViewWarning(false),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Umfrage zurücksetzen",
+                    icon: Icons.recycling,
+                    callback: () => getIt<Settings>().setDismissedSurvey(false),
+                  ),
+                ),
                 const SmallVSpace(),
               ],
             ),

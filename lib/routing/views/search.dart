@@ -1,189 +1,194 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
 
-class WaypointListItemView extends StatefulWidget {
-  /// If the item is displaying the current position.
-  final bool isCurrentPosition;
+/// Result of a address search query.
+class SearchItem extends StatelessWidget {
+  /// The waypoint of the search result.
+  final Waypoint waypoint;
 
-  /// The associated waypoint.
-  final Waypoint? waypoint;
-
-  /// A callback function that is called when the user taps on the item.
-  final void Function(Waypoint) onTap;
-
-  /// If the history icon should be shown.
-  final bool? showHistoryIcon;
-
-  /// The distance to the waypoint in meters.
+  /// The distance to the search result.
   final double? distance;
 
-  const WaypointListItemView({
-    this.isCurrentPosition = false,
+  /// Callback when the search result is tapped.
+  final Function onTapped;
+
+  const SearchItem({
     required this.waypoint,
-    required this.onTap,
+    required this.onTapped,
     this.distance,
-    this.showHistoryIcon,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => WaypointListItemViewState();
-}
-
-class WaypointListItemViewState extends State<WaypointListItemView> {
-  /// The associated position service, which is injected by the provider.
-  late Positioning positioning;
-
-  /// The associated geosearch service, which is injected by the provider.
-  late Geosearch geosearch;
-
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    geosearch = getIt<Geosearch>();
-    geosearch.addListener(update);
-    positioning = getIt<Positioning>();
-    positioning.addListener(update);
-  }
-
-  @override
-  void dispose() {
-    geosearch.removeListener(update);
-    positioning.removeListener(update);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    if (waypoint.address == null) return Container();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        leading: (widget.showHistoryIcon == null) || (!widget.showHistoryIcon!)
+        title: BoldSmall(
+          text: waypoint.address!,
+          context: context,
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+        subtitle: distance == null
             ? null
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.history,
-                  ),
-                ],
-              ),
-        title: widget.waypoint == null
-            ? null
-            : widget.isCurrentPosition
-                ? BoldSubHeader(
-                    text: "Aktueller Standort",
-                    context: context,
-                    color: Colors.white,
-                  )
-                : BoldSmall(
-                    text: widget.waypoint!.address!,
-                    context: context,
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-        subtitle: widget.isCurrentPosition
-            ? null
-            : (widget.distance == null
-                ? null
-                : (widget.distance! >= 1000
-                    ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
-                    : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)))),
-        trailing: widget.waypoint == null
-            ? CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.onPrimary,
-              )
-            : Icon(
-                widget.isCurrentPosition ? Icons.location_on : Icons.arrow_forward,
-                color: widget.isCurrentPosition ? Colors.white : Theme.of(context).colorScheme.primary,
-              ),
+            : distance! >= 1000
+                ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
+        trailing: Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Icon(
+            Icons.arrow_forward,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tileColor:
-            widget.isCurrentPosition ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.background,
-        onTap: () {
-          if (widget.waypoint != null) widget.onTap(widget.waypoint!);
-        },
+        tileColor: Theme.of(context).colorScheme.background,
+        onTap: () => onTapped(waypoint: waypoint, addToHistory: true),
       ),
     );
   }
 }
 
-class CurrentPositionWaypointListItemView extends StatefulWidget {
-  /// A callback function that is called when the user taps on the item.
-  final void Function(Waypoint) onTap;
+/// Saved Waypoints from the search history.
+class HistoryItem extends StatefulWidget {
+  /// The saved waypoint.
+  final Waypoint waypoint;
 
-  const CurrentPositionWaypointListItemView({required this.onTap, Key? key}) : super(key: key);
+  /// The distance to the saved waypoint.
+  final double? distance;
+
+  /// Callback when the saved waypoint is tapped.
+  final Function onTapped;
+
+  const HistoryItem({
+    required this.waypoint,
+    required this.onTapped,
+    this.distance,
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => CurrentPositionWaypointListItemViewState();
+  State<StatefulWidget> createState() => HistoryItemState();
 }
 
-class CurrentPositionWaypointListItemViewState extends State<CurrentPositionWaypointListItemView> {
-  /// The associated position service, which is injected by the provider.
-  late Positioning positioning;
+class HistoryItemState extends State<HistoryItem> {
+  /// If user long presses the item, show delete icon.
+  bool showDeleteIcon = false;
 
-  /// The currently fetched address.
-  Waypoint? waypoint;
+  /// A callback that is fired when a history item is long pressed.
+  Future<void> temporarilyShowDeleteIcon(Waypoint waypoint) async {
+    setState(() {
+      showDeleteIcon = true;
+    });
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    // Update the distance to the waypoint.
-    updateWaypoint();
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    positioning = getIt<Positioning>();
-    positioning.addListener(update);
-
-    // Update the distance to the waypoint.
-    updateWaypoint();
-  }
-
-  @override
-  void dispose() {
-    positioning.removeListener(update);
-    super.dispose();
-  }
-
-  /// Update the waypoint.
-  void updateWaypoint() {
-    if (positioning.lastPosition == null) {
-      waypoint = null;
-      return;
-    }
-    if (waypoint != null &&
-        waypoint!.lat == positioning.lastPosition!.latitude &&
-        waypoint!.lon == positioning.lastPosition!.longitude) return;
-    waypoint = Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
+    // Hide icon again after 5 seconds.
+    await Future.delayed(const Duration(milliseconds: 5000));
+    setState(() {
+      showDeleteIcon = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return WaypointListItemView(
-      isCurrentPosition: true,
-      waypoint: waypoint,
-      onTap: widget.onTap,
+    if (widget.waypoint.address == null) return Container();
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 12),
+      child: ListTile(
+        leading: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(
+              Icons.history,
+            ),
+          ],
+        ),
+        title: BoldSmall(
+          text: widget.waypoint.address!,
+          context: context,
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+        subtitle: widget.distance == null
+            ? null
+            : (widget.distance! >= 1000)
+                ? (Small(text: "${(widget.distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
+                : (Small(text: "${widget.distance!.toStringAsFixed(0)} m entfernt", context: context)),
+        trailing: showDeleteIcon == true
+            ? IconButton(
+                onPressed: () => getIt<Geosearch>().removeItemFromSearchHistory(widget.waypoint),
+                icon: Icon(
+                  Icons.delete,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        tileColor: Theme.of(context).colorScheme.background,
+        onTap: () => widget.onTapped(waypoint: widget.waypoint, addToHistory: true),
+        onLongPress: () => temporarilyShowDeleteIcon(widget.waypoint),
+      ),
+    );
+  }
+}
+
+/// The button with the current position.
+class CurrentPosition extends StatelessWidget {
+  /// Callback when the current position is tapped.
+  final Function onTapped;
+
+  const CurrentPosition({
+    required this.onTapped,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final positioning = getIt<Positioning>();
+    if (positioning.lastPosition == null) return Container();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: ListTile(
+        title: BoldSubHeader(
+          text: "Aktueller Standort",
+          context: context,
+          color: Colors.white,
+        ),
+        trailing: const Padding(
+          padding: EdgeInsets.only(right: 12),
+          child: Icon(
+            Icons.location_on,
+            color: Colors.white,
+          ),
+        ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        tileColor: Theme.of(context).colorScheme.primary,
+        onTap: () => onTapped(
+            waypoint: Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
+            addToHistory: false),
+      ),
     );
   }
 }
@@ -257,25 +262,12 @@ class RouteSearchState extends State<RouteSearch> {
     );
   }
 
-  /// A callback that is fired when a history item is tapped.
-  void onHistoryItemTapped(Waypoint waypoint) {
-    geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
-  }
-
   /// A callback that is fired when a waypoint is tapped.
-  void onWaypointTapped(Waypoint waypoint) {
-    geosearch.addToSearchHistory(waypoint);
+  Future<void> tappedWaypoint({required Waypoint waypoint, required bool addToHistory}) async {
+    /// The current position is not saved in the search history.
+    if (addToHistory) await geosearch.addToSearchHistory(waypoint);
     geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
-  }
-
-  /// A callback that is fired when the current position is tapped.
-  /// The current position is not saved in the search history.
-  void onCurrentPositionTapped(Waypoint waypoint) {
-    if (positioning.lastPosition == null) return;
-    geosearch.clearGeosearch();
-    Navigator.of(context).pop(waypoint);
+    if (mounted) Navigator.of(context).pop(waypoint);
   }
 
   /// Calculate distance to the user for each waypoint and optionally sorts the results in ascending order.
@@ -297,6 +289,34 @@ class RouteSearchState extends State<RouteSearch> {
       return Map.fromEntries(dictionary.entries.toList()..sort((e1, e2) => e1.value.compareTo(e2.value)));
     }
     return dictionary;
+  }
+
+  /// Ask the user for confirmation if he wants to delete all waypoints from the search history.
+  Future<void> deleteWholeSearchHistoryDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Gesamten Suchverlauf löschen"),
+          content: const Text("Möchtest du den Suchverlauf wirklich löschen?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Abbrechen"),
+            ),
+            TextButton(
+              onPressed: () {
+                geosearch.deleteSearchHistory();
+                Navigator.of(context).pop();
+              },
+              child: const Text("Löschen"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -339,45 +359,63 @@ class RouteSearchState extends State<RouteSearch> {
                 children: [
                   const SmallVSpace(),
                   if (positioning.lastPosition != null && widget.showCurrentPositionAsWaypoint)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: CurrentPositionWaypointListItemView(
-                        onTap: onCurrentPositionTapped,
-                      ),
+                    Column(
+                      children: [
+                        CurrentPosition(
+                          onTapped: tappedWaypoint,
+                        ),
+                        const SmallVSpace(),
+                      ],
                     ),
-
                   // Search History (sorted by recency of searches)
                   if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
-                      child: BoldContent(
-                        text: "Letzte Suchergebnisse",
-                        context: context,
+                      padding: const EdgeInsets.only(left: 16, right: 24, top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BoldContent(
+                            text: "Letzte Suchergebnisse",
+                            context: context,
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 20,
+                            ),
+                            onPressed: () => deleteWholeSearchHistoryDialog(),
+                          ),
+                        ],
                       ),
                     ),
-                    for (final entry in calculateDistanceToWaypoints(
+                    for (final waypointWithDistance in calculateDistanceToWaypoints(
                             waypoints: geosearch.searchHistory.reversed.toList(), sortByDistance: false)
-                        .entries) ...[
-                      WaypointListItemView(
-                        waypoint: entry.key,
-                        distance: entry.value,
-                        onTap: onHistoryItemTapped,
-                        showHistoryIcon: true,
-                      )
-                    ]
+                        .entries)
+                      Dismissible(
+                        key: Key(waypointWithDistance.key.hashCode.toString()),
+                        onDismissed: (direction) {
+                          getIt<Geosearch>().removeItemFromSearchHistory(waypointWithDistance.key);
+                          ToastMessage.showSuccess("Eintrag gelöscht");
+                        },
+                        direction: DismissDirection.endToStart,
+                        background: Container(color: CI.red),
+                        child: HistoryItem(
+                          waypoint: waypointWithDistance.key,
+                          distance: waypointWithDistance.value,
+                          onTapped: tappedWaypoint,
+                        ),
+                      ),
                   ],
 
                   // Search Results (sorted by distance to user)
                   if (geosearch.results?.isNotEmpty == true) ...[
-                    for (final entry
-                        in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true)
-                            .entries) ...[
-                      WaypointListItemView(
-                        waypoint: entry.key,
-                        distance: entry.value,
-                        onTap: onWaypointTapped,
-                      )
-                    ],
+                    for (final waypointWithDistance
+                        in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true).entries)
+                      SearchItem(
+                        waypoint: waypointWithDistance.key,
+                        distance: waypointWithDistance.value,
+                        onTapped: tappedWaypoint,
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(top: 16, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),

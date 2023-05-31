@@ -34,7 +34,7 @@ final Article articleSGSelector = Article("Die Ampel-Fee", "Wie unsere App die r
 
 /// Article about PrioBike
 final Article articlePrioBike = Article(
-    "PrioBike", "Wenn Radfahren zur Raketenwissenschaft wird", "3 min.", "assets/images/wiki/rocket_science.png", [
+    "Das Projekt", "Wenn Radfahren zur Raketenwissenschaft wird", "3 min.", "assets/images/wiki/rocket_science.png", [
   "Hallo liebe Radfahrerinnen und Radfahrer! Ich bin PrioBike, eure freundliche Fahrrad-App. Aber ich bin nicht nur eine App, sondern Teil eines großen Projekts, das Hamburg zu einer fahrradfreundlichen Stadt machen will. Das Projekt ist ist so cool, dass man fast vergisst, dass es sich um Stadtplanung handelt.",
   "Unser neuestes Feature ist die \"Grüne Welle\" entlang dreier Velorouten. Wenn ihr diese Routen benutzt, werdet ihr nicht nur mit frischer Luft und einer schönen Aussicht belohnt, sondern auch mit einer dynamischen Ampelschaltung, die euch bei Grün durchfahren lässt. Wenn das kein Grund ist, sich aufs Rad zu schwingen, weiß ich auch nicht weiter.",
   "Aber das ist noch lange nicht alles. Habt ihr schon die PrioBike-Säule auf der Rothenbaumchaussee entdeckt? Sie ist einzigartig in Deutschland und berechnet für jeden Radfahrenden eine individuelle Geschwindigkeitsempfehlung. Das bedeutet, dass ihr nicht nur wisst, wie schnell ihr fahren sollt, um möglichst viele Grünsignale zu erwischen, sondern auch wie lange ihr für eure Strecke braucht. Das ist fast so cool wie ein Fahrrad mit Raketenantrieb.",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/fx.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
@@ -17,7 +18,7 @@ class IconItem extends Row {
               height: 64,
               child: Icon(
                 icon,
-                color: Colors.blueAccent,
+                color: Colors.red,
                 size: 64,
                 semanticLabel: text,
               ),
@@ -104,11 +105,10 @@ class PrivacyPolicyViewState extends State<PrivacyPolicyView> {
                     children: [
                       const SizedBox(height: 164),
                       if (!privacyService.hasChanged!) Header(text: "Diese App funktioniert mit", context: context),
-                      if (!privacyService.hasChanged!)
-                        Header(text: "deinen Daten.", color: Colors.blueAccent, context: context),
+                      if (!privacyService.hasChanged!) Header(text: "deinen Daten.", color: CI.blue, context: context),
                       if (privacyService.hasChanged!) Header(text: "Wir haben die Erklärung zum", context: context),
                       if (privacyService.hasChanged!)
-                        Header(text: "Datenschutz aktualisiert.", color: Colors.blueAccent, context: context),
+                        Header(text: "Datenschutz aktualisiert.", color: Colors.red, context: context),
                       const SmallVSpace(),
                       if (!privacyService.hasChanged!)
                         SubHeader(

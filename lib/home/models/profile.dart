@@ -22,21 +22,6 @@ extension BikeTypeDescription on BikeType {
   }
 }
 
-extension BikeTypeColor on BikeType {
-  Color color() {
-    switch (this) {
-      case BikeType.ebike:
-        return const Color.fromRGBO(0, 148, 50, 1.0);
-      case BikeType.racingbike:
-        return const Color.fromRGBO(234, 32, 39, 1.0);
-      case BikeType.mountainbike:
-        return const Color.fromRGBO(6, 82, 221, 1.0);
-      case BikeType.cargobike:
-        return const Color.fromRGBO(247, 159, 31, 1.0);
-    }
-  }
-}
-
 extension BikeTypeIcon on BikeType {
   IconData icon() {
     switch (this) {
@@ -68,17 +53,6 @@ extension PreferenceTypeDescription on PreferenceType {
   }
 }
 
-extension PreferenceTypeColor on PreferenceType {
-  Color color() {
-    switch (this) {
-      case PreferenceType.fast:
-        return const Color.fromRGBO(234, 32, 39, 1.0);
-      case PreferenceType.comfortible:
-        return const Color.fromRGBO(163, 203, 56, 1.0);
-    }
-  }
-}
-
 extension PreferenceTypeIcon on PreferenceType {
   IconData icon() {
     switch (this) {
@@ -93,17 +67,6 @@ extension PreferenceTypeIcon on PreferenceType {
 enum ActivityType {
   avoidIncline,
   allowIncline,
-}
-
-extension ActivityTypeColor on ActivityType {
-  Color color() {
-    switch (this) {
-      case ActivityType.avoidIncline:
-        return const Color.fromRGBO(6, 82, 221, 1.0);
-      case ActivityType.allowIncline:
-        return const Color.fromRGBO(234, 32, 39, 1.0);
-    }
-  }
 }
 
 extension ActivityTypeIcon on ActivityType {

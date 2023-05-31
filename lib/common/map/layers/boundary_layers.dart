@@ -49,7 +49,7 @@ class BoundaryLayer {
         sourceId: sourceId,
         id: fillLayerId,
         fillColor: Colors.black.value,
-        fillOpacity: isDark ? 0.3 : 0.1,
+        fillOpacity: isDark ? 0.5 : 0.2,
       ));
     }
 

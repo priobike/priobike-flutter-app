@@ -134,8 +134,9 @@ class AlertsViewState extends State<AlertsView> {
                           width: 6,
                           height: 6,
                           decoration: BoxDecoration(
-                            color:
-                                i == currentPage ? CI.red : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                            color: i == currentPage
+                                ? CI.blue
+                                : Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                             shape: BoxShape.circle,
                           ),
                         ),

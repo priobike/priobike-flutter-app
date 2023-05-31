@@ -62,6 +62,9 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
 
+  /// If the save battery mode is enabled.
+  bool dismissedSurvey;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -297,6 +300,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const dismissedSurveyKey = "priobike.settings.dissmissedSurvey";
+  static const defaultDismissedSurvey = false;
+
+  Future<bool> setDismissedSurvey(bool dismissedSurvey, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.dismissedSurvey;
+    this.dismissedSurvey = dismissedSurvey;
+    bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
+    if (!success) {
+      log.e("Failed to set sgSelector to $sgSelector");
+      this.dismissedSurvey = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   static const trackingSubmissionPolicyKey = "priobike.settings.trackingSubmissionPolicy";
   static const defaultTrackingSubmissionPolicy = TrackingSubmissionPolicy.always;
 
@@ -350,6 +370,7 @@ class Settings with ChangeNotifier {
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
     this.useCounter = defaultUseCounter,
+    this.dismissedSurvey = defaultDismissedSurvey,
   });
 
   /// Load the backend from the shared
@@ -446,6 +467,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      dismissedSurvey = storage.getBool(dismissedSurveyKey) ?? defaultDismissedSurvey;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -468,5 +494,6 @@ class Settings with ChangeNotifier {
         "sgSelector": sgSelector.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
+        "dismissedSurvey": dismissedSurvey,
       };
 }

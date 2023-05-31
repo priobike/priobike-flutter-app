@@ -38,19 +38,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
     super.dispose();
   }
 
-  Container renderTableBorder() {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Color.fromARGB(20, 1, 1, 1),
-            width: 1,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget renderInfoDialogBox() {
     return AlertDialog(
       shape: const RoundedRectangleBorder(
@@ -80,9 +67,9 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BoldContent(text: "Dein Fortschritt", context: context),
+              BoldContent(text: "PrioBike Challenge", context: context),
               const SizedBox(height: 4),
-              Small(text: "Auf diesem Gerät", context: context),
+              Small(text: "Dein aktueller Fortschritt", context: context),
             ],
           ),
         ),
@@ -111,42 +98,26 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   Widget renderCo2Stats() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Small(text: "CO2", context: context),
-              ],
-            ),
-          ),
-          const HSpace(),
-          Expanded(child: Container()),
-          Container(
-            alignment: Alignment.centerRight,
-            child: LevelView(
-              levels: const [
-                // Bronze levels
-                Level(value: 0, title: "Öko-Kämpfer", color: Medals.bronze),
-                Level(value: 1, title: "Grüner Riese", color: Medals.bronze),
-                // Silver levels
-                Level(value: 5, title: "Planetenschützer", color: Medals.silver),
-                Level(value: 10, title: "Nachhaltigkeits-Star", color: Medals.silver),
-                // Gold levels
-                Level(value: 25, title: "Öko-Held", color: Medals.gold),
-                Level(value: 50, title: "Umwelt-Retter", color: Medals.gold),
-                // PrioBike (Blue) levels
-                Level(value: 100, title: "Klima-Champion", color: Medals.priobike),
-              ],
-              value: (statistics.totalSavedCO2Kg ?? 0),
-              icon: Icons.co2_rounded,
-              unit: "kg",
-            ),
-          ),
-        ],
+      child: Container(
+        alignment: Alignment.centerRight,
+        child: LevelView(
+          levels: const [
+            // Bronze levels
+            Level(value: 0, title: "Öko-Kämpfer", color: Medals.bronze),
+            Level(value: 1, title: "Grüner Riese", color: Medals.bronze),
+            // Silver levels
+            Level(value: 5, title: "Planetenschützer", color: Medals.silver),
+            Level(value: 10, title: "Nachhaltigkeits-Star", color: Medals.silver),
+            // Gold levels
+            Level(value: 25, title: "Öko-Held", color: Medals.gold),
+            Level(value: 50, title: "Umwelt-Retter", color: Medals.gold),
+            // PrioBike (Blue) levels
+            Level(value: 100, title: "Klima-Champion", color: Medals.priobike),
+          ],
+          value: (statistics.totalSavedCO2Kg ?? 0),
+          icon: Icons.co2_rounded,
+          unit: "kg",
+        ),
       ),
     );
   }
@@ -154,42 +125,26 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   Widget renderDistanceStats() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Small(text: "Distanz", context: context),
-              ],
-            ),
-          ),
-          const HSpace(),
-          Expanded(child: Container()),
-          Container(
-            alignment: Alignment.centerRight,
-            child: LevelView(
-              levels: const [
-                // Bronze levels
-                Level(value: 0, title: "Meilen-Mampfer", color: Medals.bronze),
-                Level(value: 50, title: "Zweirad-Wanderer", color: Medals.bronze),
-                // Silver levels
-                Level(value: 100, title: "Radfahr-Begleiter", color: Medals.silver),
-                Level(value: 150, title: "Fahrrad-Buddha", color: Medals.silver),
-                // Gold levels
-                Level(value: 250, title: "Velociped-Virtuose", color: Medals.gold),
-                Level(value: 500, title: "Sattel-Kenner", color: Medals.gold),
-                // PrioBike (Blue) levels
-                Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
-              ],
-              value: (statistics.totalDistanceMeters ?? 0) / 1000,
-              icon: Icons.directions_bike_rounded,
-              unit: "km",
-            ),
-          ),
-        ],
+      child: Container(
+        alignment: Alignment.centerRight,
+        child: LevelView(
+          levels: const [
+            // Bronze levels
+            Level(value: 0, title: "Meilen-Mampfer", color: Medals.bronze),
+            Level(value: 50, title: "Zweirad-Wanderer", color: Medals.bronze),
+            // Silver levels
+            Level(value: 100, title: "Radfahr-Begleiter", color: Medals.silver),
+            Level(value: 150, title: "Fahrrad-Buddha", color: Medals.silver),
+            // Gold levels
+            Level(value: 250, title: "Velociped-Virtuose", color: Medals.gold),
+            Level(value: 500, title: "Sattel-Kenner", color: Medals.gold),
+            // PrioBike (Blue) levels
+            Level(value: 1000, title: "Radfahr-Champion", color: Medals.priobike),
+          ],
+          value: (statistics.totalDistanceMeters ?? 0) / 1000,
+          icon: Icons.directions_bike_rounded,
+          unit: "km",
+        ),
       ),
     );
   }
@@ -197,42 +152,26 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   Widget renderDurationStats() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Small(text: "Zeit", context: context),
-              ],
-            ),
-          ),
-          const HSpace(),
-          Expanded(child: Container()),
-          Container(
-            alignment: Alignment.centerRight,
-            child: LevelView(
-              levels: const [
-                // Bronze levels
-                Level(value: 0, title: "Radel-Rookie", color: Medals.bronze),
-                Level(value: 10, title: "Mittelstrecken-Fahrer", color: Medals.bronze),
-                // Silver levels
-                Level(value: 30, title: "Dauerläufer", color: Medals.silver),
-                Level(value: 180, title: "Bike-Boss", color: Medals.silver),
-                // Gold levels
-                Level(value: 600, title: "Pedal-Powerhouse", color: Medals.gold),
-                Level(value: 1200, title: "Tour de Force", color: Medals.gold),
-                // PrioBike (Blue) levels
-                Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
-              ],
-              value: (statistics.totalDurationSeconds ?? 0.0) / 60,
-              icon: Icons.timer_outlined,
-              unit: "min",
-            ),
-          ),
-        ],
+      child: Container(
+        alignment: Alignment.centerRight,
+        child: LevelView(
+          levels: const [
+            // Bronze levels
+            Level(value: 0, title: "Radel-Rookie", color: Medals.bronze),
+            Level(value: 10, title: "Mittelstrecken-Fahrer", color: Medals.bronze),
+            // Silver levels
+            Level(value: 30, title: "Dauerläufer", color: Medals.silver),
+            Level(value: 180, title: "Bike-Boss", color: Medals.silver),
+            // Gold levels
+            Level(value: 600, title: "Pedal-Powerhouse", color: Medals.gold),
+            Level(value: 1200, title: "Tour de Force", color: Medals.gold),
+            // PrioBike (Blue) levels
+            Level(value: 3000, title: "Radrennen-Routinier", color: Medals.priobike),
+          ],
+          value: (statistics.totalDurationSeconds ?? 0.0) / 60,
+          icon: Icons.timer_outlined,
+          unit: "min",
+        ),
       ),
     );
   }
@@ -274,20 +213,23 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          renderRideStats(),
-          renderTableBorder(),
-          renderCo2Stats(),
-          renderTableBorder(),
-          renderDistanceStats(),
-          renderTableBorder(),
-          renderDurationStats(),
-          renderTableBorder(),
-          renderSpeedStats(),
-        ],
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: [
+            renderRideStats(),
+            renderCo2Stats(),
+            renderDistanceStats(),
+            renderDurationStats(),
+            renderSpeedStats(),
+          ],
+        ),
       ),
     );
   }
