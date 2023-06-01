@@ -86,8 +86,8 @@ class HomeViewState extends State<HomeView> {
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
 
-    // Rate app after 4 or more uses.
-    if (settings.useCounter >= 4) {
+    // Rate app after 5 uses and each 10 uses.
+    if (settings.useCounter == 5 || settings.useCounter > 5 && settings.useCounter % 10 == 0) {
       rateApp();
     }
   }
