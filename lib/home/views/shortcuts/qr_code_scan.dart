@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/shimmer.dart';
@@ -16,7 +17,7 @@ class ScanQRCodeView extends StatefulWidget {
   final void Function(Shortcut shortcut) onScan;
 
   /// Called when the scanner is initialized.
-  final void Function(MobileScannerController controller, bool hasTorch)? onInit;
+  final void Function(CameraController controller)? onInit;
 
   const ScanQRCodeView({Key? key, required this.onScan, this.onInit}) : super(key: key);
 
@@ -48,7 +49,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   CameraState cameraState = CameraState.initializing;
 
   /// The controller for the camera.
-  MobileScannerController? cameraController;
+  CameraController? cameraController;
 
   /// The shortcut that has been scanned.
   Shortcut? shortcut;
@@ -56,25 +57,17 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   /// The listener for the barcode stream.
   StreamSubscription<BarcodeCapture>? listener;
 
-  @override
-  void initState() {
-    super.initState();
-    cameraController = MobileScannerController(autoStart: false);
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) {
-        start();
-      },
-    );
-  }
-
   /// Start the camera and listen to updates of the barcode stream.
-  Future<void> start() async {
-    if (cameraController == null) {
+  dynamic onControllerCreated(CameraController? newController) async {
+    if (newController == null) {
+      cameraState = CameraState.otherError;
       return;
     }
 
+    cameraController = newController;
+
     try {
-      await cameraController!.start();
+      await cameraController!.initialize();
       listener = cameraController!.barcodes.listen(
         (capture) {
           if (shortcut != null) {
@@ -105,10 +98,8 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       );
 
       cameraState = CameraState.ready;
-    } on MobileScannerException catch (e) {
-      if (e.errorCode == MobileScannerErrorCode.permissionDenied) {
-        cameraState = CameraState.permissionNotGranted;
-      } else if (e.errorCode == MobileScannerErrorCode.genericError) {
+    } on CameraException catch (e) {
+      if (e.code == "cameraPermission") {
         cameraState = CameraState.permissionNotGranted;
       } else {
         log.e('Failed to initialize camera controller: $e');
@@ -169,8 +160,8 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
     return Stack(children: [
       ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        child: MobileScanner(
-          controller: cameraController,
+        child: ReaderWidget(
+          onControllerCreated: onControllerCreated,
           onScannerStarted: (MobileScannerArguments? args) {
             if (cameraController == null) {
               return;

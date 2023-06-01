@@ -1,6 +1,6 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -37,10 +37,7 @@ class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
   /// The controller for the camera.
-  MobileScannerController? cameraController;
-
-  /// Whether the camera has a flashlight.
-  bool hasTorch = false;
+  CameraController? cameraController;
 
   /// The current mode of the view.
   QRCodeViewMode? state;
@@ -57,8 +54,7 @@ class QRCodeViewState extends State<QRCodeView> {
   }
 
   /// Callback that is called when the scanner is initialized.
-  onScannerInit(MobileScannerController controller, bool hasTorch) {
-    this.hasTorch = hasTorch;
+  onScannerInit(CameraController controller) {
     if (cameraController != null) {
       return;
     }
@@ -90,27 +86,6 @@ class QRCodeViewState extends State<QRCodeView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
-                  if (state == QRCodeViewMode.scanning && cameraController != null && hasTorch)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: ValueListenableBuilder(
-                        valueListenable: cameraController!.torchState,
-                        builder: (context, state, child) {
-                          switch (state as TorchState) {
-                            case TorchState.off:
-                              return SmallIconButton(
-                                icon: Icons.flashlight_on_rounded,
-                                onPressed: () => cameraController!.toggleTorch(),
-                              );
-                            case TorchState.on:
-                              return SmallIconButton(
-                                icon: Icons.flashlight_off_rounded,
-                                onPressed: () => cameraController!.toggleTorch(),
-                              );
-                          }
-                        },
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: 16),
