@@ -39,7 +39,7 @@ class HomeView extends StatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView> {
+class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAware {
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -64,12 +64,17 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatusSummary predictionStatusSummary;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     news = getIt<News>();
     news.addListener(update);
@@ -79,6 +84,7 @@ class HomeViewState extends State<HomeView> {
     settings.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
 
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
@@ -87,7 +93,29 @@ class HomeViewState extends State<HomeView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      predictionStatusSummary.fetch();
+      news.getArticles();
+    }
+  }
+
+  @override
+  void didPopNext() {
+    predictionStatusSummary.fetch();
+    news.getArticles();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
     news.removeListener(update);
     profile.removeListener(update);
     settings.removeListener(update);
@@ -164,7 +192,8 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await getIt<PredictionStatusSummary>().fetch();
+          await predictionStatusSummary.fetch();
+          await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
