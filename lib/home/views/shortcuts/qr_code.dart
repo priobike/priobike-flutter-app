@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:priobike/common/layout/buttons.dart';
@@ -36,9 +35,6 @@ enum QRCodeViewMode {
 class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
-  /// The controller for the camera.
-  CameraController? cameraController;
-
   /// The current mode of the view.
   QRCodeViewMode? state;
 
@@ -51,15 +47,6 @@ class QRCodeViewState extends State<QRCodeView> {
     } else {
       state = QRCodeViewMode.showing;
     }
-  }
-
-  /// Callback that is called when the scanner is initialized.
-  onScannerInit(CameraController controller) {
-    if (cameraController != null) {
-      return;
-    }
-    cameraController = controller;
-    setState(() {});
   }
 
   /// Called when a saved shortcut should be scanned.
@@ -162,7 +149,6 @@ class QRCodeViewState extends State<QRCodeView> {
                                         },
                                       );
                                     },
-                                    onInit: onScannerInit,
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(8),

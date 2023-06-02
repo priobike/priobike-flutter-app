@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_zxing/flutter_zxing.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
@@ -16,10 +14,7 @@ class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
   final void Function(Shortcut shortcut) onScan;
 
-  /// Called when the scanner is initialized.
-  final void Function(CameraController controller)? onInit;
-
-  const ScanQRCodeView({Key? key, required this.onScan, this.onInit}) : super(key: key);
+  const ScanQRCodeView({Key? key, required this.onScan}) : super(key: key);
 
   @override
   ScanQRCodeViewState createState() => ScanQRCodeViewState();
@@ -42,9 +37,6 @@ enum CameraState {
 class ScanQRCodeViewState extends State<ScanQRCodeView> {
   final log = Logger("QRScanner");
 
-  /// The result of the scan.
-  Barcode? result;
-
   /// The camera state.
   CameraState cameraState = CameraState.initializing;
 
@@ -54,13 +46,12 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   /// The shortcut that has been scanned.
   Shortcut? shortcut;
 
-  /// The listener for the barcode stream.
-  StreamSubscription<BarcodeCapture>? listener;
-
   /// Start the camera and listen to updates of the barcode stream.
   dynamic onControllerCreated(CameraController? newController) async {
+    log.i('Camera controller created');
     if (newController == null) {
       cameraState = CameraState.otherError;
+      log.e('Camera controller is null');
       return;
     }
 
@@ -68,35 +59,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
 
     try {
       await cameraController!.initialize();
-      listener = cameraController!.barcodes.listen(
-        (capture) {
-          if (shortcut != null) {
-            return;
-          }
-          final List<Barcode> barcodes = capture.barcodes;
-          for (final barcode in barcodes) {
-            if (barcode.rawValue == null) {
-              continue;
-            }
-            if (barcode.format != BarcodeFormat.qrCode) {
-              continue;
-            }
-            try {
-              final decodeBase64Json = base64.decode(barcode.rawValue!);
-              final decodedZipJson = gzip.decode(decodeBase64Json);
-              final originalJson = utf8.decode(decodedZipJson);
-
-              final shortcut = Shortcut.fromJson(json.decode(originalJson));
-              this.shortcut = shortcut;
-              widget.onScan(shortcut);
-              break;
-            } catch (e) {
-              log.e('Failed to parse QR code into shortcut object: ${barcode.rawValue}');
-            }
-          }
-        },
-      );
-
+      log.i('Camera controller initialized');
       cameraState = CameraState.ready;
     } on CameraException catch (e) {
       if (e.code == "cameraPermission") {
@@ -114,10 +77,6 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
 
   @override
   Widget build(BuildContext context) {
-    if (cameraState == CameraState.initializing) {
-      return Container();
-    }
-
     if (cameraState == CameraState.permissionNotGranted) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -161,40 +120,61 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
       ClipRRect(
         borderRadius: BorderRadius.circular(32),
         child: ReaderWidget(
-          onControllerCreated: onControllerCreated,
-          onScannerStarted: (MobileScannerArguments? args) {
-            if (cameraController == null) {
-              return;
-            }
-            widget.onInit?.call(cameraController!, args?.hasTorch ?? false);
-          },
-          onDetect: (capture) {
-            if (shortcut != null) {
-              return;
-            }
-            final List<Barcode> barcodes = capture.barcodes;
-            for (final barcode in barcodes) {
-              if (barcode.rawValue == null) {
-                continue;
+            onControllerCreated: onControllerCreated,
+            onScanFailure: (e) {
+              log.e('Failed to scan QR code: $e');
+            },
+            onMultiScan: (results) {
+              if (shortcut != null) {
+                return;
               }
-              if (barcode.format != BarcodeFormat.qrCode) {
-                continue;
+              for (final result in (results as List<Code>)) {
+                log.i('Scanned QR code.');
+                if (result.text == null) {
+                  continue;
+                }
+                if (result.isValid == false) {
+                  continue;
+                }
+                try {
+                  final decodeBase64Json = base64.decode(result.text!);
+                  final decodedZipJson = gzip.decode(decodeBase64Json);
+                  final originalJson = utf8.decode(decodedZipJson);
+
+                  final shortcut = Shortcut.fromJson(json.decode(originalJson));
+                  this.shortcut = shortcut;
+                  widget.onScan(shortcut);
+                } catch (e) {
+                  log.e('Failed to parse QR code into shortcut object: ${result.text}');
+                }
+              }
+            },
+            tryInverted: true,
+            tryHarder: true,
+            resolution: ResolutionPreset.max,
+            onScan: (result) async {
+              log.i('Scanned QR code.');
+              if (shortcut != null) {
+                return;
+              }
+              if (result.text == null) {
+                return;
+              }
+              if (result.isValid == false) {
+                return;
               }
               try {
-                final decodeBase64Json = base64.decode(barcode.rawValue!);
+                final decodeBase64Json = base64.decode(result.text!);
                 final decodedZipJson = gzip.decode(decodeBase64Json);
                 final originalJson = utf8.decode(decodedZipJson);
 
                 final shortcut = Shortcut.fromJson(json.decode(originalJson));
                 this.shortcut = shortcut;
                 widget.onScan(shortcut);
-                break;
               } catch (e) {
-                log.e('Failed to parse QR code into shortcut object: ${barcode.rawValue}');
+                log.e('Failed to parse QR code into shortcut object: ${result.text}');
               }
-            }
-          },
-        ),
+            }),
       ),
       Shimmer(
         linearGradient: const LinearGradient(
@@ -228,7 +208,6 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
   @override
   void dispose() {
     cameraController?.dispose();
-    listener?.cancel();
     cameraController = null;
     super.dispose();
   }
