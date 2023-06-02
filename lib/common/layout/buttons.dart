@@ -47,7 +47,8 @@ class SmallIconButton extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(24)),
       ),
       child: RawMaterialButton(
-        elevation: 0, // Hide ugly material shadows.
+        elevation: 0,
+        // Hide ugly material shadows.
         fillColor: fill ?? Theme.of(context).colorScheme.background,
         splashColor: splash ?? Colors.grey,
         onPressed: onPressed,
@@ -282,6 +283,76 @@ class IconTextButton extends StatelessWidget {
             ),
             const SizedBox(width: 2),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A custom stylized button to display important actions.
+class BigIconButton extends StatelessWidget {
+  /// The icon of the button.
+  final IconData icon;
+
+  /// The callback that is executed when the button was pressed.
+  final void Function() onPressed;
+
+  /// The optional fill color of the button.
+  final Color? fillColor;
+
+  /// The optional splash color of the button.
+  final Color? splashColor;
+
+  /// The optional icon color of the button.
+  final Color? iconColor;
+
+  /// The optional icon size of the button.
+  final double? iconSize;
+
+  /// The constraints to define a specific size for the button.
+  final BoxConstraints boxConstraints;
+
+  /// The optional border color of the button.
+  final Color? borderColor;
+
+  /// The optional border color of the button.
+  final Color? textColor;
+
+  const BigIconButton({
+    Key? key,
+    required this.icon,
+    required this.onPressed,
+    this.fillColor,
+    this.splashColor,
+    this.iconColor,
+    this.boxConstraints = const BoxConstraints(minWidth: 75.0, minHeight: 10.0),
+    this.iconSize,
+    this.borderColor,
+    this.textColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
+      splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
+      constraints: boxConstraints,
+      // Hide ugly material shadows.
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: borderColor ?? Colors.transparent),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Icon(
+          icon,
+          color: iconColor,
+          size: iconSize,
         ),
       ),
     );

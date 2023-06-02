@@ -26,7 +26,7 @@ class WearCommunicationTestViewState extends State<WearCommunicationTestView> {
   }
 
   Future<void> _startListening() async {
-    stopListening = await WearableListener.listenForMessage((msg) {
+    WearableListener.listenForMessage((msg) {
       setState(() {
         messageReceived = msg;
       });
