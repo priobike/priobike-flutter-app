@@ -40,8 +40,7 @@ class Poly {
   static bool isPointInPolygon(Point point, List<Point> vertices) {
     int intersectCount = 0;
     for (int i = 0; i < vertices.length; i += 1) {
-      final Point vertB =
-          i == vertices.length - 1 ? vertices[0] : vertices[i + 1];
+      final Point vertB = i == vertices.length - 1 ? vertices[0] : vertices[i + 1];
       if (Poly.rayCastIntersect(point, vertices[i], vertB)) {
         intersectCount += 1;
       }
