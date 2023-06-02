@@ -48,22 +48,24 @@ class BoundingBox {
     if (boundingBox.isEmpty) {
       final backend = getIt<Settings>().backend;
       String geojsonBoundingBox;
+      var coords = List.empty(growable: true);
       switch (backend) {
         case Backend.production:
           // Load Hamburg's boundary as a geojson from the assets.
           geojsonBoundingBox = await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
+          final geojsonDecoded = jsonDecode(geojsonBoundingBox);
+          coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
           break;
         case Backend.staging:
           // Load Dresden's boundary as a geojson from the assets.
           geojsonBoundingBox = await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
+          final geojsonDecoded = jsonDecode(geojsonBoundingBox);
+          coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][1];
           break;
         default:
           log.e("Unknown backend used for geosearch: $backend");
           return false;
       }
-
-      final geojsonDecoded = jsonDecode(geojsonBoundingBox);
-      final coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
 
       for (final coord in coords) {
         boundingBox.add(Point(x: coord[0], y: coord[1]));
@@ -72,5 +74,10 @@ class BoundingBox {
 
     final point = Point(x: lon, y: lat);
     return Poly.isPointInPolygon(point, boundingBox);
+  }
+
+  /// Reset the bounding box.
+  void reset() {
+    boundingBox = List.empty(growable: true);
   }
 }
