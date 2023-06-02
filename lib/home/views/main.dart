@@ -144,6 +144,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   }
 
   /// A callback that is fired when a shortcut was selected.
+  /// Checks if the shortcut is valid, i.e. if all waypoints are inside the bounding box.
   Future<void> onSelectShortcut(Shortcut shortcut) async {
     HapticFeedback.mediumImpact();
     final shortcutIsValid = await shortcut.checkIfValid();
@@ -183,8 +184,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
             TextButton(
               child: const Text('Strecke löschen'),
               onPressed: () {
-                Navigator.of(context).pop();
                 shortcuts.deleteShortcut(shortcut);
+                Navigator.of(context).pop();
               },
             ),
           ],

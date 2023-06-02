@@ -29,7 +29,7 @@ class Shortcut {
     return result;
   }
 
-  Shortcut({required this.name, required this.waypoints});
+  const Shortcut({required this.name, required this.waypoints});
 
   factory Shortcut.fromJson(Map<String, dynamic> json) {
     return Shortcut(

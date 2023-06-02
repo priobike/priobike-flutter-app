@@ -12,7 +12,7 @@ class BoundingBox {
   final log = Logger("BoundingBox");
 
   /// The exact coordiantes of the boundries of the city.
-  List<Point> boundingBox = List.empty(growable: true);
+  List<Point> coordsBoundingBox = List.empty(growable: true);
 
   BoundingBox();
 
@@ -43,9 +43,9 @@ class BoundingBox {
     }
   }
 
-  /// Check if a point is inside the bounding box given via saved assets.
+  /// Check if a point is inside the exact bounding box given via saved assets.
   Future<bool> checkIfPointIsInBoundingBox(double lon, double lat) async {
-    if (boundingBox.isEmpty) {
+    if (coordsBoundingBox.isEmpty) {
       final backend = getIt<Settings>().backend;
       String geojsonBoundingBox;
       var coords = List.empty(growable: true);
@@ -68,16 +68,16 @@ class BoundingBox {
       }
 
       for (final coord in coords) {
-        boundingBox.add(Point(x: coord[0], y: coord[1]));
+        coordsBoundingBox.add(Point(x: coord[0], y: coord[1]));
       }
     }
 
     final point = Point(x: lon, y: lat);
-    return Poly.isPointInPolygon(point, boundingBox);
+    return Poly.isPointInPolygon(point, coordsBoundingBox);
   }
 
   /// Reset the bounding box.
   void reset() {
-    boundingBox = List.empty(growable: true);
+    coordsBoundingBox = List.empty(growable: true);
   }
 }

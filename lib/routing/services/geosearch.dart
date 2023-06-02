@@ -56,7 +56,7 @@ class Geosearch with ChangeNotifier {
       // There needs to be a rough bounding box (just a rectangle) here
       // and a finer one below by checking if the point is inside the boundingBox (with the exakt geojson of the city).
       // The rough bounding box is nessessary for photon to limit the search results
-      // while the finer one discards results outside the city boundries
+      // while it checks below if every point is exactly within the city boundries
       final boundingBox = getIt<BoundingBox>();
       final roughBoundingBox = boundingBox.getRoughBoundingBox();
       if (roughBoundingBox.isNotEmpty) {

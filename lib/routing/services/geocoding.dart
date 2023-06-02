@@ -40,7 +40,7 @@ class Geocoding with ChangeNotifier {
     hadErrorDuringFetch = false;
 
     try {
-      // Discard the request if the point is not inside the bounding box (ie. not in Hamburg/Dresden)
+      // Discard the request if the point is not inside the bounding box (i.e. not in Hamburg/Dresden)
       pointIsInside = await getIt<BoundingBox>().checkIfPointIsInBoundingBox(coordinate.longitude, coordinate.latitude);
       if (!pointIsInside) {
         throw Exception("Coordinates are not inside bounding box");
