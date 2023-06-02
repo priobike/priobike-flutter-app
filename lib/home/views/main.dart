@@ -20,6 +20,7 @@ import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -143,22 +144,53 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   }
 
   /// A callback that is fired when a shortcut was selected.
-  void onSelectShortcut(Shortcut shortcut) {
+  Future<void> onSelectShortcut(Shortcut shortcut) async {
     HapticFeedback.mediumImpact();
+    final shortcutIsValid = await shortcut.checkIfValid();
+    if (!mounted) return;
 
-    // Tell the tutorial service that the shortcut was selected.
-    getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
+    if (shortcutIsValid) {
+      // Tell the tutorial service that the shortcut was selected.
+      getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectWaypoints(List.from(shortcut.waypoints));
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+      routing.selectWaypoints(List.from(shortcut.waypoints));
+
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+        (comingNotFromRoutingView) {
+          if (comingNotFromRoutingView == null) {
+            routing.reset();
+            discomforts.reset();
+            predictionSGStatus.reset();
+          }
+        },
+      );
+    } else {
+      final backend = getIt<Settings>().backend;
+      final shortcuts = getIt<Shortcuts>();
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Ungültige Strecke'),
+          content: Text(
+              'Die ausgewählte Strecke ist ungültig, da sie Wegpunkte enthält, die außerhalb des Stadtgebietes von ${backend.region} liegen.\nPrioBike wird aktuell nur innerhalb von ${backend.region} unterstützt.'),
+          actions: [
+            TextButton(
+              child: const Text('Strecke trotzdem behalten'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Strecke löschen'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                shortcuts.deleteShortcut(shortcut);
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   /// A callback that is fired when free routing was selected.
