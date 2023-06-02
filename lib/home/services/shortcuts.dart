@@ -115,4 +115,14 @@ class Shortcuts with ChangeNotifier {
 
     notifyListeners();
   }
+
+  /// Delete a shortcut.
+  Future<void> deleteShortcut(Shortcut shortcutItem) async {
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+    if (!shortcuts!.contains(shortcutItem)) log.e("Trying to delete non-existing shortcut");
+    shortcuts!.remove(shortcutItem);
+    await storeShortcuts();
+    notifyListeners();
+  }
 }
