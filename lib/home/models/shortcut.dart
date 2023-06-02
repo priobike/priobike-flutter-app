@@ -1,4 +1,6 @@
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/geosearch.dart';
 
 /// The shortcut represents a saved route with a name.
 class Shortcut {
@@ -7,6 +9,9 @@ class Shortcut {
 
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
+
+  /// If the shortcut is valid, ie. all waypoints are inside the bounding box of the city.
+  bool? isValid;
 
   /// Get the linebreaked name of the shortcut. The name is split into at most 2 lines, by a limit of 15 characters.
   String get linebreakedName {
@@ -27,13 +32,25 @@ class Shortcut {
     return result;
   }
 
-  const Shortcut({required this.name, required this.waypoints});
+  Shortcut({required this.name, required this.waypoints});
 
   factory Shortcut.fromJson(Map<String, dynamic> json) {
     return Shortcut(
       name: json['name'],
       waypoints: (json['waypoints'] as List).map((e) => Waypoint.fromJson(e)).toList(),
     );
+  }
+
+  /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  Future<void> checkIfValid() async {
+    final geosearch = getIt<Geosearch>();
+    for (var waypoint in waypoints) {
+      if (await geosearch.checkIfPointIsInBoundingBox(waypoint.lon, waypoint.lat) == false) {
+        isValid = false;
+        return;
+      }
+    }
+    isValid = true;
   }
 
   /// Trim the addresses of the waypoints, if a factor < 1 is given.
