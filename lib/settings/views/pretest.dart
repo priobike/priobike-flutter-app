@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -21,7 +21,12 @@ class PretestView extends StatefulWidget {
   final String user;
   final TestType testType;
 
-  const PretestView({Key? key, required this.title, required this.user, required this.testType}) : super(key: key);
+  const PretestView(
+      {Key? key,
+      required this.title,
+      required this.user,
+      required this.testType})
+      : super(key: key);
 
   @override
   PretestViewState createState() => PretestViewState();
@@ -163,26 +168,25 @@ class PretestViewState extends State<PretestView> {
 
   Future<void> saveTestData() async {
     var file = await writeJson(test.toJson().toString());
-
-    print(file.path);
-  }
-
-  Future<String> get _localPath async {
-    final directory = Directory('/storage/emulated/0/Download');
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/${widget.user}_${test.date}.json');
   }
 
   Future<File> writeJson(String json) async {
-    final file = await _localFile;
+    var status = await Permission.storage.status;
+    if (status.isDenied) {
+      // We didn't ask for permission yet or the permission has been denied before but not permanently.
+      await Permission.storage.request();
+    }
 
-    // Write the file
-    return file.writeAsString(json);
+    Directory directory = Directory("/storage/emulated/0/Download/results");
+
+    final exPath = directory.path;
+    await Directory(exPath).create(recursive: true);
+
+    File file = File(
+        '$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
+
+    // Write the data in the file.
+    return await file.writeAsString(json);
   }
 
   /// The Widget that displays the Test.
@@ -205,11 +209,14 @@ class PretestViewState extends State<PretestView> {
                         onPressed: () {
                           ToastMessage.showSuccess("Schneller");
                         },
-                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                        boxConstraints: BoxConstraints(
+                            minWidth: MediaQuery.of(context).size.width),
                       ),
                     ),
                     const SmallVSpace(),
-                    BoldSubHeader(text: '$minute : ${second < 10 ? "0" : ""}$second', context: context),
+                    BoldSubHeader(
+                        text: '$minute : ${second < 10 ? "0" : ""}$second',
+                        context: context),
                     const SmallVSpace(),
                     Expanded(
                       child: BigIconButton(
@@ -231,7 +238,8 @@ class PretestViewState extends State<PretestView> {
                             );
                           }
                         },
-                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                        boxConstraints: BoxConstraints(
+                            minWidth: MediaQuery.of(context).size.width),
                       ),
                     ),
                   ],
@@ -250,7 +258,9 @@ class PretestViewState extends State<PretestView> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark
+          : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
