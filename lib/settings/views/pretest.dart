@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -47,6 +48,21 @@ class PretestViewState extends State<PretestView> {
   int minute = 0;
 
   int second = 5;
+
+  /// Int that counts the number of outputs.
+  int outputCounter = 0;
+
+  /// Minimum Offset off outputs.
+  final int minOffset = 20;
+
+  /// The last Tick with an output action.
+  int lastTick = 0;
+
+  /// The current probability;
+  int currentProb = 0;
+
+  /// Random Generator.
+  Random random = Random();
 
   final textController = TextEditingController();
 
@@ -154,11 +170,17 @@ class PretestViewState extends State<PretestView> {
           minute = (5 - (timer.tick / 60)).toInt();
           second = (60 - timer.tick % 60) % 60;
         });
-        if (timer.tick == 10) {
+
+        // Check if output needs to be played.
+        if(checkOutput(timer.tick)){
+          // Play output.
+          print("BEEEEEEEEEEEEEEEEEEEP");
+        }
+
+        if (timer.tick == 300) {
           _timer?.cancel();
           setState(() {
             testDone = true;
-            print(test.toJson());
           });
           saveTestData();
         }
@@ -166,8 +188,27 @@ class PretestViewState extends State<PretestView> {
     );
   }
 
+  bool checkOutput(int tick) {
+    if (tick >= (lastTick + minOffset)) {
+      if(random.nextInt(100) < currentProb && outputCounter < 10) {
+        setState(() {
+          currentProb = 0;
+          outputCounter += 1;
+          lastTick = tick;
+        });
+        return true;
+      } else {
+        setState(() {
+          currentProb += 5;
+        });
+        return false;
+      }
+    }
+    return false;
+  }
+
   Future<void> saveTestData() async {
-    var file = await writeJson(test.toJson().toString());
+   // await writeJson(test.toJson().toString());
   }
 
   Future<File> writeJson(String json) async {
