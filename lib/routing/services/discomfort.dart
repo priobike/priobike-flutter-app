@@ -98,7 +98,7 @@ class Discomforts with ChangeNotifier {
       "wood": WarnType.warnRegularBikes,
       "stepping_stones": WarnType.warnRobustBikes,
       "unpaved": WarnType.warnRegularBikes,
-      "compacted": WarnType.warnRegularBikes,
+      "compacted": WarnType.warnSensitiveBikes,
       "fine_gravel": WarnType.warnRegularBikes,
       "gravel": WarnType.warnRobustBikes,
       "rock": WarnType.warnRobustBikes,
