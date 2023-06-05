@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -10,12 +11,16 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/common/lock.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/settings/models/test.dart';
+import 'package:vibration/vibration.dart';
 import 'package:wearable_communicator/wearable_communicator.dart';
+
+const audioPath = "sounds/ding.mp3";
 
 class PretestView extends StatefulWidget {
   final String title;
@@ -64,15 +69,25 @@ class PretestViewState extends State<PretestView> {
   /// Random Generator.
   Random random = Random();
 
+  bool hasVibrator = false;
+
   final textController = TextEditingController();
 
   Function? stopListening;
 
   late Test test;
 
+  Lock lock = Lock(milliseconds: 1000);
+
+  final AudioPlayer audioPlayer1 = AudioPlayer();
+  final AudioPlayer audioPlayer2 = AudioPlayer();
+  final AudioPlayer audioPlayer3 = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
+
+    checkVibratorAvailable();
 
     positioning = getIt<Positioning>();
 
@@ -104,6 +119,15 @@ class PretestViewState extends State<PretestView> {
     /// TODO send message to watch and listen for response => syncing Test.
   }
 
+  Future<void> checkVibratorAvailable() async {
+    bool? hasVibrator = await Vibration.hasVibrator();
+    if (hasVibrator != null && hasVibrator) {
+      setState(() {
+        this.hasVibrator = true;
+      });
+    }
+  }
+
   Future<void> _startListening() async {
     WearableListener.listenForMessage((msg) {
       setState(() {});
@@ -119,6 +143,7 @@ class PretestViewState extends State<PretestView> {
   @override
   Future<void> dispose() async {
     super.dispose();
+    _timer?.cancel();
     positioning.stopGeolocation();
     stopListening != null ? stopListening!() : null;
   }
@@ -165,16 +190,16 @@ class PretestViewState extends State<PretestView> {
     const oneSec = Duration(seconds: 1);
     _timer = Timer.periodic(
       oneSec,
-      (Timer timer) {
+      (Timer timer) async {
         setState(() {
           minute = (5 - (timer.tick / 60)).toInt();
           second = (60 - timer.tick % 60) % 60;
         });
 
         // Check if output needs to be played.
-        if(checkOutput(timer.tick)){
+        if (checkOutput(timer.tick)) {
           // Play output.
-          print("BEEEEEEEEEEEEEEEEEEEP");
+          playOutput();
         }
 
         if (timer.tick == 300) {
@@ -190,7 +215,7 @@ class PretestViewState extends State<PretestView> {
 
   bool checkOutput(int tick) {
     if (tick >= (lastTick + minOffset)) {
-      if(random.nextInt(100) < currentProb && outputCounter < 10) {
+      if (random.nextInt(100) < currentProb && outputCounter < 10) {
         setState(() {
           currentProb = 0;
           outputCounter += 1;
@@ -207,8 +232,118 @@ class PretestViewState extends State<PretestView> {
     return false;
   }
 
+  void playOutput() async {
+    // Random faster or slower.
+    InputType inputType =
+        random.nextInt(2) == 1 ? InputType.faster : InputType.slower;
+
+    switch (widget.testType) {
+      case TestType.wearVibrationInterval:
+        break;
+      case TestType.wearVibrationContinuous:
+        break;
+      case TestType.wearAudioInterval:
+        break;
+      case TestType.wearAudioContinuous:
+        break;
+      case TestType.phoneAudioInterval:
+        playPhoneAudioInterval(inputType);
+        break;
+      case TestType.phoneAudioContinuous:
+        playPhoneAudioContinuous(inputType);
+        break;
+      case TestType.phoneVibrationInterval:
+        playPhoneVibrationInterval(inputType);
+        break;
+      case TestType.phoneVibrationContinuous:
+        playPhoneVibrationContinuous(inputType);
+        break;
+    }
+    // Add output to data.
+    test.outputs.add(
+      TestData(
+          inputType: inputType,
+          timestamp: DateTime.now().toIso8601String(),
+          lat: positioning.lastPosition?.latitude ?? -1,
+          lon: positioning.lastPosition?.longitude ?? -1),
+    );
+  }
+
+  void playPhoneVibrationContinuous(InputType inputType) {
+    if (hasVibrator) {
+      if (inputType == InputType.faster) {
+        // Vibrate with high frequency.
+        // Wait 500ms, vibrate 500ms, wait 250, vibrate 500ms, wait 250ms, vibrate 500ms.
+        Vibration.vibrate(pattern: [500, 250, 250, 250, 250, 250]);
+      } else {
+        // Vibrate with low frequency.
+        // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
+        Vibration.vibrate(pattern: [500, 500, 750, 500, 750, 500]);
+      }
+    }
+  }
+
+  void playPhoneVibrationInterval(InputType inputType) {
+    if (hasVibrator) {
+      if (inputType == InputType.faster) {
+        // Vibrate with high frequency.
+        // Wait 500ms, vibrate 500ms, wait 250, vibrate 500ms, wait 250ms, vibrate 500ms.
+        Vibration.vibrate(pattern: [500, 500, 250, 250, 150, 150]);
+      } else {
+        // Vibrate with low frequency.
+        // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
+        Vibration.vibrate(pattern: [500, 500, 750, 500, 1000, 500]);
+      }
+    }
+  }
+
+  Future<void> playPhoneAudioContinuous(InputType inputType) async {
+    if (inputType == InputType.faster) {
+      // Vibrate with high frequency.
+      await audioPlayer1.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 1000));
+      await audioPlayer2.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 1000));
+      await audioPlayer3.play(AssetSource(audioPath));
+    } else {
+      // Vibrate with low frequency.
+      await audioPlayer1.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 2000));
+      await audioPlayer2.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 2000));
+      await audioPlayer3.play(AssetSource(audioPath));
+    }
+  }
+
+  Future<void> playPhoneAudioInterval(InputType inputType) async {
+    if (inputType == InputType.faster) {
+      // Vibrate with high frequency.
+      Future.delayed(const Duration(milliseconds: 500));
+      await audioPlayer1.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+      Future.delayed(const Duration(milliseconds: 250));
+      await audioPlayer2.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+      Future.delayed(const Duration(milliseconds: 150));
+      await audioPlayer3.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+    } else {
+      // Vibrate with low frequency.
+      // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
+      Future.delayed(const Duration(milliseconds: 500));
+      await audioPlayer1.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+      Future.delayed(const Duration(milliseconds: 750));
+      await audioPlayer2.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+      Future.delayed(const Duration(milliseconds: 1000));
+      await audioPlayer3.play(AssetSource(audioPath),
+          mode: PlayerMode.lowLatency);
+    }
+  }
+
   Future<void> saveTestData() async {
-   // await writeJson(test.toJson().toString());
+    // await writeJson(test.toJson().toString());
   }
 
   Future<File> writeJson(String json) async {
@@ -223,8 +358,8 @@ class PretestViewState extends State<PretestView> {
     final exPath = directory.path;
     await Directory(exPath).create(recursive: true);
 
-    File file = File(
-        '$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
+    File file =
+        File('$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
 
     // Write the data in the file.
     return await file.writeAsString(json);
@@ -245,10 +380,24 @@ class PretestViewState extends State<PretestView> {
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_up_rounded,
                         iconSize: 128,
-                        fillColor: CI.green,
+                        fillColor: lock.timer != null && lock.timer!.isActive
+                            ? Colors.grey
+                            : CI.green,
                         splashColor: Colors.white,
                         onPressed: () {
-                          ToastMessage.showSuccess("Schneller");
+                          lock.run(() {
+                            ToastMessage.showSuccess("Schneller");
+
+                            // Add user input.
+                            test.inputs.add(
+                              TestData(
+                                  inputType: InputType.faster,
+                                  timestamp: DateTime.now().toIso8601String(),
+                                  lat: positioning.lastPosition?.latitude ?? -1,
+                                  lon: positioning.lastPosition?.longitude ??
+                                      -1),
+                            );
+                          });
                         },
                         boxConstraints: BoxConstraints(
                             minWidth: MediaQuery.of(context).size.width),
@@ -263,21 +412,24 @@ class PretestViewState extends State<PretestView> {
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_down_rounded,
                         iconSize: 128,
-                        fillColor: CI.red,
+                        fillColor: lock.timer != null && lock.timer!.isActive
+                            ? Colors.grey
+                            : CI.red,
                         splashColor: Colors.white,
                         onPressed: () {
-                          ToastMessage.showSuccess("Langsamer!");
+                          lock.run(() {
+                            ToastMessage.showSuccess("Langsamer!");
 
-                          if (positioning.lastPosition != null) {
                             // Add user input.
                             test.inputs.add(
                               TestData(
                                   inputType: InputType.slower,
                                   timestamp: DateTime.now().toIso8601String(),
-                                  lat: positioning.lastPosition!.latitude,
-                                  lon: positioning.lastPosition!.longitude),
+                                  lat: positioning.lastPosition?.latitude ?? -1,
+                                  lon: positioning.lastPosition?.longitude ??
+                                      -1),
                             );
-                          }
+                          });
                         },
                         boxConstraints: BoxConstraints(
                             minWidth: MediaQuery.of(context).size.width),
@@ -313,7 +465,7 @@ class PretestViewState extends State<PretestView> {
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
                   const HSpace(),
-                  SubHeader(text: widget.title, context: context),
+                  Content(text: widget.title, context: context),
                 ],
               ),
               const SizedBox(height: 8),

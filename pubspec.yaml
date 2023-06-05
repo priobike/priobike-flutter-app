@@ -70,6 +70,8 @@ dependencies:
   url_launcher: ^6.1.10 # Used to open URLs
   wearable_communicator: ^0.1.1
   permission_handler: ^10.2.0
+  vibration: ^1.7.5
+  audioplayers: ^4.1.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0 # Generate app icons
@@ -153,3 +155,6 @@ flutter:
 
     # wiki images
     - assets/images/wiki/
+
+    # Speed Sounds
+    - assets/sounds/

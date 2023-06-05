@@ -79,15 +79,15 @@ class WearPretestsViewState extends State<WearPretestsView> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SettingsElement(
-                  title: "Start Wear Vibration Test",
+                  title: "Start Wear Vibration(interval) Test",
                   icon: Icons.start,
                   callback: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PretestView(
-                        title: "Wear Vibration Test",
+                        title: "Wear Vibration(interval) Test",
                         user: textController.text,
-                        testType: TestType.wearVibration,
+                        testType: TestType.wearVibrationInterval,
                       ),
                     ),
                   ),
@@ -96,15 +96,33 @@ class WearPretestsViewState extends State<WearPretestsView> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SettingsElement(
-                  title: "Start Phone Vibration Test",
+                  title: "Start Wear Vibration(continuous) Test",
                   icon: Icons.start,
                   callback: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PretestView(
-                        title: "Phone Vibration Test",
+                        title: "Wear Vibration(continuous) Test",
                         user: textController.text,
-                        testType: TestType.phoneVibration,
+                        testType: TestType.wearVibrationContinuous,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const VSpace(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SettingsElement(
+                  title: "Start Phone Vibration(Interval) Test",
+                  icon: Icons.start,
+                  callback: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PretestView(
+                        title: "Phone Vibration(Interval) Test",
+                        user: textController.text,
+                        testType: TestType.phoneVibrationInterval,
                       ),
                     ),
                   ),
@@ -113,15 +131,33 @@ class WearPretestsViewState extends State<WearPretestsView> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SettingsElement(
-                  title: "Start Wear Audio Test",
+                  title: "Start Phone Vibration(Continuous) Test",
                   icon: Icons.start,
                   callback: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PretestView(
-                        title: "Wear Audio Test",
+                        title: "Phone Vibration(Continuous) Test",
                         user: textController.text,
-                        testType: TestType.wearAudio,
+                        testType: TestType.phoneVibrationContinuous,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const VSpace(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SettingsElement(
+                  title: "Start Wear Audio(Interval) Test",
+                  icon: Icons.start,
+                  callback: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PretestView(
+                        title: "Wear Audio(Interval) Test",
+                        user: textController.text,
+                        testType: TestType.wearAudioInterval,
                       ),
                     ),
                   ),
@@ -130,20 +166,56 @@ class WearPretestsViewState extends State<WearPretestsView> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: SettingsElement(
-                  title: "Start Phone Audio Test",
+                  title: "Start Wear Audio(Continuous) Test",
                   icon: Icons.start,
                   callback: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PretestView(
-                        title: "Phone Audio Test",
+                        title: "Wear Audio(Continuous) Test",
                         user: textController.text,
-                        testType: TestType.phoneAudio,
+                        testType: TestType.wearAudioContinuous,
                       ),
                     ),
                   ),
                 ),
               ),
+              const VSpace(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SettingsElement(
+                  title: "Start Phone Audio(Interval) Test",
+                  icon: Icons.start,
+                  callback: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PretestView(
+                        title: "Phone Audio(Interval) Test",
+                        user: textController.text,
+                        testType: TestType.phoneAudioInterval,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SettingsElement(
+                  title: "Start Phone Audio(Continuous) Test",
+                  icon: Icons.start,
+                  callback: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PretestView(
+                        title: "Phone Audio(Continuous) Test",
+                        user: textController.text,
+                        testType: TestType.phoneAudioContinuous,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const VSpace(),
             ],
           ),
         ),
