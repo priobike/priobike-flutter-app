@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
@@ -6,7 +7,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/messages/photon.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/bounding_box.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class Geosearch with ChangeNotifier {
   bool hadErrorDuringFetch = false;
 
   /// The list of results.
-  List<Waypoint>? results;
+  List<Waypoint> results = [];
 
   /// The search history, saved in the shared preferences.
   List<Waypoint> searchHistory = [];
@@ -57,8 +58,8 @@ class Geosearch with ChangeNotifier {
       // and a finer one below by checking if the point is inside the boundingBox (with the exakt geojson of the city).
       // The rough bounding box is nessessary for photon to limit the search results
       // while it checks below if every point is exactly within the city boundries
-      final boundingBox = getIt<BoundingBox>();
-      final roughBoundingBox = boundingBox.getRoughBoundingBox();
+      final boundaryService = getIt<Boundary>();
+      final roughBoundingBox = boundaryService.getRoughBoundingBox();
       if (roughBoundingBox.isNotEmpty) {
         final minLon = roughBoundingBox["minLon"];
         final maxLon = roughBoundingBox["maxLon"];
@@ -87,13 +88,13 @@ class Geosearch with ChangeNotifier {
       isFetchingAddress = false;
       results = [];
       for (final address in addresses) {
-        final pointIsInside = await boundingBox.checkIfPointIsInBoundingBox(address.lon, address.lat);
+        final pointIsInside = boundaryService.checkIfPointIsInBoundary(address.lon, address.lat);
         // ignore addresses that are not inside the bounding box
         if (!pointIsInside) {
           continue;
         }
         final displayName = address.getDisplayName();
-        results!.add(
+        results.add(
           Waypoint(
             address.lat,
             address.lon,

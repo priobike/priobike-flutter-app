@@ -256,7 +256,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     discomforts.removeListener(update);
     status.removeListener(update);
     mapFunctions.removeListener(update);
-    getIt<Geocoding>().reset();
     super.dispose();
   }
 
@@ -702,14 +701,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final point = ScreenCoordinate(x: x, y: y);
     final coord = await mapController!.coordinateForPixel(point);
     final geocoding = getIt<Geocoding>();
+    String fallback = "Wegpunkt ${(routing.selectedWaypoints?.length ?? 0) + 1}";
     final pointCoord = Point.fromJson(Map<String, dynamic>.from(coord));
     final longitude = pointCoord.coordinates.lng.toDouble();
     final latitude = pointCoord.coordinates.lat.toDouble();
     final coordLatLng = LatLng(latitude, longitude);
-    String? address = await geocoding.reverseGeocode(coordLatLng);
-    if (geocoding.hadErrorDuringFetch) {
-      return;
-    }
+    String address = await geocoding.reverseGeocode(coordLatLng) ?? fallback;
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }

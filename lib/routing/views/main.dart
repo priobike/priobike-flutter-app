@@ -286,7 +286,7 @@ class RoutingViewState extends State<RoutingView> {
                 const SmallVSpace(),
 
                 // if point is outside of supported bounding box
-                (geocoding!.pointIsInside == false)
+                (routing!.waypointsOutOfBoundaries)
                     ? Small(
                         text:
                             "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
@@ -303,7 +303,6 @@ class RoutingViewState extends State<RoutingView> {
                 BigButton(
                   label: "Erneut versuchen",
                   onPressed: () async {
-                    geocoding!.reset();
                     await routing?.loadRoutes();
                   },
                 ),
@@ -365,7 +364,7 @@ class RoutingViewState extends State<RoutingView> {
               RoutingMapView(sheetMovement: sheetMovement.stream),
 
               if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
-              if (routing!.hadErrorDuringFetch || geocoding!.hadErrorDuringFetch) renderTryAgainButton(),
+              if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar
               SafeArea(

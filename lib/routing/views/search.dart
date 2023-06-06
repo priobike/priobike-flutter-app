@@ -408,9 +408,9 @@ class RouteSearchState extends State<RouteSearch> {
                   ],
 
                   // Search Results (sorted by distance to user)
-                  if (geosearch.results?.isNotEmpty == true) ...[
+                  if (geosearch.results.isNotEmpty) ...[
                     for (final waypointWithDistance
-                        in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true).entries)
+                        in calculateDistanceToWaypoints(waypoints: geosearch.results, sortByDistance: true).entries)
                       SearchItem(
                         waypoint: waypointWithDistance.key,
                         distance: waypointWithDistance.value,
@@ -420,9 +420,10 @@ class RouteSearchState extends State<RouteSearch> {
                       padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
-                  ] else if (geosearch.results?.isEmpty == true &&
-                      geosearch.isFetchingAddress == false &&
-                      searchQuery.isNotEmpty) ...[
+                  ],
+
+                  // No results found
+                  if (geosearch.results.isEmpty && geosearch.isFetchingAddress == false && searchQuery.isNotEmpty) ...[
                     Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,6 @@
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
-import 'package:priobike/routing/services/bounding_box.dart';
+import 'package:priobike/routing/services/boundary.dart';
 
 /// The shortcut represents a saved route with a name.
 class Shortcut {
@@ -39,10 +39,10 @@ class Shortcut {
   }
 
   /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
-  Future<bool> checkIfValid() async {
-    final boundingBox = getIt<BoundingBox>();
+  bool isValid() {
+    final boundaryService = getIt<Boundary>();
     for (var waypoint in waypoints) {
-      if (await boundingBox.checkIfPointIsInBoundingBox(waypoint.lon, waypoint.lat) == false) {
+      if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
         return false;
       }
     }

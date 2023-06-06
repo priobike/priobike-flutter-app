@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
@@ -120,7 +121,10 @@ class Shortcuts with ChangeNotifier {
   Future<void> deleteShortcut(Shortcut shortcutItem) async {
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
-    if (!shortcuts!.contains(shortcutItem)) log.e("Trying to delete non-existing shortcut");
+    if (!shortcuts!.contains(shortcutItem)) {
+      log.e("Trying to delete non-existing shortcut");
+      return;
+    }
     shortcuts!.remove(shortcutItem);
     await storeShortcuts();
     notifyListeners();
