@@ -42,16 +42,22 @@ class PretestViewState extends State<PretestView> {
   /// The associated position service, which is injected by the provider.
   late Positioning positioning;
 
+  /// Bool that holds the synced state.
   bool synced = false;
 
+  /// Bool that holds the test started state.
   bool testStarted = false;
 
+  /// Bool that holds the test done state.
   bool testDone = false;
 
+  /// Timer that is used for the test.
   Timer? _timer;
 
+  /// Int that holds the current minute of the test.
   int minute = 0;
 
+  /// Int that holds the second for the timer.
   int second = 5;
 
   /// Int that counts the number of outputs.
@@ -69,12 +75,14 @@ class PretestViewState extends State<PretestView> {
   /// Random Generator.
   Random random = Random();
 
+  /// Bool that holds the state if the phone has a vibrator.
   bool hasVibrator = false;
 
   final textController = TextEditingController();
 
   Function? stopListening;
 
+  /// The current test.
   late Test test;
 
   Lock lock = Lock(milliseconds: 1000);
@@ -91,6 +99,7 @@ class PretestViewState extends State<PretestView> {
 
     positioning = getIt<Positioning>();
 
+    // Start searching for gps positions.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       await positioning.startGeolocation(
         onNoPermission: () {
@@ -104,8 +113,13 @@ class PretestViewState extends State<PretestView> {
     if (widget.title.contains("Phone")) {
       synced = true;
       startCountdown();
+    } else {
+      // Start listening for wear messages.
+      _startListening();
+
+      /// TODO send message to watch and listen for response => syncing Test.
+      _onSendStart();
     }
-    _startListening();
 
     // Init test.
     test = Test(
@@ -115,8 +129,6 @@ class PretestViewState extends State<PretestView> {
       outputs: [],
       testType: widget.testType,
     );
-
-    /// TODO send message to watch and listen for response => syncing Test.
   }
 
   Future<void> checkVibratorAvailable() async {
@@ -130,13 +142,14 @@ class PretestViewState extends State<PretestView> {
 
   Future<void> _startListening() async {
     WearableListener.listenForMessage((msg) {
+      /// TODO Message codec
       setState(() {});
     });
   }
 
-  void _onSend() {
+  void _onSendStart() {
     WearableCommunicator.sendMessage({
-      "text": textController.text,
+      "type": widget.testType.description,
     });
   }
 
