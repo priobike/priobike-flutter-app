@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:priobike/main.dart';
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/routing/services/boundary.dart';
 
 /// A layer that displays the boundary of the routable area.
 class BoundaryLayer {
@@ -23,19 +21,10 @@ class BoundaryLayer {
 
   /// Install the source of the layer on the map controller.
   _installSource(mapbox.MapboxMap mapController) async {
-    final settings = getIt<Settings>();
-    String geojson;
-    switch (settings.backend) {
-      case Backend.production:
-        // Load Hamburg's boundary as a geojson from the assets.
-        geojson = await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
-        break;
-      case Backend.staging:
-        // Load Dresden's boundary as a geojson from the assets.
-        geojson = await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
-        break;
-    }
-    await mapController.style.addSource(mapbox.GeoJsonSource(id: sourceId, data: geojson));
+    final boundary = getIt<Boundary>();
+    final geojson = boundary.boundaryGeoJson;
+    if (geojson == null) return;
+    await mapController.style.addSource(mapbox.GeoJsonSource(id: sourceId, data: geojson!));
   }
 
   /// Install the layer on the map controller.
