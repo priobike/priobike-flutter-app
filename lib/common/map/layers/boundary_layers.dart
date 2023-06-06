@@ -24,7 +24,7 @@ class BoundaryLayer {
     final boundary = getIt<Boundary>();
     final geojson = boundary.boundaryGeoJson;
     if (geojson == null) return;
-    await mapController.style.addSource(mapbox.GeoJsonSource(id: sourceId, data: geojson!));
+    await mapController.style.addSource(mapbox.GeoJsonSource(id: sourceId, data: geojson));
   }
 
   /// Install the layer on the map controller.
