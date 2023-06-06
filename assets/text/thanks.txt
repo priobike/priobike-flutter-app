@@ -72,6 +72,10 @@ Link zum Datensatz: https://download.geofabrik.de/europe/germany/hamburg.html
 Open Data Commons Open Database License (ODbL)
 Link zur Lizenz: https://opendatacommons.org/licenses/odbl/summary/
 
-
+API-Nutzung für das Bereitstellen von aktuellen Wettervorhersagen.
+Wetterdaten bereitgestellt durch den Deutschen Wetter Dienst.
+Datenaufbereitung durch 'BrightSky'.
+Link zur API: https://brightsky.dev/
+Link zum DWD: https://dwd.de
 
 Realisation der App: Technische Universität Dresden.
