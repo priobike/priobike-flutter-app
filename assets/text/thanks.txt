@@ -1,9 +1,77 @@
 Diese Arbeit wird vom Bundesministerium für Digitales und Verkehr (BMDV) im Rahmen des Projekts PrioBike-HH (FKZ: 16DKVM001B) gefördert.
 
-API-Nutzung für die graphische Darstellung der Verkehrslage in Hamburg:
-Bereitgestellt durch die Stadt Hamburg.
+API-Nutzung für die graphische Darstellung der Verkehrslage in Hamburg.
+Bereitgestellt durch die Stadt Hamburg
 Link zur API: https://api.hamburg.de/datasets/v1/verkehrslage/
 Datenlizenz Deutschland – Namensnennung – Version 2.0
-Link zur Lizenz: www.govdata.de/dl-de/by-2-0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+Datensatz aller Fahrradwege in der Stadt Hamburg zum Berechnen der Routen.
+Bereitgestellt durch die Freie und Hansestadt Hamburg, Behörde für Verkehr und Mobilitätswende, (BVM)
+Link zum Datensatz: https://metaver.de/trefferanzeige?docuuid=EA847D9F-6403-4B75-BCDB-73F831F960C7
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+WFS-Nutzung für die Visualisierung der Baustellen der Stadt Hamburg.
+Bereitgestellt durch Freie und Hansestadt Hamburg, Landesbetrieb Straßen, Brücken und Gewässer
+Link zum Datensatz: https://metaver.de/trefferanzeige?cmd=doShowDocument&docuuid=F67E2668-DD51-4BE1-B176-7719FFB946CD
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+Datensatz-Nutzung für die Berechnung von Unfallschwerpunkten.
+Bereitgestellt durch die Statistischen Ämter des Bundes und der Länder
+Link zum Datensatz: https://unfallatlas.statistikportal.de/_opendata2022.html
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+WFS-Nutzung für die Visualisierung der Grünen Wellen der Stadt Hamburg.
+Bereitgestellt durch die Freie und Hansestadt Hamburg, Landesbetrieb Straßen, Brücken und Gewässer
+Link zum Datensatz: https://metaver.de/trefferanzeige?cmd=doShowDocument&docuuid=DEA84BC4-535B-48DC-9210-E52AA815B36D
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+WFS-Nutzung für die Visualisierung der Fahrradlufstationen der Stadt Hamburg.
+Bereitgestellt durch "Freie und Hansestadt Hamburg, "Behörde für Verkehr und Mobilitätswende
+Link zum Datensatz: https://geodienste.hamburg.de/HH_WFS_Fahrradluftstationen?SERVICE=WFS&REQUEST=GetCapabilities
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+WFS-Nutzung für die Visualisierung von Fahrradschnellstraßen der Stadt Hamburg.
+Bereitgestellt durch die Freie und Hansestadt Hamburg, Behörde für Verkehr und Mobilitätswende, (BVM)
+Link zum Datensatz: https://metaver.de/trefferanzeige?cmd=doShowDocument&docuuid=FDFBB7F0-3DBE-478A-AC33-403934DD704E
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+API-Nutzung für die Berechnung von Geschwindigkeitsempfehlungen und Ampelprognosen.
+Bereitgestellt durch die Freie und Hansestadt Hamburg, zuständige Behörde
+Link zum Datensatz: https://metaver.de/trefferanzeige?docuuid=AB32CF78-389A-4579-9C5E-867EF31CA225
+Datenlizenz Deutschland – Namensnennung – Version 2.0
+Link zur Lizenz: https://www.govdata.de/dl-de/by-2-0
+
+Datensatz-Nutzung der eingetragenen Straßen in OpenStreetMap der Stadt Hamburg zur Berechnung von Unfallschwerpunkten und Routen.
+Bereitgestellt durch die Geofabrik GmbH
+Link zum Datensatz: https://download.geofabrik.de/europe/germany/hamburg.html
+Open Data Commons Open Database License (ODbL)
+Link zur Lizenz: https://opendatacommons.org/licenses/odbl/summary/
+
+Datensatz-Nutzung der eingetragenen Fahrradläden in OpenStreetMap der Stadt Hamburg für die Visualisierung dieser.
+Bereitgestellt durch die Geofabrik GmbH
+Link zum Datensatz: https://download.geofabrik.de/europe/germany/hamburg.html
+Open Data Commons Open Database License (ODbL)
+Link zur Lizenz: https://opendatacommons.org/licenses/odbl/summary/
+
+Datensatz-Nutzung der eingetragenen Fahrradleihstationen in OpenStreetMap der Stadt Hamburg für die Visualisierung dieser.
+Bereitgestellt durch die Geofabrik GmbH
+Link zum Datensatz: https://download.geofabrik.de/europe/germany/hamburg.html
+Open Data Commons Open Database License (ODbL)
+Link zur Lizenz: https://opendatacommons.org/licenses/odbl/summary/
+
+Datensatz-Nutzung der eingetragenen Fahrradständer in OpenStreetMap der Stadt Hamburg für die Visualisierung dieser.
+Bereitgestellt durch die Geofabrik GmbH
+Link zum Datensatz: https://download.geofabrik.de/europe/germany/hamburg.html
+Open Data Commons Open Database License (ODbL)
+Link zur Lizenz: https://opendatacommons.org/licenses/odbl/summary/
+
+
 
 Realisation der App: Technische Universität Dresden.
