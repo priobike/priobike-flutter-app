@@ -99,13 +99,8 @@ class StarRatingViewState extends State<StarRatingView> {
                         confettiController: confettiControllers[i - 1],
                         blastDirectionality: BlastDirectionality.explosive,
                         shouldLoop: false,
-                        colors: [
-                          HSLColor.fromColor(Colors.green).withLightness(0.7).toColor(),
-                          HSLColor.fromColor(Colors.yellow).withLightness(0.7).toColor(),
-                          HSLColor.fromColor(Colors.blue).withLightness(0.7).toColor(),
-                          HSLColor.fromColor(Colors.red).withLightness(0.7).toColor(),
-                          HSLColor.fromColor(Colors.purple).withLightness(0.7).toColor(),
-                          HSLColor.fromColor(Colors.deepOrange).withLightness(0.7).toColor(),
+                        colors: const [
+                          Colors.white,
                         ],
                         particleDrag: 0.2,
                         createParticlePath: drawConfetti,
