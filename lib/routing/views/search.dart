@@ -408,18 +408,43 @@ class RouteSearchState extends State<RouteSearch> {
                   ],
 
                   // Search Results (sorted by distance to user)
-                  if (geosearch.results?.isNotEmpty == true) ...[
+                  if (geosearch.results.isNotEmpty) ...[
                     for (final waypointWithDistance
-                        in calculateDistanceToWaypoints(waypoints: geosearch.results!, sortByDistance: true).entries)
+                        in calculateDistanceToWaypoints(waypoints: geosearch.results, sortByDistance: true).entries)
                       SearchItem(
                         waypoint: waypointWithDistance.key,
                         distance: waypointWithDistance.value,
                         onTapped: tappedWaypoint,
                       ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 28, bottom: 20),
+                      padding: const EdgeInsets.only(top: 12, left: 28, bottom: 20),
                       child: Small(text: "Keine weiteren Ergebnisse", context: context),
                     )
+                  ],
+
+                  // No results found
+                  if (geosearch.results.isEmpty && geosearch.isFetchingAddress == false && searchQuery.isNotEmpty) ...[
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const VSpace(),
+                          Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 48),
+                          const VSpace(),
+                          BoldSmall(
+                            text: "Es konnten leider keine Ziele gefunden werden.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SmallVSpace(),
+                          Small(
+                            text: "Versuche es mit einer anderen Suchanfrage.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ],
               ),

@@ -12,6 +12,7 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
+import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
@@ -143,28 +144,45 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   }
 
   /// A callback that is fired when a shortcut was selected.
-  void onSelectShortcut(Shortcut shortcut) {
+  /// Checks if the shortcut is valid, i.e. if all waypoints are inside the bounding box.
+  Future<void> onSelectShortcut(Shortcut shortcut) async {
     HapticFeedback.mediumImpact();
+    final shortcutIsValid = shortcut.isValid();
+
+    if (!shortcutIsValid) {
+      final backend = getIt<Settings>().backend;
+      final shortcuts = getIt<Shortcuts>();
+      showDialog(
+        context: context,
+        builder: (context) => InvalidShortCutDialog(
+          backend: backend,
+          shortcuts: shortcuts,
+          shortcut: shortcut,
+          context: context,
+        ),
+      );
+      return;
+    }
 
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(List.from(shortcut.waypoints));
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+
+    pushRoutingView();
   }
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
+    pushRoutingView();
+  }
+
+  /// Pushes the routing view.
+  /// Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+  /// If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+  void pushRoutingView() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {

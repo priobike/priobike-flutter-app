@@ -9,6 +9,7 @@ import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -45,6 +46,9 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   /// The associated weather service, which is injected by the provider.
   late Weather weather;
 
+  /// The associated bounding box service, which is injected by the provider.
+  late Boundary boundary;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -64,6 +68,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     news.addListener(update);
     weather = getIt<Weather>();
     weather.addListener(update);
+    boundary = getIt<Boundary>();
   }
 
   @override
@@ -106,6 +111,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
+    boundary.loadBoundaryCoordinates(backend);
 
     // Load stuff for the new backend.
     await news.getArticles();

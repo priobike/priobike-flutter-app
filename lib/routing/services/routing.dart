@@ -15,6 +15,7 @@ import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -117,6 +118,9 @@ class Routing with ChangeNotifier {
 
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
+
+  /// A boolean indicating if waypoints are out of the city boundaries.
+  bool waypointsOutOfBoundaries = false;
 
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
@@ -324,6 +328,17 @@ class Routing with ChangeNotifier {
     }
   }
 
+  /// Check if all waypoints are inside of the city boundaries.
+  bool inCityBoundary(List<Waypoint> waypoints) {
+    final boundary = getIt<Boundary>();
+    for (final waypoint in waypoints) {
+      if (!boundary.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
   Future<List<r.Route>?> loadRoutes() async {
@@ -339,7 +354,17 @@ class Routing with ChangeNotifier {
 
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
+    waypointsOutOfBoundaries = false;
     notifyListeners();
+
+    // Check if the waypoints are inside of the city boundaries.
+    if (!inCityBoundary(selectedWaypoints!)) {
+      hadErrorDuringFetch = true;
+      waypointsOutOfBoundaries = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
 
     // Select the correct profile.
     selectedProfile = await selectProfile();
