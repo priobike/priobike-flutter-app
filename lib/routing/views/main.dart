@@ -287,25 +287,40 @@ class RoutingViewState extends State<RoutingView> {
 
                 // if point is outside of supported bounding box
                 (routing!.waypointsOutOfBoundaries)
-                    ? Small(
-                        text:
-                            "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
-                        context: context,
-                        textAlign: TextAlign.center,
+                    ? Column(
+                        children: [
+                          Small(
+                            text:
+                                "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe Deine Wegpunkte an oder versuche es später noch einmal.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const VSpace(),
+                          BigButton(
+                            label: "Letzten Wegpunkt löschen",
+                            onPressed: () async {
+                              await routing?.loadRoutes();
+                            },
+                          ),
+                        ],
                       )
-                    : Small(
-                        text:
-                            "Achte darauf, dass du mit dem Internet verbunden bist und versuche es später noch einmal.",
-                        context: context,
-                        textAlign: TextAlign.center,
+                    : Column(
+                        children: [
+                          Small(
+                            text:
+                                "Achte darauf, dass Du mit dem Internet verbunden bist und versuche es später noch einmal.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const VSpace(),
+                          BigButton(
+                            label: "Erneut versuchen",
+                            onPressed: () async {
+                              await routing?.loadRoutes();
+                            },
+                          ),
+                        ],
                       ),
-                const VSpace(),
-                BigButton(
-                  label: "Erneut versuchen",
-                  onPressed: () async {
-                    await routing?.loadRoutes();
-                  },
-                ),
                 // Move the button a bit more up.
                 const SizedBox(height: 64),
               ],
