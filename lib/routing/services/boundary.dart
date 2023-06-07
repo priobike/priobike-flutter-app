@@ -24,8 +24,9 @@ class Boundary {
   }
 
   /// Load the coordinates of the bounding box from the assets.
-  loadBoundaryCoordinates(Backend backend) async {
+  Future<void> loadBoundaryCoordinates(Backend backend) async {
     var coords = List.empty(growable: true);
+    boundaryCoords = List.empty(growable: true);
     switch (backend) {
       case Backend.production:
         // Load Hamburg's boundary as a geojson from the assets.
@@ -41,7 +42,7 @@ class Boundary {
         break;
       default:
         log.e("Unknown backend used for geosearch: $backend");
-        return false;
+        return;
     }
 
     for (final coord in coords) {

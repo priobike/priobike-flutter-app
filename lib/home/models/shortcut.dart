@@ -41,7 +41,7 @@ class Shortcut {
   /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
   bool isValid() {
     final boundaryService = getIt<Boundary>();
-    for (var waypoint in waypoints) {
+    for (final waypoint in waypoints) {
       if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
         return false;
       }

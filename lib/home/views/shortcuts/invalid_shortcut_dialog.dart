@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/services/shortcuts.dart' as shortcuts;
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/settings/models/backend.dart';
 
 class InvalidShortCutDialog extends AlertDialog {
   InvalidShortCutDialog({
     Key? key,
     required Shortcut shortcut,
-    required shortcuts.Shortcuts shortcuts,
+    required Shortcuts shortcuts,
     required Backend backend,
     required BuildContext context,
   }) : super(
