@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -27,12 +28,7 @@ class PretestView extends StatefulWidget {
   final String user;
   final TestType testType;
 
-  const PretestView(
-      {Key? key,
-      required this.title,
-      required this.user,
-      required this.testType})
-      : super(key: key);
+  const PretestView({Key? key, required this.title, required this.user, required this.testType}) : super(key: key);
 
   @override
   PretestViewState createState() => PretestViewState();
@@ -111,13 +107,15 @@ class PretestViewState extends State<PretestView> {
     });
 
     if (widget.title.contains("Phone")) {
-      synced = true;
+      setState(() {
+        synced = true;
+      });
+
       startCountdown();
     } else {
       // Start listening for wear messages.
       _startListening();
 
-      /// TODO send message to watch and listen for response => syncing Test.
       _onSendStart();
     }
 
@@ -142,14 +140,32 @@ class PretestViewState extends State<PretestView> {
 
   Future<void> _startListening() async {
     WearableListener.listenForMessage((msg) {
-      /// TODO Message codec
-      setState(() {});
+      Map<String, dynamic> data = jsonDecode(msg);
+      if (data["status"] != null && data["status"] == "ready") {
+        setState(() {
+          synced = true;
+        });
+
+        startCountdown();
+      }
     });
   }
 
   void _onSendStart() {
     WearableCommunicator.sendMessage({
-      "type": widget.testType.description,
+      "testType": widget.testType.description,
+    });
+  }
+
+  void _sendOutput(InputType inputType) {
+    WearableCommunicator.sendMessage({
+      "play": inputType.description,
+    });
+  }
+
+  void _sendStop() {
+    WearableCommunicator.sendMessage({
+      "stop": true,
     });
   }
 
@@ -247,17 +263,20 @@ class PretestViewState extends State<PretestView> {
 
   void playOutput() async {
     // Random faster or slower.
-    InputType inputType =
-        random.nextInt(2) == 1 ? InputType.faster : InputType.slower;
+    InputType inputType = random.nextInt(2) == 1 ? InputType.faster : InputType.slower;
 
     switch (widget.testType) {
       case TestType.wearVibrationInterval:
+        _sendOutput(inputType);
         break;
       case TestType.wearVibrationContinuous:
+        _sendOutput(inputType);
         break;
       case TestType.wearAudioInterval:
+        _sendOutput(inputType);
         break;
       case TestType.wearAudioContinuous:
+        _sendOutput(inputType);
         break;
       case TestType.phoneAudioInterval:
         playPhoneAudioInterval(inputType);
@@ -331,32 +350,31 @@ class PretestViewState extends State<PretestView> {
   Future<void> playPhoneAudioInterval(InputType inputType) async {
     if (inputType == InputType.faster) {
       // Vibrate with high frequency.
-      Future.delayed(const Duration(milliseconds: 500));
-      await audioPlayer1.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
-      Future.delayed(const Duration(milliseconds: 250));
-      await audioPlayer2.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
-      Future.delayed(const Duration(milliseconds: 150));
-      await audioPlayer3.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 500));
+      await audioPlayer1.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 250));
+      await audioPlayer2.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 150));
+      await audioPlayer3.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
     } else {
       // Vibrate with low frequency.
       // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
-      Future.delayed(const Duration(milliseconds: 500));
-      await audioPlayer1.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
-      Future.delayed(const Duration(milliseconds: 750));
-      await audioPlayer2.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
-      Future.delayed(const Duration(milliseconds: 1000));
-      await audioPlayer3.play(AssetSource(audioPath),
-          mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 500));
+      await audioPlayer1.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 750));
+      await audioPlayer2.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      await Future.delayed(const Duration(milliseconds: 1000));
+      await audioPlayer3.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
     }
   }
 
   Future<void> saveTestData() async {
+    // Save data in File on phone.
     // await writeJson(test.toJson().toString());
+    // Stop the test on watch.
+    if (widget.title.contains("Phone")) {
+      _sendStop();
+    }
   }
 
   Future<File> writeJson(String json) async {
@@ -371,8 +389,7 @@ class PretestViewState extends State<PretestView> {
     final exPath = directory.path;
     await Directory(exPath).create(recursive: true);
 
-    File file =
-        File('$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
+    File file = File('$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
 
     // Write the data in the file.
     return await file.writeAsString(json);
@@ -393,9 +410,7 @@ class PretestViewState extends State<PretestView> {
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_up_rounded,
                         iconSize: 128,
-                        fillColor: lock.timer != null && lock.timer!.isActive
-                            ? Colors.grey
-                            : CI.green,
+                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : CI.green,
                         splashColor: Colors.white,
                         onPressed: () {
                           lock.run(() {
@@ -407,27 +422,21 @@ class PretestViewState extends State<PretestView> {
                                   inputType: InputType.faster,
                                   timestamp: DateTime.now().toIso8601String(),
                                   lat: positioning.lastPosition?.latitude ?? -1,
-                                  lon: positioning.lastPosition?.longitude ??
-                                      -1),
+                                  lon: positioning.lastPosition?.longitude ?? -1),
                             );
                           });
                         },
-                        boxConstraints: BoxConstraints(
-                            minWidth: MediaQuery.of(context).size.width),
+                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                       ),
                     ),
                     const SmallVSpace(),
-                    BoldSubHeader(
-                        text: '$minute : ${second < 10 ? "0" : ""}$second',
-                        context: context),
+                    BoldSubHeader(text: '$minute : ${second < 10 ? "0" : ""}$second', context: context),
                     const SmallVSpace(),
                     Expanded(
                       child: BigIconButton(
                         icon: Icons.keyboard_double_arrow_down_rounded,
                         iconSize: 128,
-                        fillColor: lock.timer != null && lock.timer!.isActive
-                            ? Colors.grey
-                            : CI.red,
+                        fillColor: lock.timer != null && lock.timer!.isActive ? Colors.grey : CI.red,
                         splashColor: Colors.white,
                         onPressed: () {
                           lock.run(() {
@@ -439,13 +448,11 @@ class PretestViewState extends State<PretestView> {
                                   inputType: InputType.slower,
                                   timestamp: DateTime.now().toIso8601String(),
                                   lat: positioning.lastPosition?.latitude ?? -1,
-                                  lon: positioning.lastPosition?.longitude ??
-                                      -1),
+                                  lon: positioning.lastPosition?.longitude ?? -1),
                             );
                           });
                         },
-                        boxConstraints: BoxConstraints(
-                            minWidth: MediaQuery.of(context).size.width),
+                        boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
                       ),
                     ),
                   ],
@@ -464,9 +471,7 @@ class PretestViewState extends State<PretestView> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
-      value: Theme.of(context).brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
