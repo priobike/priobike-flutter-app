@@ -74,6 +74,11 @@
     <true/>
     <key>NSCameraUsageDescription</key>
     <string>Diese App nutzt die Kamera, um QR-Codes zu scannen.</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>https</string>
+      <string>mailto</string>
+    </array>
 </dict>
 </plist>
 
