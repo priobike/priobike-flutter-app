@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/home/services/status_history.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/status/services/status_history.dart';
 
 class StatusHistoryView extends StatefulWidget {
   const StatusHistoryView({Key? key}) : super(key: key);
@@ -37,28 +37,21 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
 
   /// Calculates the maximum value of the status history.
   void calculateMaximum() {
-    if (!statusHistory.hasLoaded) return;
-
     // TODO: Calculate the maximum value of the status history to set the diagram scale.
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: statusHistory.hasLoaded
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                height: 100,
-                color: Colors.red,
-                child: const Center(
-                  child: Text("Status History"),
-                ),
-              ),
-            )
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
-    );
+        child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        height: 100,
+        color: Colors.red,
+        child: const Center(
+          child: Text("Status History"),
+        ),
+      ),
+    ));
   }
 }

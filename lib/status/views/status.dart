@@ -149,67 +149,64 @@ class StatusViewState extends State<StatusView> {
       scale: animatedScale,
       duration: const Duration(milliseconds: 1000),
       curve: Curves.bounceOut,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Tile(
-          fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
-          shadowIntensity: isProblem ? 0.2 : 0.05,
-          shadow: isProblem ? CI.red : Colors.black,
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
-          content: Row(
-            children: [
-              Flexible(
-                fit: FlexFit.tight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    isProblem
-                        ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
-                        : BoldContent(text: "Datenverfügbarkeit", context: context),
-                    const SizedBox(height: 4),
-                    isProblem
-                        ? Small(text: text ?? "Lade Daten...", context: context, color: Colors.white)
-                        : Small(text: text ?? "Lade Daten...", context: context),
-                  ],
-                ),
+      child: Tile(
+        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        shadowIntensity: isProblem ? 0.2 : 0.05,
+        shadow: isProblem ? CI.red : Colors.black,
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
+        content: Row(
+          children: [
+            Flexible(
+              fit: FlexFit.tight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  isProblem
+                      ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                      : BoldContent(text: "Datenverfügbarkeit", context: context),
+                  const SizedBox(height: 4),
+                  isProblem
+                      ? Small(text: text ?? "Lade Daten...", context: context, color: Colors.white)
+                      : Small(text: text ?? "Lade Daten...", context: context),
+                ],
               ),
-              const SmallHSpace(),
-              // Show a progress indicator with the pct value.
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 42,
-                      height: 42,
-                      child: CircularProgressIndicator(
-                        value: predictionStatusSummary.isLoading ? null : goodPct,
-                        strokeWidth: 6,
-                        backgroundColor: isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
-                        valueColor: isProblem
-                            ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                            : const AlwaysStoppedAnimation<Color>(CI.green),
-                      ),
+            ),
+            const SmallHSpace(),
+            // Show a progress indicator with the pct value.
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: CircularProgressIndicator(
+                      value: predictionStatusSummary.isLoading ? null : goodPct,
+                      strokeWidth: 6,
+                      backgroundColor: isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
+                      valueColor: isProblem
+                          ? const AlwaysStoppedAnimation<Color>(Colors.white)
+                          : const AlwaysStoppedAnimation<Color>(CI.green),
                     ),
-                    Opacity(
-                      opacity: 0.2,
-                      child: Icon(
-                        Icons.chevron_right_rounded,
-                        color: isProblem ? Colors.white : CI.green,
-                        size: 42,
-                      ),
+                  ),
+                  Opacity(
+                    opacity: 0.2,
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: isProblem ? Colors.white : CI.green,
+                      size: 42,
                     ),
-                    BoldSmall(
-                      text: "${((goodPct ?? 0) * 100).round()}%",
-                      context: context,
-                      color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ],
-                ),
+                  ),
+                  BoldSmall(
+                    text: "${((goodPct ?? 0) * 100).round()}%",
+                    context: context,
+                    color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
