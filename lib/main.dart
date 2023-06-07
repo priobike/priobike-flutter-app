@@ -9,6 +9,7 @@ import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/services/status_history.dart';
 import 'package:priobike/loader.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/news/services/news.dart';
@@ -76,6 +77,7 @@ Future<void> main() async {
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
+  getIt.registerSingleton<StatusHistory>(StatusHistory());
 
   runZonedGuarded(() async {
     runApp(const App());

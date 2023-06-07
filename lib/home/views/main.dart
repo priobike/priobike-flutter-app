@@ -8,6 +8,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
+import 'package:priobike/home/services/status_history.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
@@ -213,6 +214,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
           await predictionStatusSummary.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
+          await getIt<StatusHistory>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
             const Duration(seconds: 1),
