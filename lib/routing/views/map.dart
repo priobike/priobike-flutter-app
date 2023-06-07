@@ -719,7 +719,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         builder: (context) => AlertDialog(
           title: const Text("Wegpunkt außerhalb des Stadtgebiets"),
           content: Text(
-            "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe Deine Wegpunkte an oder versuche es später noch einmal.",
+            "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. \nBitte passe Deinen Wegpunkt an.",
           ),
           actions: [
             TextButton(
