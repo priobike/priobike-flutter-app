@@ -4,11 +4,17 @@ import 'package:priobike/http.dart';
 import 'package:priobike/logging/logger.dart';
 
 class StatusHistory with ChangeNotifier {
-  /// The status history data of the last week.
-  var weekHistoryData = <int, String>{};
+  /// TODO: Add documentation and maybe rename the variable.
+  List<dynamic> weekAveragePredictionQuality = List.empty(growable: true);
 
-  /// The status history data of the last day.
-  var dayHistoryData = <int, String>{};
+  /// TODO: Add documentation and maybe rename the variable.
+  List<dynamic> weekTotalPredictionCount = List.empty(growable: true);
+
+  /// TODO: Add documentation and maybe rename the variable.
+  List<dynamic> dayAveragePredictionQuality = List.empty(growable: true);
+
+  /// TODO: Add documentation and maybe rename the variable.
+  List<dynamic> dayTotalPredictionCount = List.empty(growable: true);
 
   /// An indicator if the data of this notifier changed.
   bool hasLoaded = false;
@@ -38,8 +44,13 @@ class StatusHistory with ChangeNotifier {
         throw Exception(err);
       }
 
-      weekHistoryData = jsonDecode(responseWeekHistory.body);
-      dayHistoryData = jsonDecode(responseDayHistory.body);
+      final weekHistoryDecode = jsonDecode(responseWeekHistory.body);
+      weekAveragePredictionQuality = weekHistoryDecode["average_prediction_service_predictions_count_total"];
+      weekTotalPredictionCount = weekHistoryDecode["prediction_service_subscription_count_total"];
+
+      final dayHistoryDecode = jsonDecode(responseDayHistory.body);
+      dayAveragePredictionQuality = dayHistoryDecode["average_prediction_service_predictions_count_total"];
+      dayTotalPredictionCount = dayHistoryDecode["prediction_service_subscription_count_total"];
     } catch (e) {
       log.e("Status History could not be fetched: $e");
       return;

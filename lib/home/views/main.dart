@@ -15,6 +15,7 @@ import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
+import 'package:priobike/home/views/status_history.dart';
 import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
@@ -241,7 +242,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ),
                     ),
                   const VSpace(),
-                  const BlendIn(child: StatusView()),
+                  const BlendIn(
+                    child: StatusView(),
+                  ),
+                  const BlendIn(
+                    child: StatusHistoryView(),
+                  ),
+                  const VSpace(),
                   BlendIn(
                     delay: const Duration(milliseconds: 250),
                     child: Row(
