@@ -223,7 +223,7 @@ class SettingsViewState extends State<SettingsView> {
   Future<void> launchMailTo() async {
     final params = {
       'subject': 'Priobike - Fehler melden',
-      'body': 'Hallo Priobike-Team,\n\n...',
+      'body': 'Hallo Priobike-Team,\n\n',
     };
     final query = params.entries
         .map((MapEntry<String, String> e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
