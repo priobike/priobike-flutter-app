@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -392,8 +393,17 @@ class SettingsViewState extends State<SettingsView> {
                   ),
                 ),
                 const VSpace(),
+                SettingsElement(
+                  title: "App bewerten",
+                  icon: Icons.rate_review_outlined,
+                  callback: () {
+                    final InAppReview inAppReview = InAppReview.instance;
+                    inAppReview.openStoreListing(appStoreId: "1634224594");
+                  },
+                ),
+                const VSpace(),
                 const Padding(
-                  padding: EdgeInsets.only(left: 20),
+                  padding: EdgeInsets.only(left: 16),
                   child: SurveyView(
                     dismissible: false,
                     borderRadius: BorderRadius.only(

@@ -66,7 +66,7 @@ class FeedbackViewState extends State<FeedbackView> {
     }
   }
 
-  /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
+  /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
   void showNavigationBarAndroid() {
     if (Platform.isAndroid) {
       SystemChrome.setEnabledSystemUIMode(

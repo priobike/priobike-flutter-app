@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart' hide Feedback;
 import 'package:flutter/services.dart';
@@ -49,27 +47,12 @@ class StarRatingViewState extends State<StarRatingView> {
     super.dispose();
   }
 
-  /// A custom Path to paint stars.
-  Path drawStar(Size size) {
-    // Method to convert degree to radians
-    double degToRad(double deg) => deg * (pi / 180.0);
+  /// A custom Path to paint confetti stripes.
+  Path drawConfetti(Size size) {
+    Path path = Path();
+    path.addRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width / 2, size.height / 2), const Radius.circular(0)));
 
-    const numberOfPoints = 5;
-    final halfWidth = size.width / 2;
-    final externalRadius = halfWidth;
-    final internalRadius = halfWidth / 2.5;
-    final degreesPerStep = degToRad(360 / numberOfPoints);
-    final halfDegreesPerStep = degreesPerStep / 2;
-    final path = Path();
-    final fullAngle = degToRad(360);
-    path.moveTo(size.width, halfWidth);
-
-    for (double step = 0; step < fullAngle; step += degreesPerStep) {
-      path.lineTo(halfWidth + externalRadius * cos(step), halfWidth + externalRadius * sin(step));
-      path.lineTo(halfWidth + internalRadius * cos(step + halfDegreesPerStep),
-          halfWidth + internalRadius * sin(step + halfDegreesPerStep));
-    }
-    path.close();
     return path;
   }
 
@@ -105,7 +88,7 @@ class StarRatingViewState extends State<StarRatingView> {
         const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, constraints) {
-            final size = constraints.maxWidth / 5;
+            final size = constraints.maxWidth / 6;
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -116,13 +99,11 @@ class StarRatingViewState extends State<StarRatingView> {
                         confettiController: confettiControllers[i - 1],
                         blastDirectionality: BlastDirectionality.explosive,
                         shouldLoop: false,
-                        colors: [
-                          HSLColor.fromColor(Colors.yellow).withLightness(0.5).toColor(),
-                          HSLColor.fromColor(Colors.yellow).withLightness(0.6).toColor(),
-                          HSLColor.fromColor(Colors.yellow).withLightness(0.7).toColor(),
+                        colors: const [
+                          Colors.white,
                         ],
                         particleDrag: 0.2,
-                        createParticlePath: drawStar,
+                        createParticlePath: drawConfetti,
                         numberOfParticles: (i - 1) * 5 + 1,
                       ),
                       GestureDetector(
@@ -132,15 +113,18 @@ class StarRatingViewState extends State<StarRatingView> {
                           firstCurve: Curves.bounceIn,
                           secondCurve: Curves.bounceIn,
                           crossFadeState: rating >= i ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                          firstChild: Icon(
-                            Icons.star_rounded,
-                            size: size,
-                            color: Colors.yellow,
-                          ),
-                          secondChild: Padding(
+                          firstChild: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Icon(
-                              Icons.star_border_rounded,
+                              Icons.directions_bike_rounded,
+                              size: size,
+                              color: Colors.white,
+                            ),
+                          ),
+                          secondChild: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.directions_bike,
                               size: size - 8,
                               color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                             ),

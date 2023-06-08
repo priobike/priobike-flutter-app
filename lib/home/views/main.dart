@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/services.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -32,6 +33,9 @@ import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
+
+/// List that holds the number of app uses when the rate function should be triggered.
+const List<int> askRateAppList = [5, 10, 20, 40, 60, 100, 150, 200, 300];
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -91,6 +95,20 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
+
+    // Check if app should be rated.
+    if (askRateAppList.contains(settings.useCounter)) {
+      rateApp();
+    }
+  }
+
+  /// Function that starts the inAppReview.
+  Future<void> rateApp() async {
+    final InAppReview inAppReview = InAppReview.instance;
+
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
   }
 
   @override
