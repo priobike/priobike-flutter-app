@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -221,6 +222,9 @@ class RouteSearchState extends State<RouteSearch> {
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
+  /// FocusNode for the search text field that is used to check if unfocused is needed.
+  FocusNode searchTextFieldFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -330,13 +334,25 @@ class RouteSearchState extends State<RouteSearch> {
             color: Theme.of(context).colorScheme.background,
             child: Row(
               children: [
-                AppBackButton(onPressed: () => Navigator.pop(context)),
+                AppBackButton(
+                  onPressed: () async {
+                    // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.
+                    if (Platform.isAndroid && searchTextFieldFocusNode.hasFocus) {
+                      searchTextFieldFocusNode.unfocus();
+                      // Waiting for the keyboard to be fully unfocused before popping the current screen.
+                      await Future.delayed(const Duration(milliseconds: 500)).then((value) => Navigator.pop(context));
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
                 const SmallHSpace(),
                 Container(
                   padding: const EdgeInsets.only(top: 16, bottom: 16),
                   width: frame.size.width - 72,
                   child: TextField(
                     autofocus: true,
+                    focusNode: searchTextFieldFocusNode,
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
                       hintText: "Suche",
