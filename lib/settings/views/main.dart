@@ -375,17 +375,15 @@ class SettingsViewState extends State<SettingsView> {
                   ),
                 ),
                 const VSpace(),
-                if (Platform.isAndroid)
-                  SettingsElement(
+                SettingsElement(
                     title: "App bewerten",
                     icon: Icons.rate_review_outlined,
-                    callback: () async {
+                    callback: () {
                       final InAppReview inAppReview = InAppReview.instance;
-
-                      inAppReview.openStoreListing();
+                      inAppReview.openStoreListing(appStoreId: "1634224594");
                     },
                   ),
-                if (Platform.isAndroid) const VSpace(),
+                const VSpace(),
                 const Padding(
                   padding: EdgeInsets.only(left: 16),
                   child: SurveyView(
