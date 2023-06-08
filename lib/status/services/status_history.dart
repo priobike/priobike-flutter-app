@@ -9,20 +9,20 @@ import 'package:priobike/settings/services/settings.dart';
 
 class StatusHistory with ChangeNotifier {
   /// TODO: Add documentation and maybe rename the variable.
-  Map<DateTime, double> weekPredictions = {};
+  Map<double, double> weekPredictions = {};
 
   /// TODO: Add documentation and maybe rename the variable.
-  Map<DateTime, double> weekSubscriptions = {};
+  Map<double, double> weekSubscriptions = {};
+
+  Map<double, double> weekPercentages = {};
 
   /// TODO: Add documentation and maybe rename the variable.
-  Map<DateTime, double> dayPredictions = {};
+  Map<double, double> dayPredictions = {};
 
   /// TODO: Add documentation and maybe rename the variable.
-  Map<DateTime, double> daySubscriptions = {};
+  Map<double, double> daySubscriptions = {};
 
-  double maxSubscriptionsWeek = 0;
-
-  double maxSubscriptionsDay = 0;
+  Map<double, double> dayPercentages = {};
 
   /// If the service is currently loading the status.
   bool isLoading = false;
@@ -36,25 +36,35 @@ class StatusHistory with ChangeNotifier {
   StatusHistory();
 
   List parseData(dynamic json) {
-    final Map<DateTime, double> predictions = {};
-    final Map<DateTime, double> subscriptions = {};
+    final Map<double, double> predictions = {};
+    final Map<double, double> subscriptions = {};
+    final Map<double, double> percentages = {};
     double maxSubscriptions = 0;
 
     const predictionsKey = "average_prediction_service_predictions_count_total";
     const subscriptionsKey = "prediction_service_subscription_count_total";
 
     for (final entry in json[predictionsKey].entries) {
-      final date = DateTime.fromMillisecondsSinceEpoch(int.parse(entry.key) * 1000);
       final predictionValue = entry.value.toDouble();
+      final double timestamp = double.parse(entry.key);
 
-      predictions[date] = predictionValue;
-      subscriptions[date] = json[subscriptionsKey][entry.key].toDouble();
-      if (subscriptions[date]! > maxSubscriptions) {
-        maxSubscriptions = subscriptions[date]!;
+      predictions[timestamp] = predictionValue;
+      subscriptions[timestamp] = json[subscriptionsKey][entry.key].toDouble();
+      if (subscriptions[timestamp]! > maxSubscriptions) {
+        maxSubscriptions = subscriptions[timestamp]!;
       }
     }
 
-    return [predictions, subscriptions, maxSubscriptions];
+    for (final entry in predictions.entries) {
+      if (maxSubscriptions == 0) {
+        percentages[entry.key] = 0;
+        continue;
+      }
+      final percentage = entry.value / maxSubscriptions;
+      percentages[entry.key] = percentage > 1 ? 1 : percentage;
+    }
+
+    return [predictions, subscriptions, percentages];
   }
 
   /// Fetches the status history data from priobike-prediction-monitor.
@@ -96,11 +106,11 @@ class StatusHistory with ChangeNotifier {
       final dayData = parseData(jsonDay);
       dayPredictions = dayData[0];
       daySubscriptions = dayData[1];
-      maxSubscriptionsDay = dayData[2];
+      dayPercentages = dayData[2];
       final weekData = parseData(jsonWeek);
       weekPredictions = weekData[0];
       weekSubscriptions = weekData[1];
-      maxSubscriptionsWeek = weekData[2];
+      weekPercentages = weekData[2];
 
       isLoading = false;
       hadError = false;
@@ -118,10 +128,10 @@ class StatusHistory with ChangeNotifier {
   Future<void> reset() async {
     weekPredictions = {};
     weekSubscriptions = {};
-    maxSubscriptionsWeek = 0;
+    weekPercentages = {};
     dayPredictions = {};
     daySubscriptions = {};
-    maxSubscriptionsDay = 0;
+    dayPercentages = {};
     isLoading = false;
     hadError = false;
     notifyListeners();

@@ -3,6 +3,11 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/status/views/status.dart';
 import 'package:priobike/status/views/status_history.dart';
 
+enum StatusHistoryTime {
+  day,
+  week,
+}
+
 class StatusTabsView extends StatefulWidget {
   const StatusTabsView({Key? key}) : super(key: key);
 
@@ -42,8 +47,8 @@ class StatusTabsViewState extends State<StatusTabsView> with SingleTickerProvide
           },
           children: const [
             StatusView(),
-            StatusHistoryView(),
-            StatusHistoryView(),
+            StatusHistoryView(time: StatusHistoryTime.day),
+            StatusHistoryView(time: StatusHistoryTime.week),
           ],
         ),
       ),
