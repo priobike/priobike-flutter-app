@@ -233,7 +233,6 @@ class SettingsViewState extends State<SettingsView> {
       path: 'priobike@tu-dresden.de',
       query: query,
     );
-    launchUrl(emailLaunchUri);
     if (!await launchUrl(emailLaunchUri)) {
       throw Exception('Could not launch $emailLaunchUri');
     }
