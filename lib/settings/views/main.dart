@@ -376,13 +376,13 @@ class SettingsViewState extends State<SettingsView> {
                 ),
                 const VSpace(),
                 SettingsElement(
-                    title: "App bewerten",
-                    icon: Icons.rate_review_outlined,
-                    callback: () {
-                      final InAppReview inAppReview = InAppReview.instance;
-                      inAppReview.openStoreListing(appStoreId: "1634224594");
-                    },
-                  ),
+                  title: "App bewerten",
+                  icon: Icons.rate_review_outlined,
+                  callback: () {
+                    final InAppReview inAppReview = InAppReview.instance;
+                    inAppReview.openStoreListing(appStoreId: "1634224594");
+                  },
+                ),
                 const VSpace(),
                 const Padding(
                   padding: EdgeInsets.only(left: 16),
