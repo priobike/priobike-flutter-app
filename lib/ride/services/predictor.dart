@@ -12,6 +12,7 @@ import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 
@@ -36,6 +37,10 @@ class Predictor implements PredictionComponent {
 
   /// A callback that gets executed when the client is connected.
   late final Function onConnected;
+
+  /// The current prediction mode.
+  @override
+  PredictionMode currentMode = PredictionMode.usePredictor;
 
   Predictor({
     required this.onConnected,

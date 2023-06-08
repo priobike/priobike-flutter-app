@@ -19,6 +19,7 @@ import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -393,6 +394,23 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 fontSize: 8,
                               ),
                             ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                            // Display a small dot to indicate that the fallback is active.
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                width: 4,
+                                height: 4,
+                              )
+                            : const SizedBox(width: 4, height: 4),
                       ),
                     ),
                   ],

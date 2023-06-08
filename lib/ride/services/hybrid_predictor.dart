@@ -56,6 +56,7 @@ class HybridPredictor implements PredictionComponent {
 
   /// The currently used client used for the hybrid mode (predictionService or predictor) based on the current
   /// predictions of both.
+  @override
   PredictionMode currentMode = PredictionMode.usePredictionService;
 
   /// The current SG (either selected by the user or by the current position on the route)
