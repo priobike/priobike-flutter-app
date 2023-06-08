@@ -13,6 +13,7 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
+import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
@@ -43,7 +44,7 @@ class HomeView extends StatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView> {
+class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAware {
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -68,12 +69,17 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatusSummary predictionStatusSummary;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     news = getIt<News>();
     news.addListener(update);
@@ -83,6 +89,7 @@ class HomeViewState extends State<HomeView> {
     settings.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
 
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
@@ -105,7 +112,29 @@ class HomeViewState extends State<HomeView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      predictionStatusSummary.fetch();
+      news.getArticles();
+    }
+  }
+
+  @override
+  void didPopNext() {
+    predictionStatusSummary.fetch();
+    news.getArticles();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
     news.removeListener(update);
     profile.removeListener(update);
     settings.removeListener(update);
@@ -133,28 +162,45 @@ class HomeViewState extends State<HomeView> {
   }
 
   /// A callback that is fired when a shortcut was selected.
-  void onSelectShortcut(Shortcut shortcut) {
+  /// Checks if the shortcut is valid, i.e. if all waypoints are inside the bounding box.
+  Future<void> onSelectShortcut(Shortcut shortcut) async {
     HapticFeedback.mediumImpact();
+    final shortcutIsValid = shortcut.isValid();
+
+    if (!shortcutIsValid) {
+      final backend = getIt<Settings>().backend;
+      final shortcuts = getIt<Shortcuts>();
+      showDialog(
+        context: context,
+        builder: (context) => InvalidShortCutDialog(
+          backend: backend,
+          shortcuts: shortcuts,
+          shortcut: shortcut,
+          context: context,
+        ),
+      );
+      return;
+    }
 
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(List.from(shortcut.waypoints));
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+
+    pushRoutingView();
   }
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
+    pushRoutingView();
+  }
+
+  /// Pushes the routing view.
+  /// Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+  /// If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+  void pushRoutingView() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
@@ -182,7 +228,8 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await getIt<PredictionStatusSummary>().fetch();
+          await predictionStatusSummary.fetch();
+          await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(

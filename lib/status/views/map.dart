@@ -273,7 +273,7 @@ class SGStatusMapViewState extends State<SGStatusMapView> {
   Widget build(BuildContext context) {
     final legend = [
       SGStatusMapViewLegendElement("Keine Prognose", const Color(0xff000000)),
-      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", CI.blue),
+      SGStatusMapViewLegendElement("Schlechte oder veraltete Prognose", const Color.fromARGB(255, 230, 51, 40)),
       SGStatusMapViewLegendElement("Aktuelle und gute Prognose", CI.blue),
     ];
     final ppi = MediaQuery.of(context).devicePixelRatio * 0.9;

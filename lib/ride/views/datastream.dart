@@ -78,7 +78,7 @@ class DatastreamViewState extends State<DatastreamView> {
     if (datastream.subscriptions.isEmpty) return Container();
 
     return Positioned(
-      top: 48, // Below the MapBox attribution.
+      top: 142, // Below the MapBox attribution.
       right: 0,
       child: SafeArea(
         child: Stack(

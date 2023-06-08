@@ -14,7 +14,7 @@ class StatusView extends StatefulWidget {
   StatusViewState createState() => StatusViewState();
 }
 
-class StatusViewState extends State<StatusView> with WidgetsBindingObserver, RouteAware {
+class StatusViewState extends State<StatusView> {
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
@@ -40,7 +40,6 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
 
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
@@ -50,29 +49,9 @@ class StatusViewState extends State<StatusView> with WidgetsBindingObserver, Rou
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    routeObserver.unsubscribe(this);
     predictionStatusSummary.removeListener(update);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      predictionStatusSummary.fetch();
-    }
-  }
-
-  @override
-  void didPopNext() {
-    predictionStatusSummary.fetch();
   }
 
   /// Load the displayed text.

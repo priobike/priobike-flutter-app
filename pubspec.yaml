@@ -66,7 +66,7 @@ dependencies:
   connectivity_plus: ^3.0.2 # To check if the user is connected to Wifi or mobile data
   get_it: ^7.2.0 # Used for dependency injection
   qr_flutter: ^4.0.0 # Used to display QR codes
-  mobile_scanner: ^3.0.0 # Used to scan QR codes
+  qr_code_scanner: ^1.0.1 # Used to scan QR codes
   url_launcher: ^6.1.10 # Used to open URLs
   in_app_review: ^2.0.6 # Used to rate the app
 
