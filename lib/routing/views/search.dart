@@ -336,6 +336,7 @@ class RouteSearchState extends State<RouteSearch> {
               children: [
                 AppBackButton(
                   onPressed: () async {
+                    // FIXME we should pay attention to release notes if this Flutter bug might be fixed in the future.
                     // Prevents the keyboard to be focused on pop screen. This can cause ugly map effects on Android.
                     if (Platform.isAndroid && searchTextFieldFocusNode.hasFocus) {
                       searchTextFieldFocusNode.unfocus();
