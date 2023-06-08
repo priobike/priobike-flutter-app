@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/views/status_tabs.dart';
 
 class StatusHistoryPainter extends CustomPainter {
+  /// The BuildContext of the widget.
   BuildContext context;
 
+  /// The time of the chart (day or week).
+  final StatusHistoryTime time;
+
+  /// The data points with timestamp and percentage of the route.
   final Map<double, double> percentages;
 
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
-  final paddingLeft = 16.0;
-  final paddingRight = 16.0;
+  final paddingLeft = 34.0;
+  final paddingRight = 14.0;
 
   /// The Canvas to draw on.
   late Canvas canvas;
@@ -30,7 +34,7 @@ class StatusHistoryPainter extends CustomPainter {
   /// The maximum height of the route +1.0 as padding for the y-axis.
   late double maxHeight = 1;
 
-  StatusHistoryPainter({required this.context, required this.percentages});
+  StatusHistoryPainter({required this.context, required this.percentages, required this.time});
 
   /// Sets the basic variables for the painter.
   void initializePainter(Canvas canvas, Size size) {
@@ -66,7 +70,7 @@ class StatusHistoryPainter extends CustomPainter {
   }
 
   /// Draws labels for the x-axis and y-axis.
-  /* void drawCoordSystemLabels() {
+  void drawCoordSystemLabels() {
     final TextStyle labelTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.outline,
       fontSize: 12,
@@ -75,26 +79,29 @@ class StatusHistoryPainter extends CustomPainter {
     const distanceFromXAxis = 4.0;
     const distanceFromYAxis = 6.0;
 
-    // The top and bottom labels on the y-axis
-    final double labelYTop = maxHeight;
-    final double labelYBottom = minHeight;
+    final String xLeftLabelString;
+    final String xMidLabelString;
+    const String xRightLabelString = "Jetzt";
 
-    // How many decimal places to show on the y-axis
-    final int decimalPlacesY;
+    if (time == StatusHistoryTime.day) {
+      final diffToFirstTimeStampSec =
+          percentages.entries.toList().last.key.toInt() - percentages.entries.toList().first.key.toInt();
+      final diffToFirstTimeStampHour = diffToFirstTimeStampSec / 60 ~/ 60;
 
-    // How many decimal places to show on the x-axis
-    final int decimalPlacesX;
-
-    // The unit for the x-axis
-    final String unit;
-
-    // The length of the route
-    final double routeLength;
+      xLeftLabelString = "vor ${diffToFirstTimeStampHour}h";
+      xMidLabelString = "vor ${diffToFirstTimeStampHour ~/ 2}h";
+    } else {
+      final diffToFirstTimeStampSec =
+          percentages.entries.toList().last.key.toInt() - percentages.entries.toList().first.key.toInt();
+      final diffToFirstTimeStampDay = diffToFirstTimeStampSec / 60 ~/ 60 ~/ 24;
+      xLeftLabelString = "vor $diffToFirstTimeStampDay Tagen";
+      xMidLabelString = "vor ${diffToFirstTimeStampDay ~/ 2} Tagen";
+    }
 
     // Left label on x-axis
     final xLeftLabel = TextPainter(
       text: TextSpan(
-        text: "10:00", //TODO: Add timestamp
+        text: xLeftLabelString,
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -108,7 +115,7 @@ class StatusHistoryPainter extends CustomPainter {
     // Middle label on x-axis
     final xMidLabel = TextPainter(
       text: TextSpan(
-        text: "11:00", //TODO: Add timestamp
+        text: xMidLabelString,
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -123,7 +130,7 @@ class StatusHistoryPainter extends CustomPainter {
     // Right label on x-axis
     final xRightLabel = TextPainter(
       text: TextSpan(
-        text: "12:00", //TODO: Add timestamp
+        text: xRightLabelString,
         style: labelTextStyle,
       ),
       textDirection: TextDirection.ltr,
@@ -150,24 +157,6 @@ class StatusHistoryPainter extends CustomPainter {
     yMinLabel.paint(
         canvas, Offset(paddingLeft - yMinLabel.width - distanceFromYAxis, size.height - paddingTopBottom - 10));
 
-    // Mid label on y-axis
-    // Is only drawn if the mid label is not too close to the top or bottom label
-    if (yStartingPoint - 15 > yTop && yStartingPoint + 15 < yBottom) {
-      final yMidLabel = TextPainter(
-        text: TextSpan(
-          text: "50%",
-          style: labelTextStyle,
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      yMidLabel.layout(
-        minWidth: 0,
-        maxWidth: size.width,
-      );
-      yMidLabel.paint(
-          canvas, Offset(paddingLeft - yMidLabel.width - distanceFromYAxis, yStartingPoint - yMidLabel.height / 2));
-    }
-
     // Top label on y-axis
     final yMaxLabel = TextPainter(
       text: TextSpan(
@@ -181,7 +170,7 @@ class StatusHistoryPainter extends CustomPainter {
       maxWidth: size.width,
     );
     yMaxLabel.paint(canvas, Offset(paddingLeft - yMaxLabel.width - distanceFromYAxis, paddingTopBottom - 2));
-  }*/
+  }
 
   /// Draws the lines of the chart.
   void drawLines() {
@@ -208,12 +197,11 @@ class StatusHistoryPainter extends CustomPainter {
 
     for (final entry in nulledPercentages.entries) {
       // Calculate the coordinates of the current height data
-      final height = entry.value - minHeight;
-      final spectrum = maxHeight - minHeight;
+      final height = entry.value;
       final x =
           paddingLeft + (entry.key / nulledPercentages.keys.toList().last) * (size.width - paddingRight - paddingLeft);
       final y =
-          size.height - paddingTopBottom - (height / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
+          size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
 
       if (entry.key == nulledPercentages.entries.last.key) {
         canvas.drawCircle(Offset(x, y), circleSize, paintCircle);
@@ -222,15 +210,14 @@ class StatusHistoryPainter extends CustomPainter {
         final nextIndex = nulledPercentages.keys.toList().indexOf(entry.key) + 1;
         final nextTimestamp = nulledPercentages.keys.toList()[nextIndex];
         final nextPercentage = nulledPercentages.values.toList()[nextIndex];
-        final nextHeight = nextPercentage - minHeight;
+        final nextHeight = nextPercentage;
         final nextX = paddingLeft +
             (nextTimestamp / nulledPercentages.keys.toList().last) * (size.width - paddingRight - paddingLeft);
         final nextY = size.height -
             paddingTopBottom -
-            (nextHeight / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
-        print(Offset(x, y));
-        print(Offset(nextX, nextY));
+            (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
         canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
+
         // Draw a little circle at the end of the line to make the transition smoother
         canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransition);
       }
@@ -241,7 +228,7 @@ class StatusHistoryPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     initializePainter(canvas, size);
     drawCoordSystem();
-    // drawCoordSystemLabels();
+    drawCoordSystemLabels();
     drawLines();
   }
 
@@ -250,6 +237,7 @@ class StatusHistoryPainter extends CustomPainter {
 }
 
 class StatusHistoryChart extends StatefulWidget {
+  /// The time of the chart (day or week).
   final StatusHistoryTime time;
 
   const StatusHistoryChart({Key? key, required this.time}) : super(key: key);
@@ -263,9 +251,6 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-/*
-    processHistoryData();
-*/
     setState(() {});
   }
 
@@ -274,9 +259,6 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     super.initState();
     statusHistory = getIt<StatusHistory>();
     statusHistory.addListener(update);
-/*
-    processHistoryData();
-*/
   }
 
   @override
@@ -285,43 +267,6 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     super.dispose();
   }
 
-  /*/// Process the history data and create the LineElements for the chart.
-  void processHistoryData() {
-    if (statusHistory.isLoading) return;
-    if (statusHistory.hadError) return;
-
-    for (final )
-
-
-
-
-    for (var route in routing.allRoutes!) {
-      final latlngCoords = route.path.points.coordinates;
-
-      const vincenty = Distance(roundResult: false);
-      final data = List<HistoryData>.empty(growable: true);
-      var prevDist = 0.0;
-      for (var i = 0; i < latlngCoords.length; i++) {
-        var dist = 0.0;
-        final p = latlngCoords[i];
-        if (i > 0) {
-          final pPrev = latlngCoords[i - 1];
-          dist = vincenty.distance(LatLng(pPrev.lat, pPrev.lon), LatLng(p.lat, p.lon));
-        }
-        prevDist += dist;
-        data.add(HistoryData(p.elevation ?? 0.0, prevDist / 1000));
-      }
-      final bool isMainLine = (latlngCoords == routing.selectedRoute!.path.points.coordinates);
-
-      // The last item of the data stores the total distance of the route
-      series.add(data);
-
-      // save the start point of the main line to orient the chart
-      if (isMainLine) {
-        heightStartPoint = data.first.height;
-      }
-    }*/
-
   @override
   Widget build(BuildContext context) {
     if (statusHistory.hadError || statusHistory.isLoading) return Container();
@@ -329,26 +274,17 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     if (widget.time == StatusHistoryTime.day && statusHistory.dayPercentages.isEmpty) return Container();
     if (widget.time == StatusHistoryTime.week && statusHistory.weekPercentages.isEmpty) return Container();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        RotatedBox(
-          quarterTurns: -1,
-          child: Small(text: "Datenqualität", context: context),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 105,
+      child: CustomPaint(
+        painter: StatusHistoryPainter(
+          context: context,
+          percentages:
+              widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
+          time: widget.time,
         ),
-        Expanded(
-          child: SizedBox(
-            height: 105,
-            child: CustomPaint(
-              painter: StatusHistoryPainter(
-                context: context,
-                percentages:
-                    widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

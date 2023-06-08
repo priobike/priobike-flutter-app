@@ -8,6 +8,17 @@ enum StatusHistoryTime {
   week,
 }
 
+extension StatusHistoryTimeName on StatusHistoryTime {
+  String name() {
+    switch (this) {
+      case StatusHistoryTime.day:
+        return "24 Stunden";
+      case StatusHistoryTime.week:
+        return "7 Tage";
+    }
+  }
+}
+
 class StatusTabsView extends StatefulWidget {
   const StatusTabsView({Key? key}) : super(key: key);
 
@@ -34,36 +45,38 @@ class StatusTabsViewState extends State<StatusTabsView> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: 164,
-        child: PageView(
-          controller: pageController,
-          onPageChanged: (int index) {
-            setState(() {
-              tabController?.index = index;
-            });
-          },
-          children: const [
-            StatusView(),
-            StatusHistoryView(time: StatusHistoryTime.day),
-            StatusHistoryView(time: StatusHistoryTime.week),
-          ],
+    return Column(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: 164,
+          child: PageView(
+            controller: pageController,
+            onPageChanged: (int index) {
+              setState(() {
+                tabController?.index = index;
+              });
+            },
+            children: const [
+              StatusView(),
+              StatusHistoryView(time: StatusHistoryTime.day),
+              StatusHistoryView(time: StatusHistoryTime.week),
+            ],
+          ),
         ),
-      ),
-      Container(
-        alignment: Alignment.bottomCenter,
-        padding: const EdgeInsets.only(top: 8),
-        child: TabPageSelector(
-          controller: tabController,
-          selectedColor: CI.blue,
-          indicatorSize: 12,
-          borderStyle: BorderStyle.none,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
-          key: GlobalKey(),
+        Container(
+          alignment: Alignment.bottomCenter,
+          padding: const EdgeInsets.only(top: 8),
+          child: TabPageSelector(
+            controller: tabController,
+            selectedColor: CI.blue,
+            indicatorSize: 12,
+            borderStyle: BorderStyle.none,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+            key: GlobalKey(),
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }

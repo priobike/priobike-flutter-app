@@ -21,9 +21,6 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   /// The associated status history service, which is injected by the provider.
   late StatusHistory statusHistory;
 
-  /// The maximum value of the status history.
-  double maximumValue = 0.0;
-
   @override
   void initState() {
     super.initState();
@@ -48,26 +45,24 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
     super.dispose();
   }
 
-  /// Calculates the maximum value of the status history.
-  void calculateMaximum() {
-    // TODO: Calculate the maximum value of the status history to set the diagram scale.
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Tile(
-      fill: Theme.of(context).colorScheme.background,
-      shadowIntensity: 0.05,
-      shadow: Colors.black,
-      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          BoldContent(text: "Historischer Status", context: context),
-          const SizedBox(height: 4),
-          if (statusHistory.isLoading) Small(text: "Lade Daten...", context: context),
-          StatusHistoryChart(time: widget.time),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Tile(
+        fill: Theme.of(context).colorScheme.background,
+        shadowIntensity: 0.05,
+        shadow: Colors.black,
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BoldContent(text: "Datenverfügbarkeit - ${widget.time.name()}", context: context),
+            const SizedBox(height: 4),
+            if (statusHistory.isLoading) Small(text: "Lade Daten...", context: context),
+            StatusHistoryChart(time: widget.time),
+          ],
+        ),
       ),
     );
   }
