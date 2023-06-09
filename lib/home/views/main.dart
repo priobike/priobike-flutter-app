@@ -69,6 +69,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
+  /// The associated status history service, which is injected by the provider.
+  late StatusHistory statusHistory;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -87,7 +90,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
-
+    statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
@@ -104,6 +107,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
+      statusHistory.fetch();
       news.getArticles();
     }
   }
@@ -111,6 +115,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   void didPopNext() {
     predictionStatusSummary.fetch();
+    statusHistory.fetch();
     news.getArticles();
   }
 
@@ -212,6 +217,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await predictionStatusSummary.fetch();
+          await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
           await getIt<StatusHistory>().fetch();
@@ -234,7 +240,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                     BlendIn(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: const SurveyView(
                           dismissible: true,
                         ),

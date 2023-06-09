@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/status_history.dart';
-import 'package:priobike/status/views/map.dart';
+import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_history_chart.dart';
 import 'package:priobike/status/views/status_tabs.dart';
 
@@ -21,46 +22,67 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   /// The associated status history service, which is injected by the provider.
   late StatusHistory statusHistory;
 
+  /// The associated prediction summary service, which is injected by the provider.
+  late PredictionStatusSummary predictionStatusSummary;
+
+  /// If the card should be highlighted as a problematic.
+  bool isProblem = false;
+
   @override
   void initState() {
     super.initState();
 
     statusHistory = getIt<StatusHistory>();
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
+
+    isProblem = predictionStatusSummary.getProblem() == null ? false : true;
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) {
         statusHistory.addListener(update);
+        predictionStatusSummary.addListener(update);
       },
     );
   }
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
+    isProblem = predictionStatusSummary.getProblem() == null ? false : true;
     setState(() {});
   }
 
   @override
   void dispose() {
     statusHistory.removeListener(update);
+    predictionStatusSummary.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Tile(
-        fill: Theme.of(context).colorScheme.background,
-        shadowIntensity: 0.05,
-        shadow: Colors.black,
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
+        fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
+        shadowIntensity: isProblem ? 0.2 : 0.05,
+        shadow: isProblem ? CI.red : Colors.black,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BoldContent(text: "Datenverfügbarkeit - ${widget.time.name()}", context: context),
+            BoldContent(
+                text: "Datenverfügbarkeit - ${widget.time.name()}",
+                context: context,
+                color: isProblem || isDark ? Colors.white : Colors.black),
             const SizedBox(height: 4),
             if (statusHistory.isLoading) Small(text: "Lade Daten...", context: context),
-            StatusHistoryChart(time: widget.time),
+            if (!statusHistory.isLoading)
+              Expanded(
+                child: StatusHistoryChart(time: widget.time, isProblem: isProblem),
+              ),
           ],
         ),
       ),

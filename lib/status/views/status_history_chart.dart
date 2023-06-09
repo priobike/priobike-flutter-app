@@ -5,13 +5,16 @@ import 'package:priobike/status/views/status_tabs.dart';
 
 class StatusHistoryPainter extends CustomPainter {
   /// The BuildContext of the widget.
-  BuildContext context;
+  final BuildContext context;
 
   /// The time of the chart (day or week).
   final StatusHistoryTime time;
 
   /// The data points with timestamp and percentage of the route.
   final Map<double, double> percentages;
+
+  /// If the card should be highlighted as a problematic.
+  final bool isProblem;
 
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
@@ -34,7 +37,10 @@ class StatusHistoryPainter extends CustomPainter {
   /// The maximum height of the route +1.0 as padding for the y-axis.
   late double maxHeight = 1;
 
-  StatusHistoryPainter({required this.context, required this.percentages, required this.time});
+  /// If the darkmode is activated.
+  late bool isDark;
+
+  StatusHistoryPainter({required this.context, required this.percentages, required this.time, required this.isProblem});
 
   /// Sets the basic variables for the painter.
   void initializePainter(Canvas canvas, Size size) {
@@ -43,12 +49,14 @@ class StatusHistoryPainter extends CustomPainter {
 
     yTop = paddingTopBottom;
     yBottom = size.height - paddingTopBottom;
+
+    isDark = Theme.of(context).brightness == Brightness.dark;
   }
 
   /// Draws the axes of the coordinate system.
   void drawCoordSystem() {
-    final paint = Paint()
-      ..color = Theme.of(context).colorScheme.outline
+    final paintMainAxes = Paint()
+      ..color = isDark || isProblem ? Colors.white : Colors.black
       ..strokeWidth = 1
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
@@ -58,21 +66,61 @@ class StatusHistoryPainter extends CustomPainter {
     canvas.drawLine(
       Offset(x, yTop),
       Offset(x, yBottom),
-      paint,
+      paintMainAxes,
     );
 
     // X-axis
     canvas.drawLine(
       Offset(paddingLeft, yBottom),
       Offset(size.width - paddingRight, yBottom),
-      paint,
+      paintMainAxes,
     );
+
+    final paintHorizontalLine = Paint()
+      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..strokeWidth = 0.6
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    int dashWidth = 4;
+    int dashSpace = 4;
+    double startX = paddingLeft;
+    double y = (yBottom + yTop) / 2;
+
+    // Paint dashed horizontal line
+    while (startX < size.width - paddingRight) {
+      canvas.drawLine(Offset(startX, y), Offset(startX + dashWidth, y), paintHorizontalLine);
+
+      startX += dashWidth + dashSpace;
+    }
+
+    const verticalLinesNumber = 5;
+
+    final paintVerticalLine = Paint()
+      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..strokeWidth = 0.2
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    dashWidth = 3;
+    dashSpace = 3;
+
+    for (int i = 1; i <= verticalLinesNumber; i++) {
+      double x = paddingLeft + (((size.width - paddingRight - paddingLeft) / (verticalLinesNumber)) * i);
+      double yStart = yTop;
+
+      while (yStart < yBottom) {
+        canvas.drawLine(Offset(x, yStart), Offset(x, yStart + dashWidth), paintVerticalLine);
+
+        yStart += dashWidth + dashSpace;
+      }
+    }
   }
 
   /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
     final TextStyle labelTextStyle = TextStyle(
-      color: Theme.of(context).colorScheme.outline,
+      color: isDark || isProblem ? Colors.white : Colors.black,
       fontSize: 12,
     );
     // Distance for labels to the axis
@@ -175,16 +223,13 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws the lines of the chart.
   void drawLines() {
     Paint paintLine = Paint()
-      ..color = Theme.of(context).colorScheme.primary
-      ..strokeWidth = 3
+      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
     Paint paintCircle = Paint()
-      ..color = Theme.of(context).colorScheme.primary
+      ..color = isDark || isProblem ? Colors.white : Colors.black
       ..strokeWidth = 3
-      ..style = PaintingStyle.fill;
-    Paint smoothTransition = Paint()
-      ..color = Theme.of(context).colorScheme.primary
-      ..strokeWidth = 1
       ..style = PaintingStyle.fill;
 
     const circleSize = 5.0;
@@ -217,9 +262,6 @@ class StatusHistoryPainter extends CustomPainter {
             paddingTopBottom -
             (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
         canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
-
-        // Draw a little circle at the end of the line to make the transition smoother
-        canvas.drawCircle(Offset(nextX, nextY), 1, smoothTransition);
       }
     }
   }
@@ -240,7 +282,10 @@ class StatusHistoryChart extends StatefulWidget {
   /// The time of the chart (day or week).
   final StatusHistoryTime time;
 
-  const StatusHistoryChart({Key? key, required this.time}) : super(key: key);
+  /// If the card should be highlighted as a problematic.
+  final bool isProblem;
+
+  const StatusHistoryChart({Key? key, required this.time, required this.isProblem}) : super(key: key);
 
   @override
   StatusHistoryChartState createState() => StatusHistoryChartState();
@@ -275,14 +320,15 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     if (widget.time == StatusHistoryTime.week && statusHistory.weekPercentages.isEmpty) return Container();
 
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 105,
+      width: double.infinity,
+      height: double.infinity,
       child: CustomPaint(
         painter: StatusHistoryPainter(
           context: context,
           percentages:
               widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
           time: widget.time,
+          isProblem: widget.isProblem,
         ),
       ),
     );

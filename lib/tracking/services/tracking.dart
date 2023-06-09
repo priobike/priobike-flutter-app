@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -443,21 +444,36 @@ class Tracking with ChangeNotifier {
       final metadataBytes = gzip.encode(utf8.encode(jsonEncode(track.toJson())));
       final metadataMF = MultipartFile.fromBytes('metadata.json.gz', metadataBytes, filename: 'metadata.json.gz');
 
+      print("Metadata:");
+      developer.log(track.toJson().toString());
+
       // Data statistics: 10 minutes ~ 20 KB (gzipped), 50 KB (uncompressed).
       final gpsBytes = gzip.encode(await (await track.gpsCSVFile).readAsBytes());
       final gpsMF = MultipartFile.fromBytes('gps.csv.gz', gpsBytes, filename: 'gps.csv.gz');
+
+      print("GPS:");
+      print((await track.gpsCSVFile).readAsStringSync());
 
       // Data statistics: 10 minutes ~ 500-1000 KB (gzipped), 5 MB (uncompressed).
       final accBytes = gzip.encode(await (await track.accelerometerCSVFile).readAsBytes());
       final accMF = MultipartFile.fromBytes('accelerometer.csv.gz', accBytes, filename: 'accelerometer.csv.gz');
 
+      print("Accelerometer:");
+      print((await track.accelerometerCSVFile).readAsStringSync());
+
       // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
       final gyrBytes = gzip.encode(await (await track.gyroscopeCSVFile).readAsBytes());
       final gyrMF = MultipartFile.fromBytes('gyroscope.csv.gz', gyrBytes, filename: 'gyroscope.csv.gz');
 
+      print("Gyroscope:");
+      print((await track.gyroscopeCSVFile).readAsStringSync());
+
       // Data statistics: 10 minutes ~ 1000-2000 KB (gzipped), 5 MB (uncompressed).
       final magBytes = gzip.encode(await (await track.magnetometerCSVFile).readAsBytes());
       final magMF = MultipartFile.fromBytes('magnetometer.csv.gz', magBytes, filename: 'magnetometer.csv.gz');
+
+      print("Magnetometer:");
+      print((await track.magnetometerCSVFile).readAsStringSync());
 
       if (track.endTime != null) {
         final trackDurationMinutes = (track.endTime! - track.startTime) / 1000 / 60;

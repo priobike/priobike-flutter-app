@@ -62,6 +62,34 @@ class PredictionStatusSummary with ChangeNotifier {
     }
   }
 
+  /// Get the problem text if problems are detected.
+  String? getProblem() {
+    if (current == null) return null;
+
+    String? problem;
+    if (current!.mostRecentPredictionTime != null &&
+        current!.mostRecentPredictionTime! <
+            current!.statusUpdateTime && // Sometimes we may have a prediction "from the future".
+        (current!.mostRecentPredictionTime! - current!.statusUpdateTime).abs() > const Duration(minutes: 5).inSeconds) {
+      // Render the most recent prediction time as hh:mm.
+      final time = DateTime.fromMillisecondsSinceEpoch(current!.mostRecentPredictionTime! * 1000);
+      final formattedTime = "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}";
+      problem =
+          "Seit $formattedTime Uhr senden Ampeln keine oder nur noch wenige Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.numThings != 0 && current!.numPredictions / current!.numThings < 0.5) {
+      problem =
+          "${((current!.numPredictions / current!.numThings) * 100).round()}% der Ampeln senden gerade Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.numPredictions != 0 && current!.numBadPredictions / current!.numPredictions > 0.5) {
+      problem =
+          "${((current!.numBadPredictions / current!.numPredictions) * 100).round()}% der Ampeln senden gerade lückenhafte Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.averagePredictionQuality != null && current!.averagePredictionQuality! < 0.5) {
+      problem =
+          "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
+    }
+
+    return problem;
+  }
+
   /// Reset the status.
   Future<void> reset() async {
     current = null;
