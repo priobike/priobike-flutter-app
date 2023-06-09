@@ -305,11 +305,9 @@ class PretestViewState extends State<PretestView> {
     if (hasVibrator) {
       if (inputType == InputType.faster) {
         // Vibrate with high frequency.
-        // Wait 500ms, vibrate 500ms, wait 250, vibrate 500ms, wait 250ms, vibrate 500ms.
         Vibration.vibrate(pattern: [500, 250, 250, 250, 250, 250]);
       } else {
         // Vibrate with low frequency.
-        // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
         Vibration.vibrate(pattern: [500, 500, 750, 500, 750, 500]);
       }
     }
@@ -319,11 +317,9 @@ class PretestViewState extends State<PretestView> {
     if (hasVibrator) {
       if (inputType == InputType.faster) {
         // Vibrate with high frequency.
-        // Wait 500ms, vibrate 500ms, wait 250, vibrate 500ms, wait 250ms, vibrate 500ms.
         Vibration.vibrate(pattern: [500, 500, 250, 250, 150, 150]);
       } else {
         // Vibrate with low frequency.
-        // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
         Vibration.vibrate(pattern: [500, 500, 750, 500, 1000, 500]);
       }
     }
@@ -331,46 +327,43 @@ class PretestViewState extends State<PretestView> {
 
   Future<void> playPhoneAudioContinuous(InputType inputType) async {
     if (inputType == InputType.faster) {
-      // Vibrate with high frequency.
-      await audioPlayer1.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 1000));
-      await audioPlayer2.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 1000));
-      await audioPlayer3.play(AssetSource(audioPath));
+      // Audio fast.
+      audioPlayer1.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 750));
+      audioPlayer2.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 750));
+      audioPlayer3.play(AssetSource(audioPath));
     } else {
-      // Vibrate with low frequency.
-      await audioPlayer1.play(AssetSource(audioPath));
+      // Audio slow.
+      audioPlayer1.play(AssetSource(audioPath));
       await Future.delayed(const Duration(milliseconds: 2000));
-      await audioPlayer2.play(AssetSource(audioPath));
+      audioPlayer2.play(AssetSource(audioPath));
       await Future.delayed(const Duration(milliseconds: 2000));
-      await audioPlayer3.play(AssetSource(audioPath));
+      audioPlayer3.play(AssetSource(audioPath));
     }
   }
 
   Future<void> playPhoneAudioInterval(InputType inputType) async {
     if (inputType == InputType.faster) {
-      // Vibrate with high frequency.
-      await Future.delayed(const Duration(milliseconds: 500));
-      await audioPlayer1.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
-      await Future.delayed(const Duration(milliseconds: 250));
-      await audioPlayer2.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
-      await Future.delayed(const Duration(milliseconds: 150));
-      await audioPlayer3.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
-    } else {
-      // Vibrate with low frequency.
-      // Wait 500ms, vibrate 500ms, wait 1000ms, vibrate 500ms, wait 1000ms, vibrate 500ms.
-      await Future.delayed(const Duration(milliseconds: 500));
-      await audioPlayer1.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
-      await Future.delayed(const Duration(milliseconds: 750));
-      await audioPlayer2.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      // Audio fast.
+      audioPlayer1.play(AssetSource(audioPath));
       await Future.delayed(const Duration(milliseconds: 1000));
-      await audioPlayer3.play(AssetSource(audioPath), mode: PlayerMode.lowLatency);
+      audioPlayer2.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 500));
+      audioPlayer3.play(AssetSource(audioPath));
+    } else {
+      // Audio slow.
+      audioPlayer1.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 1500));
+      audioPlayer2.play(AssetSource(audioPath));
+      await Future.delayed(const Duration(milliseconds: 2000));
+      audioPlayer3.play(AssetSource(audioPath));
     }
   }
 
   Future<void> saveTestData() async {
     // Save data in File on phone.
-    // await writeJson(test.toJson().toString());
+    await writeJson(test.toJson().toString());
     // Stop the test on watch.
     if (widget.title.contains("Phone")) {
       _sendStop();
@@ -472,27 +465,38 @@ class PretestViewState extends State<PretestView> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  AppBackButton(onPressed: () => Navigator.pop(context)),
-                  const HSpace(),
-                  Content(text: widget.title, context: context),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Container(
-                  child: synced ? testView() : syncView(),
+      child: WillPopScope(
+        onWillPop: () async {
+          _timer?.cancel();
+          _sendStop();
+          return true;
+        },
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    AppBackButton(onPressed: () {
+                      _timer?.cancel();
+                      _sendStop();
+                      Navigator.pop(context);
+                    }),
+                    const HSpace(),
+                    Content(text: widget.title, context: context),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Container(
+                    child: synced ? testView() : syncView(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
