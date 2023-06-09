@@ -29,10 +29,18 @@ platform :android do
     )
   end
 
-  desc "Distribute the build to the 'Beta' testers."
+  desc "Distribute the build to the 'Closed Beta' testers."
   lane :closed do
     upload_to_play_store(
       track: 'alpha', # Alpha means "Closed test"
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+    )
+  end
+
+  desc "Distribute the build to the 'Open Beta' testers."
+  lane :open do
+    upload_to_play_store(
+      track: 'beta', # Beta means "Open test"
       aab: '../build/app/outputs/bundle/release/app-release.aab',
     )
   end
