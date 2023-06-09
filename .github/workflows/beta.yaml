@@ -34,7 +34,8 @@ jobs:
       - name: Install Fastlane
         run: |
           gem install fastlane
-      - name: Distribute via Fastlane
+      - name: Distribute via Fastlane to Closed and Open Track
         run: |
           cd android
           fastlane closed
+          fastlane open
