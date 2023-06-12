@@ -16,6 +16,7 @@ import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,6 +34,9 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
 
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
+
+  /// The associated status history service, which is injected by the provider.
+  late StatusHistory statusHistory;
 
   /// The associated shortcuts service, which is injected by the provider.
   late Shortcuts shortcuts;
@@ -60,6 +64,8 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     settings.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     predictionStatusSummary.addListener(update);
+    statusHistory = getIt<StatusHistory>();
+    statusHistory.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     routing = getIt<Routing>();
@@ -75,6 +81,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   void dispose() {
     settings.removeListener(update);
     predictionStatusSummary.removeListener(update);
+    statusHistory.removeListener(update);
     shortcuts.removeListener(update);
     routing.removeListener(update);
     news.removeListener(update);
@@ -108,6 +115,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
 
     // Reset the associated services.
     await predictionStatusSummary.reset();
+    await statusHistory.reset();
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
@@ -116,6 +124,7 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
+    await statusHistory.fetch();
     await weather.fetch();
     await boundary.loadBoundaryCoordinates();
 

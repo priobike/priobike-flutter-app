@@ -27,8 +27,9 @@ import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/status.dart';
+import 'package:priobike/status/views/status_tabs.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
@@ -72,6 +73,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated prediction status service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
+  /// The associated status history service, which is injected by the provider.
+  late StatusHistory statusHistory;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -90,7 +94,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
     predictionStatusSummary = getIt<PredictionStatusSummary>();
-
+    statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
@@ -121,6 +125,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       predictionStatusSummary.fetch();
+      statusHistory.fetch();
       news.getArticles();
     }
   }
@@ -128,6 +133,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   @override
   void didPopNext() {
     predictionStatusSummary.fetch();
+    statusHistory.fetch();
     news.getArticles();
   }
 
@@ -229,6 +235,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
         onRefresh: () async {
           HapticFeedback.lightImpact();
           await predictionStatusSummary.fetch();
+          await statusHistory.fetch();
           await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
@@ -250,14 +257,17 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                     BlendIn(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: const SurveyView(
                           dismissible: true,
                         ),
                       ),
                     ),
                   const VSpace(),
-                  const BlendIn(child: StatusView()),
+                  const BlendIn(
+                    child: StatusTabsView(),
+                  ),
+                  const VSpace(),
                   BlendIn(
                     delay: const Duration(milliseconds: 250),
                     child: Row(

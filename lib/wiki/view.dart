@@ -29,6 +29,13 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
   }
 
   @override
+  void dispose() {
+    tabController?.dispose();
+    pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(children: [
       Container(
@@ -56,6 +63,7 @@ class WikiViewState extends State<WikiView> with SingleTickerProviderStateMixin 
         height: 164,
         child: PageView(
           controller: pageController,
+          clipBehavior: Clip.none,
           onPageChanged: (int index) {
             setState(() {
               tabController?.index = index;
