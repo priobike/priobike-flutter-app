@@ -17,9 +17,9 @@ class StatusHistoryPainter extends CustomPainter {
   final bool isProblem;
 
   /// The padding of the chart.
-  final paddingTopBottom = 14.0;
-  final paddingLeft = 34.0;
-  final paddingRight = 14.0;
+  final paddingTopBottom = 10.0;
+  final paddingLeft = 35.0;
+  final paddingRight = 10.0;
 
   /// The Canvas to draw on.
   late Canvas canvas;
@@ -88,12 +88,17 @@ class StatusHistoryPainter extends CustomPainter {
     double y = (yBottom + yTop) / 2;
 
     // Paint dashed horizontal line
-    while (startX < size.width - paddingRight) {
+    while (startX + dashWidth < size.width - paddingRight) {
       canvas.drawLine(Offset(startX, y), Offset(startX + dashWidth, y), paintHorizontalLine);
 
       startX += dashWidth + dashSpace;
     }
 
+    // Paint shorter line to fill the gap at the end
+    final horizontalGap = size.width - paddingRight - startX;
+    if (horizontalGap > 0) canvas.drawLine(Offset(startX, y), Offset(startX + horizontalGap, y), paintHorizontalLine);
+
+    // Paint vertical dashed lines
     const verticalLinesNumber = 5;
 
     final paintVerticalLine = Paint()
@@ -109,18 +114,22 @@ class StatusHistoryPainter extends CustomPainter {
       double x = paddingLeft + (((size.width - paddingRight - paddingLeft) / (verticalLinesNumber)) * i);
       double yStart = yTop;
 
-      while (yStart < yBottom) {
+      while (yStart + dashWidth < yBottom) {
         canvas.drawLine(Offset(x, yStart), Offset(x, yStart + dashWidth), paintVerticalLine);
 
         yStart += dashWidth + dashSpace;
       }
+
+      // Paint shorter line to fill the gap at the end
+      final verticalGap = yBottom - dashWidth - yStart;
+      if (verticalGap > 0) canvas.drawLine(Offset(x, yStart), Offset(x, yStart + verticalGap), paintHorizontalLine);
     }
   }
 
   /// Draws labels for the x-axis and y-axis.
   void drawCoordSystemLabels() {
     final TextStyle labelTextStyle = TextStyle(
-      color: isDark || isProblem ? Colors.white : Colors.black,
+      color: isDark || isProblem ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.6),
       fontSize: 12,
     );
     // Distance for labels to the axis
