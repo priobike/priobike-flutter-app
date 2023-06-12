@@ -81,6 +81,8 @@ class PretestViewState extends State<PretestView> {
   /// The current test.
   late Test test;
 
+  bool inputGiven = true;
+
   Lock lock = Lock(milliseconds: 1000);
 
   final AudioPlayer audioPlayer1 = AudioPlayer();
@@ -227,11 +229,20 @@ class PretestViewState extends State<PretestView> {
 
         // Check if output needs to be played.
         if (checkOutput(timer.tick)) {
+          if (!inputGiven) {
+            test.inputs.add(null);
+          }
+          setState(() {
+            inputGiven = false;
+          });
           // Play output.
           playOutput();
         }
 
         if (timer.tick == 300) {
+          if (!inputGiven) {
+            test.inputs.add(null);
+          }
           _timer?.cancel();
           setState(() {
             testDone = true;
@@ -381,8 +392,11 @@ class PretestViewState extends State<PretestView> {
 
     final exPath = directory.path;
     await Directory(exPath).create(recursive: true);
+    var dateSplit = test.date.split("T");
+    var time = dateSplit[1].split(".")[0].replaceAll(":", "_");
 
-    File file = File('$exPath/result_${widget.user}_${test.date.split(":")[0]}.txt');
+
+    File file = File('$exPath/result_${widget.user}_${dateSplit[0]}$time.txt');
 
     // Write the data in the file.
     return await file.writeAsString(json);
@@ -409,6 +423,10 @@ class PretestViewState extends State<PretestView> {
                           lock.run(() {
                             ToastMessage.showSuccess("Schneller");
 
+                            setState(() {
+                              inputGiven = true;
+                            });
+
                             // Add user input.
                             test.inputs.add(
                               TestData(
@@ -434,6 +452,10 @@ class PretestViewState extends State<PretestView> {
                         onPressed: () {
                           lock.run(() {
                             ToastMessage.showSuccess("Langsamer!");
+
+                            setState(() {
+                              inputGiven = true;
+                            });
 
                             // Add user input.
                             test.inputs.add(

@@ -58,7 +58,7 @@ class Test {
   /// The date.
   final String date;
 
-  final List<TestData> inputs;
+  final List<TestData?> inputs;
 
   final List<TestData> outputs;
 
@@ -73,7 +73,7 @@ class Test {
         'user': user,
         'testType': testType.description,
         'date': date,
-        'inputs': inputs.map((e) => e.toJson()).toList(),
+        'inputs': inputs.map((e) => e?.toJson()).toList(),
         'outputs': outputs.map((e) => e.toJson()).toList(),
       };
 
