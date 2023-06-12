@@ -363,7 +363,7 @@ class PretestViewState extends State<PretestView> {
 
   Future<void> saveTestData() async {
     // Save data in File on phone.
-    await writeJson(test.toJson().toString());
+    await writeJson(json.encode(test.toJson()));
     // Stop the test on watch.
     if (widget.title.contains("Phone")) {
       _sendStop();

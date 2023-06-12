@@ -71,14 +71,15 @@ class Test {
 
   Map<String, dynamic> toJson() => {
         'user': user,
-        'testType': testType,
+        'testType': testType.description,
+        'date': date,
         'inputs': inputs.map((e) => e.toJson()).toList(),
         'outputs': outputs.map((e) => e.toJson()).toList(),
       };
 
   factory Test.fromJson(dynamic json) => Test(
         user: json["user"],
-        testType: json["testType"],
+        testType: TestType.values.firstWhere((element) => element.description == json["testType"]),
         date: json["date"],
         inputs:
             (json["inputs"] as List).map((e) => TestData.fromJson(e)).toList(),
@@ -108,14 +109,14 @@ class TestData {
   });
 
   Map<String, dynamic> toJson() => {
-        'inputType': inputType,
+        'inputType': inputType.description,
         'timestamp': timestamp,
         'lat': lat,
         'lon': lon,
       };
 
   factory TestData.fromJson(dynamic json) => TestData(
-        inputType: json["inputType"],
+        inputType: InputType.values.firstWhere((element) => element.description == json["inputType"]),
         timestamp: json["timestamp"],
         lat: json["lat"],
         lon: json["lon"],
