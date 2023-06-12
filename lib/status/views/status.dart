@@ -53,41 +53,19 @@ class StatusViewState extends State<StatusView> {
   /// Load the displayed text.
   String? loadText() {
     if (predictionStatusSummary.current == null) return null;
-    final status = predictionStatusSummary.current!;
 
-    String? problem = predictionStatusSummary.getProblem();
+    final problem = predictionStatusSummary.getProblem();
 
     if (problem != null) {
       isProblem = true;
       return problem;
     }
 
-    var info = "";
+    final statusText = predictionStatusSummary.getStatusText();
 
-    var ratio = 0.0;
-    if (status.numThings != 0) {
-      ratio = status.numPredictions / status.numThings;
-    }
-
-    if (ratio > 0.95) {
-      info += "Sieht sehr gut aus!";
-    } else if (ratio > 0.9) {
-      info += "Sieht gut aus.";
-    } else if (ratio > 0.85) {
-      info += "Sieht weitestgehend gut aus.";
-    } else if (ratio > 0.8) {
-      info += "Mit kleinen Ausnahmen sieht es gut aus.";
-    } else if (ratio > 0.75) {
-      info += "Es kommt zurzeit zu kleineren Einschränkungen.";
-    } else {
-      info += "Es kommt zurzeit zu größeren Einschränkungen.";
-    }
-
-    info += " Klicke hier für eine Störungskarte.";
-
-    // If there is no problem, generate a text with interesting information.
+    // If there is no problem, return a text with interesting information.
     isProblem = false;
-    return info;
+    return statusText;
   }
 
   /// Loads the percentage of good predictions.
