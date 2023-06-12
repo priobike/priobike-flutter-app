@@ -99,8 +99,10 @@ class StarRatingViewState extends State<StarRatingView> {
                         confettiController: confettiControllers[i - 1],
                         blastDirectionality: BlastDirectionality.explosive,
                         shouldLoop: false,
-                        colors: const [
-                          Colors.white,
+                        colors: [
+                          HSLColor.fromColor(Colors.white).withLightness(0.8).toColor(),
+                          HSLColor.fromColor(Colors.white).withLightness(0.9).toColor(),
+                          HSLColor.fromColor(Colors.white).withLightness(1).toColor(),
                         ],
                         particleDrag: 0.2,
                         createParticlePath: drawConfetti,
@@ -116,7 +118,7 @@ class StarRatingViewState extends State<StarRatingView> {
                           firstChild: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Icon(
-                              Icons.directions_bike_rounded,
+                              Icons.thumb_up_rounded,
                               size: size,
                               color: Colors.white,
                             ),
@@ -124,7 +126,7 @@ class StarRatingViewState extends State<StarRatingView> {
                           secondChild: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Icon(
-                              Icons.directions_bike,
+                              Icons.thumb_up_outlined,
                               size: size - 8,
                               color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                             ),
