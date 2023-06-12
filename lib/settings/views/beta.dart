@@ -111,13 +111,13 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
     await shortcuts.reset();
     await routing.reset();
     await news.reset();
-    boundary.loadBoundaryCoordinates(backend);
 
     // Load stuff for the new backend.
     await news.getArticles();
     await shortcuts.loadShortcuts();
     await predictionStatusSummary.fetch();
     await weather.fetch();
+    await boundary.loadBoundaryCoordinates();
 
     if (mounted) Navigator.pop(context);
   }

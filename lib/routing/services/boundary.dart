@@ -18,13 +18,11 @@ class Boundary {
   /// The boundary geoJson String.
   String? boundaryGeoJson;
 
-  Boundary() {
-    final backend = getIt<Settings>().backend;
-    loadBoundaryCoordinates(backend);
-  }
+  Boundary();
 
   /// Load the coordinates of the bounding box from the assets.
-  Future<void> loadBoundaryCoordinates(Backend backend) async {
+  Future<void> loadBoundaryCoordinates() async {
+    final backend = getIt<Settings>().backend;
     var coords = List.empty(growable: true);
     boundaryCoords = List.empty(growable: true);
     switch (backend) {
