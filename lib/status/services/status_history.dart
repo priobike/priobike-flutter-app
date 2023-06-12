@@ -8,33 +8,36 @@ import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class StatusHistory with ChangeNotifier {
-  /// TODO: Add documentation and maybe rename the variable.
+  /// The count of predictions in the last week.
   Map<double, double> weekPredictions = {};
 
-  /// TODO: Add documentation and maybe rename the variable.
+  /// The count of subscriptions in the last week.
   Map<double, double> weekSubscriptions = {};
 
+  /// The percentage of how many subscriptions also had a prediction in the last week.
   Map<double, double> weekPercentages = {};
 
-  /// TODO: Add documentation and maybe rename the variable.
+  /// The count of predictions in the last day.
   Map<double, double> dayPredictions = {};
 
-  /// TODO: Add documentation and maybe rename the variable.
+  /// The count of subscriptions in the last day.
   Map<double, double> daySubscriptions = {};
 
+  /// The percentage of how many subscriptions also had a prediction in the last day.
   Map<double, double> dayPercentages = {};
 
-  /// If the service is currently loading the status.
+  /// If the service is currently loading the status history.
   bool isLoading = false;
 
   /// If the service had an error during the last request.
   bool hadError = false;
 
   /// Logger for the status history.
-  final log = Logger("StatusHistory");
+  final log = Logger("Status-History");
 
   StatusHistory();
 
+  /// Parses the data from the json response.
   List parseData(dynamic json) {
     final Map<double, double> predictions = {};
     final Map<double, double> subscriptions = {};
@@ -44,6 +47,7 @@ class StatusHistory with ChangeNotifier {
     const predictionsKey = "average_prediction_service_predictions_count_total";
     const subscriptionsKey = "prediction_service_subscription_count_total";
 
+    // Parse into maps and get max number of subscriptions.
     for (final entry in json[predictionsKey].entries) {
       final predictionValue = entry.value.toDouble();
       final double timestamp = double.parse(entry.key);
@@ -55,6 +59,7 @@ class StatusHistory with ChangeNotifier {
       }
     }
 
+    // Calculate percentages.
     for (final entry in predictions.entries) {
       if (maxSubscriptions == 0) {
         percentages[entry.key] = 0;

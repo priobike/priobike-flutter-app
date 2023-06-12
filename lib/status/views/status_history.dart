@@ -10,6 +10,7 @@ import 'package:priobike/status/views/status_history_chart.dart';
 import 'package:priobike/status/views/status_tabs.dart';
 
 class StatusHistoryView extends StatefulWidget {
+  /// Which time period to display.
   final StatusHistoryTime time;
 
   const StatusHistoryView({Key? key, required this.time}) : super(key: key);
@@ -25,17 +26,12 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   /// The associated prediction summary service, which is injected by the provider.
   late PredictionStatusSummary predictionStatusSummary;
 
-  /// If the card should be highlighted as a problematic.
-  bool isProblem = false;
-
   @override
   void initState() {
     super.initState();
 
     statusHistory = getIt<StatusHistory>();
     predictionStatusSummary = getIt<PredictionStatusSummary>();
-
-    isProblem = predictionStatusSummary.getProblem() == null ? false : true;
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) {
@@ -47,7 +43,6 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
-    isProblem = predictionStatusSummary.getProblem() == null ? false : true;
     setState(() {});
   }
 
@@ -61,6 +56,7 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isProblem = predictionStatusSummary.getProblem() == null ? false : true;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),

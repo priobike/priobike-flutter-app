@@ -7,7 +7,7 @@ class StatusHistoryPainter extends CustomPainter {
   /// The BuildContext of the widget.
   final BuildContext context;
 
-  /// The time of the chart (day or week).
+  /// Which time period to display.
   final StatusHistoryTime time;
 
   /// The data points with timestamp and percentage of the route.
@@ -16,9 +16,13 @@ class StatusHistoryPainter extends CustomPainter {
   /// If the card should be highlighted as a problematic.
   final bool isProblem;
 
-  /// The padding of the chart.
+  /// The top and bottom padding of the chart.
   final paddingTopBottom = 10.0;
+
+  /// The left padding of the chart.
   final paddingLeft = 35.0;
+
+  /// The right padding of the chart.
   final paddingRight = 10.0;
 
   /// The Canvas to draw on.
@@ -30,12 +34,6 @@ class StatusHistoryPainter extends CustomPainter {
   /// The upper and lower ends of the y-axis.
   /// The custom painter has the coords (0,0) on the top left corner, so the yTop is actually the smaller value.
   late double yTop, yBottom;
-
-  /// The minimum height of the route -1.0 as padding for the y-axis.
-  late double minHeight = 0;
-
-  /// The maximum height of the route +1.0 as padding for the y-axis.
-  late double maxHeight = 1;
 
   /// If the darkmode is activated.
   late bool isDark;
@@ -250,26 +248,23 @@ class StatusHistoryPainter extends CustomPainter {
     }
 
     for (final entry in nulledPercentages.entries) {
-      // Calculate the coordinates of the current height data
-      final height = entry.value;
+      // Calculate the coordinates of the current history data
+      final percentage = entry.value;
       final x =
           paddingLeft + (entry.key / nulledPercentages.keys.toList().last) * (size.width - paddingRight - paddingLeft);
-      final y =
-          size.height - paddingTopBottom - (height / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+      final y = size.height - paddingTopBottom - percentage * (size.height - paddingTopBottom - paddingTopBottom);
 
       if (entry.key == nulledPercentages.entries.last.key) {
         canvas.drawCircle(Offset(x, y), circleSize, paintCircle);
       } else {
-        // Get next height data to draw a line to
+        // Get next history data to draw a line to
         final nextIndex = nulledPercentages.keys.toList().indexOf(entry.key) + 1;
         final nextTimestamp = nulledPercentages.keys.toList()[nextIndex];
         final nextPercentage = nulledPercentages.values.toList()[nextIndex];
-        final nextHeight = nextPercentage;
         final nextX = paddingLeft +
             (nextTimestamp / nulledPercentages.keys.toList().last) * (size.width - paddingRight - paddingLeft);
-        final nextY = size.height -
-            paddingTopBottom -
-            (nextHeight / maxHeight) * (size.height - paddingTopBottom - paddingTopBottom);
+        final nextY =
+            size.height - paddingTopBottom - nextPercentage * (size.height - paddingTopBottom - paddingTopBottom);
         canvas.drawLine(Offset(x, y), Offset(nextX, nextY), paintLine);
       }
     }
@@ -288,7 +283,7 @@ class StatusHistoryPainter extends CustomPainter {
 }
 
 class StatusHistoryChart extends StatefulWidget {
-  /// The time of the chart (day or week).
+  /// Which time period to display.
   final StatusHistoryTime time;
 
   /// If the card should be highlighted as a problematic.
@@ -301,6 +296,7 @@ class StatusHistoryChart extends StatefulWidget {
 }
 
 class StatusHistoryChartState extends State<StatusHistoryChart> {
+  /// The associated status history service, which is injected by the provider.
   late StatusHistory statusHistory;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
