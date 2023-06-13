@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/views/status_tabs.dart';
@@ -230,12 +232,12 @@ class StatusHistoryPainter extends CustomPainter {
   /// Draws the lines of the chart.
   void drawLines() {
     Paint paintLine = Paint()
-      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..color = isProblem ? Colors.white : CI.blue
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.fill;
     Paint paintCircle = Paint()
-      ..color = isDark || isProblem ? Colors.white : Colors.black
+      ..color = isProblem ? Colors.white : CI.blue
       ..strokeWidth = 3
       ..style = PaintingStyle.fill;
 
@@ -319,7 +321,20 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (statusHistory.hadError || statusHistory.isLoading) return Container();
+    if (statusHistory.isLoading) return Container();
+    if (statusHistory.hadError) {
+      return SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Align(
+          alignment: Alignment.center,
+          child: Small(
+            text: 'Fehler beim Laden der Daten.',
+            context: context,
+          ),
+        ),
+      );
+    }
 
     if (widget.time == StatusHistoryTime.day && statusHistory.dayPercentages.isEmpty) return Container();
     if (widget.time == StatusHistoryTime.week && statusHistory.weekPercentages.isEmpty) return Container();
