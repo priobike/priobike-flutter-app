@@ -63,11 +63,7 @@ class Test {
   final List<TestData> outputs;
 
   const Test(
-      {required this.user,
-      required this.testType,
-      required this.date,
-      required this.inputs,
-      required this.outputs});
+      {required this.user, required this.testType, required this.date, required this.inputs, required this.outputs});
 
   Map<String, dynamic> toJson() => {
         'user': user,
@@ -81,10 +77,8 @@ class Test {
         user: json["user"],
         testType: TestType.values.firstWhere((element) => element.description == json["testType"]),
         date: json["date"],
-        inputs:
-            (json["inputs"] as List).map((e) => TestData.fromJson(e)).toList(),
-        outputs:
-            (json["outputs"] as List).map((e) => TestData.fromJson(e)).toList(),
+        inputs: (json["inputs"] as List).map((e) => e != null ? TestData.fromJson(e) : null).toList(),
+        outputs: (json["outputs"] as List).map((e) => TestData.fromJson(e)).toList(),
       );
 }
 
