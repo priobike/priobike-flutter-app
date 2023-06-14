@@ -142,7 +142,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     final currentLayers = await mapController!.style.getStyleLayers();
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
-      log.i(currentLayers.length - 1);
       return currentLayers.length - 1;
     }
     // Find out how many of our layers are before the layer that should be added.
@@ -155,7 +154,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         break;
       }
     }
-    log.i(firstBaseMapLabelLayerIndex + layersBeforeAdded);
     // Add the layer on top of our layers that are before it and below the label layers.
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
@@ -262,6 +260,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   @override
   void dispose() {
+    // Unbind the sheet movement listener.
+    sheetMovementSubscription?.cancel();
+    animationController.dispose();
     status.needsLayout.remove(viewId);
     layers.removeListener(update);
     layers.needsLayout.remove(viewId);
@@ -276,9 +277,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     status.removeListener(update);
 
     mapFunctions.removeListener(update);
-    // Unbind the sheet movement listener.
-    sheetMovementSubscription?.cancel();
-    animationController.dispose();
     super.dispose();
   }
 
@@ -639,6 +637,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
       return;
     }
+
     firstBaseMapLabelLayerIndex = firstLabelIndex;
   }
 
