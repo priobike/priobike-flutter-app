@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 enum Backend {
@@ -146,25 +146,25 @@ extension BackendRegion on Backend {
 }
 
 extension BackendShortcuts on Backend {
-  List<Shortcut> get defaultShortcuts {
+  List<ShortcutRoute> get defaultShortcuts {
     switch (this) {
       case Backend.production:
         return [
-          Shortcut(
+          ShortcutRoute(
             name: "Edmund-S.-Allee Ost ➔ West",
             waypoints: [
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "Edmund-S.-Allee West ➔ Ost",
             waypoints: [
               Waypoint(53.564378, 9.978001, address: "Rentzelstraße 55, 20146 Hamburg"),
               Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "B4 Ost ➔ West",
             waypoints: [
               Waypoint(53.547722154285324, 10.004045134575035, address: "Burchardstraße 11, 20095 Hamburg"),
@@ -172,14 +172,14 @@ extension BackendShortcuts on Backend {
               Waypoint(53.550264133830126, 9.971739418506827, address: "Millerntorpl. 20, 20359 Hamburg"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "B4 West ➔ Ost",
             waypoints: [
               Waypoint(53.54990402934412, 9.971606990198367, address: "St. Pauli, 20359 Hamburg"),
               Waypoint(53.547262160720436, 10.004240381440082, address: "Oberbaumbrücke 1, 20457 Hamburg"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "Lombardsbrücke Ost ➔ West",
             waypoints: [
               Waypoint(53.5511715, 10.0062077, address: "Steintorwall, 20095 Hamburg"),
@@ -188,7 +188,7 @@ extension BackendShortcuts on Backend {
               Waypoint(53.55285, 9.976352, address: "Ring 1 13, 20355 Hamburg"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "Lombardsbrücke West ➔ Ost",
             waypoints: [
               Waypoint(53.55285, 9.976352, address: "Ring 1 13, 20355 Hamburg"),
@@ -199,7 +199,7 @@ extension BackendShortcuts on Backend {
         ];
       case Backend.staging:
         return [
-          Shortcut(
+          ShortcutRoute(
             name: "Teststrecke POT",
             waypoints: [
               Waypoint(51.03148, 13.72757, address: "Wegpunkt 1"),
@@ -211,7 +211,7 @@ extension BackendShortcuts on Backend {
               Waypoint(51.031083, 13.727337, address: "Wegpunkt 7"),
             ],
           ),
-          Shortcut(
+          ShortcutRoute(
             name: "Quer durch Dresden",
             waypoints: [
               Waypoint(51.038294, 13.703280, address: "Clara-Viebig-Straße 9"),

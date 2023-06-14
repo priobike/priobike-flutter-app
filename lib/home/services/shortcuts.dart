@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -40,10 +42,10 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
-    shortcuts = [newShortcut] + shortcuts!;
+    shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
 
     notifyListeners();
@@ -55,8 +57,16 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     if (shortcuts!.length <= idx) return;
 
-    // update name.
-    shortcuts![idx] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
+    Shortcut foundShortcut = shortcuts![idx];
+
+    // Check type.
+    if (foundShortcut.runtimeType == ShortcutRoute) {
+      // update name.
+      shortcuts![idx] = ShortcutRoute(name: name, waypoints: (foundShortcut as ShortcutRoute).waypoints);
+    } else {
+      // update name.
+      shortcuts![idx] = ShortcutLocation(name: name, waypoint: (foundShortcut as ShortcutLocation).waypoint);
+    }
 
     await storeShortcuts();
     notifyListeners();
@@ -69,12 +79,16 @@ class Shortcuts with ChangeNotifier {
     shortcuts = [shortcut] + shortcuts!;
     await storeShortcuts();
 
-    ToastMessage.showSuccess("Route gespeichert!");
+    if (shortcut.runtimeType == ShortcutRoute) {
+      ToastMessage.showSuccess("Route gespeichert!");
+    } else {
+      ToastMessage.showSuccess("Ort gespeichert!");
+    }
     notifyListeners();
   }
 
   /// Update the shortcuts.
-  Future<void> updateShortcuts(List<Shortcut> newShortcuts) async {
+  Future<void> updateShortcuts(List<ShortcutRoute> newShortcuts) async {
     shortcuts = newShortcuts;
     await storeShortcuts();
     notifyListeners();

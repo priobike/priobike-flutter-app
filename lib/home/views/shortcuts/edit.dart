@@ -161,7 +161,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   children: [
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
-                    SubHeader(text: "Strecken", context: context),
+                    SubHeader(text: "Strecken und Orte", context: context),
                     Expanded(child: Container()),
                     SmallIconButton(
                       onPressed: () => showAppSheet(
