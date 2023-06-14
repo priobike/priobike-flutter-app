@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
@@ -40,7 +40,7 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
       for (var i = 0; i < coordinates.length; i++) {
         waypoints.add(Waypoint(coordinates[i]![0], coordinates[i]![1], address: "Wegpunkt ${i + 1}"));
       }
-      showSaveShortcutSheet(Shortcut(name: "Strecke von Google Maps", waypoints: waypoints));
+      showSaveShortcutSheet(ShortcutRoute(name: "Strecke von Google Maps", waypoints: waypoints));
       return;
     }
 
@@ -48,7 +48,8 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
   }
 
   /// Show a sheet to save the current route as a shortcut.
-  void showSaveShortcutSheet(Shortcut shortcut) {
+  void showSaveShortcutSheet(ShortcutRoute shortcut) {
+    //FIXME both types
     final shortcuts = GetIt.instance.get<Shortcuts>();
     showDialog(
       context: context,

@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
@@ -88,12 +89,15 @@ class ShortcutView extends StatelessWidget {
                     : [
                         shortcut == null
                             ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
-                            : ShortcutPictogram(
-                                shortcut: shortcut!,
-                                height: 56,
-                                width: 56,
-                                color: CI.blue,
-                              ),
+                            : shortcut!.runtimeType == ShortcutRoute
+                                ? ShortcutPictogram(
+                                    shortcut: shortcut! as ShortcutRoute,
+                                    height: 56,
+                                    width: 56,
+                                    color: CI.blue,
+                                  )
+                                // FIXME
+                                : Container(),
                         Expanded(child: Container()),
                         FittedBox(
                           // Scale the text to fit the width.
@@ -141,10 +145,10 @@ class ShortcutsView extends StatefulWidget {
 
 class ShortcutsViewState extends State<ShortcutsView> {
   /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts ss;
+  late Shortcuts shortcuts;
 
   /// The associated routing service, which is injected by the provider.
-  late Routing rs;
+  late Routing routing;
 
   /// The left padding.
   double leftPad = 24;
@@ -169,16 +173,25 @@ class ShortcutsViewState extends State<ShortcutsView> {
         }
       },
     );
-    ss = getIt<Shortcuts>();
-    rs = getIt<Routing>();
-    ss.addListener(update);
-    rs.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    routing = getIt<Routing>();
+    shortcuts.addListener(update);
+    routing.addListener(update);
+  }
+
+  bool _checkRouteToBeLoaded(Shortcut shortcut) {
+    if (shortcut.runtimeType == ShortcutRoute) {
+      return routing.selectedWaypoints == (shortcut as ShortcutRoute).waypoints;
+    } else {
+      // FIXME
+      return false;
+    }
   }
 
   @override
   void dispose() {
-    ss.removeListener(update);
-    rs.removeListener(update);
+    shortcuts.removeListener(update);
+    routing.removeListener(update);
     super.dispose();
   }
 
@@ -207,7 +220,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
       ),
       ShortcutView(
         onPressed: () {
-          if (!rs.isFetchingRoute) widget.onStartFreeRouting();
+          if (!routing.isFetchingRoute) widget.onStartFreeRouting();
         },
         width: shortcutWidth,
         height: shortcutHeight,
@@ -215,14 +228,14 @@ class ShortcutsViewState extends State<ShortcutsView> {
       ),
     ];
 
-    views += ss.shortcuts
+    views += shortcuts.shortcuts
             ?.map(
               (shortcut) => ShortcutView(
                 onPressed: () {
                   // Allow only one shortcut to be fetched at a time.
-                  if (!rs.isFetchingRoute) widget.onSelectShortcut(shortcut);
+                  if (!routing.isFetchingRoute) widget.onSelectShortcut(shortcut);
                 },
-                isLoading: (rs.selectedWaypoints == shortcut.waypoints) && rs.isFetchingRoute,
+                isLoading: _checkRouteToBeLoaded(shortcut) && routing.isFetchingRoute,
                 shortcut: shortcut,
                 width: shortcutWidth,
                 height: shortcutHeight,

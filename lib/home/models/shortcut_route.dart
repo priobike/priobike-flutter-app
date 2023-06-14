@@ -5,7 +5,7 @@ import 'package:priobike/routing/services/boundary.dart';
 
 /// The shortcut represents a saved route with a name.
 class ShortcutRoute extends Shortcut {
-    /// The waypoints of the shortcut.
+  /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
 
   const ShortcutRoute({required name, required this.waypoints}) : super(name: name);
@@ -17,10 +17,11 @@ class ShortcutRoute extends Shortcut {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'waypoints': waypoints.map((e) => e.toJSON()).toList(),
-  };
+        'name': name,
+        'waypoints': waypoints.map((e) => e.toJSON()).toList(),
+      };
 
   /// Trim the addresses of the waypoints, if a factor < 1 is given.
   ShortcutRoute trim(double factor) => ShortcutRoute(
@@ -51,6 +52,7 @@ class ShortcutRoute extends Shortcut {
   ShortcutRoute copyWith({String? name}) => ShortcutRoute(name: name ?? this.name, waypoints: waypoints);
 
   /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  @override
   bool isValid() {
     final boundaryService = getIt<Boundary>();
     for (final waypoint in waypoints) {

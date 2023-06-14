@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart' as shortcuts_service;
 import 'package:priobike/home/views/shortcuts/qr_code_scan.dart';
 import 'package:priobike/home/views/shortcuts/qr_code_show.dart';
@@ -13,7 +13,7 @@ import 'package:priobike/main.dart';
 
 class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
-  final Shortcut? shortcut;
+  final ShortcutRoute? shortcut;
 
   const QRCodeView({Key? key, this.shortcut}) : super(key: key);
 
@@ -33,7 +33,7 @@ enum QRCodeViewMode {
 }
 
 class QRCodeViewState extends State<QRCodeView> {
-  Shortcut? shortcut;
+  ShortcutRoute? shortcut;
 
   /// The current mode of the view.
   QRCodeViewMode? state;

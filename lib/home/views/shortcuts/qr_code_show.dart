@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShowQRCodeView extends StatelessWidget {
   /// The shortcut for which a QR code should be shown.
-  final Shortcut shortcut;
+  final ShortcutRoute shortcut;
 
   const ShowQRCodeView({Key? key, required this.shortcut}) : super(key: key);
 
@@ -20,7 +21,7 @@ class ShowQRCodeView extends StatelessWidget {
       totalAddressCharacterCount += waypoint.address?.length ?? 0;
     }
 
-    Shortcut shortcutCopy = Shortcut(
+    Shortcut shortcutCopy = ShortcutRoute(
       name: shortcut.name,
       waypoints: [],
     );

@@ -7,6 +7,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -191,7 +192,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    routing.selectWaypoints(List.from(shortcut.waypoints));
+    if (shortcut.runtimeType == ShortcutRoute) {
+      routing.selectWaypoints(List.from((shortcut as ShortcutRoute).waypoints));
+    }
 
     pushRoutingView();
   }

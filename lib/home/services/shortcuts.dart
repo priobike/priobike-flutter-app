@@ -88,7 +88,7 @@ class Shortcuts with ChangeNotifier {
   }
 
   /// Update the shortcuts.
-  Future<void> updateShortcuts(List<ShortcutRoute> newShortcuts) async {
+  Future<void> updateShortcuts(List<Shortcut> newShortcuts) async {
     shortcuts = newShortcuts;
     await storeShortcuts();
     notifyListeners();
@@ -125,7 +125,9 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List).map((e) => Shortcut.fromJson(e)).toList();
+      shortcuts = (jsonDecode(jsonStr) as List)
+          .map((e) => e["waypoint"] != null ? ShortcutLocation.fromJson(e) : ShortcutRoute.fromJson(e))
+          .toList();
     }
 
     notifyListeners();

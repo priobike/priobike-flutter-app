@@ -1,4 +1,6 @@
 import 'package:latlong2/latlong.dart';
+import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
@@ -146,10 +148,14 @@ extension BackendRegion on Backend {
 }
 
 extension BackendShortcuts on Backend {
-  List<ShortcutRoute> get defaultShortcuts {
+  List<Shortcut> get defaultShortcuts {
     switch (this) {
       case Backend.production:
         return [
+          ShortcutLocation(
+            name: "Location test",
+            waypoint: Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
+          ),
           ShortcutRoute(
             name: "Edmund-S.-Allee Ost ➔ West",
             waypoints: [

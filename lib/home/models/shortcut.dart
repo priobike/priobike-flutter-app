@@ -1,4 +1,3 @@
-
 /// The shortcut represents a saved route with a name.
 class Shortcut {
   /// The name of the shortcut.
@@ -23,5 +22,13 @@ class Shortcut {
     return result;
   }
 
+  bool isValid() {
+    return false;
+  }
+
   const Shortcut({required this.name});
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+      };
 }

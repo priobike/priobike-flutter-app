@@ -8,7 +8,7 @@ class ShortcutLocation extends Shortcut {
   /// The waypoint of the shortcutLocation.
   final Waypoint waypoint;
 
-  const ShortcutLocation({ required name, required this.waypoint}) : super(name: name);
+  const ShortcutLocation({required name, required this.waypoint}) : super(name: name);
 
   factory ShortcutLocation.fromJson(Map<String, dynamic> json) {
     return ShortcutLocation(
@@ -17,12 +17,14 @@ class ShortcutLocation extends Shortcut {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'waypoint': waypoint.toJSON(),
-  };
+        'name': name,
+        'waypoint': waypoint.toJSON(),
+      };
 
   /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  @override
   bool isValid() {
     final boundaryService = getIt<Boundary>();
     if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {

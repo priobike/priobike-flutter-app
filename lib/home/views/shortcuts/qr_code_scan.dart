@@ -7,12 +7,13 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQRCodeView extends StatefulWidget {
   /// Called when a QR code has been scanned.
-  final void Function(Shortcut shortcut) onScan;
+  final void Function(ShortcutRoute shortcut) onScan;
 
   const ScanQRCodeView({Key? key, required this.onScan}) : super(key: key);
 
@@ -77,7 +78,7 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
         final decodedZipJson = gzip.decode(decodeBase64Json);
         final originalJson = utf8.decode(decodedZipJson);
 
-        final shortcut = Shortcut.fromJson(json.decode(originalJson));
+        final shortcut = ShortcutRoute.fromJson(json.decode(originalJson));
         this.shortcut = shortcut;
         widget.onScan(shortcut);
       } catch (e) {

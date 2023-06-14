@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 
 /// A pictogram of a shortcut.
 /// The pictogram contains circles where the waypoints are located,
 /// and lines between the waypoints. The coordinates of the waypoints
 /// are normalized to the size of the pictogram.
 class ShortcutPictogram extends StatelessWidget {
-  final Shortcut shortcut;
+  final ShortcutRoute shortcut;
   final double height;
   final double width;
   final Color color;
@@ -38,7 +38,7 @@ class ShortcutPictogram extends StatelessWidget {
 }
 
 class ShortcutPainter extends CustomPainter {
-  final Shortcut shortcut;
+  final ShortcutRoute shortcut;
   final Color color;
 
   ShortcutPainter({required this.shortcut, required this.color});
