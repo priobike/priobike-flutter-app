@@ -67,7 +67,7 @@ void showSaveShortcutSheet(context) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.saveNewShortcut(name);
+              await shortcuts.saveNewShortcutRoute(name);
               ToastMessage.showSuccess("Route gespeichert!");
               Navigator.pop(context);
             },

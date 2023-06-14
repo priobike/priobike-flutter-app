@@ -5,13 +5,13 @@ import 'package:priobike/home/models/shortcut_route.dart';
 /// The pictogram contains circles where the waypoints are located,
 /// and lines between the waypoints. The coordinates of the waypoints
 /// are normalized to the size of the pictogram.
-class ShortcutPictogram extends StatelessWidget {
+class ShortcutRoutePictogram extends StatelessWidget {
   final ShortcutRoute shortcut;
   final double height;
   final double width;
   final Color color;
 
-  const ShortcutPictogram({
+  const ShortcutRoutePictogram({
     Key? key,
     required this.shortcut,
     this.height = 200,
@@ -29,7 +29,7 @@ class ShortcutPictogram extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 1,
           child: CustomPaint(
-            painter: ShortcutPainter(shortcut: shortcut, color: color),
+            painter: ShortcutRoutePainter(shortcut: shortcut, color: color),
           ),
         ),
       ),
@@ -37,11 +37,11 @@ class ShortcutPictogram extends StatelessWidget {
   }
 }
 
-class ShortcutPainter extends CustomPainter {
+class ShortcutRoutePainter extends CustomPainter {
   final ShortcutRoute shortcut;
   final Color color;
 
-  ShortcutPainter({required this.shortcut, required this.color});
+  ShortcutRoutePainter({required this.shortcut, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {

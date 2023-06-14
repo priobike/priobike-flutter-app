@@ -90,14 +90,17 @@ class ShortcutView extends StatelessWidget {
                         shortcut == null
                             ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
                             : shortcut!.runtimeType == ShortcutRoute
-                                ? ShortcutPictogram(
+                                ? ShortcutRoutePictogram(
                                     shortcut: shortcut! as ShortcutRoute,
                                     height: 56,
                                     width: 56,
                                     color: CI.blue,
                                   )
-                                // FIXME
-                                : Container(),
+                                : const Icon(
+                                    Icons.location_on,
+                                    color: Colors.white,
+                                    size: 64,
+                                  ),
                         Expanded(child: Container()),
                         FittedBox(
                           // Scale the text to fit the width.

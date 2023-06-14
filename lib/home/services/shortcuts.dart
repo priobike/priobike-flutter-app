@@ -24,8 +24,8 @@ class Shortcuts with ChangeNotifier {
     shortcuts = null;
   }
 
-  /// Save a new shortcut.
-  Future<void> saveNewShortcut(String name) async {
+  /// Save a new route shortcut.
+  Future<void> saveNewShortcutRoute(String name) async {
     final routing = getIt<Routing>();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
@@ -43,6 +43,17 @@ class Shortcuts with ChangeNotifier {
     }
 
     final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+    shortcuts = <Shortcut>[newShortcut] + shortcuts!;
+    await storeShortcuts();
+
+    notifyListeners();
+  }
+
+  /// Save a new location shortcut.
+  Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
+    final newShortcut = ShortcutLocation(name: name, waypoint: waypoint);
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
     shortcuts = <Shortcut>[newShortcut] + shortcuts!;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
@@ -58,11 +60,48 @@ class ShortcutsState extends State<ShortcutsRow> {
         shadowIntensity: 0,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         borderRadius: BorderRadius.circular(12),
-        content: Center(
-          child: Content(
-            context: context,
-            text: shortcut.name,
-          ),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.route),
+            const SmallHSpace(),
+            Content(
+              context: context,
+              text: shortcut.name,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Load route from shortcuts.
+  _loadShortcutLocation(Waypoint waypoint) async {
+    // FIXME
+  }
+
+  Widget shortcutLocationItem(ShortcutLocation shortcut) {
+    return Container(
+      margin: const EdgeInsets.only(left: 8),
+      child: Tile(
+        onPressed: () => _loadShortcutLocation(shortcut.waypoint),
+        fill: Theme.of(context).colorScheme.background,
+        splash: Theme.of(context).brightness == Brightness.light ? Colors.grey : Colors.white,
+        shadowIntensity: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        borderRadius: BorderRadius.circular(12),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.location_on),
+            const SmallHSpace(),
+            Content(
+              context: context,
+              text: shortcut.name,
+            ),
+          ],
         ),
       ),
     );
@@ -74,7 +113,9 @@ class ShortcutsState extends State<ShortcutsRow> {
     if (shortcuts.shortcuts == null) return Container();
 
     List<Widget> shortCutWidgets = shortcuts.shortcuts!
-        .map((e) => e.runtimeType == ShortcutRoute ? shortcutRouteItem(e as ShortcutRoute) : Container())
+        .map((e) => e.runtimeType == ShortcutRoute
+            ? shortcutRouteItem(e as ShortcutRoute)
+            : shortcutLocationItem(e as ShortcutLocation))
         .toList();
     // Padding on the right side.
     shortCutWidgets.add(const SizedBox(width: 8));
