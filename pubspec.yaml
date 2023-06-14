@@ -58,10 +58,7 @@ dependencies:
   confetti: ^0.7.0
   collection: ^1.16.0 # Used for example for the function DeepCollectionEquality()
   intl: ^0.17.0 # Used for date formats
-  mapbox_maps_flutter:
-    git:
-      url: https://github.com/mapbox/mapbox-maps-flutter
-      ref: yds-fix-memory-leaks
+  mapbox_maps_flutter: ^0.4.4 # Used to display the map
   path_provider: ^2.0.12 # To get the path to the app directory and store files
   connectivity_plus: ^3.0.2 # To check if the user is connected to Wifi or mobile data
   get_it: ^7.2.0 # Used for dependency injection

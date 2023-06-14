@@ -173,38 +173,43 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   void updateMap() {
     if (!mapLayersFinishedLoading) return;
     // Check if the selected map layers have changed.
-    if (layers.needsLayout[viewId] != false) {
+    if (layers.needsLayout[viewId] == true) {
       loadGeoLayers();
       layers.needsLayout[viewId] = false;
     }
 
     // Check if the selected map design has changed.
-    if (mapDesigns.needsLayout[viewId] != false) {
+    if (mapDesigns.needsLayout[viewId] == true) {
       loadMapDesign();
       mapDesigns.needsLayout[viewId] = false;
     }
 
     // Check if the position has changed.
-    if (positioning.needsLayout[viewId] != false) {
+    if (positioning.needsLayout[viewId] == true) {
       displayCurrentUserLocation();
       positioning.needsLayout[viewId] = false;
     }
 
     // Check if route-related stuff has changed.
-    if (routing.needsLayout[viewId] != false) {
+    if (routing.needsLayout[viewId] == true) {
+      print(routing.needsLayout[viewId]);
+      print("routing-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
     }
 
     // Check if the discomforts have changed.
-    if (discomforts.needsLayout[viewId] != false) {
+    if (discomforts.needsLayout[viewId] == true) {
+      print("discomforts-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
     }
 
     // Check if the status has changed.
-    if (status.needsLayout[viewId] != false) {
+    if (status.needsLayout[viewId] == true) {
+      print(status.needsLayout[viewId]);
+      print("status-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
@@ -242,16 +247,22 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     layers = getIt<Layers>();
     layers.addListener(update);
+    layers.needsLayout[viewId] = false;
     mapDesigns = getIt<MapDesigns>();
     mapDesigns.addListener(update);
+    mapDesigns.needsLayout[viewId] = false;
     positioning = getIt<Positioning>();
     positioning.addListener(update);
+    positioning.needsLayout[viewId] = false;
     routing = getIt<Routing>();
     routing.addListener(update);
+    routing.needsLayout[viewId] = false;
     discomforts = getIt<Discomforts>();
     discomforts.addListener(update);
+    discomforts.needsLayout[viewId] = false;
     status = getIt<PredictionSGStatus>();
     status.addListener(update);
+    status.needsLayout[viewId] = false;
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
@@ -259,16 +270,23 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   @override
   void dispose() {
+    status.needsLayout.remove(viewId);
+    layers.removeListener(update);
+    layers.needsLayout.remove(viewId);
+    mapDesigns.removeListener(update);
+    mapDesigns.needsLayout.remove(viewId);
+    positioning.removeListener(update);
+    positioning.needsLayout.remove(viewId);
+    routing.removeListener(update);
+    routing.needsLayout.remove(viewId);
+    discomforts.removeListener(update);
+    discomforts.needsLayout.remove(viewId);
+    status.removeListener(update);
+
+    mapFunctions.removeListener(update);
     // Unbind the sheet movement listener.
     sheetMovementSubscription?.cancel();
     animationController.dispose();
-    layers.removeListener(update);
-    mapDesigns.removeListener(update);
-    positioning.removeListener(update);
-    routing.removeListener(update);
-    discomforts.removeListener(update);
-    status.removeListener(update);
-    mapFunctions.removeListener(update);
     super.dispose();
   }
 
@@ -641,6 +659,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+
+    setState(() {
+      mapLayersFinishedLoading = false;
+    });
 
     // Wait until the Mapbox internal layers are loaded.
     // (The layers of the map need some time to be loaded, even after the onStyleLoaded callback.)

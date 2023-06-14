@@ -131,6 +131,7 @@ class PredictionSGStatus with ChangeNotifier {
 
   /// Reset the status.
   Future<void> reset() async {
+    needsLayout.clear();
     cache = {};
     offline = 0;
     bad = 0;
