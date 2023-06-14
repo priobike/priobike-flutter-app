@@ -139,10 +139,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// Returns the index where the layer should be added in the Mapbox layer stack.
   Future<int> getIndex(String layerId) async {
-    log.i("getIndex($layerId)");
     final currentLayers = await mapController!.style.getStyleLayers();
-    log.i("currentLayers length: ${currentLayers.length}");
-    log.i("New index:");
     // Place the route label layer on top of all other layers.
     if (layerId == RouteLabelLayer.layerId) {
       log.i(currentLayers.length - 1);
@@ -192,8 +189,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Check if route-related stuff has changed.
     if (routing.needsLayout[viewId] == true) {
-      print(routing.needsLayout[viewId]);
-      print("routing-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       fitCameraToRouteBounds();
       routing.needsLayout[viewId] = false;
@@ -201,15 +196,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
     // Check if the discomforts have changed.
     if (discomforts.needsLayout[viewId] == true) {
-      print("discomforts-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       discomforts.needsLayout[viewId] = false;
     }
 
     // Check if the status has changed.
     if (status.needsLayout[viewId] == true) {
-      print(status.needsLayout[viewId]);
-      print("status-sergser");
       updateRouteMapLayers(); // Update all layers to keep them in z-order.
       status.needsLayout[viewId] = false;
     }
@@ -647,7 +639,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       firstBaseMapLabelLayerIndex = (layers.isNotEmpty) ? layers.length - 1 : 0;
       return;
     }
-    print("First label layer index: $firstLabelIndex");
     firstBaseMapLabelLayerIndex = firstLabelIndex;
   }
 
