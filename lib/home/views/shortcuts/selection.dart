@@ -131,7 +131,7 @@ class ShortcutView extends StatelessWidget {
 
 class ShortcutsView extends StatefulWidget {
   /// A callback that will be executed when the shortcut was selected.
-  final void Function(Shortcut shortcut) onSelectShortcut;
+  final Future<void> Function(Shortcut shortcut) onSelectShortcut;
 
   /// A callback that will be executed when free routing is started.
   final void Function() onStartFreeRouting;
@@ -234,9 +234,11 @@ class ShortcutsViewState extends State<ShortcutsView> {
     views += shortcuts.shortcuts
             ?.map(
               (shortcut) => ShortcutView(
-                onPressed: () {
+                onPressed: () async {
                   // Allow only one shortcut to be fetched at a time.
-                  if (!routing.isFetchingRoute) widget.onSelectShortcut(shortcut);
+                  if (!routing.isFetchingRoute) {
+                    await widget.onSelectShortcut(shortcut);
+                  }
                 },
                 isLoading: _checkRouteToBeLoaded(shortcut) && routing.isFetchingRoute,
                 shortcut: shortcut,

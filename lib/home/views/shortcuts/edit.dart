@@ -14,6 +14,9 @@ import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
+import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -298,7 +301,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     );
   }
 
-  Widget shortcutLocationListItem(ShortcutLocation shortcutRoute, int key) {
+  Widget shortcutLocationListItem(ShortcutLocation shortcutLocation, int key) {
     return Container(
       key: Key("$key"),
       padding: const EdgeInsets.only(left: 8, top: 8),
@@ -356,7 +359,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
               children: [
                 Flexible(
                   child: BoldContent(
-                    text: shortcutRoute.name,
+                    text: shortcutLocation.name,
                     context: context,
                   ),
                 ),
@@ -387,10 +390,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 ),
               ],
             ),
-            onPressed: () {
+            onPressed: () async {
               HapticFeedback.mediumImpact();
 
-              final shortcutIsValid = shortcutRoute.isValid();
+              final shortcutIsValid = shortcutLocation.isValid();
 
               if (!shortcutIsValid) {
                 final backend = getIt<Settings>().backend;
@@ -400,27 +403,39 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   builder: (context) => InvalidShortCutDialog(
                     backend: backend,
                     shortcuts: shortcuts,
-                    shortcut: shortcutRoute,
+                    shortcut: shortcutLocation,
                     context: context,
                   ),
                 );
                 return;
               }
 
-              // FIXME
-              // routing.selectWaypoints(List.from(shortcutRoute.waypoints));
-              // Pushes the routing view.
-              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                (comingNotFromRoutingView) {
-                  if (comingNotFromRoutingView == null) {
-                    routing.reset();
-                    discomforts.reset();
-                    predictionSGStatus.reset();
-                  }
-                },
-              );
+              Positioning positioning = getIt<Positioning>();
+              await positioning.requestSingleLocation(onNoPermission: () {
+                showLocationAccessDeniedDialog(context, positioning.positionSource);
+              });
+              if (positioning.lastPosition != null) {
+                routing.selectWaypoints([
+                  Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
+                  shortcutLocation.waypoint
+                ]);
+                // Pushes the routing view.
+                // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+                // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+                if (context.mounted) {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                    (comingNotFromRoutingView) {
+                      if (comingNotFromRoutingView == null) {
+                        routing.reset();
+                        discomforts.reset();
+                        predictionSGStatus.reset();
+                      }
+                    },
+                  );
+                }
+              } else {
+                ToastMessage.showError("Route konnte nicht geladen werden.");
+              }
             },
           ),
         ],

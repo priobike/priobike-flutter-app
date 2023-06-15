@@ -49,7 +49,6 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
 
   /// Show a sheet to save the current route as a shortcut.
   void showSaveShortcutSheet(ShortcutRoute shortcut) {
-    //FIXME both types
     final shortcuts = GetIt.instance.get<Shortcuts>();
     showDialog(
       context: context,

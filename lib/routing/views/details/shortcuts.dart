@@ -6,6 +6,7 @@ import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/routing.dart';
 
@@ -78,7 +79,12 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   /// Load route from shortcuts.
   _loadShortcutLocation(Waypoint waypoint) async {
-    // FIXME
+    Positioning positioning = getIt<Positioning>();
+    if (positioning.lastPosition != null) {
+      await routing.selectWaypoints(
+          [Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude), waypoint]);
+      await routing.loadRoutes();
+    }
   }
 
   Widget shortcutLocationItem(ShortcutLocation shortcut) {
