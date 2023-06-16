@@ -11,9 +11,6 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
 
 class PredictionSGStatus with ChangeNotifier {
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The logger for this service.
   final log = Logger("PredictionSGStatus");
 
@@ -138,11 +135,5 @@ class PredictionSGStatus with ChangeNotifier {
     ok = 0;
     isLoading = false;
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

@@ -55,9 +55,6 @@ class Ride with ChangeNotifier {
   /// The calculated distance to the next turn.
   double? calcDistanceToNextTurn;
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
@@ -270,13 +267,6 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
-    needsLayout = {};
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

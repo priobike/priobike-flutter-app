@@ -110,9 +110,6 @@ class Routing with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Routing");
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// A boolean indicating if the service is currently loading the route.
   bool isFetchingRoute = false;
 
@@ -198,7 +195,6 @@ class Routing with ChangeNotifier {
 
   // Reset the routing service.
   Future<void> reset() async {
-    needsLayout = {};
     hadErrorDuringFetch = false;
     isFetchingRoute = false;
     fetchedWaypoints = null;
@@ -483,11 +479,5 @@ class Routing with ChangeNotifier {
     await status.fetch(selectedRoute!);
 
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

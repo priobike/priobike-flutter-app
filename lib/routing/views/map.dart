@@ -29,9 +29,9 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -158,51 +158,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateMap();
-    setState(() {});
-  }
-
-  /// Updates the map.
-  void updateMap() {
-    // Check if the selected map layers have changed.
-    if (layers.needsLayout[viewId] != false) {
-      loadGeoLayers();
-      layers.needsLayout[viewId] = false;
-    }
-
-    // Check if the selected map design has changed.
-    if (mapDesigns.needsLayout[viewId] != false) {
-      loadMapDesign();
-      mapDesigns.needsLayout[viewId] = false;
-    }
-
-    // Check if the position has changed.
-    if (positioning.needsLayout[viewId] != false) {
-      displayCurrentUserLocation();
-      positioning.needsLayout[viewId] = false;
-    }
-
-    // Check if route-related stuff has changed.
-    if (routing.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      fitCameraToRouteBounds();
-      routing.needsLayout[viewId] = false;
-    }
-
-    // Check if the discomforts have changed.
-    if (discomforts.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      discomforts.needsLayout[viewId] = false;
-    }
-
-    // Check if the status has changed.
-    if (status.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      status.needsLayout[viewId] = false;
-    }
-
+  /// Updates the centering.
+  updateMapFunctions() {
     if (mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
@@ -213,6 +170,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       centerCameraToNorth();
       mapFunctions.needsCenteringNorth = false;
     }
+  }
+
+  /// Called when the listener callback of the Routing service ChangeNotifier is fired.
+  updateRoute() async {
+    updateRouteMapLayers();
+    fitCameraToRouteBounds();
   }
 
   @override
@@ -235,19 +198,19 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     layers = getIt<Layers>();
-    layers.addListener(update);
+    layers.addListener(loadGeoLayers);
     mapDesigns = getIt<MapDesigns>();
-    mapDesigns.addListener(update);
+    mapDesigns.addListener(loadMapDesign);
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
+    positioning.addListener(displayCurrentUserLocation);
     routing = getIt<Routing>();
-    routing.addListener(update);
+    routing.addListener(updateRoute);
     discomforts = getIt<Discomforts>();
-    discomforts.addListener(update);
+    discomforts.addListener(updateDiscomforts);
     status = getIt<PredictionSGStatus>();
-    status.addListener(update);
+    status.addListener(updateSelectedRouteLayer);
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
+    mapFunctions.addListener(updateMapFunctions);
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
   }
@@ -257,13 +220,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Unbind the sheet movement listener.
     sheetMovementSubscription?.cancel();
     animationController.dispose();
-    layers.removeListener(update);
-    mapDesigns.removeListener(update);
-    positioning.removeListener(update);
-    routing.removeListener(update);
-    discomforts.removeListener(update);
-    status.removeListener(update);
-    mapFunctions.removeListener(update);
+    layers.removeListener(loadGeoLayers);
+    mapDesigns.removeListener(loadMapDesign);
+    positioning.removeListener(displayCurrentUserLocation);
+    routing.removeListener(updateRoute);
+    discomforts.removeListener(updateDiscomforts);
+    status.removeListener(updateSelectedRouteLayer);
+    mapFunctions.removeListener(updateMapFunctions);
     super.dispose();
   }
 
@@ -371,7 +334,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map design.
   loadMapDesign() async {
     if (mapController == null) return;
-
     await mapController!.style.setStyleURI(
       Theme.of(context).colorScheme.brightness == Brightness.light
           ? mapDesigns.mapDesign.lightStyle
@@ -475,6 +437,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Update discomforts layer.
+  updateDiscomforts() async {
+    if (mapController == null) return;
+    if (!mounted) return;
+    await DiscomfortsLayer().update(mapController!);
+  }
+
+  /// Update selected route layer.
+  updateSelectedRouteLayer() async {
+    if (mapController == null) return;
+    if (!mounted) return;
+    await SelectedRouteLayer().update(mapController!);
+  }
+
   /// Update all route map layers.
   updateRouteMapLayers() async {
     if (mapController == null) return;
@@ -486,10 +462,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
-    if (!mounted) return;
-    await DiscomfortsLayer().update(mapController!);
-    if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await updateDiscomforts();
+    await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
     if (!mounted) return;
