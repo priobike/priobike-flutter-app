@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
@@ -112,6 +113,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
   var firstBaseMapLabelLayerIndex = 0;
 
+  /// A bool indicating whether the Mapbox internal map layers have finished loading.
+  var mapLayersFinishedLoading = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -198,19 +202,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     layers = getIt<Layers>();
-    layers.addListener(loadGeoLayers);
     mapDesigns = getIt<MapDesigns>();
-    mapDesigns.addListener(loadMapDesign);
     positioning = getIt<Positioning>();
-    positioning.addListener(displayCurrentUserLocation);
     routing = getIt<Routing>();
-    routing.addListener(updateRoute);
     discomforts = getIt<Discomforts>();
-    discomforts.addListener(updateDiscomforts);
     status = getIt<PredictionSGStatus>();
-    status.addListener(updateSelectedRouteLayer);
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(updateMapFunctions);
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
   }
@@ -611,6 +608,33 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
 
+    setState(() {
+      mapLayersFinishedLoading = false;
+    });
+
+    // Wait until the Mapbox internal layers are loaded.
+    // (The layers of the map need some time to load, even after the onStyleLoaded callback.)
+    // (If we proceed without waiting, the app might crash,
+    // because we are trying to add layers on top of layers that are not there yet.)
+    // 40 is an kind of arbitrary number that is high enough to indicate that a lot of the layers are loaded but not too high
+    // such that in the future if we reduce the layers on our Mapbox style (in Mapbox studio) we never reach this number.
+    while (true) {
+      final layers = await mapController!.style.getStyleLayers();
+      if (layers.length > 40) break;
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    setState(() {
+      mapLayersFinishedLoading = true;
+    });
+
+    layers.addListener(loadGeoLayers);
+    mapDesigns.addListener(loadMapDesign);
+    positioning.addListener(displayCurrentUserLocation);
+    routing.addListener(updateRoute);
+    discomforts.addListener(updateDiscomforts);
+    status.addListener(updateSelectedRouteLayer);
+    mapFunctions.addListener(updateMapFunctions);
+
     await getFirstLabelLayer();
 
     // Load all symbols that will be displayed on the map.
@@ -965,6 +989,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   ),
                 ),
               ],
+            ),
+          ),
+        if (!mapLayersFinishedLoading)
+          Center(
+            child: Tile(
+              fill: Theme.of(context).colorScheme.background,
+              shadowIntensity: 0.2,
+              shadow: Colors.black,
+              content: const CircularProgressIndicator(),
             ),
           ),
       ],

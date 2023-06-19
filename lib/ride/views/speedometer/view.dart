@@ -63,12 +63,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateSpeedometer();
-    setState(() {});
-  }
-
   /// Update the speedometer.
   void updateSpeedometer() {
     // Fetch the maximum speed from the settings service.
@@ -82,6 +76,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     // Load the gauge colors and steps, from the predictor.
     loadGauge(ride);
+
+    setState(() {});
   }
 
   @override
@@ -104,7 +100,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
     ride = getIt<Ride>();
-    ride.addListener(updateSpeedometer);
 
     updateSpeedometer();
   }
@@ -113,7 +108,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   void dispose() {
     speedAnimationController.dispose();
     positioning.removeListener(updateSpeedometer);
-    ride.removeListener(updateSpeedometer);
     super.dispose();
   }
 
