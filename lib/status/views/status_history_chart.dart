@@ -230,7 +230,7 @@ class StatusHistoryPainter extends CustomPainter {
   }
 
   /// Draws the lines of the chart.
-  void drawLines() {
+  void drawLines() async {
     Paint paintLine = Paint()
       ..color = isProblem ? Colors.white : CI.blue
       ..strokeWidth = 2
@@ -342,13 +342,15 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      child: CustomPaint(
-        painter: StatusHistoryPainter(
-          context: context,
-          percentages:
-              widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
-          time: widget.time,
-          isProblem: widget.isProblem,
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: StatusHistoryPainter(
+            context: context,
+            percentages:
+                widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
+            time: widget.time,
+            isProblem: widget.isProblem,
+          ),
         ),
       ),
     );

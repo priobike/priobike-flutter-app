@@ -37,7 +37,7 @@ class ExpandablePageView extends StatefulWidget {
 class _ExpandablePageViewState extends State<ExpandablePageView> with TickerProviderStateMixin {
   /// PageController.
   final PageController pageController = PageController(
-    viewportFraction: 0.9,
+    viewportFraction: 0.92,
     initialPage: 0,
   );
 
@@ -76,6 +76,7 @@ class _ExpandablePageViewState extends State<ExpandablePageView> with TickerProv
       builder: (context, value, child) => SizedBox(height: value, child: child),
       child: PageView(
         controller: pageController,
+        allowImplicitScrolling: true,
         clipBehavior: Clip.none,
         children: _sizeReportingChildren
             .asMap() //

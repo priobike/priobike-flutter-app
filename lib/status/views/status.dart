@@ -86,7 +86,7 @@ class StatusViewState extends State<StatusView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Tile(
         fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,
         shadowIntensity: isProblem ? 0.2 : 0.05,
