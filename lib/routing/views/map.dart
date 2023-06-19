@@ -32,6 +32,7 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/tutorial/service.dart';
 
 class RoutingMapView extends StatefulWidget {
   /// The stream that receives notifications when the bottom sheet is dragged.
@@ -71,6 +72,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
 
   /// The associated mapValues service, which is injected by the provider.
   late MapValues mapValues;
+
+  /// The associated tutorial service, which is injected by the provider.
+  late Tutorial tutorial;
 
   /// A map controller for the map.
   MapboxMap? mapController;
@@ -245,6 +249,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     mapFunctions = getIt<MapFunctions>();
     mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
+    tutorial = getIt<Tutorial>();
   }
 
   @override
@@ -737,6 +742,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
+    tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
     await routing.addWaypoint(waypoint);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
