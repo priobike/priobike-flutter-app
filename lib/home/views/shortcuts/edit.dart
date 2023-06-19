@@ -59,7 +59,7 @@ void showEditShortcutSheet(context, int idx) {
                 return;
               }
               await shortcuts.updateShortcutName(name, idx);
-              ToastMessage.showSuccess("Routen Name gespeichert!");
+              ToastMessage.showSuccess("Name gespeichert!");
               Navigator.pop(context);
             },
             child: BoldContent(
@@ -151,6 +151,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     showEditShortcutSheet(context, idx);
   }
 
+  /// Widget that displays a shortcut route.
   Widget shortcutRouteListItem(ShortcutRoute shortcutRoute, int key) {
     return Container(
       key: Key("$key"),
@@ -301,6 +302,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     );
   }
 
+  /// Widget that displays a shortcut location.
   Widget shortcutLocationListItem(ShortcutLocation shortcutLocation, int key) {
     return Container(
       key: Key("$key"),

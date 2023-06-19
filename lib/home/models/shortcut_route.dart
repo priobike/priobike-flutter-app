@@ -4,11 +4,15 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 
 /// The shortcut represents a saved route with a name.
-class ShortcutRoute extends Shortcut {
+class ShortcutRoute implements Shortcut {
+  /// The name of the shortcut.
+  @override
+  String name;
+
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
 
-  const ShortcutRoute({required name, required this.waypoints}) : super(name: name);
+  ShortcutRoute({required this.name, required this.waypoints});
 
   factory ShortcutRoute.fromJson(Map<String, dynamic> json) {
     return ShortcutRoute(
@@ -61,5 +65,25 @@ class ShortcutRoute extends Shortcut {
       }
     }
     return true;
+  }
+
+  /// Get the linebreaked name of the shortcut. The name is split into at most 2 lines, by a limit of 15 characters.
+  @override
+  String get linebreakedName {
+    var result = name;
+    var insertedLinebreaks = 0;
+    for (var i = 0; i < name.length; i++) {
+      if (i % 15 == 0 && i != 0) {
+        if (insertedLinebreaks == 1) {
+          // Truncate the name if it is too long
+          result = result.substring(0, i);
+          result += '...';
+          break;
+        }
+        result = result.replaceRange(i, i + 1, '${result[i]}\n');
+        insertedLinebreaks++;
+      }
+    }
+    return result;
   }
 }

@@ -98,7 +98,7 @@ class ShortcutView extends StatelessWidget {
                                   )
                                 : const Icon(
                                     Icons.location_on,
-                                    color: Colors.white,
+                                    color: CI.blue,
                                     size: 64,
                                   ),
                         Expanded(child: Container()),
