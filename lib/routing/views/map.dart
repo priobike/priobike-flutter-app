@@ -742,7 +742,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) {
       await routing.addWaypoint(Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude));
     }
-    await tutorial.complete("priobike.tutorial.draw-waypoints");
+    tutorial.complete("priobike.tutorial.draw-waypoints");
     final waypoint = Waypoint(latitude, longitude, address: address);
     await routing.addWaypoint(waypoint);
     await getIt<Geosearch>().addToSearchHistory(waypoint);
