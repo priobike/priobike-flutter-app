@@ -1,4 +1,4 @@
-/// The shortcut represents a saved route with a name.
+/// The shortcut represents a saved route or location with a name.
 class Shortcut {
   /// The name of the shortcut.
   final String name;
@@ -22,6 +22,7 @@ class Shortcut {
     return result;
   }
 
+  /// Checks if the route or location has invalid waypoints.
   bool isValid() {
     return false;
   }

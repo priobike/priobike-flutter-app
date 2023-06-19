@@ -3,9 +3,9 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
 
-/// The shortcut represents a saved route with a name.
+/// The shortcut represents a saved location with a name.
 class ShortcutLocation extends Shortcut {
-  /// The waypoint of the shortcutLocation.
+  /// The waypoint of the shortcut location.
   final Waypoint waypoint;
 
   const ShortcutLocation({required name, required this.waypoint}) : super(name: name);
@@ -23,7 +23,7 @@ class ShortcutLocation extends Shortcut {
         'waypoint': waypoint.toJSON(),
       };
 
-  /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  /// Locations with a waypoint outside of the bounding box of the city are not allowed.
   @override
   bool isValid() {
     final boundaryService = getIt<Boundary>();
