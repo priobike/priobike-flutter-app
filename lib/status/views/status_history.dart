@@ -58,7 +58,8 @@ class StatusHistoryViewState extends State<StatusHistoryView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isProblem = predictionStatusSummary.getProblem() == null ? false : true;
 
-    return Padding(
+    return Container(
+      height: 130,
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Tile(
         fill: isProblem ? CI.red : Theme.of(context).colorScheme.background,

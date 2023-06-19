@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -91,65 +92,75 @@ class StatusViewState extends State<StatusView> {
         shadowIntensity: isProblem ? 0.2 : 0.05,
         shadow: isProblem ? CI.red : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
-        content: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        content: Column(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  isProblem
-                      ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
-                      : BoldContent(text: "Datenverfügbarkeit", context: context),
-                  const SizedBox(height: 2),
-                  isProblem
-                      ? Small(
-                          text: text ?? "Lade Daten...",
-                          context: context,
-                          color: Colors.white,
-                        )
-                      : Small(
-                          text: text ?? "Lade Daten...",
-                          context: context,
-                        ),
-                ],
-              ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: BoldSmall(text: "Jetzt", context: context),
             ),
-            // Show a progress indicator with the pct value.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: CircularProgressIndicator(
-                      value: predictionStatusSummary.isLoading ? null : goodPct,
-                      strokeWidth: 6,
-                      backgroundColor: isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
-                      valueColor: isProblem
-                          ? const AlwaysStoppedAnimation<Color>(Colors.white)
-                          : const AlwaysStoppedAnimation<Color>(CI.green),
-                    ),
+            const SmallVSpace(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      isProblem
+                          ? BoldContent(text: "Vorübergehende Störung", context: context, color: Colors.white)
+                          : BoldContent(text: "Datenverfügbarkeit", context: context),
+                      const SizedBox(height: 6),
+                      isProblem
+                          ? Small(
+                              text: text ?? "Lade Daten...",
+                              context: context,
+                              color: Colors.white,
+                            )
+                          : Small(
+                              text: text ?? "Lade Daten...",
+                              context: context,
+                            ),
+                    ],
                   ),
-                  Opacity(
-                    opacity: 0.2,
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      color: isProblem ? Colors.white : CI.green,
-                      size: 42,
-                    ),
+                ),
+                // Show a progress indicator with the pct value.
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 42,
+                        height: 42,
+                        child: CircularProgressIndicator(
+                          value: predictionStatusSummary.isLoading ? null : goodPct,
+                          strokeWidth: 6,
+                          backgroundColor:
+                              isProblem ? const Color.fromARGB(255, 120, 0, 50) : CI.green.withOpacity(0.2),
+                          valueColor: isProblem
+                              ? const AlwaysStoppedAnimation<Color>(Colors.white)
+                              : const AlwaysStoppedAnimation<Color>(CI.green),
+                        ),
+                      ),
+                      Opacity(
+                        opacity: 0.2,
+                        child: Icon(
+                          Icons.chevron_right_rounded,
+                          color: isProblem ? Colors.white : CI.green,
+                          size: 42,
+                        ),
+                      ),
+                      BoldSmall(
+                        text: "${((goodPct ?? 0) * 100).round()}%",
+                        context: context,
+                        color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ],
                   ),
-                  BoldSmall(
-                    text: "${((goodPct ?? 0) * 100).round()}%",
-                    context: context,
-                    color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
