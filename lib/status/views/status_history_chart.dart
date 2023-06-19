@@ -230,7 +230,7 @@ class StatusHistoryPainter extends CustomPainter {
   }
 
   /// Draws the lines of the chart.
-  void drawLines() async {
+  void drawLines() {
     Paint paintLine = Paint()
       ..color = isProblem ? Colors.white : CI.blue
       ..strokeWidth = 2
