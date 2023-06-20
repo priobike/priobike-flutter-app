@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' hide Settings;
+import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/layers/boundary_layers.dart';
 import 'package:priobike/common/map/layers/poi_layers.dart';
@@ -29,9 +30,9 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tutorial/service.dart';
 
 class RoutingMapView extends StatefulWidget {
@@ -112,6 +113,9 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
   var firstBaseMapLabelLayerIndex = 0;
 
+  /// A bool indicating whether the Mapbox internal map layers have finished loading.
+  var mapLayersFinishedLoading = false;
+
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
     VeloRoutesLayer.layerId,
@@ -158,51 +162,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateMap();
-    setState(() {});
-  }
-
-  /// Updates the map.
-  void updateMap() {
-    // Check if the selected map layers have changed.
-    if (layers.needsLayout[viewId] != false) {
-      loadGeoLayers();
-      layers.needsLayout[viewId] = false;
-    }
-
-    // Check if the selected map design has changed.
-    if (mapDesigns.needsLayout[viewId] != false) {
-      loadMapDesign();
-      mapDesigns.needsLayout[viewId] = false;
-    }
-
-    // Check if the position has changed.
-    if (positioning.needsLayout[viewId] != false) {
-      displayCurrentUserLocation();
-      positioning.needsLayout[viewId] = false;
-    }
-
-    // Check if route-related stuff has changed.
-    if (routing.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      fitCameraToRouteBounds();
-      routing.needsLayout[viewId] = false;
-    }
-
-    // Check if the discomforts have changed.
-    if (discomforts.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      discomforts.needsLayout[viewId] = false;
-    }
-
-    // Check if the status has changed.
-    if (status.needsLayout[viewId] != false) {
-      updateRouteMapLayers(); // Update all layers to keep them in z-order.
-      status.needsLayout[viewId] = false;
-    }
-
+  /// Updates the centering.
+  updateMapFunctions() {
     if (mapFunctions.needsCentering) {
       displayCurrentUserLocation();
       fitCameraToUserPosition();
@@ -213,6 +174,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       centerCameraToNorth();
       mapFunctions.needsCenteringNorth = false;
     }
+  }
+
+  /// Called when the listener callback of the Routing service ChangeNotifier is fired.
+  updateRoute() async {
+    updateRouteMapLayers();
+    fitCameraToRouteBounds();
   }
 
   @override
@@ -235,19 +202,12 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
 
     layers = getIt<Layers>();
-    layers.addListener(update);
     mapDesigns = getIt<MapDesigns>();
-    mapDesigns.addListener(update);
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
     routing = getIt<Routing>();
-    routing.addListener(update);
     discomforts = getIt<Discomforts>();
-    discomforts.addListener(update);
     status = getIt<PredictionSGStatus>();
-    status.addListener(update);
     mapFunctions = getIt<MapFunctions>();
-    mapFunctions.addListener(update);
     mapValues = getIt<MapValues>();
     tutorial = getIt<Tutorial>();
   }
@@ -257,13 +217,13 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     // Unbind the sheet movement listener.
     sheetMovementSubscription?.cancel();
     animationController.dispose();
-    layers.removeListener(update);
-    mapDesigns.removeListener(update);
-    positioning.removeListener(update);
-    routing.removeListener(update);
-    discomforts.removeListener(update);
-    status.removeListener(update);
-    mapFunctions.removeListener(update);
+    layers.removeListener(loadGeoLayers);
+    mapDesigns.removeListener(loadMapDesign);
+    positioning.removeListener(displayCurrentUserLocation);
+    routing.removeListener(updateRoute);
+    discomforts.removeListener(updateDiscomforts);
+    status.removeListener(updateSelectedRouteLayer);
+    mapFunctions.removeListener(updateMapFunctions);
     super.dispose();
   }
 
@@ -371,7 +331,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// Load the map design.
   loadMapDesign() async {
     if (mapController == null) return;
-
     await mapController!.style.setStyleURI(
       Theme.of(context).colorScheme.brightness == Brightness.light
           ? mapDesigns.mapDesign.lightStyle
@@ -475,6 +434,20 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     }
   }
 
+  /// Update discomforts layer.
+  updateDiscomforts() async {
+    if (mapController == null) return;
+    if (!mounted) return;
+    await DiscomfortsLayer().update(mapController!);
+  }
+
+  /// Update selected route layer.
+  updateSelectedRouteLayer() async {
+    if (mapController == null) return;
+    if (!mounted) return;
+    await SelectedRouteLayer().update(mapController!);
+  }
+
   /// Update all route map layers.
   updateRouteMapLayers() async {
     if (mapController == null) return;
@@ -486,10 +459,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await WaypointsLayer().update(mapController!);
-    if (!mounted) return;
-    await DiscomfortsLayer().update(mapController!);
-    if (!mounted) return;
-    await SelectedRouteLayer().update(mapController!);
+    await updateDiscomforts();
+    await updateSelectedRouteLayer();
     if (!mounted) return;
     await AllRoutesLayer().update(mapController!);
     if (!mounted) return;
@@ -636,6 +607,33 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   /// A callback which is executed when the map style was (re-)loaded.
   onStyleLoaded(StyleLoadedEventData styleLoadedEventData) async {
     if (mapController == null || !mounted) return;
+
+    setState(() {
+      mapLayersFinishedLoading = false;
+    });
+
+    // Wait until the Mapbox internal layers are loaded.
+    // (The layers of the map need some time to load, even after the onStyleLoaded callback.)
+    // (If we proceed without waiting, the app might crash,
+    // because we are trying to add layers on top of layers that are not there yet.)
+    // 40 is an kind of arbitrary number that is high enough to indicate that a lot of the layers are loaded but not too high
+    // such that in the future if we reduce the layers on our Mapbox style (in Mapbox studio) we never reach this number.
+    while (true) {
+      final layers = await mapController!.style.getStyleLayers();
+      if (layers.length > 40) break;
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    setState(() {
+      mapLayersFinishedLoading = true;
+    });
+
+    layers.addListener(loadGeoLayers);
+    mapDesigns.addListener(loadMapDesign);
+    positioning.addListener(displayCurrentUserLocation);
+    routing.addListener(updateRoute);
+    discomforts.addListener(updateDiscomforts);
+    status.addListener(updateSelectedRouteLayer);
+    mapFunctions.addListener(updateMapFunctions);
 
     await getFirstLabelLayer();
 
@@ -991,6 +989,15 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
                   ),
                 ),
               ],
+            ),
+          ),
+        if (!mapLayersFinishedLoading)
+          Center(
+            child: Tile(
+              fill: Theme.of(context).colorScheme.background,
+              shadowIntensity: 0.2,
+              shadow: Colors.black,
+              content: const CircularProgressIndicator(),
             ),
           ),
       ],

@@ -20,9 +20,6 @@ import 'package:priobike/settings/services/settings.dart';
 class Positioning with ChangeNotifier {
   final log = Logger("Positioning");
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The interface to the position source.
   /// See [PositionSource] for more information.
   PositionSource? positionSource;
@@ -50,7 +47,6 @@ class Positioning with ChangeNotifier {
   /// Reset the position service.
   Future<void> reset() async {
     await stopGeolocation();
-    needsLayout = {};
     positionSource = null;
     positionSubscription = null;
     positions.clear();
@@ -229,11 +225,5 @@ class Positioning with ChangeNotifier {
     if (positionSource is PathMockPositionSource) {
       (positionSource as PathMockPositionSource).speed = speed;
     }
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

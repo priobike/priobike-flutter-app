@@ -9,7 +9,6 @@ import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -29,6 +28,7 @@ class RideMapViewState extends State<RideMapView> {
 
   static const userLocationLayerId = "user-ride-location-puck";
 
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated positioning service, which is injected by the provider.
@@ -36,12 +36,6 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
-
-  /// The associated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// The associated dangers service, which is injected by the provider.
-  late Dangers dangers;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -86,68 +80,39 @@ class RideMapViewState extends State<RideMapView> {
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateMap();
-  }
-
-  /// Update the map.
-  void updateMap() {
-    if (routing.needsLayout[viewId] != false && mapController != null) {
-      onRoutingUpdate();
-      routing.needsLayout[viewId] = false;
-    }
-    if (ride.needsLayout[viewId] != false && mapController != null) {
-      onRideUpdate();
-      ride.needsLayout[viewId] = false;
-    }
-    if (positioning.needsLayout[viewId] != false && mapController != null) {
-      onPositioningUpdate();
-      positioning.needsLayout[viewId] = false;
-    }
-    if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
-      onStatusUpdate();
-      predictionSGStatus.needsLayout[viewId] = false;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
 
-    settings = getIt<Settings>();
-    settings.addListener(update);
     routing = getIt<Routing>();
-    routing.addListener(update);
+    routing.addListener(onRoutingUpdate);
     ride = getIt<Ride>();
-    ride.addListener(update);
+    ride.addListener(onRideUpdate);
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
-    dangers = getIt<Dangers>();
-    dangers.addListener(update);
+    positioning.addListener(onPositioningUpdate);
     predictionSGStatus = getIt<PredictionSGStatus>();
-    predictionSGStatus.addListener(update);
+    predictionSGStatus.addListener(onStatusUpdate);
   }
 
   @override
   void dispose() {
-    settings.removeListener(update);
-    routing.removeListener(update);
-    ride.removeListener(update);
-    positioning.removeListener(update);
-    dangers.removeListener(update);
-    predictionSGStatus.removeListener(update);
+    routing.removeListener(onRoutingUpdate);
+    ride.removeListener(onRideUpdate);
+    positioning.removeListener(onPositioningUpdate);
+    predictionSGStatus.removeListener(onStatusUpdate);
     super.dispose();
   }
 
   /// Update the view with the current data.
   Future<void> onStatusUpdate() async {
+    if (mapController == null) return;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
@@ -162,6 +127,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
@@ -173,6 +139,7 @@ class RideMapViewState extends State<RideMapView> {
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await TrafficLightLayer(isDark).update(mapController!);
@@ -391,7 +358,7 @@ class RideMapViewState extends State<RideMapView> {
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
+      saveBatteryModeEnabled: getIt<Settings>().saveBatteryModeEnabled,
     );
   }
 }

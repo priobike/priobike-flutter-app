@@ -63,28 +63,21 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateSpeedometer();
-    setState(() {});
-  }
-
   /// Update the speedometer.
   void updateSpeedometer() {
     // Fetch the maximum speed from the settings service.
     maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
-    if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
-      positioning.needsLayout[viewId] = false;
-      // Animate the speed to the new value.
-      final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
-      // Scale between minSpeed and maxSpeed.
-      final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
-      // Animate to the new value.
-      speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-      // Load the gauge colors and steps, from the predictor.
-      loadGauge(ride);
-    }
+    // Animate the speed to the new value.
+    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+    // Scale between minSpeed and maxSpeed.
+    final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    // Animate to the new value.
+    speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    // Load the gauge colors and steps, from the predictor.
+    loadGauge(ride);
+
+    setState(() {});
   }
 
   @override
@@ -105,9 +98,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     });
 
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
+    positioning.addListener(updateSpeedometer);
     ride = getIt<Ride>();
-    ride.addListener(update);
 
     updateSpeedometer();
   }
@@ -115,8 +107,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   @override
   void dispose() {
     speedAnimationController.dispose();
-    positioning.removeListener(update);
-    ride.removeListener(update);
+    positioning.removeListener(updateSpeedometer);
     super.dispose();
   }
 

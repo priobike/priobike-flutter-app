@@ -5,9 +5,6 @@ import 'package:system_info_plus/system_info_plus.dart';
 class Layers with ChangeNotifier {
   var hasLoaded = false;
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// If rental stations are currently visible.
   bool showRentalStations;
 
@@ -138,11 +135,5 @@ class Layers with ChangeNotifier {
     await storage.setBool("priobike.layers.showTrafficLayer", showTrafficLayer);
 
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }
