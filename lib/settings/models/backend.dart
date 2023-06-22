@@ -109,7 +109,7 @@ extension BackendFROSTMqtt on Backend {
   String get frostMQTTPath {
     switch (this) {
       case Backend.production:
-        return "priobike.vkw.tu-dresden.de";
+        return "tld.iot.hamburg.de";
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de";
     }
@@ -118,9 +118,9 @@ extension BackendFROSTMqtt on Backend {
   int get frostMQTTPort {
     switch (this) {
       case Backend.production:
-        return 20053;
+        return 1883;
       case Backend.staging:
-        return 20057;
+        return 20056;
     }
   }
 }
