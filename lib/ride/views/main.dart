@@ -5,6 +5,7 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
+import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -16,8 +17,10 @@ import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,6 +42,9 @@ class RideViewState extends State<RideView> {
 
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
+
+  /// A bool indicating whether the ride is currently paused due to conflicts.
+  bool isPaused = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -87,12 +93,22 @@ class RideViewState extends State<RideView> {
             await dangers.calculateUpcomingAndPreviousDangers();
             await ride.updatePosition();
             await tracking.updatePosition();
+
+            // If we are paused, we don't need to reroute.
+            if (isPaused) return;
+
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
+                if (routing.hadErrorDuringFetch) {
+                  if (!mounted) return;
+                  isPaused = true;
+                  showInvalidReroutingDialog(context, routing.waypointsOutOfBoundaries);
+                  return;
+                }
                 if (routes != null && routes.isNotEmpty) {
                   await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
@@ -106,6 +122,49 @@ class RideViewState extends State<RideView> {
 
         // Start tracking once the `sessionId` is set and the positioning stream is available.
         await tracking.start(deviceWidth, deviceHeight);
+      },
+    );
+  }
+
+  void showInvalidReroutingDialog(context, bool exceededCityBoundaries) {
+    final String backend = getIt<Settings>().backend.region;
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Berechnung einer neuen Route fehlgeschlagen.'),
+          content: RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.bodyLarge,
+              children: <TextSpan>[
+                const TextSpan(
+                    text: 'Nach dem Abweichen von der ursprünglichen Route konnte keine neue Route berechnet werden.'),
+                if (exceededCityBoundaries)
+                  const TextSpan(
+                    text: '\n\nGrund: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                if (exceededCityBoundaries) TextSpan(text: 'Außerhalb der Stadtgrenzen von $backend.'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Weiterfahren'),
+              onPressed: () {
+                isPaused = false;
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Fahrt beenden'),
+              onPressed: () {
+                onTapFinishRide(context);
+              },
+            ),
+          ],
+        );
       },
     );
   }
@@ -177,6 +236,69 @@ class RideViewState extends State<RideView> {
     super.dispose();
   }
 
+  /// A callback that is executed when the finish ride button is pressed.
+  Future<void> onTapFinishRide(BuildContext context) async {
+    // End the tracking and collect the data.
+    final tracking = getIt<Tracking>();
+    await tracking.end(); // Performs all needed resets.
+
+    // Calculate a summary of the ride.
+    final statistics = getIt<Statistics>();
+    await statistics.calculateSummary();
+
+    // Disconnect from the mqtt broker.
+    final datastream = getIt<Datastream>();
+    await datastream.disconnect();
+
+    // End the recommendations.
+    final ride = getIt<Ride>();
+    await ride.stopNavigation();
+
+    // Stop the geolocation.
+    final position = getIt<Positioning>();
+    await position.stopGeolocation();
+
+    if (mounted) {
+      // Show the feedback dialog.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => WillPopScope(
+            onWillPop: () async => false,
+            child: FeedbackView(
+              onSubmitted: (context) async {
+                // Reset the statistics.
+                await statistics.reset();
+
+                // Reset the ride service.
+                await ride.reset();
+
+                // Reset the position service.
+                await position.reset();
+
+                // Reset the route service.
+                final routing = getIt<Routing>();
+                await routing.reset();
+
+                // Reset the prediction sg status.
+                final predictionSGStatus = getIt<PredictionSGStatus>();
+                await predictionSGStatus.reset();
+
+                // Reset the dangers.
+                final dangers = getIt<Dangers>();
+                await dangers.reset();
+
+                if (context.mounted) {
+                  // Leave the feedback view.
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Keep the device active during navigation.
@@ -215,7 +337,7 @@ class RideViewState extends State<RideView> {
                 ),
               const RideSpeedometerView(),
               const DatastreamView(),
-              const FinishRideButton(),
+              FinishRideButton(onTapFinishRide: onTapFinishRide),
             ],
           ),
         ),
