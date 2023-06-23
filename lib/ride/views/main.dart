@@ -17,7 +17,6 @@ import 'package:priobike/ride/views/map.dart';
 import 'package:priobike/ride/views/screen_tracking.dart';
 import 'package:priobike/ride/views/speedometer/view.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
@@ -42,9 +41,6 @@ class RideViewState extends State<RideView> {
 
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
-
-  /// A bool indicating whether the ride is currently paused due to conflicts.
-  bool isPaused = false;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -94,21 +90,12 @@ class RideViewState extends State<RideView> {
             await ride.updatePosition();
             await tracking.updatePosition();
 
-            // If we are paused, we don't need to reroute.
-            if (isPaused) return;
-
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
-                if (routing.hadErrorDuringFetch) {
-                  if (!mounted) return;
-                  isPaused = true;
-                  showInvalidReroutingDialog(context, routing.waypointsOutOfBoundaries);
-                  return;
-                }
                 if (routes != null && routes.isNotEmpty) {
                   await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
@@ -122,49 +109,6 @@ class RideViewState extends State<RideView> {
 
         // Start tracking once the `sessionId` is set and the positioning stream is available.
         await tracking.start(deviceWidth, deviceHeight);
-      },
-    );
-  }
-
-  void showInvalidReroutingDialog(context, bool exceededCityBoundaries) {
-    final String backend = getIt<Settings>().backend.region;
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text('Berechnung einer neuen Route fehlgeschlagen.'),
-          content: RichText(
-            text: TextSpan(
-              style: Theme.of(context).textTheme.bodyLarge,
-              children: <TextSpan>[
-                const TextSpan(
-                    text: 'Nach dem Abweichen von der ursprünglichen Route konnte keine neue Route berechnet werden.'),
-                if (exceededCityBoundaries)
-                  const TextSpan(
-                    text: '\n\nGrund: ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                if (exceededCityBoundaries) TextSpan(text: 'Außerhalb der Stadtgrenzen von $backend.'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Weiterfahren'),
-              onPressed: () {
-                isPaused = false;
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Fahrt beenden'),
-              onPressed: () {
-                onTapFinishRide(context);
-              },
-            ),
-          ],
-        );
       },
     );
   }

@@ -12,6 +12,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/center_buttons.dart';
+import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
@@ -19,6 +20,7 @@ import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -45,6 +47,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The associated positioning service, which is injected by the provider.
   late Positioning positioning;
 
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
@@ -65,6 +70,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
   /// Update the speedometer.
   void updateSpeedometer() {
+    if (routing.hadErrorDuringFetch) return;
+
     // Fetch the maximum speed from the settings service.
     maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
@@ -77,6 +84,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     // Load the gauge colors and steps, from the predictor.
     loadGauge(ride);
 
+    setState(() {});
+  }
+
+  /// Update the layout of the speedometer.
+  void updateLayout() {
     setState(() {});
   }
 
@@ -99,7 +111,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
     positioning = getIt<Positioning>();
     positioning.addListener(updateSpeedometer);
+    routing = getIt<Routing>();
+    routing.addListener(updateLayout);
     ride = getIt<Ride>();
+    ride.addListener(updateLayout);
 
     updateSpeedometer();
   }
@@ -217,6 +232,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
 
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
 
+    final showAlert = routing.hadErrorDuringFetch;
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -257,6 +274,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
+                    if (showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: SpeedometerAlert(size: size),
+                        ),
+                      ),
                     Transform.translate(
                       offset: const Offset(0, 42),
                       child: GestureDetector(
@@ -292,15 +316,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            CustomPaint(
-                              painter: SpeedometerPredictionArcPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                                colors: gaugeColors,
-                                stops: gaugeStops,
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            if (!showAlert)
+                              CustomPaint(
+                                painter: SpeedometerPredictionArcPainter(
+                                  minSpeed: minSpeed,
+                                  maxSpeed: maxSpeed,
+                                  colors: gaugeColors,
+                                  stops: gaugeStops,
+                                  isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                ),
                               ),
-                            ),
                             CustomPaint(
                               painter: SpeedometerLabelsPainter(
                                 minSpeed: minSpeed,
@@ -311,33 +336,35 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         ),
                       ),
                     ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: Center(
-                        child: RideTrafficLightView(
-                          size: size,
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: RideTrafficLightView(
+                            size: size,
+                          ),
                         ),
                       ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: RideCenterButtonsView(
-                        size: size,
-                        onTapDanger: () {
-                          HapticFeedback.lightImpact();
-                          // Get the current snapped position.
-                          final snap = getIt<Positioning>().snap;
-                          if (snap == null) {
-                            log.w("Cannot report a danger without a current snapped position.");
-                            return;
-                          }
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: RideCenterButtonsView(
+                          size: size,
+                          onTapDanger: () {
+                            HapticFeedback.lightImpact();
+                            // Get the current snapped position.
+                            final snap = getIt<Positioning>().snap;
+                            if (snap == null) {
+                              log.w("Cannot report a danger without a current snapped position.");
+                              return;
+                            }
 
-                          final dangers = getIt<Dangers>();
-                          dangers.submitNew(snap);
-                          ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
-                        },
+                            final dangers = getIt<Dangers>();
+                            dangers.submitNew(snap);
+                            ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
+                          },
+                        ),
                       ),
-                    ),
                     IgnorePointer(
                       child: Transform.translate(
                         offset: const Offset(0, 42),
@@ -354,15 +381,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                       ),
                     ),
                     if (ride.userSelectedSG == null) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 62),
-                        child: BoldContent(
-                          text:
-                              "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
-                          context: context,
-                          color: Colors.white.withOpacity(0.8),
+                      if (!showAlert)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 62),
+                          child: BoldContent(
+                            text:
+                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                            context: context,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
                         ),
-                      ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
