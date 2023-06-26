@@ -123,6 +123,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   void dispose() {
     speedAnimationController.dispose();
     positioning.removeListener(updateSpeedometer);
+    routing.removeListener(updateLayout);
+    ride.removeListener(updateLayout);
     super.dispose();
   }
 

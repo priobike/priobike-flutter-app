@@ -157,6 +157,22 @@ class RideMapViewState extends State<RideMapView> {
     }
   }
 
+  /// Snap the location indicator to the start of the route.
+  Future<void> snapLocationIndicatorToRouteStart() async {
+    if (mapController == null) return;
+    final startPointLon = routing.selectedRoute!.route.first.lon;
+    final startPointLat = routing.selectedRoute!.route.first.lat;
+    final secondPointLon = routing.selectedRoute!.route[1].lon;
+    final secondPointLat = routing.selectedRoute!.route[1].lat;
+    final bearingStart = vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
+    final cameraOptions = mapbox.CameraOptions(
+      center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
+      zoom: 16,
+      bearing: bearingStart,
+    );
+    await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
+  }
+
   /// Adapt the map controller to a changed position.
   Future<void> adaptToChangedPosition() async {
     if (mapController == null) return;
@@ -170,19 +186,38 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
+    if (routing.hadErrorDuringFetch) {
+      // If there was an error during fetching, we don't have a route and thus also can't snap the position.
+      // We can only try to display the real user position.
+      if (userPos == null) {
+        await snapLocationIndicatorToRouteStart();
+        return;
+      }
+      mapController!.easeTo(
+          mapbox.CameraOptions(
+            center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
+            bearing: userPos.heading,
+            zoom: 16,
+            pitch: 60,
+          ),
+          mapbox.MapAnimationOptions(duration: 1500));
+      await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
+        if (value) {
+          mapController!.style.updateLayer(
+            mapbox.LocationIndicatorLayer(
+              id: userLocationLayerId,
+              bearing: userPos.heading,
+              location: [userPos.latitude, userPos.longitude, userPos.altitude],
+              accuracyRadius: userPos.accuracy,
+            ),
+          );
+        }
+      });
+      return;
+    }
+
     if (userPos == null || userPosSnap == null) {
-      final startPointLon = routing.selectedRoute!.route.first.lon;
-      final startPointLat = routing.selectedRoute!.route.first.lat;
-      final secondPointLon = routing.selectedRoute!.route[1].lon;
-      final secondPointLat = routing.selectedRoute!.route[1].lat;
-      final bearingStart =
-          vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
-      final cameraOptions = mapbox.CameraOptions(
-        center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
-        zoom: 16,
-        bearing: bearingStart,
-      );
-      await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
+      await snapLocationIndicatorToRouteStart();
       return;
     }
 

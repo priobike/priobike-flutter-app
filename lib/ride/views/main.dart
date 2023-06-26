@@ -42,6 +42,10 @@ class RideViewState extends State<RideView> {
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
 
+  /// A bool indicating whether we are currently requiring a reroute but it's not yet successful.
+  /// e.g. because we have an error or the user is outside of the cities boundary.
+  bool needsReroute = false;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -91,17 +95,20 @@ class RideViewState extends State<RideView> {
             await tracking.updatePosition();
 
             // If we are > <x>m from the route, we need to reroute.
-            if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance) {
+            if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
                 if (routes != null && routes.isNotEmpty) {
+                  needsReroute = false;
                   await ride.selectRoute(routes.first);
                   await positioning.selectRoute(routes.first);
                   await dangers.fetch(routes.first);
                   await tracking.selectRoute(routes.first);
+                  return;
                 }
+                needsReroute = true;
               });
             }
           },

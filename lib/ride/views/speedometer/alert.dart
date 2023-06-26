@@ -39,6 +39,7 @@ class SpeedometerAlert extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 2),
               child: const Icon(
                 Icons.warning_rounded,
+                color: Colors.white,
                 size: 30,
               ),
             ),
