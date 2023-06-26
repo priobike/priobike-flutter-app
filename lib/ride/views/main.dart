@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
@@ -43,6 +44,8 @@ class RideViewState extends State<RideView> {
   /// A bool indicating whether we are currently requiring a reroute but it's not yet successful.
   /// e.g. because we have an error or the user is outside of the cities boundary.
   bool needsReroute = false;
+
+  bool cameraFollowsUserLocation = true;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -183,6 +186,14 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  Future<void> onMapMoved() async {
+    if (cameraFollowsUserLocation) {
+      setState(() {
+        cameraFollowsUserLocation = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     settings.removeListener(update);
@@ -202,7 +213,10 @@ class RideViewState extends State<RideView> {
             alignment: Alignment.bottomCenter,
             clipBehavior: Clip.none,
             children: [
-              const RideMapView(),
+              RideMapView(
+                onMapMoved: onMapMoved,
+                cameraFollowUserLocation: cameraFollowsUserLocation,
+              ),
               if (settings.saveBatteryModeEnabled)
                 Positioned(
                   top: MediaQuery.of(context).size.height * 0.07,
@@ -223,6 +237,21 @@ class RideViewState extends State<RideView> {
                       size: 25,
                       color: CI.blue,
                     ),
+                  ),
+                ),
+              if (!cameraFollowsUserLocation)
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height * 0.45,
+                  child: BigButton(
+                    icon: Icons.navigation_rounded,
+                    iconColor: Colors.white,
+                    label: "Zentrieren",
+                    onPressed: () {
+                      setState(() {
+                        cameraFollowsUserLocation = true;
+                      });
+                    },
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.9),
                   ),
                 ),
               const RideSpeedometerView(),

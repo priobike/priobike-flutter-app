@@ -17,7 +17,11 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class RideMapView extends StatefulWidget {
-  const RideMapView({Key? key}) : super(key: key);
+  final Function onMapMoved;
+
+  final bool cameraFollowUserLocation;
+
+  const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -250,7 +254,7 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = userPosSnap.heading; // Look into the direction of the user.
     }
 
-    if (ride.userSelectedSG == null) {
+    if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
       mapController!.easeTo(
           mapbox.CameraOptions(
             center: mapbox.Point(
@@ -370,6 +374,11 @@ class RideMapViewState extends State<RideMapView> {
     onRideUpdate();
   }
 
+  /// A callback which is executed when the map is scrolled.
+  Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
+    widget.onMapMoved();
+  }
+
   @override
   Widget build(BuildContext context) {
     final frame = MediaQuery.of(context);
@@ -389,6 +398,7 @@ class RideMapViewState extends State<RideMapView> {
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
+      onMapScroll: onMapScroll,
       logoViewMargins: Point(20, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),

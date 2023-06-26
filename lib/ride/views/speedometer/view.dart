@@ -5,13 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/dangers/services/dangers.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
@@ -345,26 +342,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                           child: RideTrafficLightView(
                             size: size,
                           ),
-                        ),
-                      ),
-                    if (!showAlert)
-                      Transform.translate(
-                        offset: const Offset(0, 42),
-                        child: RideCenterButtonsView(
-                          size: size,
-                          onTapDanger: () {
-                            HapticFeedback.lightImpact();
-                            // Get the current snapped position.
-                            final snap = getIt<Positioning>().snap;
-                            if (snap == null) {
-                              log.w("Cannot report a danger without a current snapped position.");
-                              return;
-                            }
-
-                            final dangers = getIt<Dangers>();
-                            dangers.submitNew(snap);
-                            ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
-                          },
                         ),
                       ),
                     IgnorePointer(
