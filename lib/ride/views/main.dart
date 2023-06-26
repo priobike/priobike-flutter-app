@@ -100,15 +100,19 @@ class RideViewState extends State<RideView> {
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
                 final routes = await routing.loadRoutes();
-                if (routes != null && routes.isNotEmpty) {
-                  needsReroute = false;
-                  await ride.selectRoute(routes.first);
-                  await positioning.selectRoute(routes.first);
-                  await dangers.fetch(routes.first);
-                  await tracking.selectRoute(routes.first);
+
+                if (routes == null || routes.isEmpty) {
+                  // If we have no routes (e.g. because of routing error or because the user left the city boundaries),
+                  // we need to reroute in the future.
+                  needsReroute = true;
                   return;
                 }
-                needsReroute = true;
+
+                needsReroute = false;
+                await ride.selectRoute(routes.first);
+                await positioning.selectRoute(routes.first);
+                await dangers.fetch(routes.first);
+                await tracking.selectRoute(routes.first);
               });
             }
           },
