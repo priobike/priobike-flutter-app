@@ -188,7 +188,6 @@ class TrafficLightLayer {
 
   TrafficLightLayer(bool isDark) {
     final ride = getIt<Ride>();
-    final sgQuality = ride.predictionComponent?.prediction?.predictionQuality;
     String sgIcon;
     switch (ride.predictionComponent?.recommendation?.calcCurrentSignalPhase) {
       case Phase.green:
