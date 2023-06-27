@@ -161,7 +161,6 @@ class RideMapViewState extends State<RideMapView> {
         mapbox.CameraOptions(
           center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
           padding: mapbox.MbxEdgeInsets(bottom: 200, top: 0, left: 0, right: 0),
-          zoom: 16,
         ),
         mapbox.MapAnimationOptions(duration: 200),
       );
@@ -387,7 +386,6 @@ class RideMapViewState extends State<RideMapView> {
 
   /// A callback which is executed when the map is scrolled.
   Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
-    if (ride.userSelectedSG != null) ride.unselectSG();
     widget.onMapMoved();
   }
 

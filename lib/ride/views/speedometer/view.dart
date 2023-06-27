@@ -23,7 +23,10 @@ import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
-  const RideSpeedometerView({Key? key}) : super(key: key);
+  /// Height to puck bounding box.
+  final double puckHeight;
+
+  const RideSpeedometerView({Key? key, required this.puckHeight}) : super(key: key);
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
@@ -217,9 +220,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   @override
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
-    final displayHeight = MediaQuery.of(context).size.height;
-    final heightToPuck = displayHeight / 2;
-    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
 
     final originalSpeedometerHeight = MediaQuery.of(context).size.width;
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
@@ -264,7 +264,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
         SafeArea(
           bottom: true,
           child: SizedBox(
-            height: heightToPuckBoundingBox,
+            height: widget.puckHeight,
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(

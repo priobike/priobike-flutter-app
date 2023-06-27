@@ -207,6 +207,10 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
+    final displayHeight = MediaQuery.of(context).size.height;
+    final heightToPuck = displayHeight / 2;
+    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -241,28 +245,35 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              if (!cameraFollowsUserLocation)
-                Positioned(
-                  bottom: MediaQuery.of(context).size.height * 0.45,
-                  child: BigButton(
-                    icon: Icons.navigation_rounded,
-                    iconColor: Colors.white,
-                    fillColor: Theme.of(context).colorScheme.primary,
-                    label: "Zentrieren",
-                    elevation: 20,
-                    onPressed: () {
-                      final ride = getIt<Ride>();
-                      if (ride.userSelectedSG != null) ride.unselectSG();
-                      setState(() {
-                        cameraFollowsUserLocation = true;
-                      });
-                    },
-                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
-                  ),
-                ),
-              const RideSpeedometerView(),
+              RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               const DatastreamView(),
               const FinishRideButton(),
+              if (!cameraFollowsUserLocation)
+                SafeArea(
+                  bottom: true,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
+                          ? heightToPuckBoundingBox - 35
+                          : MediaQuery.of(context).size.width - 35,
+                    ),
+                    child: BigButton(
+                      icon: Icons.navigation_rounded,
+                      iconColor: Colors.white,
+                      fillColor: Theme.of(context).colorScheme.primary,
+                      label: "Zentrieren",
+                      elevation: 20,
+                      onPressed: () {
+                        final ride = getIt<Ride>();
+                        if (ride.userSelectedSG != null) ride.unselectSG();
+                        setState(() {
+                          cameraFollowsUserLocation = true;
+                        });
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
