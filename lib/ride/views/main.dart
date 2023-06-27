@@ -45,6 +45,7 @@ class RideViewState extends State<RideView> {
   /// e.g. because we have an error or the user is outside of the cities boundary.
   bool needsReroute = false;
 
+  /// A bool indicating whether the camera should follow the user location.
   bool cameraFollowsUserLocation = true;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
