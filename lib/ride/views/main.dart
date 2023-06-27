@@ -245,13 +245,15 @@ class RideViewState extends State<RideView> {
                   child: BigButton(
                     icon: Icons.navigation_rounded,
                     iconColor: Colors.white,
+                    fillColor: Theme.of(context).colorScheme.primary,
                     label: "Zentrieren",
+                    elevation: 20,
                     onPressed: () {
                       setState(() {
                         cameraFollowsUserLocation = true;
                       });
                     },
-                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.9),
+                    boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
                   ),
                 ),
               const RideSpeedometerView(),
