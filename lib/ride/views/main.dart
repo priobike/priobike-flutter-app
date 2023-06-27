@@ -186,6 +186,7 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  /// Called when the user moves the map.
   Future<void> onMapMoved() async {
     if (cameraFollowsUserLocation) {
       setState(() {
@@ -249,6 +250,8 @@ class RideViewState extends State<RideView> {
                     label: "Zentrieren",
                     elevation: 20,
                     onPressed: () {
+                      final ride = getIt<Ride>();
+                      if (ride.userSelectedSG != null) ride.unselectSG();
                       setState(() {
                         cameraFollowsUserLocation = true;
                       });

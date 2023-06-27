@@ -18,10 +18,13 @@ class TrafficLightsLayer {
   /// The ID of the Mapbox layer.
   static const layerId = "traffic-lights-icons";
 
+  /// The ID of the touch indicators Mapbox layer.
+  static const touchIndicatorsLayerId = "traffic-lights-touch-indicators";
+
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayer(bool isDark, {hideBehindPosition = false}) {
+  TrafficLightsLayer(bool isDark, {hideBehindPosition = false, showTouchIndicators = false}) {
     final showLabels = getIt<Settings>().sgLabelsMode == SGLabelsMode.enabled;
     final routing = getIt<Routing>();
     final userPosSnap = getIt<Positioning>().snap;
@@ -33,7 +36,7 @@ class TrafficLightsLayer {
       final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
       features.add(
         {
-          "id": "traffic-light",
+          "id": "traffic-light-$i", // Required for the click listener.
           "type": "Feature",
           "geometry": {
             "type": "Point",
@@ -45,6 +48,7 @@ class TrafficLightsLayer {
             "showLabels": showLabels,
             "distanceToSgOnRoute": distanceToSgOnRoute,
             "hideBehindPosition": hideBehindPosition,
+            "showTouchIndicators": showTouchIndicators,
           },
         },
       );
@@ -123,6 +127,42 @@ class TrafficLightsLayer {
             ""
           ]));
     }
+
+    final trafficLightTouchIndicatorsLayerExists = await mapController.style.styleLayerExists(touchIndicatorsLayerId);
+    if (!trafficLightTouchIndicatorsLayerExists) {
+      await mapController.style.addLayerAt(
+          mapbox.SymbolLayer(
+            sourceId: sourceId,
+            id: touchIndicatorsLayerId,
+            iconSize: iconSize,
+            iconAllowOverlap: true,
+            textAllowOverlap: true,
+            textIgnorePlacement: true,
+            iconOpacity: 0,
+          ),
+          mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(
+          touchIndicatorsLayerId,
+          'icon-image',
+          json.encode([
+            "case",
+            ["get", "isDark"],
+            "trafficlighttouchindicatordark",
+            "trafficlighttouchindicatorlight",
+          ]));
+      await mapController.style.setStyleLayerProperty(
+          touchIndicatorsLayerId,
+          'icon-opacity',
+          json.encode(
+            showAfter(zoom: 16, opacity: [
+              "case",
+              ["get", "showTouchIndicators"],
+              1,
+              0
+            ]),
+          ));
+    }
+
     return layerId;
   }
 
@@ -188,8 +228,7 @@ class TrafficLightLayer {
         break;
     }
     final sgPos = ride.userSelectedSG?.position ?? ride.calcCurrentSG?.position;
-    if (sgQuality == null || sgPos == null) return;
-    if (sgQuality < Ride.qualityThreshold) return;
+    if (sgPos == null) return;
 
     features.add(
       {

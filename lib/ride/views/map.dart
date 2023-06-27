@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -17,8 +18,10 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class RideMapView extends StatefulWidget {
+  /// Callback that is called when the map is moved by the user.
   final Function onMapMoved;
 
+  /// If the map should follow the user location.
   final bool cameraFollowUserLocation;
 
   const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
@@ -54,7 +57,7 @@ class RideMapViewState extends State<RideMapView> {
   bool? upcomingTrafficLightIsGreen;
 
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
-  var firstBaseMapLabelLayerIndex = 0;
+  int firstBaseMapLabelLayerIndex = 0;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -64,6 +67,7 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
+    TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
 
@@ -124,9 +128,10 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
+        .update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
   }
 
   /// Update the view with the current data.
@@ -135,9 +140,10 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
+        .update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
     await adaptToChangedPosition();
   }
 
@@ -154,6 +160,7 @@ class RideMapViewState extends State<RideMapView> {
       await mapController?.flyTo(
         mapbox.CameraOptions(
           center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+          padding: mapbox.MbxEdgeInsets(bottom: 200, top: 0, left: 0, right: 0),
           zoom: 16,
         ),
         mapbox.MapAnimationOptions(duration: 200),
@@ -359,11 +366,15 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 5, at: index);
+    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
+        .install(
+      mapController!,
+      iconSize: ppi / 5,
+      at: index,
+    );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
         .install(mapController!, iconSize: ppi / 5, at: index);
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
@@ -376,7 +387,54 @@ class RideMapViewState extends State<RideMapView> {
 
   /// A callback which is executed when the map is scrolled.
   Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
+    if (ride.userSelectedSG != null) ride.unselectSG();
     widget.onMapMoved();
+  }
+
+  /// A callback which is executed when a tap on the map is registered.
+  /// This also resolves if a certain feature is being tapped on. This function
+  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
+  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
+  Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
+    if (mapController == null || !mounted) return;
+    if (widget.cameraFollowUserLocation) return;
+
+    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
+    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
+    // fixed in an upcoming version we need to remove this conversion.
+    final mapbox.ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
+      mapbox.Point(
+        coordinates: mapbox.Position(
+          screenCoordinate.y,
+          screenCoordinate.x,
+        ),
+      ).toJson(),
+    );
+
+    final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+      mapbox.RenderedQueryGeometry(
+        value: json.encode(actualScreenCoordinate.encode()),
+        type: mapbox.Type.SCREEN_COORDINATE,
+      ),
+      mapbox.RenderedQueryOptions(
+        layerIds: [TrafficLightsLayer.layerId, TrafficLightsLayer.touchIndicatorsLayerId],
+      ),
+    );
+
+    if (features.isNotEmpty) {
+      onFeatureTapped(features[0]!);
+    }
+  }
+
+  /// A callback that is called when the user taps a feature.
+  onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
+    // Map the id of the layer to the corresponding feature.
+    final id = queriedFeature.feature['id'];
+    if ((id as String).startsWith("traffic-light-")) {
+      final sgIdx = int.tryParse(id.split("-")[2]);
+      if (sgIdx == null) return;
+      ride.userSelectSG(sgIdx);
+    }
   }
 
   @override
@@ -399,6 +457,7 @@ class RideMapViewState extends State<RideMapView> {
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
       onMapScroll: onMapScroll,
+      onMapTap: onMapTap,
       logoViewMargins: Point(20, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
