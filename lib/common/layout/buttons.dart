@@ -128,6 +128,9 @@ class BigButton extends StatelessWidget {
   /// The constraints to define a specific size for the button.
   final BoxConstraints boxConstraints;
 
+  /// The optional elevation of the button.
+  final double elevation;
+
   const BigButton({
     Key? key,
     this.icon,
@@ -137,6 +140,7 @@ class BigButton extends StatelessWidget {
     this.splashColor,
     this.iconColor,
     this.boxConstraints = const BoxConstraints(minWidth: 88.0, minHeight: 36.0),
+    this.elevation = 0,
   }) : super(key: key);
 
   @override
@@ -146,7 +150,7 @@ class BigButton extends StatelessWidget {
       splashColor: splashColor ?? Theme.of(context).colorScheme.secondary,
       constraints: boxConstraints,
       // Hide ugly material shadows.
-      elevation: 0,
+      elevation: elevation,
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,

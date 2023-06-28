@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
@@ -43,6 +44,9 @@ class RideViewState extends State<RideView> {
   /// A bool indicating whether we are currently requiring a reroute but it's not yet successful.
   /// e.g. because we have an error or the user is outside of the cities boundary.
   bool needsReroute = false;
+
+  /// A bool indicating whether the camera should follow the user location.
+  bool cameraFollowsUserLocation = true;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -183,6 +187,15 @@ class RideViewState extends State<RideView> {
     );
   }
 
+  /// Called when the user moves the map.
+  Future<void> onMapMoved() async {
+    if (cameraFollowsUserLocation) {
+      setState(() {
+        cameraFollowsUserLocation = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     settings.removeListener(update);
@@ -194,6 +207,10 @@ class RideViewState extends State<RideView> {
     // Keep the device active during navigation.
     Wakelock.enable();
 
+    final displayHeight = MediaQuery.of(context).size.height;
+    final heightToPuck = displayHeight / 2;
+    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -202,7 +219,10 @@ class RideViewState extends State<RideView> {
             alignment: Alignment.bottomCenter,
             clipBehavior: Clip.none,
             children: [
-              const RideMapView(),
+              RideMapView(
+                onMapMoved: onMapMoved,
+                cameraFollowUserLocation: cameraFollowsUserLocation,
+              ),
               if (settings.saveBatteryModeEnabled)
                 Positioned(
                   top: MediaQuery.of(context).size.height * 0.07,
@@ -225,9 +245,35 @@ class RideViewState extends State<RideView> {
                     ),
                   ),
                 ),
-              const RideSpeedometerView(),
+              RideSpeedometerView(puckHeight: heightToPuckBoundingBox),
               const DatastreamView(),
               const FinishRideButton(),
+              if (!cameraFollowsUserLocation)
+                SafeArea(
+                  bottom: true,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
+                          ? heightToPuckBoundingBox - 35
+                          : MediaQuery.of(context).size.width - 35,
+                    ),
+                    child: BigButton(
+                      icon: Icons.navigation_rounded,
+                      iconColor: Colors.white,
+                      fillColor: Theme.of(context).colorScheme.primary,
+                      label: "Zentrieren",
+                      elevation: 20,
+                      onPressed: () {
+                        final ride = getIt<Ride>();
+                        if (ride.userSelectedSG != null) ride.unselectSG();
+                        setState(() {
+                          cameraFollowsUserLocation = true;
+                        });
+                      },
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

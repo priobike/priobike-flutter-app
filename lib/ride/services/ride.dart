@@ -102,6 +102,16 @@ class Ride with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Select SG with specific index in the list of SGs.
+  void userSelectSG(int sgIndex) {
+    if (route == null) return;
+    if (route!.signalGroups.isEmpty) return;
+    userSelectedSGIndex = sgIndex;
+    userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
+    selectSG(userSelectedSG);
+    notifyListeners();
+  }
+
   /// Unselect the current signal group.
   void unselectSG() {
     if (userSelectedSG == null) return;
