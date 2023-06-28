@@ -128,8 +128,7 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
-        .update(mapController!);
+    await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
   }
@@ -140,8 +139,7 @@ class RideMapViewState extends State<RideMapView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
-        .update(mapController!);
+    await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
     await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
     await adaptToChangedPosition();
@@ -353,8 +351,7 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: false, showTouchIndicators: !widget.cameraFollowUserLocation)
-        .install(
+    await TrafficLightsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 5,
       at: index,
@@ -383,7 +380,6 @@ class RideMapViewState extends State<RideMapView> {
   /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
   Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
     if (mapController == null || !mounted) return;
-    if (widget.cameraFollowUserLocation) return;
 
     // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
     // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
@@ -421,8 +417,13 @@ class RideMapViewState extends State<RideMapView> {
       if (sgIdx == null) return;
       ride.userSelectSG(sgIdx);
       if (ride.userSelectedSG != null) {
+        if (mapController == null) return;
+        if (widget.cameraFollowUserLocation) widget.onMapMoved();
         // The camera target is the selected SG.
         final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
+        if (!mounted) return;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        await TrafficLightLayer(isDark).update(mapController!);
         await mapController?.flyTo(
           mapbox.CameraOptions(
             center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),

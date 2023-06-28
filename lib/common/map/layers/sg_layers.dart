@@ -24,7 +24,7 @@ class TrafficLightsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  TrafficLightsLayer(bool isDark, {hideBehindPosition = false, showTouchIndicators = false}) {
+  TrafficLightsLayer(bool isDark, {hideBehindPosition = false}) {
     final showLabels = getIt<Settings>().sgLabelsMode == SGLabelsMode.enabled;
     final routing = getIt<Routing>();
     final userPosSnap = getIt<Positioning>().snap;
@@ -34,6 +34,13 @@ class TrafficLightsLayer {
       final sgDistanceOnRoute = routing.selectedRoute!.signalGroupsDistancesOnRoute[i];
       // Clamp the value to not unnecessarily update the source.
       final distanceToSgOnRoute = max(-5, min(0, sgDistanceOnRoute - (userPosSnap?.distanceOnRoute ?? 0)));
+      bool showTouchIndicator = true;
+      final ride = getIt<Ride>();
+      if (ride.userSelectedSG != null) {
+        showTouchIndicator = ride.userSelectedSG!.id != sg.id;
+      } else if (ride.calcCurrentSG != null) {
+        showTouchIndicator = ride.calcCurrentSG!.id != sg.id;
+      }
       features.add(
         {
           "id": "traffic-light-$i", // Required for the click listener.
@@ -48,7 +55,7 @@ class TrafficLightsLayer {
             "showLabels": showLabels,
             "distanceToSgOnRoute": distanceToSgOnRoute,
             "hideBehindPosition": hideBehindPosition,
-            "showTouchIndicators": showTouchIndicators,
+            "showTouchIndicators": showTouchIndicator,
           },
         },
       );
