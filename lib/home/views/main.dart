@@ -7,8 +7,6 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
@@ -18,13 +16,9 @@ import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
 import 'package:priobike/home/views/survey.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -197,23 +191,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    if (shortcut.runtimeType == ShortcutRoute) {
-      routing.selectWaypoints(List.from((shortcut as ShortcutRoute).waypoints));
+    bool success = await shortcut.onClick(context);
+    if (success) {
       pushRoutingView();
-    } else {
-      Positioning positioning = getIt<Positioning>();
-      await positioning.requestSingleLocation(onNoPermission: () {
-        showLocationAccessDeniedDialog(context, positioning.positionSource);
-      });
-      if (positioning.lastPosition != null) {
-        routing.selectWaypoints([
-          Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
-          (shortcut as ShortcutLocation).waypoint
-        ]);
-        pushRoutingView();
-      } else {
-        ToastMessage.showError("Route konnte nicht geladen werden.");
-      }
     }
   }
 

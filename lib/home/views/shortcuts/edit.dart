@@ -499,8 +499,12 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     (entry) {
                       if (entry.value.runtimeType == ShortcutRoute) {
                         return shortcutRouteListItem(entry.value as ShortcutRoute, entry.key);
-                      } else {
+                      } else if (entry.value.runtimeType == ShortcutLocation) {
                         return shortcutLocationListItem(entry.value as ShortcutLocation, entry.key);
+                      } else {
+                        final hint = "Error unknown type ${entry.value.runtimeType} in ReorderableListView.";
+                        log.e(hint);
+                        return Container();
                       }
                     },
                   ).toList(),

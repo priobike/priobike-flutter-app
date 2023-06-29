@@ -182,15 +182,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
     routing.addListener(update);
   }
 
-  bool _checkRouteToBeLoaded(Shortcut shortcut) {
-    if (shortcut.runtimeType == ShortcutRoute) {
-      return routing.selectedWaypoints == (shortcut as ShortcutRoute).waypoints;
-    } else {
-      // FIXME
-      return false;
-    }
-  }
-
   @override
   void dispose() {
     shortcuts.removeListener(update);
@@ -240,7 +231,7 @@ class ShortcutsViewState extends State<ShortcutsView> {
                     await widget.onSelectShortcut(shortcut);
                   }
                 },
-                isLoading: _checkRouteToBeLoaded(shortcut) && routing.isFetchingRoute,
+                isLoading: shortcut.isUsedInRouting() && routing.isFetchingRoute,
                 shortcut: shortcut,
                 width: shortcutWidth,
                 height: shortcutHeight,

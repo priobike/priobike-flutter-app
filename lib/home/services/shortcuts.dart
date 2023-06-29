@@ -74,9 +74,12 @@ class Shortcuts with ChangeNotifier {
     if (foundShortcut.runtimeType == ShortcutRoute) {
       // update name.
       shortcuts![idx] = ShortcutRoute(name: name, waypoints: (foundShortcut as ShortcutRoute).waypoints);
-    } else {
+    } else if (foundShortcut.runtimeType == ShortcutLocation) {
       // update name.
       shortcuts![idx] = ShortcutLocation(name: name, waypoint: (foundShortcut as ShortcutLocation).waypoint);
+    } else {
+      final hint = "Error unknown type ${foundShortcut.runtimeType} in updateShortcutName.";
+      log.e(hint);
     }
 
     await storeShortcuts();
@@ -92,8 +95,11 @@ class Shortcuts with ChangeNotifier {
 
     if (shortcut.runtimeType == ShortcutRoute) {
       ToastMessage.showSuccess("Route gespeichert!");
-    } else {
+    } else if (shortcut.runtimeType == ShortcutLocation) {
       ToastMessage.showSuccess("Ort gespeichert!");
+    } else {
+      final hint = "Error unknown type ${shortcut.runtimeType} in saveNewShortcutObject.";
+      log.e(hint);
     }
     notifyListeners();
   }

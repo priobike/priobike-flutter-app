@@ -153,8 +153,9 @@ extension BackendShortcuts on Backend {
       case Backend.production:
         return [
           ShortcutLocation(
-            name: "Location test",
-            waypoint: Waypoint(53.560863, 9.990909, address: "Theodor-Heuss-Platz, Hamburg"),
+            name: "Elbphilharmonie",
+            waypoint: Waypoint(53.5415701077766, 9.984275605794686,
+                address: "Elbphilharmonie Hamburg, Platz der Deutschen Einheit, Hamburg"),
           ),
           ShortcutRoute(
             name: "Edmund-S.-Allee Ost ➔ West",

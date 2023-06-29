@@ -1,13 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/routing.dart';
 
 /// The shortcut represents a saved route with a name.
 class ShortcutRoute implements Shortcut {
   /// The name of the shortcut.
   @override
-  String name;
+  final String name;
 
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
@@ -67,7 +69,7 @@ class ShortcutRoute implements Shortcut {
     return true;
   }
 
-  /// Get the linebreaked name of the shortcut. The name is split into at most 2 lines, by a limit of 15 characters.
+  /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
   @override
   String get linebreakedName {
     var result = name;
@@ -85,5 +87,16 @@ class ShortcutRoute implements Shortcut {
       }
     }
     return result;
+  }
+
+  @override
+  bool isUsedInRouting() {
+    return getIt<Routing>().selectedWaypoints == waypoints;
+  }
+
+  @override
+  Future<bool> onClick(BuildContext context) async {
+    await getIt<Routing>().selectWaypoints(List.from(waypoints));
+    return true;
   }
 }
