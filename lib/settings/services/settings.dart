@@ -391,7 +391,7 @@ class Settings with ChangeNotifier {
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
-    this.enableGamification = defaultEnableGamification
+    this.enableGamification = defaultEnableGamification,
   });
 
   /// Load the backend from the shared
@@ -412,7 +412,9 @@ class Settings with ChangeNotifier {
   Future<void> loadBetaSettings(SharedPreferences storage) async {
     try {
       routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the internal settings from the shared preferences.
