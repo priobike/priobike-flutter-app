@@ -192,9 +192,9 @@ class Track {
       'activityType': activityType?.name,
       'routes': routes.entries
           .map((e) => {
-        'time': e.key,
-        'route': e.value.toJson(),
-      })
+                'time': e.key,
+                'route': e.value.toJson(),
+              })
           .toList(),
     };
   }
@@ -224,14 +224,13 @@ class Track {
             .map((e) => PredictionServicePrediction.fromJson(e))
             .toList(),
         predictorPredictions:
-        (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
+            (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
         selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
         bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
         preferenceType: json['preferenceType'] == null ? null : PreferenceType.values.byName(json['preferenceType']),
         activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
         routes: Map.fromEntries(
             (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
-        canUseGamification: json['canUseGamification']
-    );
+        canUseGamification: json['canUseGamification']);
   }
 }
