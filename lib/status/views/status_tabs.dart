@@ -21,6 +21,8 @@ extension StatusHistoryTimeName on StatusHistoryTime {
 }
 
 /// Source: https://stackoverflow.com/questions/54522980/flutter-adjust-height-of-pageview-horizontal-listview-based-on-current-child/65332810#65332810
+/// License: CC BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
+/// Authors: [Andrzej Chmielewski](https://stackoverflow.com/users/4838100/andrzej-chmielewski) and [LP Square](https://stackoverflow.com/users/10568272/lp-square)
 class ExpandablePageView extends StatefulWidget {
   /// List of the Widgets that will be displayed in the pageView.
   final List<Widget> children;
