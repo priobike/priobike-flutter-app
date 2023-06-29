@@ -218,6 +218,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     callback: () => getIt<Settings>().setDismissedSurvey(false),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Gamification",
+                    icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setEnableGamification(!settings.enableGamification),
+                  ),
+                ),
                 const SmallVSpace(),
               ],
             ),
