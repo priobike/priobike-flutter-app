@@ -342,6 +342,7 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
+      // Place RepaintBoundary here to prevent unnecessary repainting.
       child: RepaintBoundary(
         child: CustomPaint(
           painter: StatusHistoryPainter(

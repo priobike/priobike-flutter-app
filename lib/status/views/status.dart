@@ -93,11 +93,9 @@ class StatusViewState extends State<StatusView> {
         shadow: isProblem ? CI.red : Colors.black,
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SGStatusMapView())),
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: BoldSmall(text: "Jetzt", context: context),
-            ),
+            BoldSmall(text: "Jetzt", context: context),
             const SmallVSpace(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
