@@ -67,6 +67,9 @@ class Track {
   /// The build number of the app.
   String buildNumber;
 
+  /// The branch of the current version app.
+  String subVersion;
+
   /// The prediction status summary before the ride.
   /// This can be used to determine tracks with bad prediction quality
   /// and tracks with good prediction quality.
@@ -155,6 +158,7 @@ class Track {
     required this.preferenceType,
     required this.activityType,
     required this.routes,
+    required this.subVersion,
   });
 
   /// Convert the track to a json object.
@@ -174,6 +178,7 @@ class Track {
       'deviceHeight': deviceHeight,
       'appVersion': appVersion,
       'buildNumber': buildNumber,
+      'subVersion': subVersion,
       'statusSummary': statusSummary.toJsonCamelCase(),
       'taps': taps.map((e) => e.toJson()).toList(),
       'predictionServicePredictions': predictionServicePredictions.map((e) => e.toJson()).toList(),
@@ -223,6 +228,7 @@ class Track {
       activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
       routes: Map.fromEntries(
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
+      subVersion: json['subVersion'],
     );
   }
 }

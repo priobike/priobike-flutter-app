@@ -20,6 +20,7 @@ import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/tracking.dart';
+import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/models/track.dart';
@@ -210,6 +211,7 @@ class Tracking with ChangeNotifier {
     final profile = getIt<Profile>();
 
     try {
+      Feature feature = getIt<Feature>();
       track = Track(
         uploaded: false,
         hasFileData: true,
@@ -234,6 +236,7 @@ class Tracking with ChangeNotifier {
         preferenceType: profile.preferenceType,
         activityType: profile.activityType,
         routes: {startTime: routing.selectedRoute!},
+        subVersion: feature.gitHead.replaceAll("ref: refs/heads/", "")
       );
       // Add the track to the list of previous tracks and save it.
       previousTracks!.add(track!);
