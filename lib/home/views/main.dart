@@ -323,15 +323,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   ),
                   const SizedBox(height: 48),
                   if (settings.enableGamification)
-                    Column(
-                      children: const [
-                        BlendIn(
-                          delay: Duration(milliseconds: 1000),
-                          child: TotalStatisticsView(),
-                        ),
-                        SizedBox(height: 48),
-                      ]
-                    ),
+                    Column(children: const [
+                      BlendIn(
+                        delay: Duration(milliseconds: 1000),
+                        child: TotalStatisticsView(),
+                      ),
+                      SizedBox(height: 48),
+                    ]),
                   const VSpace(),
                   Container(
                     width: double.infinity,
