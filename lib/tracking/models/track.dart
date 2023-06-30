@@ -101,6 +101,12 @@ class Track {
   /// Otherwise we can identify the time when the route was recalculated.
   Map<int, Route> routes;
 
+  /// Until the new gamification concept is implemented, this value should remain hardcoded to false.
+  /// This flag can be used to find out whether the original gamification concept was used in the corresponding track.
+  /// (If the flag doesn't exist it means that it was still active during the ride)
+  /// After the gamification concept is implemented the flag has to be set to true.
+  bool canUseGamification;
+
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -155,6 +161,7 @@ class Track {
     required this.preferenceType,
     required this.activityType,
     required this.routes,
+    this.canUseGamification = false,
   });
 
   /// Convert the track to a json object.
@@ -174,6 +181,7 @@ class Track {
       'deviceHeight': deviceHeight,
       'appVersion': appVersion,
       'buildNumber': buildNumber,
+      'canUseGamification': canUseGamification,
       'statusSummary': statusSummary.toJsonCamelCase(),
       'taps': taps.map((e) => e.toJson()).toList(),
       'predictionServicePredictions': predictionServicePredictions.map((e) => e.toJson()).toList(),
@@ -194,35 +202,35 @@ class Track {
   /// Create a track from a json object.
   factory Track.fromJson(Map<String, dynamic> json) {
     return Track(
-      uploaded: json['uploaded'],
-      // If the track was stored before we added the hasFileData field,
-      // we assume that the track has file data to clean it up.
-      hasFileData: json['hasFileData'] ?? true,
-      startTime: json['startTime'],
-      endTime: json['endTime'],
-      debug: json['debug'],
-      backend: Backend.values.byName(json['backend']),
-      positioningMode: PositioningMode.values.byName(json['positioningMode']),
-      userId: json['userId'],
-      sessionId: json['sessionId'],
-      deviceType: json['deviceType'],
-      deviceWidth: json['deviceWidth'],
-      deviceHeight: json['deviceHeight'],
-      appVersion: json['appVersion'],
-      buildNumber: json['buildNumber'],
-      statusSummary: StatusSummaryData.fromJsonCamelCase(json['statusSummary']),
-      taps: (json['taps'] as List<dynamic>).map((e) => ScreenTrack.fromJson(e)).toList(),
-      predictionServicePredictions: (json['predictionServicePredictions'] as List<dynamic>)
-          .map((e) => PredictionServicePrediction.fromJson(e))
-          .toList(),
-      predictorPredictions:
-          (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
-      selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
-      bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
-      preferenceType: json['preferenceType'] == null ? null : PreferenceType.values.byName(json['preferenceType']),
-      activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
-      routes: Map.fromEntries(
-          (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
-    );
+        uploaded: json['uploaded'],
+        // If the track was stored before we added the hasFileData field,
+        // we assume that the track has file data to clean it up.
+        hasFileData: json['hasFileData'] ?? true,
+        startTime: json['startTime'],
+        endTime: json['endTime'],
+        debug: json['debug'],
+        backend: Backend.values.byName(json['backend']),
+        positioningMode: PositioningMode.values.byName(json['positioningMode']),
+        userId: json['userId'],
+        sessionId: json['sessionId'],
+        deviceType: json['deviceType'],
+        deviceWidth: json['deviceWidth'],
+        deviceHeight: json['deviceHeight'],
+        appVersion: json['appVersion'],
+        buildNumber: json['buildNumber'],
+        statusSummary: StatusSummaryData.fromJsonCamelCase(json['statusSummary']),
+        taps: (json['taps'] as List<dynamic>).map((e) => ScreenTrack.fromJson(e)).toList(),
+        predictionServicePredictions: (json['predictionServicePredictions'] as List<dynamic>)
+            .map((e) => PredictionServicePrediction.fromJson(e))
+            .toList(),
+        predictorPredictions:
+            (json['predictorPredictions'] as List<dynamic>).map((e) => PredictorPrediction.fromJson(e)).toList(),
+        selectedWaypoints: (json['selectedWaypoints'] as List<dynamic>).map((e) => Waypoint.fromJson(e)).toList(),
+        bikeType: json['bikeType'] == null ? null : BikeType.values.byName(json['bikeType']),
+        preferenceType: json['preferenceType'] == null ? null : PreferenceType.values.byName(json['preferenceType']),
+        activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
+        routes: Map.fromEntries(
+            (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
+        canUseGamification: json['canUseGamification']);
   }
 }

@@ -65,6 +65,9 @@ class Settings with ChangeNotifier {
   /// If the save battery mode is enabled.
   bool dismissedSurvey;
 
+  /// Enable "old" gamification for app
+  bool enableGamification;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -354,6 +357,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const enableGamificationKey = "priobike.settings.enableGamification";
+  static const defaultEnableGamification = false;
+
+  Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableGamification;
+    this.enableGamification = enableGamification;
+    bool success = await storage.setBool(enableGamificationKey, enableGamification);
+    if (!success) {
+      log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
+      this.enableGamification = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
@@ -371,6 +391,7 @@ class Settings with ChangeNotifier {
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
+    this.enableGamification = defaultEnableGamification,
   });
 
   /// Load the backend from the shared
@@ -391,7 +412,9 @@ class Settings with ChangeNotifier {
   Future<void> loadBetaSettings(SharedPreferences storage) async {
     try {
       routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the internal settings from the shared preferences.
@@ -429,6 +452,8 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+
+    enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
   }
 
   /// Load the stored settings.
@@ -495,5 +520,6 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
+        "enableGamification": enableGamification
       };
 }
