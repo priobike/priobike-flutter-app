@@ -63,7 +63,7 @@ class TrafficLightsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -169,8 +169,6 @@ class TrafficLightsLayer {
             ]),
           ));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -251,7 +249,7 @@ class TrafficLightLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -275,8 +273,6 @@ class TrafficLightLayer {
           mapbox.LayerPosition(at: at));
       await mapController.style.setStyleLayerProperty(layerId, 'icon-image', json.encode(["get", "sgIcon"]));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -331,7 +327,7 @@ class OfflineCrossingsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 1.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -402,8 +398,6 @@ class OfflineCrossingsLayer {
             ""
           ]));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).

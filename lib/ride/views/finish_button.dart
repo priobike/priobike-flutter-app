@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/views/main.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
@@ -120,10 +119,6 @@ class FinishRideButtonState extends State<FinishRideButton> {
                 // Reset the prediction sg status.
                 final predictionSGStatus = getIt<PredictionSGStatus>();
                 await predictionSGStatus.reset();
-
-                // Reset the dangers.
-                final dangers = getIt<Dangers>();
-                await dangers.reset();
 
                 if (context.mounted) {
                   // Leave the feedback view.

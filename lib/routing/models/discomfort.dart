@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:priobike/routing/messages/graphhopper.dart';
 
 class DiscomfortSegment {
   /// A random unique id for this route.
   late String id;
-
-  /// The segment of this discomfort.
-  final GHSegment segment;
 
   /// The localized description of this discomfort.
   final String description;
@@ -17,7 +13,14 @@ class DiscomfortSegment {
   /// Otherwise, this will be interpreted as a point.
   final List<LatLng> coordinates;
 
-  DiscomfortSegment({String? id, required this.segment, required this.description, required this.coordinates}) {
+  /// The distance where the segment is on the route.
+  final double distanceOnRoute;
+
+  /// The weight/trust value of the discomfort.
+  final int? weight;
+
+  DiscomfortSegment(
+      {String? id, required this.description, required this.coordinates, required this.distanceOnRoute, this.weight}) {
     if (id == null) {
       this.id = UniqueKey().toString();
     } else {
@@ -33,15 +36,17 @@ class DiscomfortSegment {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'segment': segment.toJson(),
         'description': description,
         'coordinates': coordinates.map((e) => <double>[e.latitude, e.longitude]).toList(),
+        'distanceOnRoute': distanceOnRoute,
+        'weight': weight,
       };
 
   factory DiscomfortSegment.fromJson(dynamic json) => DiscomfortSegment(
         id: json['id'],
-        segment: GHSegment.fromJson(json['segment']),
         description: json['description'],
         coordinates: (json['coordinates'] as List).map((e) => LatLng(e[0], e[1])).toList(),
+        distanceOnRoute: json['distanceOnRoute'],
+        weight: json['weight'],
       );
 }

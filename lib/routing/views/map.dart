@@ -125,7 +125,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     DiscomfortsLayer.layerId,
-    DiscomfortsLayer.layerIdClick,
     DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
@@ -678,7 +677,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: [AllRoutesLayer.layerIdClick, DiscomfortsLayer.layerIdClick, RouteLabelLayer.layerId],
+        layerIds: [AllRoutesLayer.layerIdClick, RouteLabelLayer.layerId],
       ),
     );
 

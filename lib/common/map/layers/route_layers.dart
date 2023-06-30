@@ -46,7 +46,7 @@ class AllRoutesLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(
+  Future<void> install(
     mapbox.MapboxMap mapController, {
     lineWidth = 9.0,
     clickLineWidth = 25.0,
@@ -86,8 +86,6 @@ class AllRoutesLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -152,7 +150,7 @@ class SelectedRouteLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -188,7 +186,6 @@ class SelectedRouteLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
-    return layerId;
   }
 
   update(mapbox.MapboxMap mapController, {String? below}) async {
@@ -257,7 +254,7 @@ class RouteLabelLayer {
   }
 
   /// Install the overlay on the layer controller.
-  Future<String> install(
+  Future<void> install(
     mapbox.MapboxMap mapController, {
     iconSize = 0.4,
     textSize = 14.0,
@@ -310,8 +307,6 @@ class RouteLabelLayer {
             showAfter(zoom: 10),
           ));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -370,9 +365,6 @@ class DiscomfortsLayer {
   /// The ID of the main Mapbox layer.
   static const layerId = "discomforts-layer";
 
-  /// The ID of the click Mapbox layer.
-  static const layerIdClick = "discomforts-clicklayer";
-
   /// The ID of the marker Mapbox layer.
   static const layerIdMarker = "discomforts-markers";
 
@@ -401,12 +393,11 @@ class DiscomfortsLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(
+  /// Install the overlay on the map controller.
+  Future<void> install(
     mapbox.MapboxMap mapController, {
     iconSize = 0.25,
-    lineWidth = 7.0,
-    clickWidth = 35.0,
+    lineWidth = 3.0,
     at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
@@ -446,20 +437,6 @@ class DiscomfortsLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
-    final discomfortsClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
-    if (!discomfortsClickLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerIdClick,
-            lineColor: Colors.pink.value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineWidth: clickWidth,
-            lineOpacity: 0.001,
-          ),
-          mapbox.LayerPosition(at: at));
-    }
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -503,7 +480,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -535,8 +512,6 @@ class WaypointsLayer {
             "waypoint",
           ]));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the layer controller (without updating the layers).
