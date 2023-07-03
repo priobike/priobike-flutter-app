@@ -529,10 +529,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
       routing.switchToRoute(routeIdx);
-    } else if (id.startsWith("discomfort-")) {
-      final discomfortIdx = int.tryParse(id.split("-")[1]);
-      if (discomfortIdx == null) return;
-      discomforts.selectDiscomfort(discomfortIdx);
     } else if (id.startsWith("routeLabel-")) {
       final routeLabelIdx = int.tryParse(id.split("-")[1]);
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {

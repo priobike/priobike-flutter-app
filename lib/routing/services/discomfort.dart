@@ -24,22 +24,13 @@ class Discomforts with ChangeNotifier {
   /// The found discomforts.
   List<DiscomfortSegment>? foundDiscomforts;
 
-  /// The currently selected discomfort.
-  DiscomfortSegment? selectedDiscomfort;
-
-  /// The signal group clicked.
-  bool trafficLightClicked = false;
-
   Discomforts({
     this.foundDiscomforts,
-    this.selectedDiscomfort,
   });
 
   // Reset the discomfort service.
   Future<void> reset() async {
     foundDiscomforts = null;
-    selectedDiscomfort = null;
-    trafficLightClicked = false;
     notifyListeners();
   }
 
@@ -66,7 +57,7 @@ class Discomforts with ChangeNotifier {
           for (final point in danger["coordinates"]) {
             coordinates.add(LatLng(point[1], point[0]));
           }
-          const description = "Von Nutzenden gemeldete Gefahrenstelle.";
+          const description = "Von Nutzenden gemeldete Gefahrenstelle";
           final snapper = Snapper(nodes: route.route, position: coordinates[0]);
           userReportedDangerSpots.add(DiscomfortSegment(
             description: description,
@@ -82,32 +73,6 @@ class Discomforts with ChangeNotifier {
       log.e(hint);
     }
     return [];
-  }
-
-  /// Select a discomfort.
-  selectDiscomfort(int idx) {
-    if (foundDiscomforts == null) return;
-    if (idx < 0 || idx >= foundDiscomforts!.length) return;
-    selectedDiscomfort = foundDiscomforts![idx];
-    super.notifyListeners();
-  }
-
-  /// Unselect a discomfort.
-  unselectDiscomfort() {
-    selectedDiscomfort = null;
-    super.notifyListeners();
-  }
-
-  /// Select a signalGroup.
-  selectTrafficLight() {
-    trafficLightClicked = true;
-    super.notifyListeners();
-  }
-
-  /// Unselect a signalGroup.
-  unselectTrafficLight() {
-    trafficLightClicked = false;
-    super.notifyListeners();
   }
 
   /// Get the coordinates for a given segment.

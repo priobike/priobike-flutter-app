@@ -33,6 +33,7 @@ class SymbolLoader {
     await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
 
     await add("alert", "assets/images/alert.drawio.png", 104, 104);
+    await add("dangerspot", "assets/images/dangerspot.png", 400, 400);
     await add("start", "assets/images/start.drawio.png", 83, 83);
     await add("destination", "assets/images/destination.drawio.png", 84, 84);
     await add("waypoint", "assets/images/waypoint.drawio.png", 84, 84);

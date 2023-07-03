@@ -385,7 +385,7 @@ class DiscomfortsLayer {
           "id": "discomfort-${e.key}", // Required for click listener.
           "type": "Feature",
           "properties": {
-            "number": e.key + 1,
+            "description": e.value.description,
           },
           "geometry": geometry,
         },
@@ -411,18 +411,41 @@ class DiscomfortsLayer {
     final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
     if (!discomfortsMarkersExist) {
       await mapController.style.addLayerAt(
-          mapbox.SymbolLayer(
-            sourceId: sourceId,
-            id: layerIdMarker,
-            iconImage: "alert",
-            iconSize: iconSize,
-            iconAllowOverlap: true,
-            textSize: 12,
-            textAllowOverlap: true,
-            textIgnorePlacement: true,
-          ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "number"]));
+        mapbox.SymbolLayer(
+          sourceId: sourceId,
+          id: layerIdMarker,
+          iconImage: "dangerspot",
+          iconSize: iconSize,
+          iconAllowOverlap: true,
+          iconOpacity: 0,
+          textHaloColor: const Color(0xFF000000).value,
+          textHaloWidth: 0.2,
+          textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          textSize: 12,
+          textAnchor: mapbox.TextAnchor.CENTER,
+          textColor: const Color(0xFFFFFFFF).value,
+          textAllowOverlap: true,
+          textOpacity: 0,
+        ),
+        mapbox.LayerPosition(at: at),
+      );
+      await mapController.style.setStyleLayerProperty(
+          layerIdMarker,
+          'icon-opacity',
+          json.encode(
+            showAfter(zoom: 15),
+          ));
+      await mapController.style.setStyleLayerProperty(
+          layerIdMarker,
+          'text-offset',
+          json.encode(
+            [
+              "literal",
+              [0, 2]
+            ],
+          ));
+      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "description"]));
+      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-opacity', json.encode(showAfter(zoom: 17)));
     }
     final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!discomfortsLayerExists) {
