@@ -322,11 +322,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     child: ProfileView(),
                   ),
                   const SizedBox(height: 48),
-                  const BlendIn(
-                    delay: Duration(milliseconds: 1000),
-                    child: TotalStatisticsView(),
-                  ),
-                  const SizedBox(height: 48),
+                  if (settings.enableGamification)
+                    Column(children: const [
+                      BlendIn(
+                        delay: Duration(milliseconds: 1000),
+                        child: TotalStatisticsView(),
+                      ),
+                      SizedBox(height: 48),
+                    ]),
                   const VSpace(),
                   Container(
                     width: double.infinity,

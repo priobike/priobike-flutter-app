@@ -342,13 +342,16 @@ class StatusHistoryChartState extends State<StatusHistoryChart> {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      child: CustomPaint(
-        painter: StatusHistoryPainter(
-          context: context,
-          percentages:
-              widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
-          time: widget.time,
-          isProblem: widget.isProblem,
+      // Place RepaintBoundary here to prevent unnecessary repainting.
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: StatusHistoryPainter(
+            context: context,
+            percentages:
+                widget.time == StatusHistoryTime.day ? statusHistory.dayPercentages : statusHistory.weekPercentages,
+            time: widget.time,
+            isProblem: widget.isProblem,
+          ),
         ),
       ),
     );

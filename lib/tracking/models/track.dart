@@ -104,6 +104,12 @@ class Track {
   /// Otherwise we can identify the time when the route was recalculated.
   Map<int, Route> routes;
 
+  /// Until the new gamification concept is implemented, this value should remain hardcoded to false.
+  /// This flag can be used to find out whether the original gamification concept was used in the corresponding track.
+  /// (If the flag doesn't exist it means that it was still active during the ride)
+  /// After the gamification concept is implemented the flag has to be set to true.
+  bool canUseGamification;
+
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -159,6 +165,8 @@ class Track {
     required this.activityType,
     required this.routes,
     required this.subVersion,
+    this.canUseGamification = false,
+
   });
 
   /// Convert the track to a json object.
@@ -179,6 +187,7 @@ class Track {
       'appVersion': appVersion,
       'buildNumber': buildNumber,
       'subVersion': subVersion,
+      'canUseGamification': canUseGamification,
       'statusSummary': statusSummary.toJsonCamelCase(),
       'taps': taps.map((e) => e.toJson()).toList(),
       'predictionServicePredictions': predictionServicePredictions.map((e) => e.toJson()).toList(),
@@ -229,6 +238,7 @@ class Track {
       routes: Map.fromEntries(
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
       subVersion: json['subVersion'],
+      canUseGamification: json['canUseGamification']);
     );
   }
 }

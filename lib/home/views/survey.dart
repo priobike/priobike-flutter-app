@@ -31,7 +31,7 @@ class SurveyViewState extends State<SurveyView> {
   }
 
   Future<void> _launchSurvey() async {
-    if (!await launchUrl(_url)) {
+    if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $_url');
     }
   }

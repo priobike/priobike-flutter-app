@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/ci.dart';
-import 'package:priobike/common/layout/spacing.dart';
-import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status.dart';
@@ -24,6 +20,135 @@ extension StatusHistoryTimeName on StatusHistoryTime {
   }
 }
 
+/// Source: https://stackoverflow.com/questions/54522980/flutter-adjust-height-of-pageview-horizontal-listview-based-on-current-child/65332810#65332810
+/// License: CC BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/
+/// Authors: [Andrzej Chmielewski](https://stackoverflow.com/users/4838100/andrzej-chmielewski) and [LP Square](https://stackoverflow.com/users/10568272/lp-square)
+class ExpandablePageView extends StatefulWidget {
+  /// List of the Widgets that will be displayed in the pageView.
+  final List<Widget> children;
+
+  const ExpandablePageView({
+    Key? key,
+    required this.children,
+  }) : super(key: key);
+
+  @override
+  State<ExpandablePageView> createState() => _ExpandablePageViewState();
+}
+
+class _ExpandablePageViewState extends State<ExpandablePageView> with TickerProviderStateMixin {
+  /// PageController.
+  final PageController pageController = PageController(
+    viewportFraction: 0.92,
+    initialPage: 0,
+  );
+
+  /// The list of values for the heights of the widgets.
+  late List<double> _heights;
+
+  /// The int for the current page.
+  int _currentPage = 0;
+
+  double get _currentHeight => _heights[_currentPage];
+
+  @override
+  void initState() {
+    _heights = widget.children.map((e) => 0.0).toList();
+    super.initState();
+    pageController.addListener(() {
+      final newPage = pageController.page?.round() ?? 0;
+      if (_currentPage != newPage) {
+        setState(() => _currentPage = newPage);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      curve: Curves.easeInOutCubic,
+      duration: const Duration(milliseconds: 1000),
+      tween: Tween<double>(begin: _heights[0], end: _currentHeight),
+      builder: (context, value, child) => SizedBox(height: value, child: child),
+      child: PageView(
+        controller: pageController,
+        allowImplicitScrolling: true,
+        clipBehavior: Clip.none,
+        children: _sizeReportingChildren
+            .asMap() //
+            .map((index, child) => MapEntry(index, child))
+            .values
+            .toList(),
+      ),
+    );
+  }
+
+  List<Widget> get _sizeReportingChildren => widget.children
+      .asMap() //
+      .map(
+        (index, child) => MapEntry(
+          index,
+          OverflowBox(
+            //needed, so that parent won't impose its constraints on the children, thus skewing the measurement results.
+            minHeight: 0,
+            maxHeight: double.infinity,
+            alignment: Alignment.topCenter,
+            child: SizeReportingWidget(
+              onSizeChange: (size) => setState(() => _heights[index] = size.height),
+              child: Align(child: child),
+            ),
+          ),
+        ),
+      )
+      .values
+      .toList();
+}
+
+class SizeReportingWidget extends StatefulWidget {
+  /// The child of the SizeReportingWidget.
+  final Widget child;
+
+  /// The function that is called on size change.
+  final ValueChanged<Size> onSizeChange;
+
+  const SizeReportingWidget({
+    Key? key,
+    required this.child,
+    required this.onSizeChange,
+  }) : super(key: key);
+
+  @override
+  State<SizeReportingWidget> createState() => _SizeReportingWidgetState();
+}
+
+class _SizeReportingWidgetState extends State<SizeReportingWidget> {
+  /// The Size of the old size.
+  Size? _oldSize;
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+    return widget.child;
+  }
+
+  void _notifySize() {
+    if (!mounted) {
+      return;
+    }
+    final size = context.size;
+    if (_oldSize != size && size != null) {
+      _oldSize = size;
+      widget.onSizeChange(size);
+    }
+  }
+}
+
 class StatusTabsView extends StatefulWidget {
   const StatusTabsView({Key? key}) : super(key: key);
 
@@ -31,16 +156,7 @@ class StatusTabsView extends StatefulWidget {
   StatusTabsViewState createState() => StatusTabsViewState();
 }
 
-class StatusTabsViewState extends State<StatusTabsView> with SingleTickerProviderStateMixin {
-  /// PageController.
-  final PageController pageController = PageController(
-    viewportFraction: 0.9,
-    initialPage: 0,
-  );
-
-  /// TabController.
-  late TabController? tabController;
-
+class StatusTabsViewState extends State<StatusTabsView> {
   /// The prediction status service, which is injected by the provider.
   final PredictionStatusSummary predictionStatusSummary = getIt<PredictionStatusSummary>();
 
@@ -51,81 +167,26 @@ class StatusTabsViewState extends State<StatusTabsView> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    // tabController with number of articles.
-    tabController = TabController(length: 3, vsync: this);
     predictionStatusSummary.addListener(update);
   }
 
   @override
   void dispose() {
-    tabController?.dispose();
-    pageController.dispose();
     predictionStatusSummary.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final buttons = [
-      "Jetzt",
-      "24 Stunden",
-      "7 Tage",
-    ];
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 130,
-          width: MediaQuery.of(context).size.width,
-          child: PageView(
-            controller: pageController,
-            clipBehavior: Clip.none,
-            onPageChanged: (int index) {
-              setState(() {
-                tabController?.index = index;
-              });
-            },
-            children: const [
-              StatusView(),
-              StatusHistoryView(time: StatusHistoryTime.day),
-              StatusHistoryView(time: StatusHistoryTime.week),
-            ],
-          ),
-        ),
-        const SmallVSpace(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...buttons.map(
-              (e) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                child: Tile(
-                  onPressed: () => pageController.animateTo(
-                      ((MediaQuery.of(context).size.width - 40) * buttons.indexOf(e)),
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut),
-                  fill: tabController?.index == buttons.indexOf(e)
-                      ? (predictionStatusSummary.getProblem() != null ? CI.red : Theme.of(context).colorScheme.primary)
-                      : Theme.of(context).colorScheme.background,
-                  splash: Theme.of(context).brightness == Brightness.light ? Colors.grey : Colors.white,
-                  shadowIntensity: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  borderRadius: BorderRadius.circular(12),
-                  content: Center(
-                    child: Content(
-                      context: context,
-                      text: e,
-                      color: tabController?.index == buttons.indexOf(e) || isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: const ExpandablePageView(
+        children: [
+          StatusView(),
+          StatusHistoryView(time: StatusHistoryTime.day),
+          StatusHistoryView(time: StatusHistoryTime.week),
+        ],
+      ),
     );
   }
 }
