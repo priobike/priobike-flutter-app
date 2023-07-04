@@ -200,22 +200,39 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
+
+    String textTrafficLights;
     if (allTrafficLights > 0) {
-      text += " - $okTrafficLights von $allTrafficLights Ampeln verbunden";
+      textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
     } else {
-      text += " - Es befinden sich keine Ampeln auf der Route";
+      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
+
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         children: [
-          BoldSmall(
-            text: text,
-            color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                ? const Color.fromARGB(255, 0, 255, 106)
-                : const Color.fromARGB(255, 0, 220, 92),
-            context: context,
+          RichText(
             textAlign: TextAlign.center,
+            text: TextSpan(
+                text: text,
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                children: [
+                  TextSpan(
+                    text: " - ",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  TextSpan(
+                    text: textTrafficLights,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.brightness == Brightness.dark
+                          ? const Color.fromARGB(255, 0, 255, 106)
+                          : const Color.fromARGB(255, 0, 220, 92),
+                    ),
+                  ),
+                ]),
           ),
           const SizedBox(height: 2),
           BoldSmall(
