@@ -212,24 +212,27 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              BoldSmall(
-                text: "$text - ",
-                color: Theme.of(context).colorScheme.onBackground,
-                context: context,
-                textAlign: TextAlign.center,
-              ),
-              BoldSmall(
-                text: textTrafficLights,
-                color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                    ? const Color.fromARGB(255, 0, 255, 106)
-                    : const Color.fromARGB(255, 0, 220, 92),
-                context: context,
-                textAlign: TextAlign.center,
-              ),
-            ],
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+                text: text,
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                children: [
+                  TextSpan(
+                    text: " - ",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  TextSpan(
+                    text: textTrafficLights,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.brightness == Brightness.dark
+                          ? const Color.fromARGB(255, 0, 255, 106)
+                          : const Color.fromARGB(255, 0, 220, 92),
+                    ),
+                  ),
+                ]),
           ),
           const SizedBox(height: 2),
           BoldSmall(
