@@ -428,6 +428,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   @override
   Widget build(BuildContext context) {
     if (lineElements.isEmpty || maxDistance == 0.0) return Container();
+    if (routing.selectedRoute == null) return Container();
 
     return Container(
       decoration: BoxDecoration(
