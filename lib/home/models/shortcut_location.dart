@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
@@ -37,16 +38,6 @@ class ShortcutLocation implements Shortcut {
         'waypoint': waypoint.toJSON(),
       };
 
-  /// Locations with a waypoint outside of the bounding box of the city are not allowed.
-  @override
-  bool isValid() {
-    final boundaryService = getIt<Boundary>();
-    if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
-      return false;
-    }
-    return true;
-  }
-
   /// Get the linebreaked name of the shortcut location. The name is split into at most 2 lines, by a limit of 15 characters.
   @override
   String get linebreakedName {
@@ -67,17 +58,48 @@ class ShortcutLocation implements Shortcut {
     return result;
   }
 
+  /// Locations with a waypoint outside of the bounding box of the city are not allowed.
   @override
-  bool isUsedInRouting() {
-    bool isUsed = false;
-    getIt<Routing>().selectedWaypoints?.forEach((waypoint) {
-      if (waypoint == this.waypoint) isUsed = true;
-    });
-    return isUsed;
+  bool isValid() {
+    final boundaryService = getIt<Boundary>();
+    if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
+      return false;
+    }
+    return true;
   }
 
+  /// Trim the addresses of the waypoints, if a factor < 1 is given.
   @override
-  Future<bool> onClick(BuildContext context) async {
+  ShortcutLocation trim(double factor) {
+    String? newAddress;
+    if (waypoint.address == null) {
+      newAddress = null;
+    } else {
+      final int newLength = (waypoint.address!.length * factor).round();
+      if (factor >= 1) {
+        newAddress = waypoint.address;
+      } else {
+        newAddress = "${waypoint.address?.substring(0, newLength)}...";
+      }
+    }
+
+    return ShortcutLocation(
+      name: name,
+      waypoint: Waypoint(
+        waypoint.lat,
+        waypoint.lon,
+        address: newAddress,
+      ),
+    );
+  }
+
+  /// Copy the shortcut with another name.
+  @override
+  ShortcutLocation copyWith({String? name}) => ShortcutLocation(name: name ?? this.name, waypoint: waypoint);
+
+  /// Function which loads the shortcut route.
+  @override
+  Future<bool> loadRoute(BuildContext context) async {
     Positioning positioning = getIt<Positioning>();
     await positioning.requestSingleLocation(onNoPermission: () {
       showLocationAccessDeniedDialog(context, positioning.positionSource);
@@ -90,5 +112,37 @@ class ShortcutLocation implements Shortcut {
       ToastMessage.showError("Route konnte nicht geladen werden.");
       return false;
     }
+  }
+
+  /// Returns a String with a short info of the shortcut.
+  @override
+  String getShortInfo() {
+    return waypoint.address ?? "";
+  }
+
+  /// Returns a Widget with a representation of the shortcut.
+  @override
+  Widget getRepresentation() {
+    return const Icon(
+      Icons.location_on,
+      color: CI.blue,
+      size: 64,
+    );
+  }
+
+  /// Returns the icon of the shortcut type.
+  @override
+  Widget getTypeIcon() {
+    return const Icon(Icons.location_on);
+  }
+
+  /// Checks if the shortcut waypoint is used in the selected route.
+  @override
+  bool isUsedInRouting() {
+    bool isUsed = false;
+    getIt<Routing>().selectedWaypoints?.forEach((waypoint) {
+      if (waypoint == this.waypoint) isUsed = true;
+    });
+    return isUsed;
   }
 }

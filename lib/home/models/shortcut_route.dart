@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
@@ -34,7 +36,40 @@ class ShortcutRoute implements Shortcut {
         'waypoints': waypoints.map((e) => e.toJSON()).toList(),
       };
 
+  /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
+  @override
+  String get linebreakedName {
+    var result = name;
+    var insertedLinebreaks = 0;
+    for (var i = 0; i < name.length; i++) {
+      if (i % 15 == 0 && i != 0) {
+        if (insertedLinebreaks == 1) {
+          // Truncate the name if it is too long
+          result = result.substring(0, i);
+          result += '...';
+          break;
+        }
+        result = result.replaceRange(i, i + 1, '${result[i]}\n');
+        insertedLinebreaks++;
+      }
+    }
+    return result;
+  }
+
+  /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  @override
+  bool isValid() {
+    final boundaryService = getIt<Boundary>();
+    for (final waypoint in waypoints) {
+      if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// Trim the addresses of the waypoints, if a factor < 1 is given.
+  @override
   ShortcutRoute trim(double factor) => ShortcutRoute(
         name: name,
         waypoints: waypoints.map(
@@ -60,48 +95,42 @@ class ShortcutRoute implements Shortcut {
       );
 
   /// Copy the shortcut with another name.
+  @override
   ShortcutRoute copyWith({String? name}) => ShortcutRoute(name: name ?? this.name, waypoints: waypoints);
 
-  /// Shortcuts with waypoints that are outside of the bounding box of the city are not allowed.
+  /// Function which loads the shortcut route.
   @override
-  bool isValid() {
-    final boundaryService = getIt<Boundary>();
-    for (final waypoint in waypoints) {
-      if (boundaryService.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat) == false) {
-        return false;
-      }
-    }
+  Future<bool> loadRoute(BuildContext context) async {
+    await getIt<Routing>().selectWaypoints(List.from(waypoints));
     return true;
   }
 
-  /// Get the linebreaked name of the shortcut route. The name is split into at most 2 lines, by a limit of 15 characters.
+  /// Returns a String with a short info of the shortcut.
   @override
-  String get linebreakedName {
-    var result = name;
-    var insertedLinebreaks = 0;
-    for (var i = 0; i < name.length; i++) {
-      if (i % 15 == 0 && i != 0) {
-        if (insertedLinebreaks == 1) {
-          // Truncate the name if it is too long
-          result = result.substring(0, i);
-          result += '...';
-          break;
-        }
-        result = result.replaceRange(i, i + 1, '${result[i]}\n');
-        insertedLinebreaks++;
-      }
-    }
-    return result;
+  String getShortInfo() {
+    return "${waypoints.length} Wegpunkte";
   }
 
+  /// Returns a Widget with a representation of the shortcut.
+  @override
+  Widget getRepresentation() {
+    return ShortcutRoutePictogram(
+      shortcut: this,
+      height: 56,
+      width: 56,
+      color: CI.blue,
+    );
+  }
+
+  /// Returns the icon of the shortcut type.
+  @override
+  Widget getTypeIcon() {
+    return const Icon(Icons.route);
+  }
+
+  /// Checks if the shortcut waypoints are used in the selected route.
   @override
   bool isUsedInRouting() {
     return getIt<Routing>().selectedWaypoints == waypoints;
-  }
-
-  @override
-  Future<bool> onClick(BuildContext context) async {
-    await getIt<Routing>().selectWaypoints(List.from(waypoints));
-    return true;
   }
 }

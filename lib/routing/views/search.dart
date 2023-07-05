@@ -20,6 +20,7 @@ import 'package:priobike/routing/services/geosearch.dart';
 
 void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
   final shortcuts = GetIt.instance.get<Shortcuts>();
+  final geosearch = GetIt.instance.get<Geosearch>();
   showDialog(
     context: context,
     builder: (_) {
@@ -55,6 +56,7 @@ void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
                 return;
               }
               await shortcuts.saveNewShortcutLocation(name, waypoint);
+              await geosearch.addToSearchHistory(waypoint);
               ToastMessage.showSuccess("Ort gespeichert!");
               Navigator.pop(context);
             },

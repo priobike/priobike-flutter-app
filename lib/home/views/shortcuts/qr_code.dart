@@ -5,7 +5,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart' as shortcuts_service;
 import 'package:priobike/home/views/shortcuts/qr_code_scan.dart';
 import 'package:priobike/home/views/shortcuts/qr_code_show.dart';
@@ -13,7 +13,7 @@ import 'package:priobike/main.dart';
 
 class QRCodeView extends StatefulWidget {
   /// The shortcut for which a QR code should be shown.
-  final ShortcutRoute? shortcut;
+  final Shortcut? shortcut;
 
   const QRCodeView({Key? key, this.shortcut}) : super(key: key);
 
@@ -33,7 +33,7 @@ enum QRCodeViewMode {
 }
 
 class QRCodeViewState extends State<QRCodeView> {
-  ShortcutRoute? shortcut;
+  Shortcut? shortcut;
 
   /// The current mode of the view.
   QRCodeViewMode? state;
@@ -178,7 +178,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.showing)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
                                 BoldSmall(
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",
@@ -190,7 +190,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.scanned)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
                                 BigButton(
                                   iconColor: Colors.white,

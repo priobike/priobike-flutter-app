@@ -6,9 +6,7 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/home/models/shortcut.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/home/services/shortcuts.dart';
-import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
@@ -89,18 +87,7 @@ class ShortcutView extends StatelessWidget {
                     : [
                         shortcut == null
                             ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
-                            : shortcut!.runtimeType == ShortcutRoute
-                                ? ShortcutRoutePictogram(
-                                    shortcut: shortcut! as ShortcutRoute,
-                                    height: 56,
-                                    width: 56,
-                                    color: CI.blue,
-                                  )
-                                : const Icon(
-                                    Icons.location_on,
-                                    color: CI.blue,
-                                    size: 64,
-                                  ),
+                            : shortcut!.getRepresentation(),
                         Expanded(child: Container()),
                         FittedBox(
                           // Scale the text to fit the width.

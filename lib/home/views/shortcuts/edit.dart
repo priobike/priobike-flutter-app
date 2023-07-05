@@ -6,17 +6,13 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
-import 'package:priobike/home/models/shortcut_location.dart';
-import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/qr_code.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/positioning/services/positioning.dart';
-import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
-import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -152,7 +148,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
   }
 
   /// Widget that displays a shortcut route.
-  Widget shortcutRouteListItem(ShortcutRoute shortcutRoute, int key) {
+  Widget shortcutListItem(Shortcut shortcut, int key) {
     return Container(
       key: Key("$key"),
       padding: const EdgeInsets.only(left: 8, top: 8),
@@ -213,12 +209,13 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BoldContent(
-                        text: shortcutRoute.name,
+                        text: shortcut.name,
                         context: context,
                       ),
                       const SmallVSpace(),
                       BoldSmall(
-                        text: "${shortcutRoute.waypoints.length} Wegpunkte",
+                        text: shortcut.getShortInfo(),
+                        overflow: TextOverflow.ellipsis,
                         context: context,
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -239,7 +236,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                             icon: Icons.qr_code_2_rounded,
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute<void>(
-                                builder: (BuildContext context) => QRCodeView(shortcut: shortcutRoute),
+                                builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
                               ),
                             ),
                             fill: Theme.of(context).colorScheme.background,
@@ -262,140 +259,10 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 ),
               ],
             ),
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-
-              final shortcutIsValid = shortcutRoute.isValid();
-
-              if (!shortcutIsValid) {
-                final backend = getIt<Settings>().backend;
-                final shortcuts = getIt<Shortcuts>();
-                showDialog(
-                  context: context,
-                  builder: (context) => InvalidShortCutDialog(
-                    backend: backend,
-                    shortcuts: shortcuts,
-                    shortcut: shortcutRoute,
-                    context: context,
-                  ),
-                );
-                return;
-              }
-
-              routing.selectWaypoints(List.from(shortcutRoute.waypoints));
-              // Pushes the routing view.
-              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                (comingNotFromRoutingView) {
-                  if (comingNotFromRoutingView == null) {
-                    routing.reset();
-                    discomforts.reset();
-                    predictionSGStatus.reset();
-                  }
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Widget that displays a shortcut location.
-  Widget shortcutLocationListItem(ShortcutLocation shortcutLocation, int key) {
-    return Container(
-      key: Key("$key"),
-      padding: const EdgeInsets.only(left: 8, top: 8),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              foregroundDecoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.topRight,
-                  colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                      ? [
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background.withOpacity(0.9),
-                          Theme.of(context).colorScheme.background.withOpacity(0.8),
-                          Theme.of(context).colorScheme.background.withOpacity(0.7),
-                        ]
-                      : [
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background,
-                          Theme.of(context).colorScheme.background.withOpacity(0.6),
-                          Theme.of(context).colorScheme.background.withOpacity(0.5),
-                          Theme.of(context).colorScheme.background.withOpacity(0.3),
-                        ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-                child: Image(
-                  image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                      ? const AssetImage('assets/images/map-dark.png')
-                      : const AssetImage('assets/images/map-light.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          Tile(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              bottomLeft: Radius.circular(24),
-            ),
-            showShadow: false,
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: BoldContent(
-                    text: shortcutLocation.name,
-                    context: context,
-                  ),
-                ),
-                const HSpace(),
-                Row(
-                  children: [
-                    if (editMode)
-                      SmallIconButton(
-                        icon: Icons.edit,
-                        onPressed: () => onEditShortcut(key),
-                        fill: Theme.of(context).colorScheme.surface,
-                      ),
-                    const SmallHSpace(),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: editMode
-                          ? SmallIconButton(
-                              icon: Icons.delete,
-                              onPressed: () => onDeleteShortcut(key),
-                              fill: Theme.of(context).colorScheme.surface,
-                            )
-                          : const Padding(
-                              padding: EdgeInsets.all(12),
-                              child: Icon(Icons.list_rounded),
-                            ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
             onPressed: () async {
               HapticFeedback.mediumImpact();
 
-              final shortcutIsValid = shortcutLocation.isValid();
+              final shortcutIsValid = shortcut.isValid();
 
               if (!shortcutIsValid) {
                 final backend = getIt<Settings>().backend;
@@ -405,38 +272,28 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   builder: (context) => InvalidShortCutDialog(
                     backend: backend,
                     shortcuts: shortcuts,
-                    shortcut: shortcutLocation,
+                    shortcut: shortcut,
                     context: context,
                   ),
                 );
                 return;
               }
 
-              Positioning positioning = getIt<Positioning>();
-              await positioning.requestSingleLocation(onNoPermission: () {
-                showLocationAccessDeniedDialog(context, positioning.positionSource);
-              });
-              if (positioning.lastPosition != null) {
-                routing.selectWaypoints([
-                  Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
-                  shortcutLocation.waypoint
-                ]);
-                // Pushes the routing view.
-                // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-                // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-                if (context.mounted) {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                    (comingNotFromRoutingView) {
-                      if (comingNotFromRoutingView == null) {
-                        routing.reset();
-                        discomforts.reset();
-                        predictionSGStatus.reset();
-                      }
-                    },
-                  );
-                }
-              } else {
-                ToastMessage.showError("Route konnte nicht geladen werden.");
+              bool success = await shortcut.loadRoute(context);
+
+              // Pushes the routing view.
+              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+              if (context.mounted && success) {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                  (comingNotFromRoutingView) {
+                    if (comingNotFromRoutingView == null) {
+                      routing.reset();
+                      discomforts.reset();
+                      predictionSGStatus.reset();
+                    }
+                  },
+                );
               }
             },
           ),
@@ -495,19 +352,11 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     return proxyWidget;
                   },
                   onReorder: onChangeShortcutOrder,
-                  children: shortcuts.shortcuts!.asMap().entries.map<Widget>(
-                    (entry) {
-                      if (entry.value.runtimeType == ShortcutRoute) {
-                        return shortcutRouteListItem(entry.value as ShortcutRoute, entry.key);
-                      } else if (entry.value.runtimeType == ShortcutLocation) {
-                        return shortcutLocationListItem(entry.value as ShortcutLocation, entry.key);
-                      } else {
-                        final hint = "Error unknown type ${entry.value.runtimeType} in ReorderableListView.";
-                        log.e(hint);
-                        return Container();
-                      }
-                    },
-                  ).toList(),
+                  children: shortcuts.shortcuts!
+                      .asMap()
+                      .entries
+                      .map<Widget>((entry) => shortcutListItem(entry.value, entry.key))
+                      .toList(),
                 ),
                 const SizedBox(height: 128),
               ],
