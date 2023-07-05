@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 
 /// The shortcut represents a saved route or location with a name.
 abstract class Shortcut {
+  /// The type of the shortcut.
+  final String type;
+
   /// The name of the shortcut.
   final String name;
 
@@ -17,7 +20,7 @@ abstract class Shortcut {
   /// Checks if the shortcut waypoints are used in the selected route.
   bool isUsedInRouting();
 
-  const Shortcut({required this.name});
+  const Shortcut({required this.name, required this.type});
 
   Map<String, dynamic> toJson();
 }

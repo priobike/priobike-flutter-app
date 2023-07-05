@@ -10,6 +10,10 @@ import 'package:priobike/routing/services/routing.dart';
 
 /// The shortcut represents a saved location with a name.
 class ShortcutLocation implements Shortcut {
+  /// The type of the shortcut.
+  @override
+  final String type = "ShortcutLocation";
+
   /// The name of the shortcut.
   @override
   final String name;
@@ -28,6 +32,7 @@ class ShortcutLocation implements Shortcut {
 
   @override
   Map<String, dynamic> toJson() => {
+        'type': 'ShortcutLocation',
         'name': name,
         'waypoint': waypoint.toJSON(),
       };

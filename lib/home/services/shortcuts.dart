@@ -142,9 +142,18 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List)
-          .map((e) => e["waypoint"] != null ? ShortcutLocation.fromJson(e) : ShortcutRoute.fromJson(e))
-          .toList();
+      shortcuts = (jsonDecode(jsonStr) as List).map((e) {
+        if (e["type"] != null) {
+          switch (e["type"]) {
+            case "ShortcutLocation":
+              return ShortcutLocation.fromJson(e);
+            case "ShortcutRoute":
+              return ShortcutRoute.fromJson(e);
+          }
+        }
+        // Only for backwards compatibility.
+        return e["waypoint"] != null ? ShortcutLocation.fromJson(e) : ShortcutRoute.fromJson(e);
+      }).toList();
     }
 
     notifyListeners();
