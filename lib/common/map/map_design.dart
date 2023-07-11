@@ -77,9 +77,6 @@ class MapDesign {
 class MapDesigns with ChangeNotifier {
   var hasLoaded = false;
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The currently selected style of the map.
   MapDesign mapDesign;
 
@@ -127,11 +124,5 @@ class MapDesigns with ChangeNotifier {
     await storage.setString("priobike.layers.style", jsonEncode(mapDesign.toJson()));
 
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

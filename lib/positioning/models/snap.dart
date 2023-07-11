@@ -1,18 +1,5 @@
 import 'package:latlong2/latlong.dart';
 
-class Snapped<T> {
-  /// The position-related data that was snapped.
-  final T wrapped;
-
-  /// The snapped position.
-  final Snap snap;
-
-  const Snapped({
-    required this.wrapped,
-    required this.snap,
-  });
-}
-
 class Snap {
   /// The original position.
   final LatLng original;

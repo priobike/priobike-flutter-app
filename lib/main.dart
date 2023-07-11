@@ -7,7 +7,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
 import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
-import 'package:priobike/home/services/places.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/loader.dart';
@@ -18,7 +17,7 @@ import 'package:priobike/privacy/services.dart';
 import 'package:priobike/privacy/views.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/routing/services/bottom_sheet_state.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/geocoding.dart';
 import 'package:priobike/routing/services/geosearch.dart';
@@ -29,6 +28,7 @@ import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/traffic/services/traffic_service.dart';
@@ -62,7 +62,6 @@ Future<void> main() async {
   getIt.registerSingleton<Profile>(Profile());
   getIt.registerSingleton<News>(News());
   getIt.registerSingleton<Shortcuts>(Shortcuts());
-  getIt.registerSingleton<Places>(Places());
   getIt.registerSingleton<Discomforts>(Discomforts());
   getIt.registerSingleton<Geocoding>(Geocoding());
   getIt.registerSingleton<Geosearch>(Geosearch());
@@ -75,9 +74,10 @@ Future<void> main() async {
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());
   getIt.registerSingleton<Feedback>(Feedback());
-  getIt.registerSingleton<BottomSheetState>(BottomSheetState());
   getIt.registerSingleton<Ride>(Ride());
   getIt.registerSingleton<Traffic>(Traffic());
+  getIt.registerSingleton<Boundary>(Boundary());
+  getIt.registerSingleton<StatusHistory>(StatusHistory());
 
   runZonedGuarded(() async {
     runApp(const App());
@@ -112,7 +112,7 @@ class App extends StatelessWidget {
             colorScheme: const ColorScheme.light(
               background: Color(0xFFFFFFFF),
               primary: CI.blue,
-              secondary: CI.lightBlue,
+              secondary: CI.blueLight,
               surface: Color(0xFFF6F6FF),
               brightness: Brightness.light,
             ),
@@ -168,7 +168,7 @@ class App extends StatelessWidget {
             colorScheme: const ColorScheme.dark(
               background: Color.fromARGB(255, 31, 31, 31),
               primary: CI.blue,
-              secondary: CI.lightBlue,
+              secondary: CI.blueLight,
               surface: Color.fromARGB(255, 42, 42, 42),
               surfaceTint: Color.fromARGB(255, 42, 42, 42),
               brightness: Brightness.dark,

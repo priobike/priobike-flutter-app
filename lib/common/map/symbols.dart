@@ -29,6 +29,9 @@ class SymbolLoader {
     await add("trafficlightgreenwavedark", "assets/images/green-wave-dark.png", 400, 400);
     await add("trafficlightgreenwavelight", "assets/images/green-wave-light.png", 400, 400);
 
+    await add("trafficlighttouchindicatordark", "assets/images/trafficlights/touch-indicator-dark.png", 400, 400);
+    await add("trafficlighttouchindicatorlight", "assets/images/trafficlights/touch-indicator-light.png", 400, 400);
+
     await add("alert", "assets/images/alert.drawio.png", 104, 104);
     await add("start", "assets/images/start.drawio.png", 83, 83);
     await add("destination", "assets/images/destination.drawio.png", 84, 84);

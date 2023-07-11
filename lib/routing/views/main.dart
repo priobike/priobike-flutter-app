@@ -284,19 +284,48 @@ class RoutingViewState extends State<RoutingView> {
                   textAlign: TextAlign.center,
                 ),
                 const SmallVSpace(),
-                Small(
-                  text:
-                      "Achte darauf, dass du mit dem Internet verbunden bist. Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe deine Wegpunkte an oder versuche es später noch einmal.",
-                  context: context,
-                  textAlign: TextAlign.center,
-                ),
-                const VSpace(),
-                BigButton(
-                  label: "Erneut versuchen",
-                  onPressed: () async {
-                    await routing?.loadRoutes();
-                  },
-                ),
+
+                // if point is outside of supported bounding box
+                (routing!.waypointsOutOfBoundaries)
+                    ? Column(
+                        children: [
+                          Small(
+                            text:
+                                "Das Routing wird aktuell nur innerhalb von ${backend.region} unterstützt. Bitte passe Deine Wegpunkte an.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const VSpace(),
+                          BigButton(
+                            label: "Letzten Wegpunkt löschen",
+                            onPressed: () async {
+                              if (routing!.selectedWaypoints != null && routing!.selectedWaypoints!.isNotEmpty) {
+                                routing!.selectedWaypoints!.removeLast();
+                              } else {
+                                log.e("Tried to delete last waypoint, but there is no waypoint to delete");
+                              }
+                              await routing!.loadRoutes();
+                            },
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Small(
+                            text:
+                                "Achte darauf, dass Du mit dem Internet verbunden bist und versuche es später noch einmal.",
+                            context: context,
+                            textAlign: TextAlign.center,
+                          ),
+                          const VSpace(),
+                          BigButton(
+                            label: "Erneut versuchen",
+                            onPressed: () async {
+                              await routing?.loadRoutes();
+                            },
+                          ),
+                        ],
+                      ),
                 // Move the button a bit more up.
                 const SizedBox(height: 64),
               ],
@@ -325,7 +354,7 @@ class RoutingViewState extends State<RoutingView> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Content(
+              child: BoldContent(
                 text: 'Okay',
                 context: context,
                 color: Theme.of(context).colorScheme.primary,
@@ -354,8 +383,7 @@ class RoutingViewState extends State<RoutingView> {
             children: [
               RoutingMapView(sheetMovement: sheetMovement.stream),
 
-              if (routing!.isFetchingRoute) renderLoadingIndicator(),
-              if (geocoding!.isFetchingAddress) renderLoadingIndicator(),
+              if (routing!.isFetchingRoute || geocoding!.isFetchingAddress) renderLoadingIndicator(),
               if (routing!.hadErrorDuringFetch) renderTryAgainButton(),
 
               // Top Bar

@@ -19,9 +19,6 @@ import 'package:priobike/settings/services/settings.dart';
 class Dangers with ChangeNotifier {
   final log = Logger("Dangers");
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The list of dangers along the route.
   List<Danger> dangers = List.empty(growable: true);
 
@@ -200,11 +197,5 @@ class Dangers with ChangeNotifier {
     dangers = List.empty(growable: true);
     dangersDistancesOnRoute = List.empty(growable: true);
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,7 +10,6 @@ import 'package:priobike/common/map/layers/route_layers.dart';
 import 'package:priobike/common/map/layers/sg_layers.dart';
 import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
@@ -18,7 +18,13 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
 
 class RideMapView extends StatefulWidget {
-  const RideMapView({Key? key}) : super(key: key);
+  /// Callback that is called when the map is moved by the user.
+  final Function onMapMoved;
+
+  /// If the map should follow the user location.
+  final bool cameraFollowUserLocation;
+
+  const RideMapView({Key? key, required this.onMapMoved, required this.cameraFollowUserLocation}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideMapViewState();
@@ -29,6 +35,7 @@ class RideMapViewState extends State<RideMapView> {
 
   static const userLocationLayerId = "user-ride-location-puck";
 
+  /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
   /// The associated positioning service, which is injected by the provider.
@@ -36,12 +43,6 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
-
-  /// The associated settings service, which is injected by the provider.
-  late Settings settings;
-
-  /// The associated dangers service, which is injected by the provider.
-  late Dangers dangers;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -56,7 +57,7 @@ class RideMapViewState extends State<RideMapView> {
   bool? upcomingTrafficLightIsGreen;
 
   /// The index of the basemap layers where the first label layer is located (the label layers are top most).
-  var firstBaseMapLabelLayerIndex = 0;
+  int firstBaseMapLabelLayerIndex = 0;
 
   /// The index in the list represents the layer order in z axis.
   final List layerOrder = [
@@ -66,6 +67,7 @@ class RideMapViewState extends State<RideMapView> {
     userLocationLayerId,
     OfflineCrossingsLayer.layerId,
     TrafficLightsLayer.layerId,
+    TrafficLightsLayer.touchIndicatorsLayerId,
     TrafficLightLayer.layerId,
   ];
 
@@ -86,68 +88,39 @@ class RideMapViewState extends State<RideMapView> {
     return firstBaseMapLabelLayerIndex + layersBeforeAdded;
   }
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateMap();
-  }
-
-  /// Update the map.
-  void updateMap() {
-    if (routing.needsLayout[viewId] != false && mapController != null) {
-      onRoutingUpdate();
-      routing.needsLayout[viewId] = false;
-    }
-    if (ride.needsLayout[viewId] != false && mapController != null) {
-      onRideUpdate();
-      ride.needsLayout[viewId] = false;
-    }
-    if (positioning.needsLayout[viewId] != false && mapController != null) {
-      onPositioningUpdate();
-      positioning.needsLayout[viewId] = false;
-    }
-    if (predictionSGStatus.needsLayout[viewId] != false && mapController != null) {
-      onStatusUpdate();
-      predictionSGStatus.needsLayout[viewId] = false;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
 
-    settings = getIt<Settings>();
-    settings.addListener(update);
     routing = getIt<Routing>();
-    routing.addListener(update);
+    routing.addListener(onRoutingUpdate);
     ride = getIt<Ride>();
-    ride.addListener(update);
+    ride.addListener(onRideUpdate);
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
-    dangers = getIt<Dangers>();
-    dangers.addListener(update);
+    positioning.addListener(onPositioningUpdate);
     predictionSGStatus = getIt<PredictionSGStatus>();
-    predictionSGStatus.addListener(update);
+    predictionSGStatus.addListener(onStatusUpdate);
   }
 
   @override
   void dispose() {
-    settings.removeListener(update);
-    routing.removeListener(update);
-    ride.removeListener(update);
-    positioning.removeListener(update);
-    dangers.removeListener(update);
-    predictionSGStatus.removeListener(update);
+    routing.removeListener(onRoutingUpdate);
+    ride.removeListener(onRideUpdate);
+    positioning.removeListener(onPositioningUpdate);
+    predictionSGStatus.removeListener(onStatusUpdate);
     super.dispose();
   }
 
   /// Update the view with the current data.
   Future<void> onStatusUpdate() async {
+    if (mapController == null) return;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onRoutingUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await SelectedRouteLayer().update(mapController!);
@@ -155,39 +128,45 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().update(mapController!);
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
   }
 
   /// Update the view with the current data.
   Future<void> onPositioningUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Only hide the traffic lights behind the position if the user hasn't selected a SG.
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await TrafficLightsLayer(isDark).update(mapController!);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null).update(mapController!);
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false).update(mapController!);
     await adaptToChangedPosition();
   }
 
   /// Update the view with the current data.
   Future<void> onRideUpdate() async {
+    if (mapController == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (!mounted) return;
     await TrafficLightLayer(isDark).update(mapController!);
+  }
 
-    if (ride.userSelectedSG != null) {
-      // The camera target is the selected SG.
-      final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
-      await mapController?.flyTo(
-        mapbox.CameraOptions(
-          center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
-          zoom: 16,
-        ),
-        mapbox.MapAnimationOptions(duration: 200),
-      );
-    }
+  /// Snap the location indicator to the start of the route.
+  Future<void> snapLocationIndicatorToRouteStart() async {
+    if (mapController == null) return;
+    final startPointLon = routing.selectedRoute!.route.first.lon;
+    final startPointLat = routing.selectedRoute!.route.first.lat;
+    final secondPointLon = routing.selectedRoute!.route[1].lon;
+    final secondPointLat = routing.selectedRoute!.route[1].lat;
+    final bearingStart = vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
+    final cameraOptions = mapbox.CameraOptions(
+      center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
+      zoom: 16,
+      bearing: bearingStart,
+    );
+    await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
   }
 
   /// Adapt the map controller to a changed position.
@@ -203,19 +182,38 @@ class RideMapViewState extends State<RideMapView> {
 
     const vincenty = Distance(roundResult: false);
 
+    if (routing.hadErrorDuringFetch) {
+      // If there was an error during fetching, we don't have a route and thus also can't snap the position.
+      // We can only try to display the real user position.
+      if (userPos == null) {
+        await snapLocationIndicatorToRouteStart();
+        return;
+      }
+      mapController!.easeTo(
+          mapbox.CameraOptions(
+            center: mapbox.Point(coordinates: mapbox.Position(userPos.longitude, userPos.latitude)).toJson(),
+            bearing: userPos.heading,
+            zoom: 16,
+            pitch: 60,
+          ),
+          mapbox.MapAnimationOptions(duration: 1500));
+      await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
+        if (value) {
+          mapController!.style.updateLayer(
+            mapbox.LocationIndicatorLayer(
+              id: userLocationLayerId,
+              bearing: userPos.heading,
+              location: [userPos.latitude, userPos.longitude, userPos.altitude],
+              accuracyRadius: userPos.accuracy,
+            ),
+          );
+        }
+      });
+      return;
+    }
+
     if (userPos == null || userPosSnap == null) {
-      final startPointLon = routing.selectedRoute!.route.first.lon;
-      final startPointLat = routing.selectedRoute!.route.first.lat;
-      final secondPointLon = routing.selectedRoute!.route[1].lon;
-      final secondPointLat = routing.selectedRoute!.route[1].lat;
-      final bearingStart =
-          vincenty.bearing(LatLng(startPointLat, startPointLon), LatLng(secondPointLat, secondPointLon));
-      final cameraOptions = mapbox.CameraOptions(
-        center: mapbox.Point(coordinates: mapbox.Position(startPointLon, startPointLat)).toJson(),
-        zoom: 16,
-        bearing: bearingStart,
-      );
-      await mapController?.flyTo(cameraOptions, mapbox.MapAnimationOptions(duration: 1000));
+      await snapLocationIndicatorToRouteStart();
       return;
     }
 
@@ -248,7 +246,7 @@ class RideMapViewState extends State<RideMapView> {
       cameraHeading = userPosSnap.heading; // Look into the direction of the user.
     }
 
-    if (ride.userSelectedSG == null) {
+    if (ride.userSelectedSG == null && widget.cameraFollowUserLocation) {
       mapController!.easeTo(
           mapbox.CameraOptions(
             center: mapbox.Point(
@@ -353,11 +351,14 @@ class RideMapViewState extends State<RideMapView> {
     await WaypointsLayer().install(mapController!, iconSize: ppi / 8, at: index);
     index = await getIndex(TrafficLightsLayer.layerId);
     if (!mounted) return;
-    await TrafficLightsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
-        .install(mapController!, iconSize: ppi / 5, at: index);
+    await TrafficLightsLayer(isDark).install(
+      mapController!,
+      iconSize: ppi / 5,
+      at: index,
+    );
     index = await getIndex(OfflineCrossingsLayer.layerId);
     if (!mounted) return;
-    await OfflineCrossingsLayer(isDark, hideBehindPosition: ride.userSelectedSG == null)
+    await OfflineCrossingsLayer(isDark, hideBehindPosition: false)
         .install(mapController!, iconSize: ppi / 5, at: index);
     index = await getIndex(TrafficLightLayer.layerId);
     if (!mounted) return;
@@ -366,6 +367,72 @@ class RideMapViewState extends State<RideMapView> {
     onRoutingUpdate();
     onPositioningUpdate();
     onRideUpdate();
+  }
+
+  /// A callback which is executed when the map is scrolled.
+  Future<void> onMapScroll(mapbox.ScreenCoordinate screenCoordinate) async {
+    widget.onMapMoved();
+  }
+
+  /// A callback which is executed when a tap on the map is registered.
+  /// This also resolves if a certain feature is being tapped on. This function
+  /// should get screen coordinates. However, at the moment (mapbox_maps_flutter version 0.4.0)
+  /// there is a bug causing this to get world coordinates in the form of a ScreenCoordinate.
+  Future<void> onMapTap(mapbox.ScreenCoordinate screenCoordinate) async {
+    if (mapController == null || !mounted) return;
+
+    // Because of the bug in the plugin we need to calculate the actual screen coordinates to query
+    // for the features in dependence of the tapped on screenCoordinate afterwards. If the bug is
+    // fixed in an upcoming version we need to remove this conversion.
+    final mapbox.ScreenCoordinate actualScreenCoordinate = await mapController!.pixelForCoordinate(
+      mapbox.Point(
+        coordinates: mapbox.Position(
+          screenCoordinate.y,
+          screenCoordinate.x,
+        ),
+      ).toJson(),
+    );
+
+    final List<mapbox.QueriedFeature?> features = await mapController!.queryRenderedFeatures(
+      mapbox.RenderedQueryGeometry(
+        value: json.encode(actualScreenCoordinate.encode()),
+        type: mapbox.Type.SCREEN_COORDINATE,
+      ),
+      mapbox.RenderedQueryOptions(
+        layerIds: [TrafficLightsLayer.layerId, TrafficLightsLayer.touchIndicatorsLayerId],
+      ),
+    );
+
+    if (features.isNotEmpty) {
+      onFeatureTapped(features[0]!);
+    }
+  }
+
+  /// A callback that is called when the user taps a feature.
+  onFeatureTapped(mapbox.QueriedFeature queriedFeature) async {
+    // Map the id of the layer to the corresponding feature.
+    final id = queriedFeature.feature['id'];
+    if ((id as String).startsWith("traffic-light-")) {
+      final sgIdx = int.tryParse(id.split("-")[2]);
+      if (sgIdx == null) return;
+      ride.userSelectSG(sgIdx);
+      if (ride.userSelectedSG != null) {
+        if (mapController == null) return;
+        if (widget.cameraFollowUserLocation) widget.onMapMoved();
+        // The camera target is the selected SG.
+        final cameraTarget = LatLng(ride.userSelectedSG!.position.lat, ride.userSelectedSG!.position.lon);
+        if (!mounted) return;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        await TrafficLightLayer(isDark).update(mapController!);
+        await mapController?.flyTo(
+          mapbox.CameraOptions(
+            center: mapbox.Point(coordinates: mapbox.Position(cameraTarget.longitude, cameraTarget.latitude)).toJson(),
+            padding: mapbox.MbxEdgeInsets(bottom: 200, top: 0, left: 0, right: 0),
+          ),
+          mapbox.MapAnimationOptions(duration: 200),
+        );
+      }
+    }
   }
 
   @override
@@ -387,11 +454,13 @@ class RideMapViewState extends State<RideMapView> {
     return AppMap(
       onMapCreated: onMapCreated,
       onStyleLoaded: onStyleLoaded,
+      onMapScroll: onMapScroll,
+      onMapTap: onMapTap,
       logoViewMargins: Point(20, marginYLogo),
       logoViewOrnamentPosition: mapbox.OrnamentPosition.TOP_LEFT,
       attributionButtonMargins: Point(20, marginYAttribution),
       attributionButtonOrnamentPosition: mapbox.OrnamentPosition.TOP_RIGHT,
-      saveBatteryModeEnabled: settings.saveBatteryModeEnabled,
+      saveBatteryModeEnabled: getIt<Settings>().saveBatteryModeEnabled,
     );
   }
 }

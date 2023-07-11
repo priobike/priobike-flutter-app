@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
@@ -13,6 +14,7 @@ import 'package:priobike/routing/views/search.dart';
 import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/traffic/views/traffic_chart.dart';
 import 'package:priobike/tutorial/service.dart';
+import 'package:priobike/tutorial/view.dart';
 
 /// A bottom sheet to display route details.
 class RouteDetailsBottomSheet extends StatefulWidget {
@@ -157,7 +159,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
         height: (routing.selectedWaypoints?.length ?? 0) * 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Theme.of(context).colorScheme.primary,
+          color: CI.blue,
         ),
       ),
       Column(
@@ -198,22 +200,39 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
     }
     final int okTrafficLights = status.ok;
     final int allTrafficLights = status.ok + status.bad + status.offline + status.disconnected;
+
+    String textTrafficLights;
     if (allTrafficLights > 0) {
-      text += " - $okTrafficLights von $allTrafficLights Ampeln verbunden";
+      textTrafficLights = "$okTrafficLights von $allTrafficLights Ampeln verbunden";
     } else {
-      text += " - Es befinden sich keine Ampeln auf der Route";
+      textTrafficLights = "Es befinden sich keine Ampeln auf der Route";
     }
+
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         children: [
-          BoldSmall(
-            text: text,
-            color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                ? const Color.fromARGB(255, 0, 255, 106)
-                : const Color.fromARGB(255, 0, 220, 92),
-            context: context,
+          RichText(
             textAlign: TextAlign.center,
+            text: TextSpan(
+                text: text,
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontWeight: FontWeight.bold),
+                children: [
+                  TextSpan(
+                    text: " - ",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  TextSpan(
+                    text: textTrafficLights,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.brightness == Brightness.dark
+                          ? const Color.fromARGB(255, 0, 255, 106)
+                          : const Color.fromARGB(255, 0, 220, 92),
+                    ),
+                  ),
+                ]),
           ),
           const SizedBox(height: 2),
           BoldSmall(
@@ -297,6 +316,12 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
                         routing.selectedRoute == null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                   ),
                   renderBottomSheetWaypoints(context),
+                  if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty)
+                    const TutorialView(
+                      id: "priobike.tutorial.draw-waypoints",
+                      text: "Durch langes Drücken auf die Karte kannst du direkt einen Wegpunkt platzieren.",
+                      padding: EdgeInsets.only(left: 18),
+                    ),
                   const Padding(padding: EdgeInsets.only(top: 24), child: RoadClassChart()),
                   const Padding(padding: EdgeInsets.only(top: 8), child: TrafficChart()),
                   const Padding(padding: EdgeInsets.only(top: 8), child: RouteHeightChart()),

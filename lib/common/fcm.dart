@@ -33,17 +33,22 @@ class FCM {
     }
 
     if (topic == null) {
+      if (kDebugMode) {
+        await FirebaseMessaging.instance.subscribeToTopic("dev");
+        topic = "dev";
+        return;
+      }
       await FirebaseMessaging.instance.subscribeToTopic(backend.name);
       topic = backend.name;
       return;
     }
 
-    if (kDebugMode && topic == "dev") {
-      log.i("Already subscribed to dev topic, ignoring.");
-      return;
-    }
-
+    // If we are in debug mode, we want to subscribe to the dev topic.
     if (kDebugMode) {
+      if (topic == "dev") {
+        log.i("Already subscribed to dev topic, ignoring.");
+        return;
+      }
       await FirebaseMessaging.instance.unsubscribeFromTopic(topic!);
       await FirebaseMessaging.instance.subscribeToTopic("dev");
       topic = "dev";
@@ -51,6 +56,7 @@ class FCM {
       return;
     }
 
+    // Else we want to subscribe to the currently used backend.
     if (topic == backend.name) {
       log.i("Already subscribed to backend ${backend.name}, ignoring.");
       return;

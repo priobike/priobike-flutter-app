@@ -56,8 +56,17 @@ class Settings with ChangeNotifier {
   /// The counter of connection error in a row.
   int connectionErrorCounter;
 
+  /// The counter of use of the app.
+  int useCounter;
+
   /// If the save battery mode is enabled.
   bool saveBatteryModeEnabled;
+
+  /// If the save battery mode is enabled.
+  bool dismissedSurvey;
+
+  /// Enable "old" gamification for app
+  bool enableGamification;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -246,6 +255,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const useCounterKey = "priobike.settings.useCounter";
+  static const defaultUseCounter = 0;
+
+  Future<bool> incrementUseCounter([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = useCounter;
+    useCounter += 1;
+    bool success = await storage.setInt(useCounterKey, useCounter);
+    if (!success) {
+      log.e("Failed to increment useCounter to $useCounter");
+      useCounter = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Future<bool> resetConnectionErrorCounter([SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     final prev = connectionErrorCounter;
@@ -271,6 +297,23 @@ class Settings with ChangeNotifier {
     if (!success) {
       log.e("Failed to set sgSelector to $sgSelector");
       this.sgSelector = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const dismissedSurveyKey = "priobike.settings.dissmissedSurvey";
+  static const defaultDismissedSurvey = false;
+
+  Future<bool> setDismissedSurvey(bool dismissedSurvey, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.dismissedSurvey;
+    this.dismissedSurvey = dismissedSurvey;
+    bool success = await storage.setBool(dismissedSurveyKey, dismissedSurvey);
+    if (!success) {
+      log.e("Failed to set sgSelector to $sgSelector");
+      this.dismissedSurvey = prev;
     } else {
       notifyListeners();
     }
@@ -314,6 +357,23 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const enableGamificationKey = "priobike.settings.enableGamification";
+  static const defaultEnableGamification = false;
+
+  Future<bool> setEnableGamification(bool enableGamification, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.enableGamification;
+    this.enableGamification = enableGamification;
+    bool success = await storage.setBool(enableGamificationKey, enableGamification);
+    if (!success) {
+      log.e("Failed to set enablePerformanceOverlay to $enableGamificationKey");
+      this.enableGamification = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
@@ -329,6 +389,9 @@ class Settings with ChangeNotifier {
     this.sgSelector = defaultSGSelector,
     this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
     this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+    this.useCounter = defaultUseCounter,
+    this.dismissedSurvey = defaultDismissedSurvey,
+    this.enableGamification = defaultEnableGamification,
   });
 
   /// Load the backend from the shared
@@ -349,7 +412,9 @@ class Settings with ChangeNotifier {
   Future<void> loadBetaSettings(SharedPreferences storage) async {
     try {
       routingEndpoint = RoutingEndpoint.values.byName(storage.getString(routingEndpointKey)!);
-    } catch (e) {/* Do nothing and use the default value given by the constructor. */}
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
   }
 
   /// Load the internal settings from the shared preferences.
@@ -387,6 +452,8 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+
+    enableGamification = storage.getBool(enableGamificationKey) ?? defaultEnableGamification;
   }
 
   /// Load the stored settings.
@@ -403,6 +470,7 @@ class Settings with ChangeNotifier {
 
     // All remaining settings.
     connectionErrorCounter = storage.getInt(connectionErrorCounterKey) ?? defaultConnectionErrorCounter;
+    useCounter = storage.getInt(useCounterKey) ?? defaultUseCounter;
     try {
       colorMode = ColorMode.values.byName(storage.getString(colorModeKey)!);
     } catch (e) {
@@ -424,6 +492,11 @@ class Settings with ChangeNotifier {
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
+    try {
+      dismissedSurvey = storage.getBool(dismissedSurveyKey) ?? defaultDismissedSurvey;
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
 
     hasLoaded = true;
     notifyListeners();
@@ -442,8 +515,11 @@ class Settings with ChangeNotifier {
         "speedMode": speedMode.name,
         "datastreamMode": datastreamMode.name,
         "connectionErrorCounter": connectionErrorCounter,
+        "useCounter": useCounter,
         "sgSelector": sgSelector.name,
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
+        "dismissedSurvey": dismissedSurvey,
+        "enableGamification": enableGamification
       };
 }

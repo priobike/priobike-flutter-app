@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
-import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/main.dart';
-import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
-import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
@@ -20,9 +15,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/settings/views/wear_communication_test.dart';
 import 'package:priobike/settings/views/wear_pretests.dart';
-import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tutorial/service.dart';
-import 'package:priobike/weather/service.dart';
 
 class InternalSettingsView extends StatefulWidget {
   const InternalSettingsView({Key? key}) : super(key: key);
@@ -36,22 +29,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
   late Settings settings;
 
   /// The associated shortcuts service, which is injected by the provider.
-  late Shortcuts shortcuts;
-
-  /// The associated prediction status service, which is injected by the provider.
-  late PredictionStatusSummary predictionStatusSummary;
-
-  /// The associated shortcuts service, which is injected by the provider.
   late Positioning position;
-
-  /// The associated routing service, which is injected by the provider.
-  late Routing routing;
-
-  /// The associated news service, which is injected by the provider.
-  late News news;
-
-  /// The associated weather service, which is injected by the provider.
-  late Weather weather;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -62,53 +40,15 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
-    predictionStatusSummary = getIt<PredictionStatusSummary>();
-    predictionStatusSummary.addListener(update);
-    shortcuts = getIt<Shortcuts>();
-    shortcuts.addListener(update);
     position = getIt<Positioning>();
     position.addListener(update);
-    routing = getIt<Routing>();
-    routing.addListener(update);
-    news = getIt<News>();
-    news.addListener(update);
-    weather = getIt<Weather>();
-    weather.addListener(update);
   }
 
   @override
   void dispose() {
     settings.removeListener(update);
-    predictionStatusSummary.removeListener(update);
-    shortcuts.removeListener(update);
     position.removeListener(update);
-    routing.removeListener(update);
-    news.removeListener(update);
-    weather.removeListener(update);
     super.dispose();
-  }
-
-  /// A callback that is executed when a backend is selected.
-  Future<void> onSelectBackend(Backend backend) async {
-    // Tell the settings service that we selected the new backend.
-    await settings.setBackend(backend);
-
-    // Tell the fcm service that we selected the new backend.
-    await FCM.selectTopic(backend);
-
-    // Reset the associated services.
-    await predictionStatusSummary.reset();
-    await shortcuts.reset();
-    await routing.reset();
-    await news.reset();
-
-    // Load stuff for the new backend.
-    await news.getArticles();
-    await shortcuts.loadShortcuts();
-    await predictionStatusSummary.fetch();
-    await weather.fetch();
-
-    if (mounted) Navigator.pop(context);
   }
 
   /// A callback that is executed when a predictor mode is selected.
@@ -168,6 +108,42 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Fahrt Unterstützung",
+                    subtitle: settings.predictionMode.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: PredictionMode.values,
+                            selected: settings.predictionMode,
+                            title: (PredictionMode e) => e.description,
+                            callback: onSelectPredictionMode);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Modalität",
+                    subtitle: settings.predictionMode.description,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: PredictionMode.values,
+                            selected: settings.predictionMode,
+                            title: (PredictionMode e) => e.description,
+                            callback: onSelectPredictionMode);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Wear OS Communication test",
                     icon: Icons.tab_outlined,
                     callback: () => Navigator.push(
@@ -189,24 +165,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Performance-Overlay",
                     icon: settings.enablePerformanceOverlay ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setEnablePerformanceOverlay(!settings.enablePerformanceOverlay),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SettingsElement(
-                    title: "Testort",
-                    subtitle: settings.backend.region,
-                    icon: Icons.expand_more,
-                    callback: () => showAppSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SettingsSelection(
-                            elements: Backend.values,
-                            selected: settings.backend,
-                            title: (Backend e) => e.region,
-                            callback: onSelectBackend);
-                      },
-                    ),
                   ),
                 ),
                 Padding(
@@ -306,6 +264,22 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                     title: "Sicherheits-Warnung zurücksetzen",
                     icon: Icons.recycling,
                     callback: () => getIt<Settings>().setDidViewWarning(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Umfrage zurücksetzen",
+                    icon: Icons.recycling,
+                    callback: () => getIt<Settings>().setDismissedSurvey(false),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Gamification",
+                    icon: settings.enableGamification ? Icons.check_box : Icons.check_box_outline_blank,
+                    callback: () => settings.setEnableGamification(!settings.enableGamification),
                   ),
                 ),
                 const SmallVSpace(),

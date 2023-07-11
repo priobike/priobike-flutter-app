@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/licenses/views.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/privacy/views.dart';
@@ -18,6 +21,7 @@ import 'package:priobike/settings/views/internal.dart';
 import 'package:priobike/settings/views/text.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/user.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsElement extends StatelessWidget {
   /// The title of the settings element.
@@ -53,8 +57,7 @@ class SettingsElement extends StatelessWidget {
                 children: [
                   BoldContent(text: title, context: context),
                   if (subtitle != null) const SmallVSpace(),
-                  if (subtitle != null)
-                    Content(text: subtitle!, color: Theme.of(context).colorScheme.primary, context: context),
+                  if (subtitle != null) Content(text: subtitle!, color: CI.blue, context: context),
                 ],
               ),
             ),
@@ -217,6 +220,25 @@ class SettingsViewState extends State<SettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when the user wants to report bugs via e-mail.
+  Future<void> launchMailTo() async {
+    final params = {
+      'subject': 'Priobike - Fehler melden',
+      'body': 'Hallo Priobike-Team,\n\n',
+    };
+    final query = params.entries
+        .map((MapEntry<String, String> e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'priobike@tu-dresden.de',
+      query: query,
+    );
+    if (!await launchUrl(emailLaunchUri)) {
+      throw Exception('Could not launch $emailLaunchUri');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -367,6 +389,36 @@ class SettingsViewState extends State<SettingsView> {
                   child: Small(
                     text:
                         "Hinweis: Wenn aktiviert, wird die Qualität der Kartendarstellung während der Fahrt reduziert.",
+                    context: context,
+                  ),
+                ),
+                const VSpace(),
+                SettingsElement(
+                  title: "App bewerten",
+                  icon: Icons.rate_review_outlined,
+                  callback: () {
+                    final InAppReview inAppReview = InAppReview.instance;
+                    inAppReview.openStoreListing(appStoreId: "1634224594");
+                  },
+                ),
+                const VSpace(),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: SurveyView(
+                    dismissible: false,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      bottomLeft: Radius.circular(24),
+                    ),
+                  ),
+                ),
+                const VSpace(),
+                SettingsElement(title: "Fehler melden", icon: Icons.report_problem_rounded, callback: launchMailTo),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Es öffnet sich das E-Mail-Programm deines Geräts. Bitte beschreibe die Umstände, unter denen der Fehler aufgetreten ist, so genau wie möglich. Wir werden uns schnellstmöglich um das Problem kümmern. Vielen Dank für die Unterstützung!",
                     context: context,
                   ),
                 ),

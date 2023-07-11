@@ -14,6 +14,7 @@ import 'package:priobike/settings/services/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class News with ChangeNotifier {
+  /// The bool that holds the state if the data was loaded at least once.
   var hasLoaded = false;
 
   /// The logger for this service.
@@ -39,8 +40,6 @@ class News with ChangeNotifier {
 
   /// Returns all available articles from the shared preferences or if not stored locally from the backend server.
   Future<void> getArticles() async {
-    if (hasLoaded) return;
-
     // Get articles that are already saved in the shared preferences on the device.
     List<Article> localSavedArticles = await _getStoredArticles();
 

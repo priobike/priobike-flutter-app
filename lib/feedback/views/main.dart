@@ -66,7 +66,7 @@ class FeedbackViewState extends State<FeedbackView> {
     }
   }
 
-  /// Reenable the buttom navigation bar on Android after hiding it in Speedometer View
+  /// Reenable the bottom navigation bar on Android after hiding it in Speedometer View
   void showNavigationBarAndroid() {
     if (Platform.isAndroid) {
       SystemChrome.setEnabledSystemUIMode(
@@ -338,7 +338,7 @@ class FeedbackViewState extends State<FeedbackView> {
                         child: TrackPictogram(
                           track: getIt<Positioning>().positions,
                           minSpeedColor: CI.blue,
-                          maxSpeedColor: const Color.fromARGB(255, 0, 255, 106),
+                          maxSpeedColor: CI.blue,
                         ),
                       ),
                     ),

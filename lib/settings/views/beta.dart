@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/services.dart';
+import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
+import 'package:priobike/status/services/status_history.dart';
+import 'package:priobike/status/services/summary.dart';
+import 'package:priobike/weather/service.dart';
 import 'package:share_plus/share_plus.dart';
 
 class BetaSettingsView extends StatefulWidget {
@@ -23,6 +32,27 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
 
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatusSummary predictionStatusSummary;
+
+  /// The associated status history service, which is injected by the provider.
+  late StatusHistory statusHistory;
+
+  /// The associated shortcuts service, which is injected by the provider.
+  late Shortcuts shortcuts;
+
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
+  /// The associated news service, which is injected by the provider.
+  late News news;
+
+  /// The associated weather service, which is injected by the provider.
+  late Weather weather;
+
+  /// The associated bounding box service, which is injected by the provider.
+  late Boundary boundary;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
@@ -32,11 +62,30 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
 
     settings = getIt<Settings>();
     settings.addListener(update);
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
+    predictionStatusSummary.addListener(update);
+    statusHistory = getIt<StatusHistory>();
+    statusHistory.addListener(update);
+    shortcuts = getIt<Shortcuts>();
+    shortcuts.addListener(update);
+    routing = getIt<Routing>();
+    routing.addListener(update);
+    news = getIt<News>();
+    news.addListener(update);
+    weather = getIt<Weather>();
+    weather.addListener(update);
+    boundary = getIt<Boundary>();
   }
 
   @override
   void dispose() {
     settings.removeListener(update);
+    predictionStatusSummary.removeListener(update);
+    statusHistory.removeListener(update);
+    shortcuts.removeListener(update);
+    routing.removeListener(update);
+    news.removeListener(update);
+    weather.removeListener(update);
     super.dispose();
   }
 
@@ -52,6 +101,32 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
   Future<void> onSelectSGSelector(SGSelector sgSelector) async {
     // Tell the settings service that we selected the new sg-selector.
     await settings.setSGSelector(sgSelector);
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a backend is selected.
+  Future<void> onSelectBackend(Backend backend) async {
+    // Tell the settings service that we selected the new backend.
+    await settings.setBackend(backend);
+
+    // Tell the fcm service that we selected the new backend.
+    await FCM.selectTopic(backend);
+
+    // Reset the associated services.
+    await predictionStatusSummary.reset();
+    await statusHistory.reset();
+    await shortcuts.reset();
+    await routing.reset();
+    await news.reset();
+
+    // Load stuff for the new backend.
+    await news.getArticles();
+    await shortcuts.loadShortcuts();
+    await predictionStatusSummary.fetch();
+    await statusHistory.fetch();
+    await weather.fetch();
+    await boundary.loadBoundaryCoordinates();
 
     if (mounted) Navigator.pop(context);
   }
@@ -143,6 +218,32 @@ class BetaSettingsViewState extends State<BetaSettingsView> {
                   child: Small(
                     text:
                         "Wenn du Probleme mit der Auswahl der Ampeln entlang der Route hast, kannst du diese Einstellung wechseln.",
+                    context: context,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
+                    title: "Ort",
+                    subtitle: settings.backend.region,
+                    icon: Icons.expand_more,
+                    callback: () => showAppSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SettingsSelection(
+                            elements: Backend.values,
+                            selected: settings.backend,
+                            title: (Backend e) => e.region,
+                            callback: onSelectBackend);
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34, top: 8, bottom: 8, right: 24),
+                  child: Small(
+                    text:
+                        "Diese Einstellung steht vorübergehend für interne Testzwecke in Dresden zur Verfügung. Bei Verwendung der App in Hamburg ist die entsprechende Auswahl von \"Hamburg\" erforderlich.",
                     context: context,
                   ),
                 ),

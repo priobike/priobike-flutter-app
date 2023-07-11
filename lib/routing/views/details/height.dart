@@ -41,7 +41,7 @@ class RouteHeightPainter extends CustomPainter {
   BuildContext context;
 
   /// The state of the chart.
-  RouteHeightChartState routeHeightChart;
+  RouteHeightChartState routeHeightChartState;
 
   /// The padding of the chart.
   final paddingTopBottom = 14.0;
@@ -67,7 +67,7 @@ class RouteHeightPainter extends CustomPainter {
   /// The maximum height of the route +1.0 as padding for the y-axis.
   late double maxHeight;
 
-  RouteHeightPainter(this.context, this.routeHeightChart);
+  RouteHeightPainter(this.context, this.routeHeightChartState);
 
   /// Sets the basic variables for the painter.
   void initializePainter(Canvas canvas, Size size) {
@@ -78,15 +78,15 @@ class RouteHeightPainter extends CustomPainter {
     yBottom = size.height - paddingTopBottom;
 
     // set 1 as padding for the y-axis
-    minHeight = routeHeightChart.minHeight! - 1.0;
-    maxHeight = routeHeightChart.maxHeight! + 1.0;
+    minHeight = routeHeightChartState.minHeight! - 1.0;
+    maxHeight = routeHeightChartState.maxHeight! + 1.0;
 
     // If maxHeight == minHeight (which can only happen at very short distances), the following calculations fails
     // To display it anyway, we set the scale to 0.5
-    if (routeHeightChart.maxHeight == routeHeightChart.minHeight) {
+    if (routeHeightChartState.maxHeight == routeHeightChartState.minHeight) {
       yStartingPoint = yBottom - (yBottom - yTop) * 0.5;
     } else {
-      final scale = (routeHeightChart.heightStartPoint! - minHeight) / (maxHeight - minHeight);
+      final scale = (routeHeightChartState.heightStartPoint! - minHeight) / (maxHeight - minHeight);
       yStartingPoint = yBottom - (yBottom - yTop) * scale;
     }
   }
@@ -127,8 +127,8 @@ class RouteHeightPainter extends CustomPainter {
     const distanceFromYAxis = 6.0;
 
     // The top and bottom labels on the y-axis
-    final double labelYTop = maxHeight - routeHeightChart.heightStartPoint!;
-    final double labelYBottom = minHeight - routeHeightChart.heightStartPoint!;
+    final double labelYTop = maxHeight - routeHeightChartState.heightStartPoint!;
+    final double labelYBottom = minHeight - routeHeightChartState.heightStartPoint!;
 
     // How many decimal places to show on the y-axis
     final int decimalPlacesY;
@@ -150,13 +150,13 @@ class RouteHeightPainter extends CustomPainter {
     }
 
     // If a very short route is encountered, units for distance is meters
-    if (routeHeightChart.maxDistance! < 1) {
+    if (routeHeightChartState.maxDistance! < 1) {
       unit = "m";
-      routeLength = routeHeightChart.maxDistance! * 1000;
+      routeLength = routeHeightChartState.maxDistance! * 1000;
       decimalPlacesX = 0;
     } else {
       unit = "km";
-      routeLength = routeHeightChart.maxDistance!;
+      routeLength = routeHeightChartState.maxDistance!;
       decimalPlacesX = 1;
     }
 
@@ -260,8 +260,8 @@ class RouteHeightPainter extends CustomPainter {
 
     // Create new list to make sure the main line is always last, so it is drawn on top
     List<LineElement> sortedLineElements = List.empty(growable: true);
-    sortedLineElements.addAll(routeHeightChart.lineElements.where((element) => !element.isMainLine));
-    sortedLineElements.add(routeHeightChart.lineElements.firstWhere((element) => element.isMainLine));
+    sortedLineElements.addAll(routeHeightChartState.lineElements.where((element) => !element.isMainLine));
+    sortedLineElements.add(routeHeightChartState.lineElements.firstWhere((element) => element.isMainLine));
 
     for (LineElement element in sortedLineElements) {
       if (element.isMainLine) {
@@ -299,7 +299,7 @@ class RouteHeightPainter extends CustomPainter {
         final height = heightData.height - minHeight;
         final spectrum = maxHeight - minHeight;
         final x = paddingLeft +
-            (heightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
+            (heightData.distance / routeHeightChartState.maxDistance!) * (size.width - paddingRight - paddingLeft);
         final y =
             size.height - paddingTopBottom - (height / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
 
@@ -311,7 +311,8 @@ class RouteHeightPainter extends CustomPainter {
           final nextHeightData = element.series[nextIndex];
           final nextHeight = nextHeightData.height - minHeight;
           final nextX = paddingLeft +
-              (nextHeightData.distance / routeHeightChart.maxDistance!) * (size.width - paddingRight - paddingLeft);
+              (nextHeightData.distance / routeHeightChartState.maxDistance!) *
+                  (size.width - paddingRight - paddingLeft);
           final nextY = size.height -
               paddingTopBottom -
               (nextHeight / spectrum) * (size.height - paddingTopBottom - paddingTopBottom);
@@ -427,6 +428,7 @@ class RouteHeightChartState extends State<RouteHeightChart> {
   @override
   Widget build(BuildContext context) {
     if (lineElements.isEmpty || maxDistance == 0.0) return Container();
+    if (routing.selectedRoute == null) return Container();
 
     return Container(
       decoration: BoxDecoration(

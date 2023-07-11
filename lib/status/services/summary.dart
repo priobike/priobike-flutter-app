@@ -62,6 +62,62 @@ class PredictionStatusSummary with ChangeNotifier {
     }
   }
 
+  /// Get the problem text if problems are detected.
+  String? getProblem() {
+    if (current == null) return null;
+
+    String? problem;
+    if (current!.mostRecentPredictionTime != null &&
+        current!.mostRecentPredictionTime! <
+            current!.statusUpdateTime && // Sometimes we may have a prediction "from the future".
+        (current!.mostRecentPredictionTime! - current!.statusUpdateTime).abs() > const Duration(minutes: 5).inSeconds) {
+      // Render the most recent prediction time as hh:mm.
+      final time = DateTime.fromMillisecondsSinceEpoch(current!.mostRecentPredictionTime! * 1000);
+      final formattedTime = "${time.hour.toString().padLeft(2, "0")}:${time.minute.toString().padLeft(2, "0")}";
+      problem =
+          "Seit $formattedTime Uhr senden Ampeln keine oder nur noch wenige Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.numThings != 0 && current!.numPredictions / current!.numThings < 0.5) {
+      problem = "Gerade senden weniger Ampeln als gewöhnlich Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.numPredictions != 0 && current!.numBadPredictions / current!.numPredictions > 0.5) {
+      problem = "Viele Ampeln senden gerade lückenhafte Daten. Klicke hier für eine Störungskarte.";
+    } else if (current!.averagePredictionQuality != null && current!.averagePredictionQuality! < 0.5) {
+      problem =
+          "Im Moment kann die Qualität der Geschwindigkeitsempfehlungen für Ampeln niedriger als gewohnt sein. Klicke hier für eine Störungskarte.";
+    }
+
+    return problem;
+  }
+
+  /// Get a text for the current status.
+  String getStatusText() {
+    if (current == null) return "";
+
+    var info = "";
+
+    var ratio = 0.0;
+    if (current!.numThings != 0) {
+      ratio = (current!.numPredictions - current!.numBadPredictions) / current!.numThings;
+    }
+
+    if (ratio > 0.95) {
+      info += "Sieht sehr gut aus!";
+    } else if (ratio > 0.9) {
+      info += "Sieht gut aus.";
+    } else if (ratio > 0.85) {
+      info += "Sieht weitestgehend gut aus.";
+    } else if (ratio > 0.8) {
+      info += "Mit kleinen Ausnahmen sieht es gut aus.";
+    } else if (ratio > 0.75) {
+      info += "Es kommt zurzeit zu kleineren Einschränkungen.";
+    } else {
+      info += "Es kommt zurzeit zu größeren Einschränkungen.";
+    }
+
+    info += " Klicke hier für eine Störungskarte.";
+
+    return info;
+  }
+
   /// Reset the status.
   Future<void> reset() async {
     current = null;

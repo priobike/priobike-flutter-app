@@ -15,10 +15,12 @@ import 'package:priobike/logging/logger.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
+import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/weather/service.dart';
@@ -83,8 +85,12 @@ class LoaderState extends State<Loader> {
       final predictionStatusSummary = getIt<PredictionStatusSummary>();
       await predictionStatusSummary.fetch();
       if (predictionStatusSummary.hadError) throw Exception("Could not load prediction status");
+      final statusHistory = getIt<StatusHistory>();
+      await statusHistory.fetch();
       final weather = getIt<Weather>();
       await weather.fetch();
+      await getIt<Boundary>().loadBoundaryCoordinates();
+      settings.incrementUseCounter();
     } catch (e) {
       HapticFeedback.heavyImpact();
       setState(() => hasError = true);
@@ -194,7 +200,7 @@ class LoaderState extends State<Loader> {
                         0.1,
                         0.9,
                       ],
-                      colors: [CI.lightBlue, CI.blue],
+                      colors: [CI.blueLight, CI.blue],
                     ),
                   )
                 : const BoxDecoration(

@@ -52,23 +52,6 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleMLKit/BarcodeScanning (3.2.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 2.2.0)
-  - GoogleMLKit/MLKitCore (3.2.0):
-    - MLKitCommon (~> 8.0.0)
-  - GoogleToolboxForMac/DebugUtils (2.3.2):
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-  - GoogleToolboxForMac/Defines (2.3.2)
-  - GoogleToolboxForMac/Logger (2.3.2):
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-  - "GoogleToolboxForMac/NSData+zlib (2.3.2)":
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.3.2)":
-    - GoogleToolboxForMac/DebugUtils (= 2.3.2)
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-    - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
-  - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
   - GoogleUtilities/AppDelegateSwizzler (7.11.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -86,9 +69,8 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.11.0):
     - GoogleUtilities/Logger
-  - GoogleUtilitiesComponents (1.1.0):
-    - GoogleUtilities/Logger
-  - GTMSessionFetcher/Core (1.7.2)
+  - in_app_review (0.2.0):
+    - Flutter
   - mapbox_maps_flutter (0.4.2):
     - Flutter
     - MapboxMaps (~> 10.10.0)
@@ -101,29 +83,7 @@ PODS:
     - MapboxMobileEvents (= 1.0.10)
     - Turf (~> 2.0)
   - MapboxMobileEvents (1.0.10)
-  - MLImage (1.0.0-beta3)
-  - MLKitBarcodeScanning (2.2.0):
-    - MLKitCommon (~> 8.0)
-    - MLKitVision (~> 4.2)
-  - MLKitCommon (8.0.0):
-    - GoogleDataTransport (~> 9.0)
-    - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
-    - GoogleUtilities/UserDefaults (~> 7.0)
-    - GoogleUtilitiesComponents (~> 1.0)
-    - GTMSessionFetcher/Core (~> 1.1)
-    - Protobuf (~> 3.12)
-  - MLKitVision (4.2.0):
-    - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-    - GTMSessionFetcher/Core (~> 1.1)
-    - MLImage (= 1.0.0-beta3)
-    - MLKitCommon (~> 8.0)
-    - Protobuf (~> 3.12)
-  - mobile_scanner (3.0.0):
-    - Flutter
-    - GoogleMLKit/BarcodeScanning (~> 3.2.0)
+  - MTBBarcodeScanner (5.0.11)
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
@@ -135,7 +95,9 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.1.1)
-  - Protobuf (3.22.1)
+  - qr_code_scanner (0.2.0):
+    - Flutter
+    - MTBBarcodeScanner
   - ReachabilitySwift (5.0.0)
   - sensors_plus (0.0.1):
     - Flutter
@@ -164,10 +126,11 @@ DEPENDENCIES:
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - mapbox_maps_flutter (from `.symlinks/plugins/mapbox_maps_flutter/ios`)
-  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
@@ -183,22 +146,14 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseMessaging
     - GoogleDataTransport
-    - GoogleMLKit
-    - GoogleToolboxForMac
     - GoogleUtilities
-    - GoogleUtilitiesComponents
-    - GTMSessionFetcher
     - MapboxCommon
     - MapboxCoreMaps
     - MapboxMaps
     - MapboxMobileEvents
-    - MLImage
-    - MLKitBarcodeScanning
-    - MLKitCommon
-    - MLKitVision
+    - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
-    - Protobuf
     - ReachabilitySwift
     - Toast
     - Turf
@@ -224,14 +179,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
+  in_app_review:
+    :path: ".symlinks/plugins/in_app_review/ios"
   mapbox_maps_flutter:
     :path: ".symlinks/plugins/mapbox_maps_flutter/ios"
-  mobile_scanner:
-    :path: ".symlinks/plugins/mobile_scanner/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/ios"
+  qr_code_scanner:
+    :path: ".symlinks/plugins/qr_code_scanner/ios"
   sensors_plus:
     :path: ".symlinks/plugins/sensors_plus/ios"
   share_plus:
@@ -262,26 +219,19 @@ SPEC CHECKSUMS:
   fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   GoogleDataTransport: ea169759df570f4e37bdee1623ec32a7e64e67c4
-  GoogleMLKit: 0017a6a8372e1a182139b9def4d89be5d87ca5a7
-  GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
-  GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
-  GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
+  in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   mapbox_maps_flutter: be1a16ff33006fff69d5c21b1cec8ed82be9c02d
   MapboxCommon: 235bb9c27a8985d982e17f216795b1f7ab526782
   MapboxCoreMaps: 4075a9e415b9b3ab6229d09623fef5f791826a5b
   MapboxMaps: 0c2f7722016bc56aa27b5e6bcf72ae4df7a98670
   MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
-  MLImage: 489dfec109f21da8621b28d476401aaf7a0d4ff4
-  MLKitBarcodeScanning: d92fe1911001ec36870162c5a0eb206f612b7169
-  MLKitCommon: f6da6c5659618c070b50a80db01248ebe2964175
-  MLKitVision: 96c96571190b7f63eddf4a12068ce8a8689e0d2c
-  mobile_scanner: 004f7ad2fe4e2b5a3e6ed0bc4b83ca9c5b5dd975
+  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
-  Protobuf: d7f7c8329edf5eb8af65547a8ba3e9c1cee927d5
+  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   sensors_plus: 5717760720f7e6acd96fdbd75b7428f5ad755ec2
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68

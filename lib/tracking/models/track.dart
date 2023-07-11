@@ -67,6 +67,9 @@ class Track {
   /// The build number of the app.
   String buildNumber;
 
+  /// The branch of the current version app.
+  String subVersion;
+
   /// The prediction status summary before the ride.
   /// This can be used to determine tracks with bad prediction quality
   /// and tracks with good prediction quality.
@@ -100,6 +103,12 @@ class Track {
   /// This may only contain one route, if the user did not deviate from the route.
   /// Otherwise we can identify the time when the route was recalculated.
   Map<int, Route> routes;
+
+  /// Until the new gamification concept is implemented, this value should remain hardcoded to false.
+  /// This flag can be used to find out whether the original gamification concept was used in the corresponding track.
+  /// (If the flag doesn't exist it means that it was still active during the ride)
+  /// After the gamification concept is implemented the flag has to be set to true.
+  bool canUseGamification;
 
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
@@ -155,6 +164,8 @@ class Track {
     required this.preferenceType,
     required this.activityType,
     required this.routes,
+    required this.subVersion,
+    this.canUseGamification = false,
   });
 
   /// Convert the track to a json object.
@@ -174,6 +185,8 @@ class Track {
       'deviceHeight': deviceHeight,
       'appVersion': appVersion,
       'buildNumber': buildNumber,
+      'subVersion': subVersion,
+      'canUseGamification': canUseGamification,
       'statusSummary': statusSummary.toJsonCamelCase(),
       'taps': taps.map((e) => e.toJson()).toList(),
       'predictionServicePredictions': predictionServicePredictions.map((e) => e.toJson()).toList(),
@@ -223,6 +236,8 @@ class Track {
       activityType: json['activityType'] == null ? null : ActivityType.values.byName(json['activityType']),
       routes: Map.fromEntries(
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
+      subVersion: json['subVersion'],
+      canUseGamification: json['canUseGamification'],
     );
   }
 }

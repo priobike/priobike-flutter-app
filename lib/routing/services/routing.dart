@@ -15,6 +15,7 @@ import 'package:priobike/routing/models/crossing.dart';
 import 'package:priobike/routing/models/route.dart' as r;
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/routing/models/waypoint.dart';
+import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/routing.dart';
@@ -109,14 +110,14 @@ class Routing with ChangeNotifier {
   /// The logger for this service.
   final log = Logger("Routing");
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// A boolean indicating if the service is currently loading the route.
   bool isFetchingRoute = false;
 
   /// A boolean indicating if there was an error.
   bool hadErrorDuringFetch = false;
+
+  /// A boolean indicating if waypoints are out of the city boundaries.
+  bool waypointsOutOfBoundaries = false;
 
   /// The waypoints of the loaded route, if provided.
   List<Waypoint>? fetchedWaypoints;
@@ -127,20 +128,11 @@ class Routing with ChangeNotifier {
   /// The waypoints of the selected route, if provided.
   List<Waypoint>? selectedWaypoints;
 
-  /// The list of waypoints for SearchRoutingView.
-  List<Waypoint?> routingItems = [];
-
-  /// The index which routingBarItem gets highlighted next.
-  int nextItem = -1;
-
   /// The currently selected route, if one fetched.
   r.Route? selectedRoute;
 
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
-
-  /// Variable that holds the state of which the item should be minimized to max 3 items.
-  bool minimized = false;
 
   Routing({
     this.fetchedWaypoints,
@@ -170,13 +162,10 @@ class Routing with ChangeNotifier {
       selectedRoute = null;
       allRoutes = null;
       fetchedWaypoints = null;
-    }
-    notifyListeners();
-  }
 
-  /// Select new waypoints.
-  Future<void> selectRoutingItems(List<Waypoint?> waypoints) async {
-    routingItems = waypoints;
+      final discomforts = getIt<Discomforts>();
+      await discomforts.reset();
+    }
     notifyListeners();
   }
 
@@ -206,16 +195,12 @@ class Routing with ChangeNotifier {
 
   // Reset the routing service.
   Future<void> reset() async {
-    needsLayout = {};
     hadErrorDuringFetch = false;
     isFetchingRoute = false;
     fetchedWaypoints = null;
     selectedWaypoints = null;
-    routingItems = [];
-    nextItem = -1;
     selectedRoute = null;
     allRoutes = null;
-    minimized = false;
     notifyListeners();
   }
 
@@ -339,6 +324,17 @@ class Routing with ChangeNotifier {
     }
   }
 
+  /// Check if all waypoints are inside of the city boundaries.
+  bool inCityBoundary(List<Waypoint> waypoints) {
+    final boundary = getIt<Boundary>();
+    for (final waypoint in waypoints) {
+      if (!boundary.checkIfPointIsInBoundary(waypoint.lon, waypoint.lat)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// Load the routes from the server.
   /// To execute this method, waypoints must be given beforehand.
   Future<List<r.Route>?> loadRoutes() async {
@@ -354,7 +350,17 @@ class Routing with ChangeNotifier {
 
     isFetchingRoute = true;
     hadErrorDuringFetch = false;
+    waypointsOutOfBoundaries = false;
     notifyListeners();
+
+    // Check if the waypoints are inside of the city boundaries.
+    if (!inCityBoundary(selectedWaypoints!)) {
+      hadErrorDuringFetch = true;
+      waypointsOutOfBoundaries = true;
+      isFetchingRoute = false;
+      notifyListeners();
+      return null;
+    }
 
     // Select the correct profile.
     selectedProfile = await selectProfile();
@@ -473,23 +479,5 @@ class Routing with ChangeNotifier {
     await status.fetch(selectedRoute!);
 
     notifyListeners();
-  }
-
-  void switchMinimized() {
-    minimized = !minimized;
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
-  }
-
-  void setMinimized() {
-    minimized = false;
-    // Use original notifyListeners to prevent setting camera to route bounds.
-    super.notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:flutter/material.dart' hide Shortcuts, Feedback;
 import 'package:flutter/services.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:priobike/common/animation.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/modal.dart';
@@ -12,26 +13,30 @@ import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
+import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
 import 'package:priobike/home/views/shortcuts/selection.dart';
+import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
-import 'package:priobike/settings/models/backend.dart';
-import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/statistics/views/total.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
-import 'package:priobike/status/views/status.dart';
+import 'package:priobike/status/views/status_tabs.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
 import 'package:priobike/wiki/view.dart';
+
+/// List that holds the number of app uses when the rate function should be triggered.
+const List<int> askRateAppList = [5, 10, 20, 40, 60, 100, 150, 200, 300];
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -40,7 +45,7 @@ class HomeView extends StatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView> {
+class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAware {
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -65,12 +70,20 @@ class HomeViewState extends State<HomeView> {
   /// The associated statistics service, which is injected by the provider.
   late Statistics statistics;
 
+  /// The associated prediction status service, which is injected by the provider.
+  late PredictionStatusSummary predictionStatusSummary;
+
+  /// The associated status history service, which is injected by the provider.
+  late StatusHistory statusHistory;
+
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     news = getIt<News>();
     news.addListener(update);
@@ -80,15 +93,54 @@ class HomeViewState extends State<HomeView> {
     settings.addListener(update);
     shortcuts = getIt<Shortcuts>();
     shortcuts.addListener(update);
-
+    predictionStatusSummary = getIt<PredictionStatusSummary>();
+    statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
+
+    // Check if app should be rated.
+    if (askRateAppList.contains(settings.useCounter)) {
+      rateApp();
+    }
+  }
+
+  /// Function that starts the inAppReview.
+  Future<void> rateApp() async {
+    final InAppReview inAppReview = InAppReview.instance;
+
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      predictionStatusSummary.fetch();
+      statusHistory.fetch();
+      news.getArticles();
+    }
+  }
+
+  @override
+  void didPopNext() {
+    predictionStatusSummary.fetch();
+    statusHistory.fetch();
+    news.getArticles();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
     news.removeListener(update);
     profile.removeListener(update);
     settings.removeListener(update);
@@ -116,28 +168,45 @@ class HomeViewState extends State<HomeView> {
   }
 
   /// A callback that is fired when a shortcut was selected.
-  void onSelectShortcut(Shortcut shortcut) {
+  /// Checks if the shortcut is valid, i.e. if all waypoints are inside the bounding box.
+  Future<void> onSelectShortcut(Shortcut shortcut) async {
     HapticFeedback.mediumImpact();
+    final shortcutIsValid = shortcut.isValid();
+
+    if (!shortcutIsValid) {
+      final backend = getIt<Settings>().backend;
+      final shortcuts = getIt<Shortcuts>();
+      showDialog(
+        context: context,
+        builder: (context) => InvalidShortCutDialog(
+          backend: backend,
+          shortcuts: shortcuts,
+          shortcut: shortcut,
+          context: context,
+        ),
+      );
+      return;
+    }
 
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
     routing.selectWaypoints(List.from(shortcut.waypoints));
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-      (comingNotFromRoutingView) {
-        if (comingNotFromRoutingView == null) {
-          routing.reset();
-          discomforts.reset();
-          predictionSGStatus.reset();
-        }
-      },
-    );
+
+    pushRoutingView();
   }
 
   /// A callback that is fired when free routing was selected.
   void onStartFreeRouting() {
     HapticFeedback.mediumImpact();
 
+    pushRoutingView();
+  }
+
+  /// Pushes the routing view.
+  /// Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+  /// If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+  void pushRoutingView() {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
@@ -154,37 +223,6 @@ class HomeViewState extends State<HomeView> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
-  Widget renderDebugHint() {
-    String? description;
-    if (settings.backend != Backend.production) {
-      description = "Testort ist gewählt.";
-    }
-    if (settings.positioningMode != PositioningMode.gnss) {
-      description = "Testortung ist aktiv.";
-    }
-    if (description == null) return Container();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(246, 230, 51, 40),
-          borderRadius: BorderRadius.all(Radius.circular(24)),
-        ),
-        child: HPad(
-          child: Row(
-            children: [
-              const Icon(Icons.warning_rounded, color: Colors.white),
-              const SmallHSpace(),
-              Flexible(child: Content(text: description, context: context, color: Colors.white)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,7 +234,9 @@ class HomeViewState extends State<HomeView> {
         displacement: 42,
         onRefresh: () async {
           HapticFeedback.lightImpact();
-          await getIt<PredictionStatusSummary>().fetch();
+          await predictionStatusSummary.fetch();
+          await statusHistory.fetch();
+          await news.getArticles();
           await getIt<Weather>().fetch();
           // Wait for one more second, otherwise the user will get impatient.
           await Future.delayed(
@@ -213,8 +253,21 @@ class HomeViewState extends State<HomeView> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey)
+                    BlendIn(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: const SurveyView(
+                          dismissible: true,
+                        ),
+                      ),
+                    ),
                   const VSpace(),
-                  const BlendIn(child: StatusView()),
+                  const BlendIn(
+                    child: StatusTabsView(),
+                  ),
+                  const VSpace(),
                   BlendIn(
                     delay: const Duration(milliseconds: 250),
                     child: Row(
@@ -268,23 +321,48 @@ class HomeViewState extends State<HomeView> {
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),
                   ),
+                  const SizedBox(height: 48),
+                  if (settings.enableGamification)
+                    Column(children: const [
+                      BlendIn(
+                        delay: Duration(milliseconds: 1000),
+                        child: TotalStatisticsView(),
+                      ),
+                      SizedBox(height: 48),
+                    ]),
                   const VSpace(),
-                  const SmallVSpace(),
-                  const BlendIn(
-                    delay: Duration(milliseconds: 1000),
-                    child: TotalStatisticsView(),
-                  ),
-                  const VSpace(),
-                  const BlendIn(
-                    delay: Duration(milliseconds: 1250),
-                    child: WikiView(),
-                  ),
-                  const VSpace(),
-                  BlendIn(
-                    delay: const Duration(milliseconds: 1500),
-                    child: renderDebugHint(),
-                  ),
-                  const SizedBox(height: 128),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.surface.withOpacity(0),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const BlendIn(
+                          delay: Duration(milliseconds: 1250),
+                          child: WikiView(),
+                        ),
+                        const SizedBox(height: 32),
+                        BoldSmall(
+                          text: "radkultur hamburg",
+                          context: context,
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),

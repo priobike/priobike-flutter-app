@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:priobike/common/layout/text.dart';
-import 'package:priobike/dangers/services/dangers.dart';
-import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
-import 'package:priobike/ride/views/center_buttons.dart';
+import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
 import 'package:priobike/ride/views/speedometer/labels.dart';
@@ -19,11 +17,16 @@ import 'package:priobike/ride/views/speedometer/prediction_arc.dart';
 import 'package:priobike/ride/views/speedometer/speed_arc.dart';
 import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
+import 'package:priobike/routing/services/routing.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 class RideSpeedometerView extends StatefulWidget {
-  const RideSpeedometerView({Key? key}) : super(key: key);
+  /// Height to puck bounding box.
+  final double puckHeight;
+
+  const RideSpeedometerView({Key? key, required this.puckHeight}) : super(key: key);
 
   @override
   RideSpeedometerViewState createState() => RideSpeedometerViewState();
@@ -44,6 +47,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The associated positioning service, which is injected by the provider.
   late Positioning positioning;
 
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
@@ -62,28 +68,28 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The value of the speed animation.
   double speedAnimationPct = 0;
 
-  /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() {
-    updateSpeedometer();
-    setState(() {});
-  }
-
   /// Update the speedometer.
   void updateSpeedometer() {
+    if (routing.hadErrorDuringFetch) return;
+
     // Fetch the maximum speed from the settings service.
     maxSpeed = getIt<Settings>().speedMode.maxSpeed;
 
-    if (ride.needsLayout[viewId] != false && positioning.needsLayout[viewId] != false) {
-      positioning.needsLayout[viewId] = false;
-      // Animate the speed to the new value.
-      final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
-      // Scale between minSpeed and maxSpeed.
-      final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
-      // Animate to the new value.
-      speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-      // Load the gauge colors and steps, from the predictor.
-      loadGauge(ride);
-    }
+    // Animate the speed to the new value.
+    final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
+    // Scale between minSpeed and maxSpeed.
+    final pct = (kmh - minSpeed) / (maxSpeed - minSpeed);
+    // Animate to the new value.
+    speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    // Load the gauge colors and steps, from the predictor.
+    loadGauge(ride);
+
+    setState(() {});
+  }
+
+  /// Update the layout of the speedometer.
+  void updateLayout() {
+    setState(() {});
   }
 
   @override
@@ -104,9 +110,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     });
 
     positioning = getIt<Positioning>();
-    positioning.addListener(update);
+    positioning.addListener(updateSpeedometer);
+    routing = getIt<Routing>();
+    routing.addListener(updateLayout);
     ride = getIt<Ride>();
-    ride.addListener(update);
+    ride.addListener(updateLayout);
 
     updateSpeedometer();
   }
@@ -114,8 +122,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   @override
   void dispose() {
     speedAnimationController.dispose();
-    positioning.removeListener(update);
-    ride.removeListener(update);
+    positioning.removeListener(updateSpeedometer);
+    routing.removeListener(updateLayout);
+    ride.removeListener(updateLayout);
     super.dispose();
   }
 
@@ -211,9 +220,6 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   @override
   Widget build(BuildContext context) {
     final speedkmh = minSpeed + (speedAnimationPct * (maxSpeed - minSpeed));
-    final displayHeight = MediaQuery.of(context).size.height;
-    final heightToPuck = displayHeight / 2;
-    final heightToPuckBoundingBox = heightToPuck - (displayHeight * 0.05);
 
     final originalSpeedometerHeight = MediaQuery.of(context).size.width;
     final originalSpeedometerWidth = MediaQuery.of(context).size.width;
@@ -224,6 +230,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     final timeOfArrival = DateTime.now().add(Duration(minutes: remainingMinutes.toInt()));
 
     final size = Size(originalSpeedometerWidth, originalSpeedometerHeight);
+
+    final showAlert = routing.hadErrorDuringFetch;
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -256,7 +264,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
         SafeArea(
           bottom: true,
           child: SizedBox(
-            height: heightToPuckBoundingBox,
+            height: widget.puckHeight,
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(
@@ -265,6 +273,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
+                    if (showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: SpeedometerAlert(size: size),
+                        ),
+                      ),
                     Transform.translate(
                       offset: const Offset(0, 42),
                       child: GestureDetector(
@@ -300,15 +315,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 maxSpeed: maxSpeed,
                               ),
                             ),
-                            CustomPaint(
-                              painter: SpeedometerPredictionArcPainter(
-                                minSpeed: minSpeed,
-                                maxSpeed: maxSpeed,
-                                colors: gaugeColors,
-                                stops: gaugeStops,
-                                isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                            if (!showAlert)
+                              CustomPaint(
+                                painter: SpeedometerPredictionArcPainter(
+                                  minSpeed: minSpeed,
+                                  maxSpeed: maxSpeed,
+                                  colors: gaugeColors,
+                                  stops: gaugeStops,
+                                  isDark: Theme.of(context).colorScheme.brightness == Brightness.dark,
+                                ),
                               ),
-                            ),
                             CustomPaint(
                               painter: SpeedometerLabelsPainter(
                                 minSpeed: minSpeed,
@@ -319,33 +335,15 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                         ),
                       ),
                     ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: Center(
-                        child: RideTrafficLightView(
-                          size: size,
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: Center(
+                          child: RideTrafficLightView(
+                            size: size,
+                          ),
                         ),
                       ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, 42),
-                      child: RideCenterButtonsView(
-                        size: size,
-                        onTapDanger: () {
-                          HapticFeedback.lightImpact();
-                          // Get the current snapped position.
-                          final snap = getIt<Positioning>().snap;
-                          if (snap == null) {
-                            log.w("Cannot report a danger without a current snapped position.");
-                            return;
-                          }
-
-                          final dangers = getIt<Dangers>();
-                          dangers.submitNew(snap);
-                          ToastMessage.showSuccess("Gefahrenstelle gemeldet!");
-                        },
-                      ),
-                    ),
                     IgnorePointer(
                       child: Transform.translate(
                         offset: const Offset(0, 42),
@@ -362,15 +360,16 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                       ),
                     ),
                     if (ride.userSelectedSG == null) ...[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 62),
-                        child: BoldContent(
-                          text:
-                              "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
-                          context: context,
-                          color: Colors.white.withOpacity(0.8),
+                      if (!showAlert)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 62),
+                          child: BoldContent(
+                            text:
+                                "${remainingDistance.toStringAsFixed(1)} km • ${DateFormat('HH:mm').format(timeOfArrival)}",
+                            context: context,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
                         ),
-                      ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 26),
                         child: Text(
@@ -393,6 +392,23 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                                 fontSize: 8,
                               ),
                             ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: ride.predictionComponent?.currentMode == PredictionMode.usePredictor
+                            // Display a small dot to indicate that the fallback is active.
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                width: 4,
+                                height: 4,
+                              )
+                            : const SizedBox(width: 4, height: 4),
                       ),
                     ),
                   ],

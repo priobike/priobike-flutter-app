@@ -55,9 +55,6 @@ class Ride with ChangeNotifier {
   /// The calculated distance to the next turn.
   double? calcDistanceToNextTurn;
 
-  /// An indicator if the data of this notifier changed.
-  Map<String, bool> needsLayout = {};
-
   /// The session id, set randomly by `startNavigation`.
   String? sessionId;
 
@@ -100,6 +97,16 @@ class Ride with ChangeNotifier {
       // User manually selected a signal group.
       userSelectedSGIndex = (userSelectedSGIndex! + step) % route!.signalGroups.length;
     }
+    userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
+    selectSG(userSelectedSG);
+    notifyListeners();
+  }
+
+  /// Select SG with specific index in the list of SGs.
+  void userSelectSG(int sgIndex) {
+    if (route == null) return;
+    if (route!.signalGroups.isEmpty) return;
+    userSelectedSGIndex = sgIndex;
     userSelectedSG = route!.signalGroups[userSelectedSGIndex!];
     selectSG(userSelectedSG);
     notifyListeners();
@@ -270,13 +277,6 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
-    needsLayout = {};
     notifyListeners();
-  }
-
-  @override
-  void notifyListeners() {
-    needsLayout.updateAll((key, value) => true);
-    super.notifyListeners();
   }
 }

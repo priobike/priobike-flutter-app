@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
@@ -36,12 +35,6 @@ enum QRCodeViewMode {
 class QRCodeViewState extends State<QRCodeView> {
   Shortcut? shortcut;
 
-  /// The controller for the camera.
-  MobileScannerController? cameraController;
-
-  /// Whether the camera has a flashlight.
-  bool hasTorch = false;
-
   /// The current mode of the view.
   QRCodeViewMode? state;
 
@@ -54,16 +47,6 @@ class QRCodeViewState extends State<QRCodeView> {
     } else {
       state = QRCodeViewMode.showing;
     }
-  }
-
-  /// Callback that is called when the scanner is initialized.
-  onScannerInit(MobileScannerController controller, bool hasTorch) {
-    this.hasTorch = hasTorch;
-    if (cameraController != null) {
-      return;
-    }
-    cameraController = controller;
-    setState(() {});
   }
 
   /// Called when a saved shortcut should be scanned.
@@ -90,27 +73,6 @@ class QRCodeViewState extends State<QRCodeView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppBackButton(onPressed: () => Navigator.pop(context)),
-                  if (state == QRCodeViewMode.scanning && cameraController != null && hasTorch)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: ValueListenableBuilder(
-                        valueListenable: cameraController!.torchState,
-                        builder: (context, state, child) {
-                          switch (state as TorchState) {
-                            case TorchState.off:
-                              return SmallIconButton(
-                                icon: Icons.flashlight_on_rounded,
-                                onPressed: () => cameraController!.toggleTorch(),
-                              );
-                            case TorchState.on:
-                              return SmallIconButton(
-                                icon: Icons.flashlight_off_rounded,
-                                onPressed: () => cameraController!.toggleTorch(),
-                              );
-                          }
-                        },
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -145,7 +107,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           end: Alignment.bottomLeft,
                           stops: const [0.3, 0.9],
                           colors:
-                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.lightBlue, CI.blue],
+                              state == QRCodeViewMode.scanning ? [Colors.grey, Colors.grey] : [CI.blueLight, CI.blue],
                         ),
                         borderRadius: BorderRadius.circular(48),
                         boxShadow: state == QRCodeViewMode.scanning
@@ -187,7 +149,6 @@ class QRCodeViewState extends State<QRCodeView> {
                                         },
                                       );
                                     },
-                                    onInit: onScannerInit,
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(8),

@@ -1,6 +1,7 @@
 import 'package:priobike/ride/interfaces/prediction.dart';
 import 'package:priobike/ride/models/recommendation.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/status/messages/sg.dart';
 
 abstract class PredictionComponent {
@@ -9,6 +10,9 @@ abstract class PredictionComponent {
 
   /// The current calculated recommendation during the ride.
   Recommendation? get recommendation;
+
+  /// The current prediction mode.
+  PredictionMode get currentMode;
 
   /// A callback that gets executed when the parent provider should call the notifyListeners function.
   late final Function notifyListeners;
