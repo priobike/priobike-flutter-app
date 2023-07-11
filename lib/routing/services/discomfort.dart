@@ -26,7 +26,7 @@ class Discomforts with ChangeNotifier {
   List<DiscomfortSegment>? foundDiscomforts;
 
   /// The description for user reported dangers.
-  static const userReportedDangerDescription = "Von Nutzenden gemeldete Gefahrenstelle";
+  static const userReportedDangerDescription = "Unkomfortabler Abschnitt";
 
   /// The lower threshold for the weight of user reported discomforts under which they are not shown.
   static const userReportedDiscomfortWeightThreshold = 5;

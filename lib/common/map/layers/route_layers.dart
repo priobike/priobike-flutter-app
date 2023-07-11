@@ -396,7 +396,7 @@ class DiscomfortsLayer {
 
       var text = e.value.description;
       if (e.value.weight != null) {
-        text += " (${e.value.weight}x)";
+        text += " (${e.value.weight}x gemeldet)";
       }
 
       features.add(

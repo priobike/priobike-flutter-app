@@ -127,6 +127,10 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
       var pct = ((e.value / routing.selectedRoute!.path.distance) * 100);
       // Catch case pct > 100.
       pct = pct > 100 ? 100 : pct;
+      var text = e.key;
+      if (text == Discomforts.userReportedDangerDescription) {
+        text += " (von Nutzenden gemeldet)";
+      }
       elements.add(Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Row(
@@ -148,7 +152,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
             const SizedBox(width: 8),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.67,
-              child: Content(text: e.key, context: context),
+              child: Content(text: text, context: context),
             ),
             Expanded(
               child: Align(
