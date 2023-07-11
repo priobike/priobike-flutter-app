@@ -22,8 +22,11 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
   /// The chart data.
   Map<String, double> discomfortDistances = {};
 
+  /// The chart color data.
+  Map<String, Color> discomfortColors = {};
+
   /// The text for route segments without discomforts.
-  static const noDiscomfortsText = 'Keine Probleme';
+  static const noDiscomfortsText = 'Keine bekannten Probleme';
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() {
@@ -55,7 +58,10 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
 
     const vincenty = Distance(roundResult: false);
     discomfortDistances = {};
+    discomfortColors = {};
     for (final discomfort in discomforts.foundDiscomforts!) {
+      if (discomfort.description == Discomforts.userReportedDangerDescription &&
+          discomfort.weight! < Discomforts.userReportedDiscomfortWeightThreshold) continue;
       for (var idx = 0; idx < discomfort.coordinates.length - 1; idx++) {
         final distance = vincenty.distance(
             LatLng(discomfort.coordinates[idx].latitude, discomfort.coordinates[idx].longitude),
@@ -64,6 +70,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
           discomfortDistances[discomfort.description] = discomfortDistances[discomfort.description]! + distance;
         } else {
           discomfortDistances[discomfort.description] = distance;
+          discomfortColors[discomfort.description] = discomfort.color;
         }
       }
     }
@@ -74,6 +81,8 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
     if (totalDistance < routing.selectedRoute!.path.distance) {
       final remainingDistance = routing.selectedRoute!.path.distance - totalDistance;
       discomfortDistances[noDiscomfortsText] = remainingDistance;
+      // No discomfort segments are grey.
+      discomfortColors[noDiscomfortsText] = const Color(0xFFd6d6d6);
     }
   }
 
@@ -94,7 +103,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
         width: (availableWidth * pct).floorToDouble(),
         height: 32,
         decoration: BoxDecoration(
-          color: e.key == noDiscomfortsText ? const Color(0xFFd6d6d6) : const Color(0xFFE63328),
+          color: discomfortColors[e.key],
           border: Border.all(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white.withOpacity(0.07)
@@ -127,7 +136,7 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
               height: 14,
               width: 14,
               decoration: BoxDecoration(
-                color: e.key == noDiscomfortsText ? const Color(0xFFd6d6d6) : const Color(0xFFE63328),
+                color: discomfortColors[e.key],
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Theme.of(context).brightness == Brightness.dark
@@ -137,7 +146,10 @@ class DiscomfortsChartState extends State<DiscomfortsChart> {
               ),
             ),
             const SizedBox(width: 8),
-            Content(text: e.key, context: context),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.67,
+              child: Content(text: e.key, context: context),
+            ),
             Expanded(
               child: Align(
                 alignment: Alignment.centerRight,

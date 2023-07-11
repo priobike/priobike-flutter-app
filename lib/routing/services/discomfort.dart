@@ -11,6 +11,7 @@ import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 enum WarnType {
@@ -23,6 +24,12 @@ enum WarnType {
 class Discomforts with ChangeNotifier {
   /// The found discomforts.
   List<DiscomfortSegment>? foundDiscomforts;
+
+  /// The description for user reported dangers.
+  static const userReportedDangerDescription = "Von Nutzenden gemeldete Gefahrenstelle";
+
+  /// The lower threshold for the weight of user reported discomforts under which they are not shown.
+  static const userReportedDiscomfortWeightThreshold = 5;
 
   Discomforts({
     this.foundDiscomforts,
@@ -37,9 +44,8 @@ class Discomforts with ChangeNotifier {
   /// Load dangers along a route.
   Future<List<DiscomfortSegment>> fetchUserReportedDangerSpots(Route route) async {
     final settings = getIt<Settings>();
-    // final baseUrl = settings.backend.path;
-    // final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
-    final endpoint = Uri.parse("http://10.0.2.2:80/production/dangers-service/dangers/match/");
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
     final request = {
       "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
     };
@@ -57,13 +63,13 @@ class Discomforts with ChangeNotifier {
           for (final point in danger["coordinates"]) {
             coordinates.add(LatLng(point[1], point[0]));
           }
-          const description = "Von Nutzenden gemeldete Gefahrenstelle";
           final snapper = Snapper(nodes: route.route, position: coordinates[0]);
           userReportedDangerSpots.add(DiscomfortSegment(
-            description: description,
+            description: userReportedDangerDescription,
             coordinates: coordinates,
             weight: weight,
             distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFF9F2B68),
           ));
         }
         return userReportedDangerSpots;
@@ -199,6 +205,7 @@ class Discomforts with ChangeNotifier {
         coordinates: cs,
         description: translation,
         distanceOnRoute: snapper.snap().distanceOnRoute,
+        color: const Color(0xffd7191c),
       ));
     }
 
@@ -248,19 +255,19 @@ class Discomforts with ChangeNotifier {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
           DiscomfortSegment(
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFfdae61)),
         );
       } else {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
           DiscomfortSegment(
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFffffbf)),
         );
       }
     }
@@ -276,19 +283,19 @@ class Discomforts with ChangeNotifier {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
           DiscomfortSegment(
-            coordinates: cs,
-            description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-          ),
+              coordinates: cs,
+              description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFF543005)),
         );
       } else if (segment.value! <= 10) {
         final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
           DiscomfortSegment(
-            coordinates: cs,
-            description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
-            distanceOnRoute: snapper.snap().distanceOnRoute,
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFa6d96a)),
         );
       }
     }

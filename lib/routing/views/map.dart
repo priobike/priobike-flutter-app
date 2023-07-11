@@ -437,7 +437,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   updateDiscomforts() async {
     if (mapController == null) return;
     if (!mounted) return;
-    await DiscomfortsLayer().update(mapController!);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await DiscomfortsLayer(isDark).update(mapController!);
   }
 
   /// Update selected route layer.
@@ -495,7 +496,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     index = await getIndex(DiscomfortsLayer.layerId);
     if (!mounted) return;
-    await DiscomfortsLayer().install(
+    await DiscomfortsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 14,
       at: index,

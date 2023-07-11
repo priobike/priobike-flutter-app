@@ -371,7 +371,10 @@ class DiscomfortsLayer {
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  DiscomfortsLayer() {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  DiscomfortsLayer(this.isDark) {
     final discomforts = getIt<Discomforts>().foundDiscomforts;
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
@@ -380,12 +383,31 @@ class DiscomfortsLayer {
         "type": "LineString",
         "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
       };
+      double weight = 1;
+      if (e.value.weight != null) {
+        const maxWeight = 20;
+        if (e.value.weight! < Discomforts.userReportedDiscomfortWeightThreshold) {
+          weight = 0;
+        } else if (e.value.weight! < maxWeight) {
+          // Scale weights to 0.75 - 1.0.
+          weight = 0.5 + (e.value.weight! / maxWeight) * 0.5;
+        }
+      }
+
+      var text = e.value.description;
+      if (e.value.weight != null) {
+        text += " (${e.value.weight}x)";
+      }
+
       features.add(
         {
           "id": "discomfort-${e.key}", // Required for click listener.
           "type": "Feature",
           "properties": {
-            "description": e.value.description,
+            "description": text,
+            "color": "#003064",
+            "userReported": e.value.weight != null,
+            "opacity": weight,
           },
           "geometry": geometry,
         },
@@ -397,7 +419,7 @@ class DiscomfortsLayer {
   Future<void> install(
     mapbox.MapboxMap mapController, {
     iconSize = 0.25,
-    lineWidth = 3.0,
+    lineWidth = 5.0,
     at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
@@ -418,12 +440,12 @@ class DiscomfortsLayer {
           iconSize: iconSize,
           iconAllowOverlap: true,
           iconOpacity: 0,
-          textHaloColor: const Color(0xFF000000).value,
+          textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
+          textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
           textHaloWidth: 0.2,
           textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           textSize: 12,
           textAnchor: mapbox.TextAnchor.CENTER,
-          textColor: const Color(0xFFFFFFFF).value,
           textAllowOverlap: true,
           textOpacity: 0,
         ),
@@ -432,9 +454,12 @@ class DiscomfortsLayer {
       await mapController.style.setStyleLayerProperty(
           layerIdMarker,
           'icon-opacity',
-          json.encode(
-            showAfter(zoom: 15),
-          ));
+          json.encode(showAfter(zoom: 15, opacity: [
+            "case",
+            ["get", "userReported"],
+            0,
+            1,
+          ])));
       await mapController.style.setStyleLayerProperty(
           layerIdMarker,
           'text-offset',
@@ -445,7 +470,19 @@ class DiscomfortsLayer {
             ],
           ));
       await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "description"]));
-      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-opacity', json.encode(showAfter(zoom: 17)));
+      await mapController.style.setStyleLayerProperty(
+          layerIdMarker,
+          'text-opacity',
+          json.encode(showAfter(zoom: 17, opacity: [
+            "case",
+            [
+              ">",
+              ["get", "opacity"],
+              0
+            ],
+            1,
+            0,
+          ])));
     }
     final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!discomfortsLayerExists) {
@@ -453,12 +490,14 @@ class DiscomfortsLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerId,
-            lineColor: const Color(0xFFE63328).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: lineWidth,
+            lineDasharray: [1, 2],
           ),
           mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-opacity', json.encode(["get", "opacity"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
     }
   }
 
