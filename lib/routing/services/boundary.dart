@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/algorithms/ray_casting_algo.dart';
@@ -25,23 +24,9 @@ class Boundary {
     final backend = getIt<Settings>().backend;
     var coords = List.empty(growable: true);
     boundaryCoords = List.empty(growable: true);
-    switch (backend) {
-      case Backend.production:
-        // Load Hamburg's boundary as a geojson from the assets.
-        boundaryGeoJson = await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
-        final geojsonDecoded = jsonDecode(boundaryGeoJson!);
-        coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
-        break;
-      case Backend.staging:
-        // Load Dresden's boundary as a geojson from the assets.
-        boundaryGeoJson = await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
-        final geojsonDecoded = jsonDecode(boundaryGeoJson!);
-        coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][1];
-        break;
-      default:
-        log.e("Unknown backend used for geosearch: $backend");
-        return;
-    }
+    boundaryGeoJson = await backend.boundaryGeoJson;
+    final geojsonDecoded = jsonDecode(boundaryGeoJson!);
+    coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
 
     for (final coord in coords) {
       boundaryCoords.add(Point(x: coord[0], y: coord[1]));

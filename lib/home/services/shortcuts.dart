@@ -86,13 +86,8 @@ class Shortcuts with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final backend = getIt<Settings>().backend;
-
     final jsonStr = jsonEncode(shortcuts!.map((e) => e.toJson()).toList());
-    if (backend == Backend.production) {
-      storage.setString("priobike.home.shortcuts.production", jsonStr);
-    } else if (backend == Backend.staging) {
-      storage.setString("priobike.home.shortcuts.staging", jsonStr);
-    }
+    storage.setString("priobike.home.shortcuts.${backend.name}", jsonStr);
   }
 
   /// Load the custom shortcuts.
@@ -101,12 +96,7 @@ class Shortcuts with ChangeNotifier {
     final storage = await SharedPreferences.getInstance();
 
     final backend = getIt<Settings>().backend;
-    String? jsonStr;
-    if (backend == Backend.production) {
-      jsonStr = storage.getString("priobike.home.shortcuts.production");
-    } else if (backend == Backend.staging) {
-      jsonStr = storage.getString("priobike.home.shortcuts.staging");
-    }
+    final jsonStr = storage.getString("priobike.home.shortcuts.${backend.name}");
 
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
