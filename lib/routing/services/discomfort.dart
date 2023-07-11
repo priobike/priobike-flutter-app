@@ -1,12 +1,18 @@
+import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/profile.dart';
 import 'package:priobike/home/services/profile.dart';
+import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/algorithm/snapper.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
+import 'package:priobike/routing/models/route.dart';
+import 'package:priobike/settings/models/backend.dart';
+import 'package:priobike/settings/services/settings.dart';
 
 enum WarnType {
   warnSensitiveBikes,
@@ -19,49 +25,60 @@ class Discomforts with ChangeNotifier {
   /// The found discomforts.
   List<DiscomfortSegment>? foundDiscomforts;
 
-  /// The currently selected discomfort.
-  DiscomfortSegment? selectedDiscomfort;
+  /// The description for user reported dangers.
+  static const userReportedDangerDescription = "Unkomfortabler Abschnitt";
 
-  /// The signal group clicked.
-  bool trafficLightClicked = false;
+  /// The lower threshold for the weight of user reported discomforts under which they are not shown.
+  static const userReportedDiscomfortWeightThreshold = 5;
 
   Discomforts({
     this.foundDiscomforts,
-    this.selectedDiscomfort,
   });
 
   // Reset the discomfort service.
   Future<void> reset() async {
     foundDiscomforts = null;
-    selectedDiscomfort = null;
-    trafficLightClicked = false;
     notifyListeners();
   }
 
-  /// Select a discomfort.
-  selectDiscomfort(int idx) {
-    if (foundDiscomforts == null) return;
-    if (idx < 0 || idx >= foundDiscomforts!.length) return;
-    selectedDiscomfort = foundDiscomforts![idx];
-    super.notifyListeners();
-  }
-
-  /// Unselect a discomfort.
-  unselectDiscomfort() {
-    selectedDiscomfort = null;
-    super.notifyListeners();
-  }
-
-  /// Select a signalGroup.
-  selectTrafficLight() {
-    trafficLightClicked = true;
-    super.notifyListeners();
-  }
-
-  /// Unselect a signalGroup.
-  unselectTrafficLight() {
-    trafficLightClicked = false;
-    super.notifyListeners();
+  /// Load dangers along a route.
+  Future<List<DiscomfortSegment>> fetchUserReportedDangerSpots(Route route) async {
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/match/');
+    final request = {
+      "route": route.path.points.coordinates.map((e) => {"lat": e.lat, "lon": e.lon}).toList(),
+    };
+    try {
+      final response = await Http.post(endpoint, body: json.encode(request)).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e("Error fetching dangers from $endpoint: ${response.body}");
+      } else {
+        log.i("Fetched dangers from $endpoint");
+        final decoded = json.decode(response.body);
+        final List<DiscomfortSegment> userReportedDangerSpots = List.empty(growable: true);
+        for (final danger in decoded["dangers"]) {
+          final weight = danger["weight"] ?? 0;
+          final List<LatLng> coordinates = List.empty(growable: true);
+          for (final point in danger["coordinates"]) {
+            coordinates.add(LatLng(point[1], point[0]));
+          }
+          final snapper = Snapper(nodes: route.route, position: coordinates[0]);
+          userReportedDangerSpots.add(DiscomfortSegment(
+            description: userReportedDangerDescription,
+            coordinates: coordinates,
+            weight: weight,
+            distanceOnRoute: snapper.snap().distanceOnRoute,
+            color: const Color(0xFF9F2B68),
+          ));
+        }
+        return userReportedDangerSpots;
+      }
+    } catch (error) {
+      final hint = "Error fetching danger spots from $endpoint: $error";
+      log.e(hint);
+    }
+    return [];
   }
 
   /// Get the coordinates for a given segment.
@@ -74,7 +91,10 @@ class Discomforts with ChangeNotifier {
     return coordinates;
   }
 
-  Future<void> findDiscomforts(GHRouteResponsePath path) async {
+  Future<void> findDiscomforts(Route route) async {
+    final List<DiscomfortSegment> userReportedDangerSpots = await fetchUserReportedDangerSpots(route);
+    final path = route.path;
+
     final profile = getIt<Profile>();
 
     // Use the surface values to determine unsmooth sections.
@@ -180,8 +200,13 @@ class Discomforts with ChangeNotifier {
 
       final translation = translationsMap[segment.value!];
       if (translation == null) continue;
-
-      unsmooth.add(DiscomfortSegment(segment: segment, coordinates: cs, description: translation));
+      final snapper = Snapper(nodes: route.route, position: cs[0]);
+      unsmooth.add(DiscomfortSegment(
+        coordinates: cs,
+        description: translation,
+        distanceOnRoute: snapper.snap().distanceOnRoute,
+        color: const Color(0xffd7191c),
+      ));
     }
 
     // Traverse the points and calculate the elevation in degrees.
@@ -227,20 +252,22 @@ class Discomforts with ChangeNotifier {
       if (segment.value is! double) continue;
       final cs = getCoordinates(segment, path);
       if (segment.value! > 0) {
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
           DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit bis zu ${segment.value!.round()}% Steigung.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFfdae61)),
         );
       } else {
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
         criticalElevation.add(
           DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit bis zu ${-segment.value!.round()}% Gefälle bergab.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFffffbf)),
         );
       }
     }
@@ -253,26 +280,28 @@ class Discomforts with ChangeNotifier {
       if (segment.value is! num) continue;
       final cs = getCoordinates(segment, path);
       if (segment.value! >= 100) {
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
           DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
-          ),
+              coordinates: cs,
+              description: "Auf einem Wegabschnitt dürfen Autos ${segment.value!.toInt()} km/h fahren.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFF543005)),
         );
       } else if (segment.value! <= 10) {
+        final snapper = Snapper(nodes: route.route, position: cs[0]);
         unwantedSpeed.add(
           DiscomfortSegment(
-            segment: segment,
-            coordinates: cs,
-            description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
-          ),
+              coordinates: cs,
+              description: "Wegabschnitt mit Verkehrsberuhigung oder Fußgängerzone.",
+              distanceOnRoute: snapper.snap().distanceOnRoute,
+              color: const Color(0xFFa6d96a)),
         );
       }
     }
 
-    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed];
-    foundDiscomforts!.sort((a, b) => a.segment.from.compareTo(b.segment.from));
+    foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed, ...userReportedDangerSpots];
+    foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
     notifyListeners();
   }
 }

@@ -20,7 +20,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -369,7 +368,6 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
@@ -390,18 +388,7 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        // Avoid expansion of alerts view.
-                        width: frame.size.width - 80,
-                        child: const AlertsView(),
-                      )
-                    ],
-                  ),
+                  child: AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
                 ),
               ),
 

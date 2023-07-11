@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:priobike/common/fcm.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/feedback/services/feedback.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
@@ -69,7 +68,6 @@ Future<void> main() async {
   getIt.registerSingleton<Layers>(Layers());
   getIt.registerSingleton<MapDesigns>(MapDesigns());
   getIt.registerSingleton<Positioning>(Positioning());
-  getIt.registerSingleton<Dangers>(Dangers());
   getIt.registerSingleton<Datastream>(Datastream());
   getIt.registerSingleton<Tracking>(Tracking());
   getIt.registerSingleton<Statistics>(Statistics());

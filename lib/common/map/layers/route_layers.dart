@@ -46,7 +46,7 @@ class AllRoutesLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(
+  Future<void> install(
     mapbox.MapboxMap mapController, {
     lineWidth = 9.0,
     clickLineWidth = 25.0,
@@ -86,8 +86,6 @@ class AllRoutesLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -152,7 +150,7 @@ class SelectedRouteLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {bgLineWidth = 9.0, fgLineWidth = 7.0, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -188,7 +186,6 @@ class SelectedRouteLayer {
           ),
           mapbox.LayerPosition(at: at));
     }
-    return layerId;
   }
 
   update(mapbox.MapboxMap mapController, {String? below}) async {
@@ -257,7 +254,7 @@ class RouteLabelLayer {
   }
 
   /// Install the overlay on the layer controller.
-  Future<String> install(
+  Future<void> install(
     mapbox.MapboxMap mapController, {
     iconSize = 0.4,
     textSize = 14.0,
@@ -310,8 +307,6 @@ class RouteLabelLayer {
             showAfter(zoom: 10),
           ));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -370,16 +365,16 @@ class DiscomfortsLayer {
   /// The ID of the main Mapbox layer.
   static const layerId = "discomforts-layer";
 
-  /// The ID of the click Mapbox layer.
-  static const layerIdClick = "discomforts-clicklayer";
-
   /// The ID of the marker Mapbox layer.
   static const layerIdMarker = "discomforts-markers";
 
   /// The features to display.
   final List<dynamic> features = List.empty(growable: true);
 
-  DiscomfortsLayer() {
+  /// If the layer should display a dark version of the icons.
+  final bool isDark;
+
+  DiscomfortsLayer(this.isDark) {
     final discomforts = getIt<Discomforts>().foundDiscomforts;
     for (MapEntry<int, DiscomfortSegment> e in discomforts?.asMap().entries ?? []) {
       if (e.value.coordinates.isEmpty) continue;
@@ -388,12 +383,31 @@ class DiscomfortsLayer {
         "type": "LineString",
         "coordinates": e.value.coordinates.map((e) => [e.longitude, e.latitude]).toList(),
       };
+      double weight = 1;
+      if (e.value.weight != null) {
+        const maxWeight = 20;
+        if (e.value.weight! < Discomforts.userReportedDiscomfortWeightThreshold) {
+          weight = 0;
+        } else if (e.value.weight! < maxWeight) {
+          // Scale weights to 0.75 - 1.0.
+          weight = 0.5 + (e.value.weight! / maxWeight) * 0.5;
+        }
+      }
+
+      var text = e.value.description;
+      if (e.value.weight != null) {
+        text += " (${e.value.weight}x gemeldet)";
+      }
+
       features.add(
         {
           "id": "discomfort-${e.key}", // Required for click listener.
           "type": "Feature",
           "properties": {
-            "number": e.key + 1,
+            "description": text,
+            "color": "#003064",
+            "userReported": e.value.weight != null,
+            "opacity": weight,
           },
           "geometry": geometry,
         },
@@ -401,12 +415,12 @@ class DiscomfortsLayer {
     }
   }
 
-  /// Install the overlay on the layer controller.
-  Future<String> install(
+  /// Install the overlay on the map controller.
+  Future<void> install(
     mapbox.MapboxMap mapController, {
+    showLabels = true,
     iconSize = 0.25,
-    lineWidth = 7.0,
-    clickWidth = 35.0,
+    lineWidth = 5.0,
     at = 0,
   }) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
@@ -417,21 +431,62 @@ class DiscomfortsLayer {
     } else {
       await update(mapController);
     }
-    final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
-    if (!discomfortsMarkersExist) {
-      await mapController.style.addLayerAt(
+    if (showLabels) {
+      final discomfortsMarkersExist = await mapController.style.styleLayerExists(layerIdMarker);
+      if (!discomfortsMarkersExist) {
+        await mapController.style.addLayerAt(
           mapbox.SymbolLayer(
             sourceId: sourceId,
             id: layerIdMarker,
-            iconImage: "alert",
+            iconImage: "dangerspot",
             iconSize: iconSize,
             iconAllowOverlap: true,
+            iconOpacity: 0,
+            textHaloColor: isDark ? const Color(0xFF003064).value : const Color(0xFFFFFFFF).value,
+            textColor: isDark ? const Color(0xFFFFFFFF).value : const Color(0xFF003064).value,
+            textHaloWidth: 0.2,
+            textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
             textSize: 12,
+            textAnchor: mapbox.TextAnchor.CENTER,
             textAllowOverlap: true,
-            textIgnorePlacement: true,
+            textOpacity: 0,
           ),
-          mapbox.LayerPosition(at: at));
-      await mapController.style.setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "number"]));
+          mapbox.LayerPosition(at: at),
+        );
+        await mapController.style.setStyleLayerProperty(
+            layerIdMarker,
+            'icon-opacity',
+            json.encode(showAfter(zoom: 15, opacity: [
+              "case",
+              ["get", "userReported"],
+              0,
+              1,
+            ])));
+        await mapController.style.setStyleLayerProperty(
+            layerIdMarker,
+            'text-offset',
+            json.encode(
+              [
+                "literal",
+                [0, 2]
+              ],
+            ));
+        await mapController.style
+            .setStyleLayerProperty(layerIdMarker, 'text-field', json.encode(["get", "description"]));
+        await mapController.style.setStyleLayerProperty(
+            layerIdMarker,
+            'text-opacity',
+            json.encode(showAfter(zoom: 17, opacity: [
+              "case",
+              [
+                ">",
+                ["get", "opacity"],
+                0
+              ],
+              1,
+              0,
+            ])));
+      }
     }
     final discomfortsLayerExists = await mapController.style.styleLayerExists(layerId);
     if (!discomfortsLayerExists) {
@@ -439,27 +494,15 @@ class DiscomfortsLayer {
           mapbox.LineLayer(
             sourceId: sourceId,
             id: layerId,
-            lineColor: const Color(0xFFE63328).value,
             lineJoin: mapbox.LineJoin.ROUND,
             lineCap: mapbox.LineCap.ROUND,
             lineWidth: lineWidth,
+            lineDasharray: [1, 2],
           ),
           mapbox.LayerPosition(at: at));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-opacity', json.encode(["get", "opacity"]));
+      await mapController.style.setStyleLayerProperty(layerId, 'line-color', json.encode(["get", "color"]));
     }
-    final discomfortsClickLayerExists = await mapController.style.styleLayerExists(layerIdClick);
-    if (!discomfortsClickLayerExists) {
-      await mapController.style.addLayerAt(
-          mapbox.LineLayer(
-            sourceId: sourceId,
-            id: layerIdClick,
-            lineColor: Colors.pink.value,
-            lineJoin: mapbox.LineJoin.ROUND,
-            lineWidth: clickWidth,
-            lineOpacity: 0.001,
-          ),
-          mapbox.LayerPosition(at: at));
-    }
-    return layerId;
   }
 
   /// Update the overlay on the map controller (without updating the layers).
@@ -503,7 +546,7 @@ class WaypointsLayer {
   }
 
   /// Install the overlay on the map controller.
-  Future<String> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
+  Future<void> install(mapbox.MapboxMap mapController, {iconSize = 0.75, at = 0}) async {
     final sourceExists = await mapController.style.styleSourceExists(sourceId);
     if (!sourceExists) {
       await mapController.style.addSource(
@@ -535,8 +578,6 @@ class WaypointsLayer {
             "waypoint",
           ]));
     }
-
-    return layerId;
   }
 
   /// Update the overlay on the layer controller (without updating the layers).

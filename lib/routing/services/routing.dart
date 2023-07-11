@@ -457,7 +457,7 @@ class Routing with ChangeNotifier {
     isFetchingRoute = false;
 
     final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(routes.first.path);
+    await discomforts.findDiscomforts(routes.first);
 
     final status = getIt<PredictionSGStatus>();
     await status.fetch(routes.first);
@@ -473,7 +473,7 @@ class Routing with ChangeNotifier {
     selectedRoute = allRoutes![idx];
 
     final discomforts = getIt<Discomforts>();
-    await discomforts.findDiscomforts(selectedRoute!.path);
+    await discomforts.findDiscomforts(selectedRoute!);
 
     final status = getIt<PredictionSGStatus>();
     await status.fetch(selectedRoute!);
