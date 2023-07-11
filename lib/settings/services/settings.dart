@@ -5,6 +5,7 @@ import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
+import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/routing.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
@@ -67,6 +68,12 @@ class Settings with ChangeNotifier {
 
   /// Enable "old" gamification for app
   bool enableGamification;
+
+  /// The selected ride assist mode
+  RideAssistMode rideAssistMode;
+
+  /// The selected modality mode
+  ModalityMode modalityMode;
 
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
@@ -374,6 +381,40 @@ class Settings with ChangeNotifier {
     return success;
   }
 
+  static const rideAssistModeKey = "priobike.settings.rideAssistMode";
+  static const defaultRideAssistMode = RideAssistMode.none;
+
+  Future<bool> setRideAssistMode(RideAssistMode rideAssistMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.rideAssistMode;
+    this.rideAssistMode = rideAssistMode;
+    bool success = await storage.setString(rideAssistModeKey, rideAssistMode.name);
+    if (!success) {
+      log.e("Failed to set RideAssistMode to $rideAssistMode");
+      this.rideAssistMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  static const modalityModeKey = "priobike.settings.modalityMode";
+  static const defaultModalityMode = ModalityMode.vibration;
+
+  Future<bool> setModalityMode(ModalityMode modalityMode, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.modalityMode;
+    this.modalityMode = modalityMode;
+    bool success = await storage.setString(modalityModeKey, modalityMode.name);
+    if (!success) {
+      log.e("Failed to set ModalityMode to $modalityMode");
+      this.modalityMode = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
   Settings({
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
@@ -392,6 +433,8 @@ class Settings with ChangeNotifier {
     this.useCounter = defaultUseCounter,
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
+    this.rideAssistMode = defaultRideAssistMode,
+    this.modalityMode = defaultModalityMode,
   });
 
   /// Load the backend from the shared
@@ -449,6 +492,16 @@ class Settings with ChangeNotifier {
     }
     try {
       sgSelector = SGSelector.values.byName(storage.getString(sgSelectorKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      rideAssistMode = RideAssistMode.values.byName(storage.getString(rideAssistModeKey)!);
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+    try {
+      modalityMode = ModalityMode.values.byName(storage.getString(modalityModeKey)!);
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
     }
@@ -520,6 +573,8 @@ class Settings with ChangeNotifier {
         "trackingSubmissionPolicy": trackingSubmissionPolicy.name,
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
-        "enableGamification": enableGamification
+        "enableGamification": enableGamification,
+        "rideAssistMode": rideAssistMode,
+        "modalityMode": modalityMode,
       };
 }

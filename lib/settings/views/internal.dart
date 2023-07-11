@@ -7,9 +7,11 @@ import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/datastream.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/settings/models/prediction.dart';
+import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/settings/views/main.dart';
@@ -85,6 +87,22 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
+  /// A callback that is executed when a ride assist mode is selected.
+  Future<void> onSelectRideAssistMode(RideAssistMode rideAssistMode) async {
+    // Tell the settings service that we selected the new ride assist mode.
+    await settings.setRideAssistMode(rideAssistMode);
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  /// A callback that is executed when a modality mode is selected.
+  Future<void> onSelectModalityMode(ModalityMode modalityMode) async {
+    // Tell the settings service that we selected the new modality mode.
+    await settings.setModalityMode(modalityMode);
+
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -108,17 +126,17 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
-                    title: "Fahrt Unterstützung",
-                    subtitle: settings.predictionMode.description,
+                    title: "Fahr Unterstützung",
+                    subtitle: settings.rideAssistMode.name,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
                       builder: (BuildContext context) {
                         return SettingsSelection(
-                            elements: PredictionMode.values,
-                            selected: settings.predictionMode,
-                            title: (PredictionMode e) => e.description,
-                            callback: onSelectPredictionMode);
+                            elements: RideAssistMode.values,
+                            selected: settings.rideAssistMode,
+                            title: (RideAssistMode e) => e.name,
+                            callback: onSelectRideAssistMode);
                       },
                     ),
                   ),
@@ -127,16 +145,16 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Modalität",
-                    subtitle: settings.predictionMode.description,
+                    subtitle: settings.modalityMode.name,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
                       builder: (BuildContext context) {
                         return SettingsSelection(
-                            elements: PredictionMode.values,
-                            selected: settings.predictionMode,
-                            title: (PredictionMode e) => e.description,
-                            callback: onSelectPredictionMode);
+                            elements: ModalityMode.values,
+                            selected: settings.modalityMode,
+                            title: (ModalityMode e) => e.name,
+                            callback: onSelectModalityMode);
                       },
                     ),
                   ),
