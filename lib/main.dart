@@ -51,11 +51,11 @@ Future<void> main() async {
   await FCM.load(await Settings.loadBackendFromSharedPreferences());
 
   // Register the services.
-  getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<Feature>(Feature());
+  getIt.registerSingleton<Settings>(Settings(getIt<Feature>().defaultBackend));
+  getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
   getIt.registerSingleton<Tutorial>(Tutorial());
-  getIt.registerSingleton<Settings>(Settings());
   getIt.registerSingleton<PredictionStatusSummary>(PredictionStatusSummary());
   getIt.registerSingleton<PredictionSGStatus>(PredictionSGStatus());
   getIt.registerSingleton<Profile>(Profile());

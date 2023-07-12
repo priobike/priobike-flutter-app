@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:priobike/logging/logger.dart';
+import 'package:priobike/settings/models/backend.dart';
 
 class Feature with ChangeNotifier {
   final log = Logger('Feature');
@@ -30,6 +31,9 @@ class Feature with ChangeNotifier {
   /// if beta features can be enabled.
   late bool canEnableBetaFeatures;
 
+  /// The default backend.
+  Backend defaultBackend = Backend.release;
+
   Feature();
 
   /// Load the service.
@@ -52,6 +56,10 @@ class Feature with ChangeNotifier {
     appVersion = info.version;
     appBuildNumber = info.buildNumber;
     packageName = info.packageName;
+
+    if (gitHead.contains('beta')) {
+      defaultBackend = Backend.production;
+    }
 
     hasLoaded = true;
     notifyListeners();
