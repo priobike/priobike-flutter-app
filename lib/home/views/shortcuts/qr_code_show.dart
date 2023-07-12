@@ -32,10 +32,7 @@ class ShowQRCodeView extends StatelessWidget {
       log.e(hint);
     }
 
-    Shortcut shortcutCopy = ShortcutRoute(
-      name: shortcut.name,
-      waypoints: [],
-    );
+    Shortcut? shortcutCopy;
 
     // If the total address character count is too large, we need to trim the addresses
     // such that the total character length is max. 300.

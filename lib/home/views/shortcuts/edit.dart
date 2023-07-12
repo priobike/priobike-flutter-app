@@ -147,7 +147,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     showEditShortcutSheet(context, idx);
   }
 
-  /// Widget that displays a shortcut route.
+  /// Widget that displays a shortcut.
   Widget shortcutListItem(Shortcut shortcut, int key) {
     return Container(
       key: Key("$key"),
@@ -279,12 +279,12 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 return;
               }
 
-              bool success = await shortcut.loadRoute(context);
+              await shortcut.loadRoute(context);
 
               // Pushes the routing view.
               // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
               // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-              if (context.mounted && success) {
+              if (context.mounted) {
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
                   (comingNotFromRoutingView) {
                     if (comingNotFromRoutingView == null) {

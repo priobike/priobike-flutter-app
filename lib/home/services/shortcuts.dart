@@ -69,18 +69,8 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts!.length <= idx) return;
 
     Shortcut foundShortcut = shortcuts![idx];
-
-    // Check type.
-    if (foundShortcut.runtimeType == ShortcutRoute) {
-      // update name.
-      shortcuts![idx] = ShortcutRoute(name: name, waypoints: (foundShortcut as ShortcutRoute).waypoints);
-    } else if (foundShortcut.runtimeType == ShortcutLocation) {
-      // update name.
-      shortcuts![idx] = ShortcutLocation(name: name, waypoint: (foundShortcut as ShortcutLocation).waypoint);
-    } else {
-      final hint = "Error unknown type ${foundShortcut.runtimeType} in updateShortcutName.";
-      log.e(hint);
-    }
+    foundShortcut.name = name;
+    shortcuts![idx] = foundShortcut;
 
     await storeShortcuts();
     notifyListeners();
@@ -142,18 +132,32 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List).map((e) {
+      // Init shortcuts.
+      shortcuts = [];
+      // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
+      for (var e in jsonDecode(jsonStr) as List) {
         if (e["type"] != null) {
           switch (e["type"]) {
             case "ShortcutLocation":
-              return ShortcutLocation.fromJson(e);
+              shortcuts?.add(ShortcutLocation.fromJson(e));
+              break;
             case "ShortcutRoute":
-              return ShortcutRoute.fromJson(e);
+              shortcuts?.add(ShortcutRoute.fromJson(e));
+              break;
+            default:
+              final hint = "Error unknown type ${e["type"]} in loadShortcuts.";
+              log.e(hint);
+          }
+        } else {
+          // Only for backwards compatibility.
+          if (e["waypoint"] != null) {
+            shortcuts?.add(ShortcutLocation.fromJson(e));
+          }
+          if (e["waypoints"] != null) {
+            shortcuts?.add(ShortcutRoute.fromJson(e));
           }
         }
-        // Only for backwards compatibility.
-        return e["waypoint"] != null ? ShortcutLocation.fromJson(e) : ShortcutRoute.fromJson(e);
-      }).toList();
+      }
     }
 
     notifyListeners();

@@ -17,7 +17,7 @@ class ShortcutLocation implements Shortcut {
 
   /// The name of the shortcut.
   @override
-  final String name;
+  String name;
 
   /// The waypoint of the shortcut location.
   final Waypoint waypoint;

@@ -6,7 +6,7 @@ abstract class Shortcut {
   final String type;
 
   /// The name of the shortcut.
-  final String name;
+  String name;
 
   /// Get the linebreaked name of the shortcut.
   String get linebreakedName;
@@ -35,7 +35,7 @@ abstract class Shortcut {
   /// Checks if the shortcut waypoints are used in the selected route.
   bool isUsedInRouting();
 
-  const Shortcut({required this.name, required this.type});
+  Shortcut({required this.name, required this.type});
 
   Map<String, dynamic> toJson();
 }

@@ -15,7 +15,7 @@ class ShortcutRoute implements Shortcut {
 
   /// The name of the shortcut.
   @override
-  final String name;
+  String name;
 
   /// The waypoints of the shortcut.
   final List<Waypoint> waypoints;
