@@ -1,20 +1,76 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Shortcuts;
 import 'package:flutter/scheduler.dart';
+import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/debouncer.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
+import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/geosearch.dart';
+
+void showSaveShortcutLocationSheet(context, Waypoint waypoint) {
+  final shortcuts = GetIt.instance.get<Shortcuts>();
+  final geosearch = GetIt.instance.get<Geosearch>();
+  showDialog(
+    context: context,
+    builder: (_) {
+      final nameController = TextEditingController();
+      return AlertDialog(
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        insetPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40.0),
+        title: BoldContent(
+          text: 'Bitte gib einen Namen an, unter dem der Ort gespeichert werden soll.',
+          context: context,
+        ),
+        content: SizedBox(
+          height: 78,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: nameController,
+                maxLength: 20,
+                decoration: const InputDecoration(hintText: 'Zuhause, Arbeit, ...'),
+              ),
+            ],
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final name = nameController.text;
+              if (name.trim().isEmpty) {
+                ToastMessage.showError("Name darf nicht leer sein.");
+                return;
+              }
+              await shortcuts.saveNewShortcutLocation(name, waypoint);
+              await geosearch.addToSearchHistory(waypoint);
+              ToastMessage.showSuccess("Ort gespeichert!");
+              Navigator.pop(context);
+            },
+            child: BoldContent(
+              text: 'Speichern',
+              color: Theme.of(context).colorScheme.primary,
+              context: context,
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 /// Result of a address search query.
 class SearchItem extends StatelessWidget {
@@ -50,12 +106,27 @@ class SearchItem extends StatelessWidget {
             : distance! >= 1000
                 ? (Small(text: "${(distance! / 1000).toStringAsFixed(1)} km entfernt", context: context))
                 : (Small(text: "${distance!.toStringAsFixed(0)} m entfernt", context: context)),
-        trailing: Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: Icon(
-            Icons.arrow_forward,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+        trailing: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: IconButton(
+                icon: const Icon(Icons.save),
+                color: Theme.of(context).colorScheme.primary,
+                onPressed: () {
+                  showSaveShortcutLocationSheet(context, waypoint);
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Icon(
+                Icons.arrow_forward,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
         ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -137,12 +208,27 @@ class HistoryItemState extends State<HistoryItem> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               )
-            : Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Icon(
-                  Icons.arrow_forward,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+            : Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: IconButton(
+                      icon: const Icon(Icons.save),
+                      color: Theme.of(context).colorScheme.primary,
+                      onPressed: () {
+                        showSaveShortcutLocationSheet(context, widget.waypoint);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(
+                      Icons.arrow_forward,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -278,7 +364,9 @@ class RouteSearchState extends State<RouteSearch> {
   /// Returns map with waypoint as key and distance as value.
   Map<Waypoint, double?> calculateDistanceToWaypoints(
       {required List<Waypoint> waypoints, required bool sortByDistance}) {
-    if (positioning.lastPosition == null) return waypoints.asMap().map((key, value) => MapEntry(value, null));
+    if (positioning.lastPosition == null) {
+      return waypoints.asMap().map((key, value) => MapEntry(value, null));
+    }
 
     final lastPos = LatLng(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude);
     var dictionary = <Waypoint, double>{};

@@ -342,7 +342,7 @@ class Routing with ChangeNotifier {
 
     // Do nothing if the waypoints were already fetched (or both are null).
     if (fetchedWaypoints == selectedWaypoints) return null;
-    if (selectedWaypoints == null || selectedWaypoints!.isEmpty || selectedWaypoints!.length < 2) {
+    if (selectedWaypoints == null || selectedWaypoints!.isEmpty) {
       hadErrorDuringFetch = false;
       notifyListeners();
       return null;
@@ -352,6 +352,26 @@ class Routing with ChangeNotifier {
     hadErrorDuringFetch = false;
     waypointsOutOfBoundaries = false;
     notifyListeners();
+
+    if (selectedWaypoints!.length < 2) {
+      // Get the last position as the start point.
+      if (getIt<Positioning>().lastPosition != null) {
+        selectedWaypoints = [
+          Waypoint(
+            getIt<Positioning>().lastPosition!.latitude,
+            getIt<Positioning>().lastPosition!.longitude,
+            address: "Aktueller Standort",
+          ),
+          ...selectedWaypoints!,
+        ];
+      } else {
+        hadErrorDuringFetch = true;
+        waypointsOutOfBoundaries = true;
+        isFetchingRoute = false;
+        notifyListeners();
+        return null;
+      }
+    }
 
     // Check if the waypoints are inside of the city boundaries.
     if (!inCityBoundary(selectedWaypoints!)) {

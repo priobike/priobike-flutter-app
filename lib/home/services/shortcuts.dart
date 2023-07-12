@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
@@ -22,8 +24,8 @@ class Shortcuts with ChangeNotifier {
     shortcuts = null;
   }
 
-  /// Save a new shortcut.
-  Future<void> saveNewShortcut(String name) async {
+  /// Save a new route shortcut.
+  Future<void> saveNewShortcutRoute(String name) async {
     final routing = getIt<Routing>();
     if (routing.selectedWaypoints == null || routing.selectedWaypoints!.isEmpty) return;
 
@@ -40,10 +42,21 @@ class Shortcuts with ChangeNotifier {
       }
     }
 
-    final newShortcut = Shortcut(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
+    final newShortcut = ShortcutRoute(name: name, waypoints: routing.selectedWaypoints!.whereType<Waypoint>().toList());
     if (shortcuts == null) await loadShortcuts();
     if (shortcuts == null) return;
-    shortcuts = [newShortcut] + shortcuts!;
+    shortcuts = <Shortcut>[newShortcut] + shortcuts!;
+    await storeShortcuts();
+
+    notifyListeners();
+  }
+
+  /// Save a new location shortcut.
+  Future<void> saveNewShortcutLocation(String name, Waypoint waypoint) async {
+    final newShortcut = ShortcutLocation(name: name, waypoint: waypoint);
+    if (shortcuts == null) await loadShortcuts();
+    if (shortcuts == null) return;
+    shortcuts = <Shortcut>[newShortcut] + shortcuts!;
     await storeShortcuts();
 
     notifyListeners();
@@ -55,8 +68,9 @@ class Shortcuts with ChangeNotifier {
     if (shortcuts == null) return;
     if (shortcuts!.length <= idx) return;
 
-    // update name.
-    shortcuts![idx] = Shortcut(name: name, waypoints: shortcuts![idx].waypoints);
+    Shortcut foundShortcut = shortcuts![idx];
+    foundShortcut.name = name;
+    shortcuts![idx] = foundShortcut;
 
     await storeShortcuts();
     notifyListeners();
@@ -69,7 +83,14 @@ class Shortcuts with ChangeNotifier {
     shortcuts = [shortcut] + shortcuts!;
     await storeShortcuts();
 
-    ToastMessage.showSuccess("Route gespeichert!");
+    if (shortcut.runtimeType == ShortcutRoute) {
+      ToastMessage.showSuccess("Route gespeichert!");
+    } else if (shortcut.runtimeType == ShortcutLocation) {
+      ToastMessage.showSuccess("Ort gespeichert!");
+    } else {
+      final hint = "Error unknown type ${shortcut.runtimeType} in saveNewShortcutObject.";
+      log.e(hint);
+    }
     notifyListeners();
   }
 
@@ -111,7 +132,32 @@ class Shortcuts with ChangeNotifier {
     if (jsonStr == null) {
       shortcuts = backend.defaultShortcuts;
     } else {
-      shortcuts = (jsonDecode(jsonStr) as List).map((e) => Shortcut.fromJson(e)).toList();
+      // Init shortcuts.
+      shortcuts = [];
+      // Loop through all json Shortcuts and add correct shortcuts to shortcuts.
+      for (var e in jsonDecode(jsonStr) as List) {
+        if (e["type"] != null) {
+          switch (e["type"]) {
+            case "ShortcutLocation":
+              shortcuts?.add(ShortcutLocation.fromJson(e));
+              break;
+            case "ShortcutRoute":
+              shortcuts?.add(ShortcutRoute.fromJson(e));
+              break;
+            default:
+              final hint = "Error unknown type ${e["type"]} in loadShortcuts.";
+              log.e(hint);
+          }
+        } else {
+          // Only for backwards compatibility.
+          if (e["waypoint"] != null) {
+            shortcuts?.add(ShortcutLocation.fromJson(e));
+          }
+          if (e["waypoints"] != null) {
+            shortcuts?.add(ShortcutRoute.fromJson(e));
+          }
+        }
+      }
     }
 
     notifyListeners();
