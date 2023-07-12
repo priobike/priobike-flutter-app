@@ -17,7 +17,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/layers.dart';
-import 'package:priobike/settings/services/features.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/status_history.dart';
@@ -59,12 +58,6 @@ class LoaderState extends State<Loader> {
   Future<void> init() async {
     // Init the HTTP client for all services.
     Http.initClient();
-
-    // Load the feature.
-    final feature = getIt<Feature>();
-    await feature.load();
-    // Load the settings.
-    await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
     // Load all other services.
     try {

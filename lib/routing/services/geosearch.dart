@@ -122,13 +122,7 @@ class Geosearch with ChangeNotifier {
   Future<void> deleteSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
-    if (backend == Backend.production) {
-      await preferences.remove("priobike.routing.searchHistory.production");
-    } else if (backend == Backend.staging) {
-      await preferences.remove("priobike.routing.searchHistory.staging");
-    } else {
-      log.e("Unknown backend used for geosearch: $backend");
-    }
+    await preferences.remove("priobike.routing.searchHistory.${backend.name}");
     searchHistory = [];
   }
 
@@ -136,14 +130,7 @@ class Geosearch with ChangeNotifier {
   Future<void> loadSearchHistory() async {
     final preferences = await SharedPreferences.getInstance();
     final backend = getIt<Settings>().backend;
-    List<String> savedList = [];
-    if (backend == Backend.production) {
-      savedList = preferences.getStringList("priobike.routing.searchHistory.production") ?? [];
-    } else if (backend == Backend.staging) {
-      savedList = preferences.getStringList("priobike.routing.searchHistory.staging") ?? [];
-    } else {
-      log.e("Unknown backend used for geosearch: $backend");
-    }
+    List<String> savedList = preferences.getStringList("priobike.routing.searchHistory.${backend.name}") ?? [];
     searchHistory = [];
     for (String waypoint in savedList) {
       try {
@@ -168,13 +155,7 @@ class Geosearch with ChangeNotifier {
     for (Waypoint waypoint in searchHistory) {
       newList.add(json.encode(waypoint.toJSON()));
     }
-    if (backend == Backend.production) {
-      await preferences.setStringList("priobike.routing.searchHistory.production", newList);
-    } else if (backend == Backend.staging) {
-      await preferences.setStringList("priobike.routing.searchHistory.staging", newList);
-    } else {
-      log.e("Unknown backend used for geosearch: $backend");
-    }
+    await preferences.setStringList("priobike.routing.searchHistory.${backend.name}", newList);
   }
 
   /// Add a waypoint to the search history.

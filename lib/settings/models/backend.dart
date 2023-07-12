@@ -1,12 +1,18 @@
+import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/models/shortcut_location.dart';
 import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
+/// The Backend enum which contains three types.
+/// Production used for beta testing.
+/// Staging used for testing in Dresden.
+/// Release used for the Release-Version of the app.
 enum Backend {
   production,
   staging,
+  release,
 }
 
 extension BackendPath on Backend {
@@ -16,6 +22,8 @@ extension BackendPath on Backend {
         return "priobike.vkw.tu-dresden.de/production";
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de/staging";
+      case Backend.release:
+        return "priobike.flow-d.de";
     }
   }
 }
@@ -27,6 +35,8 @@ extension BackendName on Backend {
         return "production";
       case Backend.staging:
         return "staging";
+      case Backend.release:
+        return "release";
     }
   }
 }
@@ -38,6 +48,8 @@ extension BackendPredictionServiceMqtt on Backend {
         return "priobike.vkw.tu-dresden.de";
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de";
+      case Backend.release:
+        return "priobike.flow-d.de";
     }
   }
 
@@ -47,6 +59,8 @@ extension BackendPredictionServiceMqtt on Backend {
         return 20050;
       case Backend.staging:
         return 20032;
+      case Backend.release:
+        return 20050;
     }
   }
 
@@ -56,6 +70,8 @@ extension BackendPredictionServiceMqtt on Backend {
         return "user";
       case Backend.staging:
         return "user";
+      case Backend.release:
+        return "user";
     }
   }
 
@@ -64,6 +80,8 @@ extension BackendPredictionServiceMqtt on Backend {
       case Backend.production:
         return "mqtt@priobike-2022";
       case Backend.staging:
+        return "mqtt@priobike-2022";
+      case Backend.release:
         return "mqtt@priobike-2022";
     }
   }
@@ -76,6 +94,8 @@ extension BackendPredictorMqtt on Backend {
         return "priobike.vkw.tu-dresden.de";
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de";
+      case Backend.release:
+        return "priobike.flow-d.de";
     }
   }
 
@@ -85,6 +105,8 @@ extension BackendPredictorMqtt on Backend {
         return 20054;
       case Backend.staging:
         return 20035;
+      case Backend.release:
+        return 20054;
     }
   }
 
@@ -94,6 +116,8 @@ extension BackendPredictorMqtt on Backend {
         return "user";
       case Backend.staging:
         return "user";
+      case Backend.release:
+        return "user";
     }
   }
 
@@ -102,6 +126,8 @@ extension BackendPredictorMqtt on Backend {
       case Backend.production:
         return "mqtt@priobike-2022";
       case Backend.staging:
+        return "mqtt@priobike-2022";
+      case Backend.release:
         return "mqtt@priobike-2022";
     }
   }
@@ -114,6 +140,8 @@ extension BackendFROSTMqtt on Backend {
         return "tld.iot.hamburg.de";
       case Backend.staging:
         return "priobike.vkw.tu-dresden.de";
+      case Backend.release:
+        return "priobike.flow-d.de";
     }
   }
 
@@ -123,6 +151,8 @@ extension BackendFROSTMqtt on Backend {
         return 1883;
       case Backend.staging:
         return 20056;
+      case Backend.release:
+        return 1883;
     }
   }
 }
@@ -131,9 +161,11 @@ extension BackendRegion on Backend {
   String get region {
     switch (this) {
       case Backend.production:
-        return "Hamburg";
+        return "Hamburg (Beta)";
       case Backend.staging:
         return "Dresden";
+      case Backend.release:
+        return "Hamburg";
     }
   }
 
@@ -143,6 +175,19 @@ extension BackendRegion on Backend {
         return LatLng(53.551086, 9.993682);
       case Backend.staging:
         return LatLng(51.050407, 13.737262);
+      case Backend.release:
+        return LatLng(53.551086, 9.993682);
+    }
+  }
+
+  Future<String> get boundaryGeoJson async {
+    switch (this) {
+      case Backend.production:
+        return await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
+      case Backend.staging:
+        return await rootBundle.loadString("assets/geo/dresden-boundary.geojson");
+      case Backend.release:
+        return await rootBundle.loadString("assets/geo/hamburg-boundary.geojson");
     }
   }
 }
@@ -226,6 +271,8 @@ extension BackendShortcuts on Backend {
             ],
           ),
         ];
+      case Backend.release:
+        return [];
     }
   }
 }

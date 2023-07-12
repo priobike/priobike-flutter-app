@@ -46,16 +46,22 @@ Future<void> main() async {
   // This is required by some plugins and functions.
   WidgetsFlutterBinding.ensureInitialized();
 
+  // The feature service needs to load first, as it sets the backend which is used by other services.
+  getIt.registerSingleton<Feature>(Feature());
+  final feature = getIt<Feature>();
+  await feature.load();
+  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+  final settings = getIt<Settings>();
+  await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
+
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  await FCM.load(await Settings.loadBackendFromSharedPreferences());
+  await FCM.load(settings.backend);
 
   // Register the services.
   getIt.registerSingleton<Weather>(Weather());
-  getIt.registerSingleton<Feature>(Feature());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
   getIt.registerSingleton<Tutorial>(Tutorial());
-  getIt.registerSingleton<Settings>(Settings());
   getIt.registerSingleton<PredictionStatusSummary>(PredictionStatusSummary());
   getIt.registerSingleton<PredictionSGStatus>(PredictionSGStatus());
   getIt.registerSingleton<Profile>(Profile());
