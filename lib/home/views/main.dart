@@ -191,7 +191,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Tell the tutorial service that the shortcut was selected.
     getIt<Tutorial>().complete("priobike.tutorial.select-shortcut");
 
-    await shortcut.loadRoute(context);
+    final waypoints = shortcut.getWaypoints();
+    routing.selectWaypoints(waypoints);
 
     pushRoutingView();
   }

@@ -279,7 +279,8 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                 return;
               }
 
-              await shortcut.loadRoute(context);
+              final waypoints = shortcut.getWaypoints();
+              routing.selectWaypoints(waypoints);
 
               // Pushes the routing view.
               // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.

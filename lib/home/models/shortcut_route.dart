@@ -94,15 +94,10 @@ class ShortcutRoute implements Shortcut {
         ).toList(),
       );
 
-  /// Copy the shortcut with another name.
+  /// Methods which returns a list of waypoints.
   @override
-  ShortcutRoute copyWith({String? name}) => ShortcutRoute(name: name ?? this.name, waypoints: waypoints);
-
-  /// Function which loads the shortcut route.
-  @override
-  Future<bool> loadRoute(BuildContext context) async {
-    await getIt<Routing>().selectWaypoints(List.from(waypoints));
-    return true;
+  List<Waypoint> getWaypoints() {
+    return waypoints;
   }
 
   /// Returns a String with a short info of the shortcut.
