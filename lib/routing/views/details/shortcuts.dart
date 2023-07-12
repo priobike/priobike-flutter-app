@@ -63,7 +63,7 @@ class ShortcutsState extends State<ShortcutsRow> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            shortcut.getTypeIcon(),
+            shortcut.getIcon(),
             const SmallHSpace(),
             Content(
               context: context,

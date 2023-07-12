@@ -4,7 +4,6 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/routing.dart';
 
 /// The shortcut represents a saved location with a name.
 class ShortcutLocation implements Shortcut {
@@ -115,17 +114,7 @@ class ShortcutLocation implements Shortcut {
 
   /// Returns the icon of the shortcut type.
   @override
-  Widget getTypeIcon() {
+  Widget getIcon() {
     return const Icon(Icons.location_on);
-  }
-
-  /// Checks if the shortcut waypoint is used in the selected route.
-  @override
-  bool isUsedInRouting() {
-    bool isUsed = false;
-    getIt<Routing>().selectedWaypoints?.forEach((waypoint) {
-      if (waypoint == this.waypoint) isUsed = true;
-    });
-    return isUsed;
   }
 }

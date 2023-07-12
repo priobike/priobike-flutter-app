@@ -28,12 +28,9 @@ abstract class Shortcut {
   Widget getRepresentation();
 
   /// Returns the icon of the shortcut type.
-  Widget getTypeIcon();
+  Widget getIcon();
 
-  /// Checks if the shortcut waypoints are used in the selected route.
-  bool isUsedInRouting();
-
-  Shortcut({required this.name, required this.type});
+  Shortcut({required this.type, required this.name});
 
   Map<String, dynamic> toJson();
 }

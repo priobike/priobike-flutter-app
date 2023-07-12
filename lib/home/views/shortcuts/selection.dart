@@ -11,7 +11,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/routing/services/routing.dart';
 
 class ShortcutView extends StatelessWidget {
-  final bool isLoading;
   final Shortcut? shortcut;
   final void Function() onPressed;
   final double width;
@@ -20,7 +19,6 @@ class ShortcutView extends StatelessWidget {
 
   const ShortcutView({
     Key? key,
-    this.isLoading = false,
     this.shortcut,
     required this.onPressed,
     required this.width,
@@ -82,29 +80,27 @@ class ShortcutView extends StatelessWidget {
               height: height,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: isLoading
-                    ? [const Expanded(child: Center(child: CircularProgressIndicator()))]
-                    : [
-                        shortcut == null
-                            ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
-                            : shortcut!.getRepresentation(),
-                        Expanded(child: Container()),
-                        FittedBox(
-                          // Scale the text to fit the width.
-                          fit: BoxFit.fitWidth,
-                          child: Content(
-                            text: shortcut == null ? 'Neue Route' : shortcut!.linebreakedName,
-                            color: shortcut == null
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.brightness == Brightness.dark
-                                    ? Colors.grey
-                                    : Colors.black,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            context: context,
-                          ),
-                        ),
-                      ],
+                children: [
+                  shortcut == null
+                      ? const Icon(Icons.map_rounded, size: 64, color: Colors.white)
+                      : shortcut!.getRepresentation(),
+                  Expanded(child: Container()),
+                  FittedBox(
+                    // Scale the text to fit the width.
+                    fit: BoxFit.fitWidth,
+                    child: Content(
+                      text: shortcut == null ? 'Neue Route' : shortcut!.linebreakedName,
+                      color: shortcut == null
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.brightness == Brightness.dark
+                              ? Colors.grey
+                              : Colors.black,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      context: context,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -218,7 +214,6 @@ class ShortcutsViewState extends State<ShortcutsView> {
                     await widget.onSelectShortcut(shortcut);
                   }
                 },
-                isLoading: shortcut.isUsedInRouting() && routing.isFetchingRoute,
                 shortcut: shortcut,
                 width: shortcutWidth,
                 height: shortcutHeight,
