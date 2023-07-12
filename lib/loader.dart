@@ -60,10 +60,8 @@ class LoaderState extends State<Loader> {
     // Init the HTTP client for all services.
     Http.initClient();
 
-    // Load the feature.
-    final feature = getIt<Feature>();
-    await feature.load();
     // Load the settings.
+    final feature = getIt<Feature>();
     await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
     // Load all other services.
