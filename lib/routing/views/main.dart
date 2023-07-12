@@ -135,13 +135,14 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing?.loadRoutes();
-
         // Calling requestSingleLocation function to fill lastPosition of PositionService
         await positioning?.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
         });
+        // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
+        // a location shortcut instead of a route shortcut.
+        await routing?.loadRoutes();
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {

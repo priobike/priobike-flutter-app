@@ -84,7 +84,8 @@ class ImportShortcutDialogState<E> extends State<ImportShortcutDialog<E>> {
                   ToastMessage.showError("Name darf nicht leer sein.");
                   return;
                 }
-                await shortcuts.saveNewShortcutObject(shortcut.copyWith(name: name));
+                shortcut.name = name;
+                await shortcuts.saveNewShortcutObject(shortcut);
                 ToastMessage.showSuccess("Route gespeichert!");
                 // ignore: use_build_context_synchronously
                 Navigator.pop(context);

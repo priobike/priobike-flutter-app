@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 
 /// The shortcut represents a saved route or location with a name.
 abstract class Shortcut {
@@ -17,11 +18,8 @@ abstract class Shortcut {
   /// Trim the addresses of the waypoints, if a factor < 1 is given.
   Shortcut trim(double factor);
 
-  /// Copy the shortcut with another name.
-  Shortcut copyWith({String? name});
-
-  /// Function which loads the shortcut route.
-  Future<bool> loadRoute(BuildContext context);
+  /// Methods which returns a list of waypoints.
+  List<Waypoint> getWaypoints();
 
   /// Returns a String with a short info of the shortcut.
   String getShortInfo();
@@ -30,12 +28,9 @@ abstract class Shortcut {
   Widget getRepresentation();
 
   /// Returns the icon of the shortcut type.
-  Widget getTypeIcon();
+  Widget getIcon();
 
-  /// Checks if the shortcut waypoints are used in the selected route.
-  bool isUsedInRouting();
-
-  Shortcut({required this.name, required this.type});
+  Shortcut({required this.type, required this.name});
 
   Map<String, dynamic> toJson();
 }

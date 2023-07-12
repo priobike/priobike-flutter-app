@@ -44,7 +44,8 @@ class ShortcutsState extends State<ShortcutsRow> {
 
   /// Load route from shortcuts.
   _loadShortcutsRoute(Shortcut shortcut) async {
-    await shortcut.loadRoute(context);
+    final waypoints = shortcut.getWaypoints();
+    routing.selectWaypoints(waypoints);
     await routing.loadRoutes();
   }
 
@@ -62,7 +63,7 @@ class ShortcutsState extends State<ShortcutsRow> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            shortcut.getTypeIcon(),
+            shortcut.getIcon(),
             const SmallHSpace(),
             Content(
               context: context,

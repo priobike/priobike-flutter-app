@@ -5,7 +5,6 @@ import 'package:priobike/home/views/shortcuts/pictogram.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/boundary.dart';
-import 'package:priobike/routing/services/routing.dart';
 
 /// The shortcut represents a saved route with a name.
 class ShortcutRoute implements Shortcut {
@@ -94,15 +93,10 @@ class ShortcutRoute implements Shortcut {
         ).toList(),
       );
 
-  /// Copy the shortcut with another name.
+  /// Methods which returns a list of waypoints.
   @override
-  ShortcutRoute copyWith({String? name}) => ShortcutRoute(name: name ?? this.name, waypoints: waypoints);
-
-  /// Function which loads the shortcut route.
-  @override
-  Future<bool> loadRoute(BuildContext context) async {
-    await getIt<Routing>().selectWaypoints(List.from(waypoints));
-    return true;
+  List<Waypoint> getWaypoints() {
+    return waypoints;
   }
 
   /// Returns a String with a short info of the shortcut.
@@ -124,13 +118,7 @@ class ShortcutRoute implements Shortcut {
 
   /// Returns the icon of the shortcut type.
   @override
-  Widget getTypeIcon() {
+  Widget getIcon() {
     return const Icon(Icons.route);
-  }
-
-  /// Checks if the shortcut waypoints are used in the selected route.
-  @override
-  bool isUsedInRouting() {
-    return getIt<Routing>().selectedWaypoints == waypoints;
   }
 }
