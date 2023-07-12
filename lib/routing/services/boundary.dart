@@ -26,7 +26,7 @@ class Boundary {
     boundaryCoords = List.empty(growable: true);
     boundaryGeoJson = await backend.boundaryGeoJson;
     final geojsonDecoded = jsonDecode(boundaryGeoJson!);
-    coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][0][1];
+    coords = geojsonDecoded["features"][0]["geometry"]["coordinates"][1];
 
     for (final coord in coords) {
       boundaryCoords.add(Point(x: coord[0], y: coord[1]));

@@ -48,14 +48,17 @@ Future<void> main() async {
 
   // The feature service needs to load first, as it sets the backend which is used by other services.
   getIt.registerSingleton<Feature>(Feature());
-  await getIt<Feature>().load();
+  final feature = getIt<Feature>();
+  await feature.load();
+  getIt.registerSingleton<Settings>(Settings(feature.defaultBackend));
+  final settings = getIt<Settings>();
+  await settings.loadSettings(feature.canEnableInternalFeatures, feature.canEnableBetaFeatures);
 
   // Setup the push notifications. We cannot do this in the
   // widget tree down further, as a restriction of Android.
-  await FCM.load(await Settings.loadBackendFromSharedPreferences());
+  await FCM.load(settings.backend);
 
   // Register the services.
-  getIt.registerSingleton<Settings>(Settings(getIt<Feature>().defaultBackend));
   getIt.registerSingleton<Weather>(Weather());
   getIt.registerSingleton<PrivacyPolicy>(PrivacyPolicy());
   getIt.registerSingleton<Tutorial>(Tutorial());

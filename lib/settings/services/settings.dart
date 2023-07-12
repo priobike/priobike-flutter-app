@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:priobike/logging/logger.dart';
-import 'package:priobike/main.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/color_mode.dart';
 import 'package:priobike/settings/models/datastream.dart';
@@ -11,7 +10,6 @@ import 'package:priobike/settings/models/sg_labels.dart';
 import 'package:priobike/settings/models/sg_selector.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/tracking.dart';
-import 'package:priobike/settings/services/features.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings with ChangeNotifier {
@@ -394,20 +392,6 @@ class Settings with ChangeNotifier {
     this.dismissedSurvey = defaultDismissedSurvey,
     this.enableGamification = defaultEnableGamification,
   });
-
-  /// Load the backend from the shared
-  /// preferences, for the initial view build.
-  static Future<Backend> loadBackendFromSharedPreferences() async {
-    final storage = await SharedPreferences.getInstance();
-    final backendStr = storage.getString(backendKey);
-    Backend backend;
-    try {
-      backend = Backend.values.byName(backendStr!);
-    } catch (e) {
-      backend = getIt<Feature>().defaultBackend;
-    }
-    return backend;
-  }
 
   /// Load the beta settings from the shared preferences.
   Future<void> loadBetaSettings(SharedPreferences storage) async {
