@@ -4,9 +4,9 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 
 /// The Backend enum which contains three types.
-/// Production used for beta testing. 
+/// Production used for beta testing.
 /// Staging used for testing in Dresden.
-/// Release used for the Release-Version of the app.  
+/// Release used for the Release-Version of the app.
 enum Backend {
   production,
   staging,
