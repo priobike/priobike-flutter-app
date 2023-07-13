@@ -182,14 +182,6 @@ class HistoryItemState extends State<HistoryItem> {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 12),
       child: ListTile(
-        leading: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(
-              Icons.history,
-            ),
-          ],
-        ),
         title: BoldSmall(
           text: widget.waypoint.address!,
           context: context,
@@ -255,26 +247,26 @@ class CurrentPosition extends StatelessWidget {
     final positioning = getIt<Positioning>();
     if (positioning.lastPosition == null) return Container();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ListTile(
-        title: BoldSubHeader(
+        title: BoldSmall(
           text: "Aktueller Standort",
           context: context,
           color: Colors.white,
         ),
-        trailing: const Padding(
-          padding: EdgeInsets.only(right: 12),
+        trailing: Padding(
+          padding: const EdgeInsets.only(right: 8),
           child: Icon(
-            Icons.location_on,
-            color: Colors.white,
+            Icons.arrow_forward,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tileColor: Theme.of(context).colorScheme.primary,
         onTap: () => onTapped(
-            waypoint: Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
-            addToHistory: false),
+          waypoint: Waypoint(positioning.lastPosition!.latitude, positioning.lastPosition!.longitude),
+          addToHistory: false,
+        ),
       ),
     );
   }
@@ -437,7 +429,7 @@ class RouteSearchState extends State<RouteSearch> {
                 ),
                 const SmallHSpace(),
                 Container(
-                  padding: const EdgeInsets.only(top: 16, bottom: 16),
+                  padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
                   width: frame.size.width - 72,
                   child: TextField(
                     autofocus: true,
@@ -445,12 +437,16 @@ class RouteSearchState extends State<RouteSearch> {
                     onChanged: onSearchUpdated,
                     decoration: InputDecoration(
                       hintText: "Suche",
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      filled: true,
                       border: const OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24))),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                        borderSide: BorderSide.none,
+                      ),
                       suffixIcon: geosearch.isFetchingAddress
-                          ? const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator())
+                          ? const Padding(padding: EdgeInsets.all(4), child: CircularProgressIndicator())
                           : const Icon(Icons.search),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
                   ),
                 ),
@@ -472,14 +468,20 @@ class RouteSearchState extends State<RouteSearch> {
                         const SmallVSpace(),
                       ],
                     ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 28),
+                    child: Divider(
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                  ),
                   // Search History (sorted by recency of searches)
                   if (geosearch.searchHistory.isNotEmpty && searchQuery.isEmpty) ...[
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 24, top: 8),
+                      padding: const EdgeInsets.only(left: 28, right: 24, top: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BoldContent(
+                          BoldSmall(
                             text: "Letzte Suchergebnisse",
                             context: context,
                           ),
