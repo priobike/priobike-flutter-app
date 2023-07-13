@@ -14,17 +14,15 @@ class Article {
   /// The paragraphs of the article.
   final List<String> paragraphs;
 
-  Article(this.title, this.subtitle, this.estimatedTime, this.image, this.paragraphs);
+  /// The imges of the article.
+  final List<String> images;
 
-  factory Article.fromJson(Map<String, dynamic> json) => Article(json['title'], json['subtitle'], json["estimatedTime"],
-      json["image"], (json['paragraphs'] as List).map((e) => e as String).toList());
-
-  /// Convert the waypoint to a json map.
-  Map<String, dynamic> toJSON() => {
-        "title": title,
-        "subTitle": subtitle,
-        "estimatedTime": estimatedTime,
-        "image": image,
-        "paragraphs": paragraphs,
-      };
+  Article(
+    this.title,
+    this.subtitle,
+    this.estimatedTime,
+    this.image,
+    this.paragraphs,
+    this.images,
+  );
 }
