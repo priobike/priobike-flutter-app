@@ -288,7 +288,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                             context: context,
                             builder: (context) => const ImportShortcutDialog(),
                           ),
-                          icon: Icons.download_rounded,
+                          icon: Icons.add_rounded,
                           fill: Theme.of(context).colorScheme.background,
                           splash: Colors.white,
                         ),
