@@ -2,17 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:priobike/logging/toast.dart';
 import 'package:priobike/main.dart';
+import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/services/discomfort.dart';
+import 'package:priobike/tracking/models/reported_bad_prediction.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 
 class RideCenterButtonsView extends StatefulWidget {
-  /// A callback that is called when the danger button is tapped.
-  final Function onTapDanger;
-
   /// The size of the canvas for the custom painter.
   final Size size;
 
-  const RideCenterButtonsView({Key? key, required this.onTapDanger, required this.size}) : super(key: key);
+  const RideCenterButtonsView({Key? key, required this.size}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RideCenterButtonsViewState();
@@ -38,150 +40,185 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     super.dispose();
   }
 
+  void onTapDiscomfort() {
+    // Get the current snapped position.
+    final snap = getIt<Positioning>().snap;
+    if (snap == null) {
+      log.w("Cannot report a discomfort without a current snapped position.");
+      return;
+    }
+
+    final discomforts = getIt<Discomforts>();
+    discomforts.submitNew(snap, "discomfort");
+    ToastMessage.showSuccess("Unkomfortable Stelle gemeldet!");
+  }
+
+  void onTapRecommendation() {
+    // Get the current snapped position.
+    final snap = getIt<Positioning>().snap;
+    if (snap == null) {
+      log.w("Cannot report a recommendation without a current snapped position.");
+      return;
+    }
+
+    final discomforts = getIt<Discomforts>();
+    discomforts.submitNew(snap, "recommendation");
+    ToastMessage.showSuccess("Komfortable Stelle gemeldet!");
+  }
+
+  void onTapBadPrediction() {
+    // Get the current snapped position.
+    final lastPosition = getIt<Positioning>().lastPosition;
+    if (lastPosition == null) {
+      log.w("Cannot report a bad prediction without the last position.");
+      return;
+    }
+
+    final tracking = getIt<Tracking>();
+    tracking.track?.reportedBadPredictions.add(
+      ReportedBadPrediction(
+        snappedPositionOnRouteLng: lastPosition.longitude,
+        snappedPositionOnRouteLat: lastPosition.latitude,
+        timestampOfReport: DateTime.now().millisecondsSinceEpoch,
+        sgUserSelected: getIt<Ride>().userSelectedSG != null,
+      ),
+    );
+    ToastMessage.showSuccess("Schlechte Prognose gemeldet!");
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget nextSignalGroupButtonIcons = Padding(
+    const opacity = 1.0;
+    final textStyle = TextStyle(
+      color: Colors.white.withOpacity(opacity),
+      fontSize: 10,
+      fontWeight: FontWeight.bold,
+    );
+
+    Widget recommendationButtonIcons = Padding(
       padding: EdgeInsets.only(right: widget.size.width * 0.12),
       child: Align(
         alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: widget.size.width * 0.06,
-            ),
-            SizedBox(
-              width: widget.size.width * 0.09,
-              height: widget.size.width * 0.09,
-              child: Image(
-                image: AssetImage(
-                  Theme.of(context).brightness == Brightness.light
-                      ? "assets/images/trafficlights/traffic-light-light.png"
-                      : "assets/images/trafficlights/traffic-light-dark.png",
-                ),
+        child: Container(
+          width: widget.size.width * 0.2,
+          height: widget.size.width * 0.25,
+          padding: const EdgeInsets.only(top: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.add_road_rounded,
+                size: 40,
+                color: Colors.white.withOpacity(opacity),
               ),
-            ),
-            Transform.translate(
-              offset: const Offset(-10, 0),
-              child: const Icon(
-                Icons.arrow_upward_rounded,
-                size: 30,
-                color: Colors.white,
-              ),
-            ),
-          ],
+              Text(
+                "Komfortable\nStelle",
+                textAlign: TextAlign.center,
+                style: textStyle,
+              )
+            ],
+          ),
         ),
       ),
     );
 
-    Widget previousSignalGroupButtonIcons = Padding(
+    Widget discomfortButtonIcons = Padding(
       padding: EdgeInsets.only(left: widget.size.width * 0.12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: widget.size.width * 0.03,
-            ),
-            SizedBox(
-              width: widget.size.width * 0.09,
-              height: widget.size.width * 0.09,
-              child: Image(
-                image: AssetImage(
-                  Theme.of(context).brightness == Brightness.light
-                      ? "assets/images/trafficlights/traffic-light-light.png"
-                      : "assets/images/trafficlights/traffic-light-dark.png",
-                ),
+        child: Container(
+          width: widget.size.width * 0.2,
+          height: widget.size.width * 0.25,
+          padding: const EdgeInsets.only(top: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.remove_road_rounded,
+                size: 40,
+                color: Colors.white.withOpacity(opacity),
               ),
-            ),
-            Transform.translate(
-              offset: const Offset(-10, 0),
-              child: const Icon(
-                Icons.arrow_downward_rounded,
-                size: 30,
-                color: Colors.white,
+              Text(
+                "Un-\nkomfortable\nStelle",
+                textAlign: TextAlign.center,
+                style: textStyle,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+
+    Widget badPredictionButtonIcons = Padding(
+      padding: EdgeInsets.only(top: widget.size.height * 0.16),
+      child: Align(
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.thumb_down_rounded,
+                    size: 30,
+                    color: Colors.white.withOpacity(opacity),
+                  ),
+                  SizedBox(
+                    width: widget.size.width * 0.06,
+                    height: widget.size.width * 0.06,
+                    child: const Opacity(
+                      opacity: opacity,
+                      child: Image(
+                        image: AssetImage(
+                          "assets/images/trafficlights/traffic-light-light.png",
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-      ),
+              Text(
+                "Schlechte\nPrognose",
+                style: textStyle,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          )),
     );
-
-    Widget warningsButtonIcon = Padding(
-      padding: EdgeInsets.only(top: widget.size.height * 0.18),
-      child: const Align(
-        alignment: Alignment.topCenter,
-        child: Icon(
-          Icons.warning_rounded,
-          size: 40,
-          color: Colors.white,
-        ),
-      ),
-    );
-
-    Widget cancelSGSelectionButtonIcon = Padding(
-      padding: EdgeInsets.only(bottom: widget.size.height * 0.19),
-      child: const Align(
-        alignment: Alignment.bottomCenter,
-        child: Icon(
-          Icons.close_rounded,
-          size: 40,
-          color: Colors.white,
-        ),
-      ),
-    );
-
-    final signalGroupsAvailable = ride.route?.signalGroups != null && ride.route!.signalGroups.isNotEmpty;
 
     return Stack(
       alignment: Alignment.center,
       children: [
         // RIGHT BUTTON
-        if (signalGroupsAvailable)
-          CenterButton(
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              ride.jumpToSG(step: 1);
-            },
-            rotation: pi / 2,
-            size: widget.size,
-            child: nextSignalGroupButtonIcons,
-          ),
+        CenterButton(
+          onPressed: () {
+            HapticFeedback.heavyImpact();
+            onTapRecommendation();
+          },
+          rotation: pi / 2,
+          size: widget.size,
+          child: recommendationButtonIcons,
+        ),
         // LEFT BUTTON
-        if (signalGroupsAvailable)
-          CenterButton(
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              ride.jumpToSG(step: -1);
-            },
-            rotation: pi + pi / 2,
-            size: widget.size,
-            child: previousSignalGroupButtonIcons,
-          ),
+        CenterButton(
+          onPressed: () {
+            HapticFeedback.heavyImpact();
+            onTapDiscomfort();
+          },
+          rotation: pi + pi / 2,
+          size: widget.size,
+          child: discomfortButtonIcons,
+        ),
         // TOP BUTTON
         CenterButton(
           onPressed: () {
             HapticFeedback.heavyImpact();
-            widget.onTapDanger();
+            onTapBadPrediction();
           },
           rotation: 0,
           size: widget.size,
-          child: warningsButtonIcon,
+          child: badPredictionButtonIcons,
         ),
-        // BOTTOM BUTTON
-        if (ride.userSelectedSG != null)
-          CenterButton(
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              ride.unselectSG();
-            },
-            rotation: pi,
-            size: widget.size,
-            child: cancelSGSelectionButtonIcon,
-          ),
       ],
     );
   }

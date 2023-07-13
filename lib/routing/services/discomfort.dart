@@ -8,6 +8,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/http.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/algorithm/snapper.dart';
+import 'package:priobike/positioning/models/snap.dart';
 import 'package:priobike/routing/messages/graphhopper.dart';
 import 'package:priobike/routing/models/discomfort.dart';
 import 'package:priobike/routing/models/route.dart';
@@ -303,5 +304,37 @@ class Discomforts with ChangeNotifier {
     foundDiscomforts = [...unsmooth, ...criticalElevation, ...unwantedSpeed, ...userReportedDangerSpots];
     foundDiscomforts!.sort((a, b) => a.distanceOnRoute.compareTo(b.distanceOnRoute));
     notifyListeners();
+  }
+
+  /// Report a new discomfort.
+  Future<void> submitNew(Snap? snap, String type) async {
+    if (snap == null) {
+      log.w("Cannot report a $type without a position.");
+      return;
+    }
+    log.i("Reporting a new $type.");
+    var category = "PrioBike_uncomfortable_segment";
+    if (type == "recommendation") {
+      category = "PrioBike_comfortable_segment";
+    }
+    final discomfort = {
+      "lat": snap.position.latitude,
+      "lon": snap.position.longitude,
+      "category": category,
+    };
+    final settings = getIt<Settings>();
+    final baseUrl = settings.backend.path;
+    final endpoint = Uri.parse('https://$baseUrl/dangers-service/dangers/post/?type=$type');
+    try {
+      final response = await Http.post(endpoint, body: json.encode(discomfort)).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200) {
+        log.e("Error sending $type to $endpoint: ${response.body}"); // If feedback gets lost here, it's not a big deal.
+      } else {
+        log.i("Sent $type to $endpoint");
+      }
+    } catch (error) {
+      final hint = "Error sending $type to $endpoint: $error";
+      log.e(hint);
+    }
   }
 }

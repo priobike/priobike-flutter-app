@@ -237,6 +237,7 @@ class Tracking with ChangeNotifier {
         activityType: profile.activityType,
         routes: {startTime: routing.selectedRoute!},
         subVersion: feature.gitHead.replaceAll("ref: refs/heads/", ""),
+        reportedBadPredictions: [],
       );
       // Add the track to the list of previous tracks and save it.
       previousTracks!.add(track!);
