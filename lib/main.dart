@@ -35,6 +35,8 @@ import 'package:priobike/traffic/services/traffic_service.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/weather/service.dart';
 
+import 'ride/services/ride_assist.dart';
+
 final log = Logger("main.dart");
 
 final RouteObserver<ModalRoute<dynamic>> routeObserver = RouteObserver<ModalRoute<dynamic>>();
@@ -78,6 +80,7 @@ Future<void> main() async {
   getIt.registerSingleton<Traffic>(Traffic());
   getIt.registerSingleton<Boundary>(Boundary());
   getIt.registerSingleton<StatusHistory>(StatusHistory());
+  getIt.registerSingleton<RideAssist>(RideAssist());
 
   runZonedGuarded(() async {
     runApp(const App());

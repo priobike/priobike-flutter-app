@@ -36,12 +36,6 @@ class WearPretestsViewState extends State<WearPretestsView> {
     });
   }
 
-  void _onSend() {
-    WearableCommunicator.sendMessage({
-      "text": textController.text,
-    });
-  }
-
   @override
   Future<void> dispose() async {
     super.dispose();

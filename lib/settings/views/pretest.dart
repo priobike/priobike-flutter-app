@@ -395,7 +395,6 @@ class PretestViewState extends State<PretestView> {
     var dateSplit = test.date.split("T");
     var time = dateSplit[1].split(".")[0].replaceAll(":", "_");
 
-
     File file = File('$exPath/result_${widget.user}_${dateSplit[0]}$time.txt');
 
     // Write the data in the file.

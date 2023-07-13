@@ -11,6 +11,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/ride/views/datastream.dart';
 import 'package:priobike/ride/views/finish_button.dart';
 import 'package:priobike/ride/views/map.dart';
@@ -85,6 +86,8 @@ class RideViewState extends State<RideView> {
           // Link the ride to the datastream.
           ride.onSelectNextSignalGroup = (sg) => datastream.select(sg: sg);
         }
+        // Start a ride assist session.
+        final rideAssist = getIt<RideAssist>();
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {
@@ -95,6 +98,7 @@ class RideViewState extends State<RideView> {
             await dangers.calculateUpcomingAndPreviousDangers();
             await ride.updatePosition();
             await tracking.updatePosition();
+            await rideAssist.updatePosition();
 
             // If we are > <x>m from the route, we need to reroute.
             if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
