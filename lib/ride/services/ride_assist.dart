@@ -87,32 +87,82 @@ class RideAssist with ChangeNotifier {
       if (inGreenPhase != null) {
         if (phase == Phase.green) {
           if (!inGreenPhase!) {
-            // Old prediction and entering green phase window.
+            // Old recommendation and entering green phase window.
             playSuccess();
             inGreenPhase = true;
           }
         } else {
           if (inGreenPhase!) {
-            // Old prediction and leaving green phase window.
+            // Old recommendation and leaving green phase window.
             playMessage();
             inGreenPhase = false;
           }
         }
       } else {
         if (phase == Phase.green) {
-          // New prediction and in green window phase.
+          // New recommendation and in green window phase.
           playSuccess();
           inGreenPhase = true;
         } else {
-          // New Prediction and not in green window phase.
-          playMessage();
-          inGreenPhase = false;
+          // New recommendation and not in green window phase.
+          // TODO Check if there is a green Phase.
+          bool greenPhaseAvailable = false;
+          for (int i = 0; i < phases.length; i++) {
+            if (phases[i] == Phase.green) {
+              greenPhaseAvailable = true;
+            }
+          }
+          // Message that there is a green phase available.
+          // TODO adjust how good the green phase needs to be.
+          if (greenPhaseAvailable) {
+            playMessage();
+            inGreenPhase = false;
+          }
         }
       }
     } else {
       log.e("Second outside of phases array.");
     }
   }
+
+  /// Ride assist easy algorithm.
+  rideAssistContinuous(List<Phase> phases, List<double> qualities, double kmh) {
+    // TODO Check Green phase available.
+    // TODO Check in window? => Yes do not play anything, No => decide faster or slower.
+
+    // Calculate current Phase.
+    final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
+
+    // Second in array length.
+    if (second < phases.length && second < qualities.length) {
+      final phase = phases[second];
+      final quality = qualities[second];
+
+      if (greenPhaseAvailable(phases)) {
+        // Check if in green phase => do nothing.
+        if (phase == Phase.green) {
+          return;
+        }
+
+        // Find suitable green phase.
+        // From selected mode.
+      }
+    } else {
+      log.e("Second outside of phases array.");
+    }
+  }
+
+  /// Returns a bool if a suitable green phase is available for the current recommendation.
+  bool greenPhaseAvailable(List<Phase> phases) {
+    bool greenPhaseAvailable = false;
+    for (int i = 0; i < phases.length; i++) {
+      if (phases[i] == Phase.green) {
+        greenPhaseAvailable = true;
+      }
+    }
+    return greenPhaseAvailable;
+  }
+
 
   /// Function which plays the success signal.
   void playSuccess() {
