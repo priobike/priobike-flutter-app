@@ -5,7 +5,6 @@ import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/lock.dart';
 import 'package:priobike/common/map/map_design.dart';
-import 'package:priobike/dangers/services/dangers.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/positioning/views/location_access_denied_dialog.dart';
@@ -68,12 +67,10 @@ class RideViewState extends State<RideView> {
         final positioning = getIt<Positioning>();
         final datastream = getIt<Datastream>();
         final routing = getIt<Routing>();
-        final dangers = getIt<Dangers>();
         final sgStatus = getIt<PredictionSGStatus>();
 
         if (routing.selectedRoute == null) return;
         await positioning.selectRoute(routing.selectedRoute);
-        await dangers.fetch(routing.selectedRoute!);
         // Start a new session.
         final ride = getIt<Ride>();
         // Set `sessionId` to a random new value and bind the callbacks.
@@ -95,7 +92,6 @@ class RideViewState extends State<RideView> {
             showLocationAccessDeniedDialog(context, positioning.positionSource);
           },
           onNewPosition: () async {
-            await dangers.calculateUpcomingAndPreviousDangers();
             await ride.updatePosition();
             await tracking.updatePosition();
             await rideAssist.updatePosition();
@@ -117,7 +113,6 @@ class RideViewState extends State<RideView> {
                 needsReroute = false;
                 await ride.selectRoute(routes.first);
                 await positioning.selectRoute(routes.first);
-                await dangers.fetch(routes.first);
                 await tracking.selectRoute(routes.first);
               });
             }

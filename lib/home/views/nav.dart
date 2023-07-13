@@ -66,7 +66,7 @@ class NavBarView extends StatelessWidget {
                   Flexible(
                     fit: FlexFit.tight,
                     child: Content(
-                      text: settings.backend == Backend.production ? " HH" : " DD",
+                      text: settings.backend == Backend.staging ? " DD" : " HH",
                       color: Colors.white,
                       context: context,
                     ),

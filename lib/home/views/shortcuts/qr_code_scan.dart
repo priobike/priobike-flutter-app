@@ -7,6 +7,8 @@ import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/shimmer.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
 import 'package:priobike/logging/logger.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -76,10 +78,27 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
         final decodeBase64Json = base64.decode(scanData.code!);
         final decodedZipJson = gzip.decode(decodeBase64Json);
         final originalJson = utf8.decode(decodedZipJson);
+        final shortcutJson = json.decode(originalJson);
+        Shortcut? shortcut;
 
-        final shortcut = Shortcut.fromJson(json.decode(originalJson));
-        this.shortcut = shortcut;
-        widget.onScan(shortcut);
+        if (shortcutJson["type"] != null) {
+          switch (shortcutJson["type"]) {
+            case "ShortcutLocation":
+              shortcut = ShortcutLocation.fromJson(shortcutJson);
+              break;
+            case "ShortcutRoute":
+              shortcut = ShortcutRoute.fromJson(shortcutJson);
+              break;
+          }
+        }
+
+        if (shortcut != null) {
+          this.shortcut = shortcut;
+          widget.onScan(shortcut);
+        } else {
+          final hint = "Error unknown type ${shortcut.runtimeType} in ShowQRCodeView.";
+          log.e(hint);
+        }
       } catch (e) {
         log.e('Failed to parse QR code into shortcut object: ${scanData.code!}');
       }

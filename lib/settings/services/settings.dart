@@ -110,7 +110,6 @@ class Settings with ChangeNotifier {
   }
 
   static const backendKey = "priobike.settings.backend";
-  static const defaultBackend = Backend.production;
 
   Future<bool> setBackend(Backend backend, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
@@ -415,10 +414,10 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings({
+  Settings(
+    this.backend, {
     this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
     this.didViewWarning = defaultDidViewWarning,
-    this.backend = defaultBackend,
     this.predictionMode = defaultPredictionMode,
     this.positioningMode = defaultPositioningMode,
     this.routingEndpoint = defaultRoutingEndpoint,
@@ -436,20 +435,6 @@ class Settings with ChangeNotifier {
     this.rideAssistMode = defaultRideAssistMode,
     this.modalityMode = defaultModalityMode,
   });
-
-  /// Load the backend from the shared
-  /// preferences, for the initial view build.
-  static Future<Backend> loadBackendFromSharedPreferences() async {
-    final storage = await SharedPreferences.getInstance();
-    final backendStr = storage.getString(backendKey);
-    Backend backend;
-    try {
-      backend = Backend.values.byName(backendStr!);
-    } catch (e) {
-      backend = defaultBackend;
-    }
-    return backend;
-  }
 
   /// Load the beta settings from the shared preferences.
   Future<void> loadBetaSettings(SharedPreferences storage) async {

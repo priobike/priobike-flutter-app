@@ -20,7 +20,6 @@ import 'package:priobike/routing/services/layers.dart';
 import 'package:priobike/routing/services/map_functions.dart';
 import 'package:priobike/routing/services/map_values.dart';
 import 'package:priobike/routing/services/routing.dart';
-import 'package:priobike/routing/views/alerts.dart';
 import 'package:priobike/routing/views/details/shortcuts.dart';
 import 'package:priobike/routing/views/layers.dart';
 import 'package:priobike/routing/views/map.dart';
@@ -67,7 +66,7 @@ void showSaveShortcutSheet(context) {
                 ToastMessage.showError("Name darf nicht leer sein.");
                 return;
               }
-              await shortcuts.saveNewShortcut(name);
+              await shortcuts.saveNewShortcutRoute(name);
               ToastMessage.showSuccess("Route gespeichert!");
               Navigator.pop(context);
             },
@@ -135,13 +134,14 @@ class RoutingViewState extends State<RoutingView> {
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        await routing?.loadRoutes();
-
         // Calling requestSingleLocation function to fill lastPosition of PositionService
         await positioning?.requestSingleLocation(onNoPermission: () {
           Navigator.of(context).pop();
           showLocationAccessDeniedDialog(context, positioning!.positionSource);
         });
+        // Needs to be loaded after we requested the location, because we need the lastPosition if we load the route from
+        // a location shortcut instead of a route shortcut.
+        await routing?.loadRoutes();
         // Checking threshold for location accuracy
         if (positioning?.lastPosition?.accuracy != null &&
             positioning!.lastPosition!.accuracy >= locationAccuracyThreshold) {
@@ -369,7 +369,6 @@ class RoutingViewState extends State<RoutingView> {
 
   @override
   Widget build(BuildContext context) {
-    final frame = MediaQuery.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
@@ -390,18 +389,7 @@ class RoutingViewState extends State<RoutingView> {
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        // Avoid expansion of alerts view.
-                        width: frame.size.width - 80,
-                        child: const AlertsView(),
-                      )
-                    ],
-                  ),
+                  child: AppBackButton(icon: Icons.chevron_left_rounded, onPressed: () => Navigator.pop(context)),
                 ),
               ),
 

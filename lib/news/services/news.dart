@@ -147,11 +147,7 @@ class News with ChangeNotifier {
     final backend = getIt<Settings>().backend;
 
     final jsonStr = jsonEncode(articles.map((e) => e.toJson()).toList());
-    if (backend == Backend.production) {
-      await storage.setString("priobike.news.articles.production", jsonStr);
-    } else if (backend == Backend.staging) {
-      await storage.setString("priobike.news.articles.staging", jsonStr);
-    }
+    await storage.setString("priobike.news.articles.${backend.name}", jsonStr);
   }
 
   /// Store category in shared preferences.
@@ -162,11 +158,7 @@ class News with ChangeNotifier {
     final backend = getIt<Settings>().backend;
 
     final String jsonStr = jsonEncode(category.toJson());
-    if (backend == Backend.production) {
-      await storage.setString("priobike.news.categories.production.${category.id}", jsonStr);
-    } else if (backend == Backend.staging) {
-      await storage.setString("priobike.news.categories.staging.${category.id}", jsonStr);
-    }
+    await storage.setString("priobike.news.categories.${backend.name}.${category.id}", jsonStr);
   }
 
   /// Get all stored articles
@@ -175,13 +167,7 @@ class News with ChangeNotifier {
 
     final backend = getIt<Settings>().backend;
 
-    String? storedArticlesStr;
-
-    if (backend == Backend.production) {
-      storedArticlesStr = storage.getString("priobike.news.articles.production");
-    } else if (backend == Backend.staging) {
-      storedArticlesStr = storage.getString("priobike.news.articles.staging");
-    }
+    final storedArticlesStr = storage.getString("priobike.news.articles.${backend.name}");
 
     if (storedArticlesStr == null) {
       return [];
@@ -201,13 +187,7 @@ class News with ChangeNotifier {
 
     final backend = getIt<Settings>().backend;
 
-    String? storedCategoryStr;
-
-    if (backend == Backend.production) {
-      storedCategoryStr = storage.getString("priobike.news.categories.production.$categoryId");
-    } else if (backend == Backend.staging) {
-      storedCategoryStr = storage.getString("priobike.news.categories.staging.$categoryId");
-    }
+    final storedCategoryStr = storage.getString("priobike.news.categories.${backend.name}.$categoryId");
 
     if (storedCategoryStr == null) {
       return null;
@@ -225,11 +205,7 @@ class News with ChangeNotifier {
 
     final jsonStr = jsonEncode(readArticles.map((e) => e.toJson()).toList());
 
-    if (backend == Backend.production) {
-      await storage.setString("priobike.news.read_articles.production", jsonStr);
-    } else if (backend == Backend.staging) {
-      await storage.setString("priobike.news.read_articles.staging", jsonStr);
-    }
+    await storage.setString("priobike.news.read_articles.${backend.name}", jsonStr);
   }
 
   /// Get stored articles that were already read by the user.
@@ -238,13 +214,7 @@ class News with ChangeNotifier {
 
     final backend = getIt<Settings>().backend;
 
-    String? storedReadArticlesStr;
-
-    if (backend == Backend.production) {
-      storedReadArticlesStr = storage.getString("priobike.news.read_articles.production");
-    } else if (backend == Backend.staging) {
-      storedReadArticlesStr = storage.getString("priobike.news.read_articles.staging");
-    }
+    final storedReadArticlesStr = storage.getString("priobike.news.read_articles.${backend.name}");
 
     if (storedReadArticlesStr == null) {
       return {};

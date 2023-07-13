@@ -178,7 +178,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.showing)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
                                 BoldSmall(
                                   text: "Scanne diesen QR-Code mit einer anderen PrioBike-App, um die Route zu teilen.",
@@ -190,7 +190,7 @@ class QRCodeViewState extends State<QRCodeView> {
                           if (state == QRCodeViewMode.scanned)
                             Column(
                               children: [
-                                Content(text: "${shortcut!.waypoints.length} Wegpunkte", context: context),
+                                Content(text: shortcut!.getShortInfo(), context: context),
                                 const VSpace(),
                                 BigButton(
                                   iconColor: Colors.white,

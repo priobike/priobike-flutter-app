@@ -125,7 +125,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     SelectedRouteLayer.layerIdBackground,
     SelectedRouteLayer.layerId,
     DiscomfortsLayer.layerId,
-    DiscomfortsLayer.layerIdClick,
     DiscomfortsLayer.layerIdMarker,
     WaypointsLayer.layerId,
     OfflineCrossingsLayer.layerId,
@@ -438,7 +437,8 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
   updateDiscomforts() async {
     if (mapController == null) return;
     if (!mounted) return;
-    await DiscomfortsLayer().update(mapController!);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await DiscomfortsLayer(isDark).update(mapController!);
   }
 
   /// Update selected route layer.
@@ -496,7 +496,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
     );
     index = await getIndex(DiscomfortsLayer.layerId);
     if (!mounted) return;
-    await DiscomfortsLayer().install(
+    await DiscomfortsLayer(isDark).install(
       mapController!,
       iconSize: ppi / 14,
       at: index,
@@ -530,10 +530,6 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       final routeIdx = int.tryParse(id.split("-")[1]);
       if (routeIdx == null) return;
       routing.switchToRoute(routeIdx);
-    } else if (id.startsWith("discomfort-")) {
-      final discomfortIdx = int.tryParse(id.split("-")[1]);
-      if (discomfortIdx == null) return;
-      discomforts.selectDiscomfort(discomfortIdx);
     } else if (id.startsWith("routeLabel-")) {
       final routeLabelIdx = int.tryParse(id.split("-")[1]);
       if (routeLabelIdx == null || (routing.selectedRoute != null && routeLabelIdx == routing.selectedRoute!.id)) {
@@ -678,7 +674,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
         type: Type.SCREEN_COORDINATE,
       ),
       RenderedQueryOptions(
-        layerIds: [AllRoutesLayer.layerIdClick, DiscomfortsLayer.layerIdClick, RouteLabelLayer.layerId],
+        layerIds: [AllRoutesLayer.layerIdClick, RouteLabelLayer.layerId],
       ),
     );
 

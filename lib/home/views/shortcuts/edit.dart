@@ -6,6 +6,7 @@ import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
@@ -54,7 +55,7 @@ void showEditShortcutSheet(context, int idx) {
                 return;
               }
               await shortcuts.updateShortcutName(name, idx);
-              ToastMessage.showSuccess("Routen Name gespeichert!");
+              ToastMessage.showSuccess("Name gespeichert!");
               Navigator.pop(context);
             },
             child: BoldContent(
@@ -146,6 +147,162 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
     showEditShortcutSheet(context, idx);
   }
 
+  /// Widget that displays a shortcut.
+  Widget shortcutListItem(Shortcut shortcut, int key) {
+    return Container(
+      key: Key("$key"),
+      padding: const EdgeInsets.only(left: 8, top: 8),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              foregroundDecoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
+                  colors: Theme.of(context).colorScheme.brightness == Brightness.dark
+                      ? [
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background.withOpacity(0.9),
+                          Theme.of(context).colorScheme.background.withOpacity(0.8),
+                          Theme.of(context).colorScheme.background.withOpacity(0.7),
+                        ]
+                      : [
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background.withOpacity(0.6),
+                          Theme.of(context).colorScheme.background.withOpacity(0.5),
+                          Theme.of(context).colorScheme.background.withOpacity(0.3),
+                        ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
+                ),
+                child: Image(
+                  image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                      ? const AssetImage('assets/images/map-dark.png')
+                      : const AssetImage('assets/images/map-light.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          Tile(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              bottomLeft: Radius.circular(24),
+            ),
+            showShadow: false,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BoldContent(
+                        text: shortcut.name,
+                        context: context,
+                      ),
+                      const SmallVSpace(),
+                      BoldSmall(
+                        text: shortcut.getShortInfo(),
+                        overflow: TextOverflow.ellipsis,
+                        context: context,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                const HSpace(),
+                Row(
+                  children: [
+                    const HSpace(),
+                    editMode
+                        ? SmallIconButton(
+                            icon: Icons.edit,
+                            onPressed: () => onEditShortcut(key),
+                            fill: Theme.of(context).colorScheme.surface,
+                          )
+                        : SmallIconButton(
+                            icon: Icons.qr_code_2_rounded,
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (BuildContext context) => QRCodeView(shortcut: shortcut),
+                              ),
+                            ),
+                            fill: Theme.of(context).colorScheme.background,
+                          ),
+                    const SmallHSpace(),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: editMode
+                          ? SmallIconButton(
+                              icon: Icons.delete,
+                              onPressed: () => onDeleteShortcut(key),
+                              fill: Theme.of(context).colorScheme.surface,
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Icon(Icons.list_rounded),
+                            ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            onPressed: () async {
+              HapticFeedback.mediumImpact();
+
+              final shortcutIsValid = shortcut.isValid();
+
+              if (!shortcutIsValid) {
+                final backend = getIt<Settings>().backend;
+                final shortcuts = getIt<Shortcuts>();
+                showDialog(
+                  context: context,
+                  builder: (context) => InvalidShortCutDialog(
+                    backend: backend,
+                    shortcuts: shortcuts,
+                    shortcut: shortcut,
+                    context: context,
+                  ),
+                );
+                return;
+              }
+
+              final waypoints = shortcut.getWaypoints();
+              routing.selectWaypoints(waypoints);
+
+              // Pushes the routing view.
+              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+              if (context.mounted) {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                  (comingNotFromRoutingView) {
+                    if (comingNotFromRoutingView == null) {
+                      routing.reset();
+                      discomforts.reset();
+                      predictionSGStatus.reset();
+                    }
+                  },
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (shortcuts.shortcuts == null) return Container();
@@ -161,7 +318,7 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                   children: [
                     AppBackButton(onPressed: () => Navigator.pop(context)),
                     const HSpace(),
-                    SubHeader(text: "Strecken", context: context),
+                    SubHeader(text: "Strecken & Orte", context: context),
                     Expanded(child: Container()),
                     SmallIconButton(
                       onPressed: () => showAppSheet(
@@ -196,157 +353,11 @@ class ShortcutsEditViewState extends State<ShortcutsEditView> {
                     return proxyWidget;
                   },
                   onReorder: onChangeShortcutOrder,
-                  children: shortcuts.shortcuts!.asMap().entries.map<Widget>(
-                    (entry) {
-                      return Container(
-                        key: Key("$entry.key"),
-                        padding: const EdgeInsets.only(left: 8, top: 8),
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Container(
-                                foregroundDecoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomLeft,
-                                    end: Alignment.topRight,
-                                    colors: Theme.of(context).colorScheme.brightness == Brightness.dark
-                                        ? [
-                                            Theme.of(context).colorScheme.background,
-                                            Theme.of(context).colorScheme.background,
-                                            Theme.of(context).colorScheme.background.withOpacity(0.9),
-                                            Theme.of(context).colorScheme.background.withOpacity(0.8),
-                                            Theme.of(context).colorScheme.background.withOpacity(0.7),
-                                          ]
-                                        : [
-                                            Theme.of(context).colorScheme.background,
-                                            Theme.of(context).colorScheme.background,
-                                            Theme.of(context).colorScheme.background.withOpacity(0.6),
-                                            Theme.of(context).colorScheme.background.withOpacity(0.5),
-                                            Theme.of(context).colorScheme.background.withOpacity(0.3),
-                                          ],
-                                  ),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(24),
-                                    bottomLeft: Radius.circular(24),
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(24),
-                                    bottomLeft: Radius.circular(24),
-                                  ),
-                                  child: Image(
-                                    image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                                        ? const AssetImage('assets/images/map-dark.png')
-                                        : const AssetImage('assets/images/map-light.png'),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Tile(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(24),
-                                bottomLeft: Radius.circular(24),
-                              ),
-                              showShadow: false,
-                              content: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        BoldContent(
-                                          text: entry.value.name,
-                                          context: context,
-                                        ),
-                                        const SmallVSpace(),
-                                        BoldSmall(
-                                          text: "${entry.value.waypoints.length} Wegpunkte",
-                                          context: context,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const HSpace(),
-                                  Row(
-                                    children: [
-                                      const HSpace(),
-                                      editMode
-                                          ? SmallIconButton(
-                                              icon: Icons.edit,
-                                              onPressed: () => onEditShortcut(entry.key),
-                                              fill: Theme.of(context).colorScheme.surface,
-                                            )
-                                          : SmallIconButton(
-                                              icon: Icons.qr_code_2_rounded,
-                                              onPressed: () => Navigator.of(context).push(
-                                                MaterialPageRoute<void>(
-                                                  builder: (BuildContext context) => QRCodeView(shortcut: entry.value),
-                                                ),
-                                              ),
-                                              fill: Theme.of(context).colorScheme.background,
-                                            ),
-                                      const SmallHSpace(),
-                                      AnimatedSwitcher(
-                                        duration: const Duration(milliseconds: 300),
-                                        child: editMode
-                                            ? SmallIconButton(
-                                                icon: Icons.delete,
-                                                onPressed: () => onDeleteShortcut(entry.key),
-                                                fill: Theme.of(context).colorScheme.surface,
-                                              )
-                                            : const Padding(
-                                                padding: EdgeInsets.all(12),
-                                                child: Icon(Icons.list_rounded),
-                                              ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              onPressed: () {
-                                HapticFeedback.mediumImpact();
-
-                                final shortcutIsValid = entry.value.isValid();
-
-                                if (!shortcutIsValid) {
-                                  final backend = getIt<Settings>().backend;
-                                  final shortcuts = getIt<Shortcuts>();
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => InvalidShortCutDialog(
-                                      backend: backend,
-                                      shortcuts: shortcuts,
-                                      shortcut: entry.value,
-                                      context: context,
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                routing.selectWaypoints(List.from(entry.value.waypoints));
-                                // Pushes the routing view.
-                                // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-                                // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                                  (comingNotFromRoutingView) {
-                                    if (comingNotFromRoutingView == null) {
-                                      routing.reset();
-                                      discomforts.reset();
-                                      predictionSGStatus.reset();
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ).toList(),
+                  children: shortcuts.shortcuts!
+                      .asMap()
+                      .entries
+                      .map<Widget>((entry) => shortcutListItem(entry.value, entry.key))
+                      .toList(),
                 ),
                 const SizedBox(height: 128),
               ],

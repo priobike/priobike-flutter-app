@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:priobike/home/models/shortcut.dart';
+import 'package:priobike/home/models/shortcut_location.dart';
+import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/main.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class ShowQRCodeView extends StatelessWidget {
@@ -16,14 +19,20 @@ class ShowQRCodeView extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     int totalAddressCharacterCount = 0;
-    for (final waypoint in shortcut.waypoints) {
-      totalAddressCharacterCount += waypoint.address?.length ?? 0;
+
+    // Check type.
+    if (shortcut.runtimeType == ShortcutRoute) {
+      for (final waypoint in (shortcut as ShortcutRoute).waypoints) {
+        totalAddressCharacterCount += waypoint.address?.length ?? 0;
+      }
+    } else if (shortcut.runtimeType == ShortcutLocation) {
+      totalAddressCharacterCount = (shortcut as ShortcutLocation).waypoint.address?.length ?? 0;
+    } else {
+      final hint = "Error unknown type ${shortcut.runtimeType} in ShowQRCodeView.";
+      log.e(hint);
     }
 
-    Shortcut shortcutCopy = Shortcut(
-      name: shortcut.name,
-      waypoints: [],
-    );
+    Shortcut? shortcutCopy;
 
     // If the total address character count is too large, we need to trim the addresses
     // such that the total character length is max. 300.
