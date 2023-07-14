@@ -90,7 +90,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     );
 
     Widget recommendationButtonIcons = Padding(
-      padding: EdgeInsets.only(right: widget.size.width * 0.12),
+      padding: EdgeInsets.only(right: widget.size.width * 0.1),
       child: Align(
         alignment: Alignment.centerRight,
         child: Container(
@@ -106,7 +106,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                 color: Colors.white.withOpacity(opacity),
               ),
               Text(
-                "Komfortable\nStelle",
+                "Guter\nWeg",
                 textAlign: TextAlign.center,
                 style: textStyle,
               )
@@ -117,7 +117,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     );
 
     Widget discomfortButtonIcons = Padding(
-      padding: EdgeInsets.only(left: widget.size.width * 0.12),
+      padding: EdgeInsets.only(left: widget.size.width * 0.1),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Container(
@@ -133,7 +133,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
                 color: Colors.white.withOpacity(opacity),
               ),
               Text(
-                "Un-\nkomfortable\nStelle",
+                "Schlechter\nWeg",
                 textAlign: TextAlign.center,
                 style: textStyle,
               )
@@ -148,66 +148,6 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        ShaderMask(
-          shaderCallback: (Rect rect) {
-            return const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.transparent, Colors.white],
-              //set stops as par your requirement
-              stops: [0.4, 0.6],
-            ).createShader(rect);
-          },
-          blendMode: BlendMode.dstOut,
-          child: ShaderMask(
-            shaderCallback: (Rect rect) {
-              return const LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.transparent, Colors.white],
-                //set stops as par your requirement
-                stops: [0.6, 0.8],
-              ).createShader(rect);
-            },
-            blendMode: BlendMode.dstOut,
-            child: CustomPaint(
-              size: widget.size,
-              painter: RoutePainter(angle, true),
-            ),
-          ),
-        ),
-        Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.rotationY(pi),
-          child: ShaderMask(
-            shaderCallback: (Rect rect) {
-              return const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.white],
-                //set stops as par your requirement
-                stops: [0.4, 0.6],
-              ).createShader(rect);
-            },
-            blendMode: BlendMode.dstOut,
-            child: ShaderMask(
-              shaderCallback: (Rect rect) {
-                return const LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [Colors.transparent, Colors.white],
-                  //set stops as par your requirement
-                  stops: [0.6, 0.8],
-                ).createShader(rect);
-              },
-              blendMode: BlendMode.dstOut,
-              child: CustomPaint(
-                size: widget.size,
-                painter: RoutePainter(angle, false),
-              ),
-            ),
-          ),
-        ),
         // RIGHT BUTTON
         CenterButton(
           onPressed: () {
@@ -230,6 +170,22 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           angle: angle,
           child: discomfortButtonIcons,
         ),
+        IgnorePointer(
+          child: CustomPaint(
+            size: widget.size,
+            painter: RoutePainter(angle, true),
+          ),
+        ),
+        IgnorePointer(
+          child: Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.rotationY(pi),
+            child: CustomPaint(
+              size: widget.size,
+              painter: RoutePainter(angle, false),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -242,18 +198,33 @@ class RoutePainter extends CustomPainter {
 
   RoutePainter(this.angle, this.discomfort);
 
-  void paintPredictionArcBackground(Canvas canvas, Size size) {
-    final path = Path();
-
-    path.moveTo(size.width / 2 - 32, size.height * 0.16);
-
-    path.arcToPoint(Offset(size.width * 0.31, size.height * 0.4), radius: const Radius.circular(200));
-
-    path.arcToPoint(Offset(size.width * 0.21, size.height * 0.6), radius: const Radius.circular(200), clockwise: false);
+  void paintRouteArcs(Canvas canvas, Size size) {
+    final path = Path()
+      ..arcTo(
+        Rect.fromCenter(
+          center: Offset(size.width / 2, size.height / 2),
+          width: size.width - 246,
+          height: size.height - 246,
+        ),
+        angle + pi / 30,
+        angle - pi / 15,
+        false,
+      );
 
     final paint = Paint()
-      ..color = CI.blue
-      ..strokeWidth = 15
+      ..shader = LinearGradient(
+        colors: [
+          CI.blueDark.withOpacity(0.0),
+          CI.blueDark.withOpacity(1),
+          CI.blue.withOpacity(1),
+          CI.blueLight.withOpacity(1),
+          CI.blueLight.withOpacity(0.0),
+        ],
+        stops: const [0.0, 0.3, 0.6, 0.8, 1.0],
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+      ).createShader(path.getBounds())
+      ..strokeWidth = 14
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
@@ -261,7 +232,16 @@ class RoutePainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final paintDashes = Paint()
-      ..color = Colors.black
+      ..shader = LinearGradient(
+        colors: [
+          Colors.black.withOpacity(0.0),
+          Colors.black.withOpacity(0.5),
+          Colors.black.withOpacity(1.0),
+        ],
+        stops: const [0.0, 0.2, 0.5],
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+      ).createShader(path.getBounds())
       ..strokeWidth = 6
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -271,7 +251,7 @@ class RoutePainter extends CustomPainter {
       Path dashPath = Path();
 
       double dashWidth = 10.0;
-      double dashSpace = 20.0;
+      double dashSpace = 10.0;
       double distance = 0.0;
 
       for (PathMetric pathMetric in path.computeMetrics()) {
@@ -290,7 +270,7 @@ class RoutePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    paintPredictionArcBackground(canvas, size);
+    paintRouteArcs(canvas, size);
   }
 
   @override
@@ -331,7 +311,11 @@ class CenterButton extends StatelessWidget {
       child: RawMaterialButton(
         shape: CenterButtonBorder(angle),
         onPressed: () => onPressed(),
-        fillColor: Colors.black.withOpacity(0.4),
+        fillColor: Theme.of(context).brightness == Brightness.light
+            ? Colors.black.withOpacity(0.25)
+            : Colors.white.withOpacity(0.1),
+        splashColor: CI.blueLight,
+        highlightColor: CI.blue,
         elevation: 0,
         child: Transform.rotate(
           angle: -rotation,
