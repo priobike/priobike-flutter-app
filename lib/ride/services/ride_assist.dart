@@ -26,13 +26,20 @@ class RideAssist with ChangeNotifier {
 
   final AudioPlayer audioPlayer1 = AudioPlayer();
   final AudioPlayer audioPlayer2 = AudioPlayer();
-  final AudioPlayer audioPlayer3 = AudioPlayer();
 
   /// Bool that holds the state if the user is in a green phase
   bool? inGreenPhase;
 
   /// Counter that holds the number of seconds in another phase.
   int newPhaseCounter = 0;
+
+  /// Bool that holds the state if the fast loop has to be played.
+  bool fastLoopRunning = false;
+
+  /// Bool that holds the state if the slow loop has to be played.
+  bool slowLoopRunning = false;
+
+  Timer? timer;
 
   /// Update the position.
   Future<void> updatePosition() async {
@@ -53,8 +60,7 @@ class RideAssist with ChangeNotifier {
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
 
     final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities =
-        ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
 
     // Switch between modes.
     switch (settings.rideAssistMode) {
@@ -64,6 +70,7 @@ class RideAssist with ChangeNotifier {
         rideAssistEasy(phases, qualities, kmh);
         break;
       case RideAssistMode.continuous:
+        rideAssistContinuous(phases, qualities, kmh);
         break;
       case RideAssistMode.interval:
         break;
@@ -73,6 +80,7 @@ class RideAssist with ChangeNotifier {
   }
 
   /// Ride assist easy algorithm.
+  /// TODO Refactor code.
   rideAssistEasy(List<Phase> phases, List<double> qualities, double kmh) {
     // TODO Check currently in window
     // TODO Yes => Success signal?
@@ -82,7 +90,7 @@ class RideAssist with ChangeNotifier {
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
-    if (second < phases.length && second < qualities.length) {
+    if (second < phases.length && second < qualities.length && second >= 0) {
       final phase = phases[second];
       final quality = qualities[second];
 
@@ -153,30 +161,107 @@ class RideAssist with ChangeNotifier {
     }
   }
 
-  /// Ride assist easy algorithm.
+  /// Ride assist continuous algorithm.
   rideAssistContinuous(List<Phase> phases, List<double> qualities, double kmh) {
-    // TODO Check Green phase available.
-    // TODO Check in window? => Yes do not play anything, No => decide faster or slower.
-
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
-    if (second < phases.length && second < qualities.length) {
+    if (second < phases.length && second < qualities.length && second >= 0) {
       final phase = phases[second];
       final quality = qualities[second];
 
+      // If there is no green phase, there is nothing to adjust to.
       if (greenPhaseAvailable(phases)) {
-        // Check if in green phase => do nothing.
+        // Check if in green phase reached => do nothing.
         if (phase == Phase.green) {
+          if (slowLoopRunning || fastLoopRunning) {
+            stopSignalLoop();
+            slowLoopRunning = false;
+            fastLoopRunning = false;
+          }
           return;
+        } else {
+          // Decide which phase is closer.
+          int closestPhase = getClosestPhase(phases, second);
+          if (second - closestPhase >= 0) {
+            // Less time needed => drive faster.
+            // Check if slowLoopRunning.
+            if (slowLoopRunning) {
+              stopSignalLoop();
+              slowLoopRunning = false;
+            }
+            // Start fast loop if not running.
+            if (!fastLoopRunning) {
+              startFasterLoop();
+              fastLoopRunning = true;
+            }
+          } else {
+            // More time needed => drive slower.
+            // Check if fastLoopRunning.
+            if (fastLoopRunning) {
+              stopSignalLoop();
+              fastLoopRunning = false;
+            }
+            // Start slow loop if not running.
+            if (!slowLoopRunning) {
+              startSlowerLoop();
+              slowLoopRunning = true;
+            }
+          }
         }
-
-        // Find suitable green phase.
-        // From selected mode.
       }
     } else {
       log.e("Second outside of phases array.");
+    }
+  }
+
+  /// Returns the int of the closest green phase (on same distance faster is returned).
+  int getClosestPhase(phases, second) {
+    for (int i = 0; i < phases.length; i++) {
+      // Check in direction second - i.
+      if (second - i >= 0) {
+        if (phases[second - i] == Phase.green) {
+          // Return phase faster.
+          return second - i;
+        }
+      }
+      // Check in direction second + i.
+      if (second + i < phases.length) {
+        if (phases[second + i] == Phase.green) {
+          // Return phase slower.
+          return second + i;
+        }
+      }
+    }
+    // No phase found.
+    return -1;
+  }
+
+  void startSlowerLoop() {
+    // Initially play it once.
+    audioPlayer1.play(AssetSource(audioPath));
+    // Then start timer.
+    timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
+      audioPlayer1.play(AssetSource(audioPath));
+    });
+  }
+
+  void startFasterLoop() {
+    // Initially play it once.
+    audioPlayer1.play(AssetSource(audioPath));
+    // Then start timer.
+    timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      audioPlayer1.play(AssetSource(audioPath));
+    });
+  }
+
+  void stopSignalLoop() {
+    if (timer != null) {
+      timer!.cancel();
+      // To stop the signal immediately.
+      audioPlayer1.stop();
+      timer = null;
     }
   }
 
@@ -209,7 +294,7 @@ class RideAssist with ChangeNotifier {
   Future<void> playPhoneAudioSuccess() async {
     // Audio fast.
     audioPlayer1.play(AssetSource(audioPath));
-    await Future.delayed(const Duration(milliseconds: 750));
+    await Future.delayed(const Duration(milliseconds: 500));
     audioPlayer2.play(AssetSource(audioPath));
   }
 
@@ -217,42 +302,6 @@ class RideAssist with ChangeNotifier {
   Future<void> playPhoneAudioMessage() async {
     // Audio fast.
     audioPlayer1.play(AssetSource(audioPath));
-  }
-
-  Future<void> playPhoneAudioContinuous(InputType inputType) async {
-    if (inputType == InputType.faster) {
-      // Audio fast.
-      audioPlayer1.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 750));
-      audioPlayer2.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 750));
-      audioPlayer3.play(AssetSource(audioPath));
-    } else {
-      // Audio slow.
-      audioPlayer1.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 2000));
-      audioPlayer2.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 2000));
-      audioPlayer3.play(AssetSource(audioPath));
-    }
-  }
-
-  Future<void> playPhoneAudioInterval(InputType inputType) async {
-    if (inputType == InputType.faster) {
-      // Audio fast.
-      audioPlayer1.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 1000));
-      audioPlayer2.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 500));
-      audioPlayer3.play(AssetSource(audioPath));
-    } else {
-      // Audio slow.
-      audioPlayer1.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 1500));
-      audioPlayer2.play(AssetSource(audioPath));
-      await Future.delayed(const Duration(milliseconds: 2000));
-      audioPlayer3.play(AssetSource(audioPath));
-    }
   }
 
   /// Reset the service.

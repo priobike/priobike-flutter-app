@@ -152,7 +152,6 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
     if (mounted) Navigator.pop(context);
   }
 
-
   /// A callback that is executed when a backend is selected.
   Future<void> onSelectBackend(Backend backend) async {
     // Tell the settings service that we selected the new backend.
