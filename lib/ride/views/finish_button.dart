@@ -8,6 +8,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/datastream.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/statistics/services/statistics.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -90,6 +91,10 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // End the recommendations.
     final ride = getIt<Ride>();
     await ride.stopNavigation();
+
+
+    // Reset the ride assist service.
+    await getIt<RideAssist>().reset();
 
     // Stop the geolocation.
     final position = getIt<Positioning>();

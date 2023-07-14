@@ -10,6 +10,7 @@ import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/services/settings.dart';
 
+// TODO better audios.
 const audioPath = "sounds/ding.mp3";
 
 /// The threshold for a new phase.
@@ -87,6 +88,7 @@ class RideAssist with ChangeNotifier {
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
+    // TODO second > phases.length => there can still be a green phase.
     if (second < phases.length && second < qualities.length && second >= 0) {
       final phase = phases[second];
       final quality = qualities[second];
@@ -163,7 +165,10 @@ class RideAssist with ChangeNotifier {
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
+    print(second);
+    print(phases.length);
     // Second in array length.
+    // TODO second > phases.length => there can still be a green phase.
     if (second < phases.length && second < qualities.length && second >= 0) {
       final phase = phases[second];
       final quality = qualities[second];
@@ -261,7 +266,7 @@ class RideAssist with ChangeNotifier {
     // Initially play it once.
     audioPlayer2.play(AssetSource(audioPath));
     // Then start timer.
-    timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
       audioPlayer1.play(AssetSource(audioPath));
     });
   }
