@@ -96,9 +96,9 @@ class StatusViewState extends State<StatusView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             BoldSmall(
-                text: "Jetzt",
-                color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
-                context: context
+              text: "Jetzt",
+              color: isProblem ? Colors.white : Theme.of(context).colorScheme.onBackground,
+              context: context,
             ),
             const SmallVSpace(),
             Row(
