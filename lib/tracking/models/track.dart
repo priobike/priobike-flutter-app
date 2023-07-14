@@ -8,7 +8,6 @@ import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/models/positioning.dart';
 import 'package:priobike/status/messages/summary.dart';
-import 'package:priobike/tracking/models/reported_bad_prediction.dart';
 import 'package:priobike/tracking/models/tap_tracking.dart';
 
 class Track {
@@ -111,9 +110,6 @@ class Track {
   /// After the gamification concept is implemented the flag has to be set to true.
   bool canUseGamification;
 
-  /// The list of reported bad predictions.
-  List<ReportedBadPrediction> reportedBadPredictions;
-
   /// Get the directory under which the track files are stored.
   Future<Directory> get trackDirectory async {
     final dir = await getApplicationDocumentsDirectory();
@@ -169,7 +165,6 @@ class Track {
     required this.activityType,
     required this.routes,
     required this.subVersion,
-    required this.reportedBadPredictions,
     this.canUseGamification = false,
   });
 
@@ -206,7 +201,6 @@ class Track {
                 'route': e.value.toJson(),
               })
           .toList(),
-      'reportedBadPredictions': reportedBadPredictions.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -244,8 +238,6 @@ class Track {
           (json['routes'] as List<dynamic>).map((e) => MapEntry(e['time'], Route.fromJson(e['route'])))),
       subVersion: json['subVersion'],
       canUseGamification: json['canUseGamification'],
-      reportedBadPredictions:
-          (json['badPredictions'] as List<dynamic>).map((e) => ReportedBadPrediction.fromJson(e)).toList(),
     );
   }
 }

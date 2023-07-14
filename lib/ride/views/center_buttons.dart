@@ -9,8 +9,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/discomfort.dart';
-import 'package:priobike/tracking/models/reported_bad_prediction.dart';
-import 'package:priobike/tracking/services/tracking.dart';
 
 /// Moves a point on a circle by a given angle. For positive angles the point is moved clockwise.
 /// For negative angles the point is moved counter-clockwise.
@@ -82,27 +80,6 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     ToastMessage.showSuccess("Komfortable Stelle gemeldet!");
   }
 
-  void onTapBadPrediction() {
-    // TODO remove
-    // Get the current snapped position.
-    final lastPosition = getIt<Positioning>().lastPosition;
-    if (lastPosition == null) {
-      log.w("Cannot report a bad prediction without the last position.");
-      return;
-    }
-
-    final tracking = getIt<Tracking>();
-    tracking.track?.reportedBadPredictions.add(
-      ReportedBadPrediction(
-        snappedPositionOnRouteLng: lastPosition.longitude,
-        snappedPositionOnRouteLat: lastPosition.latitude,
-        timestampOfReport: DateTime.now().millisecondsSinceEpoch,
-        sgUserSelected: getIt<Ride>().userSelectedSG != null,
-      ),
-    );
-    ToastMessage.showSuccess("Schlechte Prognose gemeldet!");
-  }
-
   @override
   Widget build(BuildContext context) {
     const opacity = 1.0;
@@ -171,71 +148,64 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Transform.rotate(
-          angle: -angle / 2,
-          origin: const Offset(0, 0),
+        ShaderMask(
+          shaderCallback: (Rect rect) {
+            return const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Colors.white],
+              //set stops as par your requirement
+              stops: [0.4, 0.6],
+            ).createShader(rect);
+          },
+          blendMode: BlendMode.dstOut,
           child: ShaderMask(
             shaderCallback: (Rect rect) {
               return const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
                 colors: [Colors.transparent, Colors.white],
                 //set stops as par your requirement
-                stops: [0.6, 0.8], // 50% transparent, 50% white
+                stops: [0.6, 0.8],
               ).createShader(rect);
             },
             blendMode: BlendMode.dstOut,
-            child: ShaderMask(
-              shaderCallback: (Rect rect) {
-                return const LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [Colors.transparent, Colors.white],
-                  //set stops as par your requirement
-                  stops: [0.2, 0.6], // 50% transparent, 50% white
-                ).createShader(rect);
-              },
-              blendMode: BlendMode.dstOut,
-              child: CustomPaint(
-                size: widget.size,
-                painter: RoutePainter(angle, true),
-              ),
+            child: CustomPaint(
+              size: widget.size,
+              painter: RoutePainter(angle, true),
             ),
           ),
         ),
         Transform(
           alignment: Alignment.center,
           transform: Matrix4.rotationY(pi),
-          child: Transform.rotate(
-            angle: -angle / 2,
-            origin: const Offset(0, 0),
-            child: ShaderMask(
+          child: ShaderMask(
             shaderCallback: (Rect rect) {
-    return const LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [Colors.transparent, Colors.white],
-    //set stops as par your requirement
-    stops: [0.6, 0.8], // 50% transparent, 50% white
-    ).createShader(rect);
-    },
-    blendMode: BlendMode.dstOut,
-    child: ShaderMask(
-    shaderCallback: (Rect rect) {
-    return const LinearGradient(
-    begin: Alignment.centerRight,
-    end: Alignment.centerLeft,
-    colors: [Colors.transparent, Colors.white],
-    //set stops as par your requirement
-    stops: [0.2, 0.6], // 50% transparent, 50% white
-    ).createShader(rect);
-    },
-    blendMode: BlendMode.dstOut,
-    child: CustomPaint(
+              return const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Colors.white],
+                //set stops as par your requirement
+                stops: [0.4, 0.6],
+              ).createShader(rect);
+            },
+            blendMode: BlendMode.dstOut,
+            child: ShaderMask(
+              shaderCallback: (Rect rect) {
+                return const LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.transparent, Colors.white],
+                  //set stops as par your requirement
+                  stops: [0.6, 0.8],
+                ).createShader(rect);
+              },
+              blendMode: BlendMode.dstOut,
+              child: CustomPaint(
                 size: widget.size,
                 painter: RoutePainter(angle, false),
               ),
-            ),),
+            ),
           ),
         ),
         // RIGHT BUTTON
@@ -274,111 +244,12 @@ class RoutePainter extends CustomPainter {
 
   void paintPredictionArcBackground(Canvas canvas, Size size) {
     final path = Path();
-    Offset center = Offset(size.width / 2, size.height / 2);
-    // The radius for the outside of the arc.
-    final outerRadius = size.width / 2 - 52;
-    // The radius for the inside of the arc.
-    final holeRadius = outerRadius / 2 + 12;
 
-    const padding = 0.1;
-    final factor = outerRadius / holeRadius;
+    path.moveTo(size.width / 2 - 32, size.height * 0.16);
 
-    // The padding that gets subtracted from the buttons such that they are not exactly 1/4 of a circle but instead less.
-    // Given in percent of the hole circle. When using multiple buttons, this results in a gap between the buttons.
-    const paddingPct = 0.3;
-    // Resulting angle in radians.
-    const paddingAngleOuter = 2 * pi * paddingPct / 100;
-    // Resulting angle in radians (angle needs to be bigger in the middle,
-    // this is because the radius is less and thus the same angle would result in a padding of less physical units).
-    const paddingAngleHole = 2 * pi * (paddingPct * 2) / 100;
+    path.arcToPoint(Offset(size.width * 0.31, size.height * 0.4), radius: const Radius.circular(200));
 
-    // The border radius of the buttons. Given in percent.
-    var borderRadiusPct = 0.5;
-    // For the border radius on the arcs (outside and inside), we need to transform it to an angle (radian).
-    var borderRadiusAngle = 2 * pi * borderRadiusPct / 100;
-    // For the border radius on the straight lines, we need to calculate the distance.
-    var borderRadiusDistance = (2 * pi * outerRadius) * ((borderRadiusAngle * (180 / pi)) / 360);
-
-    // The coordinates of the top right point (without padding and border radius).
-    final topRight = movePointOnCircle(size.width / 2, 0, outerRadius, center, angle / 2 - padding);
-
-    // The coordinates of the top right point (with padding).
-    final paddedTopRight = movePointOnCircle(topRight.dx, topRight.dy, outerRadius, center, -paddingAngleOuter);
-
-    // Helper calculation.
-    final distanceTopRightToCenter =
-        sqrt(pow(paddedTopRight.dx - center.dx, 2) + pow(paddedTopRight.dy - center.dy, 2));
-    // The second point for the border radius on the top right corner.
-    final borderRadiusTopRight2X =
-        center.dx + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dx - center.dx));
-    final borderRadiusTopRight2Y =
-        center.dy + ((1 - (borderRadiusDistance / distanceTopRightToCenter)) * (paddedTopRight.dy - center.dy));
-
-    // MOVE TO START OF PATH (not drawing anything yet)
-    path.moveTo(borderRadiusTopRight2X, borderRadiusTopRight2Y);
-
-    // The coordinates of the bottom right point (without padding and border radius).
-    final bottomRight =
-        movePointOnCircle(size.width / 2, outerRadius - holeRadius, holeRadius, center, angle / 2 - padding * factor);
-
-    // The coordinates of the bottom right point (with padding).
-    final paddedBottomRight = movePointOnCircle(bottomRight.dx, bottomRight.dy, holeRadius, center, -paddingAngleHole);
-
-    // The border radius of the buttons. Given in percent.
-    borderRadiusPct = 4;
-    // For the border radius on the arcs (outside and inside), we need to transform it to an angle (radian).
-    borderRadiusAngle = 2 * pi * borderRadiusPct / 100;
-    // For the border radius on the straight lines, we need to calculate the distance.
-    borderRadiusDistance = (2 * pi * outerRadius) * ((borderRadiusAngle * (180 / pi)) / 360);
-
-    // Helper calculation.
-    final distanceBottomRightToTopRight =
-        sqrt(pow(paddedTopRight.dx - paddedBottomRight.dx, 2) + pow(paddedTopRight.dy - paddedBottomRight.dy, 2));
-    // The first point for the border radius on the bottom right corner (in clockwise direction before paddedBottomRight).
-    final borderRadiusBottomRight1X = paddedBottomRight.dx +
-        ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dx - paddedBottomRight.dx));
-    final borderRadiusBottomRight1Y = paddedBottomRight.dy +
-        ((borderRadiusDistance / distanceBottomRightToTopRight) * (paddedTopRight.dy - paddedBottomRight.dy));
-
-    // DRAW THE STRAIGHT LINE ON THE RIGHT SIDE.
-    path.lineTo(borderRadiusBottomRight1X, borderRadiusBottomRight1Y);
-
-    // The second point for the border radius on the bottom right corner (in clockwise direction after paddedBottomRight).
-    final borderRadiusBottomRight2 = movePointOnCircle(
-      paddedBottomRight.dx,
-      paddedBottomRight.dy,
-      holeRadius,
-      center,
-      -borderRadiusAngle - 0.2,
-    );
-
-    // DRAW THE BORDER RADIUS ON THE BOTTOM RIGHT CORNER.
-    path.arcToPoint(
-      Offset(borderRadiusBottomRight2.dx, borderRadiusBottomRight2.dy),
-      radius: Radius.circular(borderRadiusDistance + 50),
-      clockwise: true,
-    );
-
-    // The coordinates of the bottom left point (without padding and border radius).
-    final bottomLeft =
-        movePointOnCircle(bottomRight.dx, bottomRight.dy, holeRadius, center, -angle * 0.7 + padding * factor);
-
-    // DRAW INNER ARC
-    path.arcToPoint(
-      Offset(bottomLeft.dx, bottomLeft.dy),
-      radius: Radius.circular(holeRadius),
-      clockwise: false,
-    );
-
-    // The coordinates of the top left point (without padding and border radius).
-    final topLeft = movePointOnCircle(size.width / 2, 0, outerRadius, center, -angle * 0.9 / 2);
-
-    // DRAW INNER ARC
-    path.arcToPoint(
-      Offset(topLeft.dx + 10, topLeft.dy + 5),
-      radius: Radius.circular(holeRadius + 60),
-      clockwise: true,
-    );
+    path.arcToPoint(Offset(size.width * 0.21, size.height * 0.6), radius: const Radius.circular(200), clockwise: false);
 
     final paint = Paint()
       ..color = CI.blue
