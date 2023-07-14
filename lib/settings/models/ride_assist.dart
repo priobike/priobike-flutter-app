@@ -1,7 +1,7 @@
 enum RideAssistMode { none, easy, interval, continuous }
 
 extension RideAssistModeDescription on RideAssistMode {
-  String get name {
+  String get description {
     switch (this) {
       case RideAssistMode.none:
         return "Keine";
@@ -18,7 +18,7 @@ extension RideAssistModeDescription on RideAssistMode {
 enum ModalityMode { audio, vibration }
 
 extension ModalityModeDescription on ModalityMode {
-  String get name {
+  String get description {
     switch (this) {
       case ModalityMode.audio:
         return "Audio";

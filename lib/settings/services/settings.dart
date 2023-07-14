@@ -559,7 +559,7 @@ class Settings with ChangeNotifier {
         "saveBatteryModeEnabled": saveBatteryModeEnabled,
         "dismissedSurvey": dismissedSurvey,
         "enableGamification": enableGamification,
-        "rideAssistMode": rideAssistMode,
-        "modalityMode": modalityMode,
+        "rideAssistMode": rideAssistMode.name,
+        "modalityMode": modalityMode.name,
       };
 }

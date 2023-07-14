@@ -203,7 +203,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Fahr Unterstützung",
-                    subtitle: settings.rideAssistMode.name,
+                    subtitle: settings.rideAssistMode.description,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
@@ -211,7 +211,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                         return SettingsSelection(
                             elements: RideAssistMode.values,
                             selected: settings.rideAssistMode,
-                            title: (RideAssistMode e) => e.name,
+                            title: (RideAssistMode e) => e.description,
                             callback: onSelectRideAssistMode);
                       },
                     ),
@@ -221,7 +221,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
                     title: "Modalität",
-                    subtitle: settings.modalityMode.name,
+                    subtitle: settings.modalityMode.description,
                     icon: Icons.expand_more,
                     callback: () => showAppSheet(
                       context: context,
@@ -229,7 +229,7 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                         return SettingsSelection(
                             elements: ModalityMode.values,
                             selected: settings.modalityMode,
-                            title: (ModalityMode e) => e.name,
+                            title: (ModalityMode e) => e.description,
                             callback: onSelectModalityMode);
                       },
                     ),
