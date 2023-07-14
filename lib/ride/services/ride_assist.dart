@@ -207,8 +207,21 @@ class RideAssist with ChangeNotifier {
             }
           }
         }
+      } else {
+        // Check if loops running and stop if so.
+        if (slowLoopRunning || fastLoopRunning) {
+          stopSignalLoop();
+          slowLoopRunning = false;
+          fastLoopRunning = false;
+        }
       }
     } else {
+      // Check if loops running and stop if so.
+      if (slowLoopRunning || fastLoopRunning) {
+        stopSignalLoop();
+        slowLoopRunning = false;
+        fastLoopRunning = false;
+      }
       log.e("Second outside of phases array.");
     }
   }
@@ -237,7 +250,7 @@ class RideAssist with ChangeNotifier {
 
   void startSlowerLoop() {
     // Initially play it once.
-    audioPlayer1.play(AssetSource(audioPath));
+    audioPlayer2.play(AssetSource(audioPath));
     // Then start timer.
     timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
       audioPlayer1.play(AssetSource(audioPath));
@@ -246,7 +259,7 @@ class RideAssist with ChangeNotifier {
 
   void startFasterLoop() {
     // Initially play it once.
-    audioPlayer1.play(AssetSource(audioPath));
+    audioPlayer2.play(AssetSource(audioPath));
     // Then start timer.
     timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       audioPlayer1.play(AssetSource(audioPath));
@@ -258,6 +271,7 @@ class RideAssist with ChangeNotifier {
       timer!.cancel();
       // To stop the signal immediately.
       audioPlayer1.stop();
+      audioPlayer2.stop();
       timer = null;
     }
   }
@@ -307,6 +321,7 @@ class RideAssist with ChangeNotifier {
     slowLoopRunning = false;
     fastLoopRunning = false;
     timer?.cancel();
+    timer = null;
     audioPlayer1.stop();
     audioPlayer2.stop();
     newPhaseCounter = 0;

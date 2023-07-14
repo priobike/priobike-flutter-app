@@ -198,6 +198,7 @@ class RideViewState extends State<RideView> {
   @override
   void dispose() {
     settings.removeListener(update);
+    getIt<RideAssist>().reset();
     super.dispose();
   }
 
