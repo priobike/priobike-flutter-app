@@ -90,6 +90,8 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
               shortcut = ShortcutRoute.fromJson(shortcutJson);
               break;
           }
+        } else {
+          shortcut = ShortcutRoute.fromJson(shortcutJson);
         }
 
         if (shortcut != null) {
