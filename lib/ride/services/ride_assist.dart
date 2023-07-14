@@ -8,7 +8,6 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
-import 'package:priobike/settings/models/test.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 const audioPath = "sounds/ding.mp3";
@@ -39,6 +38,7 @@ class RideAssist with ChangeNotifier {
   /// Bool that holds the state if the slow loop has to be played.
   bool slowLoopRunning = false;
 
+  /// The timer used for the signal loops.
   Timer? timer;
 
   /// Update the position.
@@ -82,9 +82,6 @@ class RideAssist with ChangeNotifier {
   /// Ride assist easy algorithm.
   /// TODO Refactor code.
   rideAssistEasy(List<Phase> phases, List<double> qualities, double kmh) {
-    // TODO Check currently in window
-    // TODO Yes => Success signal?
-    // TODO No => Message?
 
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
@@ -307,6 +304,12 @@ class RideAssist with ChangeNotifier {
   /// Reset the service.
   Future<void> reset() async {
     inGreenPhase = null;
+    slowLoopRunning = false;
+    fastLoopRunning = false;
+    timer?.cancel();
+    audioPlayer1.stop();
+    audioPlayer2.stop();
+    newPhaseCounter = 0;
     notifyListeners();
   }
 }
