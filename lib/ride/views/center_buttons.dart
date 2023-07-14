@@ -89,10 +89,16 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
       fontWeight: FontWeight.bold,
     );
 
-    Widget recommendationButtonIcons = Padding(
-      padding: EdgeInsets.only(right: widget.size.width * 0.1),
-      child: Align(
-        alignment: Alignment.centerRight,
+    // Radii of the buttons
+    final outerRadius = widget.size.width / 2 - 52;
+    final holeRadius = outerRadius / 2;
+
+    const a1 = 115;
+    final x1 = sin(a1 * (pi / 180)) * (holeRadius + (outerRadius - holeRadius) / 2);
+    final y1 = cos(a1 * (pi / 180)) * (holeRadius + (outerRadius - holeRadius) / 2);
+    Widget recommendationButtonIcons = Transform.translate(
+      offset: Offset(x1, y1),
+      child: Center(
         child: Container(
           width: widget.size.width * 0.2,
           height: widget.size.width * 0.25,
@@ -116,10 +122,12 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
       ),
     );
 
-    Widget discomfortButtonIcons = Padding(
-      padding: EdgeInsets.only(left: widget.size.width * 0.1),
-      child: Align(
-        alignment: Alignment.centerLeft,
+    const a2 = -115;
+    final x2 = sin(a2 * (pi / 180)) * (holeRadius + (outerRadius - holeRadius) / 2);
+    final y2 = cos(a2 * (pi / 180)) * (holeRadius + (outerRadius - holeRadius) / 2);
+    Widget discomfortButtonIcons = Transform.translate(
+      offset: Offset(x2, y2),
+      child: Center(
         child: Container(
           width: widget.size.width * 0.2,
           height: widget.size.width * 0.25,
@@ -157,7 +165,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           rotation: angle / 2,
           size: widget.size,
           angle: angle,
-          child: recommendationButtonIcons,
+          child: Container(),
         ),
         // LEFT BUTTON
         CenterButton(
@@ -168,7 +176,7 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           rotation: -angle / 2,
           size: widget.size,
           angle: angle,
-          child: discomfortButtonIcons,
+          child: Container(),
         ),
         IgnorePointer(
           child: CustomPaint(
@@ -186,6 +194,8 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
             ),
           ),
         ),
+        discomfortButtonIcons,
+        recommendationButtonIcons,
       ],
     );
   }
@@ -199,12 +209,16 @@ class RoutePainter extends CustomPainter {
   RoutePainter(this.angle, this.discomfort);
 
   void paintRouteArcs(Canvas canvas, Size size) {
+    // Radii of the buttons
+    final outerRadius = size.width / 2 - 52;
+    final holeRadius = outerRadius / 2;
+
     final path = Path()
       ..arcTo(
         Rect.fromCenter(
           center: Offset(size.width / 2, size.height / 2),
-          width: size.width - 246,
-          height: size.height - 246,
+          width: holeRadius * 2,
+          height: holeRadius * 2,
         ),
         angle + pi / 30,
         angle - pi / 15,
@@ -224,7 +238,7 @@ class RoutePainter extends CustomPainter {
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
       ).createShader(path.getBounds())
-      ..strokeWidth = 14
+      ..strokeWidth = 12
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
