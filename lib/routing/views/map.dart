@@ -865,10 +865,14 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
       // Get the remaining minutes.
       final minutes = (seconds - hours * 3600) ~/ 60;
 
+      // Because it is very difficult to display the time in hours and minutes in the label when selecting a route,
+      // the time is calculated in minutes here.
+      final totalTimeInMinutes = hours * 60 + minutes;
+
       if (chosenCoordinate != null) {
         chosenCoordinates.add({
           "coordinate": chosenCoordinate,
-          "time": minutes,
+          "time": totalTimeInMinutes,
           "feature": {
             "id": "routeLabel-${route.id}", // Required for click listener.
             "type": "Feature",
@@ -878,7 +882,7 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
             },
             "properties": {
               "isPrimary": routing.selectedRoute!.id == route.id,
-              "text": hours > 0 ? "$hours h $minutes min" : "$minutes min",
+              "text": "$totalTimeInMinutes min",
             },
           }
         });
