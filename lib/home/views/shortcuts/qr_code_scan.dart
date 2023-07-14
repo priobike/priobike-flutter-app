@@ -91,6 +91,9 @@ class ScanQRCodeViewState extends State<ScanQRCodeView> {
               break;
           }
         } else {
+          // https://github.com/priobike/priobike-flutter-app/commit/02c61cdf34497c350cd95f9a48dd4e8b8faf591f
+          // The commit above introduces a new attribute "type". This else-condition was added for
+          // backward compatibility, so QR-codes that don't have this attribute yet still work.
           shortcut = ShortcutRoute.fromJson(shortcutJson);
         }
 
