@@ -876,7 +876,10 @@ class RoutingMapViewState extends State<RoutingMapView> with TickerProviderState
               "type": "Point",
               "coordinates": [chosenCoordinate.lon, chosenCoordinate.lat],
             },
-            "properties": {"isPrimary": routing.selectedRoute!.id == route.id, "text": "$minutes min"},
+            "properties": {
+              "isPrimary": routing.selectedRoute!.id == route.id,
+              "text": hours > 0 ? "$hours h $minutes min" : "$minutes min",
+            },
           }
         });
       }
