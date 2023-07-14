@@ -8,14 +8,13 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
-import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/models/test.dart';
 import 'package:priobike/settings/services/settings.dart';
 
 const audioPath = "sounds/ding.mp3";
 
-/// The minimum speed in km/h.
-const minSpeed = 0.0;
+/// The threshold for a new phase.
+const int newPhaseThreshold = 2;
 
 class RideAssist with ChangeNotifier {
   /// Logger for this class.
@@ -32,6 +31,9 @@ class RideAssist with ChangeNotifier {
   /// Bool that holds the state if the user is in a green phase
   bool? inGreenPhase;
 
+  /// Counter that holds the number of seconds in another phase.
+  int newPhaseCounter = 0;
+
   /// Update the position.
   Future<void> updatePosition() async {
     // TODO prechecks.
@@ -41,24 +43,25 @@ class RideAssist with ChangeNotifier {
     if (ride.predictionComponent?.prediction?.predictionQuality == null) {
       // Set to null if there is no prediction.
       inGreenPhase = null;
+      newPhaseCounter = 0;
       return;
     }
+
     // Check prediction quality. This is maybe not good.
     if (ride.predictionComponent!.prediction!.predictionQuality! <= 0.0) return;
 
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
-    final double speed = (kmh - minSpeed) / (settings.speedMode.maxSpeed - minSpeed);
-    if (speed <= 0) return;
 
     final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final qualities =
+        ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
 
     // Switch between modes.
     switch (settings.rideAssistMode) {
       case RideAssistMode.none:
         break;
       case RideAssistMode.easy:
-        rideAssistEasy(phases, qualities, speed);
+        rideAssistEasy(phases, qualities, kmh);
         break;
       case RideAssistMode.continuous:
         break;
@@ -83,41 +86,66 @@ class RideAssist with ChangeNotifier {
       final phase = phases[second];
       final quality = qualities[second];
 
-      // Check if there is a previous info on inGreenPhase.
+      // Check if there is a previous value of inGreenPhase.
       if (inGreenPhase != null) {
-        if (phase == Phase.green) {
-          if (!inGreenPhase!) {
-            // Old recommendation and entering green phase window.
-            playSuccess();
-            inGreenPhase = true;
+        // Check if there is still a green phase available.
+        if (greenPhaseAvailable(phases)) {
+          // If the phase is green.
+          if (phase == Phase.green) {
+            // If the previous phase was not green.
+            if (!inGreenPhase!) {
+              // Check if the phase is left long enough.
+              if (newPhaseCounter >= newPhaseThreshold) {
+                // Old recommendation and entering green phase window.
+                playSuccess();
+                inGreenPhase = true;
+                newPhaseCounter = 0;
+              } else {
+                // Increment counter.
+                newPhaseCounter += 1;
+              }
+            } else {
+              // Hit the old phase again and therefore reset the counter.
+              newPhaseCounter = 0;
+            }
+          } else {
+            // If the previous phase was green.
+            if (inGreenPhase!) {
+              // Check if the phase is left long enough.
+              if (newPhaseCounter >= newPhaseThreshold) {
+                // Old recommendation and entering green phase window.
+                playMessage();
+                inGreenPhase = false;
+                newPhaseCounter = 0;
+              } else {
+                // Increment counter.
+                newPhaseCounter += 1;
+              }
+            } else {
+              // Hit the old phase again and therefore reset the counter.
+              newPhaseCounter = 0;
+            }
           }
         } else {
-          if (inGreenPhase!) {
-            // Old recommendation and leaving green phase window.
-            playMessage();
-            inGreenPhase = false;
-          }
+          inGreenPhase = null;
+          newPhaseCounter = 0;
         }
       } else {
         if (phase == Phase.green) {
           // New recommendation and in green window phase.
           playSuccess();
           inGreenPhase = true;
+          newPhaseCounter = 0;
         } else {
           // New recommendation and not in green window phase.
           // TODO Check if there is a green Phase.
-          bool greenPhaseAvailable = false;
-          for (int i = 0; i < phases.length; i++) {
-            if (phases[i] == Phase.green) {
-              greenPhaseAvailable = true;
-            }
+          if (greenPhaseAvailable(phases)) {
+            playMessage();
+            inGreenPhase = false;
+            newPhaseCounter = 0;
           }
           // Message that there is a green phase available.
           // TODO adjust how good the green phase needs to be.
-          if (greenPhaseAvailable) {
-            playMessage();
-            inGreenPhase = false;
-          }
         }
       }
     } else {
@@ -162,7 +190,6 @@ class RideAssist with ChangeNotifier {
     }
     return greenPhaseAvailable;
   }
-
 
   /// Function which plays the success signal.
   void playSuccess() {
