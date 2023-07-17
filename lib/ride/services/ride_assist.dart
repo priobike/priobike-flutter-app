@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart' hide Route;
@@ -9,6 +10,7 @@ import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/services/settings.dart';
+import 'package:wearable_communicator/wearable_communicator.dart';
 
 // TODO better audios.
 const audioPath = "sounds/ding.mp3";
@@ -27,6 +29,9 @@ class RideAssist with ChangeNotifier {
   final AudioPlayer audioPlayer1 = AudioPlayer();
   final AudioPlayer audioPlayer2 = AudioPlayer();
 
+  /// Bool that holds the state if the wear device is active.
+  bool wearDeviceReady = false;
+
   /// Bool that holds the state if the user is in a green phase
   bool? inGreenPhase;
 
@@ -42,6 +47,41 @@ class RideAssist with ChangeNotifier {
   /// The timer used for the signal loops.
   Timer? timer;
 
+  /// Start communication to wear device.
+  Future<void> startListening() async {
+    WearableListener.listenForMessage((msg) {
+      Map<String, dynamic> data = jsonDecode(msg);
+
+      // Status message received.
+      if (data["status"] != null && data["status"] == "ready") {
+        wearDeviceReady = true;
+        notifyListeners();
+      }
+    });
+  }
+
+  /// Send start signal to device.
+  void sendStart() {
+    WearableCommunicator.sendMessage({
+      "startNavigation": true,
+    });
+  }
+
+  /// Send play output message to device.
+  void sendOutput(String type) {
+    String outputSignal = "${settings.modalityMode.name}-${settings.rideAssistMode.name}-$type";
+    WearableCommunicator.sendMessage({
+      "play": outputSignal,
+    });
+  }
+
+  /// Send stop message to device.
+  void sendStop() {
+    WearableCommunicator.sendMessage({
+      "stopNavigation": true,
+    });
+  }
+
   /// Update the position.
   Future<void> updatePosition() async {
     // TODO prechecks.
@@ -49,7 +89,6 @@ class RideAssist with ChangeNotifier {
     if (settings.rideAssistMode == RideAssistMode.none) return;
     if (!ride.navigationIsActive) return;
     if (ride.predictionComponent?.prediction?.predictionQuality == null) {
-
       // Set to null if there is no prediction (ride assist easy).
       inGreenPhase = null;
       newPhaseCounter = 0;
@@ -91,7 +130,6 @@ class RideAssist with ChangeNotifier {
   /// Ride assist easy algorithm.
   /// TODO Refactor code.
   rideAssistEasy(List<Phase> phases, List<double> qualities, double kmh) {
-
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
@@ -129,7 +167,7 @@ class RideAssist with ChangeNotifier {
               // Check if the phase is left long enough.
               if (newPhaseCounter >= newPhaseThreshold) {
                 // Old recommendation and entering green phase window.
-                playMessage();
+                playInfo();
                 inGreenPhase = false;
                 newPhaseCounter = 0;
               } else {
@@ -155,7 +193,7 @@ class RideAssist with ChangeNotifier {
           // New recommendation and not in green window phase.
           // TODO Check if there is a green Phase.
           if (greenPhaseAvailable(phases)) {
-            playMessage();
+            playInfo();
             inGreenPhase = false;
             newPhaseCounter = 0;
           }
@@ -248,26 +286,38 @@ class RideAssist with ChangeNotifier {
   }
 
   void startSlowerLoop() {
-    // Then start timer.
-    timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
-      audioPlayer1.play(AssetSource(audioPath));
-    });
+    if (settings.modalityMode == ModalityMode.vibration) {
+      sendOutput("slower");
+    } else {
+      // Then start timer.
+      timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
+        audioPlayer1.play(AssetSource(audioPath));
+      });
+    }
   }
 
   void startFasterLoop() {
-    // Then start timer.
-    timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-      audioPlayer1.play(AssetSource(audioPath));
-    });
+    if (settings.modalityMode == ModalityMode.vibration) {
+      sendOutput("faster");
+    } else {
+      // Then start timer.
+      timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+        audioPlayer1.play(AssetSource(audioPath));
+      });
+    }
   }
 
   void stopSignalLoop() {
-    if (timer != null) {
-      timer!.cancel();
-      // To stop the signal immediately.
-      audioPlayer1.stop();
-      audioPlayer2.stop();
-      timer = null;
+    if (settings.modalityMode == ModalityMode.vibration) {
+      sendOutput("stop_loop");
+    } else {
+      if (timer != null) {
+        timer!.cancel();
+        // To stop the signal immediately.
+        audioPlayer1.stop();
+        audioPlayer2.stop();
+        timer = null;
+      }
     }
   }
 
@@ -288,14 +338,19 @@ class RideAssist with ChangeNotifier {
       playPhoneAudioSuccess();
     }
     if (settings.modalityMode == ModalityMode.vibration) {
-      playWearVibrationSuccess();
+      // Send message to wear device.
+      sendOutput("success");
     }
   }
 
-  /// Function which plays the message signal.
-  void playMessage() {
+  /// Function which plays the info signal.
+  void playInfo() {
     if (settings.modalityMode == ModalityMode.audio) {
-      playPhoneAudioMessage();
+      playPhoneAudioInfo();
+    }
+    if (settings.modalityMode == ModalityMode.vibration) {
+      // Send message to wear device.
+      sendOutput("info");
     }
   }
 
@@ -307,20 +362,15 @@ class RideAssist with ChangeNotifier {
     audioPlayer2.play(AssetSource(audioPath));
   }
 
-  /// Function which plays the message signal in audio.
-  Future<void> playPhoneAudioMessage() async {
+  /// Function which plays the info signal in audio.
+  Future<void> playPhoneAudioInfo() async {
     // Audio fast.
     audioPlayer1.play(AssetSource(audioPath));
   }
 
   /// Function which plays the success signal in audio.
   Future<void> playWearVibrationSuccess() async {
-    /// TODO send message wear
-  }
-
-  /// Function which plays the message signal in audio.
-  Future<void> playWearVibrationMessage() async {
-    /// TODO send message wear
+    sendOutput("success");
   }
 
   /// Reset the service.
@@ -328,8 +378,7 @@ class RideAssist with ChangeNotifier {
     inGreenPhase = null;
     slowLoopRunning = false;
     fastLoopRunning = false;
-    timer?.cancel();
-    timer = null;
+    stopSignalLoop();
     audioPlayer1.stop();
     audioPlayer2.stop();
     newPhaseCounter = 0;
