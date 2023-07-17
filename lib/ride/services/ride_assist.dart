@@ -49,14 +49,22 @@ class RideAssist with ChangeNotifier {
     if (settings.rideAssistMode == RideAssistMode.none) return;
     if (!ride.navigationIsActive) return;
     if (ride.predictionComponent?.prediction?.predictionQuality == null) {
-      // Set to null if there is no prediction.
+
+      // Set to null if there is no prediction (ride assist easy).
       inGreenPhase = null;
       newPhaseCounter = 0;
+
+      // Check if loops running and stop if so (ride assist continuous).
+      if (slowLoopRunning || fastLoopRunning) {
+        stopSignalLoop();
+        slowLoopRunning = false;
+        fastLoopRunning = false;
+      }
       return;
     }
 
     // Check prediction quality. This is maybe not good.
-    if (ride.predictionComponent!.prediction!.predictionQuality! <= 0.0) return;
+    // if (ride.predictionComponent!.prediction!.predictionQuality! <= 0.0) return;
 
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
 
@@ -65,8 +73,6 @@ class RideAssist with ChangeNotifier {
 
     // Switch between modes.
     switch (settings.rideAssistMode) {
-      case RideAssistMode.none:
-        break;
       case RideAssistMode.easy:
         rideAssistEasy(phases, qualities, kmh);
         break;
@@ -75,6 +81,8 @@ class RideAssist with ChangeNotifier {
         break;
       case RideAssistMode.interval:
         break;
+      case RideAssistMode.none:
+        return;
     }
 
     notifyListeners();
@@ -165,8 +173,6 @@ class RideAssist with ChangeNotifier {
     // Calculate current Phase.
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
-    print(second);
-    print(phases.length);
     // Second in array length.
     // TODO second > phases.length => there can still be a green phase.
     if (second < phases.length && second < qualities.length && second >= 0) {
@@ -212,26 +218,14 @@ class RideAssist with ChangeNotifier {
             }
           }
         }
-      } else {
-        // Check if loops running and stop if so.
-        if (slowLoopRunning || fastLoopRunning) {
-          stopSignalLoop();
-          slowLoopRunning = false;
-          fastLoopRunning = false;
-        }
       }
     } else {
-      // Check if loops running and stop if so.
-      if (slowLoopRunning || fastLoopRunning) {
-        stopSignalLoop();
-        slowLoopRunning = false;
-        fastLoopRunning = false;
-      }
       log.e("Second outside of phases array.");
     }
   }
 
   /// Returns the int of the closest green phase (on same distance faster is returned).
+  /// TODO max speed bug.
   int getClosestPhase(phases, second) {
     for (int i = 0; i < phases.length; i++) {
       // Check in direction second - i.
@@ -254,8 +248,6 @@ class RideAssist with ChangeNotifier {
   }
 
   void startSlowerLoop() {
-    // Initially play it once.
-    audioPlayer2.play(AssetSource(audioPath));
     // Then start timer.
     timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
       audioPlayer1.play(AssetSource(audioPath));
@@ -263,8 +255,6 @@ class RideAssist with ChangeNotifier {
   }
 
   void startFasterLoop() {
-    // Initially play it once.
-    audioPlayer2.play(AssetSource(audioPath));
     // Then start timer.
     timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
       audioPlayer1.play(AssetSource(audioPath));
@@ -297,6 +287,9 @@ class RideAssist with ChangeNotifier {
     if (settings.modalityMode == ModalityMode.audio) {
       playPhoneAudioSuccess();
     }
+    if (settings.modalityMode == ModalityMode.vibration) {
+      playWearVibrationSuccess();
+    }
   }
 
   /// Function which plays the message signal.
@@ -318,6 +311,16 @@ class RideAssist with ChangeNotifier {
   Future<void> playPhoneAudioMessage() async {
     // Audio fast.
     audioPlayer1.play(AssetSource(audioPath));
+  }
+
+  /// Function which plays the success signal in audio.
+  Future<void> playWearVibrationSuccess() async {
+    /// TODO send message wear
+  }
+
+  /// Function which plays the message signal in audio.
+  Future<void> playWearVibrationMessage() async {
+    /// TODO send message wear
   }
 
   /// Reset the service.
