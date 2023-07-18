@@ -118,7 +118,7 @@ class HomeViewState extends State<HomeView>
       // Copy waypoints.
       List<Waypoint> lastRoute = ride.lastRoute!;
       // Remove last route entry.
-      ride.removeLastRoute();
+      // ride.removeLastRoute();
       // Open restart route dialog.
       WidgetsBinding.instance.addPostFrameCallback(
         (_) {

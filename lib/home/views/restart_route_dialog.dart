@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Shortcuts;
+import 'package:priobike/home/models/shortcut_route.dart';
+import 'package:priobike/home/views/shortcuts/save_shortcut_dialog.dart';
 import 'package:priobike/logging/toast.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/ride/views/main.dart';
@@ -19,12 +21,6 @@ class RestartRouteDialog extends AlertDialog {
           content: const Text(
               'Die letzte Fahrt wurde unerwartet beendet. Wollen sie die Navigation der Route fortsetzen oder die Route speichern?'),
           actions: [
-            TextButton(
-              child: const Text('Verwerfen'),
-              onPressed: () async {
-                Navigator.of(context).pop();
-              },
-            ),
             TextButton(
               child: const Text('Fortsetzen'),
               onPressed: () async {
@@ -57,9 +53,16 @@ class RestartRouteDialog extends AlertDialog {
             TextButton(
               child: const Text('Speichern'),
               onPressed: () {
-                // TODO route speichern.
+                ShortcutRoute shortcutRoute = ShortcutRoute(name: "", waypoints: lastRoute);
                 // Set waypoints and load ride view.
-
+                Navigator.pop(context);
+                showSaveShortcutSheet(context, shortcutRoute);
+              },
+            ),
+            TextButton(
+              child: const Text('Verwerfen'),
+              onPressed: () async {
+                Navigator.of(context).pop();
               },
             ),
           ],
