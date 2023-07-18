@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -179,116 +178,14 @@ class RideCenterButtonsViewState extends State<RideCenterButtonsView> {
           child: Container(),
         ),
         IgnorePointer(
-          child: CustomPaint(
-            size: widget.size,
-            painter: RoutePainter(angle, true),
-          ),
+          child: discomfortButtonIcons,
         ),
         IgnorePointer(
-          child: Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.rotationY(pi),
-            child: CustomPaint(
-              size: widget.size,
-              painter: RoutePainter(angle, false),
-            ),
-          ),
+          child: recommendationButtonIcons,
         ),
-        discomfortButtonIcons,
-        recommendationButtonIcons,
       ],
     );
   }
-}
-
-class RoutePainter extends CustomPainter {
-  final double angle;
-
-  final bool discomfort;
-
-  RoutePainter(this.angle, this.discomfort);
-
-  void paintRouteArcs(Canvas canvas, Size size) {
-    // Radii of the buttons
-    final outerRadius = size.width / 2 - 52;
-    final holeRadius = outerRadius / 2;
-
-    final path = Path()
-      ..arcTo(
-        Rect.fromCenter(
-          center: Offset(size.width / 2, size.height / 2),
-          width: holeRadius * 2,
-          height: holeRadius * 2,
-        ),
-        angle + pi / 30,
-        angle - pi / 15,
-        false,
-      );
-
-    final paint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          CI.blueDark.withOpacity(0.0),
-          CI.blueDark.withOpacity(1),
-          CI.blue.withOpacity(1),
-          CI.blueLight.withOpacity(1),
-          CI.blueLight.withOpacity(0.0),
-        ],
-        stops: const [0.0, 0.3, 0.6, 0.8, 1.0],
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-      ).createShader(path.getBounds())
-      ..strokeWidth = 12
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawPath(path, paint);
-
-    final paintDashes = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          Colors.black.withOpacity(0.0),
-          Colors.black.withOpacity(0.5),
-          Colors.black.withOpacity(1.0),
-        ],
-        stops: const [0.0, 0.2, 0.5],
-        begin: Alignment.topRight,
-        end: Alignment.bottomLeft,
-      ).createShader(path.getBounds())
-      ..strokeWidth = 6
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
-
-    if (discomfort) {
-      Path dashPath = Path();
-
-      double dashWidth = 10.0;
-      double dashSpace = 10.0;
-      double distance = 0.0;
-
-      for (PathMetric pathMetric in path.computeMetrics()) {
-        while (distance < pathMetric.length) {
-          dashPath.addPath(
-            pathMetric.extractPath(distance, distance + dashWidth),
-            Offset.zero,
-          );
-          distance += dashWidth;
-          distance += dashSpace;
-        }
-      }
-      canvas.drawPath(dashPath, paintDashes);
-    }
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    paintRouteArcs(canvas, size);
-  }
-
-  @override
-  bool shouldRepaint(covariant RoutePainter oldDelegate) => false;
 }
 
 /// A single button in the center of the speedometer.
