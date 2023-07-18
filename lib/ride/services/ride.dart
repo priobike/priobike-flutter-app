@@ -69,31 +69,44 @@ class Ride with ChangeNotifier {
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
 
-  /// If the last ride got killed by the os.
+  /// List of Waypoints if the last ride got killed by the os.
   List<Waypoint>? lastRoute;
 
-  static const lastRouteKey = "priobike.ride.lastRoute";
-  static const defaultLastRute = null;
+  /// Selected Route id if the last ride got killed by the os.
+  int lastRouteID = 0;
 
-  Future<bool> setLastRoute(List<Waypoint> lastRoute, [SharedPreferences? storage]) async {
+  static const lastRouteKey = "priobike.ride.lastRoute";
+  static const lastRouteIDKey = "priobike.ride.lastRouteID";
+  static const defaultLastRoute = null;
+  static const defaultLastRouteID = 0;
+
+  /// Set the last route in shared preferences.
+  Future<bool> setLastRoute(List<Waypoint> lastRoute, int lastRouteID, [SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
-    final prev = this.lastRoute;
+    final prevLastRoute = this.lastRoute;
+    final prevLastRouteID = this.lastRouteID;
     this.lastRoute = lastRoute;
+    this.lastRouteID = lastRouteID;
     List<String> jsonList = lastRoute.map((Waypoint waypoint) => jsonEncode(waypoint.toJSON())).toList();
     bool success = await storage.setStringList(lastRouteKey, jsonList);
+    success = success && await storage.setInt(lastRouteIDKey, lastRouteID);
     if (!success) {
       log.e("Failed to set lastRoute to $lastRoute");
-      this.lastRoute = prev;
+      this.lastRoute = prevLastRoute;
+      this.lastRouteID = prevLastRouteID;
     } else {
       notifyListeners();
     }
     return success;
   }
 
+  /// Remove the last route from shared preferences.
   Future<bool> removeLastRoute([SharedPreferences? storage]) async {
     storage ??= await SharedPreferences.getInstance();
     lastRoute = null;
+    lastRouteID = 0;
     bool success = await storage.remove(lastRouteKey);
+    success = success & await storage.remove(lastRouteIDKey);
     if (!success) {
       log.e("Failed to remove lastRoute");
     } else {
@@ -102,13 +115,15 @@ class Ride with ChangeNotifier {
     return success;
   }
 
-  /// Load the last route from the shared preferences.
+  /// Load the last route from shared preferences.
   Future<void> loadLastRoute() async {
     final storage = await SharedPreferences.getInstance();
     try {
       List<String>? jsonList = storage.getStringList(lastRouteKey);
-      if (jsonList != null) {
+      int? lastRouteID = storage.getInt(lastRouteIDKey);
+      if (jsonList != null && lastRouteID != null) {
         lastRoute = jsonList.map((e) => Waypoint.fromJson(jsonDecode(e))).toList();
+        this.lastRouteID = lastRouteID;
       }
     } catch (e) {
       /* Do nothing and use the default value given by the constructor. */
@@ -326,6 +341,8 @@ class Ride with ChangeNotifier {
     calcCurrentSGIndex = null;
     calcNextConnectedSGIndex = null;
     calcDistanceToNextSG = null;
+    lastRoute = null;
+    lastRouteID = 0;
     notifyListeners();
   }
 }

@@ -11,6 +11,7 @@ import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
 import 'package:priobike/home/views/profile.dart';
+import 'package:priobike/home/views/restart_route_dialog.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
 import 'package:priobike/home/views/shortcuts/invalid_shortcut_dialog.dart';
@@ -20,6 +21,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -46,7 +48,8 @@ class HomeView extends StatefulWidget {
   HomeViewState createState() => HomeViewState();
 }
 
-class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAware {
+class HomeViewState extends State<HomeView>
+    with WidgetsBindingObserver, RouteAware {
   /// The associated news service, which is injected by the provider.
   late News news;
 
@@ -110,9 +113,30 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
       rateApp();
     }
 
-    // Check if the last route did not got
+    // Check if the last route finished accordingly.
     if (ride.lastRoute != null) {
-      print("OPEN POP UP");
+      // Copy waypoints.
+      List<Waypoint> lastRoute = ride.lastRoute!;
+      // Remove last route entry.
+      ride.removeLastRoute();
+      // Open restart route dialog.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          // Execute callback if page is mounted
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => RestartRouteDialog(
+                lastRouteID: ride.lastRouteID,
+                lastRoute: lastRoute,
+                routing: routing,
+                ride: ride,
+                context: context,
+              ),
+            );
+          }
+        },
+      );
     }
   }
 
@@ -160,7 +184,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when the notification button is tapped.
   void onNotificationsButtonTapped() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsView())).then(
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const NewsView()))
+        .then(
       (_) {
         // Mark all notifications as read.
         news.markAllArticlesAsRead();
@@ -218,7 +244,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
   /// If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
   void pushRoutingView() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const RoutingView()))
+        .then(
       (comingNotFromRoutingView) {
         if (comingNotFromRoutingView == null) {
           routing.reset();
@@ -231,7 +259,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
 
   /// A callback that is fired when the shortcuts should be edited.
   void onOpenShortcutEditView() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const ShortcutsEditView()));
   }
 
   @override
@@ -264,7 +293,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  if (settings.useCounter >= 3 && !settings.dismissedSurvey) const VSpace(),
+                  if (settings.useCounter >= 3 && !settings.dismissedSurvey)
+                    const VSpace(),
                   if (settings.useCounter >= 3 && !settings.dismissedSurvey)
                     BlendIn(
                       child: Container(
@@ -287,9 +317,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldContent(text: "Deine Strecken & Orte", context: context),
+                            BoldContent(
+                                text: "Deine Strecken & Orte",
+                                context: context),
                             const SizedBox(height: 4),
-                            Small(text: "Direkt zum Ziel navigieren", context: context),
+                            Small(
+                                text: "Direkt zum Ziel navigieren",
+                                context: context),
                           ],
                         ),
                         Expanded(child: Container()),
@@ -324,7 +358,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                               'Fährst du eine Route häufiger? Du kannst neue Strecken erstellen, indem du eine Route planst und dann auf "Strecke speichern" klickst.',
                           padding: EdgeInsets.fromLTRB(40, 0, 40, 24),
                         ),
-                        ShortcutsView(onSelectShortcut: onSelectShortcut, onStartFreeRouting: onStartFreeRouting)
+                        ShortcutsView(
+                            onSelectShortcut: onSelectShortcut,
+                            onStartFreeRouting: onStartFreeRouting)
                       ],
                     ),
                   ),

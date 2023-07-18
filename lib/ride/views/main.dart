@@ -212,8 +212,8 @@ class RideViewState extends State<RideView> with WidgetsBindingObserver {
       // TODO add background service for gps.
 
       // Set lastRoute if app is paused.
-      if (routing.selectedWaypoints != null) {
-        ride.setLastRoute(routing.selectedWaypoints!);
+      if (routing.selectedWaypoints != null && routing.selectedRoute != null) {
+        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
       }
     }
     if (state == AppLifecycleState.resumed) {
