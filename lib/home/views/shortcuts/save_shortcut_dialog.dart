@@ -45,8 +45,9 @@ void showSaveShortcutSheet(BuildContext context, ShortcutRoute shortcut) {
               shortcut.name = name;
               await shortcuts.saveNewShortcutObject(shortcut);
               ToastMessage.showSuccess("Route gespeichert!");
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             child: BoldContent(
               text: 'Speichern',
