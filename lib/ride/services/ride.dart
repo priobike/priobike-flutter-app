@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:latlong2/latlong.dart';
@@ -11,9 +12,11 @@ import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/settings/models/prediction.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/messages/sg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// The distance model.
 const vincenty = Distance(roundResult: false);
@@ -65,6 +68,52 @@ class Ride with ChangeNotifier {
 
   /// The wrapper-service for the used prediction mode.
   PredictionComponent? predictionComponent;
+
+  /// If the last ride got killed by the os.
+  List<Waypoint>? lastRoute;
+
+  static const lastRouteKey = "priobike.ride.lastRoute";
+  static const defaultLastRute = null;
+
+  Future<bool> setLastRoute(List<Waypoint> lastRoute, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.lastRoute;
+    this.lastRoute = lastRoute;
+    List<String> jsonList = lastRoute.map((Waypoint waypoint) => jsonEncode(waypoint.toJSON())).toList();
+    bool success = await storage.setStringList(lastRouteKey, jsonList);
+    if (!success) {
+      log.e("Failed to set lastRoute to $lastRoute");
+      this.lastRoute = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  Future<bool> removeLastRoute([SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    lastRoute = null;
+    bool success = await storage.remove(lastRouteKey);
+    if (!success) {
+      log.e("Failed to remove lastRoute");
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  /// Load the last route from the shared preferences.
+  Future<void> loadLastRoute() async {
+    final storage = await SharedPreferences.getInstance();
+    try {
+      List<String>? jsonList = storage.getStringList(lastRouteKey);
+      if (jsonList != null) {
+        lastRoute = jsonList.map((e) => Waypoint.fromJson(jsonDecode(e))).toList();
+      }
+    } catch (e) {
+      /* Do nothing and use the default value given by the constructor. */
+    }
+  }
 
   /// Subscribe to the signal group.
   void selectSG(Sg? sg) {

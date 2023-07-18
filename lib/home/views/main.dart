@@ -19,6 +19,7 @@ import 'package:priobike/home/views/survey.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/news/views/main.dart';
+import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
@@ -61,6 +62,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated ride service, which is injected by the provider.
+  late Ride ride;
+
   /// The associated discomfort service, which is injected by the provider.
   late Discomforts discomforts;
 
@@ -96,6 +100,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     predictionStatusSummary = getIt<PredictionStatusSummary>();
     statusHistory = getIt<StatusHistory>();
     routing = getIt<Routing>();
+    ride = getIt<Ride>();
     discomforts = getIt<Discomforts>();
     predictionSGStatus = getIt<PredictionSGStatus>();
     statistics = getIt<Statistics>();
@@ -103,6 +108,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
     // Check if app should be rated.
     if (askRateAppList.contains(settings.useCounter)) {
       rateApp();
+    }
+
+    // Check if the last route did not got
+    if (ride.lastRoute != null) {
+      print("OPEN POP UP");
     }
   }
 

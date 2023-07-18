@@ -30,12 +30,18 @@ class RideView extends StatefulWidget {
   State<StatefulWidget> createState() => RideViewState();
 }
 
-class RideViewState extends State<RideView> {
+class RideViewState extends State<RideView> with WidgetsBindingObserver {
   /// The distance in meters at which a new route is requested.
   static double rerouteDistance = 50;
 
   /// The associated settings service, which is injected by the provider.
   late Settings settings;
+
+  /// The associated routing service, which is injected by the provider.
+  late Routing routing;
+
+  /// The associated ride service, which is injected by the provider.
+  late Ride ride;
 
   /// A lock that avoids rapid rerouting.
   final lock = Lock(milliseconds: 10000);
@@ -54,8 +60,13 @@ class RideViewState extends State<RideView> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addObserver(this);
+
     settings = getIt<Settings>();
     settings.addListener(update);
+
+    routing = getIt<Routing>();
+    ride = getIt<Ride>();
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -93,7 +104,8 @@ class RideViewState extends State<RideView> {
             await tracking.updatePosition();
 
             // If we are > <x>m from the route, we need to reroute.
-            if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance || needsReroute) {
+            if ((positioning.snap?.distanceToRoute ?? 0) > rerouteDistance ||
+                needsReroute) {
               // Use a timed lock to avoid rapid refreshing of routes.
               lock.run(() async {
                 await routing.selectRemainingWaypoints();
@@ -125,7 +137,8 @@ class RideViewState extends State<RideView> {
   /// (Only if the battery saving mode is used because otherwise the Mapbox native dialog is used.)
   /// (In the battery saving mode the Mapbox native dialog can't be used because it is outside of the visible display area.)
   void showAttribution() {
-    final bool satelliteAttributionRequired = getIt<MapDesigns>().mapDesign.name == 'Satellit';
+    final bool satelliteAttributionRequired =
+        getIt<MapDesigns>().mapDesign.name == 'Satellit';
     final List<Map<String, dynamic>> attributionEntries = [
       {
         'title': 'Mapbox',
@@ -151,7 +164,8 @@ class RideViewState extends State<RideView> {
       context: context,
       builder: (BuildContext context) => Dialog(
         child: Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
+          padding:
+              const EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +178,8 @@ class RideViewState extends State<RideView> {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    await launchUrl(entry['url']!, mode: LaunchMode.externalApplication);
+                    await launchUrl(entry['url']!,
+                        mode: LaunchMode.externalApplication);
                   },
                   child: Text(entry['title']!),
                 ),
@@ -192,8 +207,25 @@ class RideViewState extends State<RideView> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // TODO add background service for gps.
+
+      // Set lastRoute if app is paused.
+      if (routing.selectedWaypoints != null) {
+        ride.setLastRoute(routing.selectedWaypoints!);
+      }
+    }
+    if (state == AppLifecycleState.resumed) {
+      // Remove last route since the ride continues.
+      ride.removeLastRoute();
+    }
+  }
+
+  @override
   void dispose() {
     settings.removeListener(update);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -224,7 +256,8 @@ class RideViewState extends State<RideView> {
                   left: 10,
                   child: const Image(
                     width: 100,
-                    image: AssetImage('assets/images/mapbox-logo-transparent.png'),
+                    image:
+                        AssetImage('assets/images/mapbox-logo-transparent.png'),
                   ),
                 ),
               if (settings.saveBatteryModeEnabled)
@@ -248,7 +281,8 @@ class RideViewState extends State<RideView> {
                   bottom: true,
                   child: Padding(
                     padding: EdgeInsets.only(
-                      bottom: heightToPuckBoundingBox < MediaQuery.of(context).size.width
+                      bottom: heightToPuckBoundingBox <
+                              MediaQuery.of(context).size.width
                           ? heightToPuckBoundingBox - 35
                           : MediaQuery.of(context).size.width - 35,
                     ),
@@ -265,7 +299,9 @@ class RideViewState extends State<RideView> {
                           cameraFollowsUserLocation = true;
                         });
                       },
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.3, minHeight: 50),
+                      boxConstraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width * 0.3,
+                          minHeight: 50),
                     ),
                   ),
                 ),

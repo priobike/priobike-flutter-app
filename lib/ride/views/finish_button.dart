@@ -133,6 +133,12 @@ class FinishRideButtonState extends State<FinishRideButton> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    print("calledYYYYYYYYYYYYYYYYY");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
