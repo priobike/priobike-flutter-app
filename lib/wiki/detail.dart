@@ -112,37 +112,45 @@ class WikiDetailViewState extends State<WikiDetailView> {
   }
 
   /// Widget that displays the text item.
-  Widget _textItem(String text) {
+  Widget _pageContent(String text, String? image) {
     return Padding(
       // Padding bottom 20 + AppBackButton height.
-      padding: const EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 20),
-      child: Center(
-        child: SubHeader(
-          text: text,
-          context: context,
-          textAlign: TextAlign.center,
-        ),
+      padding: const EdgeInsets.only(left: 24, top: 12, right: 24, bottom: 64),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (image != null) ...[
+            SizedBox(
+              height: 128,
+              child: Image.asset(
+                image,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const VSpace(),
+          ],
+          Content(
+            text: text,
+            context: context,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
 
   /// Widget that displays a statusBar item.
   Widget _statusBarItem(int index) {
-    return Expanded(
-      child: AnimatedContainer(
-        height: 10,
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          color: index <= page
-              ? Theme.of(context).brightness == Brightness.light
-                  ? Colors.black
-                  : Colors.white
-              : Colors.transparent,
-        ),
-        duration: animationDuration,
+    return AnimatedContainer(
+      width: 24,
+      height: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white.withOpacity(0.25), width: 2),
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+        color: index <= page ? Colors.white : Colors.transparent,
       ),
+      duration: animationDuration,
     );
   }
 
@@ -151,37 +159,9 @@ class WikiDetailViewState extends State<WikiDetailView> {
     List<Widget> statusBarItems =
         widget.article.paragraphs.map((e) => _statusBarItem(widget.article.paragraphs.indexOf(e))).toList();
 
-    return Column(
-      children: [
-        Expanded(
-          child: Stack(
-            children: [
-              AnimatedPositioned(
-                left: posLeft,
-                bottom: -8,
-                duration: animationDuration,
-                curve: Curves.easeInOutCubic,
-                child: Image(
-                  height: 54,
-                  width: 54,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white,
-                  image: AssetImage(
-                    "assets/images/wiki/bike$bikeImageNumber.png",
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 10,
-          width: frame.size.width,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: statusBarItems,
-          ),
-        )
-      ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: statusBarItems,
     );
   }
 
@@ -197,7 +177,12 @@ class WikiDetailViewState extends State<WikiDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> pageViewItems = widget.article.paragraphs.map((text) => _textItem(text)).toList();
+    List<Widget> pageViewItems = [];
+    for (int i = 0; i < widget.article.paragraphs.length; i++) {
+      final text = widget.article.paragraphs[i];
+      final image = widget.article.images.length > i ? widget.article.images[i] : null;
+      pageViewItems.add(_pageContent(text, image));
+    }
 
     final frame = MediaQuery.of(context);
 
@@ -205,108 +190,101 @@ class WikiDetailViewState extends State<WikiDetailView> {
       // Show status bar in opposite color of the background.
       value: Theme.of(context).brightness == Brightness.light ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Stack(children: [
-          Container(
-            // Top bar + padding.
-            height: frame.padding.top + 8,
-            width: frame.size.width,
-            color: Theme.of(context).colorScheme.background,
-          ),
-          Positioned(
-            bottom: 0,
-            child: Container(
-              // Bottom bar.
-              height: frame.padding.bottom,
-              width: frame.size.width,
-              color: Theme.of(context).colorScheme.background,
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  color: Theme.of(context).colorScheme.background,
-                  child: Row(
-                    children: [
-                      AppBackButton(onPressed: () => Navigator.pop(context)),
-                      Expanded(
-                        child: Container(
-                          width: frame.size.width,
-                          color: Theme.of(context).colorScheme.background,
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              BoldContent(
-                                text: widget.article.title,
-                                context: context,
-                                textAlign: TextAlign.left,
-                              ),
-                              Small(
-                                text: widget.article.subtitle,
-                                context: context,
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SmallHSpace(),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Stack(children: [
-                    PageView(
-                      children: pageViewItems,
-                      onPageChanged: (index) {
-                        setState(() {
-                          didSlidePage = true;
-                          showIcon = false;
-                          positionRight = startPositionRight;
-                          // ((( screen width - 20 padding) / number of pages ) * index ).
-                          posLeft = (((frame.size.width - 100) / (widget.article.paragraphs.length)) * index);
-                          page = index;
-                        });
-                        startAnimationTimer?.cancel();
-                        _startBikeAnimation();
-                      },
-                    ),
-                    AnimatedPositioned(
-                      bottom: 50,
-                      right: positionRight,
-                      onEnd: () {
-                        setState(() {
-                          positionRight = startPositionRight;
-                        });
-                        _startAnimation(const Duration(milliseconds: 500));
-                      },
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOut,
-                      child: showIcon
-                          ? const Icon(
-                              Icons.arrow_forward,
-                              size: 64,
-                            )
-                          : Container(),
-                    ),
-                  ]),
-                ),
-                Container(
-                  height: 64,
-                  width: frame.size.width,
-                  color: Theme.of(context).colorScheme.background,
-                  padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10, top: 0),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.primary,
+              child: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 32, right: 32, bottom: 24),
                   child: _statusBar(frame),
                 ),
-              ],
+              ),
             ),
-          ),
-        ]),
+            SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Container(
+                    color: Theme.of(context).colorScheme.background,
+                    child: Row(
+                      children: [
+                        AppBackButton(onPressed: () => Navigator.pop(context)),
+                        Expanded(
+                          child: Container(
+                            width: frame.size.width,
+                            color: Theme.of(context).colorScheme.background,
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                BoldContent(
+                                  text: widget.article.title,
+                                  context: context,
+                                  textAlign: TextAlign.left,
+                                ),
+                                Small(
+                                  text: widget.article.subtitle,
+                                  context: context,
+                                  textAlign: TextAlign.left,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SmallHSpace(),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Stack(children: [
+                      PageView(
+                        children: pageViewItems,
+                        onPageChanged: (index) {
+                          setState(() {
+                            didSlidePage = true;
+                            showIcon = false;
+                            positionRight = startPositionRight;
+                            // ((( screen width - 20 padding) / number of pages ) * index ).
+                            posLeft = (((frame.size.width - 100) / (widget.article.paragraphs.length)) * index);
+                            page = index;
+                          });
+                          startAnimationTimer?.cancel();
+                          _startBikeAnimation();
+                        },
+                      ),
+                      AnimatedPositioned(
+                        bottom: 12,
+                        right: positionRight,
+                        onEnd: () {
+                          setState(() {
+                            positionRight = startPositionRight;
+                          });
+                          _startAnimation(const Duration(milliseconds: 2000));
+                        },
+                        duration: const Duration(milliseconds: 2000),
+                        curve: Curves.easeInOutCubicEmphasized,
+                        child: showIcon
+                            ? const Opacity(
+                                opacity: 0.25,
+                                child: Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 32,
+                                ),
+                              )
+                            : Container(),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
 import 'package:priobike/ride/views/speedometer/cover.dart';
@@ -342,6 +343,13 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
                           child: RideTrafficLightView(
                             size: size,
                           ),
+                        ),
+                      ),
+                    if (!showAlert)
+                      Transform.translate(
+                        offset: const Offset(0, 42),
+                        child: RideCenterButtonsView(
+                          size: size,
                         ),
                       ),
                     IgnorePointer(
