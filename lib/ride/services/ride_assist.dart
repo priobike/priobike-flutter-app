@@ -119,6 +119,7 @@ class RideAssist with ChangeNotifier {
         rideAssistContinuous(phases, qualities, kmh);
         break;
       case RideAssistMode.interval:
+      rideAssistInterval(phases, qualities, kmh);
         break;
       case RideAssistMode.none:
         return;
@@ -134,131 +135,187 @@ class RideAssist with ChangeNotifier {
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
-    // TODO second > phases.length => there can still be a green phase.
-    if (second < phases.length && second < qualities.length && second >= 0) {
-      final phase = phases[second];
-      final quality = qualities[second];
+    Phase phase = Phase.dark;
 
-      // Check if there is a previous value of inGreenPhase.
-      if (inGreenPhase != null) {
-        // Check if there is still a green phase available.
-        if (greenPhaseAvailable(phases)) {
-          // If the phase is green.
-          if (phase == Phase.green) {
-            // If the previous phase was not green.
-            if (!inGreenPhase!) {
-              // Check if the phase is left long enough.
-              if (newPhaseCounter >= newPhaseThreshold) {
-                // Old recommendation and entering green phase window.
-                playSuccess();
-                inGreenPhase = true;
-                newPhaseCounter = 0;
-              } else {
-                // Increment counter.
-                newPhaseCounter += 1;
-              }
-            } else {
-              // Hit the old phase again and therefore reset the counter.
+    // Replace phase if possible.
+    if (second < phases.length && second >= 0) {
+      phase = phases[second];
+    }
+
+    // Check if there is a previous value of inGreenPhase.
+    if (inGreenPhase != null) {
+      // Either in green phase or not.
+      // Check if there is still a green phase available.
+      if (greenPhaseAvailable(phases)) {
+        // If the phase is green.
+        if (phase == Phase.green) {
+          // If the previous phase was not green.
+          if (!inGreenPhase!) {
+            // Check if the phase is left long enough.
+            if (newPhaseCounter >= newPhaseThreshold) {
+              // Old recommendation and entering green phase window.
+              playSuccess();
+              inGreenPhase = true;
               newPhaseCounter = 0;
+            } else {
+              // Increment counter.
+              newPhaseCounter += 1;
             }
           } else {
-            // If the previous phase was green.
-            if (inGreenPhase!) {
-              // Check if the phase is left long enough.
-              if (newPhaseCounter >= newPhaseThreshold) {
-                // Old recommendation and entering green phase window.
-                playInfo();
-                inGreenPhase = false;
-                newPhaseCounter = 0;
-              } else {
-                // Increment counter.
-                newPhaseCounter += 1;
-              }
-            } else {
-              // Hit the old phase again and therefore reset the counter.
-              newPhaseCounter = 0;
-            }
-          }
-        } else {
-          inGreenPhase = null;
-          newPhaseCounter = 0;
-        }
-      } else {
-        if (phase == Phase.green) {
-          // New recommendation and in green window phase.
-          playSuccess();
-          inGreenPhase = true;
-          newPhaseCounter = 0;
-        } else {
-          // New recommendation and not in green window phase.
-          // TODO Check if there is a green Phase.
-          if (greenPhaseAvailable(phases)) {
-            playInfo();
-            inGreenPhase = false;
+            // Hit the old phase again and therefore reset the counter.
             newPhaseCounter = 0;
           }
-          // Message that there is a green phase available.
-          // TODO adjust how good the green phase needs to be.
+        } else {
+          // If the previous phase was green.
+          if (inGreenPhase!) {
+            // Check if the phase is left long enough.
+            if (newPhaseCounter >= newPhaseThreshold) {
+              // Old recommendation and entering green phase window.
+              playInfo();
+              inGreenPhase = false;
+              newPhaseCounter = 0;
+            } else {
+              // Increment counter.
+              newPhaseCounter += 1;
+            }
+          } else {
+            // Hit the old phase again and therefore reset the counter.
+            newPhaseCounter = 0;
+          }
         }
+      } else {
+        inGreenPhase = null;
+        newPhaseCounter = 0;
       }
     } else {
-      log.e("Second outside of phases array.");
+      // Not in any phase yet. Therefore play signal.
+      if (phase == Phase.green) {
+        // New recommendation and in green window phase.
+        playSuccess();
+        inGreenPhase = true;
+        newPhaseCounter = 0;
+      } else {
+        // New recommendation and not in green window phase.
+        // TODO Check if there is a green Phase.
+        if (greenPhaseAvailable(phases)) {
+          playInfo();
+          inGreenPhase = false;
+          newPhaseCounter = 0;
+        }
+        // Message that there is a green phase available.
+      }
     }
   }
 
   /// Ride assist continuous algorithm.
   rideAssistContinuous(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
+    if (kmh < 5) return;
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
-    // TODO second > phases.length => there can still be a green phase.
-    if (second < phases.length && second < qualities.length && second >= 0) {
-      final phase = phases[second];
-      final quality = qualities[second];
+    Phase phase = Phase.dark;
 
-      // If there is no green phase, there is nothing to adjust to.
-      if (greenPhaseAvailable(phases)) {
-        // Check if in green phase reached => do nothing.
-        if (phase == Phase.green) {
-          if (slowLoopRunning || fastLoopRunning) {
+    // Replace phase if possible.
+    if (second < phases.length && second >= 0) {
+      phase = phases[second];
+    }
+
+    // If there is no green phase, there is nothing to adjust to.
+    if (greenPhaseAvailable(phases)) {
+      // Check if in green phase reached => do nothing.
+      if (phase == Phase.green) {
+        if (slowLoopRunning || fastLoopRunning) {
+          stopSignalLoop();
+          slowLoopRunning = false;
+          fastLoopRunning = false;
+        }
+        return;
+      } else {
+        // Decide which phase is closer.
+        int closestPhase = getClosestPhase(phases, second);
+        if (second - closestPhase >= 0) {
+          // Less time needed => drive faster.
+          // Check if slowLoopRunning.
+          if (slowLoopRunning) {
             stopSignalLoop();
             slowLoopRunning = false;
+          }
+          // Start fast loop if not running.
+          if (!fastLoopRunning) {
+            startFasterLoop();
+            fastLoopRunning = true;
+          }
+        } else {
+          // More time needed => drive slower.
+          // Check if fastLoopRunning.
+          if (fastLoopRunning) {
+            stopSignalLoop();
             fastLoopRunning = false;
           }
-          return;
-        } else {
-          // Decide which phase is closer.
-          int closestPhase = getClosestPhase(phases, second);
-          if (second - closestPhase >= 0) {
-            // Less time needed => drive faster.
-            // Check if slowLoopRunning.
-            if (slowLoopRunning) {
-              stopSignalLoop();
-              slowLoopRunning = false;
-            }
-            // Start fast loop if not running.
-            if (!fastLoopRunning) {
-              startFasterLoop();
-              fastLoopRunning = true;
-            }
-          } else {
-            // More time needed => drive slower.
-            // Check if fastLoopRunning.
-            if (fastLoopRunning) {
-              stopSignalLoop();
-              fastLoopRunning = false;
-            }
-            // Start slow loop if not running.
-            if (!slowLoopRunning) {
-              startSlowerLoop();
-              slowLoopRunning = true;
-            }
+          // Start slow loop if not running.
+          if (!slowLoopRunning) {
+            startSlowerLoop();
+            slowLoopRunning = true;
           }
         }
       }
-    } else {
-      log.e("Second outside of phases array.");
+    }
+  }
+
+  /// Ride assist continuous algorithm.
+  rideAssistInterval(List<Phase> phases, List<double> qualities, double kmh) {
+    // Calculate current Phase.
+    if (kmh < 5) return;
+    final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
+
+    // Second in array length.
+    Phase phase = Phase.dark;
+
+    // Replace phase if possible.
+    if (second < phases.length && second >= 0) {
+      phase = phases[second];
+    }
+
+    // If there is no green phase, there is nothing to adjust to.
+    if (greenPhaseAvailable(phases)) {
+      // Check if in green phase reached => do nothing.
+      if (phase == Phase.green) {
+        if (slowLoopRunning || fastLoopRunning) {
+          stopSignalLoop();
+          slowLoopRunning = false;
+          fastLoopRunning = false;
+        }
+        return;
+      } else {
+        // Decide which phase is closer.
+        int closestPhase = getClosestPhase(phases, second);
+        if (second - closestPhase >= 0) {
+          // Less time needed => drive faster.
+          // Check if slowLoopRunning.
+          if (slowLoopRunning) {
+            stopSignalLoop();
+            slowLoopRunning = false;
+          }
+          // Start fast loop if not running.
+          if (!fastLoopRunning) {
+            startFasterLoop();
+            fastLoopRunning = true;
+          }
+        } else {
+          // More time needed => drive slower.
+          // Check if fastLoopRunning.
+          if (fastLoopRunning) {
+            stopSignalLoop();
+            fastLoopRunning = false;
+          }
+          // Start slow loop if not running.
+          if (!slowLoopRunning) {
+            startSlowerLoop();
+            slowLoopRunning = true;
+          }
+        }
+      }
     }
   }
 
