@@ -9,11 +9,17 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
+import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:wearable_communicator/wearable_communicator.dart';
 
-// TODO better audios.
-const audioPath = "sounds/ding.mp3";
+// Audios.
+const audioContinuousFaster = "sounds/continuous_faster.mp3";
+const audioContinuousSlower = "sounds/continuous_slower.mp3";
+const audioIntervalFaster = "sounds/interval_faster.mp3";
+const audioIntervalSlower = "sounds/interval_slower.mp3";
+const audioInfo = "sounds/info.mp3";
+const audioSuccess = "sounds/success.mp3";
 
 /// The threshold for a new phase.
 const int newPhaseThreshold = 2;
@@ -107,8 +113,8 @@ class RideAssist with ChangeNotifier {
 
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
 
-    final phases = ride.predictionComponent!.recommendation!.calcPhasesFromNow;
-    final qualities = ride.predictionComponent!.recommendation!.calcQualitiesFromNow;
+    final phases = ride.predictionComponent!.recommendation?.calcPhasesFromNow ?? [];
+    final qualities = ride.predictionComponent!.recommendation?.calcQualitiesFromNow ?? [];
 
     // Switch between modes.
     switch (settings.rideAssistMode) {
@@ -119,7 +125,7 @@ class RideAssist with ChangeNotifier {
         rideAssistContinuous(phases, qualities, kmh);
         break;
       case RideAssistMode.interval:
-      rideAssistInterval(phases, qualities, kmh);
+        rideAssistInterval(phases, qualities, kmh);
         break;
       case RideAssistMode.none:
         return;
@@ -210,7 +216,11 @@ class RideAssist with ChangeNotifier {
   /// Ride assist continuous algorithm.
   rideAssistContinuous(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
-    if (kmh < 5) return;
+    if (kmh < 5) {
+      reset();
+      return;
+    }
+
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
@@ -234,6 +244,12 @@ class RideAssist with ChangeNotifier {
       } else {
         // Decide which phase is closer.
         int closestPhase = getClosestPhase(phases, second);
+        print("closestPhase");
+        print(closestPhase);
+        print("closestPhase");
+        print("second");
+        print(second);
+        print("second");
         if (second - closestPhase >= 0) {
           // Less time needed => drive faster.
           // Check if slowLoopRunning.
@@ -320,17 +336,19 @@ class RideAssist with ChangeNotifier {
   }
 
   /// Returns the int of the closest green phase (on same distance faster is returned).
-  /// TODO max speed bug.
-  int getClosestPhase(phases, second) {
+  /// TODO find a more suitable solution. Maybe start from 15kmh.
+  int getClosestPhase(List<Phase> phases, int second) {
     for (int i = 0; i < phases.length; i++) {
       // Check in direction second - i.
-      if (second - i >= 0) {
+      if (second - i >= 0 &&
+          second - i < phases.length &&
+          ((ride.calcDistanceToNextSG! * 3.6) / second + i) <= settings.speedMode.maxSpeed) {
         if (phases[second - i] == Phase.green) {
           // Return phase faster.
           return second - i;
         }
       }
-      // Check in direction second + i.
+      // Check in direction second + i. To prevent going for phases outside the maxSpeed.
       if (second + i < phases.length) {
         if (phases[second + i] == Phase.green) {
           // Return phase slower.
@@ -347,8 +365,8 @@ class RideAssist with ChangeNotifier {
       sendOutput("slower");
     } else {
       // Then start timer.
-      timer = Timer.periodic(const Duration(milliseconds: 3000), (timer) {
-        audioPlayer1.play(AssetSource(audioPath));
+      timer = Timer.periodic(const Duration(milliseconds: 2500), (timer) {
+        audioPlayer2.play(AssetSource(audioContinuousSlower));
       });
     }
   }
@@ -359,7 +377,7 @@ class RideAssist with ChangeNotifier {
     } else {
       // Then start timer.
       timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-        audioPlayer1.play(AssetSource(audioPath));
+        audioPlayer1.play(AssetSource(audioContinuousFaster));
       });
     }
   }
@@ -382,6 +400,7 @@ class RideAssist with ChangeNotifier {
   bool greenPhaseAvailable(List<Phase> phases) {
     bool greenPhaseAvailable = false;
     for (int i = 0; i < phases.length; i++) {
+      // TODO Calc > 30kmh
       if (phases[i] == Phase.green) {
         greenPhaseAvailable = true;
       }
@@ -414,15 +433,13 @@ class RideAssist with ChangeNotifier {
   /// Function which plays the success signal in audio.
   Future<void> playPhoneAudioSuccess() async {
     // Audio fast.
-    audioPlayer1.play(AssetSource(audioPath));
-    await Future.delayed(const Duration(milliseconds: 500));
-    audioPlayer2.play(AssetSource(audioPath));
+    audioPlayer1.play(AssetSource(audioSuccess));
   }
 
   /// Function which plays the info signal in audio.
   Future<void> playPhoneAudioInfo() async {
     // Audio fast.
-    audioPlayer1.play(AssetSource(audioPath));
+    audioPlayer1.play(AssetSource(audioInfo));
   }
 
   /// Function which plays the success signal in audio.

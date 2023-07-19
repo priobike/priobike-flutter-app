@@ -10,7 +10,6 @@ import 'package:priobike/main.dart';
 import 'package:priobike/news/services/news.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/privacy/services.dart';
-import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/services/boundary.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/backend.dart';
