@@ -15,7 +15,7 @@ import 'package:wearable_communicator/wearable_communicator.dart';
 
 // Audios.
 const audioContinuousFaster = "sounds/continuous_faster.mp3";
-const audioContinuousSlower = "sounds/continuous_slower.mp3";
+const audioContinuousSlower = "sounds/continuous_slower2.mp3";
 const audioIntervalFaster = "sounds/interval_faster.mp3";
 const audioIntervalSlower = "sounds/interval_slower.mp3";
 const audioInfo = "sounds/info.mp3";
@@ -365,7 +365,8 @@ class RideAssist with ChangeNotifier {
       sendOutput("slower");
     } else {
       // Then start timer.
-      timer = Timer.periodic(const Duration(milliseconds: 2500), (timer) {
+      audioPlayer1.play(AssetSource(audioContinuousSlower));
+      timer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
         audioPlayer2.play(AssetSource(audioContinuousSlower));
       });
     }
@@ -376,8 +377,9 @@ class RideAssist with ChangeNotifier {
       sendOutput("faster");
     } else {
       // Then start timer.
+      audioPlayer1.play(AssetSource(audioContinuousFaster));
       timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-        audioPlayer1.play(AssetSource(audioContinuousFaster));
+        audioPlayer2.play(AssetSource(audioContinuousFaster));
       });
     }
   }

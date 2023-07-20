@@ -9,6 +9,7 @@ import 'package:priobike/ride/interfaces/prediction_component.dart';
 import 'package:priobike/ride/services/hybrid_predictor.dart';
 import 'package:priobike/ride/services/prediction_service.dart';
 import 'package:priobike/ride/services/predictor.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/prediction.dart';
@@ -261,6 +262,7 @@ class Ride with ChangeNotifier {
   Future<void> stopNavigation() async {
     if (predictionComponent != null) predictionComponent!.stopNavigation();
     navigationIsActive = false;
+    getIt<RideAssist>().sendStop();
     onNewPredictionStatusDuringRide = null; // Don't call the callback anymore.
     notifyListeners();
   }
