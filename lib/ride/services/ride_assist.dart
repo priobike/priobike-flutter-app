@@ -8,6 +8,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/routing/models/sg.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -22,7 +23,13 @@ const audioInfo = "sounds/info.mp3";
 const audioSuccess = "sounds/success.mp3";
 
 /// The threshold for a new phase.
-const int newPhaseThreshold = 2;
+const int newPhaseThreshold = 1;
+
+/// The Points where a message should be played if not in window.
+const List<int> messagePoints = [1000, 500, 100, 50];
+
+/// The buffer where messages should not be played before and in turns.
+const int bufferDistTurn = 25;
 
 class RideAssist with ChangeNotifier {
   /// Logger for this class.
@@ -49,6 +56,12 @@ class RideAssist with ChangeNotifier {
 
   /// Bool that holds the state if the slow loop has to be played.
   bool slowLoopRunning = false;
+
+  /// Int that counts how many messages got played by interval method.
+  int messagesPlayedCounter = 0;
+
+  /// SG that is currently selected.
+  Sg? currentSG;
 
   /// The timer used for the signal loops.
   Timer? timer;
@@ -244,12 +257,6 @@ class RideAssist with ChangeNotifier {
       } else {
         // Decide which phase is closer.
         int closestPhase = getClosestPhase(phases, second);
-        print("closestPhase");
-        print(closestPhase);
-        print("closestPhase");
-        print("second");
-        print(second);
-        print("second");
         if (second - closestPhase >= 0) {
           // Less time needed => drive faster.
           // Check if slowLoopRunning.
@@ -282,7 +289,22 @@ class RideAssist with ChangeNotifier {
   /// Ride assist continuous algorithm.
   rideAssistInterval(List<Phase> phases, List<double> qualities, double kmh) {
     // Calculate current Phase.
-    if (kmh < 5) return;
+    // Too less speed.
+    if (kmh < 5 ||
+        !greenPhaseAvailable(phases) ||
+        ride.calcDistanceToNextSG == null ||
+        ride.calcDistanceToNextTurn == null ||
+        ride.calcCurrentSG == null) {
+      reset();
+      return;
+    }
+
+    if (currentSG == null || currentSG != ride.calcCurrentSG) {
+      currentSG = ride.calcCurrentSG;
+      messagesPlayedCounter = 0;
+      //
+    }
+
     final int second = ((ride.calcDistanceToNextSG! * 3.6) / kmh).round();
 
     // Second in array length.
@@ -293,45 +315,69 @@ class RideAssist with ChangeNotifier {
       phase = phases[second];
     }
 
-    // If there is no green phase, there is nothing to adjust to.
-    if (greenPhaseAvailable(phases)) {
-      // Check if in green phase reached => do nothing.
+    void playControlSequence() {
       if (phase == Phase.green) {
-        if (slowLoopRunning || fastLoopRunning) {
-          stopSignalLoop();
-          slowLoopRunning = false;
-          fastLoopRunning = false;
-        }
+        playSuccess();
+        inGreenPhase = true;
+        return;
+      }
+      int closestPhase = getClosestPhase(phases, second);
+      if (second - closestPhase >= 0) {
+        // Less time needed => drive faster.
+        playFaster();
+        inGreenPhase = false;
         return;
       } else {
-        // Decide which phase is closer.
-        int closestPhase = getClosestPhase(phases, second);
-        if (second - closestPhase >= 0) {
-          // Less time needed => drive faster.
-          // Check if slowLoopRunning.
-          if (slowLoopRunning) {
-            stopSignalLoop();
-            slowLoopRunning = false;
-          }
-          // Start fast loop if not running.
-          if (!fastLoopRunning) {
-            startFasterLoop();
-            fastLoopRunning = true;
-          }
-        } else {
-          // More time needed => drive slower.
-          // Check if fastLoopRunning.
-          if (fastLoopRunning) {
-            stopSignalLoop();
-            fastLoopRunning = false;
-          }
-          // Start slow loop if not running.
-          if (!slowLoopRunning) {
-            startSlowerLoop();
-            slowLoopRunning = true;
-          }
-        }
+        // More time needed => drive slower.
+        playSlower();
+        inGreenPhase = false;
+        return;
       }
+    }
+
+    // Initial phase. Play message once.
+    if (messagesPlayedCounter == 0 &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn &&
+        ride.calcDistanceToNextSG! >= messagePoints[0]) {
+      messagesPlayedCounter = 1;
+      playControlSequence();
+      return;
+    }
+
+    // Second phase less then 50m. Play control sequence.
+    if (messagesPlayedCounter <= 4 &&
+        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 1] &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn) {
+      messagesPlayedCounter = 5;
+      playControlSequence();
+      return;
+    }
+
+    // Second phase less then 100m. Play control sequence.
+    if (messagesPlayedCounter <= 3 &&
+        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 2] &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn) {
+      messagesPlayedCounter = 4;
+      playControlSequence();
+      return;
+    }
+
+    // Second phase less then 500m. Play control sequence.
+    if (messagesPlayedCounter <= 2 &&
+        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 3] &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn) {
+      messagesPlayedCounter = 3;
+      playControlSequence();
+      return;
+    }
+
+    // Second phase less then 1000m. Play control sequence.
+    if (messagesPlayedCounter <= 2 &&
+        ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 4] &&
+        ride.calcDistanceToNextTurn! >= bufferDistTurn) {
+      messagesPlayedCounter = 2;
+      playControlSequence();
+      return;
     }
   }
 
@@ -381,6 +427,24 @@ class RideAssist with ChangeNotifier {
       timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
         audioPlayer2.play(AssetSource(audioContinuousFaster));
       });
+    }
+  }
+
+  void playSlower() {
+    if (settings.modalityMode == ModalityMode.vibration) {
+      sendOutput("slower");
+    } else {
+      // Then start timer.
+      audioPlayer1.play(AssetSource(audioIntervalSlower));
+    }
+  }
+
+  void playFaster() {
+    if (settings.modalityMode == ModalityMode.vibration) {
+      sendOutput("faster");
+    } else {
+      // Then start timer.
+      audioPlayer1.play(AssetSource(audioIntervalFaster));
     }
   }
 
@@ -458,6 +522,8 @@ class RideAssist with ChangeNotifier {
     audioPlayer1.stop();
     audioPlayer2.stop();
     newPhaseCounter = 0;
+    messagesPlayedCounter = 0;
+    currentSG = null;
     notifyListeners();
   }
 }
