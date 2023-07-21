@@ -28,6 +28,9 @@ const int newPhaseThreshold = 1;
 /// The Points where a message should be played if not in window.
 const List<int> messagePoints = [1000, 500, 100, 50];
 
+/// The Margins for the message points.
+const List<int> messagePointMargins = [600, 150, 60];
+
 /// The buffer where messages should not be played before and in turns.
 const int bufferDistTurn = 25;
 
@@ -356,6 +359,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 100m. Play control sequence.
     if (messagesPlayedCounter <= 3 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 2] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 1] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 4;
       playControlSequence();
@@ -365,6 +369,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 500m. Play control sequence.
     if (messagesPlayedCounter <= 2 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 3] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 2] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 3;
       playControlSequence();
@@ -374,6 +379,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 1000m. Play control sequence.
     if (messagesPlayedCounter <= 2 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 4] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 3] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 2;
       playControlSequence();
