@@ -10,6 +10,7 @@ import 'package:priobike/home/models/shortcut.dart';
 import 'package:priobike/home/services/profile.dart';
 import 'package:priobike/home/services/shortcuts.dart';
 import 'package:priobike/home/views/nav.dart';
+import 'package:priobike/home/views/poi/your_bike.dart';
 import 'package:priobike/home/views/profile.dart';
 import 'package:priobike/home/views/shortcuts/edit.dart';
 import 'package:priobike/home/views/shortcuts/import.dart';
@@ -318,6 +319,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ],
                     ),
                   ),
+                  const VSpace(),
+                  const BlendIn(
+                    delay: Duration(milliseconds: 750),
+                    child: YourBikeView(),
+                  ),
+                  const VSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 750),
                     child: ProfileView(),

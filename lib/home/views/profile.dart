@@ -175,6 +175,20 @@ class ProfileViewState extends State<ProfileView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BoldContent(text: "Profil", context: context),
+                  const SizedBox(height: 4),
+                  Small(text: "Deine persönlichen Präferenzen", context: context),
+                ],
+              ),
+            ],
+          ),
+          const VSpace(),
           const TutorialView(
             id: "priobike.tutorial.configure-profile",
             text:
