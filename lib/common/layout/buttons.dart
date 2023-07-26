@@ -262,7 +262,7 @@ class IconTextButton extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SizedBox(width: 2),
             if (icon != null)
@@ -273,14 +273,11 @@ class IconTextButton extends StatelessWidget {
             SizedBox(width: icon != null ? 2 : 0),
             Flexible(
               child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
-                  ),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor ?? Colors.white, fontSize: 14),
                 ),
               ),
             ),
