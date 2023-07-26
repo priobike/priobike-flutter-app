@@ -10,7 +10,8 @@ import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
 
-Widget poiListIcon(BuildContext context, POIResult poi) {
+/// A POI list element.
+Widget poiListElement(BuildContext context, POIElement poi) {
   return Material(
     child: InkWell(
       splashColor: Theme.of(context).colorScheme.primary,
@@ -53,9 +54,11 @@ Widget poiListIcon(BuildContext context, POIResult poi) {
                   ),
                 ),
                 const SmallVSpace(),
-                poi.distance >= 1000
-                    ? (Small(text: "${(poi.distance / 1000).toStringAsFixed(1)} km von dir entfernt", context: context))
-                    : (Small(text: "${poi.distance.toStringAsFixed(0)} m von dir entfernt", context: context)),
+                if (poi.distance != null)
+                  poi.distance! >= 1000
+                      ? (Small(
+                          text: "${(poi.distance! / 1000).toStringAsFixed(1)} km von dir entfernt", context: context))
+                      : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von dir entfernt", context: context)),
               ],
             ),
             Padding(
@@ -72,30 +75,32 @@ Widget poiListIcon(BuildContext context, POIResult poi) {
   );
 }
 
-Widget nearbyResultsList(BuildContext context, List<POIResult> results) {
-  return results.isEmpty
-      ? Padding(
-          padding: const EdgeInsets.all(16),
-          child: BoldContent(
-            text: "Lädt..",
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground,
-          ),
-        )
-      : Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: ListView.separated(
-            padding: const EdgeInsets.all(0),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: results.length,
-            itemBuilder: (context, index) => poiListIcon(
-              context,
-              results[index],
-            ),
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-          ),
-        );
+/// A list of POI elements.
+Widget nearbyResultsList(BuildContext context, List<POIElement> results) {
+  if (results.isEmpty) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: BoldContent(
+        text: "Keine Ergebnisse",
+        context: context,
+        color: Theme.of(context).colorScheme.onBackground,
+      ),
+    );
+  }
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: ListView.separated(
+      padding: const EdgeInsets.all(0),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: results.length,
+      itemBuilder: (context, index) => poiListElement(
+        context,
+        results[index],
+      ),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+    ),
+  );
 }
 
 class NearbyRentResultsList extends StatefulWidget {
@@ -106,8 +111,8 @@ class NearbyRentResultsList extends StatefulWidget {
 }
 
 class NearbyRentResultsListState extends State<NearbyRentResultsList> {
-  /// The associated your bike service, which is injected by the provider.
-  late POI yourBikeService;
+  /// The associated poi service, which is injected by the provider.
+  late POI poi;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -115,19 +120,19 @@ class NearbyRentResultsListState extends State<NearbyRentResultsList> {
   @override
   void initState() {
     super.initState();
-    yourBikeService = getIt<POI>();
-    yourBikeService.addListener(update);
+    poi = getIt<POI>();
+    poi.addListener(update);
   }
 
   @override
   void dispose() {
-    yourBikeService.removeListener(update);
+    poi.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final rentResults = yourBikeService.rentalResults;
+    final rentResults = poi.rentalResults;
 
     return nearbyResultsList(context, rentResults);
   }
@@ -141,8 +146,8 @@ class NearbyPumpUpResultsList extends StatefulWidget {
 }
 
 class NearbyPumpUpResultsListState extends State<NearbyPumpUpResultsList> {
-  /// The associated your bike service, which is injected by the provider.
-  late POI yourBikeService;
+  /// The associated poi service, which is injected by the provider.
+  late POI poi;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -150,19 +155,19 @@ class NearbyPumpUpResultsListState extends State<NearbyPumpUpResultsList> {
   @override
   void initState() {
     super.initState();
-    yourBikeService = getIt<POI>();
-    yourBikeService.addListener(update);
+    poi = getIt<POI>();
+    poi.addListener(update);
   }
 
   @override
   void dispose() {
-    yourBikeService.removeListener(update);
+    poi.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final pumpUpResults = yourBikeService.bikeAirResults;
+    final pumpUpResults = poi.bikeAirResults;
 
     return nearbyResultsList(context, pumpUpResults);
   }
@@ -176,8 +181,8 @@ class NearbyRepairResultsList extends StatefulWidget {
 }
 
 class NearbyRepairResultsListState extends State<NearbyRepairResultsList> {
-  /// The associated your bike service, which is injected by the provider.
-  late POI yourBikeService;
+  /// The associated poi service, which is injected by the provider.
+  late POI poi;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
   void update() => setState(() {});
@@ -185,19 +190,19 @@ class NearbyRepairResultsListState extends State<NearbyRepairResultsList> {
   @override
   void initState() {
     super.initState();
-    yourBikeService = getIt<POI>();
-    yourBikeService.addListener(update);
+    poi = getIt<POI>();
+    poi.addListener(update);
   }
 
   @override
   void dispose() {
-    yourBikeService.removeListener(update);
+    poi.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final repairResults = yourBikeService.repairResults;
+    final repairResults = poi.repairResults;
 
     return nearbyResultsList(context, repairResults);
   }

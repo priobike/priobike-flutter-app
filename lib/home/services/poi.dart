@@ -10,28 +10,25 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/settings/models/backend.dart';
 import 'package:priobike/settings/services/settings.dart';
 
-class POIResult {
-  final String name;
-  final double distance;
-  final double lon;
-  final double lat;
-  POIResult({
-    required this.name,
-    required this.distance,
-    required this.lon,
-    required this.lat,
-  });
-}
-
+/// A POI element.
 class POIElement {
+  /// The name of the POI.
   final String name;
+
+  /// The longitude of the POI.
   final double lon;
+
+  /// The latitude of the POI.
   final double lat;
+
+  /// The distance of the user to the POI.
+  final double? distance;
 
   POIElement({
     required this.name,
     required this.lon,
     required this.lat,
+    this.distance,
   });
 }
 
@@ -42,17 +39,34 @@ class POI with ChangeNotifier {
   /// The distance model.
   static const vincenty = Distance(roundResult: false);
 
-  List<POIResult> rentalResults = [];
-  List<POIResult> bikeAirResults = [];
-  List<POIResult> repairResults = [];
+  /// The nearest rental stations.
+  List<POIElement> rentalResults = [];
 
+  /// The nearest bike air stations.
+  List<POIElement> bikeAirResults = [];
+
+  /// The nearest repair stations.
+  List<POIElement> repairResults = [];
+
+  /// All rental stations.
   final List<POIElement> _allRentalElements = List.empty(growable: true);
+
+  /// All bike air stations.
   final List<POIElement> _allBikeAirElements = List.empty(growable: true);
+
+  /// All repair stations.
   final List<POIElement> _allRepairElements = List.empty(growable: true);
 
+  /// If the user has denied the position permission.
   var positionPermissionDenied = false;
+
+  /// If an error occured during the fetch.
   var errorDuringFetch = false;
 
+  /// If the service is currently loading data.
+  var loading = false;
+
+  /// Get all rental POI elements.
   Future<void> _fetchRentalData() async {
     try {
       final data = await _fetchData("/map-data/bicycle_rental.geojson");
@@ -75,6 +89,7 @@ class POI with ChangeNotifier {
     }
   }
 
+  /// Get all bike air POI elements.
   Future<void> _fetchBikeAirData() async {
     try {
       final data = await _fetchData("/map-data/bike_air_station.geojson");
@@ -97,6 +112,7 @@ class POI with ChangeNotifier {
     }
   }
 
+  /// Get all bike repair POI elements.
   Future<void> _fetchRepairData() async {
     try {
       final data = await _fetchData("/map-data/bicycle_shop.geojson");
@@ -119,6 +135,7 @@ class POI with ChangeNotifier {
     }
   }
 
+  /// A method which is used to fetch the POI data from the backend.
   Future<dynamic> _fetchData(String relativeUrl) async {
     final settings = getIt<Settings>();
     final baseUrl = settings.backend.path;
@@ -132,11 +149,11 @@ class POI with ChangeNotifier {
       throw Exception(err);
     }
 
-    return await json.decode(response.body);
+    return await json.decode(utf8.decode(response.bodyBytes));
   }
 
-  Future<List<POIResult>> _getClosest(List<POIElement> allElements) async {
-    positionPermissionDenied = false;
+  /// Returns the closest POI elements given a list with all available elements.
+  Future<List<POIElement>> _getClosest(List<POIElement> allElements) async {
     final positioning = getIt<Positioning>();
     await positioning.requestSingleLocation(onNoPermission: () => positionPermissionDenied = true);
     if (positionPermissionDenied) {
@@ -148,9 +165,9 @@ class POI with ChangeNotifier {
       return [];
     }
 
-    const resultCount = 3;
+    var resultCount = 3;
 
-    final List<POIResult> results = [];
+    final List<POIElement> results = [];
     for (var i = 0; i < allElements.length; i++) {
       final element = allElements[i];
       final distance = vincenty.distance(
@@ -164,7 +181,7 @@ class POI with ChangeNotifier {
         ),
       );
       results.add(
-        POIResult(
+        POIElement(
           name: element.name,
           distance: distance,
           lon: element.lon,
@@ -172,43 +189,61 @@ class POI with ChangeNotifier {
         ),
       );
     }
-    results.sort((a, b) => a.distance.compareTo(b.distance));
+    results.sort((a, b) => a.distance!.compareTo(b.distance!));
+    if (results.length < resultCount) {
+      resultCount = results.length;
+    }
     return results.sublist(0, resultCount);
   }
 
+  /// Returns a list with rental stations closest to the user.
   Future<void> getRentalResults() async {
     errorDuringFetch = false;
+    loading = true;
+    positionPermissionDenied = false;
+    notifyListeners();
+
     rentalResults.clear();
     if (_allRentalElements.isEmpty) {
       await _fetchRentalData();
     }
     rentalResults = await _getClosest(_allRentalElements);
-    bikeAirResults.clear();
-    repairResults.clear();
+
+    loading = false;
     notifyListeners();
   }
 
+  /// Returns a list with bike air stations closest to the user.
   Future<void> getBikeAirResults() async {
     errorDuringFetch = false;
+    loading = true;
+    positionPermissionDenied = false;
+    notifyListeners();
+
     bikeAirResults.clear();
     if (_allBikeAirElements.isEmpty) {
       await _fetchBikeAirData();
     }
     bikeAirResults = await _getClosest(_allBikeAirElements);
-    rentalResults.clear();
-    repairResults.clear();
+
+    loading = false;
     notifyListeners();
   }
 
+  /// Returns a list with bike repair stations closest to the user.
   Future<void> getRepairResults() async {
     errorDuringFetch = false;
+    loading = true;
+    positionPermissionDenied = false;
+    notifyListeners();
+
     repairResults.clear();
     if (_allRepairElements.isEmpty) {
       await _fetchRepairData();
     }
     repairResults = await _getClosest(_allRepairElements);
-    rentalResults.clear();
-    bikeAirResults.clear();
+
+    loading = false;
     notifyListeners();
   }
 }

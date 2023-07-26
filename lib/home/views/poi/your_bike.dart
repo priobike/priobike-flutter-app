@@ -192,32 +192,10 @@ class YourBikeViewState extends State<YourBikeView> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                AnimatedCrossFade(
-                  firstCurve: Curves.easeInOutCubic,
-                  secondCurve: Curves.easeInOutCubic,
-                  sizeCurve: Curves.easeInOutCubic,
-                  duration: const Duration(milliseconds: 1000),
-                  firstChild: Container(),
-                  secondChild: const NearbyRentResultsList(),
-                  crossFadeState: rentBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                ),
-                AnimatedCrossFade(
-                  firstCurve: Curves.easeInOutCubic,
-                  secondCurve: Curves.easeInOutCubic,
-                  sizeCurve: Curves.easeInOutCubic,
-                  duration: const Duration(milliseconds: 1000),
-                  firstChild: Container(),
-                  secondChild: const NearbyPumpUpResultsList(),
-                  crossFadeState: pumpUpBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                ),
-                AnimatedCrossFade(
-                  firstCurve: Curves.easeInOutCubic,
-                  secondCurve: Curves.easeInOutCubic,
-                  sizeCurve: Curves.easeInOutCubic,
-                  duration: const Duration(milliseconds: 1000),
-                  firstChild: Container(),
-                  secondChild: const NearbyRepairResultsList(),
-                  crossFadeState: repairBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                MetaListView(
+                  rentBikeActive: rentBikeActive,
+                  pumpUpBikeActive: pumpUpBikeActive,
+                  repairBikeActive: repairBikeActive,
                 ),
               ],
             ),
@@ -225,6 +203,98 @@ class YourBikeViewState extends State<YourBikeView> {
           const VSpace(),
         ],
       ),
+    );
+  }
+}
+
+class MetaListView extends StatefulWidget {
+  final bool rentBikeActive;
+  final bool pumpUpBikeActive;
+  final bool repairBikeActive;
+
+  const MetaListView(
+      {Key? key, required this.rentBikeActive, required this.pumpUpBikeActive, required this.repairBikeActive})
+      : super(key: key);
+
+  @override
+  MetaListViewState createState() => MetaListViewState();
+}
+
+class MetaListViewState extends State<MetaListView> {
+  /// The associated poi service, which is injected by the provider.
+  late POI poi;
+
+  /// Called when a listener callback of a ChangeNotifier is fired.
+  void update() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    poi = getIt<POI>();
+    poi.addListener(update);
+  }
+
+  @override
+  void dispose() {
+    poi.removeListener(update);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var metaText = "Lädt..";
+    if (poi.errorDuringFetch) metaText = "Fehler beim Laden";
+    if (poi.positionPermissionDenied) metaText = "Bitte Standortzugriff erlauben";
+    Widget metaInformation = Padding(
+      padding: const EdgeInsets.all(16),
+      child: BoldContent(
+        text: metaText,
+        context: context,
+        color: Theme.of(context).colorScheme.onBackground,
+      ),
+    );
+
+    final showList = !poi.loading && !poi.errorDuringFetch && !poi.positionPermissionDenied;
+
+    return Column(
+      children: [
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: metaInformation,
+          crossFadeState: !showList ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: const NearbyRentResultsList(),
+          crossFadeState: showList && widget.rentBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: const NearbyPumpUpResultsList(),
+          crossFadeState: showList && widget.pumpUpBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        AnimatedCrossFade(
+          firstCurve: Curves.easeInOutCubic,
+          secondCurve: Curves.easeInOutCubic,
+          sizeCurve: Curves.easeInOutCubic,
+          duration: const Duration(milliseconds: 1000),
+          firstChild: Container(),
+          secondChild: const NearbyRepairResultsList(),
+          crossFadeState: showList && widget.repairBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+      ],
     );
   }
 }
