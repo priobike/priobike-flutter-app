@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide Route;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -49,7 +50,10 @@ class LastTrackViewState extends State<LastTrackView> {
   List<NavigationNode> routeNodes = [];
 
   /// Called when a listener callback of a ChangeNotifier is fired.
-  void update() => setState(() {});
+  Future<void> update() async {
+    await loadRoute();
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -59,7 +63,13 @@ class LastTrackViewState extends State<LastTrackView> {
     tracking.addListener(update);
     settings = getIt<Settings>();
     settings.addListener(update);
-    tracking.loadPreviousTracks();
+
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) async {
+        await tracking.loadPreviousTracks();
+        setState(() {});
+      },
+    );
   }
 
   @override
@@ -88,8 +98,7 @@ class LastTrackViewState extends State<LastTrackView> {
     ));
   }
 
-  /// A callback which is executed when the map style was (re-)loaded.
-  Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
+  Future<void> loadRoute() async {
     if (tracking.previousTracks == null) {
       return;
     }
@@ -99,9 +108,6 @@ class LastTrackViewState extends State<LastTrackView> {
     if (mapController == null) {
       return;
     }
-
-    // Load all symbols that will be displayed on the map.
-    await SymbolLoader(mapController!).loadSymbols();
 
     routeNodes = getDrivenRoute(tracking.previousTracks!.last.routes);
 
@@ -118,6 +124,10 @@ class LastTrackViewState extends State<LastTrackView> {
             id: lineSourceId, data: json.encode({"type": "FeatureCollection", "features": lineGeoJSON})),
       );
       await Future.delayed(const Duration(milliseconds: 1000));
+    } else {
+      final source = await mapController!.style.getSource(lineSourceId);
+      (source as mapbox.GeoJsonSource)
+          .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": lineGeoJSON}));
     }
     final routeLayerExists = await mapController!.style.styleLayerExists(lineLayerId);
     if (!routeLayerExists) {
@@ -142,6 +152,10 @@ class LastTrackViewState extends State<LastTrackView> {
         mapbox.GeoJsonSource(
             id: pointsSourceId, data: json.encode({"type": "FeatureCollection", "features": pointsGeoJSON})),
       );
+    } else {
+      final source = await mapController!.style.getSource(pointsSourceId);
+      (source as mapbox.GeoJsonSource)
+          .updateGeoJSON(json.encode({"type": "FeatureCollection", "features": pointsGeoJSON}));
     }
     final waypointsIconsLayerExists = await mapController!.style.styleLayerExists(pointsLayerId);
     if (!waypointsIconsLayerExists) {
@@ -168,6 +182,15 @@ class LastTrackViewState extends State<LastTrackView> {
     }
 
     await fitCameraToRouteBounds(routeNodes);
+  }
+
+  /// A callback which is executed when the map style was (re-)loaded.
+  Future<void> onStyleLoaded(mapbox.StyleLoadedEventData styleLoadedEventData) async {
+    // Load all symbols that will be displayed on the map.
+    await SymbolLoader(mapController!).loadSymbols();
+
+    // Load the route.
+    await loadRoute();
   }
 
   /// Calculate the padded bounds of this route.
@@ -212,8 +235,6 @@ class LastTrackViewState extends State<LastTrackView> {
   Future<void> fitCameraToRouteBounds(List<NavigationNode> navigationNodes) async {
     if (mapController == null || !mounted) return;
     final frame = MediaQuery.of(context);
-    // The delay is necessary, otherwise sometimes the camera won't move.
-    await Future.delayed(const Duration(milliseconds: 500));
     final currentCameraOptions = await mapController?.getCameraState();
     if (currentCameraOptions == null) return;
 
@@ -359,11 +380,11 @@ class LastTrackViewState extends State<LastTrackView> {
       return Container();
     }
 
-    final lastTrack = tracking.previousTracks!.last;
-    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(lastTrack.startTime);
+    final lastTrackDate = DateTime.fromMillisecondsSinceEpoch(tracking.previousTracks!.last.startTime);
     final lastTrackDateFormatted = DateFormat.yMMMMd("de").format(lastTrackDate);
-    final lastTrackDuration =
-        lastTrack.endTime != null ? Duration(milliseconds: lastTrack.endTime! - lastTrack.startTime) : null;
+    final lastTrackDuration = tracking.previousTracks!.last.endTime != null
+        ? Duration(milliseconds: tracking.previousTracks!.last.endTime! - tracking.previousTracks!.last.startTime)
+        : null;
     final lastTrackDurationFormatted = lastTrackDuration != null ? formatDuration(lastTrackDuration) : null;
 
     // Required when we change the app theme in the settings and afterwards return to this widget
@@ -415,13 +436,43 @@ class LastTrackViewState extends State<LastTrackView> {
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Content(text: '🗓 $lastTrackDateFormatted', context: context),
-                          const SmallVSpace(),
-                          if (lastTrackDuration != null)
-                            Content(
-                              text: '⏱️ $lastTrackDurationFormatted',
-                              context: context,
-                            ),
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Content(
+                                    text: "🗓",
+                                    context: context,
+                                  ),
+                                  if (lastTrackDurationFormatted != null) ...[
+                                    const SmallVSpace(),
+                                    Content(
+                                      text: "⏱️",
+                                      context: context,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SmallHSpace(),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Content(
+                                    text: lastTrackDateFormatted,
+                                    context: context,
+                                  ),
+                                  if (lastTrackDurationFormatted != null) ...[
+                                    const SmallVSpace(),
+                                    Content(
+                                      text: lastTrackDurationFormatted,
+                                      context: context,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
                           const SmallVSpace(),
                           IconTextButton(
                             iconColor: Colors.white,
@@ -432,9 +483,19 @@ class LastTrackViewState extends State<LastTrackView> {
 
                               List<dynamic> waypoints = List.generate(routeNodes.length, (index) {
                                 final routeNode = routeNodes[index];
-                                // Skip those where the direction of the route doesnt change significantly.
+
+                                // Add first and last waypoint.
+                                if (index == 0 || index == routeNodes.length - 1) {
+                                  return Waypoint(
+                                    routeNode.lat,
+                                    routeNode.lon,
+                                    address: "Wegpunkt",
+                                  );
+                                }
+
+                                // Only add those where the direction of the route changes significantly.
                                 // This is to avoid too many waypoints.
-                                const directionThreshold = 10.0;
+                                const directionThreshold = 50.0;
                                 if (index > 1) {
                                   final previousRouteNode = routeNodes[index - 1];
                                   final previousPreviousRouteNode = routeNodes[index - 2];
@@ -447,28 +508,32 @@ class LastTrackViewState extends State<LastTrackView> {
                                     LatLng(previousRouteNode.lat, previousRouteNode.lon),
                                   );
                                   final directionDifference = (direction - previousDirection).abs();
-                                  if (directionDifference < directionThreshold) {
-                                    return null;
+                                  if (directionDifference > directionThreshold) {
+                                    return Waypoint(
+                                      routeNode.lat,
+                                      routeNode.lon,
+                                      address: "Wegpunkt",
+                                    );
                                   }
                                 }
 
                                 // Skip those where the distance to the previous waypoint is too small.
-                                const distanceThreshold = 10.0;
+                                const distanceThreshold = 500.0;
                                 if (index > 0) {
                                   final previousRouteNode = routeNodes[index - 1];
                                   final distance = vincenty.distance(
                                     LatLng(previousRouteNode.lat, previousRouteNode.lon),
                                     LatLng(routeNode.lat, routeNode.lon),
                                   );
-                                  if (distance < distanceThreshold) {
-                                    return null;
+                                  if (distance > distanceThreshold) {
+                                    return Waypoint(
+                                      routeNode.lat,
+                                      routeNode.lon,
+                                      address: "Wegpunkt",
+                                    );
                                   }
                                 }
-                                return Waypoint(
-                                  routeNode.lat,
-                                  routeNode.lon,
-                                  address: "Wegpunkt",
-                                );
+                                return null;
                               });
 
                               // Remove null values from the list.

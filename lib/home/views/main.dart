@@ -31,6 +31,7 @@ import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
 import 'package:priobike/tracking/views/last_track.dart';
+import 'package:priobike/tracking/views/track_history.dart';
 import 'package:priobike/tutorial/service.dart';
 import 'package:priobike/tutorial/view.dart';
 import 'package:priobike/weather/service.dart';
@@ -334,6 +335,19 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     ]),
                   const VSpace(),
                   const LastTrackView(),
+                  const SmallVSpace(),
+                  HPad(
+                    child: BigButton(
+                      iconColor: Colors.white,
+                      label: "Alle Fahrten",
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TrackHistoryView(),
+                        ),
+                      ),
+                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+                    ),
+                  ),
                   const VSpace(),
                   Container(
                     width: double.infinity,
