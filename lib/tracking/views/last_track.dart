@@ -17,13 +17,13 @@ import 'package:priobike/common/map/symbols.dart';
 import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
-import 'package:priobike/routing/models/route.dart';
 import 'package:priobike/routing/models/waypoint.dart';
 import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 
 class LastTrackView extends StatefulWidget {
@@ -80,7 +80,6 @@ class LastTrackViewState extends State<LastTrackView> {
   }
 
   /// Called when the map is created.
-  /// A callback which is executed when the map was created.
   Future<void> onMapCreated(mapbox.MapboxMap controller) async {
     mapController = controller;
     mapController!.gestures.updateSettings(mapbox.GesturesSettings(
@@ -98,6 +97,7 @@ class LastTrackViewState extends State<LastTrackView> {
     ));
   }
 
+  /// Display the route on the map.
   Future<void> loadRoute() async {
     if (tracking.previousTracks == null) {
       return;
@@ -109,7 +109,7 @@ class LastTrackViewState extends State<LastTrackView> {
       return;
     }
 
-    routeNodes = getDrivenRoute(tracking.previousTracks!.last.routes);
+    routeNodes = getPassedNodes(tracking.previousTracks!.last.routes.values.toList(), vincenty);
 
     final lineGeoJSON = getRouteLineGeoJSON(routeNodes);
     final pointsGeoJSON = getRoutePointsGeoJSON(routeNodes);
@@ -193,7 +193,7 @@ class LastTrackViewState extends State<LastTrackView> {
     await loadRoute();
   }
 
-  /// Calculate the padded bounds of this route.
+  /// Calculate the padded bounds of the given nodes.
   mapbox.CoordinateBounds getPaddedBounds(List<NavigationNode> navigationNodes) {
     var maxNorth = 0.0;
     var maxEast = 0.0;
@@ -232,6 +232,7 @@ class LastTrackViewState extends State<LastTrackView> {
         infiniteBounds: false);
   }
 
+  /// Fit the camera to the bounds of the route.
   Future<void> fitCameraToRouteBounds(List<NavigationNode> navigationNodes) async {
     if (mapController == null || !mounted) return;
     final frame = MediaQuery.of(context);
@@ -258,55 +259,7 @@ class LastTrackViewState extends State<LastTrackView> {
     );
   }
 
-  List<NavigationNode> getDrivenRoute(Map<int, Route> routes) {
-    List<NavigationNode> drivenRoute = [];
-
-    // Find reroute locations
-    List<int> rerouteNodeIndices = [];
-    if (routes.values.length > 1) {
-      for (var routeIdx = 0; routeIdx < routes.values.length; routeIdx++) {
-        if (routeIdx >= routes.values.length - 1) {
-          // If it's the last route, we can stop here.
-          break;
-        }
-        final navigationNodes = routes.values.toList()[routeIdx].route;
-        final nextRoutesFirstNavigationNode = routes.values.toList()[routeIdx + 1].route[0];
-        var currentShortestDistance = double.infinity;
-        var currentShortestDistanceIdx = -1;
-        for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
-          final distance = vincenty.distance(
-            LatLng(navigationNodes[navigationNodeIdx].lat, navigationNodes[navigationNodeIdx].lon),
-            LatLng(nextRoutesFirstNavigationNode.lat, nextRoutesFirstNavigationNode.lon),
-          );
-          if (distance < currentShortestDistance) {
-            currentShortestDistance = distance;
-            currentShortestDistanceIdx = navigationNodeIdx;
-          }
-        }
-        rerouteNodeIndices.add(currentShortestDistanceIdx);
-      }
-    }
-
-    // Add points
-    for (var routeIdx = 0; routeIdx < routes.values.length; routeIdx++) {
-      final navigationNodes = routes.values.toList()[routeIdx].route;
-      for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
-        // If it's the last route, add all navigation nodes
-        if (routeIdx >= routes.values.length - 1) {
-          drivenRoute.add(navigationNodes[navigationNodeIdx]);
-        } else {
-          if (navigationNodeIdx == rerouteNodeIndices[routeIdx]) {
-            // Go to next route.
-            break;
-          }
-          drivenRoute.add(navigationNodes[navigationNodeIdx]);
-        }
-      }
-    }
-
-    return drivenRoute;
-  }
-
+  /// Returns the first and last node as GeoJSON points.
   List<dynamic> getRoutePointsGeoJSON(List<NavigationNode> navigationNodes) {
     List<dynamic> features = List.empty(growable: true);
 
@@ -341,6 +294,7 @@ class LastTrackViewState extends State<LastTrackView> {
     return features;
   }
 
+  /// Returns the nodes as a GeoJSON linestring.
   List<dynamic> getRouteLineGeoJSON(List<NavigationNode> navigationNodes) {
     List<dynamic> features = [
       {
@@ -356,19 +310,6 @@ class LastTrackViewState extends State<LastTrackView> {
       features[0]["geometry"]["coordinates"].add([navNode.lon, navNode.lat]);
     }
     return features;
-  }
-
-  String formatDuration(Duration duration) {
-    final seconds = duration.inSeconds;
-    if (seconds < 60) {
-      return "$seconds Sekunden";
-    }
-    if (seconds < 3600) {
-      final minutes = seconds / 60;
-      return "$minutes Minuten";
-    }
-    final hours = seconds / 3600;
-    return "$hours Stunden";
   }
 
   @override
@@ -476,70 +417,9 @@ class LastTrackViewState extends State<LastTrackView> {
                   onPressed: () {
                     HapticFeedback.mediumImpact();
 
-                    List<dynamic> waypoints = List.generate(routeNodes.length, (index) {
-                      final routeNode = routeNodes[index];
+                    List<Waypoint> waypoints = convertNodesToWaypoints(routeNodes, vincenty);
 
-                      // Add first and last waypoint.
-                      if (index == 0 || index == routeNodes.length - 1) {
-                        return Waypoint(
-                          routeNode.lat,
-                          routeNode.lon,
-                          address: "Wegpunkt",
-                        );
-                      }
-
-                      // Only add those where the direction of the route changes significantly.
-                      // This is to avoid too many waypoints.
-                      const directionThreshold = 50.0;
-                      if (index > 1) {
-                        final previousRouteNode = routeNodes[index - 1];
-                        final previousPreviousRouteNode = routeNodes[index - 2];
-                        final direction = vincenty.bearing(
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                          LatLng(routeNode.lat, routeNode.lon),
-                        );
-                        final previousDirection = vincenty.bearing(
-                          LatLng(previousPreviousRouteNode.lat, previousPreviousRouteNode.lon),
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                        );
-                        final directionDifference = (direction - previousDirection).abs();
-                        if (directionDifference > directionThreshold) {
-                          return Waypoint(
-                            routeNode.lat,
-                            routeNode.lon,
-                            address: "Wegpunkt",
-                          );
-                        }
-                      }
-
-                      // Skip those where the distance to the previous waypoint is too small.
-                      const distanceThreshold = 500.0;
-                      if (index > 0) {
-                        final previousRouteNode = routeNodes[index - 1];
-                        final distance = vincenty.distance(
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                          LatLng(routeNode.lat, routeNode.lon),
-                        );
-                        if (distance > distanceThreshold) {
-                          return Waypoint(
-                            routeNode.lat,
-                            routeNode.lon,
-                            address: "Wegpunkt",
-                          );
-                        }
-                      }
-                      return null;
-                    });
-
-                    // Remove null values from the list.
-                    List<Waypoint> filteredWaypoints = [];
-                    for (var waypoint in waypoints) {
-                      if (waypoint != null) {
-                        filteredWaypoints.add(waypoint);
-                      }
-                    }
-
-                    getIt<Routing>().selectWaypoints(filteredWaypoints);
+                    getIt<Routing>().selectWaypoints(waypoints);
 
                     // Pushes the routing view.
                     // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.

@@ -19,6 +19,7 @@ import 'package:priobike/routing/services/discomfort.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/routing/views/main.dart';
 import 'package:priobike/status/services/sg.dart';
+import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
@@ -40,6 +41,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   /// The navigation nodes of the driven route.
   List<List<NavigationNode>> routesNodes = [];
 
+  List<Track> newestTracks = [];
+
   late ui.Image startImage;
   late ui.Image destinationImage;
 
@@ -49,6 +52,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     setState(() {});
   }
 
+  /// Load the routes.
   Future<void> loadRoutes() async {
     if (tracking.previousTracks == null) {
       return;
@@ -57,56 +61,16 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
       return;
     }
 
+    newestTracks.clear();
     routesNodes.clear();
 
-    for (final track in tracking.previousTracks!) {
-      final routes = track.routes;
-      // Find reroute locations
-      List<int> rerouteNodeIndices = [];
-      if (routes.values.length > 1) {
-        for (var routeIdx = 0; routeIdx < routes.values.length; routeIdx++) {
-          if (routeIdx >= routes.values.length - 1) {
-            // If it's the last route, we can stop here.
-            break;
-          }
-          final navigationNodes = routes.values.toList()[routeIdx].route;
-          final nextRoutesFirstNavigationNode = routes.values.toList()[routeIdx + 1].route[0];
-          var currentShortestDistance = double.infinity;
-          var currentShortestDistanceIdx = -1;
-          for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
-            final distance = vincenty.distance(
-              LatLng(navigationNodes[navigationNodeIdx].lat, navigationNodes[navigationNodeIdx].lon),
-              LatLng(nextRoutesFirstNavigationNode.lat, nextRoutesFirstNavigationNode.lon),
-            );
-            if (distance < currentShortestDistance) {
-              currentShortestDistance = distance;
-              currentShortestDistanceIdx = navigationNodeIdx;
-            }
-          }
-          rerouteNodeIndices.add(currentShortestDistanceIdx);
-        }
-      }
+    // Get 10 newest tracks
+    for (var i = tracking.previousTracks!.length - 1; i >= 0 && i > tracking.previousTracks!.length - 11; i--) {
+      newestTracks.add(tracking.previousTracks![i]);
+    }
 
-      List<NavigationNode> drivenRoute = [];
-
-      // Add points
-      for (var routeIdx = 0; routeIdx < routes.values.length; routeIdx++) {
-        final navigationNodes = routes.values.toList()[routeIdx].route;
-        for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
-          // If it's the last route, add all navigation nodes
-          if (routeIdx >= routes.values.length - 1) {
-            drivenRoute.add(navigationNodes[navigationNodeIdx]);
-          } else {
-            if (navigationNodeIdx == rerouteNodeIndices[routeIdx]) {
-              // Go to next route.
-              break;
-            }
-            drivenRoute.add(navigationNodes[navigationNodeIdx]);
-          }
-        }
-      }
-
-      routesNodes.add(drivenRoute);
+    for (final track in newestTracks) {
+      routesNodes.add(getPassedNodes(track.routes.values.toList(), vincenty));
     }
   }
 
@@ -138,19 +102,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   void dispose() {
     tracking.removeListener(update);
     super.dispose();
-  }
-
-  String formatDuration(Duration duration) {
-    final seconds = duration.inSeconds;
-    if (seconds < 60) {
-      return "$seconds Sekunden";
-    }
-    if (seconds < 3600) {
-      final minutes = seconds / 60;
-      return "$minutes Minuten";
-    }
-    final hours = seconds / 3600;
-    return "$hours Stunden";
   }
 
   /// Widget that displays a shortcut.
@@ -277,70 +228,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                   onPressed: () {
                     HapticFeedback.mediumImpact();
 
-                    List<dynamic> waypoints = List.generate(routesNodes[trackIndex].length, (index) {
-                      final routeNode = routesNodes[trackIndex][index];
+                    List<Waypoint> waypoints = convertNodesToWaypoints(routesNodes[trackIndex], vincenty);
 
-                      // Add first and last waypoint.
-                      if (index == 0 || index == routesNodes[trackIndex].length - 1) {
-                        return Waypoint(
-                          routeNode.lat,
-                          routeNode.lon,
-                          address: "Wegpunkt",
-                        );
-                      }
-
-                      // Only add those where the direction of the route changes significantly.
-                      // This is to avoid too many waypoints.
-                      const directionThreshold = 50.0;
-                      if (index > 1) {
-                        final previousRouteNode = routesNodes[trackIndex][index - 1];
-                        final previousPreviousRouteNode = routesNodes[trackIndex][index - 2];
-                        final direction = vincenty.bearing(
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                          LatLng(routeNode.lat, routeNode.lon),
-                        );
-                        final previousDirection = vincenty.bearing(
-                          LatLng(previousPreviousRouteNode.lat, previousPreviousRouteNode.lon),
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                        );
-                        final directionDifference = (direction - previousDirection).abs();
-                        if (directionDifference > directionThreshold) {
-                          return Waypoint(
-                            routeNode.lat,
-                            routeNode.lon,
-                            address: "Wegpunkt",
-                          );
-                        }
-                      }
-
-                      // Skip those where the distance to the previous waypoint is too small.
-                      const distanceThreshold = 500.0;
-                      if (index > 0) {
-                        final previousRouteNode = routesNodes[trackIndex][index - 1];
-                        final distance = vincenty.distance(
-                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                          LatLng(routeNode.lat, routeNode.lon),
-                        );
-                        if (distance > distanceThreshold) {
-                          return Waypoint(
-                            routeNode.lat,
-                            routeNode.lon,
-                            address: "Wegpunkt",
-                          );
-                        }
-                      }
-                      return null;
-                    });
-
-                    // Remove null values from the list.
-                    List<Waypoint> filteredWaypoints = [];
-                    for (var waypoint in waypoints) {
-                      if (waypoint != null) {
-                        filteredWaypoints.add(waypoint);
-                      }
-                    }
-
-                    getIt<Routing>().selectWaypoints(filteredWaypoints);
+                    getIt<Routing>().selectWaypoints(waypoints);
 
                     // Pushes the routing view.
                     // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
@@ -388,12 +278,16 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: tracking.previousTracks!.length,
-                      reverse: true,
+                      itemCount: newestTracks.length,
                       separatorBuilder: (BuildContext context, int index) => const SmallVSpace(),
-                      itemBuilder: (_, int index) => routeListItem(tracking.previousTracks![index], index),
+                      itemBuilder: (_, int index) => routeListItem(newestTracks[index], index),
                     ),
-                  const SmallVSpace(),
+                  const VSpace(),
+                  if (routesNodes.isNotEmpty && newestTracks.length < tracking.previousTracks!.length)
+                    BoldContent(
+                        text: "... und ${tracking.previousTracks!.length - newestTracks.length} weitere.",
+                        context: context),
+                  const VSpace(),
                 ],
               ),
             ),
