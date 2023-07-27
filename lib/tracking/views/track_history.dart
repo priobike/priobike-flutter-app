@@ -164,7 +164,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
       child: Tile(
         fill: Theme.of(context).colorScheme.background,
         content: Row(
+          mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.35,
@@ -225,11 +227,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                 ),
               ),
             ),
-            const HSpace(),
+            const SmallHSpace(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Row(
                   children: [
@@ -268,11 +268,12 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
                     ),
                   ],
                 ),
-                const SmallVSpace(),
+                const VSpace(),
                 IconTextButton(
                   iconColor: Colors.white,
                   icon: Icons.arrow_right_alt_rounded,
                   label: "Erneut fahren",
+                  boxConstraints: const BoxConstraints(minWidth: 170),
                   onPressed: () {
                     HapticFeedback.mediumImpact();
 

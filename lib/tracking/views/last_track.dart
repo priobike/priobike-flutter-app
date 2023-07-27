@@ -397,204 +397,170 @@ class LastTrackViewState extends State<LastTrackView> {
           : mapDesigns.mapDesign.darkStyle);
     }*/
 
-    const height = 200.0;
-    const tileOffset = 16.0;
-
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: height,
-      child: Stack(
-        children: [
-          Transform.translate(
-            offset: const Offset(0, tileOffset),
-            child: HPad(
-              child: SizedBox(
-                height: height - tileOffset,
-                width: MediaQuery.of(context).size.width,
-                child: Tile(
-                  fill: Theme.of(context).colorScheme.background,
-                  content: Row(
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.35,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: AppMap(
-                            onMapCreated: onMapCreated,
-                            onStyleLoaded: onStyleLoaded,
-                            logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
-                            logoViewMargins: const Point(10, 10),
-                            attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
-                            attributionButtonMargins: const Point(0, 5),
-                            styleUri: "mapbox://styles/snrmtths/clg0tmmn2004501p6fv3i6lnp",
-                          ),
-                        ),
-                      ),
-                      const HSpace(),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Content(
-                                    text: "🗓",
-                                    context: context,
-                                  ),
-                                  if (lastTrackDurationFormatted != null) ...[
-                                    const SmallVSpace(),
-                                    Content(
-                                      text: "⏱️",
-                                      context: context,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              const SmallHSpace(),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Content(
-                                    text: lastTrackDateFormatted,
-                                    context: context,
-                                  ),
-                                  if (lastTrackDurationFormatted != null) ...[
-                                    const SmallVSpace(),
-                                    Content(
-                                      text: lastTrackDurationFormatted,
-                                      context: context,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SmallVSpace(),
-                          IconTextButton(
-                            iconColor: Colors.white,
-                            icon: Icons.arrow_right_alt_rounded,
-                            label: "Erneut fahren",
-                            onPressed: () {
-                              HapticFeedback.mediumImpact();
-
-                              List<dynamic> waypoints = List.generate(routeNodes.length, (index) {
-                                final routeNode = routeNodes[index];
-
-                                // Add first and last waypoint.
-                                if (index == 0 || index == routeNodes.length - 1) {
-                                  return Waypoint(
-                                    routeNode.lat,
-                                    routeNode.lon,
-                                    address: "Wegpunkt",
-                                  );
-                                }
-
-                                // Only add those where the direction of the route changes significantly.
-                                // This is to avoid too many waypoints.
-                                const directionThreshold = 50.0;
-                                if (index > 1) {
-                                  final previousRouteNode = routeNodes[index - 1];
-                                  final previousPreviousRouteNode = routeNodes[index - 2];
-                                  final direction = vincenty.bearing(
-                                    LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                                    LatLng(routeNode.lat, routeNode.lon),
-                                  );
-                                  final previousDirection = vincenty.bearing(
-                                    LatLng(previousPreviousRouteNode.lat, previousPreviousRouteNode.lon),
-                                    LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                                  );
-                                  final directionDifference = (direction - previousDirection).abs();
-                                  if (directionDifference > directionThreshold) {
-                                    return Waypoint(
-                                      routeNode.lat,
-                                      routeNode.lon,
-                                      address: "Wegpunkt",
-                                    );
-                                  }
-                                }
-
-                                // Skip those where the distance to the previous waypoint is too small.
-                                const distanceThreshold = 500.0;
-                                if (index > 0) {
-                                  final previousRouteNode = routeNodes[index - 1];
-                                  final distance = vincenty.distance(
-                                    LatLng(previousRouteNode.lat, previousRouteNode.lon),
-                                    LatLng(routeNode.lat, routeNode.lon),
-                                  );
-                                  if (distance > distanceThreshold) {
-                                    return Waypoint(
-                                      routeNode.lat,
-                                      routeNode.lon,
-                                      address: "Wegpunkt",
-                                    );
-                                  }
-                                }
-                                return null;
-                              });
-
-                              // Remove null values from the list.
-                              List<Waypoint> filteredWaypoints = [];
-                              for (var waypoint in waypoints) {
-                                if (waypoint != null) {
-                                  filteredWaypoints.add(waypoint);
-                                }
-                              }
-
-                              getIt<Routing>().selectWaypoints(filteredWaypoints);
-
-                              // Pushes the routing view.
-                              // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
-                              // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
-                              if (context.mounted) {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
-                                  (comingNotFromRoutingView) {
-                                    if (comingNotFromRoutingView == null) {
-                                      getIt<Routing>().reset();
-                                      getIt<Discomforts>().reset();
-                                      getIt<PredictionSGStatus>().reset();
-                                    }
-                                  },
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+    return HPad(
+      child: Tile(
+        fill: Theme.of(context).colorScheme.background,
+        content: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.35,
+              height: MediaQuery.of(context).size.width * 0.35,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AppMap(
+                  onMapCreated: onMapCreated,
+                  onStyleLoaded: onStyleLoaded,
+                  logoViewOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_LEFT,
+                  logoViewMargins: const Point(10, 10),
+                  attributionButtonOrnamentPosition: mapbox.OrnamentPosition.BOTTOM_RIGHT,
+                  attributionButtonMargins: const Point(0, 5),
+                  styleUri: "mapbox://styles/snrmtths/clg0tmmn2004501p6fv3i6lnp",
                 ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Tile(
-              content: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Content(
-                    text: 'Deine letzte Fahrt',
-                    context: context,
-                    color: Colors.white,
-                  ),
-                  const SmallHSpace(),
-                  const Icon(
-                    Icons.directions_bike_rounded,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ],
-              ),
-              fill: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(8),
-              padding: const EdgeInsets.all(12),
-            ),
-          ),
-        ],
+            const SmallHSpace(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BoldContent(
+                  text: "Deine letzte Fahrt",
+                  context: context,
+                ),
+                const SmallVSpace(),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Content(
+                          text: "🗓",
+                          context: context,
+                        ),
+                        if (lastTrackDurationFormatted != null) ...[
+                          const SmallVSpace(),
+                          Content(
+                            text: "⏱️",
+                            context: context,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SmallHSpace(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Content(
+                          text: lastTrackDateFormatted,
+                          context: context,
+                        ),
+                        if (lastTrackDurationFormatted != null) ...[
+                          const SmallVSpace(),
+                          Content(
+                            text: lastTrackDurationFormatted,
+                            context: context,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+                const VSpace(),
+                IconTextButton(
+                  iconColor: Colors.white,
+                  icon: Icons.arrow_right_alt_rounded,
+                  label: "Erneut fahren",
+                  boxConstraints: const BoxConstraints(minWidth: 170),
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+
+                    List<dynamic> waypoints = List.generate(routeNodes.length, (index) {
+                      final routeNode = routeNodes[index];
+
+                      // Add first and last waypoint.
+                      if (index == 0 || index == routeNodes.length - 1) {
+                        return Waypoint(
+                          routeNode.lat,
+                          routeNode.lon,
+                          address: "Wegpunkt",
+                        );
+                      }
+
+                      // Only add those where the direction of the route changes significantly.
+                      // This is to avoid too many waypoints.
+                      const directionThreshold = 50.0;
+                      if (index > 1) {
+                        final previousRouteNode = routeNodes[index - 1];
+                        final previousPreviousRouteNode = routeNodes[index - 2];
+                        final direction = vincenty.bearing(
+                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
+                          LatLng(routeNode.lat, routeNode.lon),
+                        );
+                        final previousDirection = vincenty.bearing(
+                          LatLng(previousPreviousRouteNode.lat, previousPreviousRouteNode.lon),
+                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
+                        );
+                        final directionDifference = (direction - previousDirection).abs();
+                        if (directionDifference > directionThreshold) {
+                          return Waypoint(
+                            routeNode.lat,
+                            routeNode.lon,
+                            address: "Wegpunkt",
+                          );
+                        }
+                      }
+
+                      // Skip those where the distance to the previous waypoint is too small.
+                      const distanceThreshold = 500.0;
+                      if (index > 0) {
+                        final previousRouteNode = routeNodes[index - 1];
+                        final distance = vincenty.distance(
+                          LatLng(previousRouteNode.lat, previousRouteNode.lon),
+                          LatLng(routeNode.lat, routeNode.lon),
+                        );
+                        if (distance > distanceThreshold) {
+                          return Waypoint(
+                            routeNode.lat,
+                            routeNode.lon,
+                            address: "Wegpunkt",
+                          );
+                        }
+                      }
+                      return null;
+                    });
+
+                    // Remove null values from the list.
+                    List<Waypoint> filteredWaypoints = [];
+                    for (var waypoint in waypoints) {
+                      if (waypoint != null) {
+                        filteredWaypoints.add(waypoint);
+                      }
+                    }
+
+                    getIt<Routing>().selectWaypoints(filteredWaypoints);
+
+                    // Pushes the routing view.
+                    // Also handles the reset of services if the user navigates back to the home view after the routing view instead of starting a ride.
+                    // If the routing view is popped after the user navigates to the ride view do not reset the services, because they are being used in the ride view.
+                    if (context.mounted) {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RoutingView())).then(
+                        (comingNotFromRoutingView) {
+                          if (comingNotFromRoutingView == null) {
+                            getIt<Routing>().reset();
+                            getIt<Discomforts>().reset();
+                            getIt<PredictionSGStatus>().reset();
+                          }
+                        },
+                      );
+                    }
+                  },
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

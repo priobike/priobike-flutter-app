@@ -253,6 +253,7 @@ class IconTextButton extends StatelessWidget {
       focusElevation: 0,
       hoverElevation: 0,
       highlightElevation: 0,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       onPressed: onPressed,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(16)),
