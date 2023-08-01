@@ -13,6 +13,7 @@ import 'package:priobike/common/map/view.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/services/settings.dart';
 import 'package:priobike/status/services/sg.dart';
@@ -43,6 +44,9 @@ class RideMapViewState extends State<RideMapView> {
 
   /// The associated ride service, which is injected by the provider.
   late Ride ride;
+
+  /// The associated ride assist service, which is injected by the provider.
+  late RideAssist rideAssist;
 
   /// The associated sg status service, which is injected by the provider.
   late PredictionSGStatus predictionSGStatus;
@@ -101,6 +105,7 @@ class RideMapViewState extends State<RideMapView> {
     positioning.addListener(onPositioningUpdate);
     predictionSGStatus = getIt<PredictionSGStatus>();
     predictionSGStatus.addListener(onStatusUpdate);
+    rideAssist = getIt<RideAssist>();
   }
 
   @override
@@ -260,6 +265,9 @@ class RideMapViewState extends State<RideMapView> {
             pitch: 60,
           ),
           mapbox.MapAnimationOptions(duration: 1500));
+      // Send to ride Assist.
+      // TODO check
+      rideAssist.sendPosition(userPosSnap.position.latitude, userPosSnap.position.longitude, cameraHeading, zoom);
     }
 
     await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {
