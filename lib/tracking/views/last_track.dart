@@ -35,7 +35,7 @@ class LastTrackView extends StatefulWidget {
 
 class LastTrackViewState extends State<LastTrackView> {
   /// The distance model.
-  static const vincenty = Distance(roundResult: false);
+  final vincenty = const Distance(roundResult: false);
 
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;

@@ -167,23 +167,6 @@ class Tracking with ChangeNotifier {
     await prefs.setStringList("priobike.tracking.tracks", json);
   }
 
-  /// Delete a specific track.
-  Future<void> deleteTrack(Track track) async {
-    if (previousTracks == null) return;
-    // Don't delete tracks that are currently being uploaded.
-    if (uploadingTracks.containsKey(track.sessionId)) return;
-    previousTracks!.removeWhere((e) => e.sessionId == track.sessionId);
-    try {
-      // Delete the tracking files.
-      (await track.trackDirectory).delete(recursive: true);
-    } catch (e, stack) {
-      final hint = "Failed to delete the track files: $e $stack";
-      log.e(hint);
-    }
-    await savePreviousTracks();
-    notifyListeners();
-  }
-
   /// Start a new track.
   Future<void> start(double deviceWidth, double deviceHeight) async {
     log.i("Starting a new track.");
@@ -521,7 +504,17 @@ class Tracking with ChangeNotifier {
     log.i("Cleaning up track with id ${track.sessionId}.");
     // Delete the track files.
     final directory = await track.trackDirectory;
-    if (await directory.exists()) await directory.delete(recursive: true);
+    if (await directory.exists()) {
+      final contents = await directory.list().toList();
+      for (final content in contents) {
+        // Delete everything but the GPS file.
+        if (content is! File) {
+          await content.delete(recursive: true);
+        } else if (!content.path.contains("gps")) {
+          await content.delete();
+        }
+      }
+    }
     log.i("Cleaned uploaded files for track with id ${track.sessionId}.");
     track.hasFileData = false;
     previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
@@ -529,6 +522,19 @@ class Tracking with ChangeNotifier {
     await savePreviousTracks();
     notifyListeners();
     return true;
+  }
+
+  /// Delete a specific track.
+  Future<void> deleteTrack(Track track) async {
+    log.i("Deleting track with id ${track.sessionId}.");
+    // Delete the track files.
+    final directory = await track.trackDirectory;
+    if (await directory.exists()) {
+      await directory.delete(recursive: true);
+    }
+    previousTracks?.removeWhere((t) => t.sessionId == track.sessionId);
+    await savePreviousTracks();
+    notifyListeners();
   }
 
   /// Run a timer that periodically sends tracks to the server.

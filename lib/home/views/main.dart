@@ -335,19 +335,19 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                     ]),
                   const VSpace(),
                   const LastTrackView(),
-                  const SmallVSpace(),
-                  HPad(
-                    child: BigButton(
-                      iconColor: Colors.white,
-                      label: "Alle Fahrten",
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const TrackHistoryView(),
-                        ),
+                  const VSpace(),
+                  Row(
+                    children: [
+                      const SizedBox(width: 40),
+                      Content(
+                        text: "Alle Fahrten",
+                        context: context,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                       ),
-                      boxConstraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
-                    ),
+                    ],
                   ),
+                  const SmallVSpace(),
+                  const TrackHistoryView(),
                   const VSpace(),
                   Container(
                     width: double.infinity,
