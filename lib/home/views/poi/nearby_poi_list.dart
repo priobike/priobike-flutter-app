@@ -13,6 +13,8 @@ import 'package:priobike/status/services/sg.dart';
 /// A POI list element.
 Widget poiListElement(BuildContext context, POIElement poi) {
   return Material(
+    color: Theme.of(context).colorScheme.background,
+    borderRadius: BorderRadius.circular(16),
     child: InkWell(
       splashColor: Theme.of(context).colorScheme.primary,
       customBorder: RoundedRectangleBorder(
@@ -37,7 +39,7 @@ Widget poiListElement(BuildContext context, POIElement poi) {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16, right: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -61,12 +63,9 @@ Widget poiListElement(BuildContext context, POIElement poi) {
                       : (Small(text: "${poi.distance!.toStringAsFixed(0)} m von dir entfernt", context: context)),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Icon(
-                Icons.arrow_forward,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+            Icon(
+              Icons.arrow_forward,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),

@@ -278,9 +278,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            BoldContent(text: "Deine Strecken & Orte", context: context),
+                            BoldContent(text: "Navigation", context: context),
                             const SizedBox(height: 4),
-                            Small(text: "Direkt zum Ziel navigieren", context: context),
+                            Small(text: "Deine Strecken und Orte", context: context),
                           ],
                         ),
                         Expanded(child: Container()),
@@ -319,7 +319,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                       ],
                     ),
                   ),
-                  const VSpace(),
                   const BlendIn(
                     delay: Duration(milliseconds: 750),
                     child: YourBikeView(),
