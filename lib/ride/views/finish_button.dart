@@ -92,7 +92,6 @@ class FinishRideButtonState extends State<FinishRideButton> {
     final ride = getIt<Ride>();
     await ride.stopNavigation();
 
-
     // Reset the ride assist service.
     await getIt<RideAssist>().reset();
 

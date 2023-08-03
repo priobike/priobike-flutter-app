@@ -87,7 +87,7 @@ class RideViewState extends State<RideView> {
         final rideAssist = getIt<RideAssist>();
         rideAssist.startListening();
         // rideAssist.sendStart();
-        rideAssist.sendStartStandalone();
+        settings.watchStandalone ? rideAssist.sendStartStandalone() : rideAssist.sendStart();
         // Start geolocating. This must only be executed once.
         await positioning.startGeolocation(
           onNoPermission: () {

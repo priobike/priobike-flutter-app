@@ -102,8 +102,7 @@ class RideAssist with ChangeNotifier {
 
   /// Send play output message to device.
   void sendOutput(String type) {
-    String outputSignal = "${settings.modalityMode.name}-${settings
-        .rideAssistMode.name}-$type";
+    String outputSignal = "${settings.modalityMode.name}-${settings.rideAssistMode.name}-$type";
     WearableCommunicator.sendMessage({
       "play": outputSignal,
     });
@@ -111,14 +110,14 @@ class RideAssist with ChangeNotifier {
 
   /// Send play output message to device.
   void sendPosition(double lat, double lon, double bearing, double zoom) {
-      WearableCommunicator.sendMessage({
-        "updatePosition": {
-          "lat": lat,
-          "lon": lon,
-          "bearing": bearing,
-          "zoom": zoom,
-        },
-      });
+    WearableCommunicator.sendMessage({
+      "updatePosition": {
+        "lat": lat,
+        "lon": lon,
+        "bearing": bearing,
+        "zoom": zoom,
+      },
+    });
   }
 
   /// Send stop message to device.
@@ -152,10 +151,8 @@ class RideAssist with ChangeNotifier {
 
     final double kmh = (positioning.lastPosition?.speed ?? 0.0) * 3.6;
 
-    final phases = ride.predictionComponent!.recommendation
-        ?.calcPhasesFromNow ?? [];
-    final qualities = ride.predictionComponent!.recommendation
-        ?.calcQualitiesFromNow ?? [];
+    final phases = ride.predictionComponent!.recommendation?.calcPhasesFromNow ?? [];
+    final qualities = ride.predictionComponent!.recommendation?.calcQualitiesFromNow ?? [];
 
     // Switch between modes.
     switch (settings.rideAssistMode) {
@@ -384,8 +381,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 100m. Play control sequence.
     if (messagesPlayedCounter <= 3 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 2] &&
-        ride.calcDistanceToNextSG! >=
-            messagePointMargins[messagePointMargins.length - 1] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 1] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 4;
       playControlSequence();
@@ -395,8 +391,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 500m. Play control sequence.
     if (messagesPlayedCounter <= 2 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 3] &&
-        ride.calcDistanceToNextSG! >=
-            messagePointMargins[messagePointMargins.length - 2] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 2] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 3;
       playControlSequence();
@@ -406,8 +401,7 @@ class RideAssist with ChangeNotifier {
     // Second phase less then 1000m. Play control sequence.
     if (messagesPlayedCounter <= 2 &&
         ride.calcDistanceToNextSG! <= messagePoints[messagePoints.length - 4] &&
-        ride.calcDistanceToNextSG! >=
-            messagePointMargins[messagePointMargins.length - 3] &&
+        ride.calcDistanceToNextSG! >= messagePointMargins[messagePointMargins.length - 3] &&
         ride.calcDistanceToNextTurn! >= bufferDistTurn) {
       messagesPlayedCounter = 2;
       playControlSequence();
@@ -422,8 +416,7 @@ class RideAssist with ChangeNotifier {
       // Check in direction second - i.
       if (second - i >= 0 &&
           second - i < phases.length &&
-          ((ride.calcDistanceToNextSG! * 3.6) / second + i) <=
-              settings.speedMode.maxSpeed) {
+          ((ride.calcDistanceToNextSG! * 3.6) / second + i) <= settings.speedMode.maxSpeed) {
         if (phases[second - i] == Phase.green) {
           // Return phase faster.
           return second - i;

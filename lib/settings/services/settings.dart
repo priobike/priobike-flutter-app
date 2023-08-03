@@ -75,6 +75,9 @@ class Settings with ChangeNotifier {
   /// The selected modality mode
   ModalityMode modalityMode;
 
+  /// The selected watch mode.
+  bool watchStandalone;
+
   static const enablePerformanceOverlayKey = "priobike.settings.enablePerformanceOverlay";
   static const defaultEnablePerformanceOverlay = false;
 
@@ -414,27 +417,43 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  Settings(
-    this.backend, {
-    this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
-    this.didViewWarning = defaultDidViewWarning,
-    this.predictionMode = defaultPredictionMode,
-    this.positioningMode = defaultPositioningMode,
-    this.routingEndpoint = defaultRoutingEndpoint,
-    this.sgLabelsMode = defaultSGLabelsMode,
-    this.speedMode = defaultSpeedMode,
-    this.colorMode = defaultColorMode,
-    this.datastreamMode = defaultDatastreamMode,
-    this.connectionErrorCounter = defaultConnectionErrorCounter,
-    this.sgSelector = defaultSGSelector,
-    this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
-    this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
-    this.useCounter = defaultUseCounter,
-    this.dismissedSurvey = defaultDismissedSurvey,
-    this.enableGamification = defaultEnableGamification,
-    this.rideAssistMode = defaultRideAssistMode,
-    this.modalityMode = defaultModalityMode,
-  });
+  static const watchStandaloneKey = "priobike.settings.enablePerformanceOverlay";
+  static const defaultWatchStandalone = false;
+
+  Future<bool> setWatchStandalone(bool watchStandalone, [SharedPreferences? storage]) async {
+    storage ??= await SharedPreferences.getInstance();
+    final prev = this.watchStandalone;
+    this.watchStandalone = watchStandalone;
+    bool success = await storage.setBool(watchStandaloneKey, watchStandalone);
+    if (!success) {
+      log.e("Failed to set watchStandalone to $watchStandalone");
+      this.watchStandalone = prev;
+    } else {
+      notifyListeners();
+    }
+    return success;
+  }
+
+  Settings(this.backend,
+      {this.enablePerformanceOverlay = defaultEnablePerformanceOverlay,
+      this.didViewWarning = defaultDidViewWarning,
+      this.predictionMode = defaultPredictionMode,
+      this.positioningMode = defaultPositioningMode,
+      this.routingEndpoint = defaultRoutingEndpoint,
+      this.sgLabelsMode = defaultSGLabelsMode,
+      this.speedMode = defaultSpeedMode,
+      this.colorMode = defaultColorMode,
+      this.datastreamMode = defaultDatastreamMode,
+      this.connectionErrorCounter = defaultConnectionErrorCounter,
+      this.sgSelector = defaultSGSelector,
+      this.trackingSubmissionPolicy = defaultTrackingSubmissionPolicy,
+      this.saveBatteryModeEnabled = defaultSaveBatteryModeEnabled,
+      this.useCounter = defaultUseCounter,
+      this.dismissedSurvey = defaultDismissedSurvey,
+      this.enableGamification = defaultEnableGamification,
+      this.rideAssistMode = defaultRideAssistMode,
+      this.modalityMode = defaultModalityMode,
+      this.watchStandalone = defaultWatchStandalone});
 
   /// Load the beta settings from the shared preferences.
   Future<void> loadBetaSettings(SharedPreferences storage) async {
@@ -561,5 +580,6 @@ class Settings with ChangeNotifier {
         "enableGamification": enableGamification,
         "rideAssistMode": rideAssistMode.name,
         "modalityMode": modalityMode.name,
+        "watchStandalone": watchStandalone
       };
 }
