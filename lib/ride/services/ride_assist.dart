@@ -9,6 +9,7 @@ import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
 import 'package:priobike/routing/models/sg.dart';
+import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
@@ -40,6 +41,7 @@ class RideAssist with ChangeNotifier {
 
   final positioning = getIt<Positioning>();
   final ride = getIt<Ride>();
+  final routing = getIt<Routing>();
   final settings = getIt<Settings>();
 
   final AudioPlayer audioPlayer1 = AudioPlayer();
@@ -85,8 +87,17 @@ class RideAssist with ChangeNotifier {
   /// Send start signal to device.
   void sendStart() {
     WearableCommunicator.sendMessage({
-      "startNavigationStandalone": true,
+      "startNavigation": true,
     });
+  }
+
+  /// Send start signal to device in standalone mode.
+  void sendStartStandalone() {
+    if (routing.selectedRoute != null) {
+      WearableCommunicator.sendMessage({
+        "startNavigationStandalone": routing.selectedRoute!.route.map((e) => [e.lon, e.lat]).toList(),
+      });
+    }
   }
 
   /// Send play output message to device.
