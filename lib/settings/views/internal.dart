@@ -200,6 +200,14 @@ class InternalSettingsViewState extends State<InternalSettingsView> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: SettingsElement(
+                    title: "Tutorial (TODO)",
+                    icon: Icons.tv,
+                    callback: () => {},
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SettingsElement(
                     title: "Standalone",
                     icon: settings.watchStandalone ? Icons.check_box : Icons.check_box_outline_blank,
                     callback: () => settings.setWatchStandalone(!settings.watchStandalone),
