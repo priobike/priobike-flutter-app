@@ -8,8 +8,8 @@ import 'package:priobike/routing/models/navigation.dart';
 class RoutePictogram extends StatefulWidget {
   final List<NavigationNode> route;
 
-  final Image startImage;
-  final Image destinationImage;
+  final Image? startImage;
+  final Image? destinationImage;
 
   const RoutePictogram({
     Key? key,
@@ -106,8 +106,8 @@ class RoutePainter extends CustomPainter {
   final double fraction;
   final double blurRadius;
   final List<NavigationNode> route;
-  final Image startImage;
-  final Image destinationImage;
+  final Image? startImage;
+  final Image? destinationImage;
 
   RoutePainter({
     required this.fraction,
@@ -223,18 +223,22 @@ class RoutePainter extends CustomPainter {
     final xFirst = (pFirst.lon - minLon) / (maxLon - minLon) * size.width;
     final yFirst = (pFirst.lat - maxLat) / (minLat - maxLat) * size.height;
 
-    paintImage(
-        canvas: canvas,
-        rect: Rect.fromCenter(center: Offset(xFirst, yFirst), width: 20, height: 20),
-        image: startImage);
+    if (startImage != null) {
+      paintImage(
+          canvas: canvas,
+          rect: Rect.fromCenter(center: Offset(xFirst, yFirst), width: 10, height: 10),
+          image: startImage!);
+    }
     final pLast = routeToDraw.last;
     final xLast = (pLast.lon - minLon) / (maxLon - minLon) * size.width;
     final yLast = (pLast.lat - maxLat) / (minLat - maxLat) * size.height;
 
-    paintImage(
-        canvas: canvas,
-        rect: Rect.fromCenter(center: Offset(xLast, yLast), width: 20, height: 20),
-        image: destinationImage);
+    if (destinationImage != null) {
+      paintImage(
+          canvas: canvas,
+          rect: Rect.fromCenter(center: Offset(xLast, yLast), width: 10, height: 10),
+          image: destinationImage!);
+    }
   }
 
   @override

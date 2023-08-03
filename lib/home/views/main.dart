@@ -30,6 +30,7 @@ import 'package:priobike/status/services/sg.dart';
 import 'package:priobike/status/services/status_history.dart';
 import 'package:priobike/status/services/summary.dart';
 import 'package:priobike/status/views/status_tabs.dart';
+import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/last_track.dart';
 import 'package:priobike/tracking/views/track_history.dart';
 import 'package:priobike/tutorial/service.dart';
@@ -336,15 +337,31 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver, RouteAw
                   const VSpace(),
                   const LastTrackView(),
                   const VSpace(),
-                  Row(
-                    children: [
-                      const SizedBox(width: 40),
-                      Content(
-                        text: "Alle Fahrten",
-                        context: context,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                      ),
-                    ],
+                  BlendIn(
+                    delay: const Duration(milliseconds: 250),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 40),
+                        Content(
+                          text: "Deine letzten Fahrten",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                        ),
+                        Expanded(child: Container()),
+                        IconTextButton(
+                          label: "Alle anzeigen",
+                          fillColor: Theme.of(context).colorScheme.background,
+                          splashColor: Colors.white,
+                          borderColor: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withOpacity(0.08)
+                              : Colors.black.withOpacity(0.08),
+                          textColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                          onPressed: () => Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
+                        ),
+                        const SizedBox(width: 24),
+                      ],
+                    ),
                   ),
                   const SmallVSpace(),
                   const TrackHistoryView(),

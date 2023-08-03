@@ -129,6 +129,9 @@ class Tracking with ChangeNotifier {
   /// The timer used to sample the sensor data.
   Timer? sensorSamplingTimer;
 
+  /// The key for the tracks in the shared preferences.
+  static const tracksKey = "priobike.tracking.tracks";
+
   Tracking();
 
   /// Set the current tracking submission policy.
@@ -139,7 +142,7 @@ class Tracking with ChangeNotifier {
   /// Load previous tracks from the shared preferences.
   Future<void> loadPreviousTracks() async {
     final prefs = await SharedPreferences.getInstance();
-    final json = prefs.getStringList("priobike.tracking.tracks");
+    final json = prefs.getStringList(tracksKey);
     if (json == null) {
       previousTracks = [];
     } else {
