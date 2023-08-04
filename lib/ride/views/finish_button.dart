@@ -90,6 +90,8 @@ class FinishRideButtonState extends State<FinishRideButton> {
     // End the recommendations.
     final ride = getIt<Ride>();
     await ride.stopNavigation();
+    // Remove last route since the ride continues.
+    ride.removeLastRoute();
 
     // Stop the geolocation.
     final position = getIt<Positioning>();

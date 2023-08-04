@@ -30,7 +30,7 @@ class RideView extends StatefulWidget {
   State<StatefulWidget> createState() => RideViewState();
 }
 
-class RideViewState extends State<RideView> with WidgetsBindingObserver {
+class RideViewState extends State<RideView> {
   /// The distance in meters at which a new route is requested.
   static double rerouteDistance = 50;
 
@@ -60,13 +60,14 @@ class RideViewState extends State<RideView> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addObserver(this);
-
     settings = getIt<Settings>();
     settings.addListener(update);
 
     routing = getIt<Routing>();
     ride = getIt<Ride>();
+
+    // Save current route if the app crashes or the user unintentionally closes it.
+    ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
@@ -203,25 +204,8 @@ class RideViewState extends State<RideView> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // TODO add background service for gps.
-
-      // Set lastRoute if app is paused.
-      if (routing.selectedWaypoints != null && routing.selectedRoute != null) {
-        ride.setLastRoute(routing.selectedWaypoints!, routing.selectedRoute!.id);
-      }
-    }
-    if (state == AppLifecycleState.resumed) {
-      // Remove last route since the ride continues.
-      ride.removeLastRoute();
-    }
-  }
-
-  @override
   void dispose() {
     settings.removeListener(update);
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

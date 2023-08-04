@@ -10,7 +10,7 @@ void showSaveShortcutSheet(BuildContext context, ShortcutRoute shortcut) {
   final shortcuts = GetIt.instance.get<Shortcuts>();
   showDialog(
     context: context,
-    builder: (_) {
+    builder: (dialogContext) {
       final nameController = TextEditingController();
       return AlertDialog(
         contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
@@ -44,9 +44,9 @@ void showSaveShortcutSheet(BuildContext context, ShortcutRoute shortcut) {
               }
               shortcut.name = name;
               await shortcuts.saveNewShortcutObject(shortcut);
-              ToastMessage.showSuccess("Route gespeichert!");
-              if (context.mounted) {
-                Navigator.pop(context);
+              if (dialogContext.mounted) {
+                // Need to use dialogContext so that pop works.
+                Navigator.of(dialogContext).pop();
               }
             },
             child: BoldContent(
