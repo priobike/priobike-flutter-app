@@ -9,9 +9,11 @@ import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
+import 'package:priobike/main.dart';
 import 'package:priobike/routing/models/navigation.dart';
 import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
+import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 
 class TrackHistoryItemView extends StatefulWidget {
@@ -78,19 +80,51 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          constraints: BoxConstraints(minWidth: widget.width, maxWidth: widget.width),
-          padding: EdgeInsets.only(right: widget.rightPad, bottom: 24),
-          child: Tile(
-            shadow: const Color.fromARGB(255, 0, 0, 0),
-            shadowIntensity: 0.08,
-            padding: const EdgeInsets.all(4),
-            content: Stack(children: [
+    final Widget menu = SizedBox(
+      height: 110,
+      width: widget.width,
+      child: Tile(
+        fill: Theme.of(context).colorScheme.background,
+        showShadow: false,
+        padding: const EdgeInsets.all(8),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconTextButton(
+              iconColor: Colors.white,
+              icon: Icons.info_outline_rounded,
+              label: "Details",
+              onPressed: () {},
+            ),
+            IconTextButton(
+              iconColor: Colors.white,
+              icon: Icons.delete_rounded,
+              label: "Löschen",
+              onPressed: () {
+                setState(() {
+                  expanded = false;
+                });
+                getIt<Tracking>().deleteTrack(widget.track);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return Container(
+      alignment: Alignment.centerLeft,
+      width: widget.width,
+      padding: EdgeInsets.only(right: widget.rightPad, bottom: 24),
+      child: Tile(
+        shadow: const Color.fromARGB(255, 0, 0, 0),
+        shadowIntensity: 0.08,
+        padding: const EdgeInsets.all(4),
+        content: SizedBox(
+          height: 160,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
               Positioned.fill(
                 child: Container(
                   foregroundDecoration: BoxDecoration(
@@ -126,116 +160,128 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: SizedBox(
-                  height: widget.height,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "$day.",
-                            style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              foreground: Paint()
-                                ..shader = const LinearGradient(
-                                  colors: [
-                                    CI.blue,
-                                    CI.blueLight,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(const Rect.fromLTWH(0.0, 0.0, 90.0, 90.0)),
-                            ),
-                          ),
-                          const SmallHSpace(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 9,
-                              ),
-                              Text(
-                                "$monthName\n${year.toString()}",
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  height: 1.2,
-                                ),
-                              ),
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "$day.",
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        height: 0.9,
+                        foreground: Paint()
+                          ..shader = const LinearGradient(
+                            colors: [
+                              CI.blue,
+                              CI.blueLight,
                             ],
-                          ),
-                          IconButton(
-                            onPressed: () => toggleExpanded(),
-                            icon: Icon(
-                              Icons.more_vert_rounded,
-                              size: 22,
-                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                            ),
-                          ),
-                        ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 90.0, 90.0)),
                       ),
-                      Expanded(child: Container()),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          trackDurationFormatted != null
-                              ? Text(
-                                  trackDurationFormatted,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    height: 1.2,
-                                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                                  ),
-                                )
-                              : Container(),
-                          routeNodes.isNotEmpty
-                              ? Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: SizedBox(
-                                    height: widget.width * 0.3,
-                                    width: widget.width * 0.3,
-                                    child: RoutePictogram(
-                                      route: routeNodes,
-                                      startImage: widget.startImage,
-                                      destinationImage: widget.destinationImage,
-                                    ),
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ],
+                    ),
+                    const SmallHSpace(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "$monthName\n${year.toString()}",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (trackDurationFormatted != null)
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  child: Text(
+                    trackDurationFormatted,
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.2,
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              const Positioned(
+                bottom: 10,
+                right: 10,
+                child: Text(
+                  "Route",
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: CI.blue,
                   ),
                 ),
               ),
-            ]),
-            fill: Theme.of(context).colorScheme.background,
-            splash: Theme.of(context).colorScheme.primary,
+              if (routeNodes.isNotEmpty)
+                Positioned(
+                  bottom: 10,
+                  right: 20,
+                  child: SizedBox(
+                    height: widget.width * 0.3,
+                    width: widget.width * 0.3,
+                    child: RoutePictogram(
+                      route: routeNodes,
+                      startImage: widget.startImage,
+                      destinationImage: widget.destinationImage,
+                    ),
+                  ),
+                ),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 400),
+                opacity: expanded ? 1 : 0,
+                curve: Curves.easeInOut,
+                child: menu,
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  ),
+                  child: expanded
+                      ? IconButton(
+                          key: const ValueKey("close"),
+                          onPressed: () => toggleExpanded(),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            size: 22,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                          ),
+                        )
+                      : IconButton(
+                          key: const ValueKey("more"),
+                          onPressed: () => toggleExpanded(),
+                          icon: Icon(
+                            Icons.more_vert_rounded,
+                            size: 22,
+                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                          ),
+                        ),
+                ),
+              ),
+            ],
           ),
         ),
-        AnimatedCrossFade(
-          firstCurve: Curves.easeInOutCubic,
-          secondCurve: Curves.easeInOutCubic,
-          sizeCurve: Curves.easeInOutCubic,
-          duration: const Duration(milliseconds: 1000),
-          firstChild: Container(),
-          secondChild: IconTextButton(
-            iconColor: Colors.white,
-            icon: Icons.delete_rounded,
-            label: "Löschen",
-            boxConstraints: const BoxConstraints(minWidth: 170),
-            onPressed: () {},
-          ),
-          crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-      ],
+        fill: Theme.of(context).colorScheme.background,
+        splash: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 }

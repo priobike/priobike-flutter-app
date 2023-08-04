@@ -123,7 +123,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 16;
+    const double shortcutRightPad = 0;
     final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
     final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
 
@@ -135,7 +135,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
             track: track,
             width: shortcutWidth,
             height: shortcutHeight,
-            rightPad: 0,
+            rightPad: shortcutRightPad,
             vincenty: vincenty,
             startImage: startImage,
             destinationImage: destinationImage,
@@ -186,6 +186,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                               mainAxisSpacing: 8,
                               crossAxisCount: 2,
                               physics: const NeverScrollableScrollPhysics(),
+                              childAspectRatio: 0.85,
                               children: animatedViews,
                             )
                           : Content(
@@ -195,10 +196,17 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                     ),
                     const VSpace(),
                     if (usedDiskSpace != null)
-                      Content(
-                        text: "${usedDiskSpace!} Speicher belegt",
-                        context: context,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                      HPad(
+                        child: BlendIn(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOutCubic,
+                            delay: Duration(milliseconds: 200 * animatedViews.length),
+                            child: Content(
+                              text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                              context: context,
+                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                              textAlign: TextAlign.center,
+                            )),
                       ),
                     const VSpace(),
                   ],

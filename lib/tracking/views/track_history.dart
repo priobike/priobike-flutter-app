@@ -6,10 +6,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/animation.dart';
+import 'package:priobike/common/layout/buttons.dart';
+import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/main.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
+import 'package:priobike/tracking/views/all_track_history.dart';
 import 'package:priobike/tracking/views/track_history_item.dart';
 
 class TrackHistoryView extends StatefulWidget {
@@ -57,8 +60,8 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
     newestTracks.clear();
 
-    // Get 10 newest tracks
-    for (var i = tracking.previousTracks!.length - 1; i >= 0 && i > tracking.previousTracks!.length - 11; i--) {
+    // Get max. 10 newest tracks
+    for (var i = tracking.previousTracks!.length - 2; i >= 0 && i > tracking.previousTracks!.length - 11; i--) {
       newestTracks.add(tracking.previousTracks![i]);
     }
   }
@@ -112,17 +115,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     }
 
     if (newestTracks.isEmpty) {
-      return SizedBox(
-        height: 70,
-        child: Align(
-          alignment: Alignment.center,
-          child: Content(
-            text: "Keine Fahrten gespeichert.",
-            context: context,
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
-          ),
-        ),
-      );
+      return Container();
     }
 
     List<Widget> views = [
@@ -148,7 +141,9 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
             .toList() ??
         [];
 
-    if (newestTracks.length < tracking.previousTracks!.length) {
+    // Show a hint for the other tracks if there are more than 10.
+    // We need "+ 1" because the newest track in the larger view above is not in the newestTracks list.
+    if ((newestTracks.length + 1) < tracking.previousTracks!.length) {
       views.add(
         Align(
           alignment: Alignment.center,
@@ -177,10 +172,41 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         )
         .toList();
 
-    return SingleChildScrollView(
-      controller: scrollController,
-      scrollDirection: Axis.horizontal,
-      child: Row(children: animatedViews),
+    return Column(
+      children: [
+        BlendIn(
+          delay: const Duration(milliseconds: 250),
+          child: Row(
+            children: [
+              const SizedBox(width: 40),
+              Content(
+                text: "Vorherige Fahrten",
+                context: context,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+              ),
+              Expanded(child: Container()),
+              IconTextButton(
+                label: "Alle anzeigen",
+                fillColor: Theme.of(context).colorScheme.background,
+                splashColor: Colors.white,
+                borderColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.black.withOpacity(0.08),
+                textColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                onPressed: () =>
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllTracksHistoryView())),
+              ),
+              const SizedBox(width: 24),
+            ],
+          ),
+        ),
+        const SmallVSpace(),
+        SingleChildScrollView(
+          controller: scrollController,
+          scrollDirection: Axis.horizontal,
+          child: Row(children: animatedViews),
+        )
+      ],
     );
   }
 }

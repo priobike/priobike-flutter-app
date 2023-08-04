@@ -11,11 +11,17 @@ class RoutePictogram extends StatefulWidget {
   final Image? startImage;
   final Image? destinationImage;
 
+  final double lineWidth;
+
+  final double iconSize;
+
   const RoutePictogram({
     Key? key,
     required this.route,
     required this.startImage,
     required this.destinationImage,
+    this.lineWidth = 3.0,
+    this.iconSize = 10,
   }) : super(key: key);
 
   @override
@@ -58,6 +64,8 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
                 blurRadius: 2,
                 startImage: widget.startImage,
                 destinationImage: widget.destinationImage,
+                lineWidth: widget.lineWidth,
+                iconSize: widget.iconSize,
               ),
             ),
           ),
@@ -74,6 +82,8 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
                 blurRadius: 2,
                 startImage: widget.startImage,
                 destinationImage: widget.destinationImage,
+                lineWidth: widget.lineWidth,
+                iconSize: widget.iconSize,
               ),
             ),
           ),
@@ -87,6 +97,8 @@ class RoutePictogramState extends State<RoutePictogram> with SingleTickerProvide
               blurRadius: 0,
               startImage: widget.startImage,
               destinationImage: widget.destinationImage,
+              lineWidth: widget.lineWidth,
+              iconSize: widget.iconSize,
             ),
           ),
         ),
@@ -109,18 +121,23 @@ class RoutePainter extends CustomPainter {
   final Image? startImage;
   final Image? destinationImage;
 
+  final double lineWidth;
+  final double iconSize;
+
   RoutePainter({
     required this.fraction,
     required this.blurRadius,
     required this.route,
     required this.startImage,
     required this.destinationImage,
+    required this.lineWidth,
+    required this.iconSize,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..strokeWidth = 3
+      ..strokeWidth = lineWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
     if (blurRadius > 0) {
@@ -226,7 +243,7 @@ class RoutePainter extends CustomPainter {
     if (startImage != null) {
       paintImage(
           canvas: canvas,
-          rect: Rect.fromCenter(center: Offset(xFirst, yFirst), width: 10, height: 10),
+          rect: Rect.fromCenter(center: Offset(xFirst, yFirst), width: iconSize, height: iconSize),
           image: startImage!);
     }
     final pLast = routeToDraw.last;
@@ -236,7 +253,7 @@ class RoutePainter extends CustomPainter {
     if (destinationImage != null) {
       paintImage(
           canvas: canvas,
-          rect: Rect.fromCenter(center: Offset(xLast, yLast), width: 10, height: 10),
+          rect: Rect.fromCenter(center: Offset(xLast, yLast), width: iconSize, height: iconSize),
           image: destinationImage!);
     }
   }
