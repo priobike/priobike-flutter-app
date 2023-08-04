@@ -114,6 +114,7 @@ class RouteDetailsBottomSheetState extends State<RouteDetailsBottomSheet> {
 
     final removedWaypoints = routing.selectedWaypoints!.toList();
     removedWaypoints.removeAt(index);
+    routing.waypointRemoved = true;
 
     routing.selectWaypoints(removedWaypoints);
     routing.loadRoutes();

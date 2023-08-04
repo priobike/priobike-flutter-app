@@ -134,6 +134,9 @@ class Routing with ChangeNotifier {
   /// All routes, if they were fetched.
   List<r.Route>? allRoutes;
 
+  /// Holds the state whether a waypoint was removed previously.
+  bool waypointRemoved = false;
+
   Routing({
     this.fetchedWaypoints,
     this.selectedWaypoints,
@@ -201,6 +204,7 @@ class Routing with ChangeNotifier {
     selectedWaypoints = null;
     selectedRoute = null;
     allRoutes = null;
+    waypointRemoved = false;
     notifyListeners();
   }
 
@@ -354,6 +358,14 @@ class Routing with ChangeNotifier {
     notifyListeners();
 
     if (selectedWaypoints!.length < 2) {
+      // Waypoint got removed and therefore don't add a new waypoint.
+      if (waypointRemoved) {
+        hadErrorDuringFetch = false;
+        isFetchingRoute = false;
+        waypointRemoved = false;
+        notifyListeners();
+        return null;
+      }
       // Get the last position as the start point.
       if (getIt<Positioning>().lastPosition != null) {
         selectedWaypoints = [

@@ -301,6 +301,7 @@ class RoutingViewState extends State<RoutingView> {
                             onPressed: () async {
                               if (routing!.selectedWaypoints != null && routing!.selectedWaypoints!.isNotEmpty) {
                                 routing!.selectedWaypoints!.removeLast();
+                                routing!.waypointRemoved = true;
                               } else {
                                 log.e("Tried to delete last waypoint, but there is no waypoint to delete");
                               }
