@@ -468,6 +468,7 @@ class Settings with ChangeNotifier {
   Future<void> loadInternalSettings(SharedPreferences storage) async {
     enablePerformanceOverlay = storage.getBool(enablePerformanceOverlayKey) ?? defaultEnablePerformanceOverlay;
     didViewWarning = storage.getBool(didViewWarningKey) ?? defaultDidViewWarning;
+    watchStandalone = storage.getBool(watchStandaloneKey) ?? defaultWatchStandalone;
 
     try {
       backend = Backend.values.byName(storage.getString(backendKey)!);

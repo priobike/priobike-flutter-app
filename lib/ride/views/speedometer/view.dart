@@ -91,11 +91,11 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     // Load the gauge colors and steps, from the predictor.
     loadGauge(ride);
 
+    setState(() {});
+
     if (settings.watchStandalone) {
       rideAssist.sendGaugeData(gaugeColors, gaugeStops);
     }
-
-    setState(() {});
   }
 
   /// Update the layout of the speedometer.

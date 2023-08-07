@@ -129,20 +129,18 @@ class RideAssist with ChangeNotifier {
 
   /// Send Gauge data to watch.
   void sendGaugeData(List<Color> gaugeColors, List<double> gaugeStops) {
-  print("-----------------------------------------");
-  print(gaugeColors);
-  print(gaugeColors.length);
-  print(gaugeStops);
-  print(gaugeStops.length);
-  print("-----------------------------------------");
+    List<double> gaugeStopsCopy = [...gaugeStops];
+    if (gaugeStopsCopy.contains(double.infinity)) {
+      gaugeStopsCopy.remove(double.infinity);
+    }
+
     WearableCommunicator.sendMessage({
       "gaugeData": {
-        "gaugeColors": gaugeColors.map((e) => e.value).toList(),
-        "gaugeStops": gaugeStops,
+        "gaugeColors": gaugeColors.map((e) => [e.red, e.green, e.blue]).toList(),
+        "gaugeStops": gaugeStopsCopy
       }
     });
   }
-
 
   /// Update the position.
   Future<void> updatePosition() async {
