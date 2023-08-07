@@ -244,7 +244,7 @@ class MetaListViewState extends State<MetaListView> {
           sizeCurve: Curves.easeInOutCubic,
           duration: const Duration(milliseconds: 1000),
           firstChild: Container(),
-          secondChild: const NearbyRentResultsList(),
+          secondChild: NearbyResultsList(results: poi.rentalResults),
           crossFadeState: showList && widget.rentBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         ),
         AnimatedCrossFade(
@@ -253,7 +253,7 @@ class MetaListViewState extends State<MetaListView> {
           sizeCurve: Curves.easeInOutCubic,
           duration: const Duration(milliseconds: 1000),
           firstChild: Container(),
-          secondChild: const NearbyPumpUpResultsList(),
+          secondChild: NearbyResultsList(results: poi.bikeAirResults),
           crossFadeState: showList && widget.pumpUpBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         ),
         AnimatedCrossFade(
@@ -262,7 +262,7 @@ class MetaListViewState extends State<MetaListView> {
           sizeCurve: Curves.easeInOutCubic,
           duration: const Duration(milliseconds: 1000),
           firstChild: Container(),
-          secondChild: const NearbyRepairResultsList(),
+          secondChild: NearbyResultsList(results: poi.repairResults),
           crossFadeState: showList && widget.repairBikeActive ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         ),
       ],

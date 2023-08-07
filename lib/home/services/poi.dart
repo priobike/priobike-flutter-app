@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/http.dart';
@@ -153,18 +154,7 @@ class POI with ChangeNotifier {
   }
 
   /// Returns the closest POI elements given a list with all available elements.
-  Future<List<POIElement>> _getClosest(List<POIElement> allElements) async {
-    final positioning = getIt<Positioning>();
-    await positioning.requestSingleLocation(onNoPermission: () => positionPermissionDenied = true);
-    if (positionPermissionDenied) {
-      return [];
-    }
-    final lastPosition = positioning.lastPosition;
-    if (lastPosition == null) {
-      errorDuringFetch = true;
-      return [];
-    }
-
+  Future<List<POIElement>> _getClosest(List<POIElement> allElements, Position lastPosition) async {
     var resultCount = 3;
 
     final List<POIElement> results = [];
@@ -203,11 +193,25 @@ class POI with ChangeNotifier {
     positionPermissionDenied = false;
     notifyListeners();
 
+    final positioning = getIt<Positioning>();
+    await positioning.requestSingleLocation(onNoPermission: () => positionPermissionDenied = true);
+    if (positionPermissionDenied) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+    final lastPosition = positioning.lastPosition;
+    if (lastPosition == null) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+
     rentalResults.clear();
     if (_allRentalElements.isEmpty) {
       await _fetchRentalData();
     }
-    rentalResults = await _getClosest(_allRentalElements);
+    rentalResults = await _getClosest(_allRentalElements, lastPosition);
 
     loading = false;
     notifyListeners();
@@ -220,11 +224,25 @@ class POI with ChangeNotifier {
     positionPermissionDenied = false;
     notifyListeners();
 
+    final positioning = getIt<Positioning>();
+    await positioning.requestSingleLocation(onNoPermission: () => positionPermissionDenied = true);
+    if (positionPermissionDenied) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+    final lastPosition = positioning.lastPosition;
+    if (lastPosition == null) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+
     bikeAirResults.clear();
     if (_allBikeAirElements.isEmpty) {
       await _fetchBikeAirData();
     }
-    bikeAirResults = await _getClosest(_allBikeAirElements);
+    bikeAirResults = await _getClosest(_allBikeAirElements, lastPosition);
 
     loading = false;
     notifyListeners();
@@ -237,11 +255,25 @@ class POI with ChangeNotifier {
     positionPermissionDenied = false;
     notifyListeners();
 
+    final positioning = getIt<Positioning>();
+    await positioning.requestSingleLocation(onNoPermission: () => positionPermissionDenied = true);
+    if (positionPermissionDenied) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+    final lastPosition = positioning.lastPosition;
+    if (lastPosition == null) {
+      errorDuringFetch = true;
+      notifyListeners();
+      return;
+    }
+
     repairResults.clear();
     if (_allRepairElements.isEmpty) {
       await _fetchRepairData();
     }
-    repairResults = await _getClosest(_allRepairElements);
+    repairResults = await _getClosest(_allRepairElements, lastPosition);
 
     loading = false;
     notifyListeners();
