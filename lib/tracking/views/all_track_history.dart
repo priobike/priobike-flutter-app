@@ -183,7 +183,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
                               shrinkWrap: true,
                               crossAxisSpacing: 8,
                               padding: EdgeInsets.zero,
-                              mainAxisSpacing: 8,
+                              mainAxisSpacing: 0,
                               crossAxisCount: 2,
                               physics: const NeverScrollableScrollPhysics(),
                               childAspectRatio: 0.85,

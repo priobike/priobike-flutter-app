@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/ci.dart';
+import 'package:priobike/common/layout/modal.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/tiles.dart';
 import 'package:priobike/main.dart';
@@ -15,6 +16,7 @@ import 'package:priobike/tracking/algorithms/converter.dart';
 import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/services/tracking.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
+import 'package:priobike/tracking/views/track_details.dart';
 
 class TrackHistoryItemView extends StatefulWidget {
   final Track track;
@@ -94,7 +96,10 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               iconColor: Colors.white,
               icon: Icons.info_outline_rounded,
               label: "Details",
-              onPressed: () {},
+              onPressed: () => showAppSheet(
+                context: context,
+                builder: (context) => TrackDetailsDialog(track: widget.track),
+              ),
             ),
             IconTextButton(
               iconColor: Colors.white,
