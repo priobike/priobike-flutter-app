@@ -417,7 +417,7 @@ class Settings with ChangeNotifier {
     return success;
   }
 
-  static const watchStandaloneKey = "priobike.settings.enablePerformanceOverlay";
+  static const watchStandaloneKey = "priobike.settings.watchStandalone";
   static const defaultWatchStandalone = false;
 
   Future<bool> setWatchStandalone(bool watchStandalone, [SharedPreferences? storage]) async {

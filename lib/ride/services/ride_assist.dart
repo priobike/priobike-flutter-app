@@ -127,6 +127,23 @@ class RideAssist with ChangeNotifier {
     });
   }
 
+  /// Send Gauge data to watch.
+  void sendGaugeData(List<Color> gaugeColors, List<double> gaugeStops) {
+  print("-----------------------------------------");
+  print(gaugeColors);
+  print(gaugeColors.length);
+  print(gaugeStops);
+  print(gaugeStops.length);
+  print("-----------------------------------------");
+    WearableCommunicator.sendMessage({
+      "gaugeData": {
+        "gaugeColors": gaugeColors.map((e) => e.value).toList(),
+        "gaugeStops": gaugeStops,
+      }
+    });
+  }
+
+
   /// Update the position.
   Future<void> updatePosition() async {
     // Check ride active.

@@ -9,6 +9,7 @@ import 'package:priobike/main.dart';
 import 'package:priobike/positioning/services/positioning.dart';
 import 'package:priobike/ride/messages/prediction.dart';
 import 'package:priobike/ride/services/ride.dart';
+import 'package:priobike/ride/services/ride_assist.dart';
 import 'package:priobike/ride/views/center_buttons.dart';
 import 'package:priobike/ride/views/speedometer/alert.dart';
 import 'package:priobike/ride/views/speedometer/background.dart';
@@ -20,6 +21,7 @@ import 'package:priobike/ride/views/speedometer/ticks.dart';
 import 'package:priobike/ride/views/trafficlight.dart';
 import 'package:priobike/routing/services/routing.dart';
 import 'package:priobike/settings/models/prediction.dart';
+import 'package:priobike/settings/models/ride_assist.dart';
 import 'package:priobike/settings/models/speed.dart';
 import 'package:priobike/settings/services/settings.dart';
 
@@ -51,6 +53,9 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
   /// The associated routing service, which is injected by the provider.
   late Routing routing;
 
+  /// The associated routing service, which is injected by the provider.
+  late RideAssist rideAssist;
+
   /// The default gauge color for the speedometer.
   static const defaultGaugeColor = Color.fromARGB(0, 0, 0, 0);
 
@@ -74,7 +79,8 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     if (routing.hadErrorDuringFetch) return;
 
     // Fetch the maximum speed from the settings service.
-    maxSpeed = getIt<Settings>().speedMode.maxSpeed;
+    Settings settings = getIt<Settings>();
+    maxSpeed = settings.speedMode.maxSpeed;
 
     // Animate the speed to the new value.
     final kmh = (positioning.lastPosition?.speed ?? 0.0 / maxSpeed) * 3.6;
@@ -84,6 +90,10 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     speedAnimationController.animateTo(pct, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
     // Load the gauge colors and steps, from the predictor.
     loadGauge(ride);
+
+    if (settings.watchStandalone) {
+      rideAssist.sendGaugeData(gaugeColors, gaugeStops);
+    }
 
     setState(() {});
   }
@@ -116,6 +126,7 @@ class RideSpeedometerViewState extends State<RideSpeedometerView> with TickerPro
     routing.addListener(updateLayout);
     ride = getIt<Ride>();
     ride.addListener(updateLayout);
+    rideAssist = getIt<RideAssist>();
 
     updateSpeedometer();
   }
