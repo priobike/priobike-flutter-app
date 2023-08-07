@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:priobike/common/layout/buttons.dart';
 import 'package:priobike/common/layout/spacing.dart';
 import 'package:priobike/common/layout/text.dart';
 import 'package:priobike/game/colors.dart';
@@ -36,63 +35,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
   void dispose() {
     statistics.removeListener(update);
     super.dispose();
-  }
-
-  Widget renderInfoDialogBox() {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.95),
-      title: BoldContent(text: "Fahrtstatistiken", context: context),
-      content: Content(
-          text:
-              "Beim gezeigten CO2-Wert handelt es sich um eine Schätzung anhand deiner gefahrenen Distanz im Vergleich zu dem durchschnittlichen CO2-Ausstoß von 118,7 g/km bei neuzugelassenen Personenkraftwagen in Deutschland (Daten: Statista.com, 2021). Der tatsächliche CO2-Ausstoß kann je nach Fahrzeug und Fahrweise abweichen.",
-          context: context),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text("Alles klar"),
-        ),
-      ],
-    );
-  }
-
-  Widget renderRideStats() {
-    return Row(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          padding: EdgeInsets.only(top: paddingStats, bottom: paddingStats),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BoldContent(text: "PrioBike Challenge", context: context),
-              const SizedBox(height: 4),
-              Small(text: "Dein aktueller Fortschritt", context: context),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Container(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              width: 48,
-              height: 48,
-              child: SmallIconButton(
-                icon: Icons.info_outline_rounded,
-                fill: Theme.of(context).colorScheme.background,
-                splash: Colors.white,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => renderInfoDialogBox(),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   Widget renderCo2Stats() {
@@ -223,7 +165,6 @@ class TotalStatisticsViewState extends State<TotalStatisticsView> {
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
-            renderRideStats(),
             renderCo2Stats(),
             renderDistanceStats(),
             renderDurationStats(),
