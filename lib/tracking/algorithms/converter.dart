@@ -17,7 +17,7 @@ List<Waypoint> convertNodesToWaypoints(List<NavigationNode> nodes, Distance vinc
       );
     }
 
-    // Only add those where the direction of the route changes significantly.
+    // Add those where the direction of the route changes significantly.
     // This is to avoid too many waypoints.
     const directionThreshold = 50.0;
     if (index > 1) {
@@ -41,7 +41,7 @@ List<Waypoint> convertNodesToWaypoints(List<NavigationNode> nodes, Distance vinc
       }
     }
 
-    // Skip those where the distance to the previous waypoint is too small.
+    // Also add those were the distance to the previous waypoint is greater than a threshold.
     const distanceThreshold = 500.0;
     if (index > 0) {
       final previousRouteNode = nodes[index - 1];
@@ -57,6 +57,7 @@ List<Waypoint> convertNodesToWaypoints(List<NavigationNode> nodes, Distance vinc
         );
       }
     }
+
     return null;
   });
 
@@ -99,6 +100,8 @@ List<NavigationNode> getPassedNodes(List<Route> routes, Distance vincenty) {
       }
       final navigationNodes = routes.toList()[routeIdx].route;
       final nextRoutesFirstNavigationNode = routes.toList()[routeIdx + 1].route[0];
+
+      // Find the navigation node that is closest to the first navigation node of the next route.
       var currentShortestDistance = double.infinity;
       var currentShortestDistanceIdx = -1;
       for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
@@ -111,11 +114,13 @@ List<NavigationNode> getPassedNodes(List<Route> routes, Distance vincenty) {
           currentShortestDistanceIdx = navigationNodeIdx;
         }
       }
+
+      // The navigation node that is closest to the first navigation node of the next route is the reroute location.
       rerouteNodeIndices.add(currentShortestDistanceIdx);
     }
   }
 
-  // Add points
+  // Add points until the index of the reroute location is reached.
   for (var routeIdx = 0; routeIdx < routes.length; routeIdx++) {
     final navigationNodes = routes.toList()[routeIdx].route;
     for (var navigationNodeIdx = 0; navigationNodeIdx < navigationNodes.length; navigationNodeIdx++) {
