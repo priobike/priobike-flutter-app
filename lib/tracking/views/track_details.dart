@@ -349,8 +349,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                             child: TrackPictogram(
                               key: GlobalKey(),
                               track: positions,
-                              minSpeedColor: CI.blueLight,
-                              maxSpeedColor: CI.blue,
+                              minSpeedColor: CI.blue,
+                              maxSpeedColor: CI.blueLight,
                             ),
                           ),
                         ],
