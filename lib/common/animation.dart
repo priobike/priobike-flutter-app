@@ -32,7 +32,7 @@ class BlendInState extends State<BlendIn> with SingleTickerProviderStateMixin {
   /// The animation used to animate the opacity.
   late Animation<double> animation;
 
-  /// The future.
+  /// The future which is used to delay the animation.
   late Future future;
 
   @override
