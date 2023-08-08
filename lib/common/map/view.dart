@@ -60,9 +60,6 @@ class AppMap extends StatefulWidget {
   /// If the energy saving mode should be used.
   final bool saveBatteryModeEnabled;
 
-  /// A style URI
-  final String? styleUri;
-
   const AppMap(
       {this.onMapCreated,
       this.onStyleLoaded,
@@ -74,7 +71,6 @@ class AppMap extends StatefulWidget {
       this.logoViewOrnamentPosition,
       this.attributionButtonMargins,
       this.attributionButtonOrnamentPosition,
-      this.styleUri,
       this.saveBatteryModeEnabled = false,
       Key? key})
       : super(key: key);
@@ -122,10 +118,9 @@ class AppMapState extends State<AppMap> {
       resourceOptions: mapbox.ResourceOptions(
           accessToken: "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA"),
       key: const ValueKey("mapbox-map"),
-      styleUri: widget.styleUri ??
-          (Theme.of(context).colorScheme.brightness == Brightness.light
-              ? mapDesigns.mapDesign.lightStyle
-              : mapDesigns.mapDesign.darkStyle),
+      styleUri: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? mapDesigns.mapDesign.lightStyle
+          : mapDesigns.mapDesign.darkStyle,
       onMapCreated: onMapCreated,
       onStyleLoadedListener: widget.onStyleLoaded,
       onTapListener: widget.onMapTap,
