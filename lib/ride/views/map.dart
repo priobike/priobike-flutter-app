@@ -266,8 +266,9 @@ class RideMapViewState extends State<RideMapView> {
           ),
           mapbox.MapAnimationOptions(duration: 1500));
       // Send to ride Assist.
-      // TODO check
-      rideAssist.sendPosition(userPosSnap.position.latitude, userPosSnap.position.longitude, cameraHeading, zoom);
+      if (getIt<Settings>().watchStandalone) {
+        rideAssist.sendPosition(userPosSnap.position.latitude, userPosSnap.position.longitude, cameraHeading, zoom, (userPos.speed) * 3.6);
+      }
     }
 
     await mapController?.style.styleLayerExists(userLocationLayerId).then((value) async {

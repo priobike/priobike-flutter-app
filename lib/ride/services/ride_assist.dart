@@ -109,13 +109,14 @@ class RideAssist with ChangeNotifier {
   }
 
   /// Send play output message to device.
-  void sendPosition(double lat, double lon, double bearing, double zoom) {
+  void sendPosition(double lat, double lon, double bearing, double zoom, double kmh) {
     WearableCommunicator.sendMessage({
       "updatePosition": {
         "lat": lat,
         "lon": lon,
         "bearing": bearing,
         "zoom": zoom,
+        "kmh": kmh,
       },
     });
   }
