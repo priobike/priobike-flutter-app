@@ -27,21 +27,16 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   /// The distance model.
   final vincenty = const Distance(roundResult: false);
 
-  /// The left padding.
-  double leftPad = 24;
-
-  /// If the user has scrolled.
-  bool hasScrolled = false;
-
-  /// The scroll controller.
-  late ScrollController scrollController;
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The image of the route start icon.
   ui.Image? startImage;
+
+  /// The image of the route destination icon.
   ui.Image? destinationImage;
 
+  /// The used disk space.
   String? usedDiskSpace;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -53,14 +48,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController();
-    scrollController.addListener(
-      () {
-        if (scrollController.offset > 0) {
-          hasScrolled = true;
-        }
-      },
-    );
+
     tracking = getIt<Tracking>();
     tracking.addListener(update);
 
@@ -78,8 +66,10 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
 
         await tracking.loadPreviousTracks();
 
-        // Need to be loaded after the tracks are loaded because we use them to calculate the total storage.
-        loadStorage();
+        // Needs to be loaded after the tracks are loaded because we use them to calculate the total storage.
+        await loadStorage();
+
+        setState(() {});
       },
     );
   }
@@ -87,11 +77,13 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
   Future<void> loadStorage() async {
     if (tracking.previousTracks == null) return;
 
+    // Get the bytes of the tracks in the shared preferences.
     final prefs = await SharedPreferences.getInstance();
     final json = prefs.getStringList(Tracking.tracksKey);
     final sharedPreferencesString = json?.join("");
     var bytes = utf8.encode(sharedPreferencesString ?? "").length;
 
+    // Add the bytes of the track files on the disk.
     for (final track in tracking.previousTracks!) {
       final directory = await track.trackDirectory;
       if (await directory.exists()) {
@@ -101,6 +93,7 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
       }
     }
 
+    // Format the bytes.
     if (bytes < 1000) {
       usedDiskSpace = "${bytes.toStringAsFixed(0)} Byte";
     } else if (bytes < 1000000) {
@@ -110,51 +103,20 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
     } else {
       usedDiskSpace = "${(bytes / 1000000000).toStringAsFixed(0)} GB";
     }
-
-    setState(() {});
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
     tracking.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const double shortcutRightPad = 0;
-    final shortcutWidth = (MediaQuery.of(context).size.width / 2) - shortcutRightPad;
-    final shortcutHeight = max(shortcutWidth - (shortcutRightPad * 3), 128.0);
+    final shortcutWidth = MediaQuery.of(context).size.width / 2;
+    final shortcutHeight = max(shortcutWidth, 128.0);
 
     final reversedTracks = tracking.previousTracks?.reversed.toList() ?? [];
-
-    List<Widget> views = reversedTracks
-        .map(
-          (track) => TrackHistoryItemView(
-            track: track,
-            width: shortcutWidth,
-            height: shortcutHeight,
-            rightPad: shortcutRightPad,
-            vincenty: vincenty,
-            startImage: startImage,
-            destinationImage: destinationImage,
-          ),
-        )
-        .toList();
-
-    List<Widget> animatedViews = views
-        .asMap()
-        .entries
-        .map(
-          (e) => BlendIn(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOutCubic,
-            delay: Duration(milliseconds: 200 * e.key),
-            child: e.value,
-          ),
-        )
-        .toList();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: Theme.of(context).brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -162,55 +124,67 @@ class AllTracksHistoryViewState extends State<AllTracksHistoryView> {
         body: Fade(
           child: SingleChildScrollView(
             child: SafeArea(
-              child: SingleChildScrollView(
-                controller: scrollController,
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        AppBackButton(onPressed: () => Navigator.pop(context)),
-                        const HSpace(),
-                        SubHeader(text: "Alle Fahrten", context: context),
-                      ],
-                    ),
-                    const VSpace(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      AppBackButton(onPressed: () => Navigator.pop(context)),
+                      const HSpace(),
+                      SubHeader(text: "Alle Fahrten", context: context),
+                    ],
+                  ),
+                  const VSpace(),
+                  if ((tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) &&
+                      (startImage != null && destinationImage != null))
                     HPad(
-                      child: ((tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) &&
-                              (startImage != null && destinationImage != null))
-                          ? GridView.count(
-                              shrinkWrap: true,
-                              crossAxisSpacing: 8,
-                              padding: EdgeInsets.zero,
-                              mainAxisSpacing: 0,
-                              crossAxisCount: 2,
-                              physics: const NeverScrollableScrollPhysics(),
-                              childAspectRatio: 0.85,
-                              children: animatedViews,
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        crossAxisSpacing: 8,
+                        padding: EdgeInsets.zero,
+                        mainAxisSpacing: 0,
+                        crossAxisCount: 2,
+                        physics: const NeverScrollableScrollPhysics(),
+                        childAspectRatio: 0.85,
+                        children: reversedTracks
+                            .asMap()
+                            .entries
+                            .map(
+                              (track) => BlendIn(
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOutCubic,
+                                delay: Duration(milliseconds: 200 * track.key),
+                                child: TrackHistoryItemView(
+                                  track: track.value,
+                                  width: shortcutWidth,
+                                  height: shortcutHeight,
+                                  rightPad: 0,
+                                  vincenty: vincenty,
+                                  startImage: startImage!,
+                                  destinationImage: destinationImage!,
+                                ),
+                              ),
                             )
-                          : Content(
-                              text: "Kein Fahrten vorhanden.",
-                              context: context,
-                            ),
-                    ),
-                    const VSpace(),
-                    if (usedDiskSpace != null)
-                      HPad(
-                        child: BlendIn(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOutCubic,
-                            delay: Duration(milliseconds: 200 * animatedViews.length),
-                            child: Content(
-                              text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
-                              context: context,
-                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                              textAlign: TextAlign.center,
-                            )),
+                            .toList(),
                       ),
-                    const VSpace(),
-                  ],
-                ),
+                    ),
+                  const VSpace(),
+                  if (usedDiskSpace != null)
+                    HPad(
+                      child: BlendIn(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOutCubic,
+                        delay: Duration(milliseconds: 200 * reversedTracks.length),
+                        child: Content(
+                          text: "${usedDiskSpace!} Speicher auf deinem Telefon belegt",
+                          context: context,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  const VSpace(),
+                ],
               ),
             ),
           ),

@@ -19,16 +19,26 @@ import 'package:priobike/tracking/views/route_pictrogram.dart';
 import 'package:priobike/tracking/views/track_details.dart';
 
 class TrackHistoryItemView extends StatefulWidget {
+  /// The track to display.
   final Track track;
 
+  /// The distance model.
   final Distance vincenty;
 
+  /// The width of the view.
   final double width;
+
+  /// The height of the view.
   final double height;
+
+  /// The right padding of the view.
   final double rightPad;
 
-  final ui.Image? startImage;
-  final ui.Image? destinationImage;
+  /// The image of the route start icon.
+  final ui.Image startImage;
+
+  /// The image of the route destination icon.
+  final ui.Image destinationImage;
 
   const TrackHistoryItemView(
       {Key? key,
@@ -49,7 +59,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
   /// The navigation nodes of the driven route.
   List<NavigationNode> routeNodes = [];
 
-  var expanded = false;
+  /// Whether the menu is shown.
+  var showMenu = false;
 
   @override
   void initState() {
@@ -63,25 +74,28 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
     );
   }
 
+  /// Toggles the menu.
   void toggleExpanded() {
     setState(() {
-      expanded = !expanded;
+      showMenu = !showMenu;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Parse the date.
     final day = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).day;
     final monthName = DateFormat.MMMM('de').format(DateTime.fromMillisecondsSinceEpoch(widget.track.startTime));
     final year = DateTime.fromMillisecondsSinceEpoch(widget.track.startTime).year;
 
+    // Determine the duration.
     final secondsDriven =
         widget.track.endTime != null ? (widget.track.endTime! - widget.track.startTime) ~/ 1000 : null;
-
     final trackDurationFormatted = secondsDriven != null
         ? '${(secondsDriven ~/ 60).toString().padLeft(2, '0')}:${(secondsDriven % 60).toString().padLeft(2, '0')}\nMinuten'
         : null;
 
+    // The menu.
     final Widget menu = SizedBox(
       height: 110,
       width: widget.width,
@@ -98,7 +112,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               label: "Details",
               onPressed: () => showAppSheet(
                 context: context,
-                builder: (context) => TrackDetailsDialog(track: widget.track),
+                builder: (context) => TrackDetailsDialog(
+                    track: widget.track, startImage: widget.startImage, destinationImage: widget.destinationImage),
               ),
             ),
             IconTextButton(
@@ -107,7 +122,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
               label: "Löschen",
               onPressed: () {
                 setState(() {
-                  expanded = false;
+                  showMenu = false;
                 });
                 getIt<Tracking>().deleteTrack(widget.track);
               },
@@ -125,6 +140,8 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
         shadow: const Color.fromARGB(255, 0, 0, 0),
         shadowIntensity: 0.08,
         padding: const EdgeInsets.all(4),
+        fill: Theme.of(context).colorScheme.background,
+        splash: Theme.of(context).colorScheme.primary,
         content: SizedBox(
           height: 160,
           child: Stack(
@@ -247,7 +264,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                 ),
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 400),
-                opacity: expanded ? 1 : 0,
+                opacity: showMenu ? 1 : 0,
                 curve: Curves.easeInOut,
                 child: menu,
               ),
@@ -260,7 +277,7 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
                     scale: animation,
                     child: child,
                   ),
-                  child: expanded
+                  child: showMenu
                       ? IconButton(
                           key: const ValueKey("close"),
                           onPressed: () => toggleExpanded(),
@@ -284,8 +301,6 @@ class TrackHistoryItemViewState extends State<TrackHistoryItemView> {
             ],
           ),
         ),
-        fill: Theme.of(context).colorScheme.background,
-        splash: Theme.of(context).colorScheme.primary,
       ),
     );
   }

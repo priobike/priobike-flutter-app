@@ -29,18 +29,16 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   /// The left padding.
   double leftPad = 24;
 
-  /// If the user has scrolled.
-  bool hasScrolled = false;
-
-  /// The scroll controller.
-  late ScrollController scrollController;
-
   /// The associated tracking service, which is injected by the provider.
   late Tracking tracking;
 
+  /// The list of the newest tracks.
   List<Track> newestTracks = [];
 
+  /// The image of the route start icon.
   ui.Image? startImage;
+
+  /// The image of the route destination icon.
   ui.Image? destinationImage;
 
   /// Called when a listener callback of a ChangeNotifier is fired.
@@ -69,14 +67,7 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController();
-    scrollController.addListener(
-      () {
-        if (scrollController.offset > 0) {
-          hasScrolled = true;
-        }
-      },
-    );
+
     tracking = getIt<Tracking>();
     tracking.addListener(update);
 
@@ -99,7 +90,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
 
   @override
   void dispose() {
-    scrollController.dispose();
     tracking.removeListener(update);
     super.dispose();
   }
@@ -202,7 +192,6 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
         ),
         const SmallVSpace(),
         SingleChildScrollView(
-          controller: scrollController,
           scrollDirection: Axis.horizontal,
           child: Row(children: animatedViews),
         )

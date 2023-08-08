@@ -25,9 +25,21 @@ import 'package:priobike/tracking/models/track.dart';
 import 'package:priobike/tracking/views/route_pictrogram.dart';
 
 class TrackDetailsDialog extends StatelessWidget {
+  /// The track to display.
   final Track track;
 
-  const TrackDetailsDialog({Key? key, required this.track}) : super(key: key);
+  /// The image of the start of the route.
+  final ui.Image startImage;
+
+  /// The image of the destination of the route.
+  final ui.Image destinationImage;
+
+  const TrackDetailsDialog({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +51,8 @@ class TrackDetailsDialog extends StatelessWidget {
             const VSpace(),
             TrackDetailsView(
               track: track,
+              startImage: startImage,
+              destinationImage: destinationImage,
             )
           ],
         ),
@@ -48,9 +62,21 @@ class TrackDetailsDialog extends StatelessWidget {
 }
 
 class TrackDetailsView extends StatefulWidget {
+  /// The track to display.
   final Track track;
 
-  const TrackDetailsView({Key? key, required this.track}) : super(key: key);
+  /// The image of the start of the route.
+  final ui.Image startImage;
+
+  /// The image of the destination of the route.
+  final ui.Image destinationImage;
+
+  const TrackDetailsView({
+    Key? key,
+    required this.track,
+    required this.startImage,
+    required this.destinationImage,
+  }) : super(key: key);
 
   @override
   TrackDetailsViewState createState() => TrackDetailsViewState();
@@ -60,15 +86,13 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   /// The distance model.
   final vincenty = const Distance(roundResult: false);
 
-  /// The positions of the track.
+  /// The GPS positions of the track.
   List<Position> positions = [];
 
   /// The navigation nodes of the driven route.
   List<NavigationNode> routeNodes = [];
 
-  ui.Image? startImage;
-  ui.Image? destinationImage;
-
+  /// The track summary.
   Summary? trackSummary;
 
   /// PageController.
@@ -87,16 +111,6 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
 
     SchedulerBinding.instance.addPostFrameCallback(
       (_) async {
-        ByteData startBd = await rootBundle.load("assets/images/start.drawio.png");
-        final Uint8List startBytes = Uint8List.view(startBd.buffer);
-        final ui.Codec startCodec = await ui.instantiateImageCodec(startBytes);
-        startImage = (await startCodec.getNextFrame()).image;
-
-        ByteData destinationBd = await rootBundle.load("assets/images/destination.drawio.png");
-        final Uint8List destinationBytes = Uint8List.view(destinationBd.buffer);
-        final ui.Codec destinationCodec = await ui.instantiateImageCodec(destinationBytes);
-        destinationImage = (await destinationCodec.getNextFrame()).image;
-
         await loadTrack();
       },
     );
@@ -111,12 +125,16 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   @override
   void dispose() {
     pageController.dispose();
+    tabController?.dispose();
     super.dispose();
   }
 
-  /// Display the route on the map.
+  /// Load the track.
   Future<void> loadTrack() async {
     routeNodes = getPassedNodes(widget.track.routes.values.toList(), vincenty);
+
+    // Try to load the GPS file.
+    // For old tracks where we deleted the GPS csv file after uploading the data to the tracking service this is not possible.
     try {
       final gpsFile = await widget.track.gpsCSVFile;
       final gpsFileLines = await gpsFile.readAsLines();
@@ -129,16 +147,18 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
         final lat = double.parse(lineContents[2]);
         final speed = double.parse(lineContents[3]);
         final accuracy = double.parse(lineContents[4]);
-        positions.add(Position(
-          timestamp: DateTime.fromMillisecondsSinceEpoch(time),
-          latitude: lat,
-          longitude: lon,
-          speed: speed,
-          accuracy: accuracy,
-          altitude: 0,
-          heading: 0,
-          speedAccuracy: 0,
-        ));
+        positions.add(
+          Position(
+            timestamp: DateTime.fromMillisecondsSinceEpoch(time),
+            latitude: lat,
+            longitude: lon,
+            speed: speed,
+            accuracy: accuracy,
+            altitude: 0,
+            heading: 0,
+            speedAccuracy: 0,
+          ),
+        );
       }
 
       await loadTrackSummary();
@@ -355,7 +375,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                           ),
                         ],
                       ),
-                    if (routeNodes.isNotEmpty && startImage != null && destinationImage != null)
+                    if (routeNodes.isNotEmpty)
                       Column(
                         children: [
                           const Text(
@@ -374,8 +394,8 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                               child: RoutePictogram(
                                 key: GlobalKey(),
                                 route: routeNodes,
-                                startImage: startImage,
-                                destinationImage: destinationImage,
+                                startImage: widget.startImage,
+                                destinationImage: widget.destinationImage,
                                 lineWidth: 6,
                                 iconSize: 20,
                               ),

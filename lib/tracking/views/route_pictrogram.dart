@@ -6,13 +6,19 @@ import 'package:priobike/routing/models/navigation.dart';
 
 /// A pictogram of a route.
 class RoutePictogram extends StatefulWidget {
+  /// The route consisting of navigation nodes.
   final List<NavigationNode> route;
 
+  /// The image for the start node.
   final Image? startImage;
+
+  /// The image for the destination node.
   final Image? destinationImage;
 
+  /// The width of the route line.
   final double lineWidth;
 
+  /// The size of the icons.
   final double iconSize;
 
   const RoutePictogram({
