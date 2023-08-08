@@ -28,7 +28,6 @@ class LastTrackViewState extends State<LastTrackView> with SingleTickerProviderS
   /// Called when a listener callback of a ChangeNotifier is fired.
   Future<void> update() async {
     if (tracking.previousTracks != null && tracking.previousTracks!.isNotEmpty) {
-      print("sehrehjdrjdztj");
       track = tracking.previousTracks!.last;
       setState(() {});
     }

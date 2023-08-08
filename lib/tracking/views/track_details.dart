@@ -103,10 +103,9 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
   }
 
   @override
-  void didChangeDependencies() {
-    print("segrsergserj7z");
+  void didUpdateWidget(TrackDetailsView oldWidget) {
     loadTrack();
-    super.didChangeDependencies();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -267,35 +266,38 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
       alignment: Alignment.topCenter,
       children: [
         ClipRect(
-          child: ShaderMask(
-            shaderCallback: (rect) {
-              return const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                stops: [0.0, 0.5, 0.9],
-                colors: [Colors.transparent, Colors.black, Colors.transparent],
-              ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-            },
-            blendMode: BlendMode.dstIn,
+          child: SizedBox(
+            height: 200,
             child: ShaderMask(
               shaderCallback: (rect) {
                 return const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                   stops: [0.0, 0.5, 0.9],
                   colors: [Colors.transparent, Colors.black, Colors.transparent],
                 ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
               },
               blendMode: BlendMode.dstIn,
-              child: Transform.translate(
-                offset: const Offset(-100, 100),
-                child: Transform.scale(
-                  scale: 2.5,
-                  child: Image(
-                    image: Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? const AssetImage('assets/images/map-dark.png')
-                        : const AssetImage('assets/images/map-light.png'),
-                    fit: BoxFit.cover,
+              child: ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.5, 0.9],
+                    colors: [Colors.transparent, Colors.black, Colors.transparent],
+                  ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                },
+                blendMode: BlendMode.dstIn,
+                child: Transform.translate(
+                  offset: const Offset(-100, 100),
+                  child: Transform.scale(
+                    scale: 2.5,
+                    child: Image(
+                      image: Theme.of(context).colorScheme.brightness == Brightness.dark
+                          ? const AssetImage('assets/images/map-dark.png')
+                          : const AssetImage('assets/images/map-light.png'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -345,6 +347,7 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                             height: 200,
                             width: 200,
                             child: TrackPictogram(
+                              key: GlobalKey(),
                               track: positions,
                               minSpeedColor: CI.blueLight,
                               maxSpeedColor: CI.blue,
@@ -366,12 +369,16 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                           SizedBox(
                             height: 150,
                             width: 150,
-                            child: RoutePictogram(
-                              route: routeNodes,
-                              startImage: startImage,
-                              destinationImage: destinationImage,
-                              lineWidth: 6,
-                              iconSize: 20,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: RoutePictogram(
+                                key: GlobalKey(),
+                                route: routeNodes,
+                                startImage: startImage,
+                                destinationImage: destinationImage,
+                                lineWidth: 6,
+                                iconSize: 20,
+                              ),
                             ),
                           ),
                           IconTextButton(
@@ -413,18 +420,20 @@ class TrackDetailsViewState extends State<TrackDetailsView> with TickerProviderS
                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                 textAlign: TextAlign.center,
               ),
-              const VSpace(),
-              GridView.count(
-                crossAxisSpacing: 8,
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                mainAxisSpacing: 8,
-                crossAxisCount: 2,
-                childAspectRatio: 4,
-                physics: const NeverScrollableScrollPhysics(),
-                children: rideDetails,
-              ),
-              const SmallVSpace(),
+              if (positions.isNotEmpty) ...[
+                const VSpace(),
+                GridView.count(
+                  crossAxisSpacing: 8,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  mainAxisSpacing: 8,
+                  crossAxisCount: 2,
+                  childAspectRatio: 4,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: rideDetails,
+                ),
+                const SmallVSpace(),
+              ],
             ],
           ),
         )
