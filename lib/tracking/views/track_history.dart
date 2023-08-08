@@ -117,19 +117,18 @@ class TrackHistoryViewState extends State<TrackHistoryView> {
     ];
 
     views += newestTracks
-            .map(
-              (track) => TrackHistoryItemView(
-                track: track,
-                width: shortcutWidth,
-                height: shortcutHeight,
-                rightPad: shortcutRightPad,
-                vincenty: vincenty,
-                startImage: startImage!,
-                destinationImage: destinationImage!,
-              ),
-            )
-            .toList() ??
-        [];
+        .map(
+          (track) => TrackHistoryItemView(
+            track: track,
+            width: shortcutWidth,
+            height: shortcutHeight,
+            rightPad: shortcutRightPad,
+            vincenty: vincenty,
+            startImage: startImage!,
+            destinationImage: destinationImage!,
+          ),
+        )
+        .toList();
 
     // Show a hint for the other tracks if there are more than 10.
     // We need "+ 1" because the newest track in the larger view above is not in the newestTracks list.
